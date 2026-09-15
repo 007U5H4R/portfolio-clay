@@ -18,12 +18,12 @@
  * layout in technical-plan.md §S05.02) — nudge `CLIP` if the real render frames it off-centre.
  */
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { test, expect } from "@playwright/test";
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(HERE, "../..");
+// Playwright runs from the repo root under its CommonJS transform (no "type":"module", so
+// import.meta is unavailable — S07.03). cwd is the project root, the anchor these paths need.
+const ROOT = process.cwd();
 const AVATAR_PATH = resolve(ROOT, "public/avatar/avatar.webp");
 const OUT_PATH = resolve(ROOT, "docs/screenshots/tracer/avatar-edge@2x.png");
 

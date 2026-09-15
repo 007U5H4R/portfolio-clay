@@ -13,7 +13,7 @@
     "tokens:check": "tsx scripts/tokens-check.ts",
     "media:avatar": "tsx scripts/avatar.ts",
     "media:video": "echo 'media:video not yet implemented (TKT-02)' && exit 1",
-    "eval": "echo 'eval not yet implemented (TKT-07 / S07.05)' && exit 1",
+    "eval": "dotenv -e .env.tooling -- tsx scripts/eval.ts",
     "predeploy": "echo 'predeploy not yet implemented (TKT-50)' && exit 1"
   },
   "dependencies": {
