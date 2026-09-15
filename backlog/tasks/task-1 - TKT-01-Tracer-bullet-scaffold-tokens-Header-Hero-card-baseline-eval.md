@@ -3,9 +3,10 @@ id: TASK-1
 title: >-
   TKT-01: Tracer bullet: scaffold + tokens + Header + Hero + card + baseline
   eval
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-15 13:46'
 labels:
   - P0
   - 'sp:8'

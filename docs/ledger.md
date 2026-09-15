@@ -8,6 +8,13 @@ Committed, survives context resets. The orchestrator updates this after every ta
 - Node **v26.7.0** (matches A9 pin "Node 26.7"), pnpm **11.25.0** (matches). pnpm store: `/Volumes/E Drive/Dev/.pnpm-store/v11`. E-Drive `.cache` / `.scratch` / `.pnpm-store` present.
 - PWA: Campfire, project `portfolio-clay`, onboarded Stage 6.2. Move statuses with `"/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/scripts/orchestrator/move-ticket.sh" "<root>" <TASK-id> "<status>"` (To Do / In Progress / In Review / Blocked / Done). Never hand-edit `backlog/`.
 
+## SESSION AUTHORIZATION (2026-09-15) — autonomous mandate
+Tushar is AFK and authorized: "complete all the stages of workflow and take decisions on my behalf." Therefore:
+- **Every human-in-the-loop gate becomes a recorded decision, not a stop.** The TKT-02 visual gate is decided by the orchestrator (screenshots still captured as evidence; rubric scored; call logged as EXE-1). All open content/product questions take the plan's §E defaults, each logged EXE-n.
+- **Hard stops NOT crossed autonomously (build up to them, leave turnkey):** (1) production deployment (external/irreversible); (2) creating a GitHub repo or Vercel project under Tushar's account, or buying a domain (account-scoped/cost; domain unknown); (3) publishing the resume/any PII — `resumeAvailable` stays false (PB5), which itself hard-blocks prod; (4) publishing unverified claims — build-time schema gate stays enforced, no threshold weakening.
+- Net: drive code (M-001…M-007) + Stages 8–10 + `QA-report.md` to a deploy-ready branch; stop before external resource creation / prod promotion. Leave a turnkey checklist for Tushar.
+- GateGuard hook left ON (safety); orchestrator self-answers its fact-check per file.
+
 ## Orchestration decisions (execution mechanics; not formal EXE entries)
 - **Isolation = in-place branch `m-001-tracer`** (main stays at the planning commit), NOT the sibling worktree §A10 suggests. Reason: every concrete S01.xx gate and §0.2 path target `Portfolio-clay/` directly (S01.03 scaffolds *into the existing folder*; S01.01 gate is `git -C .../Portfolio-clay`); a sibling worktree would break those paths. HANDOFF rule 2 and the Stage-7 prompt both authorize "branch `m-001-tracer`". `EXE-1` is reserved for the TKT-02 visual-gate decision per S02g.03.
 - **Subagent model tiers:** most-capable → `opus`, standard → `sonnet`, cheap → `haiku` (this harness's Agent tool takes a per-call `model`, so mixing tiers per dispatch is supported here). One fresh implementer per TSK; brief = `docs/briefs/<TSK>.md`, report = `docs/reports/<TSK>.md`.
@@ -18,7 +25,7 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 | Task | Native | Tier | Status | Report | Notes |
 |---|---|---|---|---|---|
 | Repo setup / S01.01 | — | orchestrator | ✅ done | this ledger | git init, .gitignore, README, planning commit, branch m-001-tracer |
-| TSK-01 scaffold + tokens | TASK-1 | opus | ⬜ pending | — | S01.02–S01.08 (S01.01 done by orchestrator) |
+| TSK-01 scaffold + tokens | TASK-1 | opus | ✅ done | TSK-01.md | commit db5f7be; all gates green (build "all routes static (1)", tokens 13/13, fonts self-hosted). Reviewed+accepted. |
 | TSK-02 avatar pipeline | TASK-1 | sonnet | ⬜ pending | — | S02.01–S02.04 |
 | TSK-03 clay primitives | TASK-1 | sonnet | ⬜ pending | — | S03.01–S03.06 |
 | TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ⬜ pending | — | S04.01–S04.06 |
@@ -32,6 +39,11 @@ E-1 footer "Built with curiosity." · E-6 split card-padding tokens · E-7 ClayB
 
 ## Open items (defaults applied; Tushar's calls) — do not block execution
 TeachSpark metric date (08-24) · RailCite figure policy (live-with-date) · Cubicle deploy (N/A) · domain name · sanitised resume PDF (hard-blocks TKT-53 only) · GitHub repo creation · years wording ("7+"). Full list: §E "Open items carried".
+
+## Carry-forwards (read before the named task)
+- **TSK-06 / S06.01:** `experimental.viewTransition` is GONE in Next 16.3.5 (EXE-1). VT is built into the App Router. S06.01 must still verify the React `<ViewTransition>` export name and behaviour before writing VT code (E-12), using the built-in App Router mechanism (`<Link transitionTypes>` / app-router-context), NOT the removed config flag.
+- **Stage 10 / QA-report:** accepted-risk EXE-2 (two dev-only `extract-zip` highs via `ignoreGhsas`) must appear in the accepted-risks register.
+- **Minor TSK-01 choices (report, not decisions.md):** `agentRules:false` (stops Next auto-writing AGENTS.md/CLAUDE.md), `allowBuilds.esbuild:true` (tsx/vitest), base-layer colours via `@apply`, explicit-path git staging, `*.tsbuildinfo` added to .gitignore by orchestrator.
 
 ## Log
 - 2026-09-15 — Stage 7 opened. Read HANDOFF + technical-plan §0/A9/A10/B(M-001)/C/E, verified env. Reconciled stale memory (Solution-PRD was Approved 2026-09-15; memory was pre-sign-off). Setup done. Next: dispatch TSK-01 (opus).
