@@ -26,7 +26,7 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 |---|---|---|---|---|---|
 | Repo setup / S01.01 | — | orchestrator | ✅ done | this ledger | git init, .gitignore, README, planning commit, branch m-001-tracer |
 | TSK-01 scaffold + tokens | TASK-1 | opus | ✅ done | TSK-01.md | commit db5f7be; all gates green (build "all routes static (1)", tokens 13/13, fonts self-hosted). Reviewed+accepted. |
-| TSK-02 avatar pipeline | TASK-1 | sonnet | ⬜ pending | — | S02.01–S02.04 |
+| TSK-02 avatar pipeline | TASK-1 | sonnet | ✅ done | TSK-02.md | commit 68bbb51; avatar.webp 94.7kB, alpha ok, 1450×1800. S02.02 spec authored, edge-shot deferred to TSK-07. Accepted. |
 | TSK-03 clay primitives | TASK-1 | sonnet | ⬜ pending | — | S03.01–S03.06 |
 | TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ⬜ pending | — | S04.01–S04.06 |
 | TSK-05 Hero/Avatar/Tiles | TASK-1 | opus | ⬜ pending | — | S05.01–S05.06 |
