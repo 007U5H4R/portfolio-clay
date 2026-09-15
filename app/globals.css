@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/*
+  Design tokens — verbatim from Design.md §2 (authoritative hex in DESIGN_DIRECTION.md §2).
+  The 13 oklch colour values below are Design.md's hand-computed placeholders; they are
+  regenerated exactly from the authoritative hex by scripts/tokens-check.ts (S01.06, D2).
+  Base-layer colour references use Tailwind @apply utilities (bg-bg, text-ink, outline-accent)
+  rather than raw colour-variable references, so the token set stays the single source of truth.
+*/
+@theme {
+  /* Colour — 13 tokens (hex authoritative in DESIGN_DIRECTION §2) */
+  --color-bg: oklch(0.985 0.008 293.914);
+  --color-surface: oklch(0.966 0.017 293.143);
+  --color-ink: oklch(0.231 0.089 271.893);
+  --color-ink-2: oklch(0.397 0.078 277.538);
+  --color-ink-3: oklch(0.553 0.058 279.533);
+  --color-accent: oklch(0.566 0.226 280.614);
+  --color-accent-deep: oklch(0.489 0.221 278.521);
+  --color-lavender: oklch(0.784 0.124 295.563);
+  --color-sky: oklch(0.86 0.074 244.491);
+  --color-mint: oklch(0.887 0.078 170.241);
+  --color-blush: oklch(0.845 0.09 3.396);
+  --color-peach: oklch(0.895 0.066 57.165);
+  --color-butter: oklch(0.92 0.114 92.676);
+
+  /* Typography — families mapped from next/font CSS variables (wired in app/layout.tsx, S01.07) */
+  --font-display: var(--font-manrope), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hand: var(--font-caveat), "Caveat", cursive;
+
+  /* Fluid type scale (390 → 1440 viewport range) */
+  --text-hero: clamp(2.75rem, 1.729rem + 4.19vw, 5.5rem);
+  --text-h2: clamp(2.125rem, 1.614rem + 2.1vw, 3.5rem);
+  --text-h3: clamp(1.5rem, 1.314rem + 0.76vw, 2rem);
+  --text-lead: clamp(1.1875rem, 1.118rem + 0.29vw, 1.375rem);
+  --text-body: clamp(1.0625rem, 1.039rem + 0.1vw, 1.125rem);
+  --text-caption: 0.875rem;
+
+  --tracking-hero: -0.03em;
+  --tracking-eyebrow: 0.12em;
+  --leading-hero: 1.02;
+
+  /* Spacing — base unit 8px */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 56px;
+  --space-10: 64px;
+  --space-11: 72px;
+  --space-12: 96px;
+  --space-13: 128px;
+
+  /* Section rhythm */
+  --section-gap-mobile: var(--space-11);
+  --section-gap-tablet: var(--space-12);
+  --section-gap-desktop: var(--space-13);
+
+  /* Container + gutters */
+  --container-max: 1200px;
+  --container-max-wide: 1320px;
+  --gutter-mobile: var(--space-5);
+  --gutter-tablet: var(--space-7);
+  --gutter-desktop: var(--space-10);
+
+  /* Card padding — Design.md's "40px to 56px" range split into two valid tokens (E-6) */
+  --card-padding: var(--space-7);
+  --card-padding-hero: var(--space-9);
+
+  /* Radius */
+  --radius-clay: 28px;
+  --radius-clay-sm: 20px;
+  --radius-pill: 999px;
+  --radius-utility: 14px;
+
+  /* Shadows — the three clay states + utility + volume gradient (verbatim DESIGN_DIRECTION §5) */
+  --shadow-clay-rest: 0 16px 35px rgba(16, 22, 70, 0.1), 0 5px 10px rgba(16, 22, 70, 0.06), inset 0 2px 3px rgba(255, 255, 255, 0.85), inset 0 -3px 6px rgba(16, 22, 70, 0.05);
+  --shadow-clay-hover: 0 22px 44px rgba(16, 22, 70, 0.14), 0 8px 14px rgba(16, 22, 70, 0.08), inset 0 2px 3px rgba(255, 255, 255, 0.85), inset 0 -3px 6px rgba(16, 22, 70, 0.05);
+  --shadow-clay-press: 0 6px 14px rgba(16, 22, 70, 0.1), 0 2px 4px rgba(16, 22, 70, 0.06), inset 0 3px 6px rgba(16, 22, 70, 0.08);
+  --shadow-utility: 0 2px 6px rgba(16, 22, 70, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  --gradient-clay-volume: linear-gradient(160deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0) 55%);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    font-family: var(--font-display);
+    @apply bg-bg text-ink;
+  }
+
+  /* Shared visible focus ring — 3px accent, 3px offset (Design.md §2, EVAL-007) */
+  .focus-ring:focus-visible {
+    outline-width: 3px;
+    outline-style: solid;
+    outline-offset: 3px;
+    @apply outline-accent;
+  }
+}
+
+/* View Transitions default timing (A5 / Design.md §4) */
+::view-transition-group(*) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Motion: reduced-motion collapses every transition/animation to ~instant (A6) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

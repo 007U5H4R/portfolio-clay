@@ -1,0 +1,19 @@
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false
+minimumReleaseAgeExclude:
+  - framer-motion@13.3.0
+  - motion-dom@13.3.0
+  - motion-utils@13.3.0
+  - motion@13.3.0
+# Real fix: force `tmp` to the patched line (GHSA-ph9p-34f9-6g65, via @lhci/cli>inquirer).
+overrides:
+  tmp: ">=0.2.6"
+# Accepted, unpatchable, dev-only: two `extract-zip` advisories reachable only through
+# @lhci/cli>lighthouse>puppeteer-core (Lighthouse CI tooling — never shipped to runtime).
+# npm advisory DB lists no patched version for either, so they cannot be overridden away.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-jmr9-qjv8-65gv
+    - GHSA-7pqw-9j4j-h8q3
