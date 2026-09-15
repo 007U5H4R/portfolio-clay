@@ -30,7 +30,7 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 | TSK-02 avatar pipeline | TASK-1 | sonnet | ✅ done | TSK-02.md | commit 68bbb51; avatar.webp 94.7kB, alpha ok, 1450×1800. S02.02 spec authored, edge-shot deferred to TSK-07. Accepted. |
 | TSK-03 clay primitives | TASK-1 | sonnet | ✅ done | TSK-03.md | commit 61ab50d; 35 tests, D1 proof ×2, /dev/primitives 200-dev/404-prod. Accepted. Surfaced ease-token gap → orchestrator fix EXE-3. ClayTileSize widened +40 (additive). |
 | TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ✅ done | TSK-04.md | commit 43927c0; 39 tests; easings synced to EXE-3; nav=Home·Work·Thinking·About. Accepted. Devs: useSyncExternalStore hooks, matchMedia-direct reduced-motion, TP mark=ClayTile40. |
-| TSK-05 Hero/Avatar/Tiles | TASK-1 | opus | ⬜ pending | — | S05.01–S05.06 |
+| TSK-05 Hero/Avatar/Tiles | TASK-1 | opus | ✅ done | TSK-05.md | commit 486f677; build static(4), 41 tests. Accepted. Fixed breakpoint (EXE-4). DRAFT copy: eyebrow/headline/support (ship DRAFT-labelled, list for Tushar). |
 | TSK-06 ProjectCard/VT | TASK-1 | opus | ⬜ pending | — | S06.01–S06.05 (S06.01 = VT export breaker check) |
 | TSK-07 shots + eval + baseline | TASK-1 | opus | ⬜ pending | — | S07.01–S07.07 → baseline-v1.json |
 | TKT-02 visual gate | TASK-2 | Tushar | ⬜ pending | gate-tracer.md | STOP: screenshots 390/768/1024/1440 + 6-item checklist |
@@ -42,6 +42,8 @@ E-1 footer "Built with curiosity." · E-6 split card-padding tokens · E-7 ClayB
 TeachSpark metric date (08-24) · RailCite figure policy (live-with-date) · Cubicle deploy (N/A) · domain name · sanitised resume PDF (hard-blocks TKT-53 only) · GitHub repo creation · years wording ("7+"). Full list: §E "Open items carried".
 
 ## Carry-forwards (read before the named task)
+- **TSK-07 gates:** (a) LCP hint check must be `grep -ic 'fetchpriority="high"'` (≥2: img + preload) — React 19 serialises `fetchPriority` camelCase, so the plan's `grep -c` returns 0 (false negative). (b) Colour-token invariant = `pnpm tokens:check` (13/13) or `grep -cE '^\s*--color-[a-z0-9-]+:'` (13); the crude `grep -c '--color-'` is polluted by var() refs (EXE-4 note). (c) At w1440 the hero frame is now 520 (EXE-4 breakpoint fix).
+- **DRAFT copy for Tushar (M-001 gate):** hero eyebrow triad, headline, support line are DRAFT (shipped DRAFT-labelled per plan default). Tagline + 3 tile one-liners are VERIFIED.
 - **TSK-04 / S04.01:** `lib/motion.ts` `easings` object MUST equal the CSS `--ease-*` values just added to globals.css (EXE-3): hover=`cubic-bezier(0.23,1,0.32,1)`, reveal=`cubic-bezier(.2,.7,.2,1)`, panel=`cubic-bezier(0.32,0.72,0,1)`, vt=`cubic-bezier(.77,0,.175,1)`. JS/CSS duplication kept in sync.
 - **TSK-06 / S06.01:** `experimental.viewTransition` is GONE in Next 16.3.5 (EXE-1). VT is built into the App Router. S06.01 must still verify the React `<ViewTransition>` export name and behaviour before writing VT code (E-12), using the built-in App Router mechanism (`<Link transitionTypes>` / app-router-context), NOT the removed config flag.
 - **Stage 10 / QA-report:** accepted-risk EXE-2 (two dev-only `extract-zip` highs via `ignoreGhsas`) must appear in the accepted-risks register.

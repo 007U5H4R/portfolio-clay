@@ -66,6 +66,11 @@
   --gutter-tablet: var(--space-7);
   --gutter-desktop: var(--space-10);
 
+  /* Breakpoint override (EXE-4): the plan uses `2xl:` throughout to mean ">=1440" (hero frame
+     520px, container-max-wide, hero gap). Tailwind's default 2xl is 1536, so those styles would
+     miss the 1440 viewport the Playwright w1440 project tests. Align 2xl with the plan's intent. */
+  --breakpoint-2xl: 1440px;
+
   /* Card padding — Design.md's "40px to 56px" range split into two valid tokens (E-6) */
   --card-padding: var(--space-7);
   --card-padding-hero: var(--space-9);
