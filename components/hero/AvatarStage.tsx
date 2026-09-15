@@ -24,7 +24,7 @@ const AVATAR_SIZES =
  */
 export function AvatarStage() {
   return (
-    <div className="relative mx-auto w-[280px] md:w-[360px] lg:w-[480px] 2xl:w-[520px]">
+    <div className="relative mx-auto w-full max-w-[280px] md:max-w-[360px] lg:max-w-[480px] 2xl:max-w-[520px]">
       <Parallax depth={-1} maxPx={6}>
         <ClayFrame ratio="4/5" tier="hero" tone="sky" tone2="lavender">
           <Image

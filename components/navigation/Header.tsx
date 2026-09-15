@@ -26,13 +26,21 @@ export function Header() {
   return (
     <header
       data-compact={isCompact ? "" : undefined}
-      className="sticky top-0 z-40 py-7 transition-[padding,background-color,backdrop-filter] duration-[250ms] ease-in-out motion-reduce:transition-none data-[compact]:bg-bg/80 data-[compact]:py-3.5 data-[compact]:backdrop-blur-[12px]"
-      style={{ paddingTop: "env(safe-area-inset-top)" }}
+      // 26px/12px (not the Tailwind py-7/py-3.5 tokens) are the vertical paddings that actually
+      // land on the Design.md-specified 96px/68px header heights: the row's real content height
+      // is 44px — set by the nav links' `min-h-11` Fitts's-Law target (Design.md §3 "≥44×44 hit
+      // area"), which is taller than the 40px logo mark the 28px/14px paddings were sized against
+      // (F4, docs/reports/TSK-07.md) — so 44 + 2×26 = 96 and 44 + 2×12 = 68 exactly. `--header-py`
+      // is a CSS custom property (not a JS-computed inline style keyed off `isCompact`) so the
+      // React-owned `data-compact` attribute only ever flips a class — see docs/reports/TKT-01-fix.md
+      // (F6) for why a JS-computed value here is best avoided on this element.
+      className="sticky top-0 z-40 py-[26px] [--header-py:26px] transition-[padding,background-color,backdrop-filter] duration-[250ms] ease-in-out motion-reduce:transition-none data-[compact]:bg-bg/80 data-[compact]:py-3 data-[compact]:[--header-py:12px] data-[compact]:backdrop-blur-[12px]"
+      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + var(--header-py))" }}
     >
       <Container className="flex items-center justify-between gap-4">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-[var(--radius-utility)] focus-ring"
+          className="flex min-h-11 items-center gap-3 rounded-[var(--radius-utility)] focus-ring"
         >
           <ClayTile size={40} tier="utility">
             <span className="text-[13px] font-semibold text-ink" aria-hidden="true">
