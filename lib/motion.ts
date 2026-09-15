@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
 /**
  * A6 motion constants (technical-plan.md §A6, decision TP6) — the single source of truth for
@@ -98,15 +98,35 @@ export function usePointerFine(): boolean {
  */
 
 /**
- * True once the page has scrolled past `threshold` px — drives `Header`'s rest→compact state
- * (S04.03). Passive scroll listener + rAF-throttled so it never blocks the scroll thread; the
- * rAF callback only notifies the store (`onChange`) — React itself re-reads `getSnapshot`.
+ * True once the page has scrolled past `enterThreshold` px, staying true until it scrolls back
+ * above `exitThreshold` px — a Schmitt-trigger (hysteresis) that drives `Header`'s rest→compact
+ * state (S04.03). Passive scroll listener + rAF-throttled so it never blocks the scroll thread;
+ * the rAF callback only notifies the store (`onChange`) — React itself re-reads `getSnapshot`.
+ *
+ * The hysteresis is **load-bearing, not a nicety** (F6, docs/reports/F6-debug.md). The consumer
+ * (`Header`) is a `sticky` in-flow element whose height shrinks by `Δ` px (96→68 = 28px) when this
+ * returns true, which reduces the document's scrollable height by `Δ`, which clamps `window.scrollY`
+ * down by up to `Δ`. On a page whose scroll range straddles a *single* threshold (the tracer
+ * case-study page at w768 has a 41px range against the old 24px threshold), the toggle keeps
+ * flipping the value that produced it — an infinite render loop (React #185, "Maximum update
+ * depth exceeded"). A loop is possible iff `enterThreshold - exitThreshold < Δ`; keeping the band
+ * (`enterThreshold - exitThreshold`) **≥ the header height delta** makes it provably impossible:
+ * once compacted, the clamped `scrollY` lands inside the dead band and the state latches.
  */
-export function useScrollY(threshold: number): boolean {
+export function useScrollY(enterThreshold: number, exitThreshold: number): boolean {
+  // Latched state survives across renders so the dead band can hold the value steady. Reading it
+  // in getSnapshot is idempotent: with an unchanged scrollY, repeated calls return the same value
+  // (required — React re-reads getSnapshot after commit to detect tearing).
+  const latched = useRef(false);
+
   const getSnapshot = useCallback(() => {
     if (typeof window === "undefined") return false;
-    return window.scrollY > threshold;
-  }, [threshold]);
+    const y = window.scrollY;
+    if (y > enterThreshold) latched.current = true;
+    else if (y < exitThreshold) latched.current = false;
+    // Between the two thresholds, hold the current state (the hysteresis dead band).
+    return latched.current;
+  }, [enterThreshold, exitThreshold]);
 
   const getServerSnapshot = useCallback(() => false, []);
 

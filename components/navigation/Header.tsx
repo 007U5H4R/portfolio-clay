@@ -11,17 +11,23 @@ import { NavPill } from "./NavPill";
 import { AskAIButton } from "./AskAIButton";
 import { MobileMenu } from "./MobileMenu";
 
-const COMPACT_THRESHOLD = 24;
+// Hysteresis (Schmitt-trigger) thresholds for the rest→compact toggle. The band between them
+// (COMPACT_ENTER − COMPACT_EXIT = 32px) MUST stay ≥ the 28px header height delta (96px rest −
+// 68px compact); a narrower band lets the compaction's own layout change re-trigger the toggle in
+// an infinite loop on short pages whose scroll range straddles the threshold (F6 — React #185;
+// see lib/motion.ts useScrollY and docs/reports/F6-debug.md).
+const COMPACT_ENTER = 40;
+const COMPACT_EXIT = 8;
 
 /**
  * Sticky header shell + rest→compact scroll compaction (technical-plan.md §B S04.03,
  * Design.md §3): 96px padded rest state collapses to 68px with a 12px backdrop blur + 80% `bg`
- * fill once the page scrolls past `COMPACT_THRESHOLD`. `data-compact` (not a class toggle on
+ * fill once the page scrolls past `COMPACT_ENTER`. `data-compact` (not a class toggle on
  * the component) drives the transition so the CSS owns the timing curve in one place.
  */
 export function Header() {
   const pathname = usePathname();
-  const isCompact = useScrollY(COMPACT_THRESHOLD);
+  const isCompact = useScrollY(COMPACT_ENTER, COMPACT_EXIT);
 
   return (
     <header

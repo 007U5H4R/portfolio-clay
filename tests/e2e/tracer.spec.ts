@@ -149,6 +149,43 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
 });
 
 // ---------------------------------------------------------------------------
+// EVAL-015 — F6 regression: client-side nav must not trip a header-compaction update loop.
+//
+// At w768 the case-study page's scroll range (41px) straddled the old single 24px compaction
+// threshold: compacting shrank the sticky header 28px, which clamped scrollY back under the
+// threshold, which un-compacted it — an infinite render loop (React #185 "Maximum update depth
+// exceeded"), rendered as Next's default error page instead of the case study. Only reproduced in
+// the production build, at w768, under reduced motion. The fix is hysteresis on useScrollY
+// (lib/motion.ts) — see docs/reports/F6-debug.md. This asserts the navigation raises NO page error
+// and lands on the real case study, at every width, so the loop cannot silently return.
+// ---------------------------------------------------------------------------
+test("F6: card -> case study nav does not trip a render loop (React #185)", { tag: "@EVAL-015" }, async ({
+  page,
+  noViewTransitions,
+  withReducedMotion,
+}) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (err) => pageErrors.push(err.message));
+
+  await noViewTransitions(page);
+  await withReducedMotion(page);
+  await page.goto("/", { waitUntil: "load" });
+
+  await page.locator('a[href="/work/teachspark"]').click();
+  await page.waitForURL("**/work/teachspark");
+
+  // The real case study renders (not Next's "This page couldn't load" error boundary)...
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  // ...and no update-depth / render loop was thrown during the navigation.
+  const loopErrors = pageErrors.filter(
+    (m) => m.includes("Maximum update depth") || m.includes("#185"),
+  );
+  expect(loopErrors, `render-loop errors during nav:\n${JSON.stringify(pageErrors, null, 2)}`).toEqual(
+    [],
+  );
+});
+
+// ---------------------------------------------------------------------------
 // EVAL-015 — static HTML content survives with JavaScript disabled
 // ---------------------------------------------------------------------------
 test("static HTML carries content and navigation with JS disabled", { tag: "@EVAL-015" }, async ({
