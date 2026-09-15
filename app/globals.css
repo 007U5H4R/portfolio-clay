@@ -109,6 +109,30 @@
   }
 }
 
+/*
+  Hero headline accent + one-time reveal wash (S05.04 / Design.md §3–§4). "AI-native products"
+  renders as the accent word with a lavender sweep that washes in once on first view over 700ms
+  and holds (`forwards`). Uses only existing colour tokens (--color-accent, --color-lavender) —
+  the --color- token count stays at 13. Removed entirely under reduced motion (decorative).
+*/
+.hero-highlight {
+  color: var(--color-accent);
+  background-image: linear-gradient(90deg, transparent 50%, var(--color-lavender) 50%);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  padding-inline: 0.08em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: wash 700ms var(--ease-reveal) forwards;
+}
+
+@keyframes wash {
+  to {
+    background-position: 0 0;
+  }
+}
+
 /* View Transitions default timing (A5 / Design.md §4) */
 ::view-transition-group(*) {
   animation-duration: 450ms;
@@ -128,5 +152,12 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+
+  /* The hero wash is decorative — remove it entirely (no animation, no sweep); the accent word
+     still reads as accent-coloured text (S05.04 gate: animation-name resolves to none). */
+  .hero-highlight {
+    animation-name: none;
+    background-image: none;
   }
 }
