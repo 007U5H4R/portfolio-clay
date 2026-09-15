@@ -32,7 +32,9 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 | TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ✅ done | TSK-04.md | commit 43927c0; 39 tests; easings synced to EXE-3; nav=Home·Work·Thinking·About. Accepted. Devs: useSyncExternalStore hooks, matchMedia-direct reduced-motion, TP mark=ClayTile40. |
 | TSK-05 Hero/Avatar/Tiles | TASK-1 | opus | ✅ done | TSK-05.md | commit 486f677; build static(4), 41 tests. Accepted. Fixed breakpoint (EXE-4). DRAFT copy: eyebrow/headline/support (ship DRAFT-labelled, list for Tushar). |
 | TSK-06 ProjectCard/VT | TASK-1 | opus | ✅ done | TSK-06.md | commit 3bb9540; A14 fallback (EXE-5); 48 tests, static(5), /work/teachspark 200 /nope 404, tokens 13/13. VT hooks dormant (plain nav — browser won't fire morph without React VT). Accepted. |
-| TSK-07 shots + eval + baseline | TASK-1 | opus | ⬜ pending | — | S07.01–S07.07 → baseline-v1.json |
+| TSK-07 shots + eval + baseline | TASK-1 | opus | ✅ done | TSK-07.md | commits 212cae4+8ac938b; Chromium on E-Drive (df unchanged), baseline-v1.json (schema 1, 17 cases). EVAL-006/010/015 PASS, 004 PASS(info). **EVAL-008 FAIL** (F1 overflow@1024, F2 logo 40px), F3/F4 design deviations, F5 perf info. Avatar edge: no halo. |
+| TKT-01 fix wave (F1/F2/F4) | TASK-1 | sonnet | ✅ done | TKT-01-fix | commit a477b03; EVAL-008 FAIL→PASS (0 overflow, 0 sub-44), header 96/68 exact, avatar responsive caps. Screenshots regenerated. But surfaced F6. |
+| TKT-01 fix wave 2 (F6) | TASK-1 | opus | 🔄 in progress | F6-debug | **F6 (P1):** prod-only React #185 infinite-loop on nav /→/work/teachspark @w768 reduced-motion; suspect useScrollY↔header-compaction layout-feedback oscillation. Debugging w/ systematic-debugging + regression test. Visual gate BLOCKED until fixed. |
 | TKT-02 visual gate | TASK-2 | Tushar | ⬜ pending | gate-tracer.md | STOP: screenshots 390/768/1024/1440 + 6-item checklist |
 
 ## Conflicts already resolved (§E — read before TKT-01)
