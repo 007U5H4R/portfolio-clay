@@ -9,3 +9,9 @@ Chosen candidate → copied to ../avatar-source.png after Tushar's pick (decisio
 ## 2026-09-15 — cutout
 - `../avatar-source.png` = standing-D (chosen, decision D5).
 - `../avatar-cutout.png` = transparent PNG 1856×2304, produced locally with macOS Vision (`/Volumes/E Drive/Dev/.scratch/portfolio-clay/rembg.swift`, zero credits). Faint lavender edge fringe remains — invisible on lavender/sky clay frame; erode 1 px if it shows. WebP/AVIF exports + 2× poster happen in the avatar asset ticket.
+
+## 2026-09-15 — avatar asset export (S02.01, TSK-02)
+- Source: `../avatar-cutout.png` (unchanged, sha256 `0dcb088fe8b25c037bef3639cc939c027b86efdb3f489a22689cec91d1c7e4b2`).
+- Script: `scripts/avatar.ts` v1 (this commit), sharp `0.35.4`.
+- Outputs → `public/avatar/`: `avatar.webp` (1450×1800, quality 82, 94680 bytes), `avatar@2x.webp` (1856×2304, quality 80, 122444 bytes), `avatar-poster.webp` (1200×1500, flattened on `#FAF9FF`, 32162 bytes), `avatar-blur.txt` (16px base64 blurDataURL, 415 bytes).
+- No paid tool calls — background removal already existed (S4 spend rule respected).

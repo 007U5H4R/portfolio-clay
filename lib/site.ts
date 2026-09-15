@@ -15,6 +15,8 @@ export const site = {
   github: "https://github.com/007U5H4R",
   priorSite: "https://tushar-pathak.vercel.app/",
   resumeAvailable: false as boolean,
+  /** The only place this alt string lives (EVAL-013 alt rule) — every avatar <img> derives it from here. */
+  avatarAlt: "Clay illustration of Tushar Pathak at a laptop",
 };
 
 export interface ResumeAction {
