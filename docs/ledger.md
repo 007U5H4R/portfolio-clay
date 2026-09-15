@@ -14,6 +14,7 @@ Tushar is AFK and authorized: "complete all the stages of workflow and take deci
 - **Hard stops NOT crossed autonomously (build up to them, leave turnkey):** (1) production deployment (external/irreversible); (2) creating a GitHub repo or Vercel project under Tushar's account, or buying a domain (account-scoped/cost; domain unknown); (3) publishing the resume/any PII — `resumeAvailable` stays false (PB5), which itself hard-blocks prod; (4) publishing unverified claims — build-time schema gate stays enforced, no threshold weakening.
 - Net: drive code (M-001…M-007) + Stages 8–10 + `QA-report.md` to a deploy-ready branch; stop before external resource creation / prod promotion. Leave a turnkey checklist for Tushar.
 - GateGuard hook left ON (safety); orchestrator self-answers its fact-check per file.
+- **Reporting cadence (Tushar's request):** post a self-contained summary to Tushar at each MILESTONE boundary (M-001…M-007) and each major stage gate (8 Design Critique, 9 Code/Test, 10 Security, 11 Deploy), plus any hard blocker or decision awaiting him. Not per-task.
 
 ## Orchestration decisions (execution mechanics; not formal EXE entries)
 - **Isolation = in-place branch `m-001-tracer`** (main stays at the planning commit), NOT the sibling worktree §A10 suggests. Reason: every concrete S01.xx gate and §0.2 path target `Portfolio-clay/` directly (S01.03 scaffolds *into the existing folder*; S01.01 gate is `git -C .../Portfolio-clay`); a sibling worktree would break those paths. HANDOFF rule 2 and the Stage-7 prompt both authorize "branch `m-001-tracer`". `EXE-1` is reserved for the TKT-02 visual-gate decision per S02g.03.
@@ -28,7 +29,7 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 | TSK-01 scaffold + tokens | TASK-1 | opus | ✅ done | TSK-01.md | commit db5f7be; all gates green (build "all routes static (1)", tokens 13/13, fonts self-hosted). Reviewed+accepted. |
 | TSK-02 avatar pipeline | TASK-1 | sonnet | ✅ done | TSK-02.md | commit 68bbb51; avatar.webp 94.7kB, alpha ok, 1450×1800. S02.02 spec authored, edge-shot deferred to TSK-07. Accepted. |
 | TSK-03 clay primitives | TASK-1 | sonnet | ✅ done | TSK-03.md | commit 61ab50d; 35 tests, D1 proof ×2, /dev/primitives 200-dev/404-prod. Accepted. Surfaced ease-token gap → orchestrator fix EXE-3. ClayTileSize widened +40 (additive). |
-| TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ⬜ pending | — | S04.01–S04.06 |
+| TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ✅ done | TSK-04.md | commit 43927c0; 39 tests; easings synced to EXE-3; nav=Home·Work·Thinking·About. Accepted. Devs: useSyncExternalStore hooks, matchMedia-direct reduced-motion, TP mark=ClayTile40. |
 | TSK-05 Hero/Avatar/Tiles | TASK-1 | opus | ⬜ pending | — | S05.01–S05.06 |
 | TSK-06 ProjectCard/VT | TASK-1 | opus | ⬜ pending | — | S06.01–S06.05 (S06.01 = VT export breaker check) |
 | TSK-07 shots + eval + baseline | TASK-1 | opus | ⬜ pending | — | S07.01–S07.07 → baseline-v1.json |
