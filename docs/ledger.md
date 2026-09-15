@@ -31,7 +31,7 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 | TSK-03 clay primitives | TASK-1 | sonnet | ✅ done | TSK-03.md | commit 61ab50d; 35 tests, D1 proof ×2, /dev/primitives 200-dev/404-prod. Accepted. Surfaced ease-token gap → orchestrator fix EXE-3. ClayTileSize widened +40 (additive). |
 | TSK-04 Header/Nav/Mobile | TASK-1 | sonnet | ✅ done | TSK-04.md | commit 43927c0; 39 tests; easings synced to EXE-3; nav=Home·Work·Thinking·About. Accepted. Devs: useSyncExternalStore hooks, matchMedia-direct reduced-motion, TP mark=ClayTile40. |
 | TSK-05 Hero/Avatar/Tiles | TASK-1 | opus | ✅ done | TSK-05.md | commit 486f677; build static(4), 41 tests. Accepted. Fixed breakpoint (EXE-4). DRAFT copy: eyebrow/headline/support (ship DRAFT-labelled, list for Tushar). |
-| TSK-06 ProjectCard/VT | TASK-1 | opus | ⬜ pending | — | S06.01–S06.05 (S06.01 = VT export breaker check) |
+| TSK-06 ProjectCard/VT | TASK-1 | opus | 🔄 in progress | TSK-06.md | S06.01 BREAKER fired: stable React 19.2.8 has no ViewTransition export. Decided EXE-5 = A14 fallback (plain next/link + CSS-only VT hooks; React stays pinned). Resumed same agent on Option 1. |
 | TSK-07 shots + eval + baseline | TASK-1 | opus | ⬜ pending | — | S07.01–S07.07 → baseline-v1.json |
 | TKT-02 visual gate | TASK-2 | Tushar | ⬜ pending | gate-tracer.md | STOP: screenshots 390/768/1024/1440 + 6-item checklist |
 
