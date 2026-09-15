@@ -87,6 +87,17 @@ export function usePointerFine(): boolean {
 }
 
 /**
+ * View-Transition export — intentionally ABSENT (decision EXE-5). A5 planned a single
+ * `export { unstable_ViewTransition as ViewTransition } from "react"` here so a shared-element
+ * morph had one re-export point. The S06.01 breaker confirmed stable React 19.2.8 (pinned) ships
+ * no such export and no `react/experimental` entry, so there is nothing to re-export. TSK-06 took
+ * the A14 row-1 fallback: `ViewTransitionLink` wraps plain `next/link` and the morph is driven by
+ * CSS `view-transition-name` hooks + the `globals.css` VT rules (a browser-native progressive
+ * enhancement), with no React-orchestrated transition. If a stable React VT component later ships,
+ * re-introduce the re-export here and swap `ViewTransitionLink`'s fallback for it in one place.
+ */
+
+/**
  * True once the page has scrolled past `threshold` px — drives `Header`'s rest→compact state
  * (S04.03). Passive scroll listener + rAF-throttled so it never blocks the scroll thread; the
  * rAF callback only notifies the store (`onChange`) — React itself re-reads `getSnapshot`.

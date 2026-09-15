@@ -1,5 +1,7 @@
 import { Hero } from "@/components/hero/Hero";
 import { Container } from "@/components/layout/Container";
+import { ProjectCard } from "@/components/projects/ProjectCard";
+import { teachspark } from "@/data/tracer";
 
 export default function Home() {
   return (
@@ -7,13 +9,16 @@ export default function Home() {
       <Hero />
 
       {/*
-        FeaturedWork placeholder — the tracer renders a single card here, built from `ProjectCard`
-        (TSK-06) and fed real data in TKT-12. Until TSK-06 merges this stays a clearly-marked
-        placeholder so the home page composes end-to-end.
+        FeaturedWork (tracer): a single real `ProjectCard` (TeachSpark) so the home → case-study
+        path runs end-to-end. The full three-card grid + real content for all cards lands in TKT-12;
+        the lone card is width-capped so it reads as intentional until then.
       */}
-      <Container as="section" className="pb-24" aria-label="Featured work (placeholder)">
-        <div className="rounded-[var(--radius-clay)] border border-dashed border-ink/15 p-8 text-[length:var(--text-lead)] text-ink-3">
-          Featured work — coming in this build
+      <Container as="section" className="pb-24" aria-labelledby="featured-work-heading">
+        <h2 id="featured-work-heading" className="sr-only">
+          Featured work
+        </h2>
+        <div className="max-w-[26rem]">
+          <ProjectCard project={teachspark} mode="featured" />
         </div>
       </Container>
     </>
