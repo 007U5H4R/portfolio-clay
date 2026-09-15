@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Manrope, Caveat } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
+import { SkipLink } from "@/components/layout/SkipLink";
+import { Header } from "@/components/navigation/Header";
 
 // Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com).
 // The CSS variables are mapped into @theme's --font-display / --font-hand in globals.css.
@@ -34,6 +36,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${manrope.variable} ${caveat.variable}`}>
       <body>
+        <SkipLink />
+        <Header />
         <main id="main">{children}</main>
       </body>
     </html>
