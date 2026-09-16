@@ -1,9 +1,10 @@
 ---
 id: TASK-8
 title: 'TKT-08: Sanitised resume PDF + PII gate'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 08:17'
 labels:
   - P0
   - 'sp:1'
