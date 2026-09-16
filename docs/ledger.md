@@ -53,7 +53,18 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | M-002 fix-wave (EXE-7 + TKT-08) | TASK-8+ | sonnet | ✅ done | commits f6268df (EXE-7: tile copy 14px, subtitle+TP `data-micro-label`, /contact ClayButton ≥44, eval-008 44-pass) + 0f9c301 (TKT-08 resume-pii test infra, skips, verified both ways, no PDF/PII). tokens 13/13. Accepted. TASK-8 → Blocked (needs Tushar's PDF). |
 | M-002 QA-tester gate | — | sonnet | ✅ PASS-w/-accepted-risks | commit cac9f54; suite green (unit 117, e2e 105+20); TC 21 PASS/3 BLOCKED (CI-remote, 2 resume-PDF)/0 FAIL; gate-critical evals 006/007/008/010/013/016/017 PASS; EVAL-005 informational. No real defects. |
 
-**✅ M-002 COMPLETE — merged to main (0fc1041) 2026-09-16.** Next: Phase 3 = M-003 (Home complete): TKT-09 Ask knowledge/adapter → TKT-10 Ask inline → TKT-11 AskPanel · {TKT-12 FeaturedWork real data, TKT-13 HowIThink} ∥ → TKT-14 (FinalCTA + home assembly + eval-001 5-second test). **M-003 = the EXE-6 hero-balance revisit** (TKT-12 fills the sparse hero; judge grid ratio then). Branch `m-003-home` from main.
+**✅ M-002 COMPLETE — merged to main (0fc1041) 2026-09-16.**
+
+## Phase 3 = M-003 · Home complete (branch `m-003-home` from main)
+**Runs SEQUENTIALLY** — every M-003 ticket runs Playwright e2e (dev server :3000), so parallel agents collide on the port; fan-out is deferred to M-005 (ffmpeg media, no server). Order: TKT-09 → TKT-10 → TKT-11 · TKT-12 · TKT-13 → TKT-14. **M-003 = the EXE-6 hero-balance revisit** (TKT-12 real FeaturedWork fills the sparse hero; judge grid ratio at TKT-14's 5-second test).
+| Ticket | Native | Tier | Status | Notes |
+|---|---|---|---|---|
+| TKT-09 Ask knowledge+adapter | TASK-9 | opus | ✅ done | commit 669918c; 11/11 prompts, 0 fabricated, EVAL-012/013 pass. Added ALL_PROJECT_SLUGS to lib/anchors (cross-link gate for railcite/velora pre-TKT-12). Carry: anchors.test.ts dedup ALL_PROJECT_SLUGS later. |
+| TKT-10 Ask inline UI | TASK-10 | opus | 🔄 next | components/ai/{AskProvider,AskPortfolio,AnswerView,SuggestedPrompts,EvidenceLinks}, app/dev/ask, EVAL-007/012 |
+| TKT-11 AskPanel | TASK-11 | opus | ⬜ | AskPanel + focus trap, wires real AskAIButton (removes tracer disabled state + crawler allowlist entry) |
+| TKT-12 FeaturedWork real data | TASK-12 | opus | ⬜ | data/projects.ts +railcite/velora (projects:3), FeaturedWork, ProjectCard grid-ready; fills hero |
+| TKT-13 HowIThink | TASK-13 | sonnet | ⬜ | data/thinking-framework, lib/stages, components/home/HowIThink |
+| TKT-14 home assembly + 5-sec test | TASK-14 | opus | ⬜ | FinalCTA, CopyButton behaviour, app/page.tsx final, eval-001 pack, EXE-6 hero-balance ruling |
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)
 - **(a) caption 12–13px vs 14px token:** decide overline exception (uppercase tracked eyebrows/monogram/tile LABELS ok <14px, like the WCAG-2.5.8 inline-link precedent) vs real bug — CHECK whether the 12–13px is a label/overline (exception) or the tile ONE-LINER content (must be ≥14px → fix in TKT-04/05). Record as EXE + encode in eval-008 spec.
