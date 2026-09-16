@@ -16,7 +16,7 @@ export function FloatingTiles({ tiles }: FloatingTilesProps) {
   return (
     <ul className="flex list-none flex-col gap-4 lg:flex-row lg:items-start lg:gap-5">
       {tiles.map((tile, i) => (
-        <li key={tile.label} className="lg:flex-1">
+        <li key={tile.label} className="lg:min-w-0 lg:flex-1">
           <Parallax depth={DEPTH[i] ?? 1} maxPx={6 * (DEPTH[i] ?? 1)} className={OFFSET_CLASS[i] ?? ""}>
             {/* ClayTile is nominally 180px wide; `!h-auto aspect-[9/7]` relaxes its square default
                 to the ~180×140 hero-tile shape (Design.md §3) while letting the sourced copy grow
@@ -25,7 +25,7 @@ export function FloatingTiles({ tiles }: FloatingTilesProps) {
               size={180}
               tone="lavender"
               tier="card"
-              className="!h-auto w-full flex-col items-start gap-1.5 p-4 text-left lg:aspect-[9/7]"
+              className="!h-auto w-full flex-col items-start gap-1.5 p-4 text-left lg:aspect-[9/7] lg:!w-full"
             >
               <span className="text-[length:var(--text-caption)] font-bold tracking-[var(--tracking-eyebrow)] uppercase text-ink">
                 {tile.label}

@@ -62,3 +62,21 @@ avatar is taller), which pushes the CTA row and `FloatingTiles` past the first f
 
 **Verdict:** EVAL-001 is **not 6/6 at either width** with the current hero sizing. Blocking items are
 enumerated above and assigned to TKT-09 / EXE-6. Re-score after the hero-balance change lands.
+
+---
+
+## EXE-9 re-score (hero-rebalance fix-wave, branch `m-003-home`)
+
+The EXE-9 hero rebalance landed (details + levers: `docs/reports/EXE-9-hero-rebalance.md`). Re-scored
+from the regenerated `docs/screenshots/home/*` pixel evidence — all six rubric items now render inside
+the first viewport at **every** width:
+
+| width | before | after |
+|-------|--------|-------|
+| 390   | 3/6    | **6/6** |
+| 768   | — (not in original pack; 3/6 measured) | **6/6** |
+| 1024  | — (not in original pack; 3/6 measured) | **6/6** |
+| 1440  | 5/6    | **6/6** |
+
+No horizontal overflow at 390/768/1024/1440; avatar rebalanced to ~349px @1024 / ~474px @1440. Target
+(≥5/6 every width, 6/6 at 390 + 1440) **met and exceeded** (6/6 at all four).

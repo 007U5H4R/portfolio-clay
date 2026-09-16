@@ -28,7 +28,13 @@
   --font-hand: var(--font-caveat), "Caveat", cursive;
 
   /* Fluid type scale (390 → 1440 viewport range) */
-  --text-hero: clamp(2.75rem, 1.729rem + 4.19vw, 5.5rem);
+  /* EXE-9: min lowered 2.75rem→2.25rem so the 390 headline holds 3 lines (not 4) above the mobile
+     fold, and max trimmed 5.5rem→5rem so at lg the avatar reads balanced against it, not dwarfed. */
+  --text-hero: clamp(2.25rem, 1.229rem + 4.19vw, 5rem);
+  /* EXE-9: at lg+ the avatar claims its 42fr track, narrowing the headline column — this steeper
+     lg-only ramp (44px @1024 → 80px @1440) keeps the headline at 3 lines so the CTAs + first proof
+     tile clear the short 768px-tall 1024 fold, while tablet (<1024) keeps the fluid `--text-hero`. */
+  --text-hero-lg: clamp(2.75rem, -2.788rem + 8.654vw, 5rem);
   --text-h2: clamp(2.125rem, 1.614rem + 2.1vw, 3.5rem);
   --text-h3: clamp(1.5rem, 1.314rem + 0.76vw, 2rem);
   --text-lead: clamp(1.1875rem, 1.118rem + 0.29vw, 1.375rem);

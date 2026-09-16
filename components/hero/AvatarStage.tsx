@@ -13,7 +13,7 @@ const blurDataURL = readFileSync(join(process.cwd(), "public/avatar/avatar-blur.
 
 // The avatar is the LCP element: intrinsic 1800×2250 (4:5), rendered at the frame's CSS width.
 const AVATAR_SIZES =
-  "(min-width:1440px) 520px, (min-width:1024px) 480px, (min-width:768px) 360px, 280px";
+  "(min-width:1440px) 520px, (min-width:1024px) 480px, (min-width:768px) 300px, 200px";
 
 /**
  * Hero avatar bezel (technical-plan.md §B S05.02, Design.md §3). A sky→lavender duotone hero
@@ -24,7 +24,7 @@ const AVATAR_SIZES =
  */
 export function AvatarStage() {
   return (
-    <div className="relative mx-auto w-full max-w-[280px] md:max-w-[360px] lg:max-w-[480px] 2xl:max-w-[520px]">
+    <div className="relative mx-auto w-full max-w-[200px] md:max-w-[300px] lg:max-w-[480px] 2xl:max-w-[520px]">
       <Parallax depth={-1} maxPx={6}>
         <ClayFrame ratio="4/5" tier="hero" tone="sky" tone2="lavender">
           <Image

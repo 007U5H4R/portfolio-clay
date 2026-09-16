@@ -67,7 +67,9 @@ test("hero avatar frame is responsive and column-capped (<= breakpoint ladder)",
 }) => {
   await page.goto("/", { waitUntil: "load" });
   const w = width(page);
-  const cap = w >= 1440 ? 520 : w >= 1024 ? 480 : w >= 768 ? 360 : 280;
+  // Breakpoint cap ladder = AvatarStage's max-w rungs (EXE-9 rebalance: 200/300/480/520). Rendered
+  // width is min(cap, grid column width), so this is the upper bound only.
+  const cap = w >= 1440 ? 520 : w >= 1024 ? 480 : w >= 768 ? 300 : 200;
   const img = page.getByRole("img", { name: AVATAR_ALT });
   const box = await img.boundingBox();
   expect(box, "avatar image must be laid out").toBeTruthy();
@@ -76,14 +78,13 @@ test("hero avatar frame is responsive and column-capped (<= breakpoint ladder)",
     box!.width,
     `hero frame width at ${w} = ${box!.width}, must not exceed cap ${cap} (+1px tolerance)`,
   ).toBeLessThanOrEqual(cap + 1);
-  // Substantial-focal-element floor, calibrated to measured behaviour rather than the nominal
-  // cap: at exactly 1024 the 65fr text column's min-content (headline) squeezes the avatar's
-  // 35fr track to ~252px, well under its 480px cap — an already-accepted grid-balance tradeoff
-  // (see Design.md's EXE-6 deviation note; full column balance revisited at M-003 with real
-  // FeaturedWork content). The floor still exists to catch a genuine collapse-to-nothing
-  // regression, just set per tier from real measured widths instead of the untested cap-derived
-  // guess.
-  const focalFloor = w >= 1440 ? 320 : w >= 1024 ? 200 : null;
+  // Substantial-focal-element floor — the EXE-9 hero-rebalance contract. Widening the avatar track
+  // to 42fr and letting the content column shrink (min-w-0) + trimming the lg headline clamp frees
+  // the avatar from the old min-content squeeze (it used to collapse to ~252px at 1024). The floors
+  // assert it now reads as a balanced focal element (~349px @1024, ~474px @1440 measured) — kept as a
+  // responsive contract with margin, not a fixed-px pin, so it guards against a regression back to the
+  // squeezed 35fr layout without being brittle to sub-pixel/font-metric drift.
+  const focalFloor = w >= 1440 ? 420 : w >= 1024 ? 320 : null;
   if (focalFloor !== null) {
     expect(
       box!.width,
@@ -347,8 +348,11 @@ test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page 
 test("resume placeholder points at /contact#resume and /resume.pdf is 404", async ({ page }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
-  // Hero resume CTA lives in <main> (the MobileMenu's closed <dialog> holds a hidden duplicate).
-  const resume = page.locator('main a[href="/contact#resume"]', { hasText: "Resume — updating" });
+  // Hero resume CTA is the first /contact#resume link in <main> (the FinalCTA carries a second one
+  // since TKT-14, and the MobileMenu's closed <dialog> holds a hidden duplicate) — scope to the hero.
+  const resume = page
+    .locator('main a[href="/contact#resume"]', { hasText: "Resume — updating" })
+    .first();
   await expect(resume).toBeVisible();
   const res = await page.request.get("/resume.pdf");
   expect(res.status(), "/resume.pdf must 404 while resumeAvailable=false").toBe(404);
