@@ -62,6 +62,10 @@ afterAll(() => {
   if (fixtureDir) rmSync(fixtureDir, { recursive: true, force: true });
 });
 
+// Each case spawns a cold `tsx` subprocess (~1-3 s); under the eval orchestrator's concurrent load
+// that can exceed Vitest's 5 s default, so give these spawn-based cases a generous timeout.
+const SPAWN_TIMEOUT = 60_000;
+
 describe("bundle-budget", () => {
   it("sums the gzip size of every unique first-load chunk referenced by the route HTML", () => {
     const { status, stdout } = run(["--route", "/", "--json"]);
@@ -71,24 +75,24 @@ describe("bundle-budget", () => {
     expect(parsed.chunkCount).toBe(2); // the duplicate a.js reference is de-duped
     expect(parsed.firstLoadJsGzipBytes).toBe(expectedGzipBytes);
     expect(parsed.firstLoadJsGzipKb).toBe(expectedGzipKb);
-  });
+  }, SPAWN_TIMEOUT);
 
   it("exits 0 in human mode when under budget", () => {
     const { status, stdout } = run(["--route", "/", "--budget", "180"]);
     expect(status).toBe(0);
     expect(stdout).toContain("first-load JS (/) =");
     expect(stdout).toContain("(budget 180)");
-  });
+  }, SPAWN_TIMEOUT);
 
   it("exits 1 in human mode when over budget (threshold never lowered to pass)", () => {
     const tiny = Math.max(1, Math.floor(expectedGzipKb) - 1);
     const { status } = run(["--route", "/", "--budget", String(tiny)]);
     expect(status).toBe(1);
-  });
+  }, SPAWN_TIMEOUT);
 
   it("reports overBudget=true in JSON without failing the process", () => {
     const { status, stdout } = run(["--route", "/", "--budget", "1", "--json"]);
     expect(status).toBe(0);
     expect(JSON.parse(stdout.trim()).overBudget).toBe(true);
-  });
+  }, SPAWN_TIMEOUT);
 });

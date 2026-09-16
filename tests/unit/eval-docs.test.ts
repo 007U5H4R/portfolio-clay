@@ -23,5 +23,5 @@ describe("docs/eval.md", () => {
     const doc = readFileSync(resolve(ROOT, "docs/eval.md"), "utf8");
     const missing = flags.filter((f) => !doc.includes(f));
     expect(missing, `docs/eval.md is missing flags: ${missing.join(", ")}`).toEqual([]);
-  });
+  }, 60_000); // spawns a cold `tsx --help`; generous timeout under orchestrator load (Vitest default is 5 s)
 });

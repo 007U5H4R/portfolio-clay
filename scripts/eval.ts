@@ -283,6 +283,43 @@ function readLighthouse(formFactor: "mobile" | "desktop"): { byRoute: Record<str
   return { byRoute, artifact: dir };
 }
 
+type LhPair = { mobile: ReturnType<typeof readLighthouse>; desktop: ReturnType<typeof readLighthouse> };
+function runLighthousePair(): LhPair {
+  console.log("[eval] running Lighthouse CI (mobile)…");
+  runInherit("pnpm", ["exec", "lhci", "autorun", "--config", "lighthouserc.mobile.json"]);
+  console.log("[eval] running Lighthouse CI (desktop)…");
+  runInherit("pnpm", ["exec", "lhci", "autorun", "--config", "lighthouserc.desktop.json"]);
+  return { mobile: readLighthouse("mobile"), desktop: readLighthouse("desktop") };
+}
+
+/**
+ * Would this Lighthouse result FAIL EVAL-004 (any score below threshold) or count as a regression
+ * (a shared-route score dropped >3 pts vs baseline)? Mobile performance is noisy, so a `true` here
+ * triggers the A13/EV2 "rerun once before failing" mitigation — never a threshold change.
+ */
+type BaselineLh = Record<string, { mobile?: number[]; desktop?: number[] }> | null;
+function lighthouseFailsOrRegresses(pair: LhPair, baselineLh: BaselineLh): boolean {
+  const routes = new Set([...Object.keys(pair.mobile.byRoute), ...Object.keys(pair.desktop.byRoute)]);
+  for (const r of routes) {
+    for (const s of [pair.mobile.byRoute[r]?.scores, pair.desktop.byRoute[r]?.scores]) {
+      if (s && !s.every((v, i) => v >= THRESHOLDS.lighthouse[i]!)) return true;
+    }
+  }
+  if (baselineLh) {
+    for (const route of Object.keys(baselineLh)) {
+      for (const ff of ["mobile", "desktop"] as const) {
+        const b = baselineLh[route]?.[ff];
+        const c = ff === "mobile" ? pair.mobile.byRoute[route]?.scores : pair.desktop.byRoute[route]?.scores;
+        if (!b || !c) continue;
+        for (let i = 0; i < Math.min(b.length, c.length); i++) {
+          if (b[i]! - c[i]! > LH_REGRESSION_PTS) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 // --------------------------------------------------------------------------- content gate (EVAL-013)
 function evaluateContentGate(): { status: Status; details: string; artifacts: string[] } {
   const problems: string[] = [];
@@ -452,22 +489,34 @@ async function main(): Promise<void> {
     specs = collectSpecs(readJSON(PW_JSON));
   }
 
+  // Load the baseline early — the Lighthouse flake-rerun decision needs its EVAL-004 scores.
+  const baselinePath = resolve(RESULTS_DIR, baselineFlag ?? "baseline-v1.json");
+  const baseline = existsSync(baselinePath) ? readJSON<{ cases: EvalCaseDef & ResultCase[] }>(baselinePath) : null;
+  const baselineLh: BaselineLh =
+    (baseline && (baseline as unknown as { cases: ResultCase[] }).cases.find((c) => c.id === "EVAL-004")?.measured as BaselineLh) ?? null;
+
   // 4) Lighthouse (EVAL-004) + bundle (EVAL-005).
   const runsLighthouse = wants("EVAL-004") || wants("EVAL-005");
   let mobile = { byRoute: {} as Record<string, RouteScore>, artifact: "" };
   let desktop = { byRoute: {} as Record<string, RouteScore>, artifact: "" };
   let lighthouseSkippedReason = "";
+  let flakeReran = false;
   if (runsLighthouse) {
     if (baseUrlFlag) {
       lighthouseSkippedReason = "base-url mode: run `pnpm exec lhci autorun` against the preview per docs/eval.md";
       console.log(`[eval] Lighthouse SKIP — ${lighthouseSkippedReason}`);
     } else {
-      console.log("[eval] running Lighthouse CI (mobile)…");
-      runInherit("pnpm", ["exec", "lhci", "autorun", "--config", "lighthouserc.mobile.json"]);
-      console.log("[eval] running Lighthouse CI (desktop)…");
-      runInherit("pnpm", ["exec", "lhci", "autorun", "--config", "lighthouserc.desktop.json"]);
-      mobile = readLighthouse("mobile");
-      desktop = readLighthouse("desktop");
+      let pair = runLighthousePair();
+      // A13/EV2 flake mitigation: mobile performance is noisy — rerun ONCE before failing on a
+      // Lighthouse FAIL or a >3-pt regression, then take the rerun as authoritative. Thresholds are
+      // never changed; this only absorbs run-to-run variance (a real drop persists across both runs).
+      if (lighthouseFailsOrRegresses(pair, baselineLh)) {
+        console.log("[eval] Lighthouse FAIL/regression on first pass — rerunning once (A13 flake mitigation)…");
+        pair = runLighthousePair();
+        flakeReran = true;
+      }
+      mobile = pair.mobile;
+      desktop = pair.desktop;
     }
   }
   let jsKb: number | null = null;
@@ -516,7 +565,11 @@ async function main(): Promise<void> {
         status: lighthouseSkippedReason ? "SKIP" : routes.size === 0 ? "SKIP" : allPass ? "PASS" : "FAIL",
         measured,
         threshold: THRESHOLDS.lighthouse,
-        details: lighthouseSkippedReason || (routes.size === 0 ? "no Lighthouse output" : `${routes.size} routes × mobile+desktop, median of 3`),
+        details:
+          lighthouseSkippedReason ||
+          (routes.size === 0
+            ? "no Lighthouse output"
+            : `${routes.size} routes × mobile+desktop, median of 3${flakeReran ? " (reran once — A13 flake mitigation)" : ""}`),
         artifacts: [mobile.artifact, desktop.artifact].filter(Boolean),
       });
     } else if (def.id === "EVAL-005") {
@@ -582,8 +635,6 @@ async function main(): Promise<void> {
   };
   const criticalFailures = cases.filter((c) => c.priority === "critical" && c.status === "FAIL").map((c) => c.id);
 
-  const baselinePath = resolve(RESULTS_DIR, baselineFlag ?? "baseline-v1.json");
-  const baseline = existsSync(baselinePath) ? readJSON<{ cases: EvalCaseDef & ResultCase[] }>(baselinePath) : null;
   const { regressions, improvements } = diffAgainstBaseline(cases, baseline);
 
   // 8) Provenance.
