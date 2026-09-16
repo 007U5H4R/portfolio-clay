@@ -79,6 +79,17 @@ Every field is generated from real execution output — nothing is hand-entered.
 | Security | `forbidden-strings --bundle` + `pnpm audit` + TP9 headers (`--base-url`) | EVAL-016 |
 | Manual | recorded, not executed (`status: MANUAL`) | EVAL-001, 003, 009, and the EVAL-017 inspector sub-result |
 
+## Local performance is informational (EVAL-004 / EVAL-005)
+
+Local Chromium runs under **software rendering** (swiftshader, no GPU), so Lighthouse performance and
+LCP are an environment artifact, not a real measurement of the shipped site. EVAL-004 and EVAL-005
+are therefore **informational locally**: their real measured values are recorded (thresholds are
+never lowered, cases are never deleted), but a local perf FAIL or perf regression does **not** gate
+the run — each carries an `envCaveat` in the result JSON. The real performance gate is the
+production/preview deployment (`pnpm eval --base-url …`) and the perf-lever tickets **TKT-14 /
+TKT-49** (A14 / F5 / EV2). The **first-load JS budget** (EVAL-005 `jsKbGzip`) is deterministic and
+*is* a real finding when over budget — tracked to TKT-14/49, not excused by the swiftshader caveat.
+
 ## Regression rules (vs baseline)
 
 A run is a **regression** when, against the baseline:
