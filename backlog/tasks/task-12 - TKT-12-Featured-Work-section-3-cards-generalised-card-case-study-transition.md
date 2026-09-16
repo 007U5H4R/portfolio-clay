@@ -3,9 +3,10 @@ id: TASK-12
 title: >-
   TKT-12: Featured Work section (3 cards) + generalised card->case-study
   transition
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-16 11:12'
 labels:
   - P1
   - 'sp:3'
