@@ -24,6 +24,15 @@ export const tierClass: Record<Tier, string> = {
   flat: "",
 };
 
+/**
+ * Glass is the compacted-header treatment ONLY — NOT a clay tier (Design.md §2: "Glass … is
+ * reserved for the compacted header only — never combined with clay shadows on the same
+ * element"). It is exported here, separate from `tierClass`, precisely so it can never be
+ * selected through the tier map; the class body lives in `app/globals.css` (`.glass`, S04.05).
+ * Consumed only by `Header` in its compact state — never by a clay primitive.
+ */
+export const headerGlassClass = "glass";
+
 /** Tone tint classes — always paired with `ink` text (Design.md §2 contrast rule). */
 export const toneClass: Record<Tone, string> = {
   neutral: "bg-surface text-ink-2",
@@ -36,9 +45,19 @@ export const toneClass: Record<Tone, string> = {
 };
 
 /**
- * Discriminated on `tier`: the `flat` branch only accepts `tone:'neutral'` and
- * `interactive:false` — anything else against `tier:'flat'` fails to type-check (D1).
+ * Discriminated on `tier` (D1) — the type is the guardrail against overusing the clay effect:
+ *   - `flat`    accepts only `tone:'neutral'` and `interactive:false` (no shadow → nothing to
+ *               lift, no tint → `{tier:'flat', tone:'lavender'}` and `{tier:'flat',
+ *               interactive:true}` are compile-time errors).
+ *   - `utility` accepts any tone but `interactive` is forbidden here: Design.md §2 gives the
+ *               utility tier "`--shadow-utility` only, no press state", so a utility clay surface
+ *               is never a hover/press control. The one interactive utility-radius control on the
+ *               site — the filter pill — is `ClayPill variant="filter"`, which owns its own
+ *               hover/active classes and does NOT flow through `ClayProps.interactive`
+ *               (so `{tier:'utility', interactive:true}` is a compile-time error).
+ *   - `hero`/`card` are the only tiers that may be `interactive` (full rest/hover/press physics).
  */
 export type ClayProps =
   | { tier: "flat"; tone?: "neutral" | undefined; interactive?: false | undefined }
-  | { tier: Exclude<Tier, "flat">; tone?: Tone | undefined; interactive?: boolean | undefined };
+  | { tier: "utility"; tone?: Tone | undefined; interactive?: false | undefined }
+  | { tier: "hero" | "card"; tone?: Tone | undefined; interactive?: boolean | undefined };

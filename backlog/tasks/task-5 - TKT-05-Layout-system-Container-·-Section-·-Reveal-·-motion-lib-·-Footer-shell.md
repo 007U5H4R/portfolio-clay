@@ -3,9 +3,10 @@ id: TASK-5
 title: >-
   TKT-05: Layout system: Container · Section · Reveal · motion lib · Footer
   shell
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 04:27'
 labels:
   - P1
   - 'sp:3'

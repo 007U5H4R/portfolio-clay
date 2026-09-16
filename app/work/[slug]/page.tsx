@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { CaseStudyHeader } from "@/components/case-study/CaseStudyHeader";
-import { getFeaturedProject } from "@/data/tracer";
+import { getProject, projectIcon } from "@/data/projects";
+import { buildMetadata } from "@/lib/seo";
+import { site } from "@/lib/site";
 
 /** Only the slugs listed here are built; any other `/work/*` slug 404s (dynamicParams=false). */
 export function generateStaticParams() {
@@ -17,9 +19,15 @@ interface CaseStudyPageProps {
 
 export async function generateMetadata({ params }: CaseStudyPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getFeaturedProject(slug);
+  const project = getProject(slug);
   if (!project) return {};
-  return { title: project.name, description: project.proposition };
+  return buildMetadata({
+    title: `${project.name} · ${site.name}`,
+    description: project.tagline,
+    path: `/work/${project.slug}`,
+    ogFamily: `${project.name} case study`,
+    type: "article",
+  });
 }
 
 /**
@@ -30,7 +38,7 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
  */
 export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   const { slug } = await params;
-  const project = getFeaturedProject(slug);
+  const project = getProject(slug);
   if (!project) notFound();
 
   return (
@@ -38,12 +46,12 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       <CaseStudyHeader
         slug={project.slug}
         name={project.name}
-        lead={project.proposition}
-        role="Solo build"
-        duration="Aug 2026"
+        lead={project.tagline}
+        role={project.role}
+        duration={project.duration}
         status={project.status}
         statusLabel={project.statusLabel}
-        icon={project.icon}
+        icon={projectIcon(project.icon)}
       />
       <p className="mt-[var(--space-8)] text-[length:var(--text-lead)] text-ink-3">
         Case study — coming in this build

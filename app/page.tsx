@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
 import { Container } from "@/components/layout/Container";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { teachspark } from "@/data/tracer";
+import { teachspark } from "@/data/projects";
+import { buildMetadata } from "@/lib/seo";
+import { site } from "@/lib/site";
+
+export const metadata: Metadata = buildMetadata({
+  title: `${site.name} · ${site.title}`,
+  description: site.tagline,
+  path: "/",
+  ogFamily: `${site.name} — ${site.title}`,
+});
 
 export default function Home() {
   return (

@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
+import { buildMetadata } from "@/lib/seo";
+import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Work",
-};
+export const metadata: Metadata = buildMetadata({
+  title: `Work · ${site.name}`,
+  description: "Every project — personal AI builds and professional platform work — filterable by AI, Enterprise, Cloud and Experiments.",
+  path: "/work",
+  ogFamily: "Selected Work",
+});
 
 /** Tracer stub so the hero's "View My Work →" CTA is never a dead link (S05.05). Fleshed out in TKT-16. */
 export default function WorkPage() {

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { tierClass, toneClass, type ClayProps, type Tone } from "@/components/clay/tiers";
+import {
+  headerGlassClass,
+  tierClass,
+  toneClass,
+  type ClayProps,
+  type Tone,
+} from "@/components/clay/tiers";
 
 describe("clay tiers", () => {
   it("flat tier class contains no shadow or gradient", () => {
@@ -23,14 +29,35 @@ describe("clay tiers", () => {
     }
   });
 
+  it("glass is exported separately from the tier map (glass is NOT a tier)", () => {
+    expect(headerGlassClass).toBe("glass");
+    // The tier union has no 'glass' member — proven structurally by tierClass's keys.
+    expect(Object.keys(tierClass).sort()).toEqual(["card", "flat", "hero", "utility"]);
+  });
+
   it("D1: tier 'flat' with a non-neutral tone is a compile-time type error", () => {
     // @ts-expect-error — tier:'flat' only permits tone:'neutral' (D1)
     const invalid: ClayProps = { tier: "flat", tone: "lavender" };
     expect(invalid).toBeTruthy();
   });
 
-  it("a non-flat tier accepts any tone (sanity check for the D1 guard)", () => {
+  it("D1: tier 'flat' with interactive is a compile-time type error", () => {
+    // @ts-expect-error — tier:'flat' forbids interactive (nothing to lift/press) (D1)
+    const invalid: ClayProps = { tier: "flat", interactive: true };
+    expect(invalid).toBeTruthy();
+  });
+
+  it("D1: tier 'utility' with interactive (non-filter) is a compile-time type error", () => {
+    // @ts-expect-error — utility has "no press state" (Design.md §2); the only interactive
+    // utility-radius control is ClayPill variant:'filter', which does not use ClayProps (D1).
+    const invalid: ClayProps = { tier: "utility", interactive: true };
+    expect(invalid).toBeTruthy();
+  });
+
+  it("a hero/card tier accepts any tone + interactive (sanity check for the D1 guard)", () => {
     const valid: ClayProps = { tier: "card", tone: "lavender", interactive: true };
     expect(valid.tier).toBe("card");
+    const validUtility: ClayProps = { tier: "utility", tone: "sky" };
+    expect(validUtility.tier).toBe("utility");
   });
 });

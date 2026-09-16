@@ -1,0 +1,4 @@
+{
+  "_comment": "Copy to tests/forbidden.local.json (git-ignored) and replace with the REAL secret literals to ban (e.g. the TeachSpark sandbox join code). Never commit the real values. This example holds placeholder text only.",
+  "strings": ["EXAMPLE-SANDBOX-JOIN-CODE-REPLACE-ME"]
+}

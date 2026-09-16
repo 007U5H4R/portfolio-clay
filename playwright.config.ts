@@ -1,5 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// When PW_BASE_URL points at a remote origin (a deployed preview, via `pnpm eval --base-url`), do
+// NOT start the local `pnpm start` server — tests run against that origin directly. A local/unset
+// base URL keeps the production-build webServer so `pnpm test:e2e` and `pnpm eval` work offline.
+const baseURL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
+const isLocalBaseURL = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(baseURL);
+
 /**
  * Playwright config (technical-plan.md §A9 / §B S07.01).
  *
@@ -27,7 +33,7 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 10_000 },
   use: {
-    baseURL: process.env.PW_BASE_URL ?? "http://127.0.0.1:3000",
+    baseURL,
     reducedMotion: "no-preference",
     trace: "retain-on-failure",
     screenshot: "off",
@@ -50,10 +56,14 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
   ],
-  webServer: {
-    command: "pnpm start",
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: true,
-    timeout: 120_000,
-  },
+  ...(isLocalBaseURL
+    ? {
+        webServer: {
+          command: "pnpm start",
+          url: "http://127.0.0.1:3000",
+          reuseExistingServer: true,
+          timeout: 120_000,
+        },
+      }
+    : {}),
 });

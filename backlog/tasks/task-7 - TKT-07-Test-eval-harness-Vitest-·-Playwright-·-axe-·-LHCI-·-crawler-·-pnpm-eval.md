@@ -3,9 +3,10 @@ id: TASK-7
 title: >-
   TKT-07: Test & eval harness: Vitest · Playwright · axe · LHCI · crawler · pnpm
   eval
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 07:41'
 labels:
   - P0
   - 'sp:8'

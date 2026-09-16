@@ -115,6 +115,18 @@
 }
 
 /*
+  Glass utility (S04.05 / Design.md §2) — the compacted-header treatment ONLY, never combined
+  with clay shadows on the same element. Exposed as a class (not a clay tier) and referenced via
+  `headerGlassClass` in components/clay/tiers.ts. Uses only the existing --color-bg token, so the
+  colour-token count stays at 13 (pnpm tokens:check → 13/13).
+*/
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in oklch, var(--color-bg) 80%, transparent);
+}
+
+/*
   Hero headline accent + one-time reveal wash (S05.04 / Design.md §3–§4). "AI-native products"
   renders as the accent word with a lavender sweep that washes in once on first view over 700ms
   and holds (`forwards`). Uses only existing colour tokens (--color-accent, --color-lavender) —
@@ -136,6 +148,34 @@
   to {
     background-position: 0 0;
   }
+}
+
+/*
+  Section reveal (S05.02 / Design.md §4 "section reveal" row). `Reveal` (components/interactions/
+  Reveal.tsx) adds this class only AFTER mount — it is never present in server-rendered HTML, so
+  JS-off static HTML renders children at their natural, fully visible styles (EVAL-015).
+  `--stagger-index` is set per-instance via inline style; siblings 70ms apart.
+*/
+.reveal {
+  --stagger-index: 0;
+  /* `visibility: hidden` (not opacity alone) keeps not-yet-revealed content out of the
+     accessibility tree and tab order — an opacity:0 element is still focusable/announceable and
+     axe's color-contrast rule still evaluates its (near-invisible) blended colour as a false
+     positive. `visibility` has no transition-duration of its own below, so it flips to `visible`
+     instantly the moment `data-revealed` is set, while opacity/transform animate in over it. */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 500ms var(--ease-reveal),
+    transform 500ms var(--ease-reveal);
+  transition-delay: calc(var(--stagger-index) * 70ms);
+}
+
+.reveal[data-revealed] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
 }
 
 /* View Transitions default timing (A5 / Design.md §4) */
@@ -164,5 +204,13 @@
   .hero-highlight {
     animation-name: none;
     background-image: none;
+  }
+
+  /* Reveal collapses to an opacity-only, ~instant fade (A6: ".reveal { transition-property:
+     opacity }"): duration is already forced to 1ms above, and dropping `transform` from the
+     transition list means it jumps straight to its final value with no interpolation at all. */
+  .reveal {
+    transition-property: opacity;
+    transition-delay: 0ms;
   }
 }
