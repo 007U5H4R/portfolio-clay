@@ -11,6 +11,8 @@ playwright-report/
 .lighthouseci/
 .vitest/
 .eval/
+# per-ticket --only eval runs (transient; milestone eval-run-*.json + baseline-*.json + gate-*.md stay tracked)
+evals/results/tkt-*.json
 
 # environment (secret-bearing; .env.tooling is committed & secret-free)
 .env
