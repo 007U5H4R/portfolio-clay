@@ -44,7 +44,7 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 
 | Ticket | Native | Tier | Status | Notes |
 |---|---|---|---|---|
-| TKT-03 schema + zod gate | TASK-3 | opus | 🔄 in progress | S03.01–09; data/schema.ts (A3 verbatim), validateAll, anchors, migrate tracer→projects.ts, forbidden-strings, EVAL-013 proof |
+| TKT-03 schema + zod gate | TASK-3 | opus | ✅ done | commit c9e5e28; 71 tests, schema 36 exports, EVAL-013 proof (fixture build fails 3 issues+exit1, clean build green), no regression. tracer.ts deleted→projects.ts. Devs: conditional composition-invariants (only 1 project yet), ?filter= per E-2. Accepted. |
 | TKT-04 primitive system complete | TASK-4 | opus/sonnet | ⬜ pending | S04.01–09; full ClayCard/Button/Pill/Tile/Frame/Icon, /dev/primitives board, screenshots |
 | TKT-05 layout + Reveal + Footer | TASK-5 | sonnet | ⬜ pending | S05.01–06. **FOOTER CREDIT = "Built with curiosity." (TP10/E-1), NOT "Built with Claude Code" — plan §B S05.04 text is STALE; authorship colophon goes on /about (M-006).** |
 | TKT-06 SEO/OG | TASK-6 | sonnet/opus | ⬜ pending | S06.01–07; metadata builders, OG ImageResponse, sitemap/robots, eval-017 |
