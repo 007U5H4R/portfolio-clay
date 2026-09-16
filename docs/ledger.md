@@ -45,7 +45,7 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | Ticket | Native | Tier | Status | Notes |
 |---|---|---|---|---|
 | TKT-03 schema + zod gate | TASK-3 | opus | ✅ done | commit c9e5e28; 71 tests, schema 36 exports, EVAL-013 proof (fixture build fails 3 issues+exit1, clean build green), no regression. tracer.ts deleted→projects.ts. Devs: conditional composition-invariants (only 1 project yet), ?filter= per E-2. Accepted. |
-| TKT-04 primitive system complete | TASK-4 | opus/sonnet | ⬜ pending | S04.01–09; full ClayCard/Button/Pill/Tile/Frame/Icon, /dev/primitives board, screenshots |
+| TKT-04 primitive system complete | TASK-4 | opus | 🔄 in progress | S04.01–09 dispatched; full ClayCard/Button/Pill/Tile/Frame/Icon, /dev/primitives board, screenshots. Briefs for TKT-05 (footer="Built with curiosity.") + TKT-06 (SEO/OG) pre-written & committed. |
 | TKT-05 layout + Reveal + Footer | TASK-5 | sonnet | ⬜ pending | S05.01–06. **FOOTER CREDIT = "Built with curiosity." (TP10/E-1), NOT "Built with Claude Code" — plan §B S05.04 text is STALE; authorship colophon goes on /about (M-006).** |
 | TKT-06 SEO/OG | TASK-6 | sonnet/opus | ⬜ pending | S06.01–07; metadata builders, OG ImageResponse, sitemap/robots, eval-017 |
 | TKT-07 eval harness (full) | TASK-7 | opus/sonnet | ⬜ pending | TSK-08..12; Vitest projects, eval-cases loader, per-EVAL specs, crawler (EVAL-011), LHCI enforce, bundle budget, full eval.ts, CI, docs/eval.md, first eval-run |

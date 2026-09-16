@@ -1,9 +1,10 @@
 ---
 id: TASK-4
 title: 'TKT-04: Clay primitive system complete + common primitives'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 03:28'
 labels:
   - P1
   - 'sp:5'
