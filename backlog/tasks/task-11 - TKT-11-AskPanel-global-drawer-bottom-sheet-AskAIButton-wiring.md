@@ -1,9 +1,10 @@
 ---
 id: TASK-11
 title: 'TKT-11: AskPanel global drawer / bottom sheet + AskAIButton wiring'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-16 10:19'
 labels:
   - P1
   - 'sp:5'

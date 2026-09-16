@@ -60,7 +60,7 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | Ticket | Native | Tier | Status | Notes |
 |---|---|---|---|---|
 | TKT-09 Ask knowledge+adapter | TASK-9 | opus | ✅ done | commit 669918c; 11/11 prompts, 0 fabricated, EVAL-012/013 pass. Added ALL_PROJECT_SLUGS to lib/anchors (cross-link gate for railcite/velora pre-TKT-12). Carry: anchors.test.ts dedup ALL_PROJECT_SLUGS later. |
-| TKT-10 Ask inline UI | TASK-10 | opus | 🔄 next | components/ai/{AskProvider,AskPortfolio,AnswerView,SuggestedPrompts,EvidenceLinks}, app/dev/ask, EVAL-007/012 |
+| TKT-10 Ask inline UI | TASK-10 | opus | ✅ done | commit b1251d4; 163 tests, 4 states, EVAL-007 keyboard PASS, EVAL-008 FAIL→PASS, no regression. Split zod out of client bundle; fixed ClayPill focus-ring a11y bug. Accepted. **Carry: TKT-11 hoist AskProvider to layout.tsx.** Bundle / = 239.7kB (perf → TKT-14/49). |
 | TKT-11 AskPanel | TASK-11 | opus | ⬜ | AskPanel + focus trap, wires real AskAIButton (removes tracer disabled state + crawler allowlist entry) |
 | TKT-12 FeaturedWork real data | TASK-12 | opus | ⬜ | data/projects.ts +railcite/velora (projects:3), FeaturedWork, ProjectCard grid-ready; fills hero |
 | TKT-13 HowIThink | TASK-13 | sonnet | ⬜ | data/thinking-framework, lib/stages, components/home/HowIThink |
