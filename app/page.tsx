@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
 import { AskPortfolio } from "@/components/ai/AskPortfolio";
-import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeading } from "@/components/layout/SectionHeading";
-import { ProjectCard } from "@/components/projects/ProjectCard";
+import { FeaturedWork } from "@/components/projects/FeaturedWork";
 import { knowledge } from "@/data/knowledge";
-import { teachspark } from "@/data/projects";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -43,18 +41,11 @@ export default function Home() {
       </Section>
 
       {/*
-        FeaturedWork (tracer): a single real `ProjectCard` (TeachSpark) so the home → case-study
-        path runs end-to-end. The full three-card grid + real content for all cards lands in TKT-12;
-        the lone card is width-capped so it reads as intentional until then.
+        FeaturedWork (TKT-12): the three-card editorial row (TeachSpark large + RailCite/Velora
+        medium), replacing the M-001 tracer's single width-capped card. Full case-study content per
+        card lands in M-005.
       */}
-      <Container as="section" className="pb-24" aria-labelledby="featured-work-heading">
-        <h2 id="featured-work-heading" className="sr-only">
-          Featured work
-        </h2>
-        <div className="max-w-[26rem]">
-          <ProjectCard project={teachspark} mode="featured" />
-        </div>
-      </Container>
+      <FeaturedWork />
     </>
   );
 }
