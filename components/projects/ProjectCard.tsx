@@ -1,22 +1,15 @@
-import { ArrowRight, type LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import type { Project } from "@/data/schema";
+import { projectIcon } from "@/data/projects";
 import { ClayIcon } from "@/components/clay/ClayIcon";
 import { Icon } from "@/components/common/Icon";
 import { Tag } from "@/components/common/Tag";
-import { StatusBadge, type ProjectStatus } from "@/components/projects/StatusBadge";
+import { StatusBadge } from "@/components/projects/StatusBadge";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 
-export interface ProjectCardProject {
-  slug: string;
-  name: string;
-  proposition: string;
-  tags: string[];
-  status: ProjectStatus;
-  statusLabel: string;
-  icon: LucideIcon;
-}
-
 export interface ProjectCardProps {
-  project: ProjectCardProject;
+  /** A schema-validated `Project` (TKT-03); the card reads a card-fidelity subset of its fields. */
+  project: Project;
   /** `featured` (home) is implemented here; `grid` (/work editorial grid) lands in TKT-16. */
   mode?: "featured" | "grid";
 }
@@ -40,7 +33,8 @@ export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
   // Grid mode (/work editorial grid) is implemented in TKT-16; the tracer renders featured only.
   if (mode === "grid") return null;
 
-  const { slug, name, proposition, tags, status, statusLabel, icon } = project;
+  const { slug, name, tagline, tags, status, statusLabel, icon } = project;
+  const IconComponent = projectIcon(icon);
 
   return (
     <ViewTransitionLink
@@ -60,12 +54,12 @@ export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
         className="inline-flex w-fit transition-transform duration-200 ease-[var(--ease-hover)] group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         style={{ viewTransitionName: `icon-${slug}` }}
       >
-        <ClayIcon icon={icon} size={56} tone="lavender" />
+        <ClayIcon icon={IconComponent} size={56} tone="lavender" />
       </span>
 
       <h3 className="text-[length:var(--text-h3)] font-bold leading-tight text-ink">{name}</h3>
 
-      <p className="line-clamp-2 text-[length:var(--text-body)] text-ink-2">{proposition}</p>
+      <p className="line-clamp-2 text-[length:var(--text-body)] text-ink-2">{tagline}</p>
 
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-[var(--space-2)]">

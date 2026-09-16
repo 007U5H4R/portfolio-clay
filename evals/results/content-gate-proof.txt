@@ -1,0 +1,8 @@
+$ tsx scripts/validate-content.ts
+projects.teachspark → metrics.0.asOf: Invalid input: expected string, received undefined
+projects.teachspark → sources: Too small: expected array to have >=1 items
+projects.teachspark → statusLabel: forbidden content "AI Product Manager"
+
+content FAILED — 3 issues (CONTENT_FIXTURE=invalid)
+[ELIFECYCLE] Command failed with exit code 1.
+exit=1

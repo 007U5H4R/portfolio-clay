@@ -43,7 +43,7 @@ const THRESHOLDS = {
 // EVAL id → tracer disposition (see header).
 const PLAYWRIGHT_CASES = ["EVAL-006", "EVAL-008", "EVAL-010", "EVAL-015"];
 const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009", "EVAL-017"];
-const NOT_BUILT_CASES = ["EVAL-002", "EVAL-007", "EVAL-011", "EVAL-012", "EVAL-013", "EVAL-014", "EVAL-016"];
+const NOT_BUILT_CASES = ["EVAL-002", "EVAL-007", "EVAL-011", "EVAL-012", "EVAL-014", "EVAL-016"];
 
 type Status = "PASS" | "FAIL" | "SKIP" | "MANUAL";
 
@@ -221,6 +221,44 @@ function readLighthouse(formFactor: "mobile" | "desktop"): {
   };
 }
 
+// --------------------------------------------------------------------------- EVAL-013 (content gate)
+/**
+ * EVAL-013 — the content-integrity build gate (TKT-03). PASS requires: real content validates
+ * (validate-content exit 0), no forbidden strings in source or bundle (forbidden-strings exit 0),
+ * and the deliberate-fixture proof is on disk with a non-zero build and the 3 issue lines (S03.08).
+ */
+function evaluateContentGate(): { status: Status; details: string; artifacts: string[] } {
+  const problems: string[] = [];
+
+  const vc = spawnSync("pnpm", ["exec", "tsx", "scripts/validate-content.ts"], { cwd: ROOT, env: CHILD_ENV, encoding: "utf8" });
+  if ((vc.status ?? 1) !== 0) problems.push(`validate-content exit ${vc.status}`);
+
+  const fbArgs = ["exec", "tsx", "scripts/forbidden-strings.ts"];
+  if (existsSync(resolve(ROOT, ".next"))) fbArgs.push("--bundle");
+  const fb = spawnSync("pnpm", fbArgs, { cwd: ROOT, env: CHILD_ENV, encoding: "utf8" });
+  if ((fb.status ?? 1) !== 0) problems.push(`forbidden-strings exit ${fb.status}`);
+  const fbSummary = (fb.stdout ?? "").trim().split("\n").filter((l) => l.includes("hits in")).pop() ?? "forbidden-strings clean";
+
+  const proofPath = resolve(RESULTS_DIR, "content-gate-proof.txt");
+  if (!existsSync(proofPath)) {
+    problems.push("content-gate-proof.txt missing");
+  } else {
+    const proof = readFileSync(proofPath, "utf8");
+    const issueLines = (proof.match(/ → .+?:/g) ?? []).length;
+    if (!/exit=[^0]/.test(proof)) problems.push("proof does not show a non-zero build exit");
+    if (issueLines < 3) problems.push(`proof has ${issueLines} issue lines (<3)`);
+  }
+
+  if (problems.length > 0) {
+    return { status: "FAIL", details: problems.join("; "), artifacts: ["evals/results/content-gate-proof.txt"] };
+  }
+  return {
+    status: "PASS",
+    details: `validate-content OK · ${fbSummary} · fixture proof present (non-zero build, 3 issues)`,
+    artifacts: ["evals/results/content-gate-proof.txt"],
+  };
+}
+
 // --------------------------------------------------------------------------- main
 function main(): void {
   const started = Date.now();
@@ -325,6 +363,9 @@ function main(): void {
         details: `informational on tracer; first-load JS ${jsKb} kB gz, LCP(mobile) ${mobile.lcpMs} ms, CLS(mobile) ${mobile.cls}`,
         artifacts: [mobile.artifact],
       });
+    } else if (def.id === "EVAL-013") {
+      const r = evaluateContentGate();
+      cases.push({ ...base, status: r.status, details: r.details, artifacts: r.artifacts });
     } else if (MANUAL_CASES.includes(def.id)) {
       cases.push({
         ...base,

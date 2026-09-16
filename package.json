@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/validate-content.ts",
     "build": "next build && tsx scripts/assert-static.ts",
     "start": "next start -p 3000",
     "typecheck": "tsc --noEmit",

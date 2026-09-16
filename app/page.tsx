@@ -1,7 +1,7 @@
 import { Hero } from "@/components/hero/Hero";
 import { Container } from "@/components/layout/Container";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { teachspark } from "@/data/tracer";
+import { teachspark } from "@/data/projects";
 
 export default function Home() {
   return (

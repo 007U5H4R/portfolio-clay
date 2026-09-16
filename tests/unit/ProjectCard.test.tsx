@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { teachspark } from "@/data/tracer";
+import { teachspark } from "@/data/projects";
 
 describe("ProjectCard (featured)", () => {
   it("is exactly one link whose single accessible name is the project name", () => {
@@ -13,9 +13,9 @@ describe("ProjectCard (featured)", () => {
     expect(links[0]?.getAttribute("href")).toBe("/work/teachspark");
   });
 
-  it("renders the proposition, the status label, and up to three tags", () => {
+  it("renders the tagline, the status label, and up to three tags", () => {
     render(<ProjectCard project={teachspark} mode="featured" />);
-    expect(screen.getByText(teachspark.proposition)).toBeTruthy();
+    expect(screen.getByText(teachspark.tagline)).toBeTruthy();
     expect(screen.getByText(teachspark.statusLabel)).toBeTruthy();
     for (const tag of teachspark.tags.slice(0, 3)) {
       expect(screen.getByText(tag)).toBeTruthy();
