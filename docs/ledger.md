@@ -63,7 +63,7 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | TKT-10 Ask inline UI | TASK-10 | opus | ✅ done | commit b1251d4; 163 tests, 4 states, EVAL-007 keyboard PASS, EVAL-008 FAIL→PASS, no regression. Split zod out of client bundle; fixed ClayPill focus-ring a11y bug. Accepted. **Carry: TKT-11 hoist AskProvider to layout.tsx.** Bundle / = 239.7kB (perf → TKT-14/49). |
 | TKT-11 AskPanel | TASK-11 | opus | ✅ done | commit 0f6013a; 163 tests, e2e 27/0, focus-trap EVAL-007 verified, EVAL-011 live button passes, AskPanel lazy (not in / first-load, / = 236.7kB). AskProvider hoisted to layout. Ask feature complete. Accepted. |
 | TKT-12 FeaturedWork real data | TASK-12 | opus | ✅ done | commit a3972e9; projects:3 (TeachSpark-large/RailCite/Velora), no fabricated metrics (metrics:[] pending M-005), content-gate passes, e2e featured 10/0, no regression. FeaturedWork = 2:1:1 row. Accepted. Carry: TKT-30 swap Velora exact PRD line. |
-| TKT-13 HowIThink | TASK-13 | sonnet | ⬜ | data/thinking-framework, lib/stages, components/home/HowIThink |
+| TKT-13 HowIThink | TASK-13 | sonnet | ✅ done | commit 2a5b13b; 6 stages (thinking:6), verbatim examples, e2e 7/0, no regression. principle one-liners DRAFT-badged (editorial). Accepted. **FLAG→TKT-14: eval-017 sitemap-count assertion stale (hard-coded 4, now 6 after TKT-12) — make dynamic.** |
 | TKT-14 home assembly + 5-sec test | TASK-14 | opus | ⬜ | FinalCTA, CopyButton behaviour, app/page.tsx final, eval-001 pack, EXE-6 hero-balance ruling |
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)

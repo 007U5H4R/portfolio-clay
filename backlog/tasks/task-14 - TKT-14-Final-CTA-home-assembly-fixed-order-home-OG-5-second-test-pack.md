@@ -1,9 +1,10 @@
 ---
 id: TASK-14
 title: 'TKT-14: Final CTA + home assembly (fixed order) + home OG + 5-second test pack'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-16 12:09'
 labels:
   - P0
   - 'sp:3'
