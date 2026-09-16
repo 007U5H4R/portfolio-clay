@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
+import { AskProvider } from "@/components/ai/AskProvider";
+import { AskPortfolio } from "@/components/ai/AskPortfolio";
 import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+import { SectionHeading } from "@/components/layout/SectionHeading";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { knowledge } from "@/data/knowledge";
 import { teachspark } from "@/data/projects";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
+
+// The 5 home-surface prompts, resolved server-side and passed to the client leaf as a plain
+// string[] (A1: pages hand a leaf the exact props it needs, never the knowledge module).
+const HOME_PROMPTS = knowledge.filter((entry) => entry.surface.includes("home")).map((entry) => entry.prompt);
 
 export const metadata: Metadata = buildMetadata({
   title: `${site.name} · ${site.title}`,
@@ -17,6 +26,24 @@ export default function Home() {
   return (
     <>
       <Hero />
+
+      {/*
+        Ask my portfolio (home inline surface, TKT-10). AskProvider constructs the deterministic
+        local provider once and is scoped here for the inline surface; TKT-11 hoists it to
+        app/layout.tsx so the global slide-over AskPanel shares one provider/context.
+      */}
+      <Section id="ask" aria-labelledby="ask-heading">
+        <SectionHeading
+          id="ask-heading"
+          eyebrow="Ask"
+          title="Ask my portfolio"
+          lead="Type a question and get a sourced answer drawn only from this site — no live AI."
+          className="mx-auto mb-[var(--space-8)] items-center text-center"
+        />
+        <AskProvider>
+          <AskPortfolio prompts={HOME_PROMPTS} />
+        </AskProvider>
+      </Section>
 
       {/*
         FeaturedWork (tracer): a single real `ProjectCard` (TeachSpark) so the home → case-study

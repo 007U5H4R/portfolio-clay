@@ -3,11 +3,11 @@
  *
  * The Ask is DETERMINISTIC in v1: answers come only from `data/knowledge.ts` via the
  * `LocalKnowledgeProvider`. This file defines the provider-agnostic types every provider implements,
- * plus a zod `AnswerSchema` that guards the RAG boundary — a future backend (see `rag-provider.ts`)
- * cannot return a shape the UI does not understand. No component imports zod (it lives in this
- * pure-logic module, consumed by the RAG provider and tests only), so no client bundle pulls it in.
+ * plus `AskError`. It is **zod-free on purpose**: CLIENT components import `AskError` and these types
+ * from here (directly or via `lib/ask/index.ts`), so the zod `AnswerSchema` that guards the RAG
+ * boundary lives in a separate module (`answer-schema.ts`, imported only by `rag-provider.ts` and the
+ * tests). Keeping zod out of this module is what keeps it out of the client bundle (A4/A6/A1).
  */
-import { z } from "zod";
 
 /** A single sourced link shown under an answer. `href` is validated at data-build time via routes(). */
 export type Evidence = { label: string; href: string };
@@ -38,24 +38,3 @@ export class AskError extends Error {
     this.name = "AskError";
   }
 }
-
-/* ── zod schema mirroring `Answer` (the RAG boundary) ──────────── */
-const EvidenceSchema = z.object({ label: z.string().min(1), href: z.string().min(1) });
-
-/** Parses an untrusted provider reply. `answer` MUST carry evidence (≥1); `empty` may carry none. */
-export const AnswerSchema: z.ZodType<Answer> = z.discriminatedUnion("kind", [
-  z.object({
-    kind: z.literal("answer"),
-    text: z.string().min(1),
-    evidence: z.array(EvidenceSchema).min(1),
-    matched: z.array(z.string()),
-    score: z.number(),
-  }),
-  z.object({
-    kind: z.literal("empty"),
-    text: z.string().min(1),
-    evidence: z.array(EvidenceSchema),
-    matched: z.tuple([]),
-    suggestions: z.array(z.string()),
-  }),
-]) as z.ZodType<Answer>;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { AnswerSchema, AskError } from "@/lib/ask/adapter";
+import { AskError } from "@/lib/ask/adapter";
+import { AnswerSchema } from "@/lib/ask/answer-schema";
 
 /**
  * The RAG boundary (technical-plan.md §A4): a network provider's reply is parsed through

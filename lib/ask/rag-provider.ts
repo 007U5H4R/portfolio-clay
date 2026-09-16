@@ -5,7 +5,8 @@
  * replies are parsed through `AnswerSchema`, so a backend can never return a shape the UI does not
  * understand. It never runs in the local, offline build.
  */
-import { AnswerSchema, AskError, type Answer, type AnswerProvider, type AskContext } from "./adapter";
+import { AskError, type Answer, type AnswerProvider, type AskContext } from "./adapter";
+import { AnswerSchema } from "./answer-schema";
 
 export class RagProvider implements AnswerProvider {
   readonly name = "rag";

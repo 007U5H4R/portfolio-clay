@@ -22,9 +22,15 @@ export type ClayPillVariant = "filter" | "tag" | "link";
 const pillBase =
   "inline-flex items-center justify-center gap-[var(--space-2)] rounded-[var(--radius-pill)] px-[var(--space-4)] text-caption font-semibold";
 
-/** Interactive variants get the 44px target floor + colour transition + shared focus ring. */
+/**
+ * Interactive variants get the 44px target floor + colour transition + shared focus ring. The
+ * transition lists `color`/`background-color` explicitly rather than Tailwind's `transition-colors`,
+ * which in v4 also animates `outline-color` — that made the focus ring FADE from currentColor to the
+ * accent over 200 ms instead of snapping, so a keyboard focus stop briefly showed the wrong ring
+ * colour (EVAL-007, caught wiring TKT-10's SuggestedPrompts / EvidenceLinks).
+ */
 const interactivePill =
-  "min-h-11 transition-colors duration-200 ease-[var(--ease-hover)] focus-ring";
+  "min-h-11 transition-[color,background-color] duration-200 ease-[var(--ease-hover)] focus-ring";
 
 type ClayPillFilterProps = {
   variant: "filter";
