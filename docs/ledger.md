@@ -39,6 +39,18 @@ DAG: **TSK-01 → {TSK-02, TSK-03} → {TSK-04, TSK-05, TSK-06} → TSK-07 → [
 | TKT-02 visual gate | TASK-2 | orchestrator | ✅ done | gate-tracer.md | **EXE-6 APPROVED** (on Tushar's behalf). EVAL-001 11.5/12, EVAL-009 11/12, avatar likeness PASS. Follow-ups: F3 hero balance→M-003, DRAFT copy→Tushar, F5 perf→TKT-14/49. |
 | TKT-02 visual gate | TASK-2 | Tushar | ⬜ pending | gate-tracer.md | STOP: screenshots 390/768/1024/1440 + 6-item checklist |
 
+## Phase 2 = M-002 · Foundations & quality harness (branch `m-002-foundations` from main)
+Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..12) → TKT-08. Phase-2 QA gate (§C): EVAL-013 proof, EVAL-016 forbidden scan, EVAL-006/007/008/010/017, first full `eval-run` vs baseline-v1 (no Critical regression).
+
+| Ticket | Native | Tier | Status | Notes |
+|---|---|---|---|---|
+| TKT-03 schema + zod gate | TASK-3 | opus | 🔄 in progress | S03.01–09; data/schema.ts (A3 verbatim), validateAll, anchors, migrate tracer→projects.ts, forbidden-strings, EVAL-013 proof |
+| TKT-04 primitive system complete | TASK-4 | opus/sonnet | ⬜ pending | S04.01–09; full ClayCard/Button/Pill/Tile/Frame/Icon, /dev/primitives board, screenshots |
+| TKT-05 layout + Reveal + Footer | TASK-5 | sonnet | ⬜ pending | S05.01–06. **FOOTER CREDIT = "Built with curiosity." (TP10/E-1), NOT "Built with Claude Code" — plan §B S05.04 text is STALE; authorship colophon goes on /about (M-006).** |
+| TKT-06 SEO/OG | TASK-6 | sonnet/opus | ⬜ pending | S06.01–07; metadata builders, OG ImageResponse, sitemap/robots, eval-017 |
+| TKT-07 eval harness (full) | TASK-7 | opus/sonnet | ⬜ pending | TSK-08..12; Vitest projects, eval-cases loader, per-EVAL specs, crawler (EVAL-011), LHCI enforce, bundle budget, full eval.ts, CI, docs/eval.md, first eval-run |
+| TKT-08 resume PII gate | TASK-8 | cheap | ⛔ blocked | S08r.01 test infra only (skips loud, resumeAvailable stays false); S08r.02+ need Tushar's sanitised PDF — hard-blocks prod (TKT-53) |
+
 ## Conflicts already resolved (§E — read before TKT-01)
 E-1 footer "Built with curiosity." · E-6 split card-padding tokens · E-7 ClayButton primary = bg text on accent · E-9 nav = Home·Work·Thinking·About · E-11 featured cards use ClayIcon not imagery · E-12 verify VT export name at S06.01 · E-13 resume both states covered. Full table: technical-plan.md §E.
 

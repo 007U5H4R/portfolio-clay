@@ -3,9 +3,10 @@ id: TASK-3
 title: >-
   TKT-03: Content schema + zod build gate + failing fixture + forbidden-string
   test
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 02:45'
 labels:
   - P0
   - 'sp:5'
