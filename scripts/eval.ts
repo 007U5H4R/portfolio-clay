@@ -321,21 +321,14 @@ async function evaluateSecurity(): Promise<{ status: Status; details: string }> 
   if ((fb.status ?? 1) !== 0) problems.push("forbidden-strings --bundle found hits");
   else notes.push("0 forbidden/PII strings");
 
-  const audit = spawnSync("pnpm", ["audit", "--json", "--audit-level", "high"], { cwd: ROOT, env: CHILD_ENV, encoding: "utf8" });
-  // pnpm audit exits non-zero when it finds vulnerabilities at/above the level; parse the JSON to count.
-  let highCritical = 0;
-  try {
-    const out = (audit.stdout ?? "").trim();
-    const parsed = JSON.parse(out) as { metadata?: { vulnerabilities?: Record<string, number> } };
-    const v = parsed.metadata?.vulnerabilities ?? {};
-    highCritical = (v.high ?? 0) + (v.critical ?? 0);
-  } catch {
-    // No JSON (or empty) — treat a zero exit as clean, a non-zero exit as an unparseable finding.
-    if ((audit.status ?? 0) !== 0) highCritical = -1;
-  }
-  if (highCritical > 0) problems.push(`${highCritical} high/critical audit findings`);
-  else if (highCritical < 0) problems.push("pnpm audit reported findings (unparseable output)");
-  else notes.push("0 high/critical deps");
+  // Use the EXIT CODE of `pnpm audit --audit-level high` as the source of truth: it honours the
+  // deliberate accepted-risk list in pnpm-workspace.yaml (`auditConfig.ignoreGhsas` — dev-only,
+  // unpatchable LHCI transitive advisories) and exits non-zero only on a NON-ignored high/critical.
+  // (The `--json` metadata counts still tally the ignored advisories, so parsing them double-counts
+  // accepted risk and produces a false FAIL — see docs/reports/TKT-07b.md.)
+  const audit = spawnSync("pnpm", ["audit", "--audit-level", "high"], { cwd: ROOT, env: CHILD_ENV, encoding: "utf8" });
+  if ((audit.status ?? 0) !== 0) problems.push("pnpm audit: non-ignored high/critical vulnerability");
+  else notes.push("0 high/critical deps (audit-level high; ignoreGhsas accepted-risks respected)");
 
   if (baseUrlFlag) {
     const hc = await checkHeaders(baseUrlFlag);
