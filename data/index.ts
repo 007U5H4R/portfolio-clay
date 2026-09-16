@@ -26,9 +26,10 @@ import {
   type KnowledgeEntry as KnowledgeEntryT,
   type ThinkingStageDef as ThinkingStageDefT,
 } from "./schema";
-import { isInternalHref, resolves, routes } from "@/lib/anchors";
+import { ALL_PROJECT_SLUGS, isInternalHref, resolves, routes } from "@/lib/anchors";
 import { contentForbiddenHits } from "@/scripts/forbidden-strings";
 import { projects } from "./projects";
+import { knowledge } from "./knowledge";
 
 export interface Collections {
   projects: ProjectT[];
@@ -45,7 +46,7 @@ export const collections: Collections = {
   experience: [],
   skills: [],
   writing: [],
-  knowledge: [],
+  knowledge,
   thinkingFramework: [],
 };
 
@@ -110,9 +111,12 @@ export function validateAll(cols: Collections = collections): ValidateResult {
     }
   }
 
-  // 2) cross-entity: internal evidence/example links resolve through routes().
+  // 2) cross-entity: internal evidence/example links resolve through routes(). Cross-referencing
+  // content (knowledge, HowIThink) links to project pages that land in later tickets, so resolve
+  // against the fixed personal-build slug universe (lib/anchors ALL_PROJECT_SLUGS) rather than the
+  // partially-filled `projects` collection — a link to a slug outside that universe still fails.
   const routeSet = routes({
-    projectSlugs: cols.projects.map((p) => p.slug),
+    projectSlugs: ALL_PROJECT_SLUGS,
     essaySlugs: cols.writing.map((e) => e.slug),
   });
   for (const k of cols.knowledge) {
