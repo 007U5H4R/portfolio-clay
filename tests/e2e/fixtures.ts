@@ -13,6 +13,11 @@
  *                       Playwright's built-in `reducedMotion` context option.)
  *   noViewTransitions — delete document.startViewTransition before any script runs, forcing the
  *                       EXE-5 plain-navigation fallback (EVAL-015).
+ *   keyboardOnly      — press Tab `opts.tabs` times and, after each, assert the focus-visible
+ *                       element wears the shared 3px solid accent ring (EVAL-007).
+ *   consoleErrors     — opt-in collector: any console.error or uncaught page error during a test
+ *                       that destructures this fixture fails that test at teardown (A12: no silent
+ *                       client errors).
  */
 import { test as base, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -39,6 +44,7 @@ const MIN_TARGET_ALLOWLIST: { selector: string; reason: string }[] = [
 
 type AxeCheck = (page: Page, opts?: { include?: string }) => Promise<void>;
 type PageCheck = (page: Page) => Promise<void>;
+type KeyboardOnlyCheck = (page: Page, opts?: { tabs?: number }) => Promise<void>;
 
 interface TracerFixtures {
   axe: AxeCheck;
@@ -46,6 +52,8 @@ interface TracerFixtures {
   minTargets: PageCheck;
   withReducedMotion: PageCheck;
   noViewTransitions: PageCheck;
+  keyboardOnly: KeyboardOnlyCheck;
+  consoleErrors: string[];
 }
 
 export const test = base.extend<TracerFixtures>({
@@ -141,6 +149,70 @@ export const test = base.extend<TracerFixtures>({
         }
       });
     });
+  },
+
+  keyboardOnly: async ({}, provide) => {
+    await provide(async (page, opts) => {
+      const tabs = opts?.tabs ?? 6;
+      // Resolve the accent colour through the same engine that resolves outline-color, so the
+      // comparison is exact regardless of rgb()/oklch() serialisation across Chromium versions.
+      const accent = await page.evaluate(() => {
+        const probe = document.createElement("span");
+        probe.style.color = "var(--color-accent)";
+        probe.style.position = "absolute";
+        probe.style.opacity = "0";
+        probe.style.pointerEvents = "none";
+        document.body.appendChild(probe);
+        const c = getComputedStyle(probe).color;
+        probe.remove();
+        return c;
+      });
+
+      for (let i = 0; i < tabs; i++) {
+        await page.keyboard.press("Tab");
+        const info = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null;
+          if (!el || el === document.body || el === document.documentElement) return null;
+          // Only assert on elements the browser is showing a keyboard focus ring for.
+          if (typeof el.matches === "function" && !el.matches(":focus-visible")) return null;
+          const s = getComputedStyle(el);
+          return {
+            outlineWidth: s.outlineWidth,
+            outlineStyle: s.outlineStyle,
+            outlineColor: s.outlineColor,
+            tag: el.tagName.toLowerCase(),
+            name: (el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 48),
+          };
+        });
+        if (!info) continue; // no focus-visible target at this stop (e.g. a container) — skip
+        const where = `tab ${i + 1} → <${info.tag}> "${info.name}"`;
+        expect(info.outlineWidth, `${where}: focus ring must be 3px`).toBe("3px");
+        expect(info.outlineStyle, `${where}: focus ring must be solid`).toBe("solid");
+        expect(info.outlineColor, `${where}: focus ring must be the accent colour`).toBe(accent);
+      }
+    });
+  },
+
+  consoleErrors: async ({ page }, provide) => {
+    const errors: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") return;
+      const text = msg.text();
+      // Network resource-status failures (e.g. "Failed to load resource: … 404") are logged by the
+      // browser at error level but are NOT app client errors — they belong to the response/dead-link
+      // layer (EVAL-011 crawler, TKT-07b), not this collector. A12 scopes `consoleErrors` to
+      // app-thrown/logged JS errors (Ask/Video/Copy failure paths, React errors). During M-002 the
+      // nav prefetches /thinking and /about (built in later milestones), so filtering this noise
+      // here is correct scoping, not hiding — a genuine broken asset still fails the crawler.
+      if (text.startsWith("Failed to load resource")) return;
+      errors.push(text);
+    });
+    page.on("pageerror", (err) => errors.push(`[pageerror] ${err.message}`));
+    await provide(errors);
+    // Fails only the tests that opted into this fixture (A12: client errors are never silent).
+    expect(errors, `app console/JS errors captured during the test:\n${errors.join("\n")}`).toEqual(
+      [],
+    );
   },
 });
 
