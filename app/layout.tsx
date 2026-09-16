@@ -4,6 +4,7 @@ import "./globals.css";
 import { site } from "@/lib/site";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
+import { Footer } from "@/components/layout/Footer";
 
 // Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com).
 // The CSS variables are mapped into @theme's --font-display / --font-hand in globals.css.
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SkipLink />
         <Header />
         <main id="main">{children}</main>
+        <Footer />
       </body>
     </html>
   );

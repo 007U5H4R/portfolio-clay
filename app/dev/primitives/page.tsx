@@ -14,6 +14,10 @@ import { VisuallyHidden } from "@/components/common/VisuallyHidden";
 import { Prose } from "@/components/common/Prose";
 import { StatusBadge, type ProjectStatus } from "@/components/projects/StatusBadge";
 import type { Tone } from "@/components/clay/tiers";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+import { SectionHeading } from "@/components/layout/SectionHeading";
+import { Reveal } from "@/components/interactions/Reveal";
 
 /**
  * /dev/primitives (S04.07) — the full clay + common primitive board. Every primitive is shown
@@ -205,6 +209,33 @@ export default function PrimitivesDevPage() {
             bodies rely on.
           </p>
         </Prose>
+      </Board>
+
+      {/* Layout system — Container / Section / SectionHeading / Reveal (S05.01/S05.02, TKT-05).
+          `tests/e2e/layout.spec.ts` measures the two data-testid nodes directly; this board is the
+          documented "≥2 sections" precondition for TC-027/TC-028 before a real page adopts them
+          (TKT-14+). QA-only, same ALLOW_DEV_ROUTES gate as the rest of this route. */}
+      <Board id="board-layout" title="Layout system — Container · Section · SectionHeading · Reveal">
+        <Container data-testid="layout-demo-container" className="border border-dashed border-ink/20 py-[var(--space-4)]">
+          <p className="text-caption text-ink-3">Container gutter/max-width demo</p>
+        </Container>
+        <Section
+          data-testid="layout-demo-section"
+          tone="lavender"
+          aria-labelledby="layout-demo-heading"
+        >
+          <SectionHeading
+            id="layout-demo-heading"
+            eyebrow="Demo"
+            title="Section rhythm"
+            lead="Vertical padding follows the 72/96/128 token ladder; tone is the one-accent-per-section mechanism."
+          />
+          <Reveal data-testid="reveal-demo" className="mt-[var(--space-5)]">
+            <p className="text-caption text-ink-2">
+              Reveal fires once via IntersectionObserver, then disconnects.
+            </p>
+          </Reveal>
+        </Section>
       </Board>
     </main>
   );

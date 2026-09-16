@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useSyncExternalStore } from "react";
+import { createElement, useCallback, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { LazyMotion, domAnimation, type Variants } from "motion/react";
 
 /**
  * A6 motion constants (technical-plan.md §A6, decision TP6) — the single source of truth for
@@ -32,6 +33,35 @@ export const easings = {
   panel: "cubic-bezier(0.32,0.72,0,1)",
   vt: "cubic-bezier(.77,0,.175,1)",
 } as const;
+
+/**
+ * Shared `m.*` variant objects (technical-plan.md §A6 / §B S05.03) — `fadeUp` for a single
+ * element's entrance, `staggerChildren` for a parent orchestrating its children 70ms apart
+ * (matches `Reveal`'s CSS `--stagger` step, A6). `duration` is `durations.reveal` in seconds
+ * (motion's `Transition.duration` is seconds, not ms).
+ */
+export const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: durations.reveal / 1000, ease: [0.2, 0.7, 0.2, 1] },
+  },
+};
+
+export const staggerChildren: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+};
+
+/**
+ * Shared `LazyMotion` root (A6: "`LazyMotion features={domAnimation} strict` at the root of each
+ * client subtree that uses `m.*`") so callers don't repeat the `features`/`strict` wiring inline.
+ * Written with `createElement` rather than JSX because this file is `.ts`, not `.tsx`.
+ */
+export function LazyMotionRoot({ children }: { children: ReactNode }) {
+  return createElement(LazyMotion, { features: domAnimation, strict: true }, children);
+}
 
 /**
  * Subscribes to a `matchMedia` query as a React 18 external store: `getSnapshot` reads the live
