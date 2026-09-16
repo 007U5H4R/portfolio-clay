@@ -1,0 +1,8 @@
+[
+  {
+    "id": "ask-ai-disabled",
+    "selector": "[title=\"Ask AI — coming in this build\"]",
+    "reason": "AskAIButton is intentionally aria-disabled in the M-001 tracer (TKT-01 AC 3) — it stays focusable with a visible tooltip and accessible description instead of being removed, so it is not a dead control. The real Ask panel wires it up in TKT-11, which must remove this entry.",
+    "expires": "TKT-11"
+  }
+]

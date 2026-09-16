@@ -3,12 +3,14 @@ node_modules/
 .next/
 out/
 coverage/
+*.tsbuildinfo
 
 # test / eval tooling artifacts
 test-results/
 playwright-report/
 .lighthouseci/
 .vitest/
+.eval/
 
 # environment (secret-bearing; .env.tooling is committed & secret-free)
 .env

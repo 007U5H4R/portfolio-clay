@@ -1,0 +1,29 @@
+{
+  "//": "Lighthouse CI — mobile (technical-plan.md §A9 / §B S07.04). Tracer collects `/` only; on the",
+  "//2": "tracer every assertion is level `warn` (informational) — TKT-07/S11.01 flips them to `error`",
+  "//3": "and expands `collect.url` to the four routes. Thresholds are never lowered to pass (EV2).",
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm start",
+      "url": ["http://127.0.0.1:3000/"],
+      "numberOfRuns": 3,
+      "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 90000
+    },
+    "assert": {
+      "aggregationMethod": "median",
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.9 }],
+        "categories:accessibility": ["warn", { "minScore": 0.95 }],
+        "categories:best-practices": ["warn", { "minScore": 0.95 }],
+        "categories:seo": ["warn", { "minScore": 0.95 }],
+        "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.05 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci/mobile"
+    }
+  }
+}

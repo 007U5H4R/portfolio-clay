@@ -1,4 +1,5 @@
 {
   "charmEnabled": true,
-  "charm": "duck"
+  "charm": "duck",
+  "icon": "writing"
 }
