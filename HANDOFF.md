@@ -23,7 +23,15 @@ S1 separate site, new domain · S2 Next.js 16 + TS + Tailwind 4 + `motion` 13 + 
 - Flip repo visibility when ready; sign off 5 DRAFT essay titles + 8 Ask answers (`CONTENT_INVENTORY.md`).
 - Private GitHub repo `007U5H4R/portfolio-clay` to be created at TKT-50 (confirm scope first).
 
-## Next stage — Stage 7: Execution (default **Opus 4.8, Standard effort** — confirm at the checkpoint)
+## STAGE 7 EXECUTION IN PROGRESS (updated 2026-09-16) — live tracker is `docs/ledger.md`
+Tushar is AFK; authorized "complete all the stages of workflow and take decisions on my behalf" (2026-09-15). Every human gate becomes a recorded decision; hard stops NOT crossed autonomously: production deploy, GitHub/Vercel account resource creation, domain purchase, publishing the resume/any PII. Report to Tushar at each MILESTONE boundary + major stage gates. Full mandate + boundaries: `docs/ledger.md` "SESSION AUTHORIZATION".
+
+**Phase 1 = M-001 (tracer + visual direction): COMPLETE & MERGED to `main`.** TKT-01 (TASK-1) + TKT-02 gate (TASK-2) Done in Campfire. Visual direction APPROVED (EXE-6). Suite green (typecheck/lint/test 48, build 5 static routes, e2e 39-0). Baseline `evals/results/baseline-v1.json`. Decisions logged EXE-1..6 (VT flag removed, dev-audit accept, ease tokens, 2xl=1440, VT fallback, visual gate). Fix scars: EVAL-008 (overflow/target/header) + F6 (nav update-loop, hysteresis + regression test).
+
+**NEXT: Phase 2 = M-002 (Foundations & quality harness).** Branch from `main` as `m-002-foundations`. Per §C Phase 2 + PB1: Lane A (on TKT-01 merge — done) TKT-03 (schema+zod gate) → TKT-07 (full eval harness); Lane B (on TKT-02 approval — done) TKT-04→{TKT-05,TKT-06} are already built in the tracer — M-002 Lane B is their promotion to the full primitive board (TKT-04 `/dev/primitives`) + layout/SEO tickets. Read §C Phase 2 row for the exact ticket list + QA gate (EVAL-013/016/006/007/008/010/017 + first full eval-run vs baseline). Carry-forwards (avatar balance→M-003, perf→TKT-14/49, DRAFT copy→Tushar): see `docs/ledger.md`.
+Read, in order for M-002: `docs/ledger.md` → `technical-plan.md` §B M-002 (S08–S12 area) + §C Phase 2 + §A3 (schema) + §A16 (eval) → `tickets.md` TKT-03..08 → `test-cases.md` M-002 cases → `evaluation-plan.md` → `decisions.md` (EXE-1..6). Then build-workflow Stage 7 + `orchestration-playbook`.
+
+### (historical) Stage-6 baton — superseded by the above
 Read, in order: this file → `technical-plan.md` (§0, A, B for M-001, C, E) → `tickets.md` §0.4 map + TKT-01/02/03/07 → `test-cases.md` M-001 cases → `Design.md` §2 tokens + §3 Header/Hero/FeaturedWork/Footer → `evaluation-plan.md` → `decisions.md` (skim all). Then `/Users/tushar/dotfiles/claude/rules/build-workflow.md` **Stage 7** + the `orchestration-playbook` skill.
 
 Execution rules for this project:
