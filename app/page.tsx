@@ -5,6 +5,7 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { FeaturedWork } from "@/components/projects/FeaturedWork";
 import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
+import { FinalCTA } from "@/components/home/FinalCTA";
 import { knowledge } from "@/data/knowledge";
 import { getProject } from "@/data/projects";
 import { thinkingFramework } from "@/data/thinking-framework";
@@ -69,9 +70,16 @@ export default function Home() {
 
       {/*
         HowIThink (TKT-13): the six-stage process module, one real sourced example per stage.
-        Additive only — Hero/Ask/FeaturedWork above are unchanged; FinalCTA lands with TKT-14.
+        Additive only — Hero/Ask/FeaturedWork above are unchanged.
       */}
       <HowIThink stages={HOW_I_THINK_STAGES} />
+
+      {/*
+        FinalCTA (TKT-14): the closing call-to-action — the last section in the fixed home order
+        (Hero → Ask → Featured work → How I think → Final CTA, Design.md §3 line 162). Carries the
+        section's single lavender accent (the hero-tier card) and the three conversion actions.
+      */}
+      <FinalCTA />
     </>
   );
 }

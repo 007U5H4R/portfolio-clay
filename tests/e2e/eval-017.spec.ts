@@ -15,6 +15,20 @@
 import { readFileSync } from "node:fs";
 import sharp from "sharp";
 import { test, expect } from "./fixtures";
+import { STATIC_ROUTES } from "@/app/sitemap";
+import { projects } from "@/data/projects";
+import { collections } from "@/data";
+
+// The expected sitemap URL count is DERIVED from the exact three sources `app/sitemap.ts` composes
+// its entries from — never hard-coded (a literal 4 went stale the moment TKT-12 added railcite +
+// velora, taking personal projects from 1 → 3). Adding a static route, a personal project, or an
+// essay (TKT-43) updates both the sitemap and this expectation from the same data, so it cannot go
+// stale again. `collections.writing` is empty until TKT-43, at which point that ticket wires essays
+// into `app/sitemap.ts` too and this count follows automatically.
+const EXPECTED_SITEMAP_COUNT =
+  STATIC_ROUTES.length +
+  projects.filter((project) => project.category === "personal").length +
+  collections.writing.length;
 
 const ROUTES = ["/", "/work", "/work/teachspark", "/contact"] as const;
 
@@ -114,7 +128,11 @@ test("sitemap.xml lists every built static route + personal project slug, no /de
   expect(res.status()).toBe(200);
   const body = await res.text();
   const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  expect(locs.length, "sitemap must list every static route + 1 (teachspark)").toBe(4);
+  expect(
+    locs.length,
+    `sitemap must list every static route + personal project slug + essay ` +
+      `(derived: ${EXPECTED_SITEMAP_COUNT})`,
+  ).toBe(EXPECTED_SITEMAP_COUNT);
   for (const loc of locs) {
     expect(loc, `sitemap entry "${loc}" must be absolute https://`).toMatch(ABSOLUTE_HTTPS);
     expect(loc, `sitemap entry "${loc}" must not expose a /dev/* route`).not.toMatch(/\/dev\//);
