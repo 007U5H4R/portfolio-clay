@@ -30,6 +30,7 @@ import { ALL_PROJECT_SLUGS, isInternalHref, resolves, routes } from "@/lib/ancho
 import { contentForbiddenHits } from "@/scripts/forbidden-strings";
 import { projects } from "./projects";
 import { knowledge } from "./knowledge";
+import { thinkingFramework } from "./thinking-framework";
 
 export interface Collections {
   projects: ProjectT[];
@@ -40,14 +41,14 @@ export interface Collections {
   thinkingFramework: ThinkingStageDefT[];
 }
 
-/** Live collections. Only `projects` is populated; the rest land with their own tickets. */
+/** Live collections. `experience`/`skills`/`writing` land with their own tickets. */
 export const collections: Collections = {
   projects,
   experience: [],
   skills: [],
   writing: [],
   knowledge,
-  thinkingFramework: [],
+  thinkingFramework,
 };
 
 export type ValidateResult = { ok: true } | { ok: false; issues: string[] };

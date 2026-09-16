@@ -53,7 +53,9 @@ test.describe("ask-inline", () => {
     // The answer carries resolving evidence + the honesty microcopy + the DRAFT badge.
     await expect(page.getByRole("list", { name: "Sources" })).toBeVisible();
     await expect(page.getByText("Answers come from this portfolio's content — nothing generated.")).toBeVisible();
-    await expect(page.getByText("Draft")).toBeVisible();
+    // Scoped to the Ask card (TKT-13's HowIThink section reuses the same "Draft" badge convention
+    // further down the page, so an unscoped page.getByText("Draft") is no longer unique).
+    await expect(card.getByText("Draft")).toBeVisible();
 
     // Card grew in place to the expanded min-height.
     const afterHeight = (await card.boundingBox())?.height ?? 0;

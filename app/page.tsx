@@ -4,13 +4,33 @@ import { AskPortfolio } from "@/components/ai/AskPortfolio";
 import { Section } from "@/components/layout/Section";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { FeaturedWork } from "@/components/projects/FeaturedWork";
+import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
 import { knowledge } from "@/data/knowledge";
+import { getProject } from "@/data/projects";
+import { thinkingFramework } from "@/data/thinking-framework";
+import { orderStages } from "@/lib/stages";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 // The 5 home-surface prompts, resolved server-side and passed to the client leaf as a plain
 // string[] (A1: pages hand a leaf the exact props it needs, never the knowledge module).
 const HOME_PROMPTS = knowledge.filter((entry) => entry.surface.includes("home")).map((entry) => entry.prompt);
+
+// How-I-Think stages (TKT-13), resolved server-side into the exact client-leaf shape (A1: the
+// client component never imports data/schema.ts or data/projects.ts directly) — each stage's
+// `example.project` slug is resolved to its sourced display name here (e.g. "Nuptis → Velora").
+const HOW_I_THINK_STAGES: HowIThinkStage[] = orderStages(thinkingFramework).map((stage) => ({
+  id: stage.id,
+  label: stage.label,
+  principle: stage.principle,
+  tone: stage.tone,
+  example: {
+    quote: stage.example.quote,
+    attribution: stage.example.attribution,
+    href: stage.example.href,
+    projectName: getProject(stage.example.project)?.name ?? stage.example.project,
+  },
+}));
 
 export const metadata: Metadata = buildMetadata({
   title: `${site.name} · ${site.title}`,
@@ -46,6 +66,12 @@ export default function Home() {
         card lands in M-005.
       */}
       <FeaturedWork />
+
+      {/*
+        HowIThink (TKT-13): the six-stage process module, one real sourced example per stage.
+        Additive only — Hero/Ask/FeaturedWork above are unchanged; FinalCTA lands with TKT-14.
+      */}
+      <HowIThink stages={HOW_I_THINK_STAGES} />
     </>
   );
 }
