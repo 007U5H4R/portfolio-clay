@@ -1,10 +1,10 @@
 ---
 id: TASK-6
 title: 'TKT-06: SEO: metadata builders · OG image generator · sitemap · robots'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
-updated_date: '2026-09-16 04:27'
+updated_date: '2026-09-16 05:11'
 labels:
   - P1
   - 'sp:3'

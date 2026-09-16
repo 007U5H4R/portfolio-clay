@@ -47,12 +47,16 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | TKT-03 schema + zod gate | TASK-3 | opus | ✅ done | commit c9e5e28; 71 tests, schema 36 exports, EVAL-013 proof (fixture build fails 3 issues+exit1, clean build green), no regression. tracer.ts deleted→projects.ts. Devs: conditional composition-invariants (only 1 project yet), ?filter= per E-2. Accepted. |
 | TKT-04 primitive system complete | TASK-4 | opus | ✅ done | commit 0188109; 88 tests, D1 proofs genuine, tokens 13/13, glass/clay separated, primitives e2e 7/5, dev-route gate both halves, no regression. Accepted. Devs: after: tone overlay, a[data-inline-link] allowlist (WCAG 2.5.8), dev route build-time gated. |
 | TKT-05 layout + Reveal + Footer | TASK-5 | sonnet | ✅ done | commit a4a8c9e; 89 tests, tokens 13/13, layout e2e green, no regression. Footer="Built with curiosity." ✓. Caught+fixed 2 real contrast bugs (Footer bg, eyebrow ink-3→ink-2 7.53:1). Plan §B S05.04 prose fixed by orchestrator. Accepted. |
-| TKT-06 SEO/OG | TASK-6 | sonnet/opus | ⬜ pending | S06.01–07; metadata builders, OG ImageResponse, sitemap/robots, eval-017 |
+| TKT-06 SEO/OG | TASK-6 | sonnet | ✅ done | commit 5d11201; 98 tests, all routes static incl 4 OG routes, eval-017 7/7, no regression. Fixed 2 Satori bugs (WebP→PNG, Buffer→ArrayBuffer). Accepted. Carry: TKT-45 must NOT re-add contact OG (added here); TKT-40/43/44 extend sitemap. |
 | TKT-07 eval harness (full) | TASK-7 | opus/sonnet | ⬜ pending | TSK-08..12; Vitest projects, eval-cases loader, per-EVAL specs, crawler (EVAL-011), LHCI enforce, bundle budget, full eval.ts, CI, docs/eval.md, first eval-run |
 | TKT-08 resume PII gate | TASK-8 | cheap | ⛔ blocked | S08r.01 test infra only (skips loud, resumeAvailable stays false); S08r.02+ need Tushar's sanitised PDF — hard-blocks prod (TKT-53) |
 
 ## Conflicts already resolved (§E — read before TKT-01)
 E-1 footer "Built with curiosity." · E-6 split card-padding tokens · E-7 ClayButton primary = bg text on accent · E-9 nav = Home·Work·Thinking·About · E-11 featured cards use ClayIcon not imagery · E-12 verify VT export name at S06.01 · E-13 resume both states covered. Full table: technical-plan.md §E.
+
+## Fan-out plan (Tushar asked to parallelize) + M-005 media tool
+- **Where fan-out is safe:** M-005 media (TKT-22–27 ffmpeg encodes — no server) ∥ content/trace docs, and M-006 independent pages. NOT TKT-07 (its e2e/LHCI steps share `pnpm start` :3000). Serialize `data/projects.ts` edits (shared file). Use git worktrees with worktree + node_modules pinned to E-Drive, ~2–3 concurrent (bounded by review+merge), per-result review kept.
+- **Recordly (Tushar 2026-09-16, option b — revisit at M-005):** candidate for case-study product demos = `https://github.com/webadderallorg/Recordly`. **DO NOT clone/install/run before a read-only source review** — unvetted third-party, org name `webadderallorg` unusual, would capture authed apps + the TeachSpark forbidden sandbox code. If used: forbidden-string/PII scrub every clip before commit. Fallbacks: Claude-in-Chrome `gif_creator` (built-in) or Tushar's own screen-recording.
 
 ## Open items (defaults applied; Tushar's calls) — do not block execution
 TeachSpark metric date (08-24) · RailCite figure policy (live-with-date) · Cubicle deploy (N/A) · domain name · sanitised resume PDF (hard-blocks TKT-53 only) · GitHub repo creation · years wording ("7+"). Full list: §E "Open items carried".
