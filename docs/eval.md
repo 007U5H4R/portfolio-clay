@@ -28,6 +28,7 @@ on the E-Drive (`PLAYWRIGHT_BROWSERS_PATH`, `TMPDIR`), never the Mac internal di
 | `--baseline <file>` | Baseline JSON (relative to `evals/results/`) to diff against. Default `baseline-v1.json`. |
 | `--base-url <url>` | Evaluate a deployed origin: skips the build and the local server, points Playwright at the URL, and runs the TP9 security-header check. Lighthouse under `--base-url` is skipped with a note (run `lhci autorun` against the preview directly). |
 | `--skip-build` | Reuse the current `.next` build instead of rebuilding. |
+| `--reuse` | Assemble the run from the layer artifacts already on disk (`.eval/*.json`, `.lighthouseci/*`) without re-executing vitest/playwright/lighthouse. For a memory-constrained host where Lighthouse's Chrome would OOM; implies `--skip-build`. Requires artifacts from a prior run of the same build. |
 | `--help` | Print the flag list and exit 0. |
 
 ## Exit codes

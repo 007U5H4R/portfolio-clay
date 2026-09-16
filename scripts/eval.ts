@@ -100,6 +100,9 @@ Flags:
   --baseline <file>  baseline JSON to diff against (default evals/results/baseline-v1.json)
   --base-url <url>   evaluate a deployed origin (skips build + local server; adds the TP9 header check)
   --skip-build       reuse the existing .next build instead of rebuilding
+  --reuse            assemble the run from the layer artifacts already on disk (.eval/*.json,
+                     .lighthouseci/*) without re-executing vitest/playwright/lighthouse — for a
+                     memory-constrained host where Lighthouse's Chrome would OOM. Implies --skip-build.
   --help             print this help and exit
 
 Exit codes: 0 clean · 1 critical FAIL · 2 regression · 3 runner error.`;
@@ -113,7 +116,8 @@ const label = flagValue("--label") ?? "";
 const only = (flagValue("--only") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 const baselineFlag = flagValue("--baseline");
 const baseUrlFlag = flagValue("--base-url");
-const skipBuild = process.argv.includes("--skip-build") || !!baseUrlFlag;
+const reuse = process.argv.includes("--reuse");
+const skipBuild = process.argv.includes("--skip-build") || !!baseUrlFlag || reuse;
 const BASE_URL = baseUrlFlag ?? "http://127.0.0.1:3000";
 
 // --------------------------------------------------------------------------- helpers
@@ -449,8 +453,13 @@ async function main(): Promise<void> {
   const runsVitest = VITEST_CASES.some(wants);
   let vf: VitestFile[] = [];
   if (runsVitest) {
-    console.log("[eval] running Vitest…");
-    runInherit("pnpm", ["exec", "vitest", "run"]);
+    if (reuse) {
+      console.log("[eval] --reuse: reading existing .eval/vitest.json");
+      if (!existsSync(VITEST_JSON)) die(3, `--reuse but no ${VITEST_JSON}`);
+    } else {
+      console.log("[eval] running Vitest…");
+      runInherit("pnpm", ["exec", "vitest", "run"]);
+    }
     vf = vitestFiles();
   }
 
@@ -458,14 +467,18 @@ async function main(): Promise<void> {
   const runsPlaywright = PLAYWRIGHT_CASES.some(wants);
   let specs: PwSpec[] = [];
   if (runsPlaywright) {
-    console.log("[eval] running Playwright…");
-    const pwArgs = ["exec", "playwright", "test"];
-    if (onlySet.size > 0) {
-      const grep = PLAYWRIGHT_CASES.filter(wants).map((id) => `@${id}`).join("|");
-      if (grep) pwArgs.push("--grep", grep);
+    if (reuse) {
+      console.log("[eval] --reuse: reading existing .eval/playwright.json");
+    } else {
+      console.log("[eval] running Playwright…");
+      const pwArgs = ["exec", "playwright", "test"];
+      if (onlySet.size > 0) {
+        const grep = PLAYWRIGHT_CASES.filter(wants).map((id) => `@${id}`).join("|");
+        if (grep) pwArgs.push("--grep", grep);
+      }
+      runInherit("pnpm", pwArgs); // failures captured from JSON, not exit code
     }
-    runInherit("pnpm", pwArgs); // failures captured from JSON, not exit code
-    if (!existsSync(PW_JSON)) die(3, `Playwright JSON not written at ${PW_JSON}`);
+    if (!existsSync(PW_JSON)) die(3, `Playwright JSON not found at ${PW_JSON}${reuse ? " (--reuse needs a prior run)" : ""}`);
     specs = collectSpecs(readJSON(PW_JSON));
   }
 
@@ -485,6 +498,10 @@ async function main(): Promise<void> {
     if (baseUrlFlag) {
       lighthouseSkippedReason = "base-url mode: run `pnpm exec lhci autorun` against the preview per docs/eval.md";
       console.log(`[eval] Lighthouse SKIP — ${lighthouseSkippedReason}`);
+    } else if (reuse) {
+      console.log("[eval] --reuse: reading existing .lighthouseci/{mobile,desktop} manifests");
+      mobile = readLighthouse("mobile");
+      desktop = readLighthouse("desktop");
     } else {
       const pair = runLighthousePair();
       mobile = pair.mobile;
