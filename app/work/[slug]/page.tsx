@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { CaseStudyHeader } from "@/components/case-study/CaseStudyHeader";
 import { getProject, projectIcon } from "@/data/projects";
+import { buildMetadata } from "@/lib/seo";
+import { site } from "@/lib/site";
 
 /** Only the slugs listed here are built; any other `/work/*` slug 404s (dynamicParams=false). */
 export function generateStaticParams() {
@@ -19,7 +21,13 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return {};
-  return { title: project.name, description: project.tagline };
+  return buildMetadata({
+    title: `${project.name} · ${site.name}`,
+    description: project.tagline,
+    path: `/work/${project.slug}`,
+    ogFamily: `${project.name} case study`,
+    type: "article",
+  });
 }
 
 /**

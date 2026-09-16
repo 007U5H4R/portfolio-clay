@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
+import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Contact",
-};
+export const metadata: Metadata = buildMetadata({
+  title: `Contact · ${site.name}`,
+  description: "Email, LinkedIn, or a resume — the fastest ways to reach Tushar Pathak.",
+  path: "/contact",
+  ogFamily: "Contact",
+});
 
 /**
  * Tracer stub. The `#resume` section exists so the resume control's `/contact#resume` target
