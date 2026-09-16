@@ -16,11 +16,26 @@ import { test, expect } from "./fixtures";
 const PRIMITIVES_PATH = "/dev/primitives";
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
+/**
+ * Navigate to the dev route and SKIP (never FAIL) when it 404s — `/dev/*` only exists under
+ * `ALLOW_DEV_ROUTES=1`, so a plain `pnpm test:e2e` skips these instead of failing (TKT-07b).
+ */
+async function gotoDev(
+  page: import("@playwright/test").Page,
+  waitUntil: "load" | "domcontentloaded" = "load",
+): Promise<void> {
+  const resp = await page.goto(PRIMITIVES_PATH, { waitUntil });
+  test.skip(
+    (resp?.status() ?? 404) === 404,
+    "/dev/primitives 404s without ALLOW_DEV_ROUTES=1 — run the QA job to exercise it",
+  );
+}
+
 // ---------------------------------------------------------------------------
 // S05.01 — Container gutters + max-width ladder
 // ---------------------------------------------------------------------------
 test("Container gutters and max-width match the token ladder", { tag: "@primitives" }, async ({ page }) => {
-  await page.goto(PRIMITIVES_PATH, { waitUntil: "load" });
+  await gotoDev(page);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Clay primitive system");
 
   const container = page.getByTestId("layout-demo-container");
@@ -48,7 +63,7 @@ test("Container gutters and max-width match the token ladder", { tag: "@primitiv
 // S05.01 — Section vertical-rhythm ladder (72/96/128) + single-tone wash
 // ---------------------------------------------------------------------------
 test("Section vertical rhythm matches the 72/96/128 token ladder", { tag: "@primitives" }, async ({ page }) => {
-  await page.goto(PRIMITIVES_PATH, { waitUntil: "load" });
+  await gotoDev(page);
 
   const section = page.getByTestId("layout-demo-section");
   const { paddingTop, paddingBottom } = await section.evaluate((el) => {
@@ -76,7 +91,8 @@ test("Reveal leaves content visible in static HTML with JS disabled", { tag: "@p
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 900 } });
   try {
     const p = await context.newPage();
-    await p.goto(PRIMITIVES_PATH, { waitUntil: "domcontentloaded" });
+    const resp = await p.goto(PRIMITIVES_PATH, { waitUntil: "domcontentloaded" });
+    test.skip((resp?.status() ?? 404) === 404, "/dev/primitives 404s without ALLOW_DEV_ROUTES=1");
     const target = p.getByTestId("reveal-demo");
     await expect(target).toBeVisible();
     const opacity = await target.evaluate((el) => getComputedStyle(el).opacity);
@@ -95,7 +111,7 @@ test("Reveal fires once via IntersectionObserver and does not re-trigger", { tag
   page,
 }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
-  await page.goto(PRIMITIVES_PATH, { waitUntil: "load" });
+  await gotoDev(page);
   const target = page.getByTestId("reveal-demo");
   await target.scrollIntoViewIfNeeded();
   await expect(target).toHaveAttribute("data-revealed", "");
@@ -117,7 +133,7 @@ test("Reveal is opacity-only under reduced motion (transform never animates)", {
 }, async ({ page, withReducedMotion }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
   await withReducedMotion(page);
-  await page.goto(PRIMITIVES_PATH, { waitUntil: "load" });
+  await gotoDev(page);
 
   const target = page.getByTestId("reveal-demo");
   await target.scrollIntoViewIfNeeded();

@@ -12,12 +12,26 @@ import { test, expect } from "./fixtures";
 const PATH = "/dev/primitives";
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
+/**
+ * Navigate to the dev route and SKIP (never FAIL) when it 404s. `/dev/*` routes only exist under
+ * `ALLOW_DEV_ROUTES=1 pnpm start` (the QA job); a plain `pnpm test:e2e` runs against a normal
+ * production build where they return 404, so these specs must skip rather than fail (carry-forward
+ * from TKT-07a: no phantom "primitives" failures on the default run).
+ */
+async function gotoDev(page: import("@playwright/test").Page): Promise<void> {
+  const resp = await page.goto(PATH, { waitUntil: "load" });
+  test.skip(
+    (resp?.status() ?? 404) === 404,
+    "/dev/primitives 404s without ALLOW_DEV_ROUTES=1 — run the QA job to exercise it",
+  );
+}
+
 test("primitives board · no-overflow + min-targets + screenshots", { tag: "@primitives" }, async ({
   page,
   noOverflow,
   minTargets,
 }) => {
-  await page.goto(PATH, { waitUntil: "load" });
+  await gotoDev(page);
   // Confirm the dev route actually rendered (not a 404 from a non-flag build).
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Clay primitive system");
 
@@ -36,7 +50,7 @@ test("primitives board · no-overflow + min-targets + screenshots", { tag: "@pri
 
 test("primitives board · axe wcag2.1 AA", { tag: "@primitives" }, async ({ page, axe }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "axe runs at 390 and 1440");
-  await page.goto(PATH, { waitUntil: "load" });
+  await gotoDev(page);
   await axe(page);
 });
 
@@ -44,7 +58,7 @@ test("primitives board · filter pill changes bg on hover; tag pill does not", {
   tag: "@primitives",
 }, async ({ page }) => {
   test.skip(width(page) !== 1440, "hover behaviour measured once at w1440 (fine pointer)");
-  await page.goto(PATH, { waitUntil: "load" });
+  await gotoDev(page);
 
   const bg = (loc: import("@playwright/test").Locator) =>
     loc.evaluate((el) => getComputedStyle(el).backgroundColor);

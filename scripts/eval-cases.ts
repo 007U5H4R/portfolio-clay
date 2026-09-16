@@ -39,11 +39,10 @@ const AUTOMATED_RUNNERS = [
 
 /**
  * EVAL ids whose Playwright spec is deferred to a later ticket, so `--check-specs` does not treat a
- * missing spec as a failure. EVAL-011 (dead-control crawler) is TKT-07b, not TKT-07a.
+ * missing spec as a failure. Empty as of TKT-07b: EVAL-011's dead-control crawler spec now exists
+ * (tests/e2e/eval-011-dead-controls.spec.ts), so every Playwright-automated id is covered.
  */
-const DEFERRED_SPECS: Record<string, string> = {
-  "EVAL-011": "dead-control crawler is TKT-07b (TSK-10)",
-};
+const DEFERRED_SPECS: Record<string, string> = {};
 
 const EvalCaseSchema = z
   .object({
