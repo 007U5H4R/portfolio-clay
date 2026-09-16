@@ -1,9 +1,10 @@
 ---
 id: TASK-2
 title: 'TKT-02: Visual-direction review gate with Tushar'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 01:53'
 labels:
   - P0
   - 'sp:1'
