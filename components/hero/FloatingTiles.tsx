@@ -30,7 +30,11 @@ export function FloatingTiles({ tiles }: FloatingTilesProps) {
               <span className="text-[length:var(--text-caption)] font-bold tracking-[var(--tracking-eyebrow)] uppercase text-ink">
                 {tile.label}
               </span>
-              <span className="text-[0.75rem] leading-snug text-ink-2">{tile.copy}</span>
+              {/* EXE-7 / EVAL-008: this is CONTENT copy, not a micro-label — it must clear the
+                  14px `--text-caption` floor rather than take the data-micro-label exception. */}
+              <span className="text-[length:var(--text-caption)] leading-snug text-ink-2">
+                {tile.copy}
+              </span>
             </ClayTile>
           </Parallax>
         </li>

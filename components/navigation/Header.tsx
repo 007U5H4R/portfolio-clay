@@ -49,15 +49,21 @@ export function Header() {
           className="flex min-h-11 items-center gap-3 rounded-[var(--radius-utility)] focus-ring"
         >
           <ClayTile size={40} tier="utility">
-            <span className="text-[13px] font-semibold text-ink" aria-hidden="true">
+            {/* EXE-7 micro-label exception: decorative brand monogram, not content — ink on the
+                utility tile clears AA contrast by a wide margin at 13px. */}
+            <span className="text-[13px] font-semibold text-ink" aria-hidden="true" data-micro-label="">
               TP
             </span>
           </ClayTile>
           <span className="flex flex-col leading-tight">
             <span className="text-[14px] font-semibold text-ink">{site.name}</span>
             {/* Deviation 5 (Design.md): subtitle hides below 768px so the mobile header stays
-                short enough for the Hero to pass its 5-second test without scrolling. */}
-            <span className="hidden text-[12px] text-ink-3 md:block">{site.title}</span>
+                short enough for the Hero to pass its 5-second test without scrolling.
+                EXE-7 micro-label exception: decorative brand label, ink-3 on bg ≈ 4.8:1 (AA-safe
+                at 12px) — exempt from the 14px content floor, not exempt from contrast. */}
+            <span className="hidden text-[12px] text-ink-3 md:block" data-micro-label="">
+              {site.title}
+            </span>
           </span>
         </Link>
 
