@@ -3,9 +3,17 @@ import { Manrope, Caveat } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
+import { knowledge } from "@/data/knowledge";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
 import { Footer } from "@/components/layout/Footer";
+import { AskProvider } from "@/components/ai/AskProvider";
+
+// The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
+// plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
+const PANEL_PROMPTS = knowledge
+  .filter((entry) => entry.surface.includes("panel"))
+  .map((entry) => entry.prompt);
 
 // Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com).
 // The CSS variables are mapped into @theme's --font-display / --font-hand in globals.css.
@@ -39,10 +47,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${manrope.variable} ${caveat.variable}`}>
       <body>
-        <SkipLink />
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
+        {/*
+          AskProvider is hoisted here (from app/page.tsx, TKT-10) so the deterministic Ask provider
+          and the global slide-over AskPanel are shared across every route: the header AskAIButton and
+          the MobileMenu Ask row (both inside <Header/>) open the same panel. AskPanel itself is a lazy
+          chunk mounted only after the first open (EVAL-005), so this hoist does not add it to first-load.
+        */}
+        <AskProvider panelPrompts={PANEL_PROMPTS}>
+          <SkipLink />
+          <Header />
+          <main id="main">{children}</main>
+          <Footer />
+        </AskProvider>
       </body>
     </html>
   );

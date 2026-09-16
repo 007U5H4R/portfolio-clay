@@ -325,17 +325,20 @@ test("skip link is the first tab stop and targets #main", async ({ page }) => {
 });
 
 // ---------------------------------------------------------------------------
-// S04.06 — disabled AskAIButton stays focusable (never a dead control)
+// S11.01 — AskAIButton is a live control that opens the AskPanel (TKT-11 wired the real Ask;
+// the M-001 tracer's aria-disabled "coming in this build" state was removed here).
 // ---------------------------------------------------------------------------
-test("Ask AI control is aria-disabled yet remains focusable in tab order", async ({ page }) => {
+test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page }) => {
   test.skip(width(page) !== 1440, "Ask AI button is desktop-only (hidden on mobile)");
   await page.goto("/", { waitUntil: "load" });
-  // The closed MobileMenu <dialog> holds a hidden duplicate; scope to the visible desktop control.
-  const ask = page.locator('[title="Ask AI — coming in this build"]').filter({ visible: true });
+  // Scope to the visible desktop control (the closed MobileMenu <dialog> holds a hidden duplicate).
+  const ask = page.locator("header button").filter({ hasText: "Ask AI" }).filter({ visible: true }).first();
   await expect(ask).toBeVisible();
-  await expect(ask).toHaveAttribute("aria-disabled", "true");
+  await expect(ask).not.toHaveAttribute("aria-disabled", "true");
   await ask.focus();
   await expect(ask).toBeFocused();
+  await ask.click();
+  await expect(page.locator("dialog.ask-panel")).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------

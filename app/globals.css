@@ -184,6 +184,42 @@
   animation-timing-function: var(--ease-vt);
 }
 
+/*
+  AskPanel slide-over (S11.01–03 / Design.md §3–§4, E-8). The native <dialog> opens with
+  showModal() (focus trap + top layer); the slide and scrim fade are CSS off a `data-open`
+  attribute React flips one frame AFTER showModal(), so the transition runs from the shown state
+  (a transition from `display:none` would not animate). 320ms mirrors `durations.panel` in
+  lib/motion.ts. The scrim (::backdrop) dims the page behind 20% and fades 150ms. Reduced motion
+  collapses both to ~instant via the global rule below (no separate override needed).
+*/
+.ask-panel {
+  transform: translateX(100%); /* off the right edge — right drawer >=768 (E-8) */
+  transition: transform 320ms var(--ease-panel);
+  will-change: transform;
+}
+.ask-panel[data-open] {
+  transform: none;
+}
+
+.ask-panel::backdrop {
+  background: color-mix(in oklch, var(--color-ink) 20%, transparent);
+  opacity: 0;
+  transition: opacity 150ms var(--ease-panel);
+}
+.ask-panel[data-open]::backdrop {
+  opacity: 1;
+}
+
+/* <768: bottom sheet sliding up from the bottom edge (Design.md Deviation §5) */
+@media (max-width: 767px) {
+  .ask-panel {
+    transform: translateY(100%);
+  }
+  .ask-panel[data-open] {
+    transform: none;
+  }
+}
+
 /* Motion: reduced-motion collapses every transition/animation to ~instant (A6) */
 @media (prefers-reduced-motion: reduce) {
   *,

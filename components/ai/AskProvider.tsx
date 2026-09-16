@@ -25,6 +25,7 @@ import {
   type RefObject,
 } from "react";
 import { createDefaultProvider, type Answer, type AnswerProvider } from "@/lib/ask";
+import { AskPanelLazy } from "./AskPanelLazy";
 
 export type AskSurface = "home" | "panel";
 export type AskStatus = "idle" | "loading" | "answer" | "empty" | "error";
@@ -63,14 +64,25 @@ export interface AskProviderProps {
   children: ReactNode;
   /** Injected in tests / the dev harness; production uses the deterministic local provider. */
   provider?: AnswerProvider;
+  /**
+   * The 6 `surface:'panel'` prompts (PB3), resolved server-side in app/layout.tsx and forwarded to
+   * the lazy `AskPanel`. Optional so the `/dev/ask` harness (which never opens the panel) can omit it.
+   */
+  panelPrompts?: string[] | undefined;
 }
 
-export function AskProvider({ children, provider }: AskProviderProps) {
+export function AskProvider({ children, provider, panelPrompts = [] }: AskProviderProps) {
   const resolvedProvider = useMemo(() => provider ?? createDefaultProvider(), [provider]);
   const [panelOpen, setPanelOpen] = useState(false);
+  // Once the panel has been opened, keep it mounted (state + a warm chunk) so re-opening is instant.
+  // Gating the mount on this flag is what keeps the AskPanel chunk out of `/` first-load (EVAL-005).
+  const [everOpened, setEverOpened] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
-  const openPanel = useCallback(() => setPanelOpen(true), []);
+  const openPanel = useCallback(() => {
+    setEverOpened(true);
+    setPanelOpen(true);
+  }, []);
   const closePanel = useCallback(() => setPanelOpen(false), []);
 
   const value = useMemo<AskContextValue>(
@@ -78,7 +90,12 @@ export function AskProvider({ children, provider }: AskProviderProps) {
     [resolvedProvider, panelOpen, openPanel, closePanel],
   );
 
-  return <AskContext.Provider value={value}>{children}</AskContext.Provider>;
+  return (
+    <AskContext.Provider value={value}>
+      {children}
+      {everOpened ? <AskPanelLazy panelPrompts={panelPrompts} /> : null}
+    </AskContext.Provider>
+  );
 }
 
 export function useAskContext(): AskContextValue {

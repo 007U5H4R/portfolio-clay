@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
-import { AskProvider } from "@/components/ai/AskProvider";
 import { AskPortfolio } from "@/components/ai/AskPortfolio";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
@@ -28,9 +27,9 @@ export default function Home() {
       <Hero />
 
       {/*
-        Ask my portfolio (home inline surface, TKT-10). AskProvider constructs the deterministic
-        local provider once and is scoped here for the inline surface; TKT-11 hoists it to
-        app/layout.tsx so the global slide-over AskPanel shares one provider/context.
+        Ask my portfolio (home inline surface, TKT-10). The AskProvider is now hoisted to
+        app/layout.tsx (TKT-11) so the inline surface and the global slide-over AskPanel share one
+        provider/context; this section just renders the inline AskPortfolio within that context.
       */}
       <Section id="ask" aria-labelledby="ask-heading">
         <SectionHeading
@@ -40,9 +39,7 @@ export default function Home() {
           lead="Type a question and get a sourced answer drawn only from this site — no live AI."
           className="mx-auto mb-[var(--space-8)] items-center text-center"
         />
-        <AskProvider>
-          <AskPortfolio prompts={HOME_PROMPTS} />
-        </AskProvider>
+        <AskPortfolio prompts={HOME_PROMPTS} />
       </Section>
 
       {/*
