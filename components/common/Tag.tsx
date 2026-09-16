@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { tierClass } from "@/components/clay/tiers";
+import { ClayPill } from "@/components/clay/ClayPill";
 
 export interface TagProps {
   children: ReactNode;
@@ -8,17 +8,14 @@ export interface TagProps {
 
 /**
  * Static utility pill — `ink-2` text, deliberately no hover state, so it is never mistaken for
- * an interactive control (Law of Similarity note, Design.md §3 "Common primitives"). Contrast
- * with `FilterTabs`' pills, which are interactive.
+ * an interactive control (Law of Similarity note, Design.md §3 "Common primitives"). A thin
+ * wrapper over `ClayPill variant="tag"` so tag styling lives in exactly one place; contrast with
+ * `FilterTabs`' pills (`ClayPill variant="filter"`), which are interactive.
  */
 export function Tag({ children, className }: TagProps) {
-  const classes = [
-    tierClass.utility,
-    "inline-flex items-center px-[var(--space-3)] py-[var(--space-1)] text-caption font-semibold text-ink-2",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return <span className={classes}>{children}</span>;
+  return (
+    <ClayPill variant="tag" className={className}>
+      {children}
+    </ClayPill>
+  );
 }

@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.1.0-4b46769",
+  "label": "tkt04-regression",
+  "provenance": {
+    "version": "0.1.0",
+    "commit": "4b46769f0c9fef0ae2fbee611d02da337be147ad",
+    "branch": "m-002-foundations",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 25.6.0",
+    "timestamp": "2026-09-16T03:50:06.634Z",
+    "baseUrl": "http://127.0.0.1:3000",
+    "evalCasesSha256": "94d6055f8ced57f4a5af7e6219457bef42909ae034376e329e03be7505a3a536",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 17,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 14,
+    "manual": 0
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "12 specs, 5 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "SKIP",
+      "details": "not built yet"
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "8 specs, 8 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "4 specs, 1 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    }
+  ],
+  "criticalFailures": [],
+  "regressions": [],
+  "improvements": [],
+  "runtimeMs": 43084,
+  "baseline": "evals/results/baseline-v1.json"
+}

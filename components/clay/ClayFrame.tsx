@@ -10,6 +10,12 @@ export interface ClayFrameProps {
   tone?: Tone | undefined;
   /** Second tone for the duotone volume gradient (hero avatar frame is sky/lavender). */
   tone2?: Tone | undefined;
+  /**
+   * Opt-in clay bezel: pads the media inward by a spacing token so the frame reads as a physical
+   * bezel around the artwork (PrototypeFrame). Off by default so the responsive avatar ladder
+   * (EXE-6) keeps its measured widths.
+   */
+  bezel?: boolean | undefined;
   className?: string | undefined;
   /** Forwarded verbatim so a later `<ViewTransition>` name can be attached (TSK-06). */
   style?: CSSProperties | undefined;
@@ -22,11 +28,18 @@ export function ClayFrame({
   tier = "hero",
   tone,
   tone2,
+  bezel = false,
   className,
   style,
   children,
 }: ClayFrameProps) {
-  const classes = ["relative overflow-hidden", tierClass[tier], tone ? toneClass[tone] : "", className]
+  const classes = [
+    "relative overflow-hidden",
+    tierClass[tier],
+    tone ? toneClass[tone] : "",
+    bezel ? "p-[var(--space-2)]" : "",
+    className,
+  ]
     .filter(Boolean)
     .join(" ");
 

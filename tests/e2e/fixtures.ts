@@ -30,6 +30,11 @@ const MIN_TARGET_ALLOWLIST: { selector: string; reason: string }[] = [
     reason:
       "SkipLink is sr-only (1x1 clipped) until focused, at which point it renders full-size; it is not a resting touch target.",
   },
+  {
+    selector: "a[data-inline-link]",
+    reason:
+      "ExternalLink is a running-text inline link (WCAG 2.5.8 inline exception): its target size is set by the sentence, not the 44px control floor. Marked explicitly with data-inline-link so only real inline links are exempt.",
+  },
 ];
 
 type AxeCheck = (page: Page, opts?: { include?: string }) => Promise<void>;

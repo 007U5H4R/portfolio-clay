@@ -115,6 +115,18 @@
 }
 
 /*
+  Glass utility (S04.05 / Design.md §2) — the compacted-header treatment ONLY, never combined
+  with clay shadows on the same element. Exposed as a class (not a clay tier) and referenced via
+  `headerGlassClass` in components/clay/tiers.ts. Uses only the existing --color-bg token, so the
+  colour-token count stays at 13 (pnpm tokens:check → 13/13).
+*/
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in oklch, var(--color-bg) 80%, transparent);
+}
+
+/*
   Hero headline accent + one-time reveal wash (S05.04 / Design.md §3–§4). "AI-native products"
   renders as the accent word with a lavender sweep that washes in once on first view over 700ms
   and holds (`forwards`). Uses only existing colour tokens (--color-accent, --color-lavender) —
