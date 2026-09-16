@@ -48,7 +48,13 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | TKT-04 primitive system complete | TASK-4 | opus | ✅ done | commit 0188109; 88 tests, D1 proofs genuine, tokens 13/13, glass/clay separated, primitives e2e 7/5, dev-route gate both halves, no regression. Accepted. Devs: after: tone overlay, a[data-inline-link] allowlist (WCAG 2.5.8), dev route build-time gated. |
 | TKT-05 layout + Reveal + Footer | TASK-5 | sonnet | ✅ done | commit a4a8c9e; 89 tests, tokens 13/13, layout e2e green, no regression. Footer="Built with curiosity." ✓. Caught+fixed 2 real contrast bugs (Footer bg, eyebrow ink-3→ink-2 7.53:1). Plan §B S05.04 prose fixed by orchestrator. Accepted. |
 | TKT-06 SEO/OG | TASK-6 | sonnet | ✅ done | commit 5d11201; 98 tests, all routes static incl 4 OG routes, eval-017 7/7, no regression. Fixed 2 Satori bugs (WebP→PNG, Buffer→ArrayBuffer). Accepted. Carry: TKT-45 must NOT re-add contact OG (added here); TKT-40/43/44 extend sitemap. |
-| TKT-07 eval harness (full) | TASK-7 | opus/sonnet | ⬜ pending | TSK-08..12; Vitest projects, eval-cases loader, per-EVAL specs, crawler (EVAL-011), LHCI enforce, bundle budget, full eval.ts, CI, docs/eval.md, first eval-run |
+| TKT-07a harness pt1 (TSK-08/09) | TASK-7 | opus | ✅ done | commit 8accb42; 17 cases OK (14 auto/3 manual), 112 unit tests, e2e 95-0, per-EVAL specs live/fixme documented. Accepted. |
+| TKT-07b harness pt2 (TSK-10/11/12) | TASK-7 | opus | 🔄 next | crawler (EVAL-011), LHCI enforce, bundle budget, full eval.ts orchestrator, CI, docs/eval.md, first eval-run vs baseline. Must: run /dev specs in ALLOW_DEV_ROUTES job + skip-not-fail in default; encode EVAL-008 overline exception (see gate items). |
+
+### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)
+- **(a) caption 12–13px vs 14px token:** decide overline exception (uppercase tracked eyebrows/monogram/tile LABELS ok <14px, like the WCAG-2.5.8 inline-link precedent) vs real bug — CHECK whether the 12–13px is a label/overline (exception) or the tile ONE-LINER content (must be ≥14px → fix in TKT-04/05). Record as EXE + encode in eval-008 spec.
+- **(b) /contact "email me" link 80×26 (h<44):** fix (≥44 or data-inline-link) — contact stub / TKT-06.
+- Both fixme'd in tests/e2e/eval-008 by TKT-07a per EV2 (not faked).
 | TKT-08 resume PII gate | TASK-8 | cheap | ⛔ blocked | S08r.01 test infra only (skips loud, resumeAvailable stays false); S08r.02+ need Tushar's sanitised PDF — hard-blocks prod (TKT-53) |
 
 ## Conflicts already resolved (§E — read before TKT-01)
