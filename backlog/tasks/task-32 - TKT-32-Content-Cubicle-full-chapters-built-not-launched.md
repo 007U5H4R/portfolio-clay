@@ -1,9 +1,10 @@
 ---
 id: TASK-32
 title: 'TKT-32: Content: Cubicle - full chapters, built not launched'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 10:21'
 labels:
   - P1
   - 'sp:3'

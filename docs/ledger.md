@@ -77,7 +77,9 @@ CONTENT lane (sequential — all touch data/projects.ts): TKT-28→29→30→{31
 - TKT-28 TeachSpark full ✅ commit 56de2fe; 8 chapters + 6 metrics (asOf 08-24) + 8-node thinking, 12 sources, gate PASS, forbidden clean, 0 fabrication, hedges preserved. Fixed 2 latent template a11y bugs (dl→div, ChapterNav overflow); TC-075/076/077 now run. Accepted.
 - TKT-29 RailCite full ✅ commit 22b4958; 8 chapters, 6 metrics, live-with-date corpus policy, 0 fabrication (missing items labelled), TC-090 rules verified. Accepted.
 - TKT-30 Velora full ✅ commit 635b358; 8 chapters (Nuptis-kill/pivot spine), honest build metrics, PRD line swapped (carry-forward closed), team baseline = secondary research, Trust Scores authored-not-verified. Accepted. **FEATURED-3 CASE STUDIES DONE.**
-- TKT-31 Nuptis 🔄 running. Remaining after: TKT-32 Cubicle (built-not-launched, opus), TKT-33 Bhakti-Vilas, TKT-54 (5 more), TKT-39 (EVAL-003 table) → M-005 QA gate.
+- TKT-31 Nuptis ✅ commit d89e2b7; full deep-dive (§8.4 distinct content justifies it), 0 header metrics by design (3 PRD metrics honestly "defined but unmeasured"), 13 sources, placeholder frames w/ real dims. Accepted. (Note: first attempt crashed on transient auth error → discarded partial + re-ran clean; auth now fine.)
+- TKT-32 Cubicle 🔄 running (built-NOT-launched per audit: no live link, honest "shipped, not deployed").
+- Remaining M-005: TKT-33 Bhakti-Vilas, TKT-54 (5 lighter builds), TKT-39 (EVAL-003 table) → QA gate → PING.
 
 ## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
 Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
