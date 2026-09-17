@@ -22,10 +22,13 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 
 // Personal slugs in /work grid order → display name (data/projects.ts). Hard-coded rather than
 // imported so the spec never pulls the zod/next data module into the Playwright runtime.
-// Slugs that now ship a full deep dive (chapters + metrics + thinking). TeachSpark landed with
-// TKT-28 (M-005); the thin-content assertions below branch on this set so a filled study is checked
-// for its real deep-dive path, not the "Deep dive coming" placeholder.
-const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora"]);
+// Slugs that now ship a full deep dive (chapters + thinking; metrics only where sourced). TeachSpark
+// landed with TKT-28 (M-005); the thin-content assertions below branch on this set so a filled study
+// is checked for its real deep-dive path, not the "Deep dive coming" placeholder. Nuptis (TKT-31)
+// ships chapters + an 8-node thinking chain but deliberately zero header metrics — its PRD success
+// metrics stayed defined-but-unmeasured, so `metrics: []` and "none measured" is stated in prose
+// rather than backed into a `MetricCard`.
+const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora", "nuptis"]);
 
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
@@ -185,6 +188,45 @@ test("case-study · velora deep dive: metrics (TC-075), OverviewToggle (TC-076),
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
   }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// Nuptis full deep dive (TKT-31 / M-005): chapters + an 8-node thinking chain, but deliberately no
+// header `MetricCard`s — all three PRD success metrics stayed defined-but-unmeasured, so this page
+// states "none measured" in prose instead of fabricating a metric. Same OverviewToggle/ChapterNav/
+// ShowTheThinking contract as TC-076/077, minus the metrics half of TC-075 (there is nothing to show).
+// ---------------------------------------------------------------------------
+test("case-study · nuptis deep dive: no fabricated metrics, OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/nuptis", { waitUntil: "load" });
+  expect(res?.status(), "/work/nuptis must be 200").toBe(200);
+
+  // No header metrics render — Nuptis ships zero MetricCards by design (PRD §11 metrics unmeasured).
+  // `formatAsOf()` ("as of 24 Aug 2026") is the only place a dated metric caption appears in this UI.
+  await expect(page.getByText(/as of \d/i)).toHaveCount(0);
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // The evaluation chapter states the metrics gap honestly rather than showing a fabricated number.
+  await expect(page.getByText(/none measured/i).first()).toBeVisible();
 
   // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
   await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();

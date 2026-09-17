@@ -1403,8 +1403,18 @@ export const cubicle: Project = {
 };
 
 /**
- * Nuptis (separate product from Velora — not a rename; §8.4). Live on mock/local-first data; solo
- * ("Owner: (solo)", "I just shipped my first product, solo" §8.4). Repo private → repoPublic:false.
+ * Nuptis — full case study (TKT-31, M-005). Separate product from Velora, not a rename (§8.4): its
+ * own repo, stack and PRD. Deep dive is honest, not padded — every chapter/artifact/thinking node
+ * traces to CONTENT_INVENTORY §8.4 + AUDIT §3, largely following the inventory's own pre-mapped
+ * Show-the-Thinking chain (observation → outcome). Live on mock/local-first data, solo ("Owner:
+ * (solo)", "I just shipped my first product, solo" §8.4). No AI — Assistant.tsx is keyword-matching
+ * canned responses; no lint/unit-test script configured (README.md:98); no pilot data — all three
+ * PRD §11 success metrics stayed defined but unmeasured, so no `MetricCard`s are used (header
+ * `metrics: []`, "none measured" stated in prose). The kill decision (Day 7, favour of Velora) is
+ * cross-linked to `/work/velora` rather than restated there. Screenshots exist in the source repo
+ * but TKT-24 (media) has not landed in this repo yet, so both `PrototypeFrame`s use real, sourced
+ * dimensions (1568×661) with `kind:'placeholder'` — never a broken image, never an unsourced visual
+ * claim. Repo private → `repoPublic:false`.
  */
 export const nuptis: Project = {
   slug: "nuptis",
@@ -1432,15 +1442,362 @@ export const nuptis: Project = {
   overview: {
     thirtySecond: [
       "Wedding planning agencies run 15–30+ vendors across 5–7 ceremonies per wedding over spreadsheets and WhatsApp threads, with no structured record of vendor verification, work orders, payment milestones or backup coverage — so one no-show turns into a scramble.",
+      "Nuptis was the first of two products built solo in a nine-day sprint — a risk-tier verification model and a North Star metric were defined, but no pilot ever ran, so every success metric stayed unmeasured. It was killed on day seven in favour of its successor, Velora, though it is still deployed and live on mock data.",
     ],
-    deepDive: false,
+    deepDive: true,
   },
-  chapters: EMPTY_CHAPTERS,
-  thinking: [],
-  learnings: [],
+  chapters: [
+    {
+      id: "context",
+      title: "Context",
+      body: [
+        "Nuptis was the first of two products Tushar built solo during Case Study 3 of a Cohort 8 product sprint — a nine-day Week-4 brief on vendor onboarding: \"Companies already have software for procurement, payments, contracts, and finance. However, vendor onboarding continues to remain slow, fragmented, and difficult to manage across teams.\" The PRD is explicit about what Nuptis is: \"a grounding/exploration project built alongside the actual Week 4 case study … applies the same 'vendor onboarding is fragmented' problem to a domain that's easier to reason about intuitively\" — wedding planning, not the apparel sourcing the graded case study targeted.",
+        "It shipped solo — \"Owner: (solo)\"; \"I just shipped my first product, solo — Nuptis\" — across a first commit on 8 Aug 2026 and 21 commits total, the last a README rewrite on 9 Sep. Nuptis is a separate product from Velora, not a rename or an earlier version of it: a different repo, a different stack, a different PRD.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-brief",
+          type: "insight",
+          quote:
+            "Companies already have software for procurement, payments, contracts, and finance. However, vendor onboarding continues to remain slow, fragmented, and difficult to manage across teams.",
+          attribution: "Case Study 3, Week 4 brief",
+          source: "NUP-WEEK4-BRIEF",
+        },
+      ],
+    },
+    {
+      id: "problem",
+      title: "Problem",
+      body: [
+        "The Nuptis PRD framed the problem plainly: \"Wedding planning agencies run 15–30+ vendors across 5–7 ceremonies per wedding, coordinated over spreadsheets and WhatsApp threads, with no structured record of vendor verification status, active work orders, payment milestones, or backup coverage — so a single no-show or scope change turns into a scramble.\"",
+        "Four roles sit around that problem: a Vendor Manager and an Event Manager as the two primary users, Finance as a secondary user, and the Agency Owner as the buyer.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-personas",
+          type: "generic",
+          title: "Four named personas",
+          kind: "doc",
+          note: "Vendor Manager (primary), Event Manager (primary), Finance (secondary), Agency Owner (buyer).",
+          source: "NUP-PRD",
+        },
+      ],
+    },
+    {
+      id: "discovery",
+      title: "Discovery",
+      body: [
+        "The load-bearing domain insight was about risk-tiering, not treating every vendor the same: \"spending three weeks vetting a card printer and two days vetting a fireworks vendor is backwards.\" That single line reframed verification from a uniform checklist into a risk-weighted process — high-consequence vendors (caterers, venues, fireworks) get scrutiny; low-consequence ones (a card printer) don't need the same weeks of diligence.",
+        "Honesty note: this domain reasoning is closer to informed intuition than fieldwork. The apparel-side interviews for the actual graded case study were, in the Discovery PRD's own words, \"planned, not yet run,\" and no wedding-specific interviews are separately attributed to Tushar — which is exactly why the PRD calls Nuptis \"a grounding/exploration project\" rather than a fully field-researched one.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-risk-tier",
+          type: "insight",
+          quote:
+            "Spending three weeks vetting a card printer and two days vetting a fireworks vendor is backwards.",
+          attribution: "Wedding vendor onboarding — procurement process notes",
+          source: "NUP-PROCUREMENT",
+        },
+        {
+          id: "nup-a-contingency-shot",
+          type: "prototype",
+          media: {
+            src: "/media/nuptis/contingency.jpg",
+            alt: "Nuptis contingency and backup-vendor drawer screenshot (pending capture)",
+            width: 1568,
+            height: 661,
+            kind: "placeholder",
+            caption: "Contingency / backup-vendor drawer — screenshot capture pending (TKT-24).",
+          },
+          source: "NUP-SCREENSHOTS",
+        },
+      ],
+    },
+    {
+      id: "bet",
+      title: "Product bet",
+      body: [
+        "The risk-tier insight pointed straight at a North Star: \"% of high-risk work orders with a named backup assigned before the event date.\" If a high enough share of the vendors that actually matter always has a named backup lined up in advance, a single no-show stops being a scramble.",
+        "Scope was cut deliberately rather than left to slip. The PRD keeps an explicit §7 cut list, each entry paired with a stated reason, and further prioritization followed an \"effort tracks points\" rule from the sprint's PM strategy plan — size the remaining work by the grading rubric's weight, not by gut feel, given the fixed nine-day deadline.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-north-star",
+          type: "hypothesis",
+          believe:
+            "If a high enough share of high-risk work orders has a named backup assigned before the event date, a single vendor no-show won't turn into a scramble.",
+          knowWhen:
+            "when that percentage is tracked against real weddings — which never happened; no pilot data exists, so it stayed defined, not measured.",
+          status: "unmeasured",
+          source: "NUP-PRD",
+        },
+        {
+          id: "nup-a-cut-list",
+          type: "decision",
+          title: "An explicit, reasoned cut list",
+          chosen:
+            "Keep an explicit §7 cut list, each cut item paired with a stated reason, and size remaining work with an 'effort tracks points' rule against the nine-day deadline.",
+          rejected: [
+            "Build every persona's full feature set for an already-tight Week 4 deadline",
+          ],
+          reason:
+            "A fixed nine-day grading window forces prioritization to be visible and reasoned, not implicit.",
+          source: "NUP-PM-PLAN",
+        },
+      ],
+    },
+    {
+      id: "built",
+      title: "What I built",
+      body: [
+        "Nuptis is a React 18.3 single-page app (react-router-dom 6.28 with a HashRouter, Vite 5.4, TypeScript 5.6) that is localStorage-first: state runs through a context+reducer pair where, in the README's own words, \"the reducer is the API surface.\" An optional Supabase mirror syncs through four Postgres RPCs (activate_backup, source_backup, approve_change_order, log_outcome) against a nine-table schema (vendors, weddings, work_orders, flags, milestones, team_members, invites, notifications, settings), styled with about 28 KB of hand-written CSS carrying light/dark tokens.",
+        "Two scope decisions are stated honestly rather than glossed over. There is no AI: the in-app Assistant is a keyword-matching canned-response widget (its answer() function checks things like s.includes('no-show')), not an LLM. And there is no automated test suite — the README states plainly that \"there is no separate lint or unit-test script configured.\"",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-stack",
+          type: "generic",
+          title: "localStorage-first React app, Supabase mirror optional",
+          kind: "doc",
+          note: "React 18.3 + react-router-dom 6.28 (HashRouter) + Vite 5.4 + TypeScript 5.6; context+reducer state (\"the reducer is the API surface\"); optional Supabase mirror via 4 Postgres RPCs; 9-table schema; ~28 KB hand-written CSS.",
+          source: "NUP-README",
+        },
+        {
+          id: "nup-a-no-ai",
+          type: "decision",
+          title: "No AI in the assistant",
+          chosen:
+            "Ship the in-app Assistant as a keyword-matching canned-response widget for the nine-day deadline.",
+          rejected: ["Wire the Assistant panel to an LLM for a nine-day case-study sprint"],
+          reason:
+            "The scope bet was on the vendor-ops workflow and its data model, not on adding an AI surface the deadline didn't require.",
+          source: "NUP-README",
+        },
+        {
+          id: "nup-a-dashboard-shot",
+          type: "prototype",
+          media: {
+            src: "/media/nuptis/dashboard.jpg",
+            alt: "Nuptis vendor-ops dashboard screenshot (pending capture)",
+            width: 1568,
+            height: 661,
+            kind: "placeholder",
+            caption: "Vendor-ops dashboard — screenshot capture pending (TKT-24).",
+          },
+          source: "NUP-SCREENSHOTS",
+        },
+      ],
+    },
+    {
+      id: "evaluation",
+      title: "Evaluation",
+      body: [
+        "Nuptis was evaluated as a build and a design, not as a product with users. A recorded mobile sweep covered \"9 routes swept @414px + 768px; 1 bug found+fixed,\" and the Figma file behind it carried real design rigor — 168 frames, 283 prototype reactions, 62 dual-mode design tokens, and an AA accessibility audit.",
+        "The honest gap is everything downstream of design: there is no automated test suite (the README states there is no separate lint or unit-test script), no pilot, and no usage data. None of the three success metrics defined in the PRD's §11 — including the North Star — were ever measured against a real wedding. Metrics on this page are stated as none measured, deliberately, rather than backed into from a design artifact.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-mobile-sweep",
+          type: "evaluation",
+          method: "Manual responsive sweep across 9 routes at 414px and 768px.",
+          result: "9 routes swept @414px + 768px; 1 bug found and fixed.",
+          limitation:
+            "No automated test suite exists (no lint/unit-test script configured) and there was no pilot, so this is a design-QA signal only — not a product-quality or usage signal.",
+          source: "NUP-LEDGER",
+        },
+        {
+          id: "nup-a-design-rigor",
+          type: "generic",
+          title: "168 Figma frames, 283 prototype reactions, AA audit",
+          kind: "doc",
+          note: "62 dual-mode design tokens; Figma NuptisV2 built 6 Aug, a \"Liquid Glass\" pass on 7 Aug; an accessibility (AA) audit was run against the design file.",
+          source: "NUP-DESIGN",
+        },
+      ],
+    },
+    {
+      id: "outcome",
+      title: "Outcome",
+      body: [
+        "Nuptis is still deployed and live on mock/local-first data at nuptis.vercel.app (HTTP 200, 15 Sep 2026) — it was never taken down. But as a product bet it was the one that lost: \"Weddings were blue — but a shallow pool. Few events, low willingness to pay… So the team pivoted — the same trust problem, aimed at apparel vendor onboarding,\" and by day nine, \"Nine days. Two products. One survived… learning to kill Nuptis without flinching.\"",
+        "No real pilot data ever existed for Nuptis — the PRD itself records that \"all three success metrics in §11 are defined but unmeasured\" — so the kill decision was made on market sizing and risk-tier reasoning, not on a failed metric. The successor product, Velora, carries the fuller account of that pivot.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-velora-link",
+          type: "generic",
+          title: "The trust problem, aimed at a deeper market",
+          kind: "link",
+          href: "/work/velora",
+          note: "Nuptis was killed on day seven; the same onboarding-trust insight was redirected at B2B apparel sourcing as Velora. The full pivot story — the market-sizing decision and the Red/Blue Ocean framing — is on Velora's page.",
+          source: "CS3-9DAY-SERIES",
+        },
+      ],
+    },
+    {
+      id: "learned",
+      title: "What I learned",
+      body: [
+        "The self-feedback recorded straight after the sprint was candid about what to improve: \"I think I need to improve on prompt engineering. How to use claude code effectively. How to make a full fledged prototype.\" The same note credited the sprint for a different kind of learning — \"got a good understanding on primary and secondary research; team building activities helped in putting my thoughts and inputs without any fear of judgement\" — even though Nuptis itself was a solo build.",
+        "Two smaller process lessons carried forward from deploying Nuptis: how to structure a Vercel subfolder deploy, and how OG-tag propagation actually behaves after a deploy — both fed directly into shipping Velora one day later.",
+      ],
+      artifacts: [
+        {
+          id: "nup-a-self-feedback",
+          type: "insight",
+          quote:
+            "I think I need to improve on prompt engineering. How to use claude code effectively. How to make a full fledged prototype.",
+          attribution: "Self-feedback, cohort retrospective spreadsheet",
+          source: "NUP-FEEDBACK",
+        },
+        {
+          id: "nup-a-process",
+          type: "generic",
+          title: "Vercel subfolder deploy + OG-tag propagation",
+          kind: "doc",
+          note: "Process lessons from deploying Nuptis (subfolder deploy config, OG tags, propagation timing) carried directly into Velora's deploy the next day.",
+          source: "NUP-MEMORY",
+        },
+      ],
+    },
+  ],
+  thinking: [
+    {
+      stage: "observation",
+      text: "Companies already have software for procurement, payments, contracts, and finance. However, vendor onboarding continues to remain slow, fragmented, and difficult to manage across teams.",
+      source: "NUP-WEEK4-BRIEF",
+      href: "/work/nuptis#01-context",
+    },
+    {
+      stage: "user-problem",
+      text: "Wedding planning agencies run 15–30+ vendors across 5–7 ceremonies per wedding over spreadsheets and WhatsApp, with no structured record of verification, work orders, payment milestones or backup coverage.",
+      source: "NUP-PRD",
+      href: "/work/nuptis#02-problem",
+    },
+    {
+      stage: "insight",
+      text: "Spending three weeks vetting a card printer and two days vetting a fireworks vendor is backwards — verification should be risk-tiered, not uniform.",
+      source: "NUP-PROCUREMENT",
+      href: "/work/nuptis#03-discovery",
+    },
+    {
+      stage: "hypothesis",
+      text: "North Star: % of high-risk work orders with a named backup assigned before the event date — defined, never measured against a real wedding.",
+      source: "NUP-PRD",
+      href: "/work/nuptis#04-product-bet",
+    },
+    {
+      stage: "product-decision",
+      text: "An explicit §7 cut list, each item reasoned, sized by an 'effort tracks points' rule against the fixed nine-day deadline.",
+      source: "NUP-PM-PLAN",
+      href: "/work/nuptis#04-product-bet",
+    },
+    {
+      stage: "prototype",
+      text: "Shipped a live localStorage-first app (React 18.3, Supabase mirror optional, no AI); the Figma file carried 168 frames, 283 prototype reactions and an AA audit.",
+      source: "NUP-DESIGN",
+      href: "/work/nuptis#05-what-i-built",
+    },
+    {
+      stage: "evaluation",
+      text: "A mobile sweep covered 9 routes at 414px and 768px and fixed 1 bug — but no automated tests and no pilot exist.",
+      source: "NUP-LEDGER",
+      href: "/work/nuptis#06-evaluation",
+    },
+    {
+      stage: "outcome",
+      text: "No real pilot data ever existed — all three §11 success metrics stayed defined but unmeasured — and Nuptis was killed on day seven in favour of Velora, though it is still live on mock data.",
+      source: "CS3-9DAY-SERIES",
+      href: "/work/nuptis#07-outcome",
+    },
+  ],
+  learnings: [
+    "When domain reasoning outruns real fieldwork, say so plainly — Nuptis's own PRD called itself \"a grounding/exploration project,\" not a validated case study.",
+    "A North Star can be well-defined and still completely unmeasured — all three of Nuptis's §11 success metrics never saw a real wedding.",
+    "A blue ocean that's a shallow pool is still the wrong ocean — the evidence said kill it, so it was killed on day seven in favour of Velora.",
+    "The sharpest self-feedback was about the craft (prompt engineering, using Claude Code effectively), not the artifact — worth tracking separately from product outcomes.",
+  ],
   sources: [
-    { id: "NUP-PRD", label: "Nuptis PRD", ref: "CS3/Nuptis-PRD.md:3,18", inventory: "§8.4" },
-    { id: "NUP-README", label: "Nuptis README", ref: "CS3/Nuptis/README.md:83-88", inventory: "§8.4" },
+    {
+      id: "NUP-WEEK4-BRIEF",
+      label: "Case Study 3 Week 4 brief",
+      ref: "CS3/Case study __ Week 4 __ C8 - Our file.pdf",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-PRD",
+      label: "Nuptis PRD",
+      ref: "CS3/Nuptis-PRD.md:3,4,6,18,39-44,175,201",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-README",
+      label: "Nuptis README",
+      ref: "CS3/Nuptis/README.md:83-88,98",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-PROCUREMENT",
+      label: "Wedding vendor onboarding — procurement process notes",
+      ref: "CS3/Wedding-Vendor-Onboarding-Procurement-Process.md:19-27",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-DESIGN",
+      label: "Nuptis DESIGN.md",
+      ref: "CS3/DESIGN.md",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-PM-PLAN",
+      label: "PM Strategy Plan",
+      ref: "CS3/PM Strategy Plan.md:11,48-52",
+      inventory: "§8.4",
+    },
+    {
+      id: "CS3-9DAY-SERIES",
+      label: "Case Study 3 — nine-day LinkedIn series",
+      ref: "CS3/Case-Study-3-LinkedIn-9-Day-Series.docx (Day 7, Day 9)",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-SCREENSHOTS",
+      label: "Nuptis app screenshots",
+      ref: "CS3/Nuptis/docs/screenshots/{dashboard,contingency}.jpg (1568×661)",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-LEDGER",
+      label: "Nuptis mobile-sweep ledger note",
+      ref: "Nuptis internal ledger note (exact file not identified in audit; quoted verbatim in CONTENT_INVENTORY.md:376 / AUDIT.md:123)",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-FEEDBACK",
+      label: "Nuptis self-feedback (cohort spreadsheet)",
+      ref: "CS3/Week 4 __ Toliyooo.xlsx \"Feedbacks for yourself\" row 9",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-MEMORY",
+      label: "Nuptis project memory log",
+      ref: "CS3/memory.md:4,135-139",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-LAUNCH-POST",
+      label: "Nuptis LinkedIn launch post",
+      ref: "CS3/Nuptis-LinkedIn-Launch-Post.docx",
+      inventory: "§8.4",
+    },
+    {
+      id: "NUP-LIVE",
+      label: "Nuptis live app",
+      ref: "https://nuptis.vercel.app/ (HTTP 200, 2026-09-15)",
+      inventory: "§8.4",
+      url: "https://nuptis.vercel.app/",
+    },
   ],
 };
 
