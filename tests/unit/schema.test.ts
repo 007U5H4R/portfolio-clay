@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Project } from "@/data/schema";
-import { teachspark } from "@/data/projects";
+import { projects, teachspark } from "@/data/projects";
 import { validateAll } from "@/data/index";
 
 /**
@@ -24,6 +24,21 @@ describe("data/schema — positive", () => {
 
   it("validateAll() passes on the live collections", () => {
     expect(validateAll()).toEqual({ ok: true });
+  });
+
+  it("the collection holds all 14 records (11 personal + 3 professional) with unique slugs (TKT-15)", () => {
+    expect(projects).toHaveLength(14);
+    expect(projects.filter((p) => p.category === "personal")).toHaveLength(11);
+    expect(projects.filter((p) => p.category === "professional")).toHaveLength(3);
+    expect(new Set(projects.map((p) => p.slug)).size).toBe(14);
+    // professional entries never carry a public product surface (Solution-PRD §5).
+    for (const p of projects.filter((p) => p.category === "professional")) {
+      expect(p.links.live).toBeUndefined();
+      expect(p.links.demoVideo).toBeUndefined();
+      expect(p.featured).toBeUndefined();
+    }
+    // exactly one large card drives the editorial grid.
+    expect(projects.filter((p) => p.gridSize === "large")).toHaveLength(1);
   });
 });
 
