@@ -1362,9 +1362,19 @@ export const velora: Project = {
  */
 
 /**
- * Cubicle. "Built, not launched" — code-complete offline prototype, never run live, not deployed
- * (§8.3; CS6/QA-report.md:13). Card must NOT claim solo (team of 6, Tushar's named role unrecorded
- * §8.3) → role "Team build". No live link; repo private (S5) → github populated, repoPublic:false.
+ * Cubicle — full case study (TKT-32, M-005). "Built, not launched": a code-complete offline
+ * prototype, never run against a live model or database, never deployed (§8.3; `CS6/QA-report.md:13`,
+ * `CS6/HANDOFF.md:3`). This is the highest overclaim-risk record in the whole site — a real,
+ * rigorously-tested build that could easily be *worded* into sounding shipped. It isn't: no live
+ * link, no usage/uptime/activation numbers (none exist), role stays "Team build" (brief: team of 6;
+ * Tushar's named role and teammates' names were never recorded anywhere in the artifacts — the PRDs
+ * call the owner only "Product owner, Case Study 6 team"). The conditional featured-swap (Cubicle →
+ * featured only if deployed, §8.3 "Swap rule") is **not** triggered — it stays non-featured; the
+ * existing featured trio is untouched. Cost (~$0.04/run) and latency (50–75 s) are Solution-PRD
+ * *estimates*, stated only as prose, never as a `Metric`/`MetricCard` number. Header `metrics` carry
+ * build-quality figures only (test count, contrast ratio) — never a product metric. Repo private
+ * (decision S5, 404 for the public) → `github` populated, `repoPublic:false`. Full trace:
+ * `docs/trace/cubicle.md`.
  */
 export const cubicle: Project = {
   slug: "cubicle",
@@ -1376,6 +1386,7 @@ export const cubicle: Project = {
   filters: ["ai"],
   status: "prototype",
   statusLabel: "Built, not launched",
+  statusAsOf: "2026-09-15",
   gridSize: "small",
   icon: "Users",
   role: "Team build",
@@ -1386,19 +1397,398 @@ export const cubicle: Project = {
     repoPublic: false,
   },
   hero: {},
-  metrics: [],
+  metrics: [
+    {
+      value: "326",
+      label: "Automated tests passing",
+      context:
+        "326 passed, 3 skipped across 55 test files, plus a clean typecheck, lint and production-dependency audit in CI — an offline build-quality signal, not a live-usage or product metric.",
+      asOf: "2026-09-12",
+      kind: "measured",
+      source: "CUB-QA-REPORT",
+    },
+    {
+      value: "≥5.18:1 / ≥6.14:1",
+      label: "WCAG AA text contrast (light / dark)",
+      context:
+        "Light-mode and dark-mode text contrast ratios measured against the design system, both above the 4.5:1 AA bar.",
+      asOf: "2026-09-12",
+      kind: "measured",
+      source: "CUB-QA-REPORT",
+    },
+  ],
   overview: {
     thirtySecond: [
-      "A solo founder types a product idea and watches four AI teammates — PM, researcher, designer, developer — visibly collaborate to produce a one-page PRD, a competitor scan, landing-page copy and a build plan, shareable by link, in about 90 seconds.",
+      "Cubicle is a hosted-web-app concept where a solo founder types a product idea and watches four AI teammates — PM, researcher, designer, developer — visibly debate it, then produce a one-page PRD, a competitor scan, landing-page copy and a build plan, shareable by link, in about 90 seconds.",
+      "It was built during a ten-day team buildathon (a team of six; Tushar's own named role inside that team was never recorded) and is code-complete — 326 tests passing, CI green — but the real four-agent run has never been executed against a live model or database, and it was never deployed. This page says that plainly: built, not launched. No live link, no users, no usage numbers.",
     ],
-    deepDive: false,
+    deepDive: true,
   },
-  chapters: EMPTY_CHAPTERS,
-  thinking: [],
-  learnings: [],
+  chapters: [
+    {
+      id: "context",
+      title: "Context",
+      body: [
+        "Cubicle was built during the Rethink Buildathon — Cohort 8's ten-day team sprint, Sept 7 → Sept 16, 2026 — by a team of six: \"You will form a team of 6 people and build one digital product together in 10 days.\" Both the Discovery and Solution PRDs name the owner only as \"Product owner, Case Study 6 team\"; no team member names, and no separate role for Tushar within that team, appear anywhere in the project's artifacts. This page states that gap plainly rather than smoothing over it — role: \"Team build,\" never solo.",
+        "The product, in its own words: \"Your first team fits in a cubicle.\" More fully — \"a hosted web app where a solo founder types a product idea and watches four AI teammates — PM, researcher, designer, developer — visibly collaborate to produce a one-page PRD, a competitor scan, landing-page copy, and a build plan, shareable by link, in about 90 seconds.\"",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-tagline",
+          type: "insight",
+          quote: "Your first team fits in a cubicle.",
+          attribution: "Cubicle Discovery PRD",
+          source: "CUB-DISCOVERY-PRD",
+        },
+        {
+          id: "cub-a-team-of-6",
+          type: "generic",
+          title: "Team of six, named role unrecorded",
+          kind: "doc",
+          note:
+            "Buildathon brief: \"You will form a team of 6 people and build one digital product together in 10 days.\" Team member names and Tushar's own named role were never recorded in the PRDs, technical plan or QA report.",
+          source: "CUB-BUILDATHON-BRIEF",
+        },
+        {
+          id: "cub-a-decks",
+          type: "generic",
+          title: "Two 13-page pitch decks",
+          kind: "deck",
+          note:
+            "Discovery and Solution pitch decks, 13 pages each, plus a full 12-stage artifact set retained at the project root.",
+          source: "CUB-DECKS",
+        },
+      ],
+    },
+    {
+      id: "problem",
+      title: "Problem",
+      body: [
+        "\"Solo builders have no team, so ideas die in the gap between thought and first artifact. The AI tools that could fill that gap either speak in one generic voice or hide their work, so the founder cannot trust the output enough to act on it.\"",
+        "The primary persona: \"Meet Aarav Mehta, 29, Bengaluru. Senior product analyst at a mid-size fintech… He has pasted the idea into ChatGPT three times and got three slightly different, equally generic PRDs that he never sent to anyone.\" Three secondary personas round it out: a startup PM, an indie developer, and a freelancer/agency lead.",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-aarav",
+          type: "insight",
+          quote:
+            "Meet Aarav Mehta, 29, Bengaluru. Senior product analyst at a mid-size fintech. Has spent eleven months with an idea for a subscription-tracking product sitting in a Notion page. No co-founder. He has pasted the idea into ChatGPT three times and got three slightly different, equally generic PRDs that he never sent to anyone.",
+          attribution: "Aarav Mehta, target persona — Cubicle Discovery PRD",
+          source: "CUB-DISCOVERY-PRD",
+        },
+        {
+          id: "cub-a-secondary-personas",
+          type: "generic",
+          title: "Three secondary personas",
+          kind: "doc",
+          note: "Startup PM, indie developer, and freelancer/agency lead, named alongside the primary persona.",
+          source: "CUB-DISCOVERY-PRD",
+        },
+      ],
+    },
+    {
+      id: "discovery",
+      title: "Discovery",
+      body: [
+        "Discovery ran as a compressed double diamond: six candidate problem spaces were scored against the buildathon brief's four questions before any solution was picked, backed by a 46-source secondary-research log (`research-notes.md`, each source tagged High/Medium/Low with a URL and date), a seven-category red-ocean landscape, a blue-ocean four-actions grid and strategy canvas, and bottom-up market sizing.",
+        "The insight that came out of that scoring: \"Nobody makes the collaboration visible. The word 'why' is missing from the whole table. That is the gap.\" Honesty note: this is secondary research and problem-space scoring, not fieldwork — the Discovery PRD's own interview section is a placeholder, \"to be filled during the build,\" and no primary interviews were ever conducted or recorded.",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-gap-insight",
+          type: "insight",
+          quote:
+            "Nobody makes the collaboration visible. The word 'why' is missing from the whole table. That is the gap.",
+          attribution: "Cubicle Discovery PRD",
+          source: "CUB-DISCOVERY-PRD",
+        },
+        {
+          id: "cub-a-research",
+          type: "generic",
+          title: "46-source secondary research, no primary interviews",
+          kind: "doc",
+          note:
+            "research-notes.md cites 46 sources tagged High/Medium/Low with URL and date; the Discovery PRD's interview section reads \"Placeholder — to be filled during the build,\" and no interviews were ever conducted.",
+          source: "CUB-RESEARCH-NOTES",
+        },
+      ],
+    },
+    {
+      id: "bet",
+      title: "Product bet",
+      body: [
+        "Eight pre-launch success targets were written down before any code (§9): activation ≥60%, week-1 return ≥20%, share ≥25% (link) / ≥10% (social), reliability ≥95%, and cost ≤$50. They are targets, never a result — the buildathon ended before any live traffic, so none of them was ever tracked against a real run.",
+        "The sequencing decision: \"The order matters. Trust first, ownership second, autonomy last. That is the opposite of how the red ocean is sequencing it, and it is our bet.\" Six numbered decisions (S1–S6) plus two execution decisions record the reasoning behind that bet and the narrower choices under it (Google Search grounding restricted to the competitor scan only, for example).",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-targets",
+          type: "hypothesis",
+          believe:
+            "If founders can watch four AI teammates debate an idea visibly instead of receiving one silent answer, they will trust the output enough to act on it — targeting ≥60% activation, ≥20% week-1 return, ≥25%/≥10% share rates, ≥95% reliability and ≤$50 cost per run.",
+          knowWhen:
+            "when these numbers are tracked against real runs on a live model and database — which never happened; the buildathon ended before any live traffic, so every target stayed a pre-launch estimate, never a measured result.",
+          status: "unmeasured",
+          source: "CUB-DISCOVERY-PRD",
+        },
+        {
+          id: "cub-a-sequencing",
+          type: "decision",
+          title: "Trust first, ownership second, autonomy last",
+          chosen:
+            "Sequence the product to build trust before ownership before autonomy — deliberately the reverse of how competing AI-agent tools sequence autonomy.",
+          rejected: [
+            "Lead with maximum agent autonomy, the sequencing most red-ocean competitors default to",
+          ],
+          reason:
+            "The order matters: founders won't hand over ownership or autonomy to agents they don't yet trust — visible debate earns that trust first.",
+          source: "CUB-DISCOVERY-PRD",
+        },
+      ],
+    },
+    {
+      id: "built",
+      title: "What I built",
+      body: [
+        "One Next.js 16.3.4 App Router app (TypeScript strict, React 19.2, Tailwind 4). One streaming route, `POST /api/runs`, is the entire run engine: it runs an orchestrated debate, then fires four parallel artifact calls, writing every message and artifact to Postgres the moment it exists and mirroring it to the client as SSE — \"the database is the truth; the stream is a convenience.\" The debate itself follows a fixed protocol: an orchestrator picks the next speaker, four role agents exchange envelopes tagged `propose | question | objection | agree | done`, and the debate stops on any of five conditions — 6 messages, 45 seconds, 70% of the token budget, a repeated message hash, or hop 3.",
+        "After the debate ends, four parallel model calls each produce exactly one fixed deliverable — PRD, competitor scan, landing copy, build plan — rather than leaving the agents free to keep talking. One module, `lib/gateway`, is the only thing that touches the model: Gemini via `@google/genai`, `gemini-3.8-flash` for the four role agents and the lighter `gemini-3.5-flash-lite` for the orchestrator, with Google Search grounding restricted to the competitor scan and a disclosed fallback prefix — \"From memory, unverified — could not reach search.\" — when search is unavailable. Supabase (SSR + JS client, Postgres, RLS) holds the data model; zod validates every structured output.",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-architecture",
+          type: "generic",
+          title: "One streaming route, a fixed debate protocol",
+          kind: "doc",
+          note:
+            "POST /api/runs runs the orchestrated debate (speech acts propose|question|objection|agree|done; stop rules 6 msgs / 45 s / 70% tokens / repeat hash / hop=3), writing to Postgres as the source of truth and mirroring to the client over SSE.",
+          source: "CUB-TECHNICAL-PLAN",
+        },
+        {
+          id: "cub-a-four-artifacts",
+          type: "decision",
+          title: "Four fixed artifacts, not an open-ended chat",
+          chosen:
+            "After the debate protocol ends, fire four parallel model calls that each produce one fixed deliverable — PRD, competitor scan, landing copy, build plan.",
+          rejected: [
+            "An open-ended multi-turn chat with no fixed deliverable",
+            "One agent producing all four artifacts serially",
+          ],
+          reason:
+            "Fixed artifacts make the 90-second promise verifiable and keep the debate's value visible without unbounded cost or time.",
+          source: "CUB-TECHNICAL-PLAN",
+        },
+        {
+          id: "cub-a-gateway",
+          type: "generic",
+          title: "Gemini-only gateway, one file",
+          kind: "doc",
+          note:
+            "@google/genai, gemini-3.8-flash for the four role agents / gemini-3.5-flash-lite for the orchestrator; Supabase SSR + JS, zod-validated structured output; Google Search grounding limited to the competitor scan with a disclosed unverified-fallback prefix.",
+          source: "CUB-PACKAGE-JSON",
+        },
+      ],
+    },
+    {
+      id: "evaluation",
+      title: "Evaluation",
+      body: [
+        "Cubicle was evaluated as a build, not as a live product. 326 automated tests across 55 files (3 skipped) pass, alongside a clean typecheck, lint, `check:outline` and production-dependency audit — all green in CI. A manually-tracked suite of 97 TC rows records PASS 29 · BLOCKED 17 · Planned 48 (0 FAIL). Formal QA gates: Design PASS · Code Quality PASS · Functional PASS (offline) / CONDITIONAL (live) · Security PASS WITH CONDITIONS · Overall PASS WITH CONDITIONS. Text contrast measures ≥5.18:1 (light) and ≥6.14:1 (dark), both above the WCAG AA bar.",
+        "The QA report is explicit about what none of that proves: \"The real 4-agent end-to-end run has never been executed (no live model/DB) → the product's core loop is verified by construction + fixtures, not against reality.\" Cost (\"≈ $0.04\" per run) and latency (\"50–75 s; hard cap 90 s\") are Solution-PRD estimates, never measured against a real run — so they appear here only as prose, never as a `MetricCard` number.",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-qa-gates",
+          type: "evaluation",
+          method:
+            "326 automated tests across 55 files (3 skipped), plus 97 manually-tracked TC rows, run against the offline, fixture-driven build; typecheck, lint, check:outline and a production-dependency audit all run clean in CI.",
+          result:
+            "PASS 29 · BLOCKED 17 · Planned 48 (0 FAIL). QA gates: Design PASS · Code Quality PASS · Functional PASS (offline) / CONDITIONAL (live) · Security PASS WITH CONDITIONS · Overall PASS WITH CONDITIONS.",
+          limitation:
+            "The real four-agent end-to-end run has never been executed against a live model or database — the core loop is verified by construction and recorded fixtures, not against reality; cost (~$0.04) and latency (50–75 s) are unmeasured Solution-PRD estimates.",
+          source: "CUB-QA-REPORT",
+        },
+      ],
+    },
+    {
+      id: "outcome",
+      title: "Outcome",
+      body: [
+        "Cubicle is a code-complete, offline prototype. It has never been run against a live model or database, has no deployment, no live URL, and no users — so it reports no usage, uptime or activation numbers, because none exist. \"M-003 UI COMPLETE + all reviews done; offline build FINISHED… Next work = the §6 turnkey pre-launch checklist… (user-only: provision services → first real run…)\" — that next work was never completed; there are no commits after 12 Sept, four days before the buildathon deadline.",
+        "The QA report's own release call: \"CONDITIONALLY READY — STEPS REQUIRED (live verification + launch hardening)\"; \"LIVE VERIFICATION NOT DONE\" is named as the dominant caveat. This page states the same thing plainly: built, not launched.",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-recommendation",
+          type: "generic",
+          title: "Deployment recommendation: CONDITIONALLY READY — STEPS REQUIRED",
+          kind: "doc",
+          note:
+            "\"LIVE VERIFICATION NOT DONE\" is named as the dominant caveat; deployment was blocked on provisioning Gemini, Supabase and Vercel for a first real run — work that was never completed before the buildathon deadline.",
+          source: "CUB-QA-REPORT",
+        },
+        {
+          id: "cub-a-no-live-run",
+          type: "generic",
+          title: "No live run, no users",
+          kind: "doc",
+          note:
+            "\"M-003 UI COMPLETE + all reviews done; offline build FINISHED… Next work = the §6 turnkey pre-launch checklist… (user-only: provision services → first real run…)\" — never completed.",
+          source: "CUB-HANDOFF",
+        },
+      ],
+    },
+    {
+      id: "learned",
+      title: "What I learned",
+      body: [
+        "\"Never trust jsdom for anything positional… Extract the geometry into pure functions and unit-test those; verify the rendered result in a real browser.\" A related process lesson: build a client-only dev harness (`/dev/office`) that mounts the real production components against recorded fixtures, and mount every new UI component into it — rather than trusting a test-only render.",
+        "The sharpest lesson was about process, not code: \"The two most important defects this session… were both found by reading the code/reasoning, not by any test… never skip the human-style read-the-diff review just because the gate is green.\"",
+      ],
+      artifacts: [
+        {
+          id: "cub-a-l1",
+          type: "insight",
+          quote:
+            "Never trust jsdom for anything positional. Extract the geometry into pure functions and unit-test those; verify the rendered result in a real browser.",
+          attribution: "Cubicle lesson-learnt.md (L1)",
+          source: "CUB-LESSON-LEARNT",
+        },
+        {
+          id: "cub-a-l2",
+          type: "generic",
+          title: "L2 — a client-only dev harness against recorded fixtures",
+          kind: "doc",
+          note:
+            "Build a client-only dev harness that mounts the real production components against recorded fixtures, and mount every new UI component into it.",
+          source: "CUB-LESSON-LEARNT",
+        },
+        {
+          id: "cub-a-l8",
+          type: "insight",
+          quote:
+            "The two most important defects this session… were both found by reading the code/reasoning, not by any test… never skip the human-style read-the-diff review just because the gate is green.",
+          attribution: "Cubicle lesson-learnt.md (L8)",
+          source: "CUB-LESSON-LEARNT",
+        },
+      ],
+    },
+  ],
+  thinking: [
+    {
+      stage: "observation",
+      text: "A compressed double diamond: six candidate problem spaces were scored against the buildathon brief's four questions before any solution was picked.",
+      source: "CUB-DISCOVERY-PRD",
+      href: "/work/cubicle#03-discovery",
+    },
+    {
+      stage: "user-problem",
+      text: "Solo builders have no team, so ideas die in the gap between thought and first artifact — the AI tools that could fill that gap speak in one generic voice or hide their work entirely.",
+      source: "CUB-DISCOVERY-PRD",
+      href: "/work/cubicle#02-problem",
+    },
+    {
+      stage: "insight",
+      text: "Nobody makes the collaboration visible. The word 'why' is missing from the whole table. That is the gap.",
+      source: "CUB-DISCOVERY-PRD",
+      href: "/work/cubicle#03-discovery",
+    },
+    {
+      stage: "hypothesis",
+      text: "Pre-launch targets only, never measured against a real run: activation ≥60%, week-1 return ≥20%, share ≥25%/≥10%, reliability ≥95%, cost ≤$50 per run.",
+      source: "CUB-DISCOVERY-PRD",
+      href: "/work/cubicle#04-product-bet",
+    },
+    {
+      stage: "product-decision",
+      text: "Trust first, ownership second, autonomy last — the opposite of how red-ocean competitors sequence agent autonomy, and the bet Cubicle made instead.",
+      source: "CUB-DISCOVERY-PRD",
+      href: "/work/cubicle#04-product-bet",
+    },
+    {
+      stage: "prototype",
+      text: "Shipped a code-complete offline build — one streaming route running a fixed debate protocol, then four parallel artifact calls — exercised against a client-only dev harness with recorded fixtures, never a live model.",
+      source: "CUB-TECHNICAL-PLAN",
+      href: "/work/cubicle#05-what-i-built",
+    },
+    {
+      stage: "evaluation",
+      text: "326 automated tests and 97 manually-tracked TC rows pass against the offline build; QA gates PASS on Design/Code, PASS(offline)/CONDITIONAL(live) on Functional — but the real four-agent run against a live model has never executed.",
+      source: "CUB-QA-REPORT",
+      href: "/work/cubicle#06-evaluation",
+    },
+    {
+      stage: "outcome",
+      text: "No live run, no users. Deployment recommendation: CONDITIONALLY READY — STEPS REQUIRED, blocked on provisioning Gemini/Supabase/Vercel for a first real run that never happened before the buildathon deadline.",
+      source: "CUB-QA-REPORT",
+      href: "/work/cubicle#07-outcome",
+    },
+  ],
+  learnings: [
+    "Never trust jsdom for anything positional — extract geometry into pure functions, unit-test those, and verify the rendered result in a real browser (L1).",
+    "Build a client-only dev harness that mounts the real production components against recorded fixtures, and mount every new UI component into it (L2).",
+    "Never skip the human-style read-the-diff review just because the gate is green — the two most important defects this session were both found by reading, not by any test (L8).",
+  ],
   sources: [
-    { id: "CUB-DISCOVERY-PRD", label: "Cubicle Discovery PRD", ref: "CS6/Discovery-PRD.md:260", inventory: "§8.3" },
-    { id: "CUB-QA-REPORT", label: "Cubicle QA report", ref: "CS6/QA-report.md:13", inventory: "§8.3" },
+    {
+      id: "CUB-DISCOVERY-PRD",
+      label: "Cubicle Discovery PRD",
+      ref: "CS6/Discovery-PRD.md:3,48,146,196,260,338,359",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-QA-REPORT",
+      label: "Cubicle QA report",
+      ref: "CS6/QA-report.md:13,14,20,51,88-93,114-120,122",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-BUILDATHON-BRIEF",
+      label: "Rethink Buildathon brief",
+      ref: "CS6/Rethink Buildathon - 10 Days.pdf p.2",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-TECHNICAL-PLAN",
+      label: "Cubicle technical-plan.md",
+      ref: "CS6/technical-plan.md:14",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-RESEARCH-NOTES",
+      label: "Cubicle research-notes.md",
+      ref: "CS6/research-notes.md (46 sources, High/Medium/Low tagged)",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-DECISIONS",
+      label: "Cubicle decisions.md",
+      ref: "CS6/decisions.md (S1-S6, EXE-1, EXE-2)",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-HANDOFF",
+      label: "Cubicle HANDOFF.md",
+      ref: "CS6/HANDOFF.md:3",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-LESSON-LEARNT",
+      label: "Cubicle lesson-learnt.md",
+      ref: "CS6/lesson-learnt.md (L1, L2, L8, L61)",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-PACKAGE-JSON",
+      label: "Cubicle package.json",
+      ref: "CS6/cubicle/package.json",
+      inventory: "§8.3",
+    },
+    {
+      id: "CUB-DECKS",
+      label: "Cubicle pitch decks",
+      ref: "CS6/decks/{discovery,solution}/Cubicle-{Discovery,Solution}-Pitch.pdf (13 pp each)",
+      inventory: "§8.3",
+    },
   ],
 };
 

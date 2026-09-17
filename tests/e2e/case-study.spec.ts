@@ -27,8 +27,10 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 // is checked for its real deep-dive path, not the "Deep dive coming" placeholder. Nuptis (TKT-31)
 // ships chapters + an 8-node thinking chain but deliberately zero header metrics — its PRD success
 // metrics stayed defined-but-unmeasured, so `metrics: []` and "none measured" is stated in prose
-// rather than backed into a `MetricCard`.
-const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora", "nuptis"]);
+// rather than backed into a `MetricCard`. Cubicle (TKT-32) ships chapters + an 8-node thinking chain
+// with exactly 2 header metrics, both build-quality only (tests, contrast) — it was never deployed,
+// so status stays "Built, not launched" and no live/usage number is ever shown.
+const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora", "nuptis", "cubicle"]);
 
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
@@ -235,6 +237,49 @@ test("case-study · nuptis deep dive: no fabricated metrics, OverviewToggle (TC-
 });
 
 // ---------------------------------------------------------------------------
+// Cubicle full deep dive (TKT-32 / M-005): chapters + an 8-node thinking chain, exactly 2 header
+// metrics (build-quality only: tests, contrast) — never a product/usage number. Cubicle was never
+// deployed, so this test also asserts the honest "built, not launched" framing renders and no live
+// link or fabricated usage number ever appears (highest overclaim-risk record, per the brief).
+// ---------------------------------------------------------------------------
+test("case-study · cubicle deep dive: built-not-launched honesty, build-quality metrics only (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/cubicle", { waitUntil: "load" });
+  expect(res?.status(), "/work/cubicle must be 200").toBe(200);
+
+  // Honest status badge — never implies a live product.
+  await expect(page.getByText("Built, not launched", { exact: true }).first()).toBeVisible();
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  // Both metrics are build-quality only (tests, contrast) — never a product/usage number.
+  await expect(page.getByText("Automated tests passing", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 12 Sep 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // The outcome chapter states the no-live-run outcome honestly.
+  await expect(page.getByText(/no live run, no users/i).first()).toBeVisible();
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
 // Every slug: axe wcag2.1 AA at 390 & 1440
 // ---------------------------------------------------------------------------
 for (const study of CASE_STUDIES) {
@@ -279,10 +324,11 @@ test("case-study · JS off: static HTML carries content and NextProject", { tag:
   });
   try {
     const p = await context.newPage();
-    // Uses a still-thin slug (cubicle) so the "Deep dive coming" static-content assertion holds;
-    // velora became a full deep dive with TKT-30, so its page no longer renders that note.
-    await p.goto("/work/cubicle", { waitUntil: "domcontentloaded" });
-    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Cubicle");
+    // Uses a still-thin slug (bhakti-vilas) so the "Deep dive coming" static-content assertion
+    // holds; velora (TKT-30) and cubicle (TKT-32) are now full deep dives, so their pages no longer
+    // render that note.
+    await p.goto("/work/bhakti-vilas", { waitUntil: "domcontentloaded" });
+    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Bhakti Vilas");
     // 30-second overview text is in the static HTML (content, not a JS-gated reveal).
     await expect(p.getByText("Deep dive coming")).toBeVisible();
     await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();
