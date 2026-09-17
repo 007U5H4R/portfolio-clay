@@ -22,6 +22,19 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 
 // Personal slugs in /work grid order → display name (data/projects.ts). Hard-coded rather than
 // imported so the spec never pulls the zod/next data module into the Playwright runtime.
+// Slugs that now ship a full deep dive (chapters + thinking; metrics only where sourced). TeachSpark
+// landed with TKT-28 (M-005); the thin-content assertions below branch on this set so a filled study
+// is checked for its real deep-dive path, not the "Deep dive coming" placeholder. Nuptis (TKT-31)
+// ships chapters + an 8-node thinking chain but deliberately zero header metrics — its PRD success
+// metrics stayed defined-but-unmeasured, so `metrics: []` and "none measured" is stated in prose
+// rather than backed into a `MetricCard`. Cubicle (TKT-32) ships chapters + an 8-node thinking chain
+// with exactly 2 header metrics, both build-quality only (tests, contrast) — it was never deployed,
+// so status stays "Built, not launched" and no live/usage number is ever shown. Bhakti Vilas (TKT-33)
+// ships a shorter full deep dive (8 chapters, 8-node thinking chain, evaluation/outcome chapters brief)
+// with zero header metrics — product metrics are MISSING per CONTENT_INVENTORY §8.6, and there are no
+// UI screenshots anywhere in the source project, so no `PrototypeFrame` is used either.
+const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora", "nuptis", "cubicle", "bhakti-vilas"]);
+
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
   { slug: "railcite", name: "RailCite" },
@@ -54,10 +67,16 @@ for (const study of CASE_STUDIES) {
     // Hero media placeholder present (no real media until M-005) — never a broken image.
     await expect(page.getByText("Hero media coming")).toBeVisible();
 
-    // Thin content today → labelled "Deep dive coming" note, never an empty chapter section.
-    await expect(page.getByText("Deep dive coming")).toBeVisible();
-    // No chapters exist yet, so the chapter navigation must not render (no dead anchor links).
-    await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+    if (DEEP_DIVE.has(study.slug)) {
+      // A filled study shows the depth toggle (default 30-sec), never the "coming" placeholder.
+      await expect(page.getByRole("radiogroup", { name: "Case-study depth" })).toBeVisible();
+      await expect(page.getByText("Deep dive coming")).toHaveCount(0);
+    } else {
+      // Thin content today → labelled "Deep dive coming" note, never an empty chapter section.
+      await expect(page.getByText("Deep dive coming")).toBeVisible();
+      // No chapters exist yet, so the chapter navigation must not render (no dead anchor links).
+      await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+    }
 
     // NextProject band → a valid personal case-study route.
     const next = page.getByRole("link", { name: /^Next project:/ });
@@ -69,6 +88,199 @@ for (const study of CASE_STUDIES) {
     await minTargets(page);
   });
 }
+
+// ---------------------------------------------------------------------------
+// TeachSpark full deep dive (TKT-28 / M-005): the previously-BLOCKED TC-075/076/077 now run for
+// real — header metrics carry every sourced field, the OverviewToggle reveals the chapters, the
+// ChapterNav anchors resolve, and ShowTheThinking exposes the 8-node reasoning chain.
+// ---------------------------------------------------------------------------
+test("case-study · teachspark deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/teachspark", { waitUntil: "load" });
+  expect(res?.status(), "/work/teachspark must be 200").toBe(200);
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  // Exact match: the label text also appears inside each metric's context sentence.
+  await expect(page.getByText("Teachers joined", { exact: true })).toBeVisible();
+  await expect(page.getByText("Median time saved", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 24 Aug 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  // Attribute selector, not `#id`: the anchor ids start with a digit (invalid CSS id selector).
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// RailCite full deep dive (TKT-29 / M-005): header metrics carry every sourced field, the
+// OverviewToggle reveals the chapters, the ChapterNav anchors resolve, and ShowTheThinking exposes
+// the 8-node reasoning chain — the same deep-dive contract exercised for TeachSpark (TC-075/076/077).
+// ---------------------------------------------------------------------------
+test("case-study · railcite deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/railcite", { waitUntil: "load" });
+  expect(res?.status(), "/work/railcite must be 200").toBe(200);
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  await expect(page.getByText("Documents indexed", { exact: true })).toBeVisible();
+  await expect(page.getByText("Invented citations", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 15 Sep 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// Velora (Nuptis → Velora) full deep dive (TKT-30 / M-005): header metrics carry every sourced
+// field, the OverviewToggle reveals the chapters, the ChapterNav anchors resolve, and
+// ShowTheThinking exposes the 8-node reasoning chain — the same deep-dive contract as TeachSpark
+// and RailCite (TC-075/076/077).
+// ---------------------------------------------------------------------------
+test("case-study · velora deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/velora", { waitUntil: "load" });
+  expect(res?.status(), "/work/velora must be 200").toBe(200);
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  await expect(page.getByText("Products in nine days", { exact: true })).toBeVisible();
+  await expect(page.getByText("Gzipped bundle", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 15 Sep 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// Nuptis full deep dive (TKT-31 / M-005): chapters + an 8-node thinking chain, but deliberately no
+// header `MetricCard`s — all three PRD success metrics stayed defined-but-unmeasured, so this page
+// states "none measured" in prose instead of fabricating a metric. Same OverviewToggle/ChapterNav/
+// ShowTheThinking contract as TC-076/077, minus the metrics half of TC-075 (there is nothing to show).
+// ---------------------------------------------------------------------------
+test("case-study · nuptis deep dive: no fabricated metrics, OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/nuptis", { waitUntil: "load" });
+  expect(res?.status(), "/work/nuptis must be 200").toBe(200);
+
+  // No header metrics render — Nuptis ships zero MetricCards by design (PRD §11 metrics unmeasured).
+  // `formatAsOf()` ("as of 24 Aug 2026") is the only place a dated metric caption appears in this UI.
+  await expect(page.getByText(/as of \d/i)).toHaveCount(0);
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // The evaluation chapter states the metrics gap honestly rather than showing a fabricated number.
+  await expect(page.getByText(/none measured/i).first()).toBeVisible();
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// Cubicle full deep dive (TKT-32 / M-005): chapters + an 8-node thinking chain, exactly 2 header
+// metrics (build-quality only: tests, contrast) — never a product/usage number. Cubicle was never
+// deployed, so this test also asserts the honest "built, not launched" framing renders and no live
+// link or fabricated usage number ever appears (highest overclaim-risk record, per the brief).
+// ---------------------------------------------------------------------------
+test("case-study · cubicle deep dive: built-not-launched honesty, build-quality metrics only (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/cubicle", { waitUntil: "load" });
+  expect(res?.status(), "/work/cubicle must be 200").toBe(200);
+
+  // Honest status badge — never implies a live product.
+  await expect(page.getByText("Built, not launched", { exact: true }).first()).toBeVisible();
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  // Both metrics are build-quality only (tests, contrast) — never a product/usage number.
+  await expect(page.getByText("Automated tests passing", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 12 Sep 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // The outcome chapter states the no-live-run outcome honestly.
+  await expect(page.getByText(/no live run, no users/i).first()).toBeVisible();
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
 
 // ---------------------------------------------------------------------------
 // Every slug: axe wcag2.1 AA at 390 & 1440
@@ -115,8 +327,12 @@ test("case-study · JS off: static HTML carries content and NextProject", { tag:
   });
   try {
     const p = await context.newPage();
-    await p.goto("/work/velora", { waitUntil: "domcontentloaded" });
-    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Nuptis → Velora");
+    // Uses a still-thin slug (token-toli) so the "Deep dive coming" static-content assertion holds;
+    // velora (TKT-30), cubicle (TKT-32) and bhakti-vilas (TKT-33) are now full deep dives, so their
+    // pages no longer render that note. token-toli stays thin permanently — TKT-54 authors it as a
+    // deliberately short "Discovery only" page (deepDive:false), never a full case study.
+    await p.goto("/work/token-toli", { waitUntil: "domcontentloaded" });
+    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Token Toli");
     // 30-second overview text is in the static HTML (content, not a JS-gated reveal).
     await expect(p.getByText("Deep dive coming")).toBeVisible();
     await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();

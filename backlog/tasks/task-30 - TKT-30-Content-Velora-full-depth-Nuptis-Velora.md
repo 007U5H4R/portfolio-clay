@@ -1,9 +1,10 @@
 ---
 id: TASK-30
 title: 'TKT-30: Content: Velora - full depth (Nuptis -> Velora)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 08:25'
 labels:
   - P1
   - 'sp:3'

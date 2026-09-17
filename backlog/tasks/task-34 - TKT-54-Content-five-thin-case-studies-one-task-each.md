@@ -1,9 +1,10 @@
 ---
 id: TASK-34
 title: 'TKT-54: Content: five thin case studies - one task each'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 11:22'
 labels:
   - P2
   - 'sp:5'

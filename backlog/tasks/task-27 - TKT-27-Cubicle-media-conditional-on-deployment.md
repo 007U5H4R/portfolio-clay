@@ -1,9 +1,10 @@
 ---
 id: TASK-27
 title: 'TKT-27: Cubicle media - conditional on deployment'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 12:02'
 labels:
   - P3
   - 'sp:2'

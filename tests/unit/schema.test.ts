@@ -94,6 +94,11 @@ describe("data/schema — negatives (zod path asserted)", () => {
 
   it("deepDive true with fewer than 4 non-empty chapters → overview.deepDive", () => {
     const p = valid();
+    // TeachSpark now ships a full deep dive (TKT-28), so blank its chapters on the clone to
+    // exercise the invariant in isolation: deepDive:true still requires ≥4 non-empty chapters.
+    p.chapters = (structuredClone(teachspark.chapters) as { id: string; title: string }[]).map(
+      (c) => ({ id: c.id, title: c.title, body: [], artifacts: [] }),
+    );
     p.overview = { thirtySecond: ["A one-line overview of the project for the card face."], deepDive: true };
     expect(paths(p)).toContain("overview.deepDive");
   });
