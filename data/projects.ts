@@ -2599,7 +2599,7 @@ export const tokenToli: Project = {
   slug: "token-toli",
   name: "Token Toli",
   tagline:
-    "Ageing-in-place care orchestration for long-distance families — a discovery PRD with 11 named respondents and four tested hypotheses.",
+    "Ageing-in-place care orchestration for long-distance families — a team discovery PRD with 11 named respondents and three tested hypotheses.",
   category: "personal",
   tags: ["Discovery", "Research", "Healthcare"],
   filters: ["experiments"],
@@ -2618,14 +2618,21 @@ export const tokenToli: Project = {
   overview: {
     thirtySecond: [
       "Adult children living away from ageing parents lack a trusted, medically informed view of their parent's health and care; existing solutions coordinate services but do not prioritise medical accountability and reporting.",
+      "Eleven named respondents were interviewed for this Guru-pod PRD (co-authored with Gursimran Singh and Suyash P); the wider cohort's discovery work separately logged 44 interviews, but that figure belongs to the team PRD, not to this pod's own fieldwork.",
+      "The bet — a medically informed accountability layer sold as a monthly subscription, with guaranteed emergency response as the trust-building differentiator — was not selected by the cohort, which moved forward with a teammate's lending concept instead; the pod's own self-critique judged that 20–30 structured interviews were still needed before pitching it to anyone.",
     ],
     deepDive: false,
   },
   chapters: EMPTY_CHAPTERS,
   thinking: [],
-  learnings: [],
+  learnings: [
+    "Performing the problem instead of presenting it — the sharpest lesson from the discovery sprint's closing days.",
+  ],
   sources: [
     { id: "TT-DISCOVERY-PRD", label: "Token Toli Discovery PRD (Guru pod)", ref: "CS1/Discovery PRD-2.pdf pp.24-31", inventory: "§8.7" },
+    { id: "TT-TEAM-PRD", label: "Token Toli team discovery PRD (44 interviews)", ref: "CS1/Final Submission/Week1_Token_Toli_Discovery_PRD.pdf p.7", inventory: "§8.7" },
+    { id: "TT-XLSX-SELFCRITIQUE", label: "Token Toli research tracker — self-critique (tab \"Tushar\")", ref: "CS1/Token Toli -W2- C8.xlsx tab \"Tushar\"", inventory: "§8.7" },
+    { id: "TT-LINKEDIN", label: "Token Toli 7-day LinkedIn series", ref: "CS1/LinkedIn Posts - 7 Day Series.docx (Day 6, Day 7)", inventory: "§8.7" },
   ],
 };
 
@@ -2659,14 +2666,18 @@ export const pratyasa: Project = {
   overview: {
     thirtySecond: [
       "A public, fast, self-contained web page that showcases granted patent IN 429867 — a point-of-care sepsis-biomarker biosensor — as a credible record of work.",
+      "Tushar is the second of five co-inventors, having worked across the portable analyser's electronics and firmware, the Android application, sensor preparation, and validation testing in blood and food samples; the page states the rights and safety framing plainly — \"Patent owned by NIT–Calicut; research prototype, not an approved diagnostic.\"",
     ],
     deepDive: false,
   },
   chapters: EMPTY_CHAPTERS,
   thinking: [],
-  learnings: [],
+  learnings: [
+    "ffmpeg had no drawtext filter available in this environment — Chrome headless screenshots were used instead for any text-bearing image.",
+  ],
   sources: [
     { id: "PT-DISCOVERY-PRD", label: "Pratyasa Discovery PRD (FACT-LOCK)", ref: "PT/discoveryPRD.md Goal, §4", inventory: "§8.8" },
+    { id: "PT-GLOBAL-CONSTRAINTS", label: "Pratyasa discovery PRD — Global Constraints (rights line, tooling notes)", ref: "PT/discoveryPRD.md Global Constraints L199", inventory: "§8.8" },
   ],
 };
 
@@ -2699,6 +2710,7 @@ export const tegaki: Project = {
   overview: {
     thirtySecond: [
       "A D2C pilot that productizes a fully manual handwriting-analysis practice — from analysis to a polished report — asking whether a stranger would trust and pay for the experience.",
+      "There is no AI in the product — report generation is manual and offline — and the checkout intentionally confirms an order without charging for it while the pilot is being validated; no pilot users or orders have been recorded yet.",
     ],
     deepDive: false,
   },
@@ -2719,7 +2731,7 @@ export const dinoArcadePwa: Project = {
   slug: "dino-arcade-pwa",
   name: "Dino Arcade",
   tagline:
-    "A mobile PWA that turns your phone into an arcade cabinet — bring your own ROM, nothing ships or uploads.",
+    "A mobile PWA that turns your phone into an arcade cabinet — strictly BYO-ROM, no game data ships or uploads.",
   category: "personal",
   tags: ["PWA", "Offline", "EmulatorJS"],
   filters: ["experiments"],
@@ -2741,6 +2753,7 @@ export const dinoArcadePwa: Project = {
   overview: {
     thirtySecond: [
       "A mobile-first Progressive Web App that turns your phone into an arcade cabinet — styled as a backlit cabinet with a marquee, recessed bezel, CRT shader and an on-screen controller. It ships no game data: you supply a file you are legally entitled to use.",
+      "Built on vendored EmulatorJS with a self-hosted FBNeo core, IndexedDB storage and a service-worker precache — no backend, no accounts, and no analytics. Test results for the emulator core exist in the repo but were not reviewed for this page.",
     ],
     deepDive: false,
   },
@@ -2778,16 +2791,28 @@ export const cinematicPortfolio: Project = {
     repoPublic: true,
   },
   hero: {},
-  metrics: [],
+  metrics: [
+    {
+      value: "197",
+      label: "Film generation cost",
+      context: "Higgsfield credits spent generating the scroll film, exactly as pre-flighted before rendering — a build-tooling cost, not a product metric.",
+      asOf: "2026-08-26",
+      kind: "measured",
+      source: "CN-LEDGER",
+    },
+  ],
   overview: {
     thirtySecond: [
       "A cinematic 3D-scroll personal portfolio — AI-generated film of Tushar as the backdrop, scroll-driven like an Apple product page, with a reduced-motion static fallback and no build step.",
+      "Built to answer a recruiter's first question — \"who is Tushar Pathak?\" — and checked with three QA passes (8/8, 11/11, 12/12) plus a scrub-performance benchmark averaging 0.04 ms per frame with zero frames over 16 ms. Live since 26 August 2026.",
     ],
     deepDive: false,
   },
   chapters: EMPTY_CHAPTERS,
   thinking: [],
-  learnings: [],
+  learnings: [
+    "Higgsfield plan gating, refunds on a failed render, and start_image vs. reference-image behaviour were the sharpest production lessons from building the film.",
+  ],
   sources: [
     { id: "CN-PRD", label: "Cinematic portfolio PRD", ref: "CN/PRD.md", inventory: "§8.11" },
     { id: "CN-LEDGER", label: "Cinematic build ledger", ref: "CN/ledger.md (2026-08-26)", inventory: "§8.11" },
