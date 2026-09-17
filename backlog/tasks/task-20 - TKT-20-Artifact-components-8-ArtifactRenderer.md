@@ -1,9 +1,10 @@
 ---
 id: TASK-20
 title: 'TKT-20: Artifact components (8) + ArtifactRenderer'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 04:20'
 labels:
   - P1
   - 'sp:5'
