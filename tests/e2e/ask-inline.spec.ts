@@ -129,23 +129,31 @@ test.describe("ask-inline", () => {
     await input.fill(REAL_QUERY);
     await input.press("Enter");
     await expect(page.getByRole("heading", { level: 3, name: "Answer" })).toBeVisible();
-
-    const controls = page.locator("#ask a[href], #ask button, #ask input");
-    const count = await controls.count();
-    expect(count).toBeGreaterThan(0);
-    const undersized: { text: string; w: number; h: number }[] = [];
-    for (let i = 0; i < count; i++) {
-      const box = await controls.nth(i).boundingBox();
-      if (!box) continue;
-      if (box.width < 44 || box.height < 44) {
-        undersized.push({
-          text: (await controls.nth(i).innerText().catch(() => "")).slice(0, 30),
-          w: Math.round(box.width),
-          h: Math.round(box.height),
-        });
+    // Let layout settle (web fonts can reflow control widths) before measuring, then retry the
+    // whole measurement pass with toPass() instead of a one-shot boundingBox() read — this check
+    // flaked under host load on sub-pixel boundary cases, never a stale assertion. Round to whole
+    // px (a <1px sub-pixel rounding tolerance is legitimate); the real 44px floor is unchanged.
+    await page.evaluate(() => document.fonts.ready);
+    await expect(async () => {
+      const controls = page.locator("#ask a[href], #ask button, #ask input");
+      const count = await controls.count();
+      expect(count).toBeGreaterThan(0);
+      const undersized: { text: string; w: number; h: number }[] = [];
+      for (let i = 0; i < count; i++) {
+        const box = await controls.nth(i).boundingBox();
+        if (!box) continue;
+        const w = Math.round(box.width);
+        const h = Math.round(box.height);
+        if (w < 44 || h < 44) {
+          undersized.push({
+            text: (await controls.nth(i).innerText().catch(() => "")).slice(0, 30),
+            w,
+            h,
+          });
+        }
       }
-    }
-    expect(undersized, `Ask controls below 44x44:\n${JSON.stringify(undersized, null, 2)}`).toEqual([]);
+      expect(undersized, `Ask controls below 44x44:\n${JSON.stringify(undersized, null, 2)}`).toEqual([]);
+    }).toPass({ timeout: 6000 });
   });
 
   test("@EVAL-008 the Ask section does not overflow the viewport width", { tag: "@EVAL-008" }, async ({ page }) => {

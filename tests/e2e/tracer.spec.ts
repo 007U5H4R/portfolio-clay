@@ -71,13 +71,14 @@ test("hero avatar frame is responsive and column-capped (<= breakpoint ladder)",
   // width is min(cap, grid column width), so this is the upper bound only.
   const cap = w >= 1440 ? 520 : w >= 1024 ? 480 : w >= 768 ? 300 : 200;
   const img = page.getByRole("img", { name: AVATAR_ALT });
-  const box = await img.boundingBox();
-  expect(box, "avatar image must be laid out").toBeTruthy();
-  expect(box!.width, `hero frame width at ${w} must be positive`).toBeGreaterThan(0);
-  expect(
-    box!.width,
-    `hero frame width at ${w} = ${box!.width}, must not exceed cap ${cap} (+1px tolerance)`,
-  ).toBeLessThanOrEqual(cap + 1);
+  // Let layout settle before measuring geometry (M-004 QA: this measurement flaked under host load
+  // when it read boundingBox() before hydration/fonts had finished, not from a stale assertion) —
+  // wait for the element to be visible, the load event, and web fonts (they can reflow the grid),
+  // then scroll it into view so it isn't mid-transition off-screen.
+  await expect(img).toBeVisible();
+  await page.waitForLoadState("load");
+  await page.evaluate(() => document.fonts.ready);
+  await img.scrollIntoViewIfNeeded();
   // Substantial-focal-element floor — the EXE-9 hero-rebalance contract. Widening the avatar track
   // to 42fr and letting the content column shrink (min-w-0) + trimming the lg headline clamp frees
   // the avatar from the old min-content squeeze (it used to collapse to ~252px at 1024). The floors
@@ -85,12 +86,23 @@ test("hero avatar frame is responsive and column-capped (<= breakpoint ladder)",
   // responsive contract with margin, not a fixed-px pin, so it guards against a regression back to the
   // squeezed 35fr layout without being brittle to sub-pixel/font-metric drift.
   const focalFloor = w >= 1440 ? 420 : w >= 1024 ? 320 : null;
-  if (focalFloor !== null) {
+  // Retry the read+assert together (Playwright's retrying toPass, not a one-shot getBoundingClientRect)
+  // so a transient mid-layout read under host load is retried instead of failing the whole run.
+  await expect(async () => {
+    const box = await img.boundingBox();
+    expect(box, "avatar image must be laid out").toBeTruthy();
+    expect(box!.width, `hero frame width at ${w} must be positive`).toBeGreaterThan(0);
     expect(
       box!.width,
-      `hero frame width at ${w} = ${box!.width}, must remain a substantial focal element (>= ${focalFloor})`,
-    ).toBeGreaterThanOrEqual(focalFloor);
-  }
+      `hero frame width at ${w} = ${box!.width}, must not exceed cap ${cap} (+1px tolerance)`,
+    ).toBeLessThanOrEqual(cap + 1);
+    if (focalFloor !== null) {
+      expect(
+        box!.width,
+        `hero frame width at ${w} = ${box!.width}, must remain a substantial focal element (>= ${focalFloor})`,
+      ).toBeGreaterThanOrEqual(focalFloor);
+    }
+  }).toPass({ timeout: 6000 });
 });
 
 // ---------------------------------------------------------------------------
@@ -102,14 +114,26 @@ test("hero floating tiles use the asymmetric offset ladder at lg+", async ({
 }) => {
   test.skip(width(page) < 1024, "tiles are a single column below lg (offsets only apply at lg+)");
   await page.goto("/", { waitUntil: "load" });
-  const y = async (label: string) => {
-    const box = await page.getByText(label, { exact: true }).boundingBox();
-    expect(box, `tile "${label}" must be laid out`).toBeTruthy();
-    return box!.y;
-  };
-  const [ai, people, progress] = [await y("AI Products"), await y("People"), await y("Progress")];
-  expect(ai, `AI Products (${ai}) should sit above People (${people})`).toBeLessThan(people);
-  expect(people, `People (${people}) should sit above Progress (${progress})`).toBeLessThan(progress);
+  // Let layout settle before measuring vertical offsets (M-004 QA: this ladder comparison flaked
+  // under host load, reading y-positions mid-reflow, not from a stale assertion) — wait for each
+  // tile to be visible, the load event, and web fonts, then retry the y-position read+compare
+  // together instead of a one-shot getBoundingClientRect.
+  const tileLabels = ["AI Products", "People", "Progress"] as const;
+  for (const label of tileLabels) {
+    await expect(page.getByText(label, { exact: true })).toBeVisible();
+  }
+  await page.waitForLoadState("load");
+  await page.evaluate(() => document.fonts.ready);
+  await expect(async () => {
+    const y = async (label: string) => {
+      const box = await page.getByText(label, { exact: true }).boundingBox();
+      expect(box, `tile "${label}" must be laid out`).toBeTruthy();
+      return box!.y;
+    };
+    const [ai, people, progress] = [await y("AI Products"), await y("People"), await y("Progress")];
+    expect(ai, `AI Products (${ai}) should sit above People (${people})`).toBeLessThan(people);
+    expect(people, `People (${people}) should sit above Progress (${progress})`).toBeLessThan(progress);
+  }).toPass({ timeout: 6000 });
 });
 
 // ---------------------------------------------------------------------------
