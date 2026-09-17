@@ -1,13 +1,17 @@
 /**
- * work.spec.ts (TKT-16, M-004) — the `/work` page: WorkHero, URL-synced FilterTabs, the editorial
- * grid, and the four-states empty case.
+ * work.spec.ts (TKT-16/17, M-004) — the `/work` page: WorkHero, URL-synced FilterTabs, the
+ * editorial grid, the four-states empty case, and the `ExperienceStrip` (professional experience).
  *
  * Tags carried so the tests surface under the relevant eval ids (`pnpm eval --only …`):
  *   @EVAL-002 — the recruiter hop 2: a grid card links to /work/<slug> and navigates there (200).
- *   @EVAL-007 — FilterTabs are keyboard-operable (roving tabindex, arrow/Home/End, focus ring).
+ *   @EVAL-007 — FilterTabs / ExperienceStrip rows are keyboard-operable (roving tabindex or
+ *               aria-expanded toggle, arrow/Home/End, focus ring).
  *   @EVAL-008 — no horizontal page overflow at 390 with the peeking scroll row; targets ≥44.
  *   @EVAL-010 — reduced motion: the active-tab indicator and cards never animate transform.
- *   @EVAL-011 — every filter yields ≥1 card (no dead-end) and the empty-state control is a live link.
+ *   @EVAL-011 — every filter yields ≥1 card (no dead-end) and the empty-state control is a live
+ *               link; ExperienceStrip rows are live disclosure controls, never dead.
+ *   @EVAL-013 — ExperienceStrip content is verbatim-sourced (role/name/dates) with no fabricated
+ *               copy and no product/live-link affordance on the professional entries.
  *
  * The route stays statically prerendered (TP1): filtering is client-side via ?filter=, so a deep
  * link flashes the full grid for one frame (TP7, accepted) before the client narrows it — the tests
@@ -258,3 +262,101 @@ test("@EVAL-006 /work is axe-clean", { tag: "@EVAL-006" }, async ({ page, axe })
   await expect.poll(async () => (await gridSlugs(page)).length).toBe(EXPECTED.all!.length);
   await axe(page);
 });
+
+// ---------------------------------------------------------------------------
+// ExperienceStrip (TKT-17) — professional experience: flat rows, no product affordance.
+// ---------------------------------------------------------------------------
+
+/** Data-derived professional-entry sets per filter (mirrors `EXPECTED` above but for TKT-17). */
+const PROFESSIONAL_ROWS: Record<string, string[]> = {
+  all: ["mars-ar-modernization", "cloud-modernization-programs", "godrej-smartnet"],
+  ai: ["mars-ar-modernization"],
+  enterprise: ["mars-ar-modernization", "cloud-modernization-programs", "godrej-smartnet"],
+  cloud: ["mars-ar-modernization", "cloud-modernization-programs"],
+  experiments: [],
+};
+
+const experienceRegion = (page: import("@playwright/test").Page) =>
+  page.getByRole("region", { name: "Professional experience" });
+
+/** Slugs of the ExperienceStrip rows currently rendered (read off each trigger's aria-controls). */
+async function experienceSlugs(page: import("@playwright/test").Page): Promise<string[]> {
+  return page.$$eval('button[aria-controls^="experience-row-"]', (els) =>
+    els.map((el) => (el.getAttribute("aria-controls") ?? "").replace("experience-row-", "")),
+  );
+}
+
+test("@EVAL-013 ExperienceStrip renders the three professional entries, verbatim, with no card/live-link affordance", {
+  tag: "@EVAL-013",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
+  await page.goto("/work", { waitUntil: "load" });
+  await expect
+    .poll(async () => (await experienceSlugs(page)).sort())
+    .toEqual([...PROFESSIONAL_ROWS.all!].sort());
+
+  const region = experienceRegion(page);
+  await expect(
+    region.getByText("Professional experience — corporate work, not a public product."),
+  ).toBeVisible();
+
+  const marsRow = region.locator('button[aria-controls="experience-row-mars-ar-modernization"]');
+  await expect(marsRow).toContainText("Senior Product Manager");
+  await expect(marsRow).toContainText("Accounts Receivable Modernization — American Express");
+  await expect(marsRow).toContainText("Jun 2026 – present");
+
+  // Never a card / live-product affordance: no link inside a row, no separate status badge.
+  await expect(region.locator("li a")).toHaveCount(0);
+  await expect(region.getByText("Professional experience", { exact: true })).toHaveCount(0);
+
+  // The CTA points at the declared anchor (SITEMAP.md / decisions §S8) — a real link, never dead
+  // (it currently WARNs in the dead-control crawler as a known-unbuilt route, not a FAIL).
+  await expect(region.getByRole("link", { name: /see my experience/i })).toHaveAttribute(
+    "href",
+    "/about#experience",
+  );
+});
+
+test("@EVAL-011 @EVAL-007 ExperienceStrip row expand is a live, keyboard-operable control; only one row open at a time", {
+  tag: ["@EVAL-011", "@EVAL-007"],
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "expand/collapse behaviour checked once at w1440");
+  await page.goto("/work", { waitUntil: "load" });
+  await expect.poll(async () => (await experienceSlugs(page)).length).toBe(3);
+
+  const region = experienceRegion(page);
+  const marsTrigger = region.locator('button[aria-controls="experience-row-mars-ar-modernization"]');
+  const godrejTrigger = region.locator('button[aria-controls="experience-row-godrej-smartnet"]');
+
+  await expect(marsTrigger).toHaveAttribute("aria-expanded", "false");
+  await marsTrigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(marsTrigger).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#experience-row-mars-ar-modernization")).toContainText("Devin GenAI");
+
+  // Opening a second row closes the first (one open at a time, AC2).
+  await godrejTrigger.click();
+  await expect(godrejTrigger).toHaveAttribute("aria-expanded", "true");
+  await expect(marsTrigger).toHaveAttribute("aria-expanded", "false");
+});
+
+for (const [filter, expected] of Object.entries(PROFESSIONAL_ROWS)) {
+  test(`@EVAL-011 filter=${filter} narrows ExperienceStrip to its data-derived professional set`, {
+    tag: "@EVAL-011",
+  }, async ({ page }) => {
+    test.skip(width(page) !== 1440, "slug sets are viewport-independent; checked once at w1440");
+    const href = filter === "all" ? "/work" : `/work?filter=${filter}`;
+    await page.goto(href, { waitUntil: "load" });
+    await expect
+      .poll(async () => (await experienceSlugs(page)).sort())
+      .toEqual([...expected].sort());
+    if (expected.length === 0) {
+      // "Experiments" carries no professional entry — the strip renders no heading/rows/CTA rather
+      // than an empty labelled box left behind (no dead-end, EVAL-011 spirit).
+      await expect(
+        page.getByText("Professional experience — corporate work, not a public product."),
+      ).toHaveCount(0);
+      await expect(page.getByRole("link", { name: /see my experience/i })).toHaveCount(0);
+    }
+  });
+}
