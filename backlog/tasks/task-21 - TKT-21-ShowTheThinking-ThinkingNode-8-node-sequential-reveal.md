@@ -1,10 +1,10 @@
 ---
 id: TASK-21
 title: 'TKT-21: ShowTheThinking + ThinkingNode (8-node sequential reveal)'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-17 04:56'
+updated_date: '2026-09-17 05:38'
 labels:
   - P1
   - 'sp:3'

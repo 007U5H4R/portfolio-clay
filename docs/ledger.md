@@ -79,8 +79,9 @@ Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-
 - TKT-17 ExperienceStrip ✅ commit 2ffad00; 50 e2e, 0 dead, reads as employment (flat rows, labeled non-product). Accepted.
 - TKT-18 DemoVideo ✅ commit 7e03edc; 4 states verified (17 e2e), intent-gated mount, zero committed binaries, dev-route 404/200. Media type exported. Accepted.
 - TKT-20 artifacts + MetricCard ✅ commit 7d3f02d; 8 variants (exhaustive never-switch), MetricCard sourcing guard (compile+runtime), SourceCaption hides /Volumes ref, 186 tests, /dev/artifacts 200/404, axe-clean. Accepted.
-- TKT-21 ShowTheThinking 🔄 running.
-- **M-004 GATE MUST-RESOLVE:** ~5 recurring e2e failures in tracer.spec (hero-frame, floating-tiles offset ladder) + ask-panel (44px) — fail in full runs, pass isolated. M-003 QA called them host-contention BUT they recur at workers:1 → QA-tester must determine flaky-vs-REAL (possibly STALE after EXE-9 hero change / tile min-w-0 changes). Fix any real ones before M-004 merge.
+- TKT-21 ShowTheThinking ✅ commit 149798a; 8-node reveal, JS-off visible, AT summary, reduced-motion verified, 188 tests, dev-board 404/200. Accepted.
+- TKT-19 case-study page 🔄 running (last M-004 ticket; needs TKT-15/18/20/21 — all done).
+- **M-004 GATE MUST-RESOLVE (now diagnosed):** the recurring ~5 e2e failures (tracer hero-frame/tile-offset + ask-panel/ask-inline 44px sub-pixel) are FLAKY not stale — confirmed by ~5 agents: fail in full run, pass 3/3 isolated, unrelated to their diffs. → HARDEN these timing/measurement specs at the gate (await stable layout / measurement retry / tolerance) so they're reliably green; that's the scar. Not a code defect.
 - Note: subagent Co-Authored-By trailer should match each subagent's ACTUAL model (some ran sonnet, briefs hardcoded Opus 4.8) — future briefs say "your session's trailer"; historical commits not amended (low value).
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)
