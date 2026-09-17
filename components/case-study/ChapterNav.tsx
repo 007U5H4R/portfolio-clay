@@ -64,8 +64,11 @@ export function ChapterNav({ items }: ChapterNavProps) {
 
   const numberLabel = (n: number) => String(n).padStart(2, "0");
 
+  // `min-w-0` on the nav: as a grid item it must be allowed to shrink below its content width, or
+  // the <1024 pill row's `overflow-x-auto` can't clip — the row would blow out the page (TKT-28 was
+  // the first study to render chapters, surfacing this horizontal overflow at 390px).
   return (
-    <nav aria-label="Chapters" className="lg:sticky lg:top-[7rem] lg:self-start">
+    <nav aria-label="Chapters" className="min-w-0 lg:sticky lg:top-[7rem] lg:self-start">
       {/* ≥1024: vertical flat rail. */}
       <ul className="hidden flex-col gap-[var(--space-1)] lg:flex">
         {items.map((item) => {

@@ -61,6 +61,15 @@ const EMPTY_CHAPTERS: Project["chapters"] = [
   { id: "learned", title: "What I learned", body: [], artifacts: [] },
 ];
 
+/**
+ * TeachSpark — the flagship full case study (featured rank 1, large; TKT-28, M-005). Every chapter
+ * body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.1 + AUDIT §4 — nothing is
+ * invented. Canonical pilot metrics use the Final-PRD snapshot 2026-08-24 (test handsets excluded);
+ * the conflicting 2026-08-26 pitch snapshot is deliberately NOT mixed in (§8.1 "Choose one date").
+ * Honest hedges are preserved verbatim: live-pilot uptime after 2026-09-09 is unverified, no teacher
+ * interviews were recorded (planned 8–12), and no LLM output-quality evals exist. The Twilio sandbox
+ * join code and all PII are excluded (forbidden-strings gate, EVAL-016).
+ */
 export const teachspark: Project = {
   slug: "teachspark",
   name: "TeachSpark",
@@ -84,16 +93,356 @@ export const teachspark: Project = {
     repoPublic: false,
   },
   hero: {},
-  metrics: [],
+  metrics: [
+    {
+      value: "17",
+      label: "Teachers joined",
+      context:
+        "joined the WhatsApp pilot in its first week; Final-PRD snapshot 2026-08-24, test handsets excluded",
+      asOf: "2026-08-24",
+      kind: "measured",
+      source: "CS4-FINAL-PRD",
+    },
+    {
+      value: "8 (47%)",
+      label: "Activated",
+      context:
+        "of 17 joined reached an activation event (12 onboarded first, 71%); snapshot 2026-08-24, test handsets excluded",
+      asOf: "2026-08-24",
+      kind: "measured",
+      source: "CS4-FINAL-PRD",
+    },
+    {
+      value: "37.5 min",
+      label: "Median time saved",
+      context:
+        "self-reported median time saved per activated teacher; snapshot 2026-08-24, test handsets excluded",
+      asOf: "2026-08-24",
+      kind: "self-reported",
+      source: "CS4-FINAL-PRD",
+    },
+  ],
   overview: {
     thirtySecond: [
       "School teachers (25–40, limited technical training) want to use AI to save time and teach more effectively, but existing resources are generic, fragmented, and disconnected from their classroom context.",
+      "TeachSpark is a solo-built WhatsApp bot that teaches a teacher the reusable AI skill to make a differentiated worksheet herself in about two minutes, measures the time she saved, and pulls her back the next day for the next skill. A first-week pilot (2026-08-24, test handsets excluded) took 17 teachers onto WhatsApp, activated 8, and saved a median 37.5 self-reported minutes each.",
     ],
-    deepDive: false,
+    deepDive: true,
   },
-  chapters: EMPTY_CHAPTERS,
-  thinking: [],
-  learnings: [],
+  chapters: [
+    {
+      id: "context",
+      title: "Context",
+      body: [
+        "TeachSpark began as Case Study 4 in a Cohort 8 product sprint on learning technology and AI for the next generation of professionals — the teacher vertical. Group discovery ran over the first weekend; from Tuesday the work was individual. Tushar authored the Discovery, Solution-Space and Final PRDs and built the entire MVP solo — the WhatsApp bot, the web landing, the admin console and the analytics.",
+        "The starting point was personal, not a market slide. As the pitch put it, \"it started with one real teacher: my mother, who teaches Sanskrit,\" and the build notes described the best user research as \"remembering my mother's evenings.\"",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-mother",
+          type: "insight",
+          quote: "My best user research was remembering my mother's evenings.",
+          attribution: "TeachSpark build notes (pitch, slide 13)",
+          source: "TS-PITCH",
+        },
+      ],
+    },
+    {
+      id: "problem",
+      title: "Problem",
+      body: [
+        "The Discovery PRD framed the problem plainly: \"School teachers (25–40, limited technical training) want to use AI to save time and teach more effectively, but existing resources are generic, fragmented, and disconnected from their classroom context. They don't know what to learn, where to start, or how to translate generic AI tutorials into their specific subject/grade/board — so despite abundant free resources, most never build durable, confident, applied AI skills.\"",
+        "The persona was \"Meera\": a full-time K–12 teacher, 25–40, with 3–15 years of experience and class sizes of 30–50 mixed-ability students, who has never written a prompt with intent. Her job-to-be-done anchors the whole product.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-jtbd",
+          type: "insight",
+          quote:
+            "When I'm overwhelmed by prep and grading, help me solve this week's specific teaching task with AI, so I get real time back and feel more in control — without having to become a techie first.",
+          attribution: "Persona \"Meera\", Discovery PRD §1.1",
+          source: "TS-DISCOVERY-PRD",
+        },
+      ],
+    },
+    {
+      id: "discovery",
+      title: "Discovery",
+      body: [
+        "The load-bearing insight reframed the market: the problem is not scarcity of content, it is that content is generic and disconnected from the classroom. A 2×2 whitespace map — generic ↔ classroom-specific against task-execution ↔ capability-building — located the wedge: problem-led, applied, capability-building learning with impact feedback, a corner nobody occupied.",
+        "Honesty note: the Discovery PRD planned 8–12 teacher interviews, but none were recorded — no notes, counts, transcripts or synthesis exist, and the observation sheet on disk is a blank template. The one documented user trace is Tushar's mother. Discovery rigour instead lived in a central hypothesis decomposed into eight assumptions (A1–A8), each tagged with type and risk before a line of code.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-insight",
+          type: "insight",
+          quote:
+            "The problem is not scarcity of content, it is that content is generic and disconnected from the classroom.",
+          attribution: "Discovery PRD §0",
+          source: "TS-DISCOVERY-PRD",
+        },
+        {
+          id: "ts-a-hypothesis",
+          type: "hypothesis",
+          believe:
+            "A time-poor teacher will adopt AI if it solves one real classroom task this week and shows the time saved, rather than teaching AI generically.",
+          knowWhen:
+            "when teachers activate and return for a second skill — not merely try the bot once.",
+          status: "partially-validated",
+          source: "TS-DISCOVERY-PRD",
+        },
+      ],
+    },
+    {
+      id: "bet",
+      title: "Product bet",
+      body: [
+        "The bet was \"Capability, not dependency.\" Rather than doing the task for the teacher (a worksheet-vending service that creates dependency) or teaching AI generically, TeachSpark teaches the reusable skill to produce a differentiated worksheet herself in about two minutes, then measures the time saved and brings her back for the next skill.",
+        "The MVP wedge was chosen for being high frequency, high pain, and easy to template and measure. WhatsApp was the distribution decision — meet teachers where they already are, on a Twilio sandbox for the case-study cohort, rather than asking them to install and learn a new app.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-capability",
+          type: "decision",
+          title: "Capability, not dependency",
+          chosen:
+            "Teach the teacher the reusable AI skill to make a differentiated worksheet herself in ~2 minutes, measure the time saved, and pull her back for the next skill.",
+          rejected: [
+            "Do the task for her — a worksheet-vending service that creates dependency",
+            "Teach AI generically, disconnected from a real classroom task",
+          ],
+          reason:
+            "The white space was problem-led, applied, capability-building learning with impact feedback — nobody else occupied it.",
+          source: "TS-SOLUTION-PRD",
+        },
+        {
+          id: "ts-a-whatsapp",
+          type: "decision",
+          title: "WhatsApp as the distribution wedge",
+          chosen:
+            "Ship on WhatsApp, where teachers already are, via a Twilio sandbox for the cohort.",
+          rejected: ["A standalone app requiring a new install and a new login"],
+          reason: "Distribution, not a new destination.",
+          source: "TS-SOLUTION-PRD",
+        },
+      ],
+    },
+    {
+      id: "built",
+      title: "What I built",
+      body: [
+        "The architecture is a single honest loop: WhatsApp → Twilio → Express → pure state machine → Claude → PDF/DOCX → back to WhatsApp. The core transition() is a pure function of (teacher, message, now) → step, with all I/O pushed through ports and adapters (Twilio, Supabase, Anthropic, PDF, DOCX, media, storage). Claude Sonnet 5 is the default model, with Claude Haiku 4.5 env-switchable.",
+        "The question-paper path uses structured outputs (messages.parse with a zod output format), vision on teacher-sent photos, and a second QC pass; its prompt is explicit — flag an unreadable or blurry page in source notes and never hallucinate. The worksheet prompt keeps generation inside the stated board's syllabus (CBSE, ICSE or a State board) and never asks for a student's personal details.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-arch",
+          type: "generic",
+          title: "Ports-and-adapters architecture",
+          kind: "doc",
+          note: "transition() is a pure function (teacher, message, now) → step; all I/O runs through ports/adapters — Twilio, Supabase, Anthropic, PDF/DOCX.",
+          source: "TS-RUNBOOK",
+        },
+        {
+          id: "ts-a-paper",
+          type: "generic",
+          title: "Question-paper path: structured outputs + vision + QC pass",
+          kind: "doc",
+          note: "messages.parse with a zod output format, vision on teacher photos, and a second QC pass; the prompt says never hallucinate and flags unreadable pages.",
+          source: "TS-ANTHROPIC-PAPER",
+        },
+        {
+          id: "ts-a-cost",
+          type: "metric",
+          metric: {
+            value: "≈ $0.01",
+            label: "Cost per generation",
+            context:
+              "runbook estimate per worksheet/paper generation; an estimate, not an independently measured figure",
+            asOf: "2026-08-24",
+            kind: "self-reported",
+            source: "TS-RUNBOOK",
+          },
+          source: "TS-RUNBOOK",
+        },
+      ],
+    },
+    {
+      id: "evaluation",
+      title: "Evaluation",
+      body: [
+        "TeachSpark was instrumented with 32 event types across a server-side event store, Mixpanel and Clarity. QA ran as phased gates through phase-7, with real Claude→PDF→Supabase round-trips and Twilio-shaped webhook end-to-end tests; the last recorded gate was 335 passed / 2 skipped (phase-6, 2026-08-21). The pitch's \"625 tests\" could not be reproduced and is not used, and no LLM output-quality evals exist — only the in-product QC pass.",
+        "The most telling evaluation decision was about honesty. The day before submission, Tushar added an is_test flag and excluded his own handsets from the pilot numbers: activated teachers dropped from 10 to 8, median time saved fell from 37.5 to 30 minutes, and exported papers went from 5 to 2. Mixpanel (captured from 24 Aug only; the first-party store of 72 landing views is authoritative) recorded a 27 → 7 → 4 landing → sign-up → join funnel.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-istest",
+          type: "experiment",
+          setup:
+            "The day before submission, added an is_test flag and excluded my own handsets from the pilot numbers.",
+          result:
+            "Activated teachers dropped from 10 to 8; median time saved fell from 37.5 to 30 minutes; papers from 5 to 2.",
+          learning: "Honest smaller numbers earn more trust than impressive fake ones.",
+          source: "TS-LINKEDIN-BUILD",
+        },
+        {
+          id: "ts-a-qa",
+          type: "evaluation",
+          method:
+            "Phased QA gates through phase-7 with real Claude→PDF→Supabase round-trips and Twilio-shaped webhook end-to-end tests.",
+          result: "Last recorded gate: 335 passed / 2 skipped (phase-6, 2026-08-21).",
+          limitation:
+            "No LLM output-quality evals exist; the pitch's \"625 tests\" could not be reproduced and is not used.",
+          source: "TS-QA-PHASE6",
+        },
+        {
+          id: "ts-a-mixpanel",
+          type: "metric",
+          metric: {
+            value: "27→7→4",
+            label: "Mixpanel 3-step funnel",
+            context:
+              "landing_view → signup_completed → join_tapped; captured from 24 Aug only, first-party store (72 views) is authoritative",
+            asOf: "2026-08-24",
+            kind: "measured",
+            source: "TS-MIXPANEL",
+          },
+          source: "TS-MIXPANEL",
+        },
+      ],
+    },
+    {
+      id: "outcome",
+      title: "Outcome",
+      body: [
+        "The first-week pilot (Final-PRD snapshot 2026-08-24, test handsets excluded) ran the full funnel: 72 landing views → 17 sign-ups (23.6%) → 17 joined on WhatsApp → 12 onboarded (71%) → 8 activated (47%) → 5 question papers exported, with a self-reported median of 37.5 minutes saved, 3 referrals, and nudge re-engagement of 1 of 4. Sign-up method was 17 manual, 0 Google.",
+        "Measured against the pre-set targets — joined 40–50, activation ≥60%, D1 retention ≥25% — the pilot came in under. Tushar's own reflection was that the D1 number \"wasn't low; it was structurally impossible,\" because the measurement window was shorter than the 24-hour definition. The service runs as a live pilot on a Twilio sandbox rather than a production WhatsApp number, and whether the Railway service is still up after 2026-09-09 is unverified.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-referrals",
+          type: "metric",
+          metric: {
+            value: "3",
+            label: "Referrals",
+            context:
+              "teacher-reported referrals during the first-week pilot; snapshot 2026-08-24, test handsets excluded",
+            asOf: "2026-08-24",
+            kind: "self-reported",
+            source: "CS4-FINAL-PRD",
+          },
+          source: "CS4-FINAL-PRD",
+        },
+        {
+          id: "ts-a-d1",
+          type: "experiment",
+          setup:
+            "Set activation and D1-retention targets before the pilot (joined 40–50, activation ≥60%, D1 ≥25%).",
+          result: "17 joined and 47% activated — under target; D1 was not meaningfully measurable.",
+          learning:
+            "The number wasn't low, it was structurally impossible — the measurement window was shorter than the 24-hour definition.",
+          source: "TS-LINKEDIN-BUILD",
+        },
+      ],
+    },
+    {
+      id: "learned",
+      title: "What I learned",
+      body: [
+        "The sharpest lesson came from the mentor: \"a teacher doesn't really buy 'AI'. A teacher buys a worksheet that is good enough to give to her students tomorrow.\" The mentor also warned that WhatsApp is a strong distribution decision but should not become the entire product differentiation, and that the original objective of helping teachers learn Tech + AI was currently missing from the experience. Tushar's response kept the best-worksheet tool as the lead and delivered learning in-product as the trust mechanism — Wave 1 (\"trust & clarity\") shipped on 2026-08-29.",
+        "Two build-level lessons stuck. First, green tests prove a thing runs, not that it is right: 335 passing tests still shipped a sign-up India map that placed zero real sign-ups, because a case-sensitive lookup against 14 hard-coded cities missed teachers who had typed \"Bangalore\" four different ways when it expected \"Bengaluru.\" Second, the redundant typed WhatsApp-number field on the sign-up form was the likely top drop-off.",
+      ],
+      artifacts: [
+        {
+          id: "ts-a-mentor",
+          type: "insight",
+          quote:
+            "A teacher doesn't really buy 'AI'. A teacher buys a worksheet that is good enough to give to her students tomorrow.",
+          attribution: "Mentor feedback, 2026-08-29",
+          source: "TS-MENTOR",
+        },
+        {
+          id: "ts-a-cities",
+          type: "experiment",
+          setup:
+            "The sign-up India map matched city names with a case-sensitive lookup against 14 hard-coded cities.",
+          result:
+            "It placed zero real sign-ups — teachers had typed \"Bangalore\" four different ways; the lookup expected \"Bengaluru.\"",
+          learning: "Real inputs are messier than any hard-coded list — normalize before you match.",
+          source: "TS-LINKEDIN-BUILD",
+        },
+        {
+          id: "ts-a-wave1",
+          type: "decision",
+          title: "Wave 1: trust & clarity",
+          chosen:
+            "Keep the best-worksheet tool as the lead and deliver learning in-product as the trust mechanism; ship Wave 1 (trust & clarity) on the landing.",
+          rejected: [
+            "Reposition the product as an AI-learning course",
+            "Make WhatsApp itself the product differentiation",
+          ],
+          reason: "Commit 2026-08-29: \"Wave 1: trust & clarity on the landing (mentor feedback).\"",
+          source: "TS-MENTOR",
+        },
+      ],
+    },
+  ],
+  thinking: [
+    {
+      stage: "observation",
+      text: "It started with one real teacher: my mother, who teaches Sanskrit. My best user research was remembering my mother's evenings.",
+      source: "TS-PITCH",
+      href: "/work/teachspark#01-context",
+    },
+    {
+      stage: "user-problem",
+      text: "Time-poor K–12 teachers want AI to save time, but resources are generic, fragmented and disconnected from their classroom — so most never build durable, applied AI skills.",
+      source: "TS-DISCOVERY-PRD",
+      href: "/work/teachspark#02-problem",
+    },
+    {
+      stage: "insight",
+      text: "The problem is not scarcity of content, it is that content is generic and disconnected from the classroom.",
+      source: "TS-DISCOVERY-PRD",
+      href: "/work/teachspark#03-discovery",
+    },
+    {
+      stage: "hypothesis",
+      text: "A teacher will adopt AI if it solves one real classroom task this week and shows the time saved; eight assumptions (A1–A8) were written with type and risk before any code.",
+      source: "TS-DISCOVERY-PRD",
+      href: "/work/teachspark#03-discovery",
+    },
+    {
+      stage: "product-decision",
+      text: "Capability, not dependency: teach the reusable skill instead of doing the task; the MVP wedge was chosen for high frequency, high pain, and being easy to template and measure.",
+      source: "TS-SOLUTION-PRD",
+      href: "/work/teachspark#04-product-bet",
+    },
+    {
+      stage: "prototype",
+      text: "Shipped solo: a WhatsApp bot (Twilio sandbox), a web landing, an admin console and analytics — WhatsApp → Twilio → Express → pure state machine → Claude → PDF/DOCX.",
+      source: "TS-RUNBOOK",
+      href: "/work/teachspark#05-what-i-built",
+    },
+    {
+      stage: "evaluation",
+      text: "Instrumented 32 event types; the day before submission I added an is_test flag and excluded my own handsets — activation dropped 10→8 and median time saved 37.5→30 minutes.",
+      source: "TS-LINKEDIN-BUILD",
+      href: "/work/teachspark#06-evaluation",
+    },
+    {
+      stage: "outcome",
+      text: "First-week pilot (2026-08-24, test handsets excluded): 17 teachers joined, 8 activated (47%), median 37.5 minutes saved (self-report), 3 referrals; then a mentor challenge drove a Wave-1 trust-and-clarity iteration.",
+      source: "CS4-FINAL-PRD",
+      href: "/work/teachspark#07-outcome",
+    },
+  ],
+  learnings: [
+    "A teacher buys a worksheet good enough for tomorrow, not \"AI\" — lead with the artifact and deliver learning as the trust mechanism (mentor, 2026-08-29).",
+    "Green tests prove it runs; they don't prove it's right — 335 passing tests still shipped a broken, case-sensitive city lookup.",
+    "Honest smaller numbers earn more trust than impressive fake ones — excluding my own handsets the day before submission was the right call.",
+    "Distribution (WhatsApp) is a strong wedge, but it must not become the entire product differentiation.",
+  ],
   sources: [
     {
       id: "TS-README-3",
@@ -104,8 +453,69 @@ export const teachspark: Project = {
     {
       id: "CS4-FINAL-PRD",
       label: "TeachSpark Final PRD",
-      ref: "CS4/docs/final-prd.docx §7",
+      ref: "CS4/docs/final-prd.docx §0/§7",
       inventory: "§8.1",
+    },
+    {
+      id: "TS-DISCOVERY-PRD",
+      label: "TeachSpark Discovery PRD",
+      ref: "CS4/Case Study 4 - Discovery PRD.docx §0/§1.1/§6",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-SOLUTION-PRD",
+      label: "TeachSpark Solution-Space PRD",
+      ref: "CS4/Case Study 4 - Solution-Space PRD.docx §3/§4",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-PITCH",
+      label: "TeachSpark pitch deck",
+      ref: "CS4/pitch/teachspark-pitch.pdf slides 10, 13",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-RUNBOOK",
+      label: "TeachSpark runbook",
+      ref: "TS/docs/runbook.md:10-65",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-ANTHROPIC-PAPER",
+      label: "TeachSpark question-paper adapter",
+      ref: "TS/src/adapters/anthropic-paper.ts",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-LINKEDIN-BUILD",
+      label: "TeachSpark 9-day build series",
+      ref: "TS/docs/linkedin/9-day-build-series.md (Post 9)",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-MENTOR",
+      label: "TeachSpark mentor feedback",
+      ref: "CS4/MentorFeedback.md (2026-08-29)",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-QA-PHASE6",
+      label: "TeachSpark QA phase-6 gate",
+      ref: "TS/docs/qa/phase-6.md (2026-08-21)",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-MIXPANEL",
+      label: "TeachSpark Mixpanel funnel",
+      ref: "CS4/docs/assets/mixpanel-funnel.png",
+      inventory: "§8.1",
+    },
+    {
+      id: "TS-LIVE",
+      label: "TeachSpark live pilot (Railway)",
+      ref: "https://teachspark-production.up.railway.app (uptime after 2026-09-09 unverified)",
+      inventory: "§8.1",
+      url: "https://teachspark-production.up.railway.app",
     },
   ],
 };

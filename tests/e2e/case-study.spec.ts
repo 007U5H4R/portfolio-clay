@@ -22,6 +22,11 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 
 // Personal slugs in /work grid order → display name (data/projects.ts). Hard-coded rather than
 // imported so the spec never pulls the zod/next data module into the Playwright runtime.
+// Slugs that now ship a full deep dive (chapters + metrics + thinking). TeachSpark landed with
+// TKT-28 (M-005); the thin-content assertions below branch on this set so a filled study is checked
+// for its real deep-dive path, not the "Deep dive coming" placeholder.
+const DEEP_DIVE = new Set<string>(["teachspark"]);
+
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
   { slug: "railcite", name: "RailCite" },
@@ -54,10 +59,16 @@ for (const study of CASE_STUDIES) {
     // Hero media placeholder present (no real media until M-005) — never a broken image.
     await expect(page.getByText("Hero media coming")).toBeVisible();
 
-    // Thin content today → labelled "Deep dive coming" note, never an empty chapter section.
-    await expect(page.getByText("Deep dive coming")).toBeVisible();
-    // No chapters exist yet, so the chapter navigation must not render (no dead anchor links).
-    await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+    if (DEEP_DIVE.has(study.slug)) {
+      // A filled study shows the depth toggle (default 30-sec), never the "coming" placeholder.
+      await expect(page.getByRole("radiogroup", { name: "Case-study depth" })).toBeVisible();
+      await expect(page.getByText("Deep dive coming")).toHaveCount(0);
+    } else {
+      // Thin content today → labelled "Deep dive coming" note, never an empty chapter section.
+      await expect(page.getByText("Deep dive coming")).toBeVisible();
+      // No chapters exist yet, so the chapter navigation must not render (no dead anchor links).
+      await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+    }
 
     // NextProject band → a valid personal case-study route.
     const next = page.getByRole("link", { name: /^Next project:/ });
@@ -69,6 +80,44 @@ for (const study of CASE_STUDIES) {
     await minTargets(page);
   });
 }
+
+// ---------------------------------------------------------------------------
+// TeachSpark full deep dive (TKT-28 / M-005): the previously-BLOCKED TC-075/076/077 now run for
+// real — header metrics carry every sourced field, the OverviewToggle reveals the chapters, the
+// ChapterNav anchors resolve, and ShowTheThinking exposes the 8-node reasoning chain.
+// ---------------------------------------------------------------------------
+test("case-study · teachspark deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/teachspark", { waitUntil: "load" });
+  expect(res?.status(), "/work/teachspark must be 200").toBe(200);
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  // Exact match: the label text also appears inside each metric's context sentence.
+  await expect(page.getByText("Teachers joined", { exact: true })).toBeVisible();
+  await expect(page.getByText("Median time saved", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 24 Aug 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  // Attribute selector, not `#id`: the anchor ids start with a digit (invalid CSS id selector).
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
 
 // ---------------------------------------------------------------------------
 // Every slug: axe wcag2.1 AA at 390 & 1440

@@ -67,11 +67,11 @@ export function CaseStudyHeader({ project, icon }: CaseStudyHeaderProps) {
         {/* 2–3 inline mini-metrics — rendered only from real `Project.metrics` (empty until M-005,
             so nothing shows today; no fabricated number ever appears). */}
         {headerMetrics.length > 0 ? (
-          <dl className="grid grid-cols-1 gap-[var(--space-5)] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-[var(--space-5)] sm:grid-cols-2">
             {headerMetrics.map(({ metric, source }) => (
               <MetricCard key={metric.label} metric={metric} source={source} variant="inline" />
             ))}
-          </dl>
+          </div>
         ) : null}
       </div>
 
