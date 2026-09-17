@@ -138,6 +138,26 @@ test.describe("ask-panel", () => {
     await noOverflow(page);
   });
 
+  test("@TC-051 panel geometry: full-bleed bottom sheet at <768, fixed-width drawer at >=768", async ({
+    page,
+  }) => {
+    await page.goto("/", { waitUntil: "load" });
+    await openPanel(page);
+    const box = await panel(page).boundingBox();
+    if (!box) throw new Error("ask panel has no bounding box while open");
+    const viewportWidth = width(page);
+    if (viewportWidth < 768) {
+      // Bottom sheet must span the full viewport width — no gap on the right edge showing the
+      // page behind (the native `dialog:modal` UA `max-width` regression, TC-051).
+      expect(Math.round(box.width)).toBe(viewportWidth);
+    } else {
+      // Right-anchored drawer: 400px from 768 up to (not including) the 1440 breakpoint, 480px at
+      // 1440+ (Design.md §3 / app/globals.css `--breakpoint-2xl: 1440px`).
+      const expectedWidth = viewportWidth >= 1440 ? 480 : 400;
+      expect(Math.round(box.width)).toBe(expectedWidth);
+    }
+  });
+
   test("@EVAL-006 the panel is axe-clean in idle and answer states", { tag: "@EVAL-006" }, async ({
     page,
     axe,

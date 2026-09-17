@@ -120,7 +120,7 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
       // No `display` utility on the <dialog> itself: the UA `dialog:not([open])` rule must keep it
       // hidden when closed (an author `display` here would win over the UA origin and leave the closed
       // dialog visible). The flex column lives on the inner wrapper below (the MobileMenu pattern).
-      className="ask-panel m-0 max-h-none bg-bg p-0 text-ink shadow-[var(--shadow-clay-rest)] fixed left-auto right-4 inset-y-4 h-auto w-[400px] rounded-[var(--radius-clay)] 2xl:w-[480px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:h-[90vh] max-md:w-auto max-md:rounded-b-none max-md:rounded-t-[var(--radius-clay)]"
+      className="ask-panel m-0 max-h-none bg-bg p-0 text-ink shadow-[var(--shadow-clay-rest)] fixed left-auto right-4 inset-y-4 h-auto w-[400px] rounded-[var(--radius-clay)] 2xl:w-[480px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:h-[90vh] max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-[var(--radius-clay)]"
       // Esc → native `cancel`: route it through closePanel() so it takes the same animated close
       // path as the close button / scrim (preventDefault keeps the dialog open until the slide-out).
       onCancel={(event) => {
