@@ -1,9 +1,10 @@
 ---
 id: TASK-15
 title: 'TKT-15: Expand data/projects.ts to all 14 entries at card fidelity'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 02:12'
 labels:
   - P1
   - 'sp:3'
