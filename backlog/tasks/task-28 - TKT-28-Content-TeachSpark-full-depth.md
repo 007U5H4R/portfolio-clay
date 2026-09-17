@@ -1,9 +1,10 @@
 ---
 id: TASK-28
 title: 'TKT-28: Content: TeachSpark - full depth'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 07:13'
 labels:
   - P0
   - 'sp:5'
