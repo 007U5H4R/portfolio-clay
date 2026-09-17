@@ -37,6 +37,28 @@ export const WORK_FILTERS = ['ai', 'enterprise', 'cloud', 'experiments'] as cons
 /** Top-level routes that always exist. */
 export const STATIC_ROUTES = ['/', '/work', '/about', '/thinking', '/contact', '/playground'] as const;
 
+/**
+ * The full personal-build slug universe (CONTENT_INVENTORY §2.2) — the slugs that back `/work/<slug>`
+ * pages once all case-study tickets land (TKT-12/TKT-15). Cross-referencing content (the Ask
+ * knowledge base, HowIThink) legitimately links to these before their records are populated, so the
+ * content gate resolves internal links against this fixed universe rather than the partially-filled
+ * `projects` collection — a link to a slug OUTSIDE this set still fails the build (EVAL-013). This is
+ * the single source of truth the anchors unit test also consumes.
+ */
+export const ALL_PROJECT_SLUGS = [
+  'teachspark',
+  'railcite',
+  'cubicle',
+  'nuptis',
+  'velora',
+  'bhakti-vilas',
+  'token-toli',
+  'pratyasa',
+  'tegaki',
+  'dino-arcade-pwa',
+  'cinematic-portfolio',
+] as const;
+
 export interface RouteInputs {
   /** Project slugs that back `/work/<slug>` (and their chapter anchors). */
   projectSlugs: readonly string[];

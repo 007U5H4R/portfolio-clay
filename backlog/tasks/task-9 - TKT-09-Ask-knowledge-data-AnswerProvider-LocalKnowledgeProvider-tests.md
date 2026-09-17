@@ -1,9 +1,10 @@
 ---
 id: TASK-9
 title: 'TKT-09: Ask knowledge data + AnswerProvider + LocalKnowledgeProvider + tests'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
+updated_date: '2026-09-16 09:10'
 labels:
   - P0
   - 'sp:5'

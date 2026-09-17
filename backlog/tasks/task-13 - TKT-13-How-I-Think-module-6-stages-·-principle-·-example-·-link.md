@@ -1,9 +1,10 @@
 ---
 id: TASK-13
 title: 'TKT-13: How I Think module (6 stages · principle · example · link)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-16 12:09'
 labels:
   - P1
   - 'sp:3'

@@ -24,7 +24,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  ...(process.env.CI ? { workers: 1 } : {}),
+  // Cap workers even outside CI: running all 4 viewport projects fully parallel with no cap
+  // causes host resource contention on this machine — `browserContext.close` trace-write races
+  // that surface as spurious cross-project timeouts/`toBeTruthy()` failures (M-003 QA gate,
+  // docs/reports/M003-qa.md / TC-051-fix.md). workers:2 still reproduced failures on this host;
+  // only workers:1 was reliably green across repeated full runs. Never disables a test.
+  workers: 1,
   reporter: [
     ["list"],
     ["json", { outputFile: ".eval/playwright.json" }],

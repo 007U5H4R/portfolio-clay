@@ -1,5 +1,7 @@
 {
   "charmEnabled": true,
   "charm": "duck",
-  "icon": "writing"
+  "icon": "writing",
+  "accent": "blue",
+  "doodleBg": "wedding"
 }

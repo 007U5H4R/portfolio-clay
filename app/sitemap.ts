@@ -9,7 +9,7 @@ import { projects } from "@/data/projects";
  * (`lib/anchors.ts`'s broader `STATIC_ROUTES` is a *link-validation* set for authored copy, not a
  * "page exists" set, so it isn't reused here.)
  */
-const STATIC_ROUTES = ["/", "/work", "/contact"] as const;
+export const STATIC_ROUTES = ["/", "/work", "/contact"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();

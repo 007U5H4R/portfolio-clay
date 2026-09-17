@@ -2,13 +2,20 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { CaseStudyHeader } from "@/components/case-study/CaseStudyHeader";
-import { getProject, projectIcon } from "@/data/projects";
+import { getProject, projectIcon, projects } from "@/data/projects";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-/** Only the slugs listed here are built; any other `/work/*` slug 404s (dynamicParams=false). */
+/**
+ * Only the slugs listed here are built; any other `/work/*` slug 404s (dynamicParams=false). Every
+ * personal build gets a `/work/<slug>` page (TKT-12: teachspark, railcite, velora today; the rest of
+ * the personal collection lands with TKT-15). Professional experience entries have no case-study
+ * page (SITEMAP.md), matching the sitemap's personal-only filter.
+ */
 export function generateStaticParams() {
-  return [{ slug: "teachspark" }];
+  return projects
+    .filter((project) => project.category === "personal")
+    .map((project) => ({ slug: project.slug }));
 }
 
 export const dynamicParams = false;

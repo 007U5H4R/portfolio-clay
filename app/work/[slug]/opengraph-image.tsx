@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { OG_SIZE, renderOgCard } from "@/lib/og";
-import { getProject } from "@/data/projects";
+import { getProject, projects } from "@/data/projects";
 import type { ProjectStatus } from "@/components/projects/StatusBadge";
 import type { Tone } from "@/components/clay/tiers";
 
@@ -18,10 +18,13 @@ const STATUS_TONE: Record<ProjectStatus, Tone> = {
   archived: "neutral",
 };
 
-/** Only the slugs listed here are built; any other `/work/*` slug 404s (dynamicParams=false) —
- * mirrors `app/work/[slug]/page.tsx`. */
+/** One OG image per personal case-study page — mirrors `app/work/[slug]/page.tsx` so every built
+ * `/work/<slug>` has a matching `/work/<slug>/opengraph-image` (any other slug 404s via
+ * dynamicParams=false). */
 export function generateStaticParams() {
-  return [{ slug: "teachspark" }];
+  return projects
+    .filter((project) => project.category === "personal")
+    .map((project) => ({ slug: project.slug }));
 }
 
 export const dynamicParams = false;
