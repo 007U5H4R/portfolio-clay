@@ -184,6 +184,25 @@
   transform: none;
 }
 
+/*
+  OverviewToggle crossfade (TKT-19 / Design.md §3–§4 "OverviewToggle … crossfades (200ms)"). The
+  active panel (keyed by view in components/case-study/OverviewToggle.tsx) fades in on each switch;
+  only the active panel is in the DOM, so height tracks the content (no stacked empty space). The
+  global reduced-motion rule below forces animation-duration to ~1ms, making the swap instant for
+  reduced-motion users (AC 4), with no separate override needed.
+*/
+@keyframes overview-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.overview-panel {
+  animation: overview-fade 200ms var(--ease-reveal);
+}
+
 /* View Transitions default timing (A5 / Design.md §4) */
 ::view-transition-group(*) {
   animation-duration: 450ms;

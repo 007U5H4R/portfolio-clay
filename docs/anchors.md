@@ -7,6 +7,13 @@ fails the build.
 
 ## Case-study chapter anchors (`/work/<slug>#<anchor>`)
 
+Emitted as the `id` on each rendered `<section>` by `components/case-study/Chapter.tsx` (TKT-19);
+`components/case-study/ChapterNav.tsx` links to them. The anchor's two-digit prefix is the canonical
+chapter position (so `#05-what-i-built` is chapter "05"). Only chapters that actually have content
+render — an empty chapter is omitted, so `ChapterNav` never links to an absent id. Once M-005 fills
+the chapters, every `/work/<slug>#<anchor>` link (How I Think, Ask evidence) resolves to its section
+(EVAL-011).
+
 | Chapter id | Anchor | Title |
 |---|---|---|
 | `context` | `01-context` | Context |

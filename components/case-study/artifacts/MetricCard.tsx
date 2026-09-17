@@ -4,6 +4,7 @@ import { tierClass, toneClass, type Tone } from "@/components/clay/tiers";
 import { Icon } from "@/components/common/Icon";
 import { formatAsOf } from "@/lib/format";
 import { ArtifactShell } from "./ArtifactShell";
+import { SourceCaption } from "./SourceCaption";
 
 export interface MetricCardProps {
   /**
@@ -16,6 +17,15 @@ export interface MetricCardProps {
   /** Resolved SourceRef for `metric.source` — provenance is mandatory (EVAL-013). */
   source: SourceRef;
   caption?: string | undefined;
+  /**
+   * `card` (default) = the full clay-tier artifact card used inside chapter columns and the
+   * `/dev/artifacts` board. `inline` = the compact, flat mini-metric the `CaseStudyHeader` places
+   * beside the lead (Design.md §3 "2–3 inline mini MetricCards" / TKT-19 TSK-16 "inline variant").
+   * Both carry the SAME five sourced fields (value + label + context + asOf + kind badge + source,
+   * TKT-19 AC 2); the inline variant drops only the clay shell so a row of them reads as header
+   * meta rather than stacked cards.
+   */
+  variant?: "card" | "inline" | undefined;
 }
 
 type Kind = Metric["kind"];
@@ -33,7 +43,7 @@ const kindMap: Record<Kind, { tone: Tone; icon: LucideIcon; label: string }> = {
  * a metric that arrives without `asOf` or `source` throws rather than rendering a bare number
  * (no fabricated / floating metric ever reaches the page — EVAL-013).
  */
-export function MetricCard({ metric, source, caption }: MetricCardProps) {
+export function MetricCard({ metric, source, caption, variant = "card" }: MetricCardProps) {
   // Runtime sourcing guard (the type already forbids this at compile time; this catches data that
   // reached render around the type, e.g. `as any` or a loosened cast — fail loud, never render).
   if (!metric.asOf || !metric.source) {
@@ -44,28 +54,46 @@ export function MetricCard({ metric, source, caption }: MetricCardProps) {
 
   const { tone, icon, label } = kindMap[metric.kind];
 
+  // The value/label/context/badge/asOf body is identical in both variants — only the surrounding
+  // surface differs (clay card shell vs. flat inline block), so it is defined once here.
+  const body = (
+    <div className="flex flex-col gap-[var(--space-2)]">
+      <p className="text-[length:var(--text-h2)] font-extrabold tabular-nums leading-none text-ink">
+        {metric.value}
+      </p>
+      <p className="text-[length:var(--text-body)] font-semibold text-ink">{metric.label}</p>
+      <p className="text-caption text-ink-2">{metric.context}</p>
+      <div className="mt-[var(--space-1)] flex flex-wrap items-center gap-[var(--space-3)]">
+        <span
+          className={[
+            tierClass.utility,
+            toneClass[tone],
+            "inline-flex items-center gap-[var(--space-2)] px-[var(--space-3)] py-[var(--space-1)] text-caption font-semibold",
+          ].join(" ")}
+        >
+          <Icon icon={icon} size={20} />
+          {label}
+        </span>
+        <span className="text-caption text-ink-3">{formatAsOf(metric.asOf)}</span>
+      </div>
+    </div>
+  );
+
+  if (variant === "inline") {
+    // Flat header mini-metric: no clay shell (a row of these is header meta, not stacked cards),
+    // but it still carries the mandatory source line so no metric ever renders without provenance.
+    return (
+      <div className="flex flex-col gap-[var(--space-2)]">
+        {body}
+        {caption ? <p className="text-caption text-ink-2">{caption}</p> : null}
+        <SourceCaption source={source} />
+      </div>
+    );
+  }
+
   return (
     <ArtifactShell source={source} label="Metric" caption={caption}>
-      <div className="flex flex-col gap-[var(--space-2)]">
-        <p className="text-[length:var(--text-h2)] font-extrabold tabular-nums leading-none text-ink">
-          {metric.value}
-        </p>
-        <p className="text-[length:var(--text-body)] font-semibold text-ink">{metric.label}</p>
-        <p className="text-caption text-ink-2">{metric.context}</p>
-        <div className="mt-[var(--space-1)] flex flex-wrap items-center gap-[var(--space-3)]">
-          <span
-            className={[
-              tierClass.utility,
-              toneClass[tone],
-              "inline-flex items-center gap-[var(--space-2)] px-[var(--space-3)] py-[var(--space-1)] text-caption font-semibold",
-            ].join(" ")}
-          >
-            <Icon icon={icon} size={20} />
-            {label}
-          </span>
-          <span className="text-caption text-ink-3">{formatAsOf(metric.asOf)}</span>
-        </div>
-      </div>
+      {body}
     </ArtifactShell>
   );
 }
