@@ -80,7 +80,8 @@ Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-
 - TKT-18 DemoVideo ✅ commit 7e03edc; 4 states verified (17 e2e), intent-gated mount, zero committed binaries, dev-route 404/200. Media type exported. Accepted.
 - TKT-20 artifacts + MetricCard ✅ commit 7d3f02d; 8 variants (exhaustive never-switch), MetricCard sourcing guard (compile+runtime), SourceCaption hides /Volumes ref, 186 tests, /dev/artifacts 200/404, axe-clean. Accepted.
 - TKT-21 ShowTheThinking ✅ commit 149798a; 8-node reveal, JS-off visible, AT summary, reduced-motion verified, 188 tests, dev-board 404/200. Accepted.
-- TKT-19 case-study page 🔄 running (last M-004 ticket; needs TKT-15/18/20/21 — all done).
+- TKT-19 case-study page ✅ commit 848dd3d; all 11 /work/[slug] static, 47 e2e, EVAL-002 hop-3 PASS, thin-content graceful (no dead anchors), fixed a contrast a11y bug. Accepted. **M-004 BUILD COMPLETE (15–21).**
+- Next: (1) flaky-test HARDENING (tracer hero-frame/tile-offset + ask 44px) → reliably green; (2) M-004 QA-tester gate; (3) merge m-004→main; (4) PING.
 - **M-004 GATE MUST-RESOLVE (now diagnosed):** the recurring ~5 e2e failures (tracer hero-frame/tile-offset + ask-panel/ask-inline 44px sub-pixel) are FLAKY not stale — confirmed by ~5 agents: fail in full run, pass 3/3 isolated, unrelated to their diffs. → HARDEN these timing/measurement specs at the gate (await stable layout / measurement retry / tolerance) so they're reliably green; that's the scar. Not a code defect.
 - Note: subagent Co-Authored-By trailer should match each subagent's ACTUAL model (some ran sonnet, briefs hardcoded Opus 4.8) — future briefs say "your session's trailer"; historical commits not amended (low value).
 
