@@ -67,7 +67,10 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 | TKT-14 home assembly + 5-sec test | TASK-14 | opus | ✅ done | commit 8d8d6c7; 167 tests, e2e 29, home assembled, eval-017 now DYNAMIC, CopyButton never-silent. Accepted. EVAL-001 = ~5/6 @1440, 3/6 @390 → EXE-9 hero rebalance next. Bundle / 239.9kB (→TKT-49). |
 | M-003 hero rebalance (EXE-9) | TASK-14 | opus | ✅ done | commit 363609e; **EVAL-001 now 6/6 at ALL widths** (390/768/1024/1440; was 3/6@390). Avatar 200@390 / ~349@1024 / ~474@1440; grid 42/58@lg; lead hidden <md (headline+tiles carry it); no overflow, LCP preserved. Orchestrator verified 390 first-viewport (CTA above fold). Fixed pre-existing tracer resume-link ambiguity. Accepted. |
 
-**M-003 build COMPLETE** (TKT-09..14 + EXE-9 all done). Next: M-003 QA-tester gate → merge m-003→main → PING Tushar.
+**M-003 build COMPLETE** (TKT-09..14 + EXE-9 all done).
+- **M-003 QA gate (062c362): FAIL on 1 real P1 (TC-051)** — else all green: EVAL-012 11/11 0-fabricated, EVAL-007 focus-trap 6/6, EVAL-001 6/6 (independently re-scored), EVAL-006/008/010/011/013 pass; 18 TC pass. The 23 e2e "failures" were host-contention (w1440 parallel trace races; 0 at --workers=1). EVAL-005 bundle ~240kB informational (TKT-49).
+- **TC-051 (P1):** AskPanel mobile sheet 352px in 390 viewport (Chromium dialog:modal max-width not overridden). Fix-wave running: `max-md:max-w-none` + regression test + cap Playwright workers (kills the recurring contention flakiness). → re-verify green → merge → PING.
+- Note: subagent Co-Authored-By trailer should match each subagent's ACTUAL model (some ran sonnet, briefs hardcoded Opus 4.8) — future briefs say "your session's trailer"; historical commits not amended (low value).
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)
 - **(a) caption 12–13px vs 14px token:** decide overline exception (uppercase tracked eyebrows/monogram/tile LABELS ok <14px, like the WCAG-2.5.8 inline-link precedent) vs real bug — CHECK whether the 12–13px is a label/overline (exception) or the tile ONE-LINER content (must be ≥14px → fix in TKT-04/05). Record as EXE + encode in eval-008 spec.
