@@ -72,6 +72,11 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 - **TC-051 (P1): FIXED** — commit b173e4c; `max-md:max-w-none` → full-bleed @390 (drawer 400/400/480 @768/1024/1440), `@TC-051` regression test added. Playwright `workers:1` (this host reliably green only serial — workers:2 still flaked). **M-003 QA → PASS-WITH-ACCEPTED-RISKS**: sole real defect fixed; residual 2–3 e2e failures (tracer geometry + 44px-floor) are host-contention (load 6–23/8 cores), each 3/3 in isolation — documented, not logic bugs. bundle informational→TKT-49; TKT-08 blocked on PDF.
 - **Host-load carry-forward:** this machine is resource-contended (leftover/other processes) → e2e is serial(workers:1) + occasionally flaky under load. Before M-004 e2e-heavy work, check `ps`/load; recommend CI retries. Not a code defect.
 
+## Phase 5 = M-005 · Content & media (branch `m-005-content` from main) — IN PROGRESS
+CONTENT lane (sequential — all touch data/projects.ts): TKT-28→29→30→{31,32,33}→TKT-54→TKT-39. MEDIA lane PARKED (Tushar records w/ Recordly[SAFE] or drops files → orchestrator encodes; featured-3 block PROD only). Per-ticket detail: Campfire + git + docs/reports + docs/trace/*.md.
+- TKT-28 TeachSpark full ✅ commit 56de2fe; 8 chapters + 6 metrics (asOf 08-24) + 8-node thinking, 12 sources, gate PASS, forbidden clean, 0 fabrication, hedges preserved. Fixed 2 latent template a11y bugs (dl→div, ChapterNav overflow); TC-075/076/077 now run. Accepted.
+- TKT-29 RailCite full 🔄 running (figure policy = live-with-date default).
+
 ## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
 Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
 - TKT-15 dataset ✅ commit 45ce7ba (projects:14, 0 fabrication, gate PASS). AC2: Token Toli/Pratyasa/Bhakti-Vilas → `experiments` filter (plan default). Metrics deferred to M-005.
