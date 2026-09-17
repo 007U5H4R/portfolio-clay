@@ -10,7 +10,11 @@ import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink
 export interface ProjectCardProps {
   /** A schema-validated `Project` (TKT-03); the card reads a card-fidelity subset of its fields. */
   project: Project;
-  /** `featured` (home) is implemented here; `grid` (/work editorial grid) lands in TKT-16. */
+  /**
+   * `featured` (home) and `grid` (/work `EditorialGrid`) share the same card anatomy — the size
+   * difference is carried entirely by the grid span, not the card. `grid` additionally reserves the
+   * `DemoVideo` slot that TKT-18 populates; today both modes render identically.
+   */
   mode?: "featured" | "grid";
 }
 
@@ -30,9 +34,6 @@ const cardClass =
   "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100";
 
 export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
-  // Grid mode (/work editorial grid) is implemented in TKT-16; the tracer renders featured only.
-  if (mode === "grid") return null;
-
   const { slug, name, tagline, tags, status, statusLabel, icon } = project;
   const IconComponent = projectIcon(icon);
 
@@ -41,6 +42,7 @@ export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
       href={`/work/${slug}`}
       transitionName={`project-${slug}`}
       aria-label={name}
+      data-card-mode={mode}
       className={cardClass}
     >
       {/* Hover: tone gradient +8% opacity (Design.md §3). Decorative + inert; sits under content. */}
