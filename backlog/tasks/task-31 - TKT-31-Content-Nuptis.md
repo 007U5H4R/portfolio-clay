@@ -1,9 +1,10 @@
 ---
 id: TASK-31
 title: 'TKT-31: Content: Nuptis'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 08:25'
 labels:
   - P1
   - 'sp:3'

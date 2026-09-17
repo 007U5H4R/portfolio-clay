@@ -76,7 +76,8 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 CONTENT lane (sequential — all touch data/projects.ts): TKT-28→29→30→{31,32,33}→TKT-54→TKT-39. MEDIA lane PARKED (Tushar records w/ Recordly[SAFE] or drops files → orchestrator encodes; featured-3 block PROD only). Per-ticket detail: Campfire + git + docs/reports + docs/trace/*.md.
 - TKT-28 TeachSpark full ✅ commit 56de2fe; 8 chapters + 6 metrics (asOf 08-24) + 8-node thinking, 12 sources, gate PASS, forbidden clean, 0 fabrication, hedges preserved. Fixed 2 latent template a11y bugs (dl→div, ChapterNav overflow); TC-075/076/077 now run. Accepted.
 - TKT-29 RailCite full ✅ commit 22b4958; 8 chapters, 6 metrics, live-with-date corpus policy, 0 fabrication (missing items labelled), TC-090 rules verified. Accepted.
-- TKT-30 Velora full 🔄 running (swap exact PRD problem line — TKT-12 carry-forward).
+- TKT-30 Velora full ✅ commit 635b358; 8 chapters (Nuptis-kill/pivot spine), honest build metrics, PRD line swapped (carry-forward closed), team baseline = secondary research, Trust Scores authored-not-verified. Accepted. **FEATURED-3 CASE STUDIES DONE.**
+- TKT-31 Nuptis 🔄 running. Remaining after: TKT-32 Cubicle (built-not-launched, opus), TKT-33 Bhakti-Vilas, TKT-54 (5 more), TKT-39 (EVAL-003 table) → M-005 QA gate.
 
 ## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
 Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
