@@ -1,10 +1,10 @@
 ---
 id: TASK-29
 title: 'TKT-29: Content: RailCite - full depth'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-17 07:50'
+updated_date: '2026-09-17 08:06'
 labels:
   - P0
   - 'sp:5'
