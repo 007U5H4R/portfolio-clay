@@ -148,3 +148,4 @@ export type SourceRef = z.infer<typeof SourceRef>; // TKT-20: ArtifactRenderer r
 export type Media = z.infer<typeof Media>; // TKT-18: DemoVideo's posterFallback prop needs this type.
 export type Experience = z.infer<typeof Experience>; export type Essay = z.infer<typeof Essay>; export type KnowledgeEntry = z.infer<typeof KnowledgeEntry>;
 export type ThinkingStageDef = z.infer<typeof ThinkingStageDef>; export type SkillCluster = z.infer<typeof SkillCluster>;
+export type ThinkingNode = z.infer<typeof ThinkingNode>; export type ThinkingChain = z.infer<typeof ThinkingChain>; // TKT-21: ShowTheThinking/ThinkingNode component props.
