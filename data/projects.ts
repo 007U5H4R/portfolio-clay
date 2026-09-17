@@ -985,13 +985,20 @@ export const railcite: Project = {
 };
 
 /**
- * Nuptis → Velora (featured rank 3, medium). Card-fidelity record — the Nuptis→Velora rename
- * decision (S3) is carried by the display `name` while the route/slug is `velora`. Copy traces to
- * CONTENT_INVENTORY §8.5 / §1.4 (EVAL-013): tagline is the §1.4 card proposition (verbatim); the
- * `thirtySecond` uses the §8.5 verbatim discovery insight (the PRD's own problem line at PRD.md:11
- * is not quoted in the inventory, so the sourced insight stands in rather than a paraphrase — no
- * fabrication). "Live (mock data)" per §8.5 (the live path was built but never run on a real
- * project). Repo private (S5) → `repoPublic:false`. Chapters/thinking/metrics land at TKT-30.
+ * Nuptis → Velora — the third featured full case study (featured rank 3, medium; TKT-30, M-005).
+ * The Nuptis→Velora arc (S3) is carried by the display `name` while the route/slug is `velora`;
+ * Velora is the surviving product and the page frames the kill/pivot as its spine. Every chapter
+ * body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.5 (+ §8.4 pivot, §1.4/§1.5
+ * insight) + AUDIT §3 — nothing is invented. **Carry-forward from TKT-12:** `overview.thirtySecond`
+ * now opens with the EXACT Velora PRD problem line (PRD.md:11, sourced to V-PRD) — the §8.5 stand-in
+ * discovery insight moved into the discovery chapter/thinking, attributed to the team. Truth rules
+ * preserved verbatim: the onboarding-delay figures (15–30 days, <10% active work, 2–5× resubmission)
+ * are TEAM secondary research marked "verify before external use" — shown as team background, never
+ * as Velora's own data; the procurement interviews are team-pooled (Tushar's individual share not
+ * separately recorded); Trust Scores are authored, "shown as if verified" (PRD.md:80 out of scope);
+ * the live path "was built but not run against a real project" (SUPABASE.md) so the app runs on mock
+ * data; no users / no pilot / no usage data are claimed. Repo private (S5) → `repoPublic:false`, no
+ * github link. No PII / .env key names.
  */
 export const velora: Project = {
   slug: "velora",
@@ -1014,21 +1021,301 @@ export const velora: Project = {
     repoPublic: false,
   },
   hero: {},
-  metrics: [],
+  metrics: [
+    {
+      value: "2",
+      label: "Products in nine days",
+      context:
+        "Nuptis (wedding vendor ops) then Velora (apparel sourcing), built solo across the nine-day Case Study 3 sprint; Nuptis was killed on day seven and Velora shipped",
+      asOf: "2026-09-09",
+      kind: "structural",
+      source: "CS3-9DAY-SERIES",
+    },
+    {
+      value: "10/10",
+      label: "Unit tests passing",
+      context:
+        "npx vitest run on the Velora app at the task-6.3 final review, re-run 2026-09-15 — a build-quality signal, not a usage metric (Velora has no users)",
+      asOf: "2026-09-15",
+      kind: "measured",
+      source: "V-REVIEW",
+    },
+    {
+      value: "156 kB",
+      label: "Gzipped bundle",
+      context:
+        "production bundle 500.63 kB / 156 kB gzip at the task-6.3 final review, with 0 horizontal overflow at 375 and 768 on every route",
+      asOf: "2026-08-11",
+      kind: "measured",
+      source: "V-REVIEW",
+    },
+  ],
   overview: {
     thirtySecond: [
-      "Onboarding routinely takes 15–30 business days, yet almost none of that is active work — it is idle queue-time between cross-functional handoffs.",
+      "Discovery today is broken: founders find manufacturers through cold referrals, trade fairs, or Alibaba-style directories where trust is unverified and non-portable.",
+      "Velora is a B2B apparel sourcing marketplace where fashion brands and garment manufacturers swipe to connect and matches turn into bids — the surviving half of a nine-day sprint in which its predecessor, Nuptis (wedding vendor ops), was deliberately killed on day seven. It runs live on mock data; the Supabase path was built but never run against a real project, and its Trust Scores are authored, shown as if verified rather than checked against any government API.",
     ],
-    deepDive: false,
+    deepDive: true,
   },
-  chapters: EMPTY_CHAPTERS,
-  thinking: [],
-  learnings: [],
+  chapters: [
+    {
+      id: "context",
+      title: "Context",
+      body: [
+        "Velora was the second of two products Tushar built solo during Case Study 3 of a Cohort 8 product sprint — a nine-day Week-4 brief on vendor onboarding. The cohort's team submission was a proposed product called TrustBridge; alongside it Tushar shipped two of his own — first Nuptis (vendor ops for wedding-planning agencies), then Velora (B2B apparel sourcing) — listing himself as \"Owner: Tushar,\" \"working solo, starting from zero today.\"",
+        "The two products share one spine: the same trust-and-onboarding problem, aimed at two different markets. This page frames that arc — why the first was killed and the second kept — rather than treating Velora as a standalone build.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-two-products",
+          type: "generic",
+          title: "Two products, one sprint",
+          kind: "doc",
+          note: "Case Study 3 (Cohort 8, Week 4): the team pitched TrustBridge; Tushar built Nuptis (weddings) then Velora (apparel) solo, nine days end to end.",
+          source: "CS3-9DAY-SERIES",
+        },
+      ],
+    },
+    {
+      id: "problem",
+      title: "Problem",
+      body: [
+        "The Velora PRD framed the problem plainly: \"Discovery today is broken: founders find manufacturers through cold referrals, trade fairs, or Alibaba-style directories where trust is unverified and non-portable.\"",
+        "The two sides are a Brand (buyer) — an \"indie / D2C apparel founder sourcing production… small MOQs, sustainability-led\" — and a Manufacturer (vendor) — a \"garment factory / supplier (e.g. Tiruppur, Ludhiana, Bengaluru).\" The product's job is to let those two sides find and trust each other without the referral-and-trade-fair scramble.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-interviews",
+          type: "insight",
+          quote:
+            "I find out where a vendor is by asking around. … We scrutinise new vendors. Changes to old ones, we just… trust.",
+          attribution: "Procurement interviews (team-pooled), Case Study 3 team PRD p.10",
+          source: "CS3-TEAM-PRD",
+        },
+      ],
+    },
+    {
+      id: "discovery",
+      title: "Discovery",
+      body: [
+        "The load-bearing insight came from the team's Week-4 research, and it is honest of Velora to attribute it there: \"Onboarding routinely takes 15–30 business days, yet almost none of that is active work — it is idle queue-time between cross-functional handoffs,\" set against an APQC median of about 3.0 days. The delay is coordination, not effort.",
+        "Two honesty notes belong here. The procurement interviews were team-pooled (seven rows in the team PRD); Tushar's individual share of that fieldwork is not separately recorded. And the team's baseline table — 15–30 days, under 10% active work, 2–5× resubmission — is secondary research the team itself marked \"verify before external use,\" so it is shown here as team background, never as Velora's own measured data. The apparel Discovery PRD tagged every claim by confidence: [Known], [Observed], [Hypothesized], [Validated], [Unknown].",
+      ],
+      artifacts: [
+        {
+          id: "v-a-queue-time",
+          type: "insight",
+          quote:
+            "Onboarding routinely takes 15–30 business days, yet almost none of that is active work — it is idle queue-time between cross-functional handoffs.",
+          attribution: "Case Study 3 team research (Week 4), team PRD p.7",
+          source: "CS3-TEAM-PRD",
+        },
+        {
+          id: "v-a-h1",
+          type: "hypothesis",
+          believe:
+            "The biggest delay in vendor onboarding is caused by coordination between teams, not by one team working slowly.",
+          knowWhen:
+            "when reducing hand-offs and queue-time — not speeding up any single team — measurably shortens onboarding.",
+          status: "unmeasured",
+          source: "V-DISCOVERY-PRD",
+        },
+      ],
+    },
+    {
+      id: "bet",
+      title: "Product bet",
+      body: [
+        "The defining decision was to kill the first product. As the build's nine-day series put it: \"Weddings were blue — but a shallow pool. Few events, low willingness to pay… So the team pivoted — the same trust problem, aimed at apparel vendor onboarding.\" Nuptis had reached a live, designed prototype, but the market underneath it was too thin to be worth pursuing.",
+        "Velora is the resulting bet: reframe the same onboarding-trust problem as a two-sided apparel sourcing marketplace where brands and manufacturers swipe to connect and matches turn into bids. The framing drew on a Red-Ocean / Blue-Ocean map and an ERRC grid in the team PRD — a blue ocean is only worth entering if it is deep enough to fish in.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-kill",
+          type: "decision",
+          title: "Kill Nuptis, build Velora",
+          chosen:
+            "Kill Nuptis (wedding vendor ops) on day seven and pivot to Velora — the same onboarding-trust problem aimed at B2B apparel sourcing.",
+          rejected: [
+            "Keep building Nuptis for the wedding-planning market — few events, low willingness to pay, a shallow pool",
+          ],
+          reason:
+            "\"Weddings were blue — but a shallow pool.\" A blue ocean that is a shallow pool is still the wrong ocean.",
+          source: "CS3-9DAY-SERIES",
+        },
+        {
+          id: "v-a-errc",
+          type: "generic",
+          title: "Red/Blue Ocean + ERRC framing",
+          kind: "doc",
+          note: "The apparel pivot was argued through a Red-Ocean/Blue-Ocean map and an ERRC (Eliminate-Reduce-Raise-Create) grid in the Case Study 3 team PRD (pp.11–12).",
+          source: "CS3-TEAM-PRD",
+        },
+      ],
+    },
+    {
+      id: "built",
+      title: "What I built",
+      body: [
+        "Velora is a live single-page app built in a single day — all 40-plus build commits are dated 11 Aug 2026. The front end is React 19 with react-router 7, Framer Motion and a single Zustand store; state hydrates through an env-gated Supabase client with a mock-data fallback (hydrateFromSupabase()), styled with CSS Modules inside a PhoneFrame shell. The data model is a seven-table schema: brands, vendors, rfps, bids, matches, chat_threads and chat_messages.",
+        "Two scope decisions are stated honestly on the page. There is no AI: the Velora PRD puts \"real government-API verification\" explicitly out of scope, and its Trust Scores are authored — \"shown as if verified\" rather than checked against any external source. And although the Supabase path is wired, \"the live path was built but not run against a real project,\" so the deployed app runs on mock data.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-stack",
+          type: "generic",
+          title: "One-day build: React 19 + Zustand + env-gated Supabase",
+          kind: "doc",
+          note: "Single Zustand store, env-gated Supabase client with a mock fallback, CSS Modules, PhoneFrame shell; a seven-table schema (brands, vendors, rfps, bids, matches, chat_threads, chat_messages). All 40+ commits dated 11 Aug 2026.",
+          source: "V-README",
+        },
+        {
+          id: "v-a-trust-scores",
+          type: "decision",
+          title: "Trust Scores are authored, not verified",
+          chosen:
+            "Show authored Trust Scores in the prototype and keep real government-API verification out of scope for the MVP.",
+          rejected: [
+            "Build real, verified trust signals against external / government APIs for a nine-day case study",
+          ],
+          reason:
+            "The MVP tests the marketplace and matching flow, not verification infrastructure — so the scores are honestly labelled authored, not presented as verified fact.",
+          source: "V-PRD",
+        },
+      ],
+    },
+    {
+      id: "evaluation",
+      title: "Evaluation",
+      body: [
+        "Velora was evaluated as a build, not as a product with users. The task-6.3 final review recorded npx vitest run at 10/10 passing (re-run 15 Sep 2026), zero horizontal overflow at 375 and 768 on every route, and a production bundle of 500.63 kB / 156 kB gzipped; two MUST-FIX and two SHOULD-FIX issues were found and cleared before sign-off.",
+        "The honest gap is the demand side: there is no pilot, no usage data and no real users. Nothing on this page presents a hypothesis as a validated fact — the onboarding-delay figures are team secondary research, and the Trust Scores are authored.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-review",
+          type: "evaluation",
+          method:
+            "task-6.3 final review: npx vitest run, a responsive-overflow sweep at 375 and 768, and a production bundle measurement.",
+          result:
+            "10/10 unit tests passing (2026-09-15); 0 horizontal overflow on every route; bundle 500.63 kB / 156 kB gzip; 2 MUST-FIX + 2 SHOULD-FIX cleared.",
+          limitation:
+            "These are build-quality signals only — there is no pilot, no usage data and no real users, so no product-outcome metric is claimed.",
+          source: "V-REVIEW",
+        },
+      ],
+    },
+    {
+      id: "outcome",
+      title: "Outcome",
+      body: [
+        "Velora is live at velora-nu-eight.vercel.app (HTTP 200, 15 Sep 2026), running on mock data. Its predecessor Nuptis is also still live, but it was the one deliberately retired: the sprint's closing note was \"Nine days. Two products. One survived,\" and the reflection was about \"learning to kill Nuptis without flinching.\"",
+        "What is missing is any evidence of use. There are no users, no pilot, no orders and no usage analytics — Velora demonstrates the product thinking and a working prototype, not traction. The killed predecessor's own story is on its page.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-nuptis-link",
+          type: "generic",
+          title: "Nine days, two products, one survived",
+          kind: "link",
+          href: "/work/nuptis",
+          note: "Velora shipped; Nuptis was killed on day seven. The predecessor's full case study — problem framing, risk-tier verification, the cut list — is on its own page.",
+          source: "CS3-9DAY-SERIES",
+        },
+      ],
+    },
+    {
+      id: "learned",
+      title: "What I learned",
+      body: [
+        "The sharpest lesson is about killing your own work. When the evidence said the wedding market was a shallow pool — few events, low willingness to pay — the right move was to retire Nuptis on day seven and redirect the same trust-and-onboarding insight at apparel. A blue ocean that is a shallow pool is still the wrong ocean.",
+        "Two discipline lessons carried through. Attack the real bottleneck: onboarding delay is idle queue-time between teams, not any one team working slowly, so the thing to remove is hand-offs, not effort. And label honestly: a live path built on mock data is not a proven path, and authored Trust Scores are not verified ones — so neither is dressed up as more than it is.",
+      ],
+      artifacts: [
+        {
+          id: "v-a-kill-without-flinching",
+          type: "insight",
+          quote:
+            "Nine days. Two products. One survived — learning to kill Nuptis without flinching.",
+          attribution: "Velora / Nuptis nine-day series, Day 9",
+          source: "CS3-9DAY-SERIES",
+        },
+      ],
+    },
+  ],
+  thinking: [
+    {
+      stage: "observation",
+      text: "The starting point was the cohort's procurement interviews: \"I find out where a vendor is by asking around… we scrutinise new vendors; changes to old ones, we just… trust.\"",
+      source: "CS3-TEAM-PRD",
+      href: "/work/velora#01-context",
+    },
+    {
+      stage: "user-problem",
+      text: "Discovery today is broken: founders find manufacturers through cold referrals, trade fairs, or Alibaba-style directories where trust is unverified and non-portable.",
+      source: "V-PRD",
+      href: "/work/velora#02-problem",
+    },
+    {
+      stage: "insight",
+      text: "Onboarding routinely takes 15–30 business days, yet almost none of that is active work — it is idle queue-time between cross-functional handoffs (team research, versus an APQC median of ~3 days).",
+      source: "CS3-TEAM-PRD",
+      href: "/work/velora#03-discovery",
+    },
+    {
+      stage: "hypothesis",
+      text: "H1: the biggest delay is coordination between teams, not any one team working slowly — with every discovery claim tagged [Known] / [Observed] / [Hypothesized] / [Validated] / [Unknown].",
+      source: "V-DISCOVERY-PRD",
+      href: "/work/velora#03-discovery",
+    },
+    {
+      stage: "product-decision",
+      text: "\"Weddings were blue — but a shallow pool.\" Kill Nuptis on day seven and pivot the same trust problem to B2B apparel sourcing.",
+      source: "CS3-9DAY-SERIES",
+      href: "/work/velora#04-product-bet",
+    },
+    {
+      stage: "prototype",
+      text: "Shipped a live one-day build: React 19 + react-router 7 + Zustand, env-gated Supabase with a mock fallback, a seven-table schema, all 40+ commits on 11 Aug 2026 — no AI, Trust Scores authored.",
+      source: "V-README",
+      href: "/work/velora#05-what-i-built",
+    },
+    {
+      stage: "evaluation",
+      text: "Evaluated as a build: 10/10 unit tests, 0 horizontal overflow at 375 and 768, a 156 kB gzip bundle, 2 MUST-FIX cleared — but no pilot and no users.",
+      source: "V-REVIEW",
+      href: "/work/velora#06-evaluation",
+    },
+    {
+      stage: "outcome",
+      text: "\"Nine days. Two products. One survived.\" Velora is live on mock data; Nuptis was retired — and there is no usage data on either.",
+      source: "CS3-9DAY-SERIES",
+      href: "/work/velora#07-outcome",
+    },
+  ],
+  learnings: [
+    "When the evidence says kill it, kill it — Nuptis was retired on day seven; a blue ocean that's a shallow pool (few events, low willingness to pay) is still the wrong ocean.",
+    "The bottleneck in vendor onboarding is idle queue-time between teams, not any one team working slowly — attack the hand-offs, not the effort.",
+    "Label honestly: a live app running on mock data is not a proven path, and authored Trust Scores are not verified ones.",
+    "Team-pooled secondary research is team background, not your own measured data — cite it as such, and never present a hypothesis as a validated fact.",
+  ],
   sources: [
     {
       id: "V-PRD",
       label: "Velora PRD",
-      ref: "CS3/Velora/PRD.md:3",
+      ref: "CS3/Velora/PRD.md:3 / :5 / :11 / :23-24 / :80",
+      inventory: "§8.5",
+    },
+    {
+      id: "V-DISCOVERY-PRD",
+      label: "Apparel Vendor Onboarding Discovery PRD",
+      ref: "CS3/Apparel-Vendor-Onboarding-Discovery-PRD.docx (H1; confidence tags)",
+      inventory: "§8.5",
+    },
+    {
+      id: "CS3-TEAM-PRD",
+      label: "Case Study 3 team PRD",
+      ref: "CS3/CASE STUDY 3 PRD.pdf p.7 / p.10 / pp.11-12 / p.18",
       inventory: "§8.5",
     },
     {
@@ -1036,6 +1323,31 @@ export const velora: Project = {
       label: "Case Study 3 — nine-day LinkedIn series",
       ref: "CS3/Case-Study-3-LinkedIn-9-Day-Series.docx (Day 7, Day 9)",
       inventory: "§8.5",
+    },
+    {
+      id: "V-README",
+      label: "Velora README & package.json",
+      ref: "CS3/Velora/README.md:76-81; CS3/Velora/app/package.json",
+      inventory: "§8.5",
+    },
+    {
+      id: "V-SUPABASE",
+      label: "Velora Supabase notes",
+      ref: "CS3/Velora/SUPABASE.md:67-71",
+      inventory: "§8.5",
+    },
+    {
+      id: "V-REVIEW",
+      label: "Velora task-6.3 final review",
+      ref: "CS3/Velora/.superpowers/sdd/2026-08-11-velora-mvp/reports/task-6.3-review.md",
+      inventory: "§8.5",
+    },
+    {
+      id: "V-LIVE",
+      label: "Velora live app",
+      ref: "https://velora-nu-eight.vercel.app/ (HTTP 200, 2026-09-15)",
+      inventory: "§8.5",
+      url: "https://velora-nu-eight.vercel.app/",
     },
   ],
 };

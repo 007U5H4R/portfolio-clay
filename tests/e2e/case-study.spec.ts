@@ -25,7 +25,7 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 // Slugs that now ship a full deep dive (chapters + metrics + thinking). TeachSpark landed with
 // TKT-28 (M-005); the thin-content assertions below branch on this set so a filled study is checked
 // for its real deep-dive path, not the "Deep dive coming" placeholder.
-const DEEP_DIVE = new Set<string>(["teachspark", "railcite"]);
+const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora"]);
 
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
@@ -156,6 +156,43 @@ test("case-study · railcite deep dive: metrics (TC-075), OverviewToggle (TC-076
 });
 
 // ---------------------------------------------------------------------------
+// Velora (Nuptis → Velora) full deep dive (TKT-30 / M-005): header metrics carry every sourced
+// field, the OverviewToggle reveals the chapters, the ChapterNav anchors resolve, and
+// ShowTheThinking exposes the 8-node reasoning chain — the same deep-dive contract as TeachSpark
+// and RailCite (TC-075/076/077).
+// ---------------------------------------------------------------------------
+test("case-study · velora deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/velora", { waitUntil: "load" });
+  expect(res?.status(), "/work/velora must be 200").toBe(200);
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  await expect(page.getByText("Products in nine days", { exact: true })).toBeVisible();
+  await expect(page.getByText("Gzipped bundle", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 15 Sep 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
 // Every slug: axe wcag2.1 AA at 390 & 1440
 // ---------------------------------------------------------------------------
 for (const study of CASE_STUDIES) {
@@ -200,8 +237,10 @@ test("case-study · JS off: static HTML carries content and NextProject", { tag:
   });
   try {
     const p = await context.newPage();
-    await p.goto("/work/velora", { waitUntil: "domcontentloaded" });
-    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Nuptis → Velora");
+    // Uses a still-thin slug (cubicle) so the "Deep dive coming" static-content assertion holds;
+    // velora became a full deep dive with TKT-30, so its page no longer renders that note.
+    await p.goto("/work/cubicle", { waitUntil: "domcontentloaded" });
+    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Cubicle");
     // 30-second overview text is in the static HTML (content, not a JS-gated reveal).
     await expect(p.getByText("Deep dive coming")).toBeVisible();
     await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();
