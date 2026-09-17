@@ -1,9 +1,10 @@
 ---
 id: TASK-35
 title: 'TKT-39: Verify product-leader question traceability (EVAL-003)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 11:22'
 labels:
   - P1
   - 'sp:1'

@@ -80,8 +80,9 @@ CONTENT lane (sequential — all touch data/projects.ts): TKT-28→29→30→{31
 - TKT-31 Nuptis ✅ commit d89e2b7; full deep-dive (§8.4 distinct content justifies it), 0 header metrics by design (3 PRD metrics honestly "defined but unmeasured"), 13 sources, placeholder frames w/ real dims. Accepted. (Note: first attempt crashed on transient auth error → discarded partial + re-ran clean; auth now fine.)
 - TKT-32 Cubicle ✅ commit 0d17b03; deep-dive, built-not-launched throughout (no live link, no fake usage, role "Team build" gap stated), 2 measured metrics, featured trio untouched, 10 sources. Accepted.
 - TKT-33 Bhakti-Vilas ✅ commit 301c2db; shorter deep-dive (§8.6 sourced thinking chain), 0 header metrics (missing→honest), 14 sources, commit-split disclosed. Accepted. JS-off thin-slug moved to token-toli.
-- TKT-54 (5 lighter builds) 🔄 running (token-toli, pratyasa, tegaki, dino-arcade, cinematic-portfolio — card-level/thin per plan; cinematic-portfolio is the LIVE site — link it, don't rebuild).
-- Remaining M-005: TKT-39 (EVAL-003 table) → QA gate → PING.
+- TKT-54 (5 lighter builds) ✅ commit fa73dfd; all 5 card-level (facts in overview/metrics, chapters stay empty per committed DEEP_DIVE e2e contract), honesty catches (token-toli 4→3 hypotheses, pratyasa patent line, tegaki "No AI", BYO-ROM sanctioned), cinematic-portfolio linked-not-rebuilt. Accepted.
+- TKT-39 EVAL-003 table 🔄 running (last M-005 build ticket).
+- **QA-gate flag:** TC-091 refs `tests/unit/content-rules.test.ts` + `tests/fixtures/metric-allowlist.json` that don't exist / no ticket owns → QA-tester: real coverage gap (build it) vs stale TC ref (note it).
 
 ## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
 Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
