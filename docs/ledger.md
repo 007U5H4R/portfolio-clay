@@ -75,7 +75,8 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 ## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
 Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
 - TKT-15 dataset ✅ commit 45ce7ba (projects:14, 0 fabrication, gate PASS). AC2: Token Toli/Pratyasa/Bhakti-Vilas → `experiments` filter (plan default). Metrics deferred to M-005.
-- TKT-16 work page + FilterTabs 🔄 running.
+- TKT-16 work page + FilterTabs ✅ commit 283a9c1; /work static(6), 178 tests, ?filter= URL-sync+back/fwd, EmptyState, keyboard tabs, EVAL-008 FAIL→PASS. Filters data-derived (diverges from SITEMAP mapping — data-truth wins). role=tab links. Accepted.
+- TKT-17 ExperienceStrip 🔄 running (professional entries as employment, not product).
 - Note: subagent Co-Authored-By trailer should match each subagent's ACTUAL model (some ran sonnet, briefs hardcoded Opus 4.8) — future briefs say "your session's trailer"; historical commits not amended (low value).
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)

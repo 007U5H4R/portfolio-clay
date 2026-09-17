@@ -1,9 +1,10 @@
 ---
 id: TASK-17
 title: 'TKT-17: ExperienceStrip - professional experience, flat, inline expand'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 03:17'
 labels:
   - P2
   - 'sp:2'
