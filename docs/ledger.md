@@ -78,7 +78,9 @@ Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-
 - TKT-16 work page + FilterTabs ✅ commit 283a9c1; /work static(6), 178 tests, ?filter= URL-sync+back/fwd, EmptyState, keyboard tabs, EVAL-008 FAIL→PASS. Filters data-derived (diverges from SITEMAP mapping — data-truth wins). role=tab links. Accepted.
 - TKT-17 ExperienceStrip ✅ commit 2ffad00; 50 e2e, 0 dead, reads as employment (flat rows, labeled non-product). Accepted.
 - TKT-18 DemoVideo ✅ commit 7e03edc; 4 states verified (17 e2e), intent-gated mount, zero committed binaries, dev-route 404/200. Media type exported. Accepted.
-- TKT-20 artifacts + MetricCard 🔄 running (case-study artifact components + /dev/artifacts board).
+- TKT-20 artifacts + MetricCard ✅ commit 7d3f02d; 8 variants (exhaustive never-switch), MetricCard sourcing guard (compile+runtime), SourceCaption hides /Volumes ref, 186 tests, /dev/artifacts 200/404, axe-clean. Accepted.
+- TKT-21 ShowTheThinking 🔄 running.
+- **M-004 GATE MUST-RESOLVE:** ~5 recurring e2e failures in tracer.spec (hero-frame, floating-tiles offset ladder) + ask-panel (44px) — fail in full runs, pass isolated. M-003 QA called them host-contention BUT they recur at workers:1 → QA-tester must determine flaky-vs-REAL (possibly STALE after EXE-9 hero change / tile min-w-0 changes). Fix any real ones before M-004 merge.
 - Note: subagent Co-Authored-By trailer should match each subagent's ACTUAL model (some ran sonnet, briefs hardcoded Opus 4.8) — future briefs say "your session's trailer"; historical commits not amended (low value).
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)
