@@ -81,8 +81,9 @@ CONTENT lane (sequential — all touch data/projects.ts): TKT-28→29→30→{31
 - TKT-32 Cubicle ✅ commit 0d17b03; deep-dive, built-not-launched throughout (no live link, no fake usage, role "Team build" gap stated), 2 measured metrics, featured trio untouched, 10 sources. Accepted.
 - TKT-33 Bhakti-Vilas ✅ commit 301c2db; shorter deep-dive (§8.6 sourced thinking chain), 0 header metrics (missing→honest), 14 sources, commit-split disclosed. Accepted. JS-off thin-slug moved to token-toli.
 - TKT-54 (5 lighter builds) ✅ commit fa73dfd; all 5 card-level (facts in overview/metrics, chapters stay empty per committed DEEP_DIVE e2e contract), honesty catches (token-toli 4→3 hypotheses, pratyasa patent line, tegaki "No AI", BYO-ROM sanctioned), cinematic-portfolio linked-not-rebuilt. Accepted.
-- TKT-39 EVAL-003 table 🔄 running (last M-005 build ticket).
-- **QA-gate flag:** TC-091 refs `tests/unit/content-rules.test.ts` + `tests/fixtures/metric-allowlist.json` that don't exist / no ticket owns → QA-tester: real coverage gap (build it) vs stale TC ref (note it).
+- TKT-39 EVAL-003 ✅ commit fcacef8; 8/8 questions mapped to sourced artifacts, fixed 6/8 wrong-chapter refs, honest. QA-001(Low) logged. Accepted. **M-005 BUILD COMPLETE (28,29,30,31,32,33,54,39).**
+- **M-005 QA-gate flags:** (1) TC-091 refs missing `tests/unit/content-rules.test.ts` + `tests/fixtures/metric-allowlist.json` — real gap vs stale TC ref? (2) QA-001(Low): TeachSpark whitespace PrototypeFrame claimed but prose-only (non-blocking). (3) crawler.ts classifies fetch TIMEOUTS as `dead` unconditionally (only completed 403/429 get WARN) → EVAL-011 flakiness on slow external links — robustness gap. (4) TC-093: featured-3 truth pages need Tushar sign-off — orchestrator confirms on his behalf (autonomous mandate) but note as awaiting his eventual review.
+- Next: M-005 QA-tester gate → merge m-005→main → PING.
 
 ## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
 Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
