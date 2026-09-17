@@ -25,7 +25,7 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 // Slugs that now ship a full deep dive (chapters + metrics + thinking). TeachSpark landed with
 // TKT-28 (M-005); the thin-content assertions below branch on this set so a filled study is checked
 // for its real deep-dive path, not the "Deep dive coming" placeholder.
-const DEEP_DIVE = new Set<string>(["teachspark"]);
+const DEEP_DIVE = new Set<string>(["teachspark", "railcite"]);
 
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
@@ -109,6 +109,42 @@ test("case-study · teachspark deep dive: metrics (TC-075), OverviewToggle (TC-0
   // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
   await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
   // Attribute selector, not `#id`: the anchor ids start with a digit (invalid CSS id selector).
+  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
+    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
+  }
+
+  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
+  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
+
+  await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// RailCite full deep dive (TKT-29 / M-005): header metrics carry every sourced field, the
+// OverviewToggle reveals the chapters, the ChapterNav anchors resolve, and ShowTheThinking exposes
+// the 8-node reasoning chain — the same deep-dive contract exercised for TeachSpark (TC-075/076/077).
+// ---------------------------------------------------------------------------
+test("case-study · railcite deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
+  const res = await page.goto("/work/railcite", { waitUntil: "load" });
+  expect(res?.status(), "/work/railcite must be 200").toBe(200);
+
+  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
+  await expect(page.getByText("Documents indexed", { exact: true })).toBeVisible();
+  await expect(page.getByText("Invented citations", { exact: true })).toBeVisible();
+  await expect(page.getByText(/as of 15 Sep 2026/i).first()).toBeVisible();
+
+  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
+  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
+  await expect(group).toBeVisible();
+  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
   }
