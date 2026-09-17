@@ -2,8 +2,9 @@
  * eval-010.spec.ts (technical-plan.md §B S09.02, `@EVAL-010`) — prefers-reduced-motion honoured:
  * transform/position animations collapse to opacity-only or instant, and the page stays usable.
  * Live now for the two motion sources that exist on the built routes — the compacting header and
- * the card hover-lift. Ask expand/panel, ShowTheThinking, StoryCard and parallax are fixme'd until
- * their tickets (TKT-10/13/16/21).
+ * the card hover-lift. Ask expand/panel, StoryCard and parallax are fixme'd until their tickets
+ * (TKT-10/13/16). ShowTheThinking's reduced-motion behaviour is real now, in thinking.spec.ts
+ * (TKT-21).
  */
 import { test, expect } from "./fixtures";
 
@@ -39,8 +40,8 @@ test("@EVAL-010 reduced motion: header transition collapses and card hover does 
   ).toBeLessThan(1);
 });
 
-// Ask expand/panel + ShowTheThinking + StoryCard + parallax reduced-motion checks arrive with
-// their components (TKT-10/13/16/21).
-test.fixme("@EVAL-010 reduced motion: Ask / thinking / story / parallax collapse (TKT-10/13/16/21)", {
+// Ask expand/panel + StoryCard + parallax reduced-motion checks arrive with their components
+// (TKT-10/13/16). ShowTheThinking's is real now — see thinking.spec.ts (TKT-21).
+test.fixme("@EVAL-010 reduced motion: Ask / story / parallax collapse (TKT-10/13/16)", {
   tag: "@EVAL-010",
 }, async () => {});

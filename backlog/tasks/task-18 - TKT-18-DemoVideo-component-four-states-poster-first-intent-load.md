@@ -1,9 +1,10 @@
 ---
 id: TASK-18
 title: 'TKT-18: DemoVideo component - four states, poster-first, intent load'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 04:20'
 labels:
   - P1
   - 'sp:3'

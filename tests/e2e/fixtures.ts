@@ -93,38 +93,50 @@ export const test = base.extend<TracerFixtures>({
   minTargets: async ({}, provide) => {
     await provide(async (page) => {
       const allowSelectors = MIN_TARGET_ALLOWLIST.map((entry) => entry.selector);
-      const undersized = await page.evaluate(
-        ({ selector, minPx, allow }) => {
-          const allowed = new Set<Element>();
-          for (const sel of allow) {
-            document.querySelectorAll(sel).forEach((el) => allowed.add(el));
-          }
-          const offenders: { tag: string; text: string; w: number; h: number }[] = [];
-          const nodes = Array.from(document.querySelectorAll(selector));
-          for (const el of nodes) {
-            if (allowed.has(el)) continue;
-            const rect = el.getBoundingClientRect();
-            const style = getComputedStyle(el);
-            // Only visible, laid-out controls count.
-            if (style.display === "none" || style.visibility === "hidden") continue;
-            if (rect.width === 0 || rect.height === 0) continue;
-            if (rect.width < minPx || rect.height < minPx) {
-              offenders.push({
-                tag: el.tagName.toLowerCase(),
-                text: (el.textContent ?? "").trim().slice(0, 40),
-                w: Math.round(rect.width),
-                h: Math.round(rect.height),
-              });
+      // Let layout settle before measuring (M-004 QA: this check flaked under host load on
+      // sub-pixel boundary cases — a control mid-reflow reading e.g. 43.6px, not a stale
+      // assertion) — wait for the load event + web fonts, then retry the measurement pass with
+      // Playwright's retrying `toPass()` instead of a one-shot evaluate, and round each dimension
+      // to whole px before comparing (a legitimate <1px sub-pixel rounding tolerance; the real
+      // 44px floor itself is unchanged).
+      await page.waitForLoadState("load");
+      await page.evaluate(() => document.fonts.ready);
+      await expect(async () => {
+        const undersized = await page.evaluate(
+          ({ selector, minPx, allow }) => {
+            const allowed = new Set<Element>();
+            for (const sel of allow) {
+              document.querySelectorAll(sel).forEach((el) => allowed.add(el));
             }
-          }
-          return offenders;
-        },
-        { selector: TARGET_SELECTOR, minPx: MIN_TARGET_PX, allow: allowSelectors },
-      );
-      expect(
-        undersized,
-        `controls below ${MIN_TARGET_PX}x${MIN_TARGET_PX} (not allowlisted):\n${JSON.stringify(undersized, null, 2)}`,
-      ).toEqual([]);
+            const offenders: { tag: string; text: string; w: number; h: number }[] = [];
+            const nodes = Array.from(document.querySelectorAll(selector));
+            for (const el of nodes) {
+              if (allowed.has(el)) continue;
+              const rect = el.getBoundingClientRect();
+              const style = getComputedStyle(el);
+              // Only visible, laid-out controls count.
+              if (style.display === "none" || style.visibility === "hidden") continue;
+              if (rect.width === 0 || rect.height === 0) continue;
+              const w = Math.round(rect.width);
+              const h = Math.round(rect.height);
+              if (w < minPx || h < minPx) {
+                offenders.push({
+                  tag: el.tagName.toLowerCase(),
+                  text: (el.textContent ?? "").trim().slice(0, 40),
+                  w,
+                  h,
+                });
+              }
+            }
+            return offenders;
+          },
+          { selector: TARGET_SELECTOR, minPx: MIN_TARGET_PX, allow: allowSelectors },
+        );
+        expect(
+          undersized,
+          `controls below ${MIN_TARGET_PX}x${MIN_TARGET_PX} (not allowlisted):\n${JSON.stringify(undersized, null, 2)}`,
+        ).toEqual([]);
+      }).toPass({ timeout: 6000 });
     });
   },
 

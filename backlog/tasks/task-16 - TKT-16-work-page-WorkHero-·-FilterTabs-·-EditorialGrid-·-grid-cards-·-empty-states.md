@@ -3,9 +3,10 @@ id: TASK-16
 title: >-
   TKT-16: /work page: WorkHero · FilterTabs · EditorialGrid · grid cards · empty
   states
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 03:17'
 labels:
   - P0
   - 'sp:5'

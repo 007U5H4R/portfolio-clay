@@ -29,8 +29,13 @@ describe("ProjectCard (featured)", () => {
     expect(container.querySelector('[aria-hidden="true"] svg')).not.toBeNull();
   });
 
-  it("renders nothing in grid mode (implemented in TKT-16)", () => {
-    const { container } = render(<ProjectCard project={teachspark} mode="grid" />);
-    expect(container.firstChild).toBeNull();
+  it("renders the same single-link anatomy in grid mode (TKT-16)", () => {
+    render(<ProjectCard project={teachspark} mode="grid" />);
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]?.getAttribute("aria-label")).toBe("TeachSpark");
+    expect(links[0]?.getAttribute("href")).toBe("/work/teachspark");
+    expect(links[0]?.getAttribute("data-card-mode")).toBe("grid");
+    expect(screen.getByText(teachspark.tagline)).toBeTruthy();
   });
 });

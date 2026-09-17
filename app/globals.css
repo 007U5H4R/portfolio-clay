@@ -184,6 +184,25 @@
   transform: none;
 }
 
+/*
+  OverviewToggle crossfade (TKT-19 / Design.md §3–§4 "OverviewToggle … crossfades (200ms)"). The
+  active panel (keyed by view in components/case-study/OverviewToggle.tsx) fades in on each switch;
+  only the active panel is in the DOM, so height tracks the content (no stacked empty space). The
+  global reduced-motion rule below forces animation-duration to ~1ms, making the swap instant for
+  reduced-motion users (AC 4), with no separate override needed.
+*/
+@keyframes overview-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.overview-panel {
+  animation: overview-fade 200ms var(--ease-reveal);
+}
+
 /* View Transitions default timing (A5 / Design.md §4) */
 ::view-transition-group(*) {
   animation-duration: 450ms;
@@ -226,6 +245,54 @@
   }
 }
 
+/*
+  Show-the-thinking node reveal (TKT-21 / Design.md §4 "Show-the-thinking node reveal" row;
+  tickets.md TKT-21). `.thinking-nodes` (the `<ol>`) is added by `ShowTheThinking` only AFTER
+  mount — same "never a JS-off content-hider" rule `.reveal` follows above: with JavaScript
+  disabled the class never lands in server-rendered HTML, so every node renders fully visible.
+  Once mounted, `visibility:hidden` collapses the list (removed from the accessibility tree and
+  tab order, matching `.reveal`'s technique) until the toggle sets `[data-open]`. Each
+  `.thinking-node` then fades in opacity-only with a 120ms/node stagger via `--i` (the node's
+  index, set inline by `ThinkingNode`); its connector `::before` draws in with a `clip-path` wipe
+  on the same stagger — `clip-path` is the one extra property Design.md §4's hardware-
+  acceleration note permits beyond transform/opacity for this interaction specifically.
+*/
+.thinking-nodes {
+  visibility: hidden;
+}
+.thinking-nodes[data-open] {
+  visibility: visible;
+}
+
+.thinking-node {
+  --i: 0;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-reveal);
+  transition-delay: calc(var(--i) * 120ms);
+}
+.thinking-nodes[data-open] .thinking-node {
+  opacity: 1;
+}
+
+/* Connector line to the next node — centred under the 40px stage dot (left: 19px = 20px minus
+   the 1px half-width of the 2px line). Absent after the last node (nothing to connect to). */
+.thinking-node:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-ink-3);
+  opacity: 0.3;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 220ms var(--ease-reveal);
+  transition-delay: calc(var(--i) * 120ms);
+}
+.thinking-nodes[data-open] .thinking-node:not(:last-child)::before {
+  clip-path: inset(0);
+}
+
 /* Motion: reduced-motion collapses every transition/animation to ~instant (A6) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -254,5 +321,19 @@
   .reveal {
     transition-property: opacity;
     transition-delay: 0ms;
+  }
+
+  /* Show-the-thinking (TKT-21, Design.md §4 reduced-motion mapping: "all 8 appear at once,
+     opacity only"): every node's transition-delay drops to 0ms (no stagger — genuinely all at
+     once) and only `opacity` is left in its transition list. The connector's `clip-path` wipe is
+     removed entirely rather than left instant-but-still-listed, so it jumps straight to its
+     final state with no animated property at all (EVAL-010: 0 transform/clip-path animations
+     observed under reduced motion). */
+  .thinking-node {
+    transition-property: opacity;
+    transition-delay: 0ms;
+  }
+  .thinking-node:not(:last-child)::before {
+    transition: none;
   }
 }

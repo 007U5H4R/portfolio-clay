@@ -3,9 +3,10 @@ id: TASK-19
 title: >-
   TKT-19: Case-study shell: header · OverviewToggle · Chapter · ChapterNav ·
   NextProject
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-17 06:15'
 labels:
   - P0
   - 'sp:5'

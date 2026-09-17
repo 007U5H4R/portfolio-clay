@@ -3,8 +3,8 @@
  * completes with the keyboard alone, focus is always visible (3px accent ring), and focus returns
  * to the trigger after a dialog closes. Live now for the two navigation surfaces that exist — the
  * primary nav (desktop) and the MobileMenu (390). The Ask panel, FilterTabs, ExperienceTimeline,
- * ShowTheThinking, OverviewToggle and CopyButton flows are fixme'd until their tickets
- * (TKT-10/16/17/13/45).
+ * OverviewToggle and CopyButton flows are fixme'd until their tickets (TKT-10/16/17/45).
+ * ShowTheThinking's keyboard flow is real now, in thinking.spec.ts (TKT-21).
  */
 import { test, expect } from "./fixtures";
 
@@ -127,8 +127,9 @@ test("@EVAL-007 keyboard: AskPanel Esc closes and restores focus to the MobileMe
   await expect(askRow).toBeFocused();
 });
 
-// FilterTabs roving tabindex, ExperienceTimeline, ShowTheThinking, OverviewToggle, CopyButton —
-// keyboard scripts land with their components.
-test.fixme("@EVAL-007 keyboard: FilterTabs / ExperienceTimeline / ShowTheThinking / CopyButton (TKT-16/17/13/45)", {
+// FilterTabs roving tabindex, ExperienceTimeline, OverviewToggle, CopyButton — keyboard scripts
+// land with their components. ShowTheThinking's real keyboard test now lives in thinking.spec.ts
+// (TKT-21).
+test.fixme("@EVAL-007 keyboard: FilterTabs / ExperienceTimeline / CopyButton (TKT-16/17/45)", {
   tag: "@EVAL-007",
 }, async () => {});
