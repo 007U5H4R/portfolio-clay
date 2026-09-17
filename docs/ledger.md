@@ -71,6 +71,11 @@ Order (sequential): TKT-03 → TKT-04 → TKT-05 → TKT-06 → TKT-07 (TSK-08..
 - **M-003 QA gate (062c362): FAIL on 1 real P1 (TC-051)** — else all green: EVAL-012 11/11 0-fabricated, EVAL-007 focus-trap 6/6, EVAL-001 6/6 (independently re-scored), EVAL-006/008/010/011/013 pass; 18 TC pass. The 23 e2e "failures" were host-contention (w1440 parallel trace races; 0 at --workers=1). EVAL-005 bundle ~240kB informational (TKT-49).
 - **TC-051 (P1): FIXED** — commit b173e4c; `max-md:max-w-none` → full-bleed @390 (drawer 400/400/480 @768/1024/1440), `@TC-051` regression test added. Playwright `workers:1` (this host reliably green only serial — workers:2 still flaked). **M-003 QA → PASS-WITH-ACCEPTED-RISKS**: sole real defect fixed; residual 2–3 e2e failures (tracer geometry + 44px-floor) are host-contention (load 6–23/8 cores), each 3/3 in isolation — documented, not logic bugs. bundle informational→TKT-49; TKT-08 blocked on PDF.
 - **Host-load carry-forward:** this machine is resource-contended (leftover/other processes) → e2e is serial(workers:1) + occasionally flaky under load. Before M-004 e2e-heavy work, check `ps`/load; recommend CI retries. Not a code defect.
+
+## Phase 4 = M-004 · Work page & case-study system (branch `m-004-work` from main)
+Sequential (e2e serial). Order: TKT-15 → TKT-16 → TKT-17 → TKT-18 → TKT-20 → TKT-21 → TKT-19 (last; needs 15+18). Per-ticket detail in Campfire + git log + docs/reports. Phase-4 QA gate (§C): EVAL-002 hops 1–3, EVAL-014 four states, EVAL-015 VT fallback across slugs, EVAL-004/007/010/011, full eval no regression.
+- TKT-15 dataset ✅ commit 45ce7ba (projects:14, 0 fabrication, gate PASS). AC2: Token Toli/Pratyasa/Bhakti-Vilas → `experiments` filter (plan default). Metrics deferred to M-005.
+- TKT-16 work page + FilterTabs 🔄 running.
 - Note: subagent Co-Authored-By trailer should match each subagent's ACTUAL model (some ran sonnet, briefs hardcoded Opus 4.8) — future briefs say "your session's trailer"; historical commits not amended (low value).
 
 ### M-002 QA-gate fix items (resolve at the gate, after TKT-07b)
