@@ -144,5 +144,6 @@ export const ThinkingStageDef = z.object({
 });
 
 export type Project = z.infer<typeof Project>; export type Metric = z.infer<typeof Metric>; export type Artifact = z.infer<typeof Artifact>;
+export type Media = z.infer<typeof Media>; // TKT-18: DemoVideo's posterFallback prop needs this type.
 export type Experience = z.infer<typeof Experience>; export type Essay = z.infer<typeof Essay>; export type KnowledgeEntry = z.infer<typeof KnowledgeEntry>;
 export type ThinkingStageDef = z.infer<typeof ThinkingStageDef>; export type SkillCluster = z.infer<typeof SkillCluster>;

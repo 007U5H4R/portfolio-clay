@@ -1,5 +1,5 @@
 {
   "$note": "Route inventory for the eval harness (technical-plan.md §B S09.03). `static` = the public routes built as of M-002 (TKT-03..06); the axe/overflow/target sweeps (EVAL-006/008) iterate this list. `dev` = QA-only boards reachable only under `ALLOW_DEV_ROUTES=1 pnpm start` (excluded from the sitemap by construction). `tests/e2e/routes.ts#loadRoutes` prefers a live /sitemap.xml (200) over this file and appends `dev` only when asked.",
   "static": ["/", "/work", "/work/teachspark", "/contact"],
-  "dev": ["/dev/primitives", "/dev/ask"]
+  "dev": ["/dev/primitives", "/dev/ask", "/dev/video"]
 }
