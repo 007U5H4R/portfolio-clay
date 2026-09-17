@@ -2192,8 +2192,20 @@ export const nuptis: Project = {
 };
 
 /**
- * Bhakti-Vilas. Live prototype on mock data, team build (git authors 5×007U5H4R / 3×Shivali, §8.6)
- * → role "Team build". Repo on an org account, visibility unverified → repoPublic:false.
+ * Bhakti-Vilas — shorter deep dive (TKT-33, M-005). Team build (git authors 5×007U5H4R / 3×Shivali,
+ * §8.6) → role "Team build", commit split stated plainly rather than presented as solo. Live prototype
+ * on mock data, repo on an org account with visibility unverified → repoPublic:false.
+ *
+ * CONTENT_INVENTORY §8.6 carries a genuinely sourced 8-stage Show-the-Thinking chain (observation →
+ * outcome, each with a real quote) and named artifacts (Tushar's refined hypothesis, the Madhu Mukti
+ * decision, the mentor Q&A), so this went to a **shorter full deep dive** (`overview.deepDive: true`)
+ * per `tickets.md` TKT-33 ("Shorter chapter set... Evaluation/Outcome brief") rather than a card — not
+ * padded, just narrower than TeachSpark/Cubicle: evaluation and outcome are one-paragraph chapters, no
+ * `MetricCard`s at all (product metrics MISSING per §8.6), and no `PrototypeFrame` (UI screenshots of
+ * Bhakti Vilas are MISSING everywhere in the source project, per AUDIT §2 "Visuals" — unlike Nuptis,
+ * there is no real screenshot file anywhere to source even a placeholder's dimensions from, so the
+ * hero and every chapter stay text/quote-only until TKT-25 lands real captures). Full trace:
+ * `docs/trace/bhakti-vilas.md`.
  */
 export const bhaktiVilas: Project = {
   slug: "bhakti-vilas",
@@ -2222,14 +2234,360 @@ export const bhaktiVilas: Project = {
     thirtySecond: [
       "An interactive prototype for an elder-focused wellness platform for India built around bhajan — positioned as devotion-as-behavioural-health rather than a clinical wellness app.",
     ],
-    deepDive: false,
+    deepDive: true,
   },
-  chapters: EMPTY_CHAPTERS,
-  thinking: [],
-  learnings: [],
+  chapters: [
+    {
+      id: "context",
+      title: "Context",
+      body: [
+        "Bhakti Vilas came out of Case Study 2 — the Cohort 8 buildathon brief \"Building for India's Elder Care Market,\" Week 3, 26 Jul – 1 Aug 2026, framed as \"The market doesn't appear to have a shortage of products. It appears to have a shortage of clarity.\" Five contributors — Prakriti, Shivali, Piyush, DJ and Tushar — worked the case independently before converging on the same root cause: a missing trust/accountability layer. Tushar's own tracked contribution: \"Tier-wise segmentation, hypotheses → refined hypotheses, persona interview guides\" — marked Complete in the team's research synthesis; his own named solution submission was Madhu Mukti.",
+        "The prototype is a team build, not a solo one: 8 commits, all dated 2026-08-01, split 5 Tushar (`007U5H4R`) / 3 Shivali. This page states that split plainly rather than presenting the build as solo work.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-brief",
+          type: "insight",
+          quote: "The market doesn't appear to have a shortage of products. It appears to have a shortage of clarity.",
+          attribution: "Case Study 2 brief",
+          source: "BV-BRIEF",
+        },
+        {
+          id: "bv-a-team-synthesis",
+          type: "generic",
+          title: "Five contributors converged independently on the same root cause",
+          kind: "doc",
+          note:
+            "Team-Research-Synthesis.md: five contributors (Prakriti, Shivali, Piyush, DJ, Tushar) independently researched and converged on the same root cause — a missing trust/accountability layer. Tushar's tracked role: \"Tier-wise segmentation, hypotheses → refined hypotheses, persona interview guides\" — Complete.",
+          source: "BV-TEAM-SYNTHESIS",
+        },
+        {
+          id: "bv-a-commit-split",
+          type: "generic",
+          title: "Team build: 5 Tushar / 3 Shivali commits",
+          kind: "doc",
+          note: "8 commits, all dated 2026-08-01; git authorship 5× Tushar (007U5H4R), 3× Shivali.",
+          source: "BV-AUDIT",
+        },
+      ],
+    },
+    {
+      id: "problem",
+      title: "Problem",
+      body: [
+        "\"India's elder-care ecosystem has no trusted, independent, verifiable layer of accountability that lets the person who pays and decides… reliably know that the person who is with their parent, right now, in their home, is providing safe, competent, dignified care.\"",
+        "Tushar's own refined hypothesis framed the same gap from the adult child's side: long-distance adult children carry chronic anxiety because no shared layer of visibility or coordination exists, forcing the family itself to act as the system integrator despite being the stakeholder least present to do it.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-ecosystem-quote",
+          type: "insight",
+          quote:
+            "India's elder-care ecosystem has no trusted, independent, verifiable layer of accountability that lets the person who pays and decides… reliably know that the person who is with their parent, right now, in their home, is providing safe, competent, dignified care.",
+          attribution: "India-Elder-Care-Case-Study.md",
+          source: "BV-CASE-STUDY",
+        },
+        {
+          id: "bv-a-refined-hypothesis",
+          type: "insight",
+          quote:
+            "We believe long-distance adult children… experience chronic anxiety and an inability to act on their parents' day-to-day wellbeing, because the elder care ecosystem consists of dozens of disconnected point solutions with no shared layer of visibility or coordination — forcing the family itself to act as the system integrator despite being the stakeholder least present to do it.",
+          attribution: "Tushar's refined hypothesis, Week 3 tracker (tab \"Tushar\")",
+          source: "BV-TUSHAR-HYPOTHESIS",
+        },
+        {
+          id: "bv-a-team-survey",
+          type: "generic",
+          title: "Team survey: family + healthcare-worker research (not Tushar's own fieldwork)",
+          kind: "doc",
+          note:
+            "Prashant's pod ran the team's primary research — a two-wave family survey (n=23 deep-dive + n=47 broad), a healthcare-workers survey (n=12), 9 elder personas and 3 expert interviews — finding parental resistance the #1 challenge in the broad wave and only 60% willing to pay even ₹200/month. This is team data, never Tushar's own fieldwork; his own interview guides were never run with outside families.",
+          source: "BV-TEAM-PRIMARY-RESEARCH",
+        },
+      ],
+    },
+    {
+      id: "discovery",
+      title: "Discovery",
+      body: [
+        "\"Distance was never the variable. Availability was.\" — the pivot insight, backed by the team's own interview data showing financial burden ranked dead last as a challenge (1 of 70 mentions). Category-Hypotheses.md scored 5 problem categories against 10 \"we believe [user] experiences [problem] because [assumption]\" hypotheses before any solution was picked.",
+        "That scoring landed on a single line: \"Insure the visit, don't vet the person.\" A Proof-of-Visit + Care Escrow layer was proposed as the lateral solution, alongside a competitive note that comparable elder-care ventures (Emoha, Portea, the US's Papa) have all struggled or burned through large amounts of capital on trust-vetting models — the hypothesis was never built or tested against real bookings.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-distance-insight",
+          type: "insight",
+          quote: "Distance was never the variable. Availability was.",
+          attribution: "LinkedIn 7-Day Journey Series, Day 3",
+          source: "BV-LINKEDIN",
+        },
+        {
+          id: "bv-a-categories",
+          type: "generic",
+          title: "5 categories, 10 hypotheses scored; financial burden ranked dead last",
+          kind: "doc",
+          note:
+            "Category-Hypotheses.md scored 5 problem categories against 10 hypotheses, flagging the weakest-evidenced category and noting financial burden ranked dead last as a challenge — 1 of 70 mentions across the team's interviews.",
+          source: "BV-CATEGORY-HYPOTHESES",
+        },
+        {
+          id: "bv-a-insure-the-visit",
+          type: "hypothesis",
+          believe:
+            "Insure the visit, don't vet the person — a Proof-of-Visit + Care Escrow utility layer can close the elder-care trust gap without vetting individual caregivers directly.",
+          knowWhen:
+            "tested against real bookings, disputes and payouts — never built or run; it stayed a discovery-stage hypothesis inside Refined-Hypothesis-and-Lateral-Solution.md, which itself notes comparable ventures (Emoha, Portea, Papa in the US) have struggled or collapsed on adjacent trust-vetting models.",
+          status: "unmeasured",
+          source: "BV-REFINED-HYPOTHESIS",
+        },
+      ],
+    },
+    {
+      id: "bet",
+      title: "Product bet",
+      body: [
+        "The product decision: brand it Madhu Mukti — madhu (the root of madhumeha, diabetes) + mukti (liberation) — and code the health meaning into devotional framing (WhatsApp-first Sadhna Sandesh messages, temple-walk Parikrama Trails) rather than presenting it as a clinical wellness app. \"The health meaning is coded, not front-loaded.\"",
+        "The staged-reveal funnel (100% → ~60% → ~25% → ~10%) that walks a user from a devotional entry point toward the health framing is stated in the solution doc itself as \"directional estimates, not measured data\" — never a tracked product funnel. The team's final PRD later restated Tushar's five Madhu Mukti design principles almost verbatim, evidence his solution doc shaped the team's direction rather than proof of formal credit.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-madhu-mukti-decision",
+          type: "decision",
+          title: "Health meaning coded, not front-loaded",
+          chosen:
+            "Brand the product Madhu Mukti and code the health meaning into devotional framing — WhatsApp-first Sadhna Sandesh messages, temple-walk Parikrama Trails — rather than presenting it as a clinical wellness app.",
+          rejected: [
+            "A clinical/diagnostic app that names the health condition upfront",
+            "Front-loaded medical branding and screening funnels",
+          ],
+          reason:
+            "The team's own research found people more willing to attend a kirtan than a diabetes screening — devotion carries the behaviour change further than a clinical pitch.",
+          source: "BV-MADHU-MUKTI-SOLUTION",
+        },
+        {
+          id: "bv-a-staged-reveal",
+          type: "generic",
+          title: "Staged-reveal funnel: a directional estimate, not measured data",
+          kind: "doc",
+          note:
+            "The 100% → ~60% → ~25% → ~10% staged reveal is stated in the solution doc itself as \"directional estimates, not measured data\" — no product ever tracked a real funnel.",
+          source: "BV-MADHU-MUKTI-SOLUTION",
+        },
+        {
+          id: "bv-a-prd-echo",
+          type: "generic",
+          title: "Team PRD's 5 design principles echo Tushar's Madhu Mukti principles",
+          kind: "doc",
+          note:
+            "The team's final PRD (Case Study 2 PRD.pdf, 23pp, 2026-08-03, no author names) restates Tushar's Madhu Mukti design principles almost verbatim — evidence his solution doc shaped the team's direction, not proof of formal credit.",
+          source: "BV-TEAM-PRD",
+        },
+      ],
+    },
+    {
+      id: "built",
+      title: "What I built",
+      body: [
+        "Bhakti Vilas ships as 4 static HTML pages plus vanilla JS — no database, no backend, no build step, all data mocked in `app.js` (65 KB) and `app-pages.js` (86 KB), with `auth.js` running a fake phone+OTP login, a Web Audio synth, and an i18n engine, Tailwind loaded via CDN, and `sessionStorage` for state. It grew out of a Stitch (Google) design export. There is no AI in the product, no tests and no CI.",
+        "The session-booking flow was verified end to end — learn → date → circle map on a map → payment → QR pass — with a mobile audit at 390×844 and 360×800 reporting no console errors. It is live at `bhakti-vilas.vercel.app` (verified 2026-09-15); the repo sits on an org account (`teenytinybot/Bhakti-Vilas`) whose visibility was never confirmed, so it links out without being marked public.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-stack",
+          type: "generic",
+          title: "4 static HTML pages, vanilla JS, mock data only",
+          kind: "doc",
+          note:
+            "No database, no backend, no build step — all data is mock data in app.js (65 KB) + app-pages.js (86 KB), plus auth.js fake phone+OTP login, a Web Audio synth and an i18n engine, Tailwind via CDN, sessionStorage for state. Grew out of a Stitch (Google) design export. No AI, no tests, no CI, no package.json.",
+          source: "BV-README",
+        },
+        {
+          id: "bv-a-verified-flow",
+          type: "generic",
+          title: "Verified session-booking flow, no console errors",
+          kind: "doc",
+          note:
+            "Session booking verified end to end — learn → date → circle map → payment → QR pass — with a mobile audit at 390×844 and 360×800 reporting no console errors.",
+          source: "BV-MEMORY",
+        },
+        {
+          id: "bv-a-live-link",
+          type: "generic",
+          title: "Live since 2026-08-01, repo visibility unverified",
+          kind: "link",
+          href: "https://bhakti-vilas.vercel.app/",
+          note:
+            "bhakti-vilas.vercel.app → 307 → /bhakti_wellness_home/code.html, HTTP 200 (verified 2026-09-15). Repo on an org account (teenytinybot/Bhakti-Vilas); visibility never confirmed.",
+          source: "BV-AUDIT",
+        },
+      ],
+    },
+    {
+      id: "evaluation",
+      title: "Evaluation",
+      body: [
+        "A mentor asked three questions about the bhakti framing — why this theme, why over other ideas, and what's the actual logic connecting bhakti to health — answered with 11 cited sources, including Holt-Lunstad's finding of a 26% increased mortality risk from chronic loneliness and the LASI 2022 survey (n=31,464). The same document caveats its own answer: \"a well-evidenced hypothesis with real mechanisms, not a proven guarantee.\" No numeric mentor grade was ever recorded, and no product analytics, usage data or automated tests exist for the prototype itself.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-mentor-qa",
+          type: "evaluation",
+          method:
+            "A mentor asked three questions — why this theme, why over other ideas, and what's the actual logic connecting bhakti to health — answered in writing with 11 cited sources, including Holt-Lunstad (\"26% increased mortality risk from chronic loneliness\") and LASI 2022 (n=31,464).",
+          result: "The mentor's three questions were answered; no numeric mentor grade or score was ever recorded.",
+          limitation:
+            "The document's own caveat: \"a well-evidenced hypothesis with real mechanisms, not a proven guarantee.\" No product usage, analytics or automated tests exist for Bhakti Vilas — only this qualitative research defence.",
+          source: "BV-MENTOR-QA",
+        },
+      ],
+    },
+    {
+      id: "outcome",
+      title: "Outcome",
+      body: [
+        "\"Shipped Bhakti Vilas — a working prototype, live and deployed, not a deck.\" No users, no usage numbers, and no product metrics were ever recorded for it — only the team's market-research survey numbers reported above, which describe the elder-care problem space, not this prototype's own usage.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-shipped-quote",
+          type: "generic",
+          title: "Shipped live; no users or product metrics recorded",
+          kind: "doc",
+          note:
+            "\"Shipped Bhakti Vilas — a working prototype, live and deployed, not a deck.\" No users, usage numbers or product metrics exist for it — the team's survey numbers describe the market research, not this prototype's usage.",
+          source: "BV-LINKEDIN",
+        },
+      ],
+    },
+    {
+      id: "learned",
+      title: "What I learned",
+      body: [
+        "The README names its own gaps rather than hiding them: translation coverage is partial (about 90 of roughly 500 strings), and the medical copy has never been clinically reviewed. Both are disclosed here rather than smoothed over.",
+      ],
+      artifacts: [
+        {
+          id: "bv-a-readme-gaps",
+          type: "generic",
+          title: "Translation ~90/500 strings; medical copy unreviewed",
+          kind: "doc",
+          note:
+            "README's own disclosed gaps: \"Translation coverage is partial (~90 of ~500 strings)\"; \"Medical copy is unreviewed.\"",
+          source: "BV-README",
+        },
+      ],
+    },
+  ],
+  thinking: [
+    {
+      stage: "observation",
+      text: "Brief: \"The market doesn't appear to have a shortage of products. It appears to have a shortage of clarity\" — India's elder-care ecosystem's most important unsolved problem.",
+      source: "BV-BRIEF",
+      href: "/work/bhakti-vilas#01-context",
+    },
+    {
+      stage: "user-problem",
+      text: "India's elder-care ecosystem has no trusted, independent, verifiable layer of accountability that lets a distant adult child know their parent is safe, right now.",
+      source: "BV-CASE-STUDY",
+      href: "/work/bhakti-vilas#02-problem",
+    },
+    {
+      stage: "insight",
+      text: "Distance was never the variable. Availability was — financial burden ranked dead last as a challenge across the team's own interviews (1 of 70 mentions).",
+      source: "BV-LINKEDIN",
+      href: "/work/bhakti-vilas#03-discovery",
+    },
+    {
+      stage: "hypothesis",
+      text: "Insure the visit, don't vet the person — a Proof-of-Visit + Care Escrow layer, scored against 5 categories and 10 hypotheses, never built or tested against a real booking.",
+      source: "BV-REFINED-HYPOTHESIS",
+      href: "/work/bhakti-vilas#03-discovery",
+    },
+    {
+      stage: "product-decision",
+      text: "Madhu Mukti: code the health meaning into devotion rather than front-loading it — WhatsApp-first Sadhna Sandesh, temple-walk Parikrama Trails, a staged reveal stated as directional estimates, not measured data.",
+      source: "BV-MADHU-MUKTI-SOLUTION",
+      href: "/work/bhakti-vilas#04-product-bet",
+    },
+    {
+      stage: "prototype",
+      text: "Shipped as 4 static HTML pages + vanilla JS, mock data only, no AI, no tests — verified session-booking flow (learn → date → circle map → payment → QR pass) with no console errors on mobile.",
+      source: "BV-README",
+      href: "/work/bhakti-vilas#05-what-i-built",
+    },
+    {
+      stage: "evaluation",
+      text: "A mentor's three questions on the bhakti framing were answered with 11 cited sources, caveated as \"a well-evidenced hypothesis with real mechanisms, not a proven guarantee.\"",
+      source: "BV-MENTOR-QA",
+      href: "/work/bhakti-vilas#06-evaluation",
+    },
+    {
+      stage: "outcome",
+      text: "\"Shipped Bhakti Vilas — a working prototype, live and deployed, not a deck\" — no users, no usage numbers, no product metrics were ever recorded.",
+      source: "BV-LINKEDIN",
+      href: "/work/bhakti-vilas#07-outcome",
+    },
+  ],
+  learnings: [
+    "Translation coverage is partial (~90 of ~500 strings) — disclose localisation gaps rather than implying full coverage.",
+    "Medical copy is unreviewed — never present devotional-health framing as clinically vetted.",
+    "State the exact commit split (5 Tushar / 3 Shivali) and the unverified team-PRD authorship rather than implying solo ownership.",
+  ],
   sources: [
     { id: "BV-README", label: "Bhakti Vilas README", ref: "CS2/Bhakti-Vilas/README.md", inventory: "§8.6" },
-    { id: "BV-AUDIT-GIT", label: "Portfolio audit — git authorship", ref: "AUDIT §2 git table", inventory: "§8.6" },
+    {
+      id: "BV-AUDIT",
+      label: "Portfolio audit — Case Study 2 (git, stack, live check)",
+      ref: "AUDIT.md §2 \"Bhakti-Vilas (code)\" (git authorship, live verification 2026-09-15)",
+      inventory: "§8.6",
+    },
+    {
+      id: "BV-BRIEF",
+      label: "Case Study 2 brief",
+      ref: "CS2/Case Study 2 - C8_ Building for India_s Elder Care Market.docx",
+      inventory: "§8.6",
+    },
+    { id: "BV-CASE-STUDY", label: "India-Elder-Care-Case-Study.md", ref: "CS2/India-Elder-Care-Case-Study.md", inventory: "§8.6" },
+    {
+      id: "BV-TUSHAR-HYPOTHESIS",
+      label: "Tushar's refined hypothesis (Week 3 tracker)",
+      ref: "CS2/Week 3 C8 Token Toli.xlsx tab \"Tushar\"",
+      inventory: "§8.6",
+    },
+    { id: "BV-TEAM-SYNTHESIS", label: "Team-Research-Synthesis.md", ref: "CS2/Team-Research-Synthesis.md", inventory: "§8.6" },
+    {
+      id: "BV-TEAM-PRIMARY-RESEARCH",
+      label: "Primary research — Prashant's pod",
+      ref: "CS2/Primary Research - Prashant_s POD/Elder_Care_Problem_Hypotheses.md.pdf",
+      inventory: "§8.6",
+    },
+    { id: "BV-CATEGORY-HYPOTHESES", label: "Category-Hypotheses.md", ref: "CS2/Category-Hypotheses.md", inventory: "§8.6" },
+    {
+      id: "BV-REFINED-HYPOTHESIS",
+      label: "Refined-Hypothesis-and-Lateral-Solution.md",
+      ref: "CS2/Refined-Hypothesis-and-Lateral-Solution.md",
+      inventory: "§8.6",
+    },
+    {
+      id: "BV-MADHU-MUKTI-SOLUTION",
+      label: "Madhu Mukti solution doc (Tushar)",
+      ref: "CS2/Converging Results/[Tushar] 3-4 pager solution.docx",
+      inventory: "§8.6",
+    },
+    {
+      id: "BV-TEAM-PRD",
+      label: "Case Study 2 team PRD",
+      ref: "CS2/Case Study 2 PRD.pdf (23pp, 2026-08-03, no author names)",
+      inventory: "§8.6",
+    },
+    { id: "BV-MEMORY", label: "Bhakti-Vilas memory.md", ref: "CS2/Bhakti-Vilas/memory.md", inventory: "§8.6" },
+    { id: "BV-MENTOR-QA", label: "Why-Bhakti-Mentor-QA.md", ref: "CS2/Bhakti-Vilas/Why-Bhakti-Mentor-QA.md", inventory: "§8.6" },
+    {
+      id: "BV-LINKEDIN",
+      label: "LinkedIn 7-Day Journey Series",
+      ref: "CS2/LinkedIn-7-Day-Journey-Series.md (Day 3, Day 7)",
+      inventory: "§8.6",
+    },
   ],
 };
 

@@ -29,8 +29,11 @@ const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 ||
 // metrics stayed defined-but-unmeasured, so `metrics: []` and "none measured" is stated in prose
 // rather than backed into a `MetricCard`. Cubicle (TKT-32) ships chapters + an 8-node thinking chain
 // with exactly 2 header metrics, both build-quality only (tests, contrast) — it was never deployed,
-// so status stays "Built, not launched" and no live/usage number is ever shown.
-const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora", "nuptis", "cubicle"]);
+// so status stays "Built, not launched" and no live/usage number is ever shown. Bhakti Vilas (TKT-33)
+// ships a shorter full deep dive (8 chapters, 8-node thinking chain, evaluation/outcome chapters brief)
+// with zero header metrics — product metrics are MISSING per CONTENT_INVENTORY §8.6, and there are no
+// UI screenshots anywhere in the source project, so no `PrototypeFrame` is used either.
+const DEEP_DIVE = new Set<string>(["teachspark", "railcite", "velora", "nuptis", "cubicle", "bhakti-vilas"]);
 
 const CASE_STUDIES = [
   { slug: "teachspark", name: "TeachSpark" },
@@ -324,11 +327,12 @@ test("case-study · JS off: static HTML carries content and NextProject", { tag:
   });
   try {
     const p = await context.newPage();
-    // Uses a still-thin slug (bhakti-vilas) so the "Deep dive coming" static-content assertion
-    // holds; velora (TKT-30) and cubicle (TKT-32) are now full deep dives, so their pages no longer
-    // render that note.
-    await p.goto("/work/bhakti-vilas", { waitUntil: "domcontentloaded" });
-    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Bhakti Vilas");
+    // Uses a still-thin slug (token-toli) so the "Deep dive coming" static-content assertion holds;
+    // velora (TKT-30), cubicle (TKT-32) and bhakti-vilas (TKT-33) are now full deep dives, so their
+    // pages no longer render that note. token-toli stays thin permanently — TKT-54 authors it as a
+    // deliberately short "Discovery only" page (deepDive:false), never a full case study.
+    await p.goto("/work/token-toli", { waitUntil: "domcontentloaded" });
+    await expect(p.getByRole("heading", { level: 1 })).toHaveText("Token Toli");
     // 30-second overview text is in the static HTML (content, not a JS-gated reveal).
     await expect(p.getByText("Deep dive coming")).toBeVisible();
     await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();
