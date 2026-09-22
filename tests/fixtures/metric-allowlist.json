@@ -1,0 +1,8 @@
+{
+  "_comment": "TC-091 (M-007 carry-forward CF-2): per-slug allowlist of MetricCard labels the 'thin five' (deepDive:false) project records are allowed to show, mirroring each slug's real pack in CONTENT_INVENTORY.md §8. A metric NOT in its slug's list is an unsourced/invented MetricCard and must fail tests/unit/content-rules.test.ts. Mirrors data/projects.ts as of this writing — update alongside a real content change, never to force a test green.",
+  "token-toli": [],
+  "pratyasa": [],
+  "tegaki": [],
+  "dino-arcade-pwa": [],
+  "cinematic-portfolio": ["Film generation cost"]
+}
