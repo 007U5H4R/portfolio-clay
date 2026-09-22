@@ -53,7 +53,10 @@ export const KNOWN_UNBUILT: Record<string, string> = {
 
 const CRAWL_UA = "portfolio-clay-crawler";
 const EXTERNAL_TIMEOUT_MS = 10_000;
-const BOT_BLOCK_HOSTS = ["linkedin.com", "github.com"];
+// doi.org / pubs.acs.org (ACS Publications, the DOI redirect target for the Langmuir credential in
+// data/credentials.ts) return a Cloudflare bot-challenge (`cf-mitigated: challenge`) 403 to an
+// automated HEAD — the link is genuinely live for a human, just bot-blocked, exactly like LinkedIn.
+const BOT_BLOCK_HOSTS = ["linkedin.com", "github.com", "doi.org", "pubs.acs.org"];
 // Statuses these hosts return to automated clients instead of serving the page: 403/429 (Forbidden
 // / Too Many Requests) and LinkedIn's signature 999. From a bot-block host these are WARN (the link
 // is fine for a human), never a dead-link FAIL — the status is recorded either way.
@@ -271,10 +274,23 @@ async function isVisible(handle: ElementHandle<Element>): Promise<boolean> {
 }
 
 // --------------------------------------------------------------------------- button observation
+/** path+search of a URL, stripping any `#fragment` — used to tell a real navigation (pushed
+ * history entry, or a change to what's actually loaded) apart from an in-page hash-only sync
+ * (e.g. `history.replaceState` used to reflect deep-link state, which legitimately changes
+ * `location.href` without navigating anywhere). */
+function stripHash(url: string): string {
+  try {
+    const u = new URL(url);
+    return u.origin + u.pathname + u.search;
+  } catch {
+    return url;
+  }
+}
+
 /**
  * Click a button-like control and report whether it produced an observable change. Restores state
- * afterwards (Esc to close any opened dialog, back-nav if the URL changed). Exported for the
- * crawler self-test (S10.01 gate: a fixture dead button must be reported).
+ * afterwards (Esc to close any opened dialog, back-nav if a real navigation occurred). Exported
+ * for the crawler self-test (S10.01 gate: a fixture dead button must be reported).
  */
 export async function observeButtonEffect(
   page: Page,
@@ -294,6 +310,7 @@ export async function observeButtonEffect(
     (window as unknown as { __mo: MutationObserver }).__mo = mo;
     return {
       url: location.href,
+      historyLength: history.length,
       dialogs: document.querySelectorAll("dialog[open]").length,
       expanded: el.getAttribute("aria-expanded"),
       pressed: el.getAttribute("aria-pressed"),
@@ -316,6 +333,7 @@ export async function observeButtonEffect(
         if (mo) mo.disconnect();
         return {
           url: location.href,
+          historyLength: history.length,
           dialogs: document.querySelectorAll("dialog[open]").length,
           mut: (window as unknown as { __mut: number }).__mut ?? 0,
           // aria-* re-read against the same element is not reliable after DOM churn, so we compare
@@ -325,7 +343,7 @@ export async function observeButtonEffect(
       },
       { prevExpanded: before.expanded, prevPressed: before.pressed, prevSelected: before.selected },
     )
-    .catch(() => ({ url: before.url, dialogs: before.dialogs, mut: 0, _p: [] }));
+    .catch(() => ({ url: before.url, historyLength: before.historyLength, dialogs: before.dialogs, mut: 0, _p: [] }));
 
   // Re-read the element's aria-* (handle may still be attached).
   const ariaAfter = await handle
@@ -337,6 +355,13 @@ export async function observeButtonEffect(
     .catch(() => ({ expanded: before.expanded, pressed: before.pressed, selected: before.selected }));
 
   const urlChanged = after.url !== before.url;
+  // A REAL navigation either pushes a history entry (historyLength grows) or changes what's
+  // actually loaded (path+search, ignoring `#fragment`). A control that only syncs the hash via
+  // `history.replaceState` (e.g. a deep-link sync on open) changes `location.href` — so
+  // `urlChanged` above is still true, correctly counting it as an observable effect — but does
+  // NOT navigate anywhere and must not trigger `goBack()`, which would instead pop the crawler's
+  // own prior real navigation and corrupt the rest of the crawl.
+  const realNavigation = after.historyLength > before.historyLength || stripHash(after.url) !== stripHash(before.url);
   const dialogOpened = after.dialogs > before.dialogs;
   const ariaToggled =
     ariaAfter.expanded !== before.expanded ||
@@ -351,12 +376,12 @@ export async function observeButtonEffect(
   if (mutated) reasons.push(`${after.mut} DOM mutations`);
   const changed = urlChanged || dialogOpened || ariaToggled || mutated;
 
-  // Restore: close any dialog we opened, undo any navigation.
+  // Restore: close any dialog we opened, undo any REAL navigation (not a hash-only replaceState).
   if (dialogOpened) {
     await page.keyboard.press("Escape").catch(() => {});
     await page.waitForTimeout(100);
   }
-  if (urlChanged) {
+  if (realNavigation) {
     await page.goBack({ waitUntil: "load" }).catch(() => {});
   }
 
