@@ -1,9 +1,10 @@
 ---
 id: TASK-40
 title: 'TKT-44: /playground - hero + 4 tiles'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 07:20'
 labels:
   - P2
   - 'sp:2'
