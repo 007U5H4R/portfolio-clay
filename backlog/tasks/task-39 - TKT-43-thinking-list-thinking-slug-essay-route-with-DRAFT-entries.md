@@ -1,9 +1,10 @@
 ---
 id: TASK-39
 title: 'TKT-43: /thinking list + /thinking/[slug] essay route with DRAFT entries'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 06:59'
 labels:
   - P2
   - 'sp:3'
