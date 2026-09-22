@@ -62,10 +62,19 @@ config (`<Analytics/>` / `<SpeedInsights/>` auto-detect the Vercel platform at r
 npx vercel                     # preview deploy; prints the preview URL
 ```
 
-This runs the full build chain, including the new gates in order: `prebuild`
+On Vercel the build command comes from the committed **`vercel.json`** (`pnpm run prebuild &&
+next build && pnpm exec tsx scripts/assert-static.ts`) — **not** from the `pnpm build` script.
+That is deliberate (CR-001, Stage 9): `pnpm build` wraps `next build` in `dotenv -e .env.tooling`,
+and `.env.tooling` hard-codes this machine's E-Drive paths (`TMPDIR`, `PLAYWRIGHT_BROWSERS_PATH`)
+plus a placeholder `NEXT_PUBLIC_SITE_URL` — none of which exist / are correct on Vercel's Linux
+builder (the first real deploy proved it). Keep `vercel.json` and the `build` script's gate chain in
+sync whenever the chain changes. The chain itself is identical, in order: `prebuild`
 (`predeploy-check.ts` → `validate-content.ts`) → `next build` → `assert-static.ts`. A preview
 deploy has `VERCEL_ENV=preview`, so the featured-video check (PB4) is a no-op even though
-`public/video/*.mp4` aren't committed yet — this is intentional, not a bug.
+`public/video/*.mp4` aren't committed yet — this is intentional, not a bug. Preview OG/canonical
+URLs self-reference via `VERCEL_URL`: `lib/seo.ts` uses the production host only when
+`VERCEL_ENV=production` (CR-002 — before that fix every preview's `og:image` pointed at a
+production host that 404s until the first production deploy exists).
 
 ## 5. Preview-only checks (deferred — cannot run without a live URL)
 
