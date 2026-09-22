@@ -62,13 +62,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
         </AskProvider>
         {/*
-          Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less, no-op off Vercel
-          (they render nothing and inject no script when not served by the Vercel platform), so
-          this is safe in local dev/build and does not affect SSG (routes stay static — TP1;
-          verified by scripts/assert-static.ts after `pnpm build`).
+          Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less. QA-005 fix — these
+          libraries gate their script injection on `NODE_ENV==='production'`, NOT on being served by
+          Vercel, so a local `pnpm start` (a production build) injected `/_vercel/*` scripts that 404
+          off-platform and tripped the "no console errors" smoke gate. Gate on `process.env.VERCEL`
+          (set only on real Vercel preview/production builds, statically inlined into this SSG server
+          layout at build time) so they are in the tree ONLY when actually deployed — local build/
+          start stays clean, production/preview get analytics. Routes stay static (TP1).
         */}
-        <Analytics />
-        <SpeedInsights />
+        {process.env.VERCEL ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
     </html>
   );
