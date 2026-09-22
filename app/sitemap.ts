@@ -10,7 +10,7 @@ import { writing } from "@/data/writing";
  * with TKT-43 (this ticket). (`lib/anchors.ts`'s broader `STATIC_ROUTES` is a *link-validation* set
  * for authored copy, not a "page exists" set, so it isn't reused here.)
  */
-export const STATIC_ROUTES = ["/", "/work", "/thinking", "/contact"] as const;
+export const STATIC_ROUTES = ["/", "/work", "/thinking", "/contact", "/playground"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();
