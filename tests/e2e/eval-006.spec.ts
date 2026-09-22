@@ -67,12 +67,10 @@ const DEEP_DIVE_SLUGS = new Set(
 for (const route of PUBLIC_ROUTES) {
   test(`@EVAL-006 axe heading-order clean (QA-003 regression guard) · ${route}`, { tag: "@EVAL-006" }, async ({ page }) => {
     test.skip(width(page) !== 1440, "heading-order is a document-structure check — run once per route");
-    // Pre-existing, independent finding surfaced by writing this guard (not a QA-003 regression,
-    // not introduced by this CF-3 batch): `/work`'s h1 is followed directly by each ProjectCard's
-    // h3 (the "PERSONAL BUILDS" h2 eyebrow renders AFTER the card grid in DOM order) — a real
-    // h1→h3 skip. Left as `fixme` (tracked, not silently dropped from the sweep) rather than fixed
-    // here — out of this batch's scope (QA-003/Chapter.tsx only); see docs/reports/carry-forwards.md.
-    test.fixme(route === "/work", "pre-existing heading-order skip on /work, independent of QA-003 — see docs/reports/carry-forwards.md");
+    // QA-004 (TKT-48 follow-up): `/work` previously skipped h1→h3 (page h1 followed directly by the
+    // ProjectCard h3s, no intervening h2). Fixed by adding an sr-only "Personal builds" h2 heading
+    // the personal-builds region in app/work/page.tsx, so this route is now enforced like every
+    // other. (Was a tracked `test.fixme` from the CF-3 batch; see docs/reports/carry-forwards.md.)
     await page.goto(route, { waitUntil: "load" });
     const slug = route.startsWith("/work/") ? route.slice("/work/".length) : undefined;
     if (slug && DEEP_DIVE_SLUGS.has(slug)) {
