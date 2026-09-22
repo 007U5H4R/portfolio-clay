@@ -96,3 +96,48 @@ describe("bundle-budget", () => {
     expect(JSON.parse(stdout.trim()).overBudget).toBe(true);
   }, SPAWN_TIMEOUT);
 });
+
+// Regression for the TKT-49 / EXE-10 measurement fix: a `<script noModule>` polyfill chunk (which
+// module-capable browsers never download) must be EXCLUDED from the first-load sum, matching the
+// script's stated metric ("what the browser downloads on first load"). The excluded bytes are still
+// reported for transparency. This guards the exclusion from being silently reverted.
+describe("bundle-budget · noModule exclusion (EXE-10)", () => {
+  let dir: string;
+  const MODULE_CHUNK = pseudoRandom(3, 60_000) + "\n// module\n";
+  const NOMODULE_CHUNK = pseudoRandom(4, 90_000) + "\n// polyfill\n"; // larger than the module chunk
+  const moduleGzip = gzipSync(Buffer.from(MODULE_CHUNK), { level: 9 }).length;
+  const nomoduleGzip = gzipSync(Buffer.from(NOMODULE_CHUNK), { level: 9 }).length;
+
+  beforeAll(() => {
+    dir = mkdtempSync(resolve(ROOT, ".eval", "bundle-nomod-"));
+    const appDir = resolve(dir, ".next/server/app");
+    const staticDir = resolve(dir, ".next/static/chunks");
+    mkdirSync(appDir, { recursive: true });
+    mkdirSync(staticDir, { recursive: true });
+    writeFileSync(resolve(staticDir, "mod.js"), MODULE_CHUNK);
+    writeFileSync(resolve(staticDir, "poly.js"), NOMODULE_CHUNK);
+    writeFileSync(
+      resolve(appDir, "index.html"),
+      `<!doctype html><html><head></head><body>
+         <script src="/_next/static/chunks/mod.js"></script>
+         <script src="/_next/static/chunks/poly.js" noModule=""></script>
+       </body></html>`,
+    );
+  });
+  afterAll(() => {
+    if (dir) rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("counts only the module chunk and reports the excluded noModule polyfill", () => {
+    const r = spawnSync("pnpm", ["exec", "tsx", SCRIPT, "--route", "/", "--json"], {
+      cwd: dir,
+      encoding: "utf8",
+    });
+    const parsed = JSON.parse((r.stdout ?? "").trim());
+    expect(parsed.ok).toBe(true);
+    expect(parsed.chunkCount).toBe(1); // poly.js excluded, only mod.js counted
+    expect(parsed.firstLoadJsGzipBytes).toBe(moduleGzip); // NOT moduleGzip + nomoduleGzip
+    expect(parsed.excludedNoModuleChunks).toBe(1);
+    expect(parsed.excludedNoModuleGzipKb).toBe(Number((nomoduleGzip / 1024).toFixed(1)));
+  }, SPAWN_TIMEOUT);
+});

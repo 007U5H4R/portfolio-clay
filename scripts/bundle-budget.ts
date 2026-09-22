@@ -53,8 +53,26 @@ if (!existsSync(htmlPath)) {
 }
 
 const html = readFileSync(htmlPath, "utf8");
-const refs = Array.from(html.matchAll(/\/_next\/(static\/[^"'\s?]+\.js)/g)).map((m) => m[1]!);
-const uniqueRefs = Array.from(new Set(refs));
+
+// Legacy `<script noModule>` chunks (Next/Turbopack emits a core-js/whatwg-fetch polyfill bundle
+// this way) are, by the HTML spec, never fetched or executed by a module-capable browser. Every
+// browser this site targets already requires ES modules (avif images, next/font, backdrop-filter,
+// WebGL) — a browser old enough to need these polyfills cannot render the page at all — so these
+// bytes are never on the real first-load path. Counting them contradicts this script's own stated
+// metric ("what the browser downloads on first load", above). They are therefore excluded from the
+// sum. This does NOT change the 180 kB budget (EV2) — it fixes WHAT is measured against it. The
+// polyfill is still shipped in the build for legacy browsers; it is just not on the modern
+// first-load path we budget. See decisions.md EXE-10.
+const noModuleRefs = new Set(
+  Array.from(html.matchAll(/<script\b[^>]*?\bnomodule\b[^>]*>/gi)).flatMap((tag) =>
+    Array.from(tag[0].matchAll(/\/_next\/(static\/[^"'\s?]+\.js)/g)).map((m) => m[1]!),
+  ),
+);
+const allRefs = Array.from(
+  new Set(Array.from(html.matchAll(/\/_next\/(static\/[^"'\s?]+\.js)/g)).map((m) => m[1]!)),
+);
+const uniqueRefs = allRefs.filter((r) => !noModuleRefs.has(r));
+const excludedRefs = allRefs.filter((r) => noModuleRefs.has(r));
 
 if (uniqueRefs.length === 0) {
   fail(`no /_next/static/*.js chunks referenced by ${htmlPath}`);
@@ -77,6 +95,14 @@ for (const rel of uniqueRefs) {
   chunks.push({ file: rel, rawBytes: raw, gzipBytes: gz });
 }
 
+// Gzip the excluded nomodule chunks too — purely for transparent reporting, never added to the sum.
+let excludedGzip = 0;
+for (const rel of excludedRefs) {
+  const filePath = resolve(NEXT_DIR, rel);
+  if (existsSync(filePath)) excludedGzip += gzipSync(readFileSync(filePath), { level: 9 }).length;
+}
+const excludedGzipKb = Number((excludedGzip / 1024).toFixed(1));
+
 const gzipKb = totalGzip / 1024;
 const rawKb = totalRaw / 1024;
 const overBudget = gzipKb > budgetKb;
@@ -93,12 +119,18 @@ if (asJson) {
       budgetKb,
       overBudget,
       chunks,
+      excludedNoModuleChunks: excludedRefs.length,
+      excludedNoModuleGzipKb: excludedGzipKb,
     }) + "\n",
   );
   process.exit(0);
 }
 
+const excludedNote =
+  excludedRefs.length > 0
+    ? ` (excl. ${excludedRefs.length} noModule polyfill chunk${excludedRefs.length > 1 ? "s" : ""} = ${excludedGzipKb} kB gz that module browsers never download)`
+    : "";
 console.log(
-  `first-load JS (${route}) = ${gzipKb.toFixed(1)} kB gz (budget ${budgetKb}) — ${uniqueRefs.length} chunks, ${rawKb.toFixed(1)} kB raw`,
+  `first-load JS (${route}) = ${gzipKb.toFixed(1)} kB gz (budget ${budgetKb}) — ${uniqueRefs.length} chunks, ${rawKb.toFixed(1)} kB raw${excludedNote}`,
 );
 process.exit(overBudget ? 1 : 0);
