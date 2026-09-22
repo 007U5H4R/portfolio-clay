@@ -25,15 +25,16 @@ import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { site } from "@/lib/site";
+import { PII_PATTERNS } from "@/scripts/forbidden-strings";
 
 const RESUME_PATH = process.env.RESUME_PATH ?? "public/resume.pdf";
 const RESOLVED_PATH = resolve(process.cwd(), RESUME_PATH);
 const DECISIONS_PATH = resolve(process.cwd(), "decisions.md");
 
 // PII patterns the sanitised export must NOT contain.
-const DOB_PATTERN = /\b(0?[1-9]|[12]\d|3[01])[\/\-.](0?[1-9]|1[0-2])[\/\-.](\d{4}|\d{2})\b/;
-const PHONE_PATTERN = /(\+?91[\s-]?)?\b\d{10}\b/;
-const STREET_ADDRESS_PATTERN = /\b(Road|Street|Nagar|Layout|Apartment|Flat No)\b/i;
+// CR-005 / CR-008 (Stage 9): the canonical PII rules live in scripts/forbidden-strings.ts — this file
+// previously carried a third, drifting hand-copy (2-digit-year DOB over-match; contiguous-only phone).
+const { DOB: DOB_PATTERN, PHONE: PHONE_PATTERN, STREET_ADDRESS: STREET_ADDRESS_PATTERN } = PII_PATTERNS;
 
 // Fixture-specific markers (technical-plan.md TKT-08 S08r.01): a value the sanitised PDF must
 // retain, and a value it must have redacted, both fixed by that spec — not derived at runtime.

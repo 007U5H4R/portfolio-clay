@@ -13,9 +13,11 @@ import {
   runPredeployChecks,
   scanResumePii,
 } from "@/scripts/predeploy-check";
+import { scratchDir } from "./scratch-dir";
 
-const SCRATCH = "/Volumes/E Drive/Dev/.scratch";
-mkdirSync(SCRATCH, { recursive: true });
+// CR-004 (Stage 9): E Drive locally, OS tmpdir on CI — the hard-coded macOS path failed with EACCES
+// at module load on a Linux runner (see scratch-dir.ts).
+const SCRATCH = scratchDir();
 const tmps: string[] = [];
 const tmp = () => {
   const d = mkdtempSync(join(SCRATCH, "predeploy-"));
@@ -67,6 +69,20 @@ describe("scanResumePii (fail-closed PII extraction)", () => {
     const dir = tmp();
     fakePdftotext(dir);
     const result = scanResumePii("irrelevant.pdf", { ...process.env, PATH: dir, FAKE_TEXT: "Call 9876543210" });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toMatch(/phone/);
+  });
+
+  // CR-005 (Stage 9): this file's old hand-copied phone rule matched only 10 CONTIGUOUS digits, so the
+  // spaced/dashed +91 form a résumé actually prints slipped through the production gate.
+  it("fires on a SPACED +91 phone number (the canonical PII rule, not the drifted copy)", () => {
+    const dir = tmp();
+    fakePdftotext(dir);
+    const result = scanResumePii("irrelevant.pdf", {
+      ...process.env,
+      PATH: dir,
+      FAKE_TEXT: "Reach me at +91 98765 43210",
+    });
     expect(result.ok).toBe(false);
     expect(result.reason).toMatch(/phone/);
   });
@@ -178,6 +194,38 @@ describe("checkForbiddenStrings (delegates to scripts/forbidden-strings.ts)", ()
     writeFileSync(join(dir, "data", "evil.ts"), "export const cert = 'PMP';\n");
     const issues = checkForbiddenStrings(dir);
     expect(issues.some((i) => i.code === "forbidden-string" && /PMP/.test(i.message))).toBe(true);
+  });
+
+  // SF-1 / SF-2 (Stage 9, fail closed): an UNREADABLE directory inside a scanned category used to be
+  // silently dropped, so the gate reported "0 hits" over a tree it never fully read. chmod 000 does
+  // not restrict root, so the case is skipped (not faked) when the runner is root.
+  it.skipIf(process.getuid?.() === 0)("FAILS when part of the tree is unreadable (scan cannot verify it)", () => {
+    const dir = tmp();
+    const locked = join(dir, "data", "locked");
+    mkdirSync(locked, { recursive: true });
+    writeFileSync(join(locked, "hidden.ts"), "export const x = 1;\n");
+    chmodSync(locked, 0o000);
+    try {
+      const issues = checkForbiddenStrings(dir);
+      expect(issues.some((i) => i.code === "forbidden-scan-skipped" && /locked/.test(i.message))).toBe(true);
+    } finally {
+      chmodSync(locked, 0o755); // so afterAll's rmSync can clean it up
+    }
+  });
+
+  // SF-3: a PRESENT-but-malformed sandbox-code file previously parsed to `[]` — i.e. "verified zero
+  // codes", with no SKIP line. It is a misconfiguration the gate cannot see through, so it must fail.
+  it("FAILS when tests/forbidden.local.json exists but is malformed (never 'zero codes')", () => {
+    const dir = tmp();
+    mkdirSync(join(dir, "tests"), { recursive: true });
+    writeFileSync(join(dir, "tests", "forbidden.local.json"), "{ not json");
+    const issues = checkForbiddenStrings(dir);
+    expect(issues.some((i) => i.code === "forbidden-scan-skipped" && /malformed/.test(i.message))).toBe(true);
+  });
+
+  it("PASSES when tests/forbidden.local.json is simply absent (the documented SKIP path)", () => {
+    const dir = tmp();
+    expect(checkForbiddenStrings(dir)).toEqual([]);
   });
 });
 

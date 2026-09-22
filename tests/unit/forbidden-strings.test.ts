@@ -1,14 +1,15 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { scan } from "@/scripts/forbidden-strings";
+import { scratchDir } from "./scratch-dir";
 
 /**
  * The repo (and, in CI, the bundle) must be clean; planting a banned string must be caught.
- * Temp trees live on the E Drive scratch area (never the internal disk — machine constraint).
+ * Temp trees live on the E Drive scratch area locally (never the internal disk — machine
+ * constraint) and on the OS tmpdir on CI — CR-004 (Stage 9), see scratch-dir.ts.
  */
-const SCRATCH = "/Volumes/E Drive/Dev/.scratch";
-mkdirSync(SCRATCH, { recursive: true });
+const SCRATCH = scratchDir();
 const tmps: string[] = [];
 const tmp = () => {
   const d = mkdtempSync(join(SCRATCH, "forbidden-"));
@@ -54,5 +55,29 @@ describe("scripts/forbidden-strings", () => {
     writeFileSync(join(dir, "data", "d.ts"), `const join = '${code}';\n`);
     const result = scan({ cwd: dir, sandboxCodes: [code] });
     expect(result.hits.some((h) => h.pattern === "sandbox join code")).toBe(true);
+  });
+
+  // SF-1 / SF-2 (Stage 9, fail closed): an unreadable directory used to be silently dropped from the
+  // walk, so `scan()` reported fewer files and "0 hits" over a tree it never fully read. It must now
+  // surface the path in `skipped`. chmod 000 does not restrict root → skipped (not faked) as root.
+  it.skipIf(process.getuid?.() === 0)("records an unreadable directory in `skipped` instead of dropping it", () => {
+    const dir = tmp();
+    const locked = join(dir, "data", "locked");
+    mkdirSync(locked, { recursive: true });
+    writeFileSync(join(locked, "hidden.ts"), "export const x = 1;\n");
+    chmodSync(locked, 0o000);
+    try {
+      const result = scan({ cwd: dir });
+      expect(result.skipped.some((s) => s.path.endsWith("locked"))).toBe(true);
+    } finally {
+      chmodSync(locked, 0o755); // so afterAll's rmSync can clean it up
+    }
+  });
+
+  it("tolerates an ABSENT source-category root (partial fixture) — absent is not unreadable", () => {
+    const dir = tmp(); // no data/ content/ app/ … at all
+    const result = scan({ cwd: dir });
+    expect(result.skipped).toEqual([]);
+    expect(result.hits).toEqual([]);
   });
 });

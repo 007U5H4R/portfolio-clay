@@ -22,7 +22,7 @@ import { existsSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { site } from "@/lib/site";
-import { readSandboxCodes, scan } from "./forbidden-strings";
+import { PII_PATTERNS, readSandboxCodes, scan } from "./forbidden-strings";
 
 export interface PredeployIssue {
   code: string;
@@ -44,12 +44,11 @@ export interface PredeployResult {
 const FEATURED_VIDEOS = ["teachspark", "railcite", "velora"] as const;
 const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
 
-// Same PII patterns as tests/unit/resume-pii.test.ts / technical-plan.md TKT-08 S08r.01 —
-// duplicated deliberately (production guard vs. test-suite gate are separate call sites; this
-// file is imported at build time and must not depend on a `tests/**` module).
-const DOB_PATTERN = /\b(0?[1-9]|[12]\d|3[01])[/\-.](0?[1-9]|1[0-2])[/\-.](\d{4}|\d{2})\b/;
-const PHONE_PATTERN = /(\+?91[\s-]?)?\b\d{10}\b/;
-const STREET_ADDRESS_PATTERN = /\b(Road|Street|Nagar|Layout|Apartment|Flat No)\b/i;
+// CR-005 / CR-008 (Stage 9): the PII rules live ONCE, in `scripts/forbidden-strings.ts` (already
+// imported here, so no `tests/**` dependency). This file previously carried its own hand-copied
+// variant that had drifted: a bare 2-digit year (flagging version-like `12.05.26` as a DOB) and a
+// phone rule matching only 10 *contiguous* digits (letting `+91 98765 43210` through the gate).
+const { DOB: DOB_PATTERN, PHONE: PHONE_PATTERN, STREET_ADDRESS: STREET_ADDRESS_PATTERN } = PII_PATTERNS;
 
 export interface PiiScanResult {
   ok: boolean;
@@ -139,12 +138,25 @@ export function checkFeaturedVideos(cwd: string, vercelEnv: string | undefined):
 
 /** Failure mode 4: forbidden strings, via the shared scanner. */
 export function checkForbiddenStrings(cwd: string): PredeployIssue[] {
-  const codes = readSandboxCodes(cwd);
+  let codes: string[] | null;
+  try {
+    codes = readSandboxCodes(cwd);
+  } catch (err) {
+    // SF-3: a corrupt sandbox-code file is NOT "no codes" — the gate cannot verify, so it fails.
+    return [{ code: "forbidden-scan-skipped", message: err instanceof Error ? err.message : String(err) }];
+  }
   const result = scan({ cwd, sandboxCodes: codes ?? [], sandboxSkipped: codes === null });
-  return result.hits.map((hit) => ({
+  const hits: PredeployIssue[] = result.hits.map((hit) => ({
     code: "forbidden-string",
     message: `${hit.file}:${hit.line} → [${hit.pattern}] ${hit.match}`,
   }));
+  // SF-1/SF-2 (fail closed): any path the scanner could not read leaves the tree UNVERIFIED — that is
+  // a gate failure, never a quieter "0 hits in fewer files".
+  const skipped: PredeployIssue[] = result.skipped.map((s) => ({
+    code: "forbidden-scan-skipped",
+    message: `cannot verify ${s.path} (${s.reason}) — forbidden-string scan is incomplete`,
+  }));
+  return [...hits, ...skipped];
 }
 
 export function runPredeployChecks(opts: PredeployOptions = {}): PredeployResult {
