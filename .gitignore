@@ -14,6 +14,10 @@ playwright-report/
 # per-ticket --only eval runs (transient; milestone eval-run-*.json + baseline-*.json + gate-*.md stay tracked)
 evals/results/tkt-*.json
 
+# per-commit dev eval runs (transient, TKT-52 hygiene; canonical eval-run-v1.0.0-rc.json and
+# baseline-*.json are named outside this pattern and stay tracked — evidence history, not deleted)
+evals/results/eval-run-0.2.0-*.json
+
 # environment (secret-bearing; .env.tooling is committed & secret-free)
 .env
 .env.*.local
