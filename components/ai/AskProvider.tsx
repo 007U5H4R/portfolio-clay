@@ -130,9 +130,12 @@ export function useAsk(surface: AskSurface): UseAsk {
         ]);
         if (runId !== runIdRef.current) return; // superseded by a newer submit / reset
         setState({ status: answer.kind === "answer" ? "answer" : "empty", query, answer });
-      } catch {
+      } catch (err) {
         // The local provider never throws (it degrades to `empty`); a network-backed provider can.
-        // The visible error state IS the observable signal (A13) — the query is never echoed.
+        // The visible error state IS the user-facing signal (A13) — the query is never echoed — but
+        // a failed provider call must never be *silent* to operators either (SF-6 / A12): log it
+        // before the supersession check so a superseded-but-failed call still leaves a trace.
+        console.error("[ask] provider failed", err);
         if (runId !== runIdRef.current) return;
         setState({ status: "error", query, answer: null });
       }
