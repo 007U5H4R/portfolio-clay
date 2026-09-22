@@ -203,6 +203,30 @@
   animation: overview-fade 200ms var(--ease-reveal);
 }
 
+/*
+  Ask inline answer reveal (TKT-49 perf lever / Design.md §3–§4). This was an `m.div`
+  (initial opacity:0,y:8 → animate opacity:1,y:0, spring `askExpand`) inside a `LazyMotionRoot`.
+  A one-shot mount entrance needs no JS spring — this CSS keyframe reproduces the fade-up while
+  dropping AskPortfolio as a consumer of the `domAnimation` feature bundle (kept off `/` first-load,
+  EVAL-005). The element is remounted via React `key={status}`, so the animation replays on every
+  idle→loading→answer transition, exactly as the keyed `m.div` did. The global reduced-motion rule
+  below forces animation-duration to ~1ms, so no separate opt-out is needed (matches the previous
+  `transition:{duration:0}` reduced-motion branch).
+*/
+@keyframes ask-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ask-reveal {
+  animation: ask-reveal 300ms var(--ease-panel);
+}
+
 /* View Transitions default timing (A5 / Design.md §4) */
 ::view-transition-group(*) {
   animation-duration: 450ms;

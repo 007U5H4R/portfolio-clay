@@ -8,20 +8,18 @@
  * open" — Law of Continuity) and focus moves to the answer heading, without trapping focus (the page
  * stays scrollable — unlike the panel, TKT-11).
  *
- * Motion (A6 / Design.md §4): content reveals via `m.*` under the shared `LazyMotionRoot`
- * (`domAnimation`), with the answer body springing in (opacity + y, `springs.askExpand`) and the
- * card height easing to its expanded min-height. Deviation (documented in docs/reports/TKT-10.md):
- * the plan named `m.div layout`, but `layout` is only in `domMax`, not the shared `domAnimation`
- * root — pulling `domMax` onto the home page would grow the first-load JS the whole A6 budget guards.
- * The height is therefore eased with a cheap CSS `min-height` transition (same in-place-expand UX,
- * zero extra bundle) while the content keeps the specified spring. Everything collapses to instant
- * under `prefers-reduced-motion` (height snaps, content opacity only).
+ * Motion (A6 / Design.md §4): the answer body reveals with a fade-up (opacity + y) and the card
+ * height eases to its expanded min-height. TKT-49 perf lever: both are now pure CSS — the height via
+ * a `min-height` transition (as before), and the content fade-up via the `ask-reveal` keyframe
+ * (globals.css), replayed on each state change through React's `key={status}` remount. This drops
+ * AskPortfolio as a consumer of the `motion` `domAnimation` feature bundle, keeping it off `/`
+ * first-load JS (EVAL-005) — a one-shot mount entrance never needed a JS spring. (The plan named
+ * `m.div layout`, but `layout` lives only in `domMax`; that was already avoided.) Everything
+ * collapses to instant under `prefers-reduced-motion` via the global reduced-motion rule.
  */
 import { ArrowUp } from "lucide-react";
-import { m } from "motion/react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Icon } from "@/components/common/Icon";
-import { LazyMotionRoot, springs, useReducedMotionSafe } from "@/lib/motion";
 import { ClayCard } from "@/components/clay/ClayCard";
 import { AnswerView } from "./AnswerView";
 import { useAsk } from "./AskProvider";
@@ -38,7 +36,6 @@ export interface AskPortfolioProps {
 
 export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
   const { status, answer, submit, retry, reset } = useAsk("home");
-  const reduced = useReducedMotionSafe();
 
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,63 +78,55 @@ export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
   };
 
   return (
-    <LazyMotionRoot>
-      <div className="mx-auto w-full max-w-[720px]">
-        <ClayCard
-          tier="card"
-          tone={expanded ? "lavender" : "neutral"}
-          padding="card"
-          data-testid="ask-card"
-          className={[
-            "transition-[min-height] duration-[280ms] ease-[var(--ease-panel)] motion-reduce:transition-none",
-            expanded ? "min-h-[240px]" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-        >
-          <form onSubmit={onSubmit} className="flex items-center gap-[var(--space-3)]">
-            <label htmlFor="ask-portfolio-input" className="sr-only">
-              Ask about my work
-            </label>
-            <input
-              id="ask-portfolio-input"
-              ref={inputRef}
-              type="text"
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-              placeholder="Ask about my work…"
-              autoComplete="off"
-              aria-label="Ask about my work"
-              className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-ink/10 bg-bg px-[var(--space-4)] text-[length:var(--text-body)] text-ink placeholder:text-ink-3 focus-ring"
-            />
-            <button
-              type="submit"
-              aria-label="Ask"
-              className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-accent text-bg transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-accent-deep active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
-            >
-              <Icon icon={ArrowUp} size={24} />
-            </button>
-          </form>
-
-          <m.div
-            key={status}
-            initial={reduced ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={reduced ? { duration: 0 } : springs.askExpand}
-            className="mt-[var(--space-5)]"
+    <div className="mx-auto w-full max-w-[720px]">
+      <ClayCard
+        tier="card"
+        tone={expanded ? "lavender" : "neutral"}
+        padding="card"
+        data-testid="ask-card"
+        className={[
+          "transition-[min-height] duration-[280ms] ease-[var(--ease-panel)] motion-reduce:transition-none",
+          expanded ? "min-h-[240px]" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <form onSubmit={onSubmit} className="flex items-center gap-[var(--space-3)]">
+          <label htmlFor="ask-portfolio-input" className="sr-only">
+            Ask about my work
+          </label>
+          <input
+            id="ask-portfolio-input"
+            ref={inputRef}
+            type="text"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            placeholder="Ask about my work…"
+            autoComplete="off"
+            aria-label="Ask about my work"
+            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-ink/10 bg-bg px-[var(--space-4)] text-[length:var(--text-body)] text-ink placeholder:text-ink-3 focus-ring"
+          />
+          <button
+            type="submit"
+            aria-label="Ask"
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-accent text-bg transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-accent-deep active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
           >
-            <AnswerView
-              status={status}
-              answer={answer}
-              prompts={prompts}
-              onSelectPrompt={onSelectPrompt}
-              onAskAnother={onAskAnother}
-              onRetry={retry}
-              headingRef={headingRef}
-            />
-          </m.div>
-        </ClayCard>
-      </div>
-    </LazyMotionRoot>
+            <Icon icon={ArrowUp} size={24} />
+          </button>
+        </form>
+
+        <div key={status} className="ask-reveal mt-[var(--space-5)]">
+          <AnswerView
+            status={status}
+            answer={answer}
+            prompts={prompts}
+            onSelectPrompt={onSelectPrompt}
+            onAskAnother={onAskAnother}
+            onRetry={retry}
+            headingRef={headingRef}
+          />
+        </div>
+      </ClayCard>
+    </div>
   );
 }
