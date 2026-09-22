@@ -15,8 +15,9 @@
  *               eval-010.spec.ts; this is ProductJourney's own, new with this ticket).
  *
  * TSK-24 extends this file with `CapabilityClusters` ("What I Bring") and `Impact` (`MetricCard`
- * shape) below. TKT-41 (`ExperienceTimeline`) and TKT-42 (Awards/Research/Education + About OG)
- * extend `/about` later.
+ * shape) below. TKT-41 (`ExperienceTimeline`) has its own `tests/e2e/timeline.spec.ts`. TKT-42
+ * extends this file with Awards/Research/Education, the page-foot CTAs + colophon, and the About
+ * OG image (final ticket — `/about` is fully assembled after this).
  */
 import { test, expect } from "./fixtures";
 
@@ -145,6 +146,131 @@ test("Impact renders sourced MetricCards with all three kind badges and no naked
   // Every metric card cites a Source line (MetricCard/SourceCaption, EVAL-013).
   const sourceLines = section.getByText("Source:", { exact: false });
   expect(await sourceLines.count()).toBeGreaterThanOrEqual(1);
+});
+
+// ---------------------------------------------------------------------------
+// Awards — 3 résumé awards, text only, no banner-only credential claims (TKT-42, CONTENT_INVENTORY §4.6).
+// ---------------------------------------------------------------------------
+test("Awards renders exactly 3 résumé awards verbatim; no PMP or SAFe certification claim", async ({
+  page,
+}) => {
+  test.skip(width(page) !== 1440, "award content/count is viewport-independent; checked once at w1440");
+  await page.goto("/about", { waitUntil: "load" });
+
+  const section = page.locator("#awards");
+  await expect(section.getByRole("heading", { name: "Awards" })).toBeVisible();
+
+  await expect(section).toContainText("Google Cloud Partner All-Star: Delivery Excellence");
+  await expect(section).toContainText("2024");
+  await expect(section).toContainText("Annual Unsung Hero Award, Quantiphi Analytics Solutions");
+  await expect(section).toContainText("12 in 11 Award, Godrej Infotech");
+  await expect(section).toContainText("2018");
+
+  await expect(page.locator("body")).not.toContainText("PMP");
+  await expect(page.locator("body")).not.toContainText("SAFe Agilist");
+});
+
+// ---------------------------------------------------------------------------
+// Research — patent 429867 (never the SL-no. misprint), Langmuir DOI link, Soft Matter "DOI pending",
+// rights/safety disclaimer (TKT-42, CONTENT_INVENTORY §4.7).
+// ---------------------------------------------------------------------------
+test("Research renders the patent with number 429867 (no SL-no. variant), the Langmuir DOI link, Soft Matter as DOI pending, and the rights disclaimer", async ({
+  page,
+}) => {
+  test.skip(width(page) !== 1440, "research content is viewport-independent; checked once at w1440");
+  await page.goto("/about", { waitUntil: "load" });
+
+  const section = page.locator("#research");
+  await expect(section.getByRole("heading", { name: "Research" })).toBeVisible();
+
+  // Patent number — the certificate's number, never the résumé's SL No. misprint.
+  await expect(section).toContainText("IN 429867");
+  await expect(page.locator("body")).not.toContainText("044152784");
+  await expect(section).toContainText("Dr. N. Sandhyarani");
+  await expect(section).toContainText("Tushar Pathak");
+  await expect(section).toContainText("Haritha K");
+  await expect(section).toContainText("Dr. Arun R");
+  await expect(section).toContainText("Dr. M. K. Ravi Varma");
+
+  const patentLink = section.getByRole("link", { name: /Pratyasa/ });
+  await expect(patentLink).toHaveAttribute("href", "https://pratyasa.vercel.app");
+
+  // Langmuir DOI is a real, clickable external link (href resolution itself is the crawler's job —
+  // tests/e2e/crawler.ts HEADs every external link site-wide, EVAL-011).
+  const doiLink = section.getByRole("link", { name: /10\.1021\/acs\.langmuir\.5c00784/ });
+  await expect(doiLink).toHaveAttribute("href", "https://doi.org/10.1021/acs.langmuir.5c00784");
+  await expect(doiLink).toHaveAttribute("target", "_blank");
+
+  // Soft Matter — title present, "DOI pending" shown, never a fabricated DOI or a doi.org link for it.
+  await expect(section).toContainText("Topological Phases in Nanoparticle Monolayers");
+  await expect(section).toContainText("DOI pending");
+  const softMatterRow = section.locator("li", { hasText: "Topological Phases in Nanoparticle Monolayers" });
+  await expect(softMatterRow.locator('a[href*="doi.org"]')).toHaveCount(0);
+
+  // Rights/safety disclaimer, verbatim.
+  await expect(section).toContainText(
+    "Patent owned by NIT–Calicut; research prototype, not an approved diagnostic.",
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Education — M.Tech NIT Calicut 2022, B.E. BIT Durg 2016 (TKT-42, CONTENT_INVENTORY §4.8).
+// ---------------------------------------------------------------------------
+test("Education renders both degrees verbatim", async ({ page }) => {
+  test.skip(width(page) !== 1440, "education content is viewport-independent; checked once at w1440");
+  await page.goto("/about", { waitUntil: "load" });
+
+  const section = page.locator("#education");
+  await expect(section.getByRole("heading", { name: "Education" })).toBeVisible();
+  await expect(section).toContainText("M.Tech., Nanotechnology");
+  await expect(section).toContainText("National Institute of Technology Calicut");
+  await expect(section).toContainText("2022");
+  await expect(section).toContainText("B.E., Mechanical Engineering");
+  await expect(section).toContainText("Bhilai Institute of Technology, Durg");
+  await expect(section).toContainText("2016");
+});
+
+// ---------------------------------------------------------------------------
+// Page-foot assembly — SITEMAP order, "Let's talk" → /contact, resume CTA, colophon (TKT-42).
+// ---------------------------------------------------------------------------
+test("/about sections render in SITEMAP order, ending with the page-foot CTAs and colophon", async ({
+  page,
+}) => {
+  test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
+  await page.goto("/about", { waitUntil: "load" });
+
+  // SITEMAP.md's /about row order, exactly: hero → product journey → capability clusters →
+  // impact → experience → awards → research → education → page-foot CTA.
+  const sectionIds = [
+    "product-journey",
+    "capability-clusters",
+    "impact",
+    "experience",
+    "awards",
+    "research",
+    "education",
+    "about-cta",
+  ];
+  const tops = await Promise.all(
+    sectionIds.map(async (id) => {
+      const box = await page.locator(`#${id}`).boundingBox();
+      return box?.y ?? Number.NaN;
+    }),
+  );
+  for (let i = 1; i < tops.length; i++) {
+    expect(tops[i], `#${sectionIds[i]} must sit below #${sectionIds[i - 1]}`).toBeGreaterThan(tops[i - 1] ?? 0);
+  }
+
+  const cta = page.locator("#about-cta");
+  const talkLink = cta.getByRole("link", { name: "Let's talk" });
+  await expect(talkLink).toHaveAttribute("href", "/contact");
+
+  // Resume control: placeholder state (site.resumeAvailable === false) reads "Resume — updating"
+  // and points at /contact#resume (lib/site.ts resumeAction()) — never a hard-coded /resume.pdf.
+  const resumeLink = cta.getByRole("link", { name: /Resume/ });
+  await expect(resumeLink).toBeVisible();
+
+  await expect(page.locator("body")).toContainText("Designed and built with Claude Code");
 });
 
 // ---------------------------------------------------------------------------
