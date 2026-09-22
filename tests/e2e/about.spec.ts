@@ -14,8 +14,9 @@
  *               transform (the header/card-hover reduced-motion checks already live in
  *               eval-010.spec.ts; this is ProductJourney's own, new with this ticket).
  *
- * TSK-24 (capability clusters + Impact), TKT-41 (`ExperienceTimeline`) and TKT-42 (Awards/Research/
- * Education + About OG) extend `/about` later — this file only exercises what TSK-23 ships.
+ * TSK-24 extends this file with `CapabilityClusters` ("What I Bring") and `Impact` (`MetricCard`
+ * shape) below. TKT-41 (`ExperienceTimeline`) and TKT-42 (Awards/Research/Education + About OG)
+ * extend `/about` later.
  */
 import { test, expect } from "./fixtures";
 
@@ -83,6 +84,67 @@ test("ProductJourney renders exactly 4 stages with no click interaction and no g
   // M-006 default: the 2019–2022 gap note is omitted pending Tushar's framing (Design.md TKT-40 AC 3).
   await expect(section).not.toContainText("2019");
   await expect(section).not.toContainText("NIT Calicut");
+});
+
+// ---------------------------------------------------------------------------
+// CapabilityClusters — "What I Bring", 4 clusters from data/skills.ts, items verbatim.
+// ---------------------------------------------------------------------------
+test("CapabilityClusters renders the 4 skill clusters with items verbatim; SAFe only as a methodology", async ({
+  page,
+}) => {
+  test.skip(width(page) !== 1440, "cluster content/count is viewport-independent; checked once at w1440");
+  await page.goto("/about", { waitUntil: "load" });
+
+  const section = page.locator("#capability-clusters");
+  await expect(section.getByRole("heading", { name: "What I Bring" })).toBeVisible();
+
+  await expect(section.getByText("Product", { exact: true })).toBeVisible();
+  await expect(section.getByText("AI & GenAI", { exact: true })).toBeVisible();
+  await expect(section.getByText("Technology", { exact: true })).toBeVisible();
+  await expect(section.getByText("Execution", { exact: true })).toBeVisible();
+
+  // A sample of verbatim items from CONTENT_INVENTORY §4.3 (data/skills.ts), one per cluster.
+  await expect(section).toContainText("Strategy, vision & roadmap");
+  await expect(section).toContainText("RAG with citation validation (RailCite)");
+  await expect(section).toContainText("Supabase/Postgres (RLS, pgvector)");
+  await expect(section).toContainText("Jira / Azure DevOps");
+
+  // "SAFe" appears only as a bare methodology label, never a certification claim.
+  await expect(section.getByText("SAFe", { exact: true })).toBeVisible();
+  await expect(page.locator("body")).not.toContainText("SAFe Agilist");
+  await expect(page.locator("body")).not.toContainText("PMP");
+});
+
+// ---------------------------------------------------------------------------
+// Impact — MetricCard shape, sourced + dated, kind badges present, no naked numbers.
+// ---------------------------------------------------------------------------
+test("Impact renders sourced MetricCards with all three kind badges and no naked numbers", async ({
+  page,
+}) => {
+  test.skip(width(page) !== 1440, "metric content/count is viewport-independent; checked once at w1440");
+  await page.goto("/about", { waitUntil: "load" });
+
+  const section = page.locator("#impact");
+  await expect(section.getByRole("heading", { name: "Impact" })).toBeVisible();
+
+  // Every metric kind used by data/impact.ts (TKT-40 AC 2) renders its badge.
+  await expect(section.getByText("Measured", { exact: true }).first()).toBeVisible();
+  await expect(section.getByText("Structural", { exact: true })).toBeVisible();
+  await expect(section.getByText("Self-reported", { exact: true }).first()).toBeVisible();
+
+  // Reused-from-projects.ts figures (parity check at the UI layer, not just the data layer).
+  await expect(section).toContainText("5,760");
+  await expect(section).toContainText("14,406");
+  await expect(section).toContainText("0");
+  await expect(section).toContainText("Invented citations");
+
+  // Every rendered value carries a label + an "as of" freshness caption (never a naked number).
+  const asOfCaptions = section.getByText(/^as of \d{1,2} \w+ \d{4}$/);
+  expect(await asOfCaptions.count()).toBeGreaterThanOrEqual(1);
+
+  // Every metric card cites a Source line (MetricCard/SourceCaption, EVAL-013).
+  const sourceLines = section.getByText("Source:", { exact: false });
+  expect(await sourceLines.count()).toBeGreaterThanOrEqual(1);
 });
 
 // ---------------------------------------------------------------------------
