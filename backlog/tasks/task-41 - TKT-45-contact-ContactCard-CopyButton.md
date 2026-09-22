@@ -1,9 +1,10 @@
 ---
 id: TASK-41
 title: 'TKT-45: /contact - ContactCard + CopyButton'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 07:33'
 labels:
   - P1
   - 'sp:2'
