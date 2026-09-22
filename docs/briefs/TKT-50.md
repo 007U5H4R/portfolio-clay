@@ -1,0 +1,32 @@
+# Brief — TKT-50 (CODE-ONLY slice) · Security headers + Analytics + pre-deploy guard · TASK-46
+
+**You are a fresh implementer subagent. Self-contained brief — no prior chat context.** This is the **code-only** slice of TKT-50. The deploy actions are HARD-STOPPED (see below) — do NOT do them. Scope is exactly the code + tests + docs listed here. Read cited files yourself.
+
+## Repo / environment
+- Root: `/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay/` — **everything on E Drive**. Branch `m-007-quality` (checked out). Commit here, not `main`. Small logical commits.
+- Stack: Next.js 16.3.5 (App Router, **static generation, served by Next on Vercel — NOT `output:export`**, so `next.config` `headers()` apply), React 19, Tailwind 4, pnpm 11.25.0, node 26.7.0.
+- Keep typecheck/lint/build green. No threshold weakening (EV2). Don't touch content/data truth, the cinematic site, or `portfolio/index.html`.
+- Host memory-tight; any Playwright/eval run FOREGROUND via `pnpm run test:e2e` / `pnpm eval` (they load `.env.tooling` → `PLAYWRIGHT_BROWSERS_PATH` on E Drive). NEVER raw `pnpm exec playwright test` (misses the browser path → false "Executable doesn't exist"). NEVER a background Monitor.
+
+## 🛑 HARD-STOP — do NOT cross (build up to, leave turnkey)
+Do NOT: create/`git remote add`/push to a GitHub repo; create or link a Vercel project; run `vercel`/`npx vercel`/deploy; buy a domain; deploy a preview or production. Those are Tushar's account-scoped/irreversible actions. Your job is to make the CODE + config + tests + rollback doc so that when Tushar approves, the deploy is turnkey. Where an AC can only be satisfied on a live preview URL (headers curl, deployed-bundle PII grep, videos play, `eval-run-preview`), WRITE the check/step into `docs/deploy.md` as a turnkey command and mark it "deferred to preview" — do not fake a result.
+
+## Scope (code/tests/docs only)
+1. **Security headers** — add `async headers()` to `next.config.ts` per `technical-plan.md` **TP9** (read it — the headers/CSP section). Include: a **Content-Security-Policy** appropriate for a static site with no third-party scripts **except Vercel Analytics + Speed Insights** (so the CSP must allow their endpoints — e.g. `script-src` for `va.vercel-scripts.com`, `connect-src` for `*.vercel-insights.com` / `vitals.vercel-insights.com`; verify the exact hosts the installed `@vercel/analytics`/`@vercel/speed-insights` v2 use); plus `X-Content-Type-Options: nosniff`, `Referrer-Policy` (e.g. `strict-origin-when-cross-origin`), `Permissions-Policy` (lock down camera/microphone/geolocation etc.), and `Strict-Transport-Security` (HSTS). Apply to all routes. Keep it minimal and correct — don't break the site's own inline styles/fonts (Next injects some inline; use the right `style-src`/`font-src`; Google Fonts if used needs `fonts.gstatic.com`/`fonts.googleapis.com`). Prefer nonce/hash only if already patterned; otherwise a pragmatic static-site CSP is acceptable — document any `'unsafe-inline'` you must keep and why.
+2. **Analytics wiring** — `@vercel/analytics` and `@vercel/speed-insights` are ALREADY in `package.json`. Add `<Analytics/>` and `<SpeedInsights/>` (their `/next` entrypoints) to `app/layout.tsx`. They no-op off Vercel, so this is safe locally. Confirm the build still emits all-static routes (they must not force dynamic rendering).
+3. **Pre-deploy guard** — CREATE `scripts/predeploy-check.ts` per `technical-plan.md` line ~371 spec. It runs as the first step of the build chain (wire into `prebuild`/`vercel-build` per the existing script chain — check `package.json`). Failure modes (each with a Vitest case in `tests/unit/predeploy.test.ts`, AC8):
+   - `public/resume.pdf` exists AND the resume-PII check would fail (run `pdftotext` if available, else **fail closed** with "cannot verify PDF").
+   - `resumeAvailable === true` without a passing PDF.
+   - any of `public/video/{teachspark,railcite,velora}.mp4` missing or >4 MB **only when `VERCEL_ENV === 'production'`** (PB4 — previews may ship without them; do NOT fail the local/preview build for missing videos).
+   - forbidden strings hit (reuse `scripts/forbidden-strings.ts`).
+   Today `resumeAvailable` is false and no resume.pdf/videos exist, so on a non-production run the guard must PASS. Prove each failure mode fires with a unit test (construct the failing condition in a temp dir/env, assert non-zero/throw), and that the clean current state passes.
+4. **`pnpm audit` gate** — run `pnpm audit --audit-level high`. There is an accepted risk **EXE-2**: two dev-only `extract-zip` high advisories are allowlisted via `auditConfig.ignoreGhsas` in package.json. Confirm 0 high/critical **beyond** those. If new advisories appear, report them (don't silently ignore).
+5. **`docs/deploy.md`** — write the turnkey deploy runbook: exact steps Tushar/you-later will run (GitHub repo create + remote add + push; Vercel project create via Vercel MCP `create_git_project` or `npx vercel link` after confirming team/project scope; set `NEXT_PUBLIC_SITE_URL`; deploy preview; the deferred preview-only checks = header `curl -sI`, deployed-bundle PII grep, 3 featured videos play, `pnpm eval --base-url <preview> --label eval-run-preview-<sha>`); the **rollback path** (redeploy previous build); and a note that videos + resume PDF are Tushar-supplied and gate production only.
+
+## Constraints / notes
+- Verify the CSP doesn't break the running site locally: `pnpm build && pnpm start` then load `/` and check the browser console for CSP violations (foreground; reap `:3000` after). If Google Fonts / inline styles trip it, fix the CSP to allow exactly what's needed — do not just drop to a permissive `*`.
+- `NEXT_PUBLIC_SITE_URL` unset on preview (fallback chain already exists from TKT-06 — don't break it); it's set at production (TKT-53).
+- Commit trailer `Co-Authored-By: <your actual session model> <noreply@anthropic.com>`.
+
+## Report to `docs/reports/TKT-50.md`
+The headers added (list each + the final CSP, and any `'unsafe-inline'` kept + why); analytics wiring + confirmation routes stay static; `predeploy-check.ts` behaviour + the per-failure-mode unit tests (each proven to fire); `pnpm audit` result (0 beyond EXE-2?); `docs/deploy.md` summary + the explicit list of preview-only checks deferred turnkey; local CSP-violation check result; gate status (typecheck/lint/build); files changed + SHAs; confirm NO deploy/remote/Vercel action was taken.
