@@ -3,9 +3,14 @@
  * public route at 390 / 768 / 1024 / 1440: no horizontal page overflow, every visible control
  * ≥ 44×44 (documented allowlist aside), and no visible text below the 14px caption floor.
  *
- * LIVE now: no-overflow on all four routes; 44px-target check on every route, /contact included;
- * the 14px content-text floor on `/`, with a documented `data-micro-label` exception (EXE-7,
- * `decisions.md`) for small non-content brand labels.
+ * LIVE now: no-overflow, 44px-target, AND the 14px content-text floor all run on every public
+ * route — home, /work, every personal `/work/<slug>` case study, /about, /thinking, every
+ * `/thinking/<slug>` essay, /playground, /contact (TKT-47) — with a documented `data-micro-label`
+ * exception (EXE-7, `decisions.md`) for small non-content brand labels. The route list is DERIVED
+ * from the same sources `app/sitemap.ts` composes (`STATIC_ROUTES` + personal `projects` +
+ * `writing`), never hard-coded, so a new case study or essay is swept automatically instead of
+ * silently going unchecked (TKT-47 QA-tester finding: the old `tests/e2e/routes.json` static list
+ * only had `/work/teachspark`, missing 10 case studies + 5 essays).
  *
  * RESOLVED (EXE-7 · EVAL-008 findings from the original broadened sweep):
  *   • /contact 44px target — the "email me" action is now a `ClayButton` (min-h-11/min-w-11) on
@@ -20,9 +25,19 @@
  * Each test title carries the literal `@EVAL-0xx` token so it surfaces in `playwright test --list`.
  */
 import { test, expect } from "./fixtures";
-import { STATIC_ROUTES, DEV_ROUTES } from "./routes";
+import { DEV_ROUTES } from "./routes";
+import { STATIC_ROUTES } from "@/app/sitemap";
+import { projects } from "@/data/projects";
+import { writing } from "@/data/writing";
 
-const ROUTES = [...STATIC_ROUTES, ...(process.env.ALLOW_DEV_ROUTES ? DEV_ROUTES : [])];
+// Full public-route sweep set (TKT-47), derived the same way `app/sitemap.ts` builds its entries —
+// not the stale `tests/e2e/routes.json` static list (which only covered `/work/teachspark`).
+const CASE_STUDY_ROUTES = projects
+  .filter((project) => project.category === "personal")
+  .map((project) => `/work/${project.slug}`);
+const ESSAY_ROUTES = writing.map((essay) => `/thinking/${essay.slug}`);
+const PUBLIC_ROUTES = [...STATIC_ROUTES, ...CASE_STUDY_ROUTES, ...ESSAY_ROUTES];
+const ROUTES = [...PUBLIC_ROUTES, ...(process.env.ALLOW_DEV_ROUTES ? DEV_ROUTES : [])];
 const MIN_FONT_PX = 14;
 const MICRO_LABEL_MIN_PX = 12;
 const MICRO_LABEL_MIN_CONTRAST = 4.5; // WCAG AA, normal text
@@ -48,17 +63,18 @@ for (const route of ROUTES) {
   });
 }
 
-// LIVE (EXE-7): content text ≥14px is enforced; `data-micro-label` elements (documented brand
-// micro-labels — header wordmark subtitle, "TP" monogram) are exempt from the 14px floor but must
-// still clear ≥12px AND WCAG AA contrast (≥4.5:1) against their resolved background — never a
-// blanket escape hatch for content copy.
-test(`@EVAL-008 no visible content text below ${MIN_FONT_PX}px (data-micro-label exempt, ≥${MICRO_LABEL_MIN_PX}px + AA contrast)`, {
-  tag: "@EVAL-008",
-}, async ({ page }) => {
-  const FONT_FLOOR = MIN_FONT_PX - 0.5; // sub-pixel tolerance for a nominal 14px
-  const MICRO_FLOOR = MICRO_LABEL_MIN_PX - 0.5; // sub-pixel tolerance for a nominal 12px
-  await page.goto("/", { waitUntil: "load" });
-  const offenders = await page.evaluate(
+// LIVE (EXE-7): content text ≥14px is enforced on every public route; `data-micro-label` elements
+// (documented brand micro-labels — header wordmark subtitle, "TP" monogram) are exempt from the
+// 14px floor but must still clear ≥12px AND WCAG AA contrast (≥4.5:1) against their resolved
+// background — never a blanket escape hatch for content copy.
+for (const route of ROUTES) {
+  test(`@EVAL-008 no visible content text below ${MIN_FONT_PX}px · ${route} (data-micro-label exempt, ≥${MICRO_LABEL_MIN_PX}px + AA contrast)`, {
+    tag: "@EVAL-008",
+  }, async ({ page }) => {
+    const FONT_FLOOR = MIN_FONT_PX - 0.5; // sub-pixel tolerance for a nominal 14px
+    const MICRO_FLOOR = MICRO_LABEL_MIN_PX - 0.5; // sub-pixel tolerance for a nominal 12px
+    await page.goto(route, { waitUntil: "load" });
+    const offenders = await page.evaluate(
     ({ floor, microFloor, minContrast }) => {
       // Canvas fillStyle parses any CSS color (rgb/oklch/hsl/…) and rendering resolves it to sRGB
       // bytes, sidestepping getComputedStyle's color-function serialization differences.
@@ -149,11 +165,12 @@ test(`@EVAL-008 no visible content text below ${MIN_FONT_PX}px (data-micro-label
           });
         }
       }
-      return out;
-    },
-    { floor: FONT_FLOOR, microFloor: MICRO_FLOOR, minContrast: MICRO_LABEL_MIN_CONTRAST },
-  );
-  expect(offenders, `visible text below the font floor:\n${JSON.stringify(offenders, null, 2)}`).toEqual(
-    [],
-  );
-});
+        return out;
+      },
+      { floor: FONT_FLOOR, microFloor: MICRO_FLOOR, minContrast: MICRO_LABEL_MIN_CONTRAST },
+    );
+    expect(offenders, `visible text below the font floor:\n${JSON.stringify(offenders, null, 2)}`).toEqual(
+      [],
+    );
+  });
+}
