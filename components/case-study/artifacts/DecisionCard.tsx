@@ -18,7 +18,9 @@ export function DecisionCard({ artifact, source }: DecisionCardProps) {
   return (
     <ArtifactShell source={source} label="Decision" caption={artifact.caption}>
       <div className="flex flex-col gap-[var(--space-4)]">
-        <h4 className="text-[length:var(--text-body)] font-bold text-ink">{artifact.title}</h4>
+        {/* QA-003 (TKT-48): kept one level below the chapter heading (now `h2`, was `h3`) so the
+            outline stays h1 → h2 → h3 with no skip. */}
+        <h3 className="text-[length:var(--text-body)] font-bold text-ink">{artifact.title}</h3>
         <div className="grid gap-[var(--space-4)] md:grid-cols-2 md:divide-x md:divide-ink/10">
           <div className="flex flex-col gap-[var(--space-2)] md:pr-[var(--space-4)]">
             <p className="inline-flex items-center gap-[var(--space-2)] text-caption font-semibold text-ink">
