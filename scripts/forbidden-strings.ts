@@ -64,6 +64,35 @@ export const PII_PATTERNS = {
   STREET_ADDRESS: /\b(Road|Street|Nagar|Layout|Apartment|Flat No)\b/i,
 } as const;
 
+/**
+ * Résumé-only PII rules (SEC-001, Stage 10) — applied by `scanResumePii` to the extracted PDF text
+ * IN ADDITION to `PII_PATTERNS`. The shared rules above were format-narrow: `1990-05-12`,
+ * `12 May 1990`, `+1 (415) 555-0123`, `98765 43210`, `42 Elm Avenue` and `PIN 560001` all passed the
+ * gate. These broader forms are deliberately NOT part of the source/content scan (`baseRules`):
+ * authored content legitimately carries ISO `asOf` dates (`2026-09-15`), day-month-year dates
+ * ("7 Sep 2026") and 6-digit figures (patent no. 429867) — a résumé's text should carry none of them
+ * except as PII. Each rule is specific (country code / parentheses / labelled postal code) rather
+ * than "any long digit run", so a clean résumé's date ranges and counts never trip it.
+ */
+export const RESUME_PII_PATTERNS: ReadonlyArray<{ name: string; re: RegExp }> = [
+  { name: "DOB (dd/mm/yyyy)", re: PII_PATTERNS.DOB },
+  { name: "DOB (ISO yyyy-mm-dd)", re: /\b(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\b/ },
+  {
+    name: "DOB (textual month)",
+    re: /\b(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?,?\s+(19|20)\d{2}\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?,?\s+(19|20)\d{2}\b/i,
+  },
+  { name: "phone-number (+91 / bare 10-digit)", re: PII_PATTERNS.PHONE },
+  { name: "phone-number (international +cc)", re: /\+\d{1,3}[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}\b/ },
+  { name: "phone-number (parenthesised area code)", re: /\(\d{3}\)\s?\d{3}[\s-]?\d{4}\b/ },
+  { name: "phone-number (spaced/dashed 10-digit)", re: /\b\d{5}[\s-]\d{5}\b/ },
+  { name: "street-address keyword", re: PII_PATTERNS.STREET_ADDRESS },
+  {
+    name: "street-address keyword (extended)",
+    re: /\b(Avenue|Ave\.|Lane|Drive|Boulevard|Blvd\.?|Sector|Phase|House No\.?|H\.? ?No\.?|Door No\.?)\b/i,
+  },
+  { name: "postal-code (labelled)", re: /\b(PIN|Pincode|Pin Code|ZIP|Zip Code|Postal Code)\b\s*[:\-]?\s*\d{5,6}\b/i },
+];
+
 /** Base pattern rules (A3 rule 5). Sandbox codes are added at runtime from the local file. */
 function baseRules(): Rule[] {
   return [

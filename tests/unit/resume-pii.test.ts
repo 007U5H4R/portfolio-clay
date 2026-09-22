@@ -25,7 +25,7 @@ import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { site } from "@/lib/site";
-import { PII_PATTERNS } from "@/scripts/forbidden-strings";
+import { PII_PATTERNS, RESUME_PII_PATTERNS } from "@/scripts/forbidden-strings";
 
 const RESUME_PATH = process.env.RESUME_PATH ?? "public/resume.pdf";
 const RESOLVED_PATH = resolve(process.cwd(), RESUME_PATH);
@@ -127,6 +127,15 @@ describe("resume PII gate (TKT-08 S08r.01)", () => {
       "found a street-address keyword (Road/Street/Nagar/Layout/Apartment/Flat No)",
     ).not.toMatch(STREET_ADDRESS_PATTERN);
   });
+
+  // SEC-001 (Stage 10): the real PDF must also clear the résumé-only superset (ISO/textual DOB,
+  // international/parenthesised/spaced phones, Western street keywords, labelled postal codes) —
+  // the same rules `scanResumePii` enforces at `prebuild`, so this test and the deploy gate agree.
+  for (const { name, re } of RESUME_PII_PATTERNS) {
+    it(`contains no ${name} (SEC-001 superset)`, () => {
+      expect(requireExtractedText(), `found what looks like a ${name}`).not.toMatch(re);
+    });
+  }
 
   it(`contains the required marker "${MUST_CONTAIN}"`, () => {
     expect(requireExtractedText()).toContain(MUST_CONTAIN);

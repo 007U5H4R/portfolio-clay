@@ -22,7 +22,7 @@ import { existsSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { site } from "@/lib/site";
-import { PII_PATTERNS, readSandboxCodes, scan } from "./forbidden-strings";
+import { RESUME_PII_PATTERNS, readSandboxCodes, scan } from "./forbidden-strings";
 
 export interface PredeployIssue {
   code: string;
@@ -44,11 +44,10 @@ export interface PredeployResult {
 const FEATURED_VIDEOS = ["teachspark", "railcite", "velora"] as const;
 const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
 
-// CR-005 / CR-008 (Stage 9): the PII rules live ONCE, in `scripts/forbidden-strings.ts` (already
-// imported here, so no `tests/**` dependency). This file previously carried its own hand-copied
-// variant that had drifted: a bare 2-digit year (flagging version-like `12.05.26` as a DOB) and a
-// phone rule matching only 10 *contiguous* digits (letting `+91 98765 43210` through the gate).
-const { DOB: DOB_PATTERN, PHONE: PHONE_PATTERN, STREET_ADDRESS: STREET_ADDRESS_PATTERN } = PII_PATTERNS;
+// CR-005 / CR-008 (Stage 9) + SEC-001 (Stage 10): the PII rules live ONCE, in
+// `scripts/forbidden-strings.ts` (already imported here, so no `tests/**` dependency) — this file
+// previously carried its own hand-copied, drifted variant. `scanResumePii` applies the résumé-only
+// superset `RESUME_PII_PATTERNS` (which includes the shared `PII_PATTERNS`).
 
 export interface PiiScanResult {
   ok: boolean;
@@ -71,10 +70,11 @@ export function scanResumePii(pdfPath: string, env: NodeJS.ProcessEnv = process.
     };
   }
   const text = result.stdout;
-  if (DOB_PATTERN.test(text)) return { ok: false, reason: "resume PDF matches a DOB pattern" };
-  if (PHONE_PATTERN.test(text)) return { ok: false, reason: "resume PDF matches a phone-number pattern" };
-  if (STREET_ADDRESS_PATTERN.test(text)) {
-    return { ok: false, reason: "resume PDF matches a street-address keyword" };
+  // SEC-001 (Stage 10): the résumé gate applies the full résumé-only superset (ISO/textual DOB,
+  // international/parenthesised/spaced phones, Western street keywords, labelled postal codes) —
+  // not just the narrow shared rules that let `1990-05-12` or `+1 (415) 555-0123` through.
+  for (const { name, re } of RESUME_PII_PATTERNS) {
+    if (re.test(text)) return { ok: false, reason: `resume PDF matches a ${name} pattern` };
   }
   return { ok: true };
 }

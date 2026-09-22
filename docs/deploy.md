@@ -100,6 +100,29 @@ missing or any exceeds 4 MB (TKT-22–27 must land first), and PB5 requires `pub
 pass its PII gate before `site.resumeAvailable` is flipped to `true` (TKT-08). This is deliberate:
 production is the one environment that must never ship a placeholder as if it were real content.
 
+### 6a. Custom-domain checklist — HSTS (SEC-002, Stage 10)
+
+`next.config.ts` emits `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+unconditionally. On `*.vercel.app` that is a no-op (the zone is already preloaded). On the custom
+domain it becomes a **commitment**: `preload` is effectively irreversible once submitted to
+hstspreload.org, and `includeSubDomains` hard-fails any HTTP-only subdomain (mail hosts, `www`
+redirects, third-party CNAMEs) for two years in every visitor's browser. Before Stage 11 adds the
+apex domain: (1) confirm every subdomain that will ever exist is HTTPS-only, (2) do **not** submit
+to the preload list until then, and (3) if that can't be guaranteed yet, drop `preload` from the
+header (keep `max-age` + `includeSubDomains`) — the header itself is correct for a single-host site.
+
+### 6b. Vercel preview toolbar — disabled (CR-007 / QA-008, Stage 10)
+
+The project's **Preview Feedback / Toolbar is switched off** (`enablePreviewFeedback: false`, a
+reversible dashboard setting). Vercel injects that toolbar's `https://vercel.live/_next-live/…`
+script on preview deployments, and the site's CSP (`script-src 'self' 'unsafe-inline'
+https://va.vercel-scripts.com`) correctly blocks it — producing a console error that failed the
+smoke test's "no console errors" gate on every preview run. Widening the CSP on previews was
+rejected: header parity between preview and production is the point of TC-114, and an
+env-conditional CSP is a code path that can only be exercised on Vercel. If the toolbar is ever
+wanted, re-enable it and scope the smoke-test console-error allowlist to blocked URIs whose
+**origin** is exactly `https://vercel.live` (never a substring match).
+
 ## 7. Rollback path
 
 Every route is static (TP1) — there is no data-migration surface, so rollback is atomic:

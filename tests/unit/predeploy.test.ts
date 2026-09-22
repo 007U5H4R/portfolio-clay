@@ -87,6 +87,44 @@ describe("scanResumePii (fail-closed PII extraction)", () => {
     expect(result.reason).toMatch(/phone/);
   });
 
+  // SEC-001 (Stage 10): the gate was format-narrow — every one of these forms previously PASSED it.
+  // One case per résumé-only rule so a future regex edit that drops a form fails visibly.
+  const SEC001_FORMS: Array<[label: string, text: string, reason: RegExp]> = [
+    ["ISO DOB", "Born 1990-05-12", /DOB/],
+    ["textual-month DOB (day first)", "Born 12 May 1990", /DOB/],
+    ["textual-month DOB (month first)", "DOB: May 12, 1990", /DOB/],
+    ["international +cc phone", "Mobile +1 (415) 555-0123", /phone/],
+    ["parenthesised area-code phone", "Call (415) 555-0123", /phone/],
+    ["spaced Indian mobile without +91", "Mobile 98765 43210", /phone/],
+    ["dashed Indian mobile", "Mobile 98765-43210", /phone/],
+    ["Western street keyword", "42 Elm Avenue", /street-address/],
+    ["labelled postal code", "Bengaluru, PIN 560001", /postal-code/],
+  ];
+  for (const [label, text, reason] of SEC001_FORMS) {
+    it(`fires on a ${label} (SEC-001)`, () => {
+      const dir = tmp();
+      fakePdftotext(dir);
+      const result = scanResumePii("irrelevant.pdf", { ...process.env, PATH: dir, FAKE_TEXT: text });
+      expect(result.ok, text).toBe(false);
+      expect(result.reason, text).toMatch(reason);
+    });
+  }
+
+  // …and the broader rules must NOT false-positive on the things a clean résumé legitimately says:
+  // year ranges (hyphen and en-dash), a 6-digit patent number, counts like "7+ years".
+  it("passes a clean résumé with date ranges, a patent number and counts (SEC-001 negative fixture)", () => {
+    const dir = tmp();
+    fakePdftotext(dir);
+    const result = scanResumePii("irrelevant.pdf", {
+      ...process.env,
+      PATH: dir,
+      FAKE_TEXT:
+        "Tushar Pathak — Senior Product Manager · Quantiphi 2022-2026 · Godrej Sep 2016 – Dec 2018 · Patent 429867 · 7+ years · 40+ capabilities · Bengaluru, India",
+    });
+    expect(result.reason ?? "").toBe("");
+    expect(result.ok).toBe(true);
+  });
+
   it("fires on a street-address keyword", () => {
     const dir = tmp();
     fakePdftotext(dir);
