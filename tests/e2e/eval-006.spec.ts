@@ -16,7 +16,8 @@
  * The `{ tag }` option is kept as well, so `--grep @EVAL-006` and the JSON-reporter tag mapping
  * (scripts/eval.ts) both keep working.
  */
-import { test } from "./fixtures";
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "./fixtures";
 import { DEV_ROUTES } from "./routes";
 import { STATIC_ROUTES } from "@/app/sitemap";
 import { projects } from "@/data/projects";
@@ -44,3 +45,41 @@ for (const route of ROUTES) {
 
 // AskPanel open-state axe — the panel is built at TKT-10; until then there is nothing to open.
 test.fixme("@EVAL-006 axe clean with the AskPanel open (TKT-10)", { tag: "@EVAL-006" }, async () => {});
+
+// Case-study slugs whose page renders an OverviewToggle ("30-sec" | "Deep dive"): the chapter
+// sections (Chapter.tsx h2, DecisionCard.tsx h3 — QA-003's fix) do not exist in the DOM at all
+// until "Deep dive" is selected (TC-076). A heading-order check against the default 30-sec view
+// would trivially pass regardless of the fix, so this guard is meaningless without opening it first.
+const DEEP_DIVE_SLUGS = new Set(
+  projects.filter((p) => p.category === "personal" && p.overview.deepDive).map((p) => p.slug),
+);
+
+// CF-3 (M-007 carry-forward, QA-003 regression guard): axe's `wcag2a`/`wcag2aa`/`wcag21aa` tags do
+// NOT include `heading-order` (it is tagged `best-practice`), so nothing above would have caught
+// TKT-48's QA-003 defect (every case-study deep-dive view skipped h1 → h3, no h2) if it ever comes
+// back. Run as its own axe pass (`withRules`, not `withTags` — the two are mutually exclusive on one
+// AxeBuilder instance) over the same full route sweep, once per route at 1440 (heading order is a
+// document-structure check, not a per-viewport one) — opening the deep-dive view first on the slugs
+// that have one. Kept as an additive, separate pass — deliberately not folded into the shared `axe`
+// fixture in fixtures.ts, which many other spec files reuse (including partial `include:` scoped
+// checks where a subtree not starting at h1 would be a false positive) — this keeps the regression
+// guard scoped to exactly what QA-003 touched.
+for (const route of PUBLIC_ROUTES) {
+  test(`@EVAL-006 axe heading-order clean (QA-003 regression guard) · ${route}`, { tag: "@EVAL-006" }, async ({ page }) => {
+    test.skip(width(page) !== 1440, "heading-order is a document-structure check — run once per route");
+    // Pre-existing, independent finding surfaced by writing this guard (not a QA-003 regression,
+    // not introduced by this CF-3 batch): `/work`'s h1 is followed directly by each ProjectCard's
+    // h3 (the "PERSONAL BUILDS" h2 eyebrow renders AFTER the card grid in DOM order) — a real
+    // h1→h3 skip. Left as `fixme` (tracked, not silently dropped from the sweep) rather than fixed
+    // here — out of this batch's scope (QA-003/Chapter.tsx only); see docs/reports/carry-forwards.md.
+    test.fixme(route === "/work", "pre-existing heading-order skip on /work, independent of QA-003 — see docs/reports/carry-forwards.md");
+    await page.goto(route, { waitUntil: "load" });
+    const slug = route.startsWith("/work/") ? route.slice("/work/".length) : undefined;
+    if (slug && DEEP_DIVE_SLUGS.has(slug)) {
+      await page.getByRole("radio", { name: "Deep dive" }).click();
+      await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+    }
+    const results = await new AxeBuilder({ page }).withRules(["heading-order"]).analyze();
+    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+  });
+}
