@@ -52,6 +52,23 @@ for (const route of ROUTES) {
   });
 }
 
+// QA-007 (Stage 9): the default-state sweep above never opens "Deep dive", so the chapter/artifact
+// column went unchecked — and overflowed at 390px on 5 case studies (ArtifactGrid, DES-002 → QA-007),
+// caught only by an UNTAGGED case-study test that no EVAL id counted. Every deep-dive case study now
+// runs the same no-overflow assertion with the chapter view open, under the EVAL-008 gate.
+const DEEP_DIVE_ROUTES = projects.filter((p) => p.overview.deepDive).map((p) => `/work/${p.slug}`);
+for (const route of DEEP_DIVE_ROUTES) {
+  test(`@EVAL-008 responsive: no horizontal overflow in Deep dive · ${route}`, { tag: "@EVAL-008" }, async ({
+    page,
+    noOverflow,
+  }) => {
+    await page.goto(route, { waitUntil: "load" });
+    await page.getByRole("radio", { name: "Deep dive" }).click();
+    await page.locator('nav[aria-label="Chapters"]').first().waitFor();
+    await noOverflow(page);
+  });
+}
+
 // EXE-7: /contact's "email me" is now a real ≥44×44 ClayButton — every route runs this check.
 for (const route of ROUTES) {
   test(`@EVAL-008 44px touch targets · ${route}`, { tag: "@EVAL-008" }, async ({

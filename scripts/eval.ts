@@ -632,6 +632,20 @@ async function main(): Promise<void> {
     .filter((c) => c.priority === "critical" && c.status === "FAIL" && !c.informational)
     .map((c) => c.id);
 
+  // Stage 9 scar (QA-007): an `unexpected` Playwright result in an UNTAGGED spec never reached any
+  // EVAL id, so this run exited 0 with `criticalFailures: []` while the suite had 5 real, deterministic
+  // failures (deep-dive overflow at w390 in case-study.spec.ts) — and the M-007 gate's QA-005 before
+  // that. The Playwright suite IS the gate: ANY failing test now fails the run, closed, and the
+  // failing titles are persisted so a report can never quietly omit them.
+  const playwrightUnexpected = specs.flatMap((sp) =>
+    sp.tests.filter((t) => t.status === "unexpected").map((t) => `${sp.title} [${t.projectName}]`),
+  );
+  if (playwrightUnexpected.length > 0) {
+    criticalFailures.push(
+      `PLAYWRIGHT-SUITE (${playwrightUnexpected.length} failing: ${playwrightUnexpected.slice(0, 5).join("; ")})`,
+    );
+  }
+
   const { regressions, improvements } = diffAgainstBaseline(cases, baseline);
   // Regressions on informational cases (perf under swiftshader) are recorded but do not gate.
   const gatingRegressions = regressions.filter((r) => !informationalIds.has(r.id));
@@ -676,6 +690,8 @@ async function main(): Promise<void> {
     totals,
     cases,
     criticalFailures,
+    /** Every failing Playwright test, tagged or not — never silently omitted (Stage-9 QA-007 scar). */
+    playwrightUnexpected,
     regressions,
     improvements,
     runtimeMs: Date.now() - started,

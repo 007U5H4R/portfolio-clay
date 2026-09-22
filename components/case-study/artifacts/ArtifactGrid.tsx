@@ -24,7 +24,14 @@ export function ArtifactGrid({ children, className }: ArtifactGridProps) {
   return (
     <div
       className={[
-        "grid gap-[var(--space-5)] grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))]",
+        // QA-007 (Stage 9): the original DES-002 template `repeat(auto-fit,minmax(min(100%,15rem),1fr))`
+        // at EVERY width made the case-study page's single mobile column intrinsically size to 601px
+        // (=60ch) at a 390px viewport → horizontal overflow (probe-verified: scrollWidth 649). The
+        // pre-Stage-8 mobile behaviour (an explicit single column) was overflow-free, so it is
+        // restored below `md`; auto-fit runs only from `md` up, where the chapter column is always
+        // ≥15rem and the `min(100%,…)` clamp is unnecessary. `min-w-0` lets the grid shrink as a
+        // flex/grid child. DES-002's wins (2-up cards, a lone artifact filling the row) are kept.
+        "grid min-w-0 gap-[var(--space-5)] grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]",
         className,
       ]
         .filter(Boolean)
