@@ -195,3 +195,18 @@ TeachSpark metric date (08-24) · RailCite figure policy (live-with-date) · Cub
 ## Log
 - 2026-09-15 — Stage 7 opened. Read HANDOFF + technical-plan §0/A9/A10/B(M-001)/C/E, verified env. Reconciled stale memory (Solution-PRD was Approved 2026-09-15; memory was pre-sign-off). Setup done. Next: dispatch TSK-01 (opus).
 - 2026-09-22 — Resumed M-006. Host healthy (load ~1.5, 31 GiB free E-Drive) vs earlier contention; kept e2e workers:1 per convention. Campfire up (200). TASK-36.2 → In Progress. Dispatched TSK-23 (sonnet) against docs/briefs/TSK-23.md. Pre-wrote docs/briefs/TSK-24.md + TKT-41.md as DAG lookahead. Awaiting TSK-23 report.
+
+---
+
+## Stage 8 · Design Critique — ✅ COMPLETE 2026-09-22 (branch `m-007-quality`)
+`bw-design-critique` → `impeccable`. A design-reviewer subagent drove the running build at 1440 (its `resize_window` was pinned — mobile via the automated EVAL-008 sweep); orchestrator **independently verified every finding** (dev `:3000` + a prod `next start :3100`, DOM measurement + the deterministic Ask provider) before acting. Report: `docs/reports/DES-findings.md`; decisions `DC1–DC4`.
+**11 findings → 4 fixed · 3 parked · 4 dismissed.**
+- **DES-001 (P0) FIXED `557b85e`** — `ExperimentCard` horizontal row overflowed its 184px card by +193–239px (illegible spill); measured on dev AND prod. → vertical connector always + `min-w-0`; re-measured overflow=false.
+- **DES-002 (P1) FIXED `557b85e`** — `ArtifactGrid` fixed 3-up in the 60ch column = 184px slivers + empty tracks for 1-artifact chapters → `auto-fit minmax(15rem,1fr)`; lone card fills column (601=601), 2-up at 288px. Deviation from literal "3-up ≥1024" (legibility).
+- **DES-004 (P1) FIXED `8175391`** — `/about` Impact 19-card wall (11 self-reported résumé buried the measured numbers) → two tiers: 8 product cards prominent + 11 self-reported in a quieter flat block under an h3. No numbers changed; MetricCard/EVAL-013 + badges preserved.
+- **DES-005 (P1) FIXED `7ec03a1`** — Ask returned empty for "tell me about railcite/teachspark/velora" (+ bare names); confirmed via provider → data-only aliases (railcite/teachspark→ai-products, velora→built); no scoring change, no fabrication, EVAL-012 intact.
+- **DISMISSED:** DES-007 (deep-link — dev-only React StrictMode double-effect; **prod verified working**: hash stays `#experience-amex`, card open); DES-008 (EditorialGrid IS the spec'd asymmetric layout — measured large card 779×782 = 8col/2row); DES-006 (Draft badge = intentional draft-content honesty flag); DES-010 (lowercase "present" = convention).
+- **PARKED:** DES-003 hero-fold (CTA bottom 819px @1440×748; local-display artifact, NOT re-tuned → routed to Tushar's manual EVAL-001 spot-check, see DC4); DES-009 (→ Stage-9 truth pass); DES-011 (spec-satisfied — email is a clipboard-error fallback).
+**Gate:** typecheck/lint 0 · build all-static(13) · vitest 298 pass/2 skip · e2e about+eval-006+eval-008 **349 pass/0 fail** (390/768/1024/1440). Web-deliverables: mobile PASS · four-states PASS · link-preview PASS (live inspector deferred). No threshold weakened; no content truth changed.
+**New carry-forwards:** regenerate `docs/screenshots/about/*` (predate the Impact retier); DES-009 wording harmonisation at Stage 9.
+**NEXT = Stage 9** (`bw-code-review-test-eval`): `/code-review` on `main..m-007-quality` + full `pnpm eval` record run. Do NOT merge/deploy before the Stage-10 QA-report gate.
