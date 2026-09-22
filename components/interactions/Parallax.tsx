@@ -54,6 +54,10 @@ export function Parallax({ depth, maxPx, className, children }: ParallaxProps) {
     };
     const unsubX = springX.on("change", apply);
     const unsubY = springY.on("change", apply);
+    // CR-009 (Stage 9): sync once on (re)activation. `apply` only ran on spring *change*, so when
+    // `active` flipped false→true the freshly-mounted element sat untransformed while the springs
+    // still held their last non-zero values — until the next pointermove snapped it into place.
+    apply();
 
     const onPointerMove = (event: PointerEvent) => {
       // Normalise pointer position to [-1, 1] around the viewport centre, scale to maxPx, apply direction.
