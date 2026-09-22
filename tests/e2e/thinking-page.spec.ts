@@ -52,6 +52,32 @@ test("ThinkingList renders the empty-state line + all 5 DRAFT rows with a Draft 
   await expect(page.locator("ol")).not.toContainText("2026-");
 });
 
+// ---------------------------------------------------------------------------
+// a11y regression guard (post-acceptance review): every essay title must be reachable by
+// screen-reader heading navigation, not just visually styled with the h3 token. The page's
+// heading outline must stay h1 -> h2 -> h3 with no skipped level.
+// ---------------------------------------------------------------------------
+test("every essay title is reachable as a level-3 heading, with no skipped heading level", async ({
+  page,
+}) => {
+  test.skip(width(page) !== 1440, "heading structure is viewport-independent; checked once at w1440");
+  await page.goto("/thinking", { waitUntil: "load" });
+
+  // Scoped to <main> (app/layout.tsx `id="main"`) — the global Footer carries its own h2
+  // ("Still curious…") on every route, which is a later sibling, not a skip (h1 -> h2 -> h3 -> h2
+  // never jumps a level deeper than the previous heading), but scoping keeps this page's own
+  // heading outline the thing under test.
+  const main = page.locator("#main");
+  await expect(main.getByRole("heading", { level: 1 })).toHaveText("Thinking");
+  await expect(main.getByRole("heading", { level: 2 })).toHaveCount(1);
+
+  const essayHeadings = main.getByRole("heading", { level: 3 });
+  await expect(essayHeadings).toHaveCount(5);
+  for (const essay of writing) {
+    await expect(essayHeadings.filter({ hasText: essay.title })).toHaveCount(1);
+  }
+});
+
 test("a list row navigates to its essay page", async ({ page }) => {
   test.skip(width(page) !== 1440, "navigation checked once at w1440");
   await page.goto("/thinking", { waitUntil: "load" });

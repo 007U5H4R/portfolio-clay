@@ -17,6 +17,12 @@ export interface ThinkingListProps {
  * list itself still shows all 5 DRAFT rows underneath it (AC2/AC3: never silently hide the drafts,
  * never imply one is finished). Each row carries a "Draft — pending sign-off" `Tag` so the DRAFT
  * status is visible without opening the essay.
+ *
+ * The title renders as a real `<h3>` nested inside the row `<a>` (same transparent-content-model
+ * pattern `ProjectCard.tsx` already uses) — a plain `<span>` styled with the h3 token passed axe
+ * (axe doesn't flag a *missing* heading, only skipped order on ones that exist) but left every
+ * essay title unreachable by screen-reader heading navigation. `app/thinking/page.tsx` adds the
+ * matching `h2` this relies on so the document's heading order stays h1 → h2 → h3 with no skip.
  */
 export function ThinkingList({ essays }: ThinkingListProps) {
   const publishedCount = essays.filter((essay) => !essay.draft).length;
@@ -44,9 +50,9 @@ export function ThinkingList({ essays }: ThinkingListProps) {
               </span>
               <span className="flex flex-1 flex-col gap-[var(--space-2)]">
                 <span className="flex flex-wrap items-center gap-[var(--space-3)]">
-                  <span className="text-[length:var(--text-h3)] font-bold text-ink">
+                  <h3 className="text-[length:var(--text-h3)] font-bold text-ink">
                     {essay.title}
-                  </span>
+                  </h3>
                   {essay.draft ? <Tag>Draft — pending sign-off</Tag> : null}
                 </span>
                 <span className="text-[length:var(--text-body)] text-ink-2">{essay.dek}</span>
