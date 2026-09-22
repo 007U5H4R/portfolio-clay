@@ -24,7 +24,9 @@ export const knowledge: KnowledgeEntry[] = [
   {
     id: "built",
     prompt: "What products have you built?",
-    aliases: ["what have you shipped", "show me your projects", "what have you made"],
+    // DES-005 (Stage-8): "tell me about velora" (the vendor-onboarding build listed here) routes to
+    // this projects answer via exact-signature match — same rationale as the ai-products aliases.
+    aliases: ["what have you shipped", "show me your projects", "what have you made", "tell me about velora"],
     keywords: [
       { term: "built", weight: 2 },
       { term: "teachspark", weight: 1 },
@@ -71,7 +73,19 @@ export const knowledge: KnowledgeEntry[] = [
   {
     id: "ai-products",
     prompt: "What AI products have you worked on?",
-    aliases: ["which AI things did you build", "tell me about your AI work", "what genai have you shipped"],
+    // DES-005 (Stage-8 critique): a visitor naming a flagship AI product by name ("tell me about
+    // railcite", "teachspark", "what is railcite") previously fell below the keyword-fraction
+    // threshold → the empty state, even though this entry describes both products. These aliases
+    // route those phrasings to this same (unchanged) answer via an exact-signature match — they all
+    // normalise to the bare product token, so "tell me about X" / "what is X" / "X" resolve alike.
+    // No score/threshold change and no new answer text: the no-fabrication invariant is untouched.
+    aliases: [
+      "which AI things did you build",
+      "tell me about your AI work",
+      "what genai have you shipped",
+      "tell me about railcite",
+      "tell me about teachspark",
+    ],
     keywords: [
       { term: "ai", weight: 2 },
       { term: "built", weight: 1 },
