@@ -1,9 +1,10 @@
 ---
 id: TASK-37
 title: 'TKT-41: ExperienceTimeline + TimelineNode + StoryCard (URL hash per role)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 05:57'
 labels:
   - P1
   - 'sp:5'
