@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AboutHero } from "@/components/about/AboutHero";
 import { CapabilityClusters } from "@/components/about/CapabilityClusters";
 import { Impact } from "@/components/about/Impact";
+import { ExperienceTimeline } from "@/components/timeline/ExperienceTimeline";
 import { ProductJourney } from "@/components/timeline/ProductJourney";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -36,8 +37,10 @@ export default function AboutPage() {
       <ProductJourney />
       <CapabilityClusters />
       <Impact />
-      {/* TKT-41's ExperienceTimeline mounts at this anchor. */}
-      <div id="experience" />
+      {/* TKT-41: ExperienceTimeline renders its own `<section id="experience">` (the `/work`
+          ExperienceStrip and Ask evidence deep-link to `/about#experience` and, per role,
+          `/about#experience-{id}`). It is a client component whose section HTML still prerenders. */}
+      <ExperienceTimeline />
     </>
   );
 }
