@@ -1,9 +1,10 @@
 ---
 id: TASK-43
 title: 'TKT-47: Responsive sweep - every route at 390/768/1024/1440'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 15:13'
 labels:
   - P1
   - 'sp:3'
@@ -43,8 +44,8 @@ Source: tickets.md § TKT-47.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 0 overflow, 0 sub-44px controls, 0 sub-14px text across all routes x widths.
-- [ ] #2 Screenshot pack committed.
-- [ ] #3 Defects fixed or logged as `QA-###` with reason.
-- [ ] #4 `pnpm eval --only EVAL-008` green.
+- [x] #1 0 overflow, 0 sub-44px controls, 0 sub-14px text across all routes x widths.
+- [x] #2 Screenshot pack committed.
+- [x] #3 Defects fixed or logged as `QA-###` with reason.
+- [x] #4 `pnpm eval --only EVAL-008` green.
 <!-- AC:END -->
