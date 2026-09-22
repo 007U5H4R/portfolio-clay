@@ -180,8 +180,17 @@ export async function checkExternal(url: string): Promise<FetchOutcome> {
   return outcome;
 }
 
-/** Fetch an internal URL (GET, same-origin) and return its status + body for hash-target checks. */
-async function getInternal(url: string): Promise<{ status: number; body: string } | null> {
+type InternalFetch =
+  | { status: number; body: string }
+  | { failed: true; timeout: boolean; detail: string };
+
+/**
+ * Fetch an internal URL (GET, same-origin) and return its status + body for hash-target checks.
+ * SF-4 (Stage 9): never collapses a failure to a bare `null` — the caller gets the real error text
+ * and whether it was a timeout, so a slow local server is classified `warn` (unconfirmed, exactly
+ * like `checkExternal`'s CF-1 rule) instead of a hard `dead` with the diagnostic thrown away.
+ */
+async function getInternal(url: string): Promise<InternalFetch> {
   await acquire();
   try {
     const res = await fetch(url, {
@@ -192,8 +201,14 @@ async function getInternal(url: string): Promise<{ status: number; body: string 
     });
     const body = await res.text();
     return { status: res.status, body };
-  } catch {
-    return null;
+  } catch (err) {
+    const timeout = isTimeoutError(err);
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      failed: true,
+      timeout,
+      detail: timeout ? `timeout after ${EXTERNAL_TIMEOUT_MS}ms — unconfirmed, not dead` : message,
+    };
   } finally {
     release();
   }
@@ -493,8 +508,16 @@ export async function classifyControl(
       const owner = KNOWN_UNBUILT[cls.path];
       const url = ctx.baseUrl + cls.path;
       const res = await getInternal(url);
-      if (!res) {
-        return { ...base, kind: "internal-link", target: cls.path, verdict: "dead", detail: "fetch failed" };
+      if ("failed" in res) {
+        // SF-4: a timeout is "unconfirmed" (warn), mirroring checkExternal; anything else is dead —
+        // and either way the real error text is kept instead of a bare "fetch failed".
+        return {
+          ...base,
+          kind: "internal-link",
+          target: cls.path,
+          verdict: res.timeout ? "warn" : "dead",
+          detail: `fetch failed: ${res.detail}`,
+        };
       }
       const status2xx = res.status >= 200 && res.status <= 299;
       if (!status2xx) {
