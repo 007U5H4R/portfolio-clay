@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Caveat } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
@@ -59,6 +61,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main">{children}</main>
           <Footer />
         </AskProvider>
+        {/*
+          Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less, no-op off Vercel
+          (they render nothing and inject no script when not served by the Vercel platform), so
+          this is safe in local dev/build and does not affect SSG (routes stay static — TP1;
+          verified by scripts/assert-static.ts after `pnpm build`).
+        */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
