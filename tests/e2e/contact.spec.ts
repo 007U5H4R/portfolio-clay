@@ -185,6 +185,65 @@ test("CopyButton falls back to selectable text when the clipboard is blocked", a
 });
 
 // ---------------------------------------------------------------------------
+// @EVAL-007 — CopyButton is fully keyboard-operable: Tab reaches it, the shared 3px accent focus
+// ring is visible, and Enter/Space both activate it (TKT-48; closes the /contact CopyButton
+// keyboard-e2e follow-up flagged in M-006).
+// ---------------------------------------------------------------------------
+test("@EVAL-007 CopyButton: Tab focuses it with a visible ring, Enter and Space both copy", {
+  tag: "@EVAL-007",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "keyboard sweep runs once at a desktop width");
+
+  await page.addInitScript(() => {
+    (window as unknown as { __copied: string[] }).__copied = [];
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: (v: string) => {
+          (window as unknown as { __copied: string[] }).__copied.push(v);
+          return Promise.resolve();
+        },
+      },
+    });
+  });
+  await page.goto("/contact", { waitUntil: "load" });
+
+  const button = page.locator("main [data-copy-button]");
+  await button.focus();
+  await expect(button).toBeFocused();
+
+  // The focused button wears the shared 3px solid accent ring (EVAL-007).
+  const accent = await page.evaluate(() => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--color-accent)";
+    document.body.appendChild(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  });
+  const ring = await button.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
+  });
+  expect(ring.w).toBe("3px");
+  expect(ring.style).toBe("solid");
+  expect(ring.color).toBe(accent);
+
+  // Enter activates the native button.
+  await page.keyboard.press("Enter");
+  await expect(button).toHaveAttribute("data-state", "copied");
+
+  // Wait out the 2s copied→idle revert, then Space activates it too.
+  await expect(button).toHaveAttribute("data-state", "idle", { timeout: 3000 });
+  await button.focus();
+  await page.keyboard.press("Space");
+  await expect(button).toHaveAttribute("data-state", "copied");
+
+  const copied = await page.evaluate(() => (window as unknown as { __copied: string[] }).__copied);
+  expect(copied).toEqual([site.email, site.email]);
+});
+
+// ---------------------------------------------------------------------------
 // Screenshot pack (TDD gate item 7).
 // ---------------------------------------------------------------------------
 test("screenshot pack", async ({ page }) => {
