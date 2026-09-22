@@ -122,8 +122,21 @@ async function headOnce(url: string, method: "HEAD" | "GET"): Promise<Response> 
 }
 
 /**
+ * True for the abort/timeout error thrown when `AbortSignal.timeout(EXTERNAL_TIMEOUT_MS)` fires —
+ * Node's fetch (undici) throws a `DOMException`/`Error` named `TimeoutError` or `AbortError`
+ * depending on runtime. A timeout means "this bot couldn't confirm it in N seconds" (the external
+ * host may still be perfectly live for a human), never "the link is dead" — same class of leniency
+ * as the existing `BOT_BLOCK_STATUSES` → WARN handling (EVAL-011 robustness, CF-1).
+ */
+export function isTimeoutError(err: unknown): boolean {
+  const name = (err as { name?: string } | undefined)?.name;
+  return name === "AbortError" || name === "TimeoutError";
+}
+
+/**
  * Check an external URL. HEAD first (falling back to GET on 405), retry once after 2 s on 429/5xx.
- * 200–399 ⇒ ok; 403 from a known bot-blocking host ⇒ warn; anything else ⇒ dead. Cached per run.
+ * 200–399 ⇒ ok; 403 from a known bot-blocking host ⇒ warn; a timeout ⇒ warn (unconfirmed, not dead);
+ * anything else ⇒ dead. Cached per run.
  */
 export async function checkExternal(url: string): Promise<FetchOutcome> {
   const cached = fetchCache.get(url);
@@ -137,7 +150,9 @@ export async function checkExternal(url: string): Promise<FetchOutcome> {
       res = await headOnce(url, "HEAD");
       if (res.status === 405) res = await headOnce(url, "GET");
     } catch (err) {
-      outcome = { verdict: "dead", status: null, detail: `fetch error: ${(err as Error).message}` };
+      outcome = isTimeoutError(err)
+        ? { verdict: "warn", status: null, detail: `timeout after ${EXTERNAL_TIMEOUT_MS}ms — unconfirmed, not dead` }
+        : { verdict: "dead", status: null, detail: `fetch error: ${(err as Error).message}` };
       fetchCache.set(url, outcome);
       return outcome;
     }
