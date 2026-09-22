@@ -4,7 +4,7 @@ import { buildMetadata, siteUrl } from "@/lib/seo";
 // A1/A8 env chain: NEXT_PUBLIC_SITE_URL (prod) -> VERCEL_PROJECT_PRODUCTION_URL ->
 // VERCEL_URL (previews) -> http://localhost:3000. Every case clears all three first so results
 // never depend on the ambient shell/CI environment.
-const ENV_KEYS = ["NEXT_PUBLIC_SITE_URL", "VERCEL_PROJECT_PRODUCTION_URL", "VERCEL_URL"] as const;
+const ENV_KEYS = ["NEXT_PUBLIC_SITE_URL", "VERCEL_PROJECT_PRODUCTION_URL", "VERCEL_URL", "VERCEL_ENV"] as const;
 
 function clearSiteEnv() {
   for (const key of ENV_KEYS) delete process.env[key];
@@ -31,11 +31,23 @@ describe("siteUrl()", () => {
     expect(siteUrl()).toBe("https://clay-portfolio-preview.vercel.app");
   });
 
-  it("prefers VERCEL_PROJECT_PRODUCTION_URL over VERCEL_URL", () => {
+  it("uses VERCEL_PROJECT_PRODUCTION_URL only on a PRODUCTION build (VERCEL_ENV=production)", () => {
     clearSiteEnv();
+    process.env.VERCEL_ENV = "production";
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = "clay-portfolio.vercel.app";
+    process.env.VERCEL_URL = "clay-portfolio-abc123.vercel.app";
+    expect(siteUrl()).toBe("https://clay-portfolio.vercel.app");
+  });
+
+  // CR-002 / QA-006 (Stage 9): Vercel sets VERCEL_PROJECT_PRODUCTION_URL on preview builds too. A
+  // preview must self-reference via VERCEL_URL — otherwise its og:image/canonical point at a
+  // production host that 404s until the first production deploy exists (observed live).
+  it("on a PREVIEW build ignores the production host and uses VERCEL_URL", () => {
+    clearSiteEnv();
+    process.env.VERCEL_ENV = "preview";
     process.env.VERCEL_PROJECT_PRODUCTION_URL = "clay-portfolio.vercel.app";
     process.env.VERCEL_URL = "clay-portfolio-git-branch-example.vercel.app";
-    expect(siteUrl()).toBe("https://clay-portfolio.vercel.app");
+    expect(siteUrl()).toBe("https://clay-portfolio-git-branch-example.vercel.app");
   });
 
   it("falls back to http://localhost:3000 when nothing is set", () => {
