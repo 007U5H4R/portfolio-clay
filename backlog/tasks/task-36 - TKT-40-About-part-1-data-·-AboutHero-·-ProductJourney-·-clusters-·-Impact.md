@@ -1,9 +1,10 @@
 ---
 id: TASK-36
 title: 'TKT-40: About part 1: data · AboutHero · ProductJourney · clusters · Impact'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 04:34'
 labels:
   - P1
   - 'sp:5'
