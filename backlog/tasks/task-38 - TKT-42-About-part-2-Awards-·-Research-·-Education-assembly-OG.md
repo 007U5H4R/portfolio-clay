@@ -1,9 +1,10 @@
 ---
 id: TASK-38
 title: 'TKT-42: About part 2: Awards · Research · Education + assembly + OG'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 06:35'
 labels:
   - P2
   - 'sp:2'

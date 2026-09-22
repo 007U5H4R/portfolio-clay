@@ -1,9 +1,10 @@
 ---
 id: TASK-36.1
 title: 'TSK-22: experience.ts + skills.ts authoring (resume-sourced)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 04:42'
 labels:
   - P1
   - 'sp:2'

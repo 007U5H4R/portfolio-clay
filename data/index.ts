@@ -29,6 +29,9 @@ import {
 import { ALL_PROJECT_SLUGS, isInternalHref, resolves, routes } from "@/lib/anchors";
 import { contentForbiddenHits } from "@/scripts/forbidden-strings";
 import { projects } from "./projects";
+import { experience } from "./experience";
+import { skills } from "./skills";
+import { writing } from "./writing";
 import { knowledge } from "./knowledge";
 import { thinkingFramework } from "./thinking-framework";
 
@@ -41,12 +44,12 @@ export interface Collections {
   thinkingFramework: ThinkingStageDefT[];
 }
 
-/** Live collections. `experience`/`skills`/`writing` land with their own tickets. */
+/** Live collections. */
 export const collections: Collections = {
   projects,
-  experience: [],
-  skills: [],
-  writing: [],
+  experience,
+  skills,
+  writing,
   knowledge,
   thinkingFramework,
 };

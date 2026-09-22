@@ -1,9 +1,10 @@
 ---
 id: TASK-42
 title: 'TKT-46: 404 page (not-found.tsx)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 07:45'
 labels:
   - P3
   - 'sp:1'

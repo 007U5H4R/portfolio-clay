@@ -1,9 +1,10 @@
 ---
 id: TASK-36.3
 title: 'TSK-24: Capability clusters + Impact (MetricCard shape)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 05:24'
 labels:
   - P1
   - 'sp:1'

@@ -1,8 +1,9 @@
 {
   "//": "Lighthouse CI — desktop (technical-plan.md §A9 / §B S11.01). Same budgets as mobile with the",
-  "//2": "desktop preset; TKT-07b flips assertions to level `error` and uses the four-route sweep.",
-  "//3": "NOTE (plan-vs-reality): /about (the §A9 4th route) ships at TKT-42 and 404s now, so the built",
-  "//4": "route /contact stands in until then. Thresholds are NEVER lowered to pass (EV2).",
+  "//2": "desktop preset; TKT-07b flips assertions to level `error` and uses the four-route sweep:",
+  "//3": "/, /work, /work/teachspark, /about — the §A9/EVAL-004 route list. /about swapped back in at",
+  "//4": "TKT-42 (M-006), replacing the /contact stand-in used pre-TKT-42. Thresholds are NEVER lowered",
+  "//5": "to pass (EV2).",
   "ci": {
     "collect": {
       "startServerCommand": "pnpm start",
@@ -10,7 +11,7 @@
         "http://127.0.0.1:3000/",
         "http://127.0.0.1:3000/work",
         "http://127.0.0.1:3000/work/teachspark",
-        "http://127.0.0.1:3000/contact"
+        "http://127.0.0.1:3000/about"
       ],
       "numberOfRuns": 3,
       "startServerReadyPattern": "Ready in",

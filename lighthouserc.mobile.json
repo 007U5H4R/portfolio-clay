@@ -1,8 +1,8 @@
 {
   "//": "Lighthouse CI — mobile (technical-plan.md §A9 / §B S11.01). TKT-07b flips every assertion",
-  "//2": "to level `error` and expands collect.url to the four-route sweep. NOTE (plan-vs-reality):",
-  "//3": "§A9/EVAL-004 list /about as the 4th route, but /about ships at TKT-42 (M-006) and 404s now,",
-  "//4": "so the built public route /contact stands in until then — /about swaps back in at TKT-42.",
+  "//2": "to level `error` and expands collect.url to the four-route sweep: /, /work,",
+  "//3": "/work/teachspark, /about — the §A9/EVAL-004 route list. /about swapped back in at TKT-42",
+  "//4": "(M-006) now that the route is built (it previously stood in as /contact, pre-TKT-42).",
   "//5": "Thresholds are NEVER lowered to pass (EV2); a miss is a recorded FAIL for the perf levers.",
   "ci": {
     "collect": {
@@ -11,7 +11,7 @@
         "http://127.0.0.1:3000/",
         "http://127.0.0.1:3000/work",
         "http://127.0.0.1:3000/work/teachspark",
-        "http://127.0.0.1:3000/contact"
+        "http://127.0.0.1:3000/about"
       ],
       "numberOfRuns": 3,
       "startServerReadyPattern": "Ready in",

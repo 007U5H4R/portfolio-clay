@@ -166,3 +166,62 @@ test("@EVAL-011 crawler self-test: a dead button is reported, a live one is not"
   expect(liveEffect.changed, `live button should register a change (${liveEffect.how})`).toBe(true);
   expect(deadEffect.changed, "dead button must be reported as no-change").toBe(false);
 });
+
+test(
+  "@EVAL-011 crawler regression: hash-only replaceState is not mistaken for a navigation",
+  { tag: "@EVAL-011" },
+  async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "w1440", "self-test runs once");
+    // A genuine prior navigation must exist in history — this mirrors the crawler visiting a route
+    // via page.goto() before clicking any control. Without it, a wrongly-triggered goBack() has
+    // nowhere real to pop to; WITH it, an errant goBack() pops back to this navigation, exactly the
+    // /about corruption EVAL-011 hit: TimelineNode's `history.replaceState`-driven hash sync
+    // (components/timeline/ExperienceTimeline.tsx) was misread as a navigation, goBack() popped the
+    // crawler's own prior real navigation, and every ElementHandle still queued on the page died.
+    await page.goto("/");
+    await page.evaluate(() => {
+      const hashBtn = document.createElement("button");
+      hashBtn.id = "hash-sync";
+      hashBtn.setAttribute("aria-expanded", "false");
+      hashBtn.textContent = "Hash sync";
+      hashBtn.onclick = () => {
+        hashBtn.setAttribute("aria-expanded", "true");
+        history.replaceState(null, "", location.pathname + location.search + "#deep-link");
+      };
+      document.body.appendChild(hashBtn);
+
+      const liveBtn = document.createElement("button");
+      liveBtn.id = "live-after";
+      liveBtn.textContent = "Live after";
+      liveBtn.onclick = () => liveBtn.setAttribute("aria-pressed", "true");
+      document.body.appendChild(liveBtn);
+    });
+
+    const pathBefore = new URL(page.url()).pathname;
+    const hashHandle = await page.$("#hash-sync");
+    if (!hashHandle) throw new Error("fixture hash button not found");
+
+    const hashEffect = await observeButtonEffect(page, hashHandle);
+    expect(
+      hashEffect.changed,
+      `a hash-only replaceState should still register as an observable change (${hashEffect.how})`,
+    ).toBe(true);
+
+    // The bug: observeButtonEffect used to call page.goBack() whenever location.href changed at
+    // all, including a hash-only replaceState — popping the crawler's own prior real navigation.
+    expect(
+      new URL(page.url()).pathname,
+      "a hash-only replaceState must not trigger a goBack() navigation",
+    ).toBe(pathBefore);
+
+    // A control queried after the hash-sync click must still be evaluable — if goBack() had fired,
+    // the execution context would be destroyed and this would throw ("classify threw: Execution
+    // context was destroyed"), exactly the fabricated dead control EVAL-011 reported on /about.
+    const liveHandle = await page.$("#live-after");
+    if (!liveHandle) throw new Error("fixture live button not found — execution context was likely destroyed");
+    const liveEffect = await observeButtonEffect(page, liveHandle);
+    expect(liveEffect.changed, `a control queried after a hash-sync click must still work (${liveEffect.how})`).toBe(
+      true,
+    );
+  },
+);

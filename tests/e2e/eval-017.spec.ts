@@ -30,7 +30,8 @@ const EXPECTED_SITEMAP_COUNT =
   projects.filter((project) => project.category === "personal").length +
   collections.writing.length;
 
-const ROUTES = ["/", "/work", "/work/teachspark", "/contact"] as const;
+// "/about" added by TKT-42, which owns `app/about/opengraph-image.tsx` (no earlier ticket did).
+const ROUTES = ["/", "/work", "/work/teachspark", "/about", "/contact"] as const;
 
 const ABSOLUTE_HTTPS = /^https:\/\//;
 

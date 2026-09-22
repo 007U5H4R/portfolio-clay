@@ -1,9 +1,10 @@
 ---
 id: TASK-36.2
 title: 'TSK-23: AboutHero + ProductJourney'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 05:08'
 labels:
   - P1
   - 'sp:2'
