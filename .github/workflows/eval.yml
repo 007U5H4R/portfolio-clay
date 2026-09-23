@@ -55,6 +55,13 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Install ffmpeg
+        # tests/e2e/eval-014.spec.ts generates a throwaway ~1.7 kB video fixture with the system
+        # ffmpeg (TKT-18: the fixture is never committed). ubuntu-latest has no ffmpeg on PATH, so
+        # the test failed with `spawnSync ffmpeg ENOENT`. Playwright's own bundled ffmpeg is for
+        # recording only and is not a general CLI. This is present locally (machine dependency).
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
