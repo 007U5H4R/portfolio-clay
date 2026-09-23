@@ -1,10 +1,10 @@
 ---
 id: TASK-52
 title: TKT-57 Claymorphic hero avatar asset (Higgsfield transform of new portrait)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-23 04:59'
-updated_date: '2026-09-23 05:00'
+updated_date: '2026-09-23 05:52'
 labels:
   - P0
   - 'sp:2'

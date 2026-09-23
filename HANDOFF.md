@@ -1,6 +1,6 @@
 # HANDOFF — Clay Portfolio
 
-Updated 2026-09-23. **Active work: M-008 Visual redesign ("WoW factor") on branch `m-008-visual-wow`.** Project root: `/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay/`. Obsidian mirror: `~/Documents/Documents - Tushar's Macbook/Obsidian Vault/Portfolio-clay/`. Auto-memory: `clay-portfolio-build.md`. PWA: Campfire (`campfire`), project `portfolio-clay`, `http://127.0.0.1:6480`. Live redesign preview (auto-builds on push): **https://portfolio-clay-git-m-008-visual-wow-tushar-49a6.vercel.app**.
+Updated 2026-09-23 (avatar TASK-52 shipped; next = A-bis). **Active work: M-008 Visual redesign ("WoW factor") on branch `m-008-visual-wow`.** Project root: `/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay/`. Obsidian mirror: `~/Documents/Documents - Tushar's Macbook/Obsidian Vault/Portfolio-clay/`. Auto-memory: `clay-portfolio-build.md`. PWA: Campfire (`campfire`), project `portfolio-clay`, `http://127.0.0.1:6480`. Live redesign preview (auto-builds on push): **https://portfolio-clay-git-m-008-visual-wow-tushar-49a6.vercel.app**.
 
 > Start the next session by reading the global `~/.claude/CLAUDE.md`, this file, `docs/ledger.md` (tail), `decisions.md` (EXE-12/13, DC1–DC7), and the M-008 sections below. Then continue at "NEXT STEPS".
 
@@ -18,7 +18,7 @@ Full visual **replacement** of the flat clay design with a distinctive, premium,
 **Campfire:** milestone **m-7 "M-008 Visual redesign - WoW factor"** + 13 tickets **TASK-50…TASK-62** (= TKT-55…TKT-67). In Progress: TASK-50 (design system), TASK-51 (hero), TASK-52 (claymorphic avatar), TASK-53 (animation). Move tickets: `"/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/scripts/orchestrator/move-ticket.sh" <projectDir> TASK-nn "<status>"`.
 
 ## 3. M-008 — what is DONE on `m-008-visual-wow`
-Commits: `292e726` (aurora + hero), `ca7a37c` (milestone + tickets), `754a870` (animation system). Pushed through `ca7a37c`; **`754a870` (animation) + the avatar assets are committed locally but NOT yet pushed** — push after finishing the avatar (step A) so the preview shows both.
+Commits: `292e726` (aurora + hero), `ca7a37c` (milestone + tickets), `754a870` (animation system), `d5dc930` (baton + chosen avatar assets), `8694452` (TASK-52 avatar ship). **All pushed to `origin/m-008-visual-wow`** (HEAD `8694452`); every preview build is READY on Vercel. (Correction to a prior baton: the animation system + avatar assets are pushed, not local-only.)
 
 - **Aurora background** (`app/globals.css`): fixed animated gradient-mesh behind all pages using the existing palette via `color-mix` (13-token gate intact); `.glow-halo` utility; reduced-motion freezes both.
 - **WoW hero** (`components/hero/Hero.tsx`): badge/pill eyebrow, glow halo around the avatar, bolder composition; LCP avatar image kept `priority`.
@@ -32,10 +32,16 @@ Commits: `292e726` (aurora + hero), `ca7a37c` (milestone + tickets), `754a870` (
 
 ## 5. NEXT STEPS (in order)
 
+**✅ A. DONE 2026-09-23 — new avatar shipped (TASK-52, commit `8694452`, pushed, preview verified).** Old scene cutout backed up → `content/media/avatar/avatar-cutout-v1-scene.png`; v2 cutout swapped in; `media:avatar --erode 3` killed the dark hair halo; `public/avatar/*` regenerated (avatar.webp 147 kB); `site.avatarAlt` + `AvatarScene` dims (1440×1800) + `about.spec.ts` (single-source alt) updated. Gate green (typecheck/lint/tokens 0/0/13, build all-static). Framing verified 390/768/1024/1440; **new bust confirmed live on the Vercel preview** (avif w=520). See ledger "M-008 · TASK-52" incl. the dev-AVIF-cache scar (verify avatars against a prod build / the preview, NOT `next dev`). **NEXT = A-bis.**
+
+<details><summary>A. (original instructions, now complete)</summary>
+
 **A. Finish + ship the new avatar (TASK-52; finalises TASK-50/51).**
    1. Clean the halo. `scripts/avatar.ts` (`pnpm media:avatar`) reads `content/media/avatar/avatar-cutout.png` → writes `public/avatar/{avatar.webp, avatar@2x.webp, avatar-poster.webp, avatar-blur.txt}`, and supports `--erode <px>` to shrink the alpha matte and kill an edge halo. So: back up the current `content/media/avatar/avatar-cutout.png` (→ `avatar-cutout-v1-scene.png`), copy `redesign-v2/avatar-cutout-v2.png` → `content/media/avatar/avatar-cutout.png`, run `pnpm media:avatar --erode 3` (raise erode until the dark rim is gone; inspect the PNG). If erode can't fully fix it, regenerate the clay avatar in Higgsfield with `background: opaque` on a light bg, then `remove_background`.
    2. `AvatarScene.tsx` renders `/avatar/avatar.webp` `object-cover` top-aligned in the 4:5 hero frame — the new bust should frame head+shoulders; verify at 390/768/1024/1440. Update `site.avatarAlt` (`lib/site.ts`).
    3. Verify `pnpm typecheck && pnpm lint && pnpm exec tsx scripts/tokens-check.ts` (all 0); screenshot the hero (dev server + `pnpm exec playwright screenshot --viewport-size=1440,2400 http://127.0.0.1:PORT/ out.png`, `PLAYWRIGHT_BROWSERS_PATH=/Volumes/E Drive/Dev/.cache/ms-playwright`). Commit + **push** `m-008-visual-wow`; confirm the preview.
+
+</details>
 
 **A-bis. Avatar pose + expression set (TASK-63 / TKT-68) — Tushar-requested 2026-09-23, do right after the cleanup.** Once the clean base avatar exists, generate a CONSISTENT set of claymorphic variants from it (use the chosen avatar as the `image_references` base so face/lighting/style match): **expressions** — default/friendly, thinking (eyes up), smile (on success), surprised (on discovery); and **gaze/lean poses** — looking toward laptop / book / plant, and an ask-focus lean-in. Background-remove + optimize each to webp, save under `public/avatar/` (e.g. `avatar-thinking.webp`, `avatar-smile.webp`, `avatar-gaze-laptop.webp`, …) with sources in `content/media/avatar/redesign-v2/`. Then **wire the deferred `AvatarScene` states** (section 3) to swap these on icon hover (gaze) and Ask-focus (lean/expression) and idle blink — the `hovered`/`askActive` state is already plumbed to the extension seam. Keep it subtle (spec: "alive, not animated"); reduced-motion shows only the static default.
 
