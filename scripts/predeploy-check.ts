@@ -1,0 +1,190 @@
+/**
+ * predeploy-check.ts (TP9/PB4/PB5, technical-plan.md line ~371) — the pre-deploy guard.
+ *
+ * Runs as the first step of the build chain (`prebuild`, ahead of `validate-content.ts`) so a
+ * PII leak, a missing/oversized production video, or a forbidden string never reaches a deploy.
+ * Failure modes:
+ *
+ *   1. `public/resume.pdf` exists AND its PII gate would fail (mirrors the pattern set in
+ *      `tests/unit/resume-pii.test.ts` / technical-plan.md TKT-08 S08r.01: `pdftotext -layout`,
+ *      fail CLOSED — never skip — when the binary itself cannot be found).
+ *   2. `site.resumeAvailable === true` without a resume.pdf present to back it (the flag must
+ *      never claim a resume exists that isn't there).
+ *   3. Any of `public/video/{teachspark,railcite,velora}.mp4` missing or >4 MB, but **only**
+ *      when `VERCEL_ENV === 'production'` (PB4 — previews may ship without them).
+ *   4. Any forbidden-string hit (delegates to `scripts/forbidden-strings.ts`'s `scan()`).
+ *
+ * Pure checks are exported and unit-tested (`tests/unit/predeploy.test.ts`); `main()` only runs
+ * as a CLI (`pnpm predeploy` / `tsx scripts/predeploy-check.ts`), following the same
+ * export-pure-function + CLI-guard pattern as `forbidden-strings.ts` and `validate-content.ts`.
+ */
+import { existsSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { join } from "node:path";
+import { site } from "@/lib/site";
+import { RESUME_PII_PATTERNS, readSandboxCodes, scan } from "./forbidden-strings";
+
+export interface PredeployIssue {
+  code: string;
+  message: string;
+}
+
+export interface PredeployOptions {
+  /** Project root to check against. Defaults to `process.cwd()`. */
+  cwd?: string;
+  /** Defaults to `process.env.VERCEL_ENV`. PB4 only applies when this is exactly `"production"`. */
+  vercelEnv?: string;
+}
+
+export interface PredeployResult {
+  ok: boolean;
+  issues: PredeployIssue[];
+}
+
+const FEATURED_VIDEOS = ["teachspark", "railcite", "velora"] as const;
+const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
+
+// CR-005 / CR-008 (Stage 9) + SEC-001 (Stage 10): the PII rules live ONCE, in
+// `scripts/forbidden-strings.ts` (already imported here, so no `tests/**` dependency) — this file
+// previously carried its own hand-copied, drifted variant. `scanResumePii` applies the résumé-only
+// superset `RESUME_PII_PATTERNS` (which includes the shared `PII_PATTERNS`).
+
+export interface PiiScanResult {
+  ok: boolean;
+  reason?: string;
+}
+
+/** Extracts PDF text via `pdftotext -layout` and checks it for PII. Fails CLOSED (never skips) when the binary is missing or errors — an unverifiable PDF is never treated as clean. `env` is injectable so tests can point `PATH` at a fake `pdftotext` without touching the real process environment. */
+export function scanResumePii(pdfPath: string, env: NodeJS.ProcessEnv = process.env): PiiScanResult {
+  const result = spawnSync("pdftotext", ["-layout", pdfPath, "-"], { encoding: "utf8", env });
+  if (result.error) {
+    return {
+      ok: false,
+      reason: `cannot verify PDF — pdftotext is unavailable (${result.error.message})`,
+    };
+  }
+  if (result.status !== 0) {
+    return {
+      ok: false,
+      reason: `cannot verify PDF — pdftotext exited ${result.status} on ${pdfPath}: ${result.stderr || "(no stderr)"}`,
+    };
+  }
+  const text = result.stdout;
+  // SEC-001 (Stage 10): the résumé gate applies the full résumé-only superset (ISO/textual DOB,
+  // international/parenthesised/spaced phones, Western street keywords, labelled postal codes) —
+  // not just the narrow shared rules that let `1990-05-12` or `+1 (415) 555-0123` through.
+  for (const { name, re } of RESUME_PII_PATTERNS) {
+    if (re.test(text)) return { ok: false, reason: `resume PDF matches a ${name} pattern` };
+  }
+  return { ok: true };
+}
+
+export interface CheckResumeOptions {
+  /** Defaults to the live `site.resumeAvailable` (PB5). Injectable so tests can simulate the flag flipping without touching `lib/site.ts`. */
+  resumeAvailable?: boolean;
+  /** Defaults to `scanResumePii`. Injectable so tests can prove the PII branch without a real PDF. */
+  scanPii?: (pdfPath: string) => PiiScanResult;
+}
+
+/** Failure modes 1 + 2: resume.pdf PII gate + the resumeAvailable/file-presence invariant (PB5). */
+export function checkResume(cwd: string, opts: CheckResumeOptions = {}): PredeployIssue[] {
+  const resumeAvailable = opts.resumeAvailable ?? site.resumeAvailable;
+  const scanPii = opts.scanPii ?? scanResumePii;
+  const resumePath = join(cwd, "public", "resume.pdf");
+  const exists = existsSync(resumePath);
+
+  if (resumeAvailable && !exists) {
+    return [
+      {
+        code: "resume-missing",
+        message: `site.resumeAvailable is true but ${resumePath} does not exist`,
+      },
+    ];
+  }
+
+  if (!exists) return [];
+
+  const pii = scanPii(resumePath);
+  if (!pii.ok) {
+    return [{ code: "resume-pii", message: `${resumePath}: ${pii.reason}` }];
+  }
+  return [];
+}
+
+/** Failure mode 3: featured videos present and ≤4 MB — production only (PB4). */
+export function checkFeaturedVideos(cwd: string, vercelEnv: string | undefined): PredeployIssue[] {
+  if (vercelEnv !== "production") return [];
+
+  const issues: PredeployIssue[] = [];
+  for (const name of FEATURED_VIDEOS) {
+    const path = join(cwd, "public", "video", `${name}.mp4`);
+    if (!existsSync(path)) {
+      issues.push({
+        code: "video-missing",
+        message: `public/video/${name}.mp4 is missing (required at VERCEL_ENV=production, PB4)`,
+      });
+      continue;
+    }
+    const size = statSync(path).size;
+    if (size > MAX_VIDEO_BYTES) {
+      issues.push({
+        code: "video-too-large",
+        message: `public/video/${name}.mp4 is ${size} bytes, exceeds the 4 MB limit (PB4)`,
+      });
+    }
+  }
+  return issues;
+}
+
+/** Failure mode 4: forbidden strings, via the shared scanner. */
+export function checkForbiddenStrings(cwd: string): PredeployIssue[] {
+  let codes: string[] | null;
+  try {
+    codes = readSandboxCodes(cwd);
+  } catch (err) {
+    // SF-3: a corrupt sandbox-code file is NOT "no codes" — the gate cannot verify, so it fails.
+    return [{ code: "forbidden-scan-skipped", message: err instanceof Error ? err.message : String(err) }];
+  }
+  const result = scan({ cwd, sandboxCodes: codes ?? [], sandboxSkipped: codes === null });
+  const hits: PredeployIssue[] = result.hits.map((hit) => ({
+    code: "forbidden-string",
+    message: `${hit.file}:${hit.line} → [${hit.pattern}] ${hit.match}`,
+  }));
+  // SF-1/SF-2 (fail closed): any path the scanner could not read leaves the tree UNVERIFIED — that is
+  // a gate failure, never a quieter "0 hits in fewer files".
+  const skipped: PredeployIssue[] = result.skipped.map((s) => ({
+    code: "forbidden-scan-skipped",
+    message: `cannot verify ${s.path} (${s.reason}) — forbidden-string scan is incomplete`,
+  }));
+  return [...hits, ...skipped];
+}
+
+export function runPredeployChecks(opts: PredeployOptions = {}): PredeployResult {
+  const cwd = opts.cwd ?? process.cwd();
+  const vercelEnv = opts.vercelEnv ?? process.env.VERCEL_ENV;
+
+  const issues = [
+    ...checkResume(cwd),
+    ...checkFeaturedVideos(cwd, vercelEnv),
+    ...checkForbiddenStrings(cwd),
+  ];
+
+  return { ok: issues.length === 0, issues };
+}
+
+function main(): void {
+  const result = runPredeployChecks();
+  if (!result.ok) {
+    for (const issue of result.issues) {
+      console.error(`predeploy: [${issue.code}] ${issue.message}`);
+    }
+    console.error(`\npredeploy FAILED — ${result.issues.length} issue${result.issues.length === 1 ? "" : "s"}`);
+    process.exit(1);
+  }
+  console.log("predeploy OK");
+}
+
+// Run only as a CLI, not when imported by the test.
+if (process.argv[1] && process.argv[1].endsWith("predeploy-check.ts")) {
+  main();
+}

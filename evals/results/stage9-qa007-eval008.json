@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.2.0-5f5c3e7",
+  "label": "stage9-qa007-eval008",
+  "provenance": {
+    "version": "0.2.0",
+    "commit": "5f5c3e74405b98a1a3ee5a255264cdc8ebb4b233",
+    "branch": "m-007-quality",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 27.0.0",
+    "timestamp": "2026-09-22T15:53:18.226Z",
+    "baseUrl": "http://127.0.0.1:3000",
+    "evalCasesSha256": "94d6055f8ced57f4a5af7e6219457bef42909ae034376e329e03be7505a3a536",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 17,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 16,
+    "manual": 0
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "FAIL",
+      "details": "6 failing: @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/teachspark [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/railcite [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/velora [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/cubicle [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/nuptis [w390]",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    }
+  ],
+  "criticalFailures": [
+    "PLAYWRIGHT-SUITE (6 failing: @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/teachspark [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/railcite [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/velora [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/cubicle [w390]; @EVAL-008 responsive: no horizontal overflow in Deep dive · /work/nuptis [w390])"
+  ],
+  "playwrightUnexpected": [
+    "@EVAL-008 responsive: no horizontal overflow in Deep dive · /work/teachspark [w390]",
+    "@EVAL-008 responsive: no horizontal overflow in Deep dive · /work/railcite [w390]",
+    "@EVAL-008 responsive: no horizontal overflow in Deep dive · /work/velora [w390]",
+    "@EVAL-008 responsive: no horizontal overflow in Deep dive · /work/cubicle [w390]",
+    "@EVAL-008 responsive: no horizontal overflow in Deep dive · /work/nuptis [w390]",
+    "@EVAL-008 responsive: no horizontal overflow in Deep dive · /work/bhakti-vilas [w390]"
+  ],
+  "regressions": [],
+  "improvements": [],
+  "runtimeMs": 109426,
+  "baseline": "evals/results/baseline-v1.json"
+}

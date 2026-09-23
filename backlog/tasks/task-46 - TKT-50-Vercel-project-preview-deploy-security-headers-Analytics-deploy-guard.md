@@ -3,9 +3,10 @@ id: TASK-46
 title: >-
   TKT-50: Vercel project - preview deploy, security headers, Analytics, deploy
   guard
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 12:19'
 labels:
   - P0
   - 'sp:2'

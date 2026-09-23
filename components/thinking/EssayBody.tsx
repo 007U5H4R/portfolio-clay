@@ -70,7 +70,7 @@ export function EssayBody({ essay }: EssayBodyProps) {
       {relatedProject ? (
         <Link
           href={`/work/${relatedProject.slug}`}
-          className="group flex w-fit items-center gap-[var(--space-2)] text-[length:var(--text-body)] font-semibold text-accent underline underline-offset-2 focus-ring rounded-[2px]"
+          className="group flex min-h-11 w-fit items-center gap-[var(--space-2)] text-[length:var(--text-body)] font-semibold text-accent underline underline-offset-2 focus-ring rounded-[2px]"
         >
           Related project: {relatedProject.name}
           <Icon

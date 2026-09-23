@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.2.0-6a78aa4",
+  "label": "eval-run-v1.0.0-rc",
+  "provenance": {
+    "version": "0.2.0",
+    "commit": "6a78aa4afe658f5f999ff664b7cee6c2a9b8275d",
+    "branch": "m-007-quality",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 27.0.0",
+    "timestamp": "2026-09-22T12:35:47.108Z",
+    "baseUrl": "http://127.0.0.1:3000",
+    "evalCasesSha256": "94d6055f8ced57f4a5af7e6219457bef42909ae034376e329e03be7505a3a536",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 17,
+    "passed": 13,
+    "failed": 1,
+    "skipped": 0,
+    "manual": 3
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "PASS",
+      "details": "20 specs, 9 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "PASS",
+      "informational": true,
+      "envCaveat": "Local Chromium runs under swiftshader (software rendering, no GPU); perf scores are an environment artifact, informational only — real perf gate is production + TKT-49 (A14/F5/EV2). Thresholds unchanged.",
+      "measured": {
+        "/": {
+          "mobile": [
+            92,
+            100,
+            96,
+            100
+          ],
+          "desktop": [
+            100,
+            100,
+            96,
+            100
+          ]
+        },
+        "/work": {
+          "mobile": [
+            91,
+            100,
+            96,
+            100
+          ],
+          "desktop": [
+            100,
+            100,
+            96,
+            100
+          ]
+        },
+        "/work/teachspark": {
+          "mobile": [
+            92,
+            100,
+            96,
+            100
+          ],
+          "desktop": [
+            100,
+            100,
+            96,
+            100
+          ]
+        },
+        "/about": {
+          "mobile": [
+            94,
+            100,
+            96,
+            100
+          ],
+          "desktop": [
+            100,
+            100,
+            96,
+            100
+          ]
+        }
+      },
+      "threshold": [
+        90,
+        95,
+        95,
+        95
+      ],
+      "details": "4 routes × mobile+desktop, median of 3 (informational — swiftshader)",
+      "artifacts": [
+        "/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay/.lighthouseci/mobile",
+        "/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay/.lighthouseci/desktop"
+      ]
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "FAIL",
+      "informational": true,
+      "envCaveat": "first-load JS budget is deterministic and REAL (over-budget → TKT-14/49 perf levers, F5/A14/EV2); LCP is swiftshader-affected (informational). Non-gating locally; thresholds unchanged.",
+      "measured": {
+        "jsKbGzip": 191.1,
+        "lcpMs": 3328,
+        "cls": 0
+      },
+      "threshold": {
+        "jsKbGzip": 180,
+        "lcpMs": 2500,
+        "cls": 0.05
+      },
+      "details": "first-load JS 191.1 kB gz (budget 180), LCP(mobile) 3328 ms, CLS(mobile) 0",
+      "artifacts": [
+        "/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay/.lighthouseci/mobile"
+      ]
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "276 specs, 115 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "80 specs, 22 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "320 specs, 309 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "212 specs, 51 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "PASS",
+      "details": "84 specs, 21 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "PASS",
+      "details": "vitest eval-012 pass",
+      "artifacts": [
+        ".eval/vitest.json"
+      ]
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "PASS",
+      "details": "validate-content OK · 0 hits in 194 files (incl. .next bundle) · fixture proof present (non-zero build, 3 issues)",
+      "artifacts": [
+        "evals/results/content-gate-proof.txt"
+      ]
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "PASS",
+      "details": "28 specs, 1 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "PASS",
+      "details": "44 specs, 19 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "PASS",
+      "details": "0 forbidden/PII strings · 0 high/critical deps (audit-level high; ignoreGhsas accepted-risks respected) · headers SKIP (needs --base-url; TP9 headers exist only on a deployment, TKT-50)"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "PASS",
+      "details": "tags: seo unit pass, eval-017 spec pass (40 specs, 10 runs across w1024/w1440/w390/w768); inspector rendering MANUAL (TKT-51)",
+      "artifacts": [
+        ".eval/vitest.json",
+        ".eval/playwright.json"
+      ]
+    }
+  ],
+  "criticalFailures": [],
+  "regressions": [
+    {
+      "id": "EVAL-004",
+      "kind": "lighthouse",
+      "detail": "/ mobile[0] 96→92 (−4)"
+    },
+    {
+      "id": "EVAL-004",
+      "kind": "lighthouse",
+      "detail": "/ mobile[2] 100→96 (−4)"
+    }
+  ],
+  "improvements": [
+    {
+      "id": "EVAL-005",
+      "kind": "bundle",
+      "detail": "first-load JS 218.7→191.1 kB gz (−27.6)"
+    },
+    {
+      "id": "EVAL-008",
+      "kind": "status",
+      "detail": "FAIL → PASS"
+    }
+  ],
+  "runtimeMs": 779384,
+  "baseline": "evals/results/baseline-v1.json"
+}

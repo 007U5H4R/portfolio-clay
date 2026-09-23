@@ -17,6 +17,17 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # `pnpm build` / `pnpm eval` / `pnpm test:e2e` wrap their command in `dotenv -e .env.tooling`,
+    # which pins TMPDIR + PLAYWRIGHT_BROWSERS_PATH to this machine's E Drive (machine constraint).
+    # dotenv-cli never overrides a variable already present in the environment, so setting both
+    # here keeps the local scar guard intact while giving the Linux runner paths that exist.
+    # The Playwright install step below must see the same PLAYWRIGHT_BROWSERS_PATH as the tests.
+    # Literal paths: the `runner` context is not available in job-level `env` (first CI run failed
+    # to parse on `${{ runner.temp }}`); these are ubuntu-latest's real temp dir and Playwright's
+    # default cache location for the `runner` user.
+    env:
+      TMPDIR: /tmp
+      PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,6 +54,13 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+      - name: Install ffmpeg
+        # tests/e2e/eval-014.spec.ts generates a throwaway ~1.7 kB video fixture with the system
+        # ffmpeg (TKT-18: the fixture is never committed). ubuntu-latest has no ffmpeg on PATH, so
+        # the test failed with `spawnSync ffmpeg ENOENT`. Playwright's own bundled ffmpeg is for
+        # recording only and is not a general CLI. This is present locally (machine dependency).
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium

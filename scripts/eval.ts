@@ -154,7 +154,12 @@ function loadEnvTooling(): Record<string, string> {
   }
   return out;
 }
-const CHILD_ENV: NodeJS.ProcessEnv = { ...process.env, ...loadEnvTooling() };
+// The ambient environment wins over `.env.tooling`, matching the `dotenv -e .env.tooling` wrapper's
+// own non-override semantics (dotenv-cli never overwrites a var already set). Locally the wrapper has
+// already injected these before this process starts, so both orders agree; on CI the runner exports
+// real Linux TMPDIR / PLAYWRIGHT_BROWSERS_PATH (the E-Drive paths in .env.tooling do not exist there,
+// so letting the file win made the internal `pnpm build` fail with ENOENT on `/Volumes`).
+const CHILD_ENV: NodeJS.ProcessEnv = { ...loadEnvTooling(), ...process.env };
 if (baseUrlFlag) CHILD_ENV.PW_BASE_URL = baseUrlFlag;
 
 function runInherit(cmd: string, args: string[]): number {
@@ -632,6 +637,20 @@ async function main(): Promise<void> {
     .filter((c) => c.priority === "critical" && c.status === "FAIL" && !c.informational)
     .map((c) => c.id);
 
+  // Stage 9 scar (QA-007): an `unexpected` Playwright result in an UNTAGGED spec never reached any
+  // EVAL id, so this run exited 0 with `criticalFailures: []` while the suite had 5 real, deterministic
+  // failures (deep-dive overflow at w390 in case-study.spec.ts) — and the M-007 gate's QA-005 before
+  // that. The Playwright suite IS the gate: ANY failing test now fails the run, closed, and the
+  // failing titles are persisted so a report can never quietly omit them.
+  const playwrightUnexpected = specs.flatMap((sp) =>
+    sp.tests.filter((t) => t.status === "unexpected").map((t) => `${sp.title} [${t.projectName}]`),
+  );
+  if (playwrightUnexpected.length > 0) {
+    criticalFailures.push(
+      `PLAYWRIGHT-SUITE (${playwrightUnexpected.length} failing: ${playwrightUnexpected.slice(0, 5).join("; ")})`,
+    );
+  }
+
   const { regressions, improvements } = diffAgainstBaseline(cases, baseline);
   // Regressions on informational cases (perf under swiftshader) are recorded but do not gate.
   const gatingRegressions = regressions.filter((r) => !informationalIds.has(r.id));
@@ -676,6 +695,8 @@ async function main(): Promise<void> {
     totals,
     cases,
     criticalFailures,
+    /** Every failing Playwright test, tagged or not — never silently omitted (Stage-9 QA-007 scar). */
+    playwrightUnexpected,
     regressions,
     improvements,
     runtimeMs: Date.now() - started,

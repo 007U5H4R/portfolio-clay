@@ -78,6 +78,27 @@ describe("@EVAL-012 deterministic Ask", () => {
     expect(empty).toBe(5);
   });
 
+  // DC5 / CR-006 (Stage 9): the DES-005 product aliases normalise to a single product token, so every
+  // synonym folded onto that token (lib/ask/synonyms.ts) resolves at score 1. This is an ACCEPTED,
+  // documented widening — pinned here so any change to it is a deliberate, visible test change.
+  it("resolves single-word product-cluster synonyms to their entry (DC5); off-topic still empty", () => {
+    const cases: Array<[string, string]> = [
+      ["wedding", "built"],
+      ["nuptis", "built"],
+      ["whatsapp", "ai-products"],
+      ["railway", "ai-products"],
+      ["citations", "ai-products"],
+    ];
+    for (const [q, id] of cases) {
+      const a = provider.answerFor(q);
+      expect(a.kind, q).toBe("answer");
+      if (a.kind === "answer") expect(a.matched, q).toEqual([id]);
+    }
+    for (const q of ["weather in Paris", "banana purple", "what is your salary"]) {
+      expect(provider.answerFor(q).kind, q).toBe("empty");
+    }
+  });
+
   it("never returns an answer with score below the threshold (200 random word-soup queries)", () => {
     const words = ["banana", "purple", "cloud", "seventeen", "guitar", "ocean", "lantern", "quibble", "zephyr", "marble", "tundra", "velvet"];
     let rng = 12345;

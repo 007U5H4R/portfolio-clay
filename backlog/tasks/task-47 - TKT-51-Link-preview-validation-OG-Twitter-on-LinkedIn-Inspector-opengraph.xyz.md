@@ -3,9 +3,10 @@ id: TASK-47
 title: >-
   TKT-51: Link-preview validation - OG/Twitter on LinkedIn Inspector +
   opengraph.xyz
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 19:10'
 labels:
   - P1
   - 'sp:2'

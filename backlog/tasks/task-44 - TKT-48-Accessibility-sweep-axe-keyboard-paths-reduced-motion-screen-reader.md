@@ -3,9 +3,10 @@ id: TASK-44
 title: >-
   TKT-48: Accessibility sweep - axe, keyboard paths, reduced motion, screen
   reader
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 10:16'
 labels:
   - P0
   - 'sp:3'

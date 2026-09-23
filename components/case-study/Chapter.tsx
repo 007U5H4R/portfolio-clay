@@ -17,7 +17,7 @@ export interface ChapterProps {
 }
 
 /**
- * One case-study chapter (Design.md §3): a flat text zone — numbered `h3` + `Prose` body capped at
+ * One case-study chapter (Design.md §3): a flat text zone — numbered `h2` + `Prose` body capped at
  * the 60ch/≤600px reading measure — with 1–3 artifacts laid out 1/2/3-up **within** the chapter
  * column (never full-bleed, Law of Proximity). The `<section>` carries the chapter's `id={anchor}`
  * so `/work/<slug>#<anchor>` deep links (How I Think, Ask evidence) resolve to it (E-3, EVAL-011);
@@ -39,13 +39,18 @@ export function Chapter({ chapter, number, anchor, sources }: ChapterProps) {
       aria-labelledby={`chapter-${anchor}`}
       className="scroll-mt-[7rem] flex flex-col gap-[var(--space-5)]"
     >
-      <h3
+      {/* QA-003 (TKT-48): the case-study `h1` was followed directly by this chapter heading with
+          nothing at h2 — a heading-outline skip (h1 → h3) for every screen-reader user navigating
+          by heading, on every deep-dive study. Promoted to `h2` (font size stays `--text-h3`, set
+          by class, not tag) and `DecisionCard`'s heading bumped h4 → h3 alongside it so the outline
+          reads h1 → h2 (chapter) → h3 (decision) with no skip in either direction. */}
+      <h2
         id={`chapter-${anchor}`}
         className="text-[length:var(--text-h3)] font-bold text-ink"
       >
         <span className="mr-[var(--space-3)] tabular-nums text-ink-3">{numberLabel}</span>
         {chapter.title}
-      </h3>
+      </h2>
 
       {chapter.body.length > 0 ? (
         <Prose>

@@ -294,6 +294,80 @@ for (const study of CASE_STUDIES) {
 }
 
 // ---------------------------------------------------------------------------
+// @EVAL-007 — OverviewToggle is a keyboard-operable WAI-ARIA radiogroup: roving tabindex, arrow
+// keys move AND select, and the focused segment wears the shared 3px accent focus ring (TKT-48;
+// checked once on teachspark — the same component every deep-dive study shares).
+// ---------------------------------------------------------------------------
+test("@EVAL-007 OverviewToggle: arrow keys move focus, select the segment, and show the focus ring", {
+  tag: "@EVAL-007",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "keyboard sweep runs once at a desktop width");
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+
+  const summary = page.getByRole("radio", { name: "30-sec" });
+  const deep = page.getByRole("radio", { name: "Deep dive" });
+
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  await expect(summary).toHaveAttribute("aria-checked", "true");
+
+  // ArrowRight moves focus to "Deep dive" AND selects it (roving-tabindex radiogroup).
+  await page.keyboard.press("ArrowRight");
+  await expect(deep).toBeFocused();
+  await expect(deep).toHaveAttribute("aria-checked", "true");
+  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+
+  // The focused segment wears the shared 3px solid accent ring (EVAL-007).
+  const accent = await page.evaluate(() => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--color-accent)";
+    document.body.appendChild(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  });
+  const ring = await deep.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
+  });
+  expect(ring.w).toBe("3px");
+  expect(ring.style).toBe("solid");
+  expect(ring.color).toBe(accent);
+
+  // ArrowLeft returns focus to "30-sec" and re-selects it; only the checked radio is tabbable.
+  await page.keyboard.press("ArrowLeft");
+  await expect(summary).toBeFocused();
+  await expect(summary).toHaveAttribute("aria-checked", "true");
+  await expect(summary).toHaveAttribute("tabindex", "0");
+  await expect(deep).toHaveAttribute("tabindex", "-1");
+});
+
+// ---------------------------------------------------------------------------
+// @EVAL-007 — ShowTheThinking on a real case-study route (not the ALLOW_DEV_ROUTES-gated
+// /dev/thinking board that thinking.spec.ts's keyboard test needs): the toggle is a native button,
+// Enter opens it, and focus deliberately stays on the toggle (a disclosure, not a modal — same
+// contract thinking.spec.ts documents for the essay-page instance of this shared component).
+// ---------------------------------------------------------------------------
+test("@EVAL-007 ShowTheThinking (case study): Enter opens the chain and focus stays on the toggle", {
+  tag: "@EVAL-007",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "keyboard sweep runs once at a desktop width");
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+  await page.getByRole("radio", { name: "Deep dive" }).click();
+
+  const trigger = page.getByRole("button", { name: /Show the thinking/ });
+  await trigger.focus();
+  await expect(trigger).toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(trigger).toBeFocused(); // focus remains on the toggle after open (disclosure, not modal)
+
+  const firstNodeLink = page.locator("#show-the-thinking-panel").getByRole("link").first();
+  await expect(firstNodeLink).toBeVisible();
+});
+
+// ---------------------------------------------------------------------------
 // View-Transition fallback: /work card → case study lands on the identical end state (EXE-5).
 // ---------------------------------------------------------------------------
 test("case-study · VT off: /work card navigates to the study with identical end state", {

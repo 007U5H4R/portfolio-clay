@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Caveat } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
@@ -59,6 +61,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main">{children}</main>
           <Footer />
         </AskProvider>
+        {/*
+          Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less. QA-005 fix — these
+          libraries gate their script injection on `NODE_ENV==='production'`, NOT on being served by
+          Vercel, so a local `pnpm start` (a production build) injected `/_vercel/*` scripts that 404
+          off-platform and tripped the "no console errors" smoke gate. Gate on `process.env.VERCEL`
+          (set only on real Vercel preview/production builds, statically inlined into this SSG server
+          layout at build time) so they are in the tree ONLY when actually deployed — local build/
+          start stays clean, production/preview get analytics. Routes stay static (TP1).
+        */}
+        {process.env.VERCEL ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
     </html>
   );

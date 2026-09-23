@@ -3,9 +3,10 @@ id: TASK-45
 title: >-
   TKT-49: Performance pass - Lighthouse, JS budget, LCP/CLS, fonts, images,
   video
-status: To Do
+status: In Review
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-22 09:25'
 labels:
   - P0
   - 'sp:3'

@@ -51,11 +51,53 @@ export function contentForbiddenHits(text: string): string[] {
   return TITLE_CREDENTIAL_PATTERNS.filter((p) => p.re.test(text)).map((p) => p.name);
 }
 
+/**
+ * Canonical PII rules — the SINGLE source for this scanner, the `predeploy-check.ts` résumé gate and
+ * `tests/unit/resume-pii.test.ts` (CR-005/CR-008, Stage 9: three hand-copied variants had drifted —
+ * one accepted a bare 2-digit year and so flagged version-like `12.05.26` as a DOB, another only
+ * matched 10 *contiguous* digits and let `+91 98765 43210` through). Year must be 19xx/20xx; phone
+ * covers the spaced/dashed `+91` form AND a bare 10-digit run. No `g` flag — safe for `.test()`.
+ */
+export const PII_PATTERNS = {
+  DOB: /\b(0?[1-9]|[12]\d|3[01])[/\-.](0?[1-9]|1[0-2])[/\-.](19|20)\d{2}\b/,
+  PHONE: /\+91[\s-]?\d{5}[\s-]?\d{5}|(\+?91[\s-]?)?\b\d{10}\b/,
+  STREET_ADDRESS: /\b(Road|Street|Nagar|Layout|Apartment|Flat No)\b/i,
+} as const;
+
+/**
+ * Résumé-only PII rules (SEC-001, Stage 10) — applied by `scanResumePii` to the extracted PDF text
+ * IN ADDITION to `PII_PATTERNS`. The shared rules above were format-narrow: `1990-05-12`,
+ * `12 May 1990`, `+1 (415) 555-0123`, `98765 43210`, `42 Elm Avenue` and `PIN 560001` all passed the
+ * gate. These broader forms are deliberately NOT part of the source/content scan (`baseRules`):
+ * authored content legitimately carries ISO `asOf` dates (`2026-09-15`), day-month-year dates
+ * ("7 Sep 2026") and 6-digit figures (patent no. 429867) — a résumé's text should carry none of them
+ * except as PII. Each rule is specific (country code / parentheses / labelled postal code) rather
+ * than "any long digit run", so a clean résumé's date ranges and counts never trip it.
+ */
+export const RESUME_PII_PATTERNS: ReadonlyArray<{ name: string; re: RegExp }> = [
+  { name: "DOB (dd/mm/yyyy)", re: PII_PATTERNS.DOB },
+  { name: "DOB (ISO yyyy-mm-dd)", re: /\b(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\b/ },
+  {
+    name: "DOB (textual month)",
+    re: /\b(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?,?\s+(19|20)\d{2}\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?,?\s+(19|20)\d{2}\b/i,
+  },
+  { name: "phone-number (+91 / bare 10-digit)", re: PII_PATTERNS.PHONE },
+  { name: "phone-number (international +cc)", re: /\+\d{1,3}[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}\b/ },
+  { name: "phone-number (parenthesised area code)", re: /\(\d{3}\)\s?\d{3}[\s-]?\d{4}\b/ },
+  { name: "phone-number (spaced/dashed 10-digit)", re: /\b\d{5}[\s-]\d{5}\b/ },
+  { name: "street-address keyword", re: PII_PATTERNS.STREET_ADDRESS },
+  {
+    name: "street-address keyword (extended)",
+    re: /\b(Avenue|Ave\.|Lane|Drive|Boulevard|Blvd\.?|Sector|Phase|House No\.?|H\.? ?No\.?|Door No\.?)\b/i,
+  },
+  { name: "postal-code (labelled)", re: /\b(PIN|Pincode|Pin Code|ZIP|Zip Code|Postal Code)\b\s*[:\-]?\s*\d{5,6}\b/i },
+];
+
 /** Base pattern rules (A3 rule 5). Sandbox codes are added at runtime from the local file. */
 function baseRules(): Rule[] {
   return [
     ...TITLE_CREDENTIAL_PATTERNS.map((p) => ({ name: p.name, re: p.re })),
-    { name: "DOB", re: /\b(0?[1-9]|[12]\d|3[01])[/\-.](0?[1-9]|1[0-2])[/\-.](19|20)\d{2}\b/ },
+    { name: "DOB", re: PII_PATTERNS.DOB },
     { name: "phone +91", re: /\+91[\s-]?\d{5}[\s-]?\d{5}/, only: ["data", "content"] },
     { name: "phone 10-digit", re: /\b\d{10}\b/, only: ["data", "content"] },
     { name: ".env key", re: /ANTHROPIC_API_KEY|SUPABASE_|TWILIO_|VOYAGE_/ },
@@ -85,12 +127,33 @@ function categorySpecs(bundle: boolean): CategorySpec[] {
   return specs;
 }
 
-function walk(dir: string): string[] {
+/** A path the scanner could not read — surfaced to the caller, never swallowed (SF-1/SF-2, Stage 9). */
+export interface SkippedPath {
+  path: string;
+  reason: string;
+}
+
+const errCode = (err: unknown): string => {
+  const code = (err as { code?: unknown } | null)?.code; // Node fs errors carry a string `code` (ENOENT, EACCES…)
+  if (typeof code === "string") return code;
+  return err instanceof Error ? err.message : String(err);
+};
+
+/**
+ * Recursively list files under `dir`. FAIL-CLOSED: an unreadable directory or entry is recorded in
+ * `skipped` (which fails the predeploy gate) instead of silently shrinking the scan — an
+ * under-scanned tree must never report "0 hits". The one tolerated case is a source-category ROOT
+ * that simply does not exist (`ENOENT` with `tolerateAbsentRoot`): "absent" is a legitimate tree
+ * shape (partial test fixtures), whereas "unreadable" never is. The `bundle` category does NOT get
+ * that tolerance — `--bundle` with no `.next` build is a real, recorded skip.
+ */
+function walk(dir: string, skipped: SkippedPath[], tolerateAbsentRoot = false): string[] {
   const out: string[] = [];
   let entries: string[];
   try {
     entries = readdirSync(dir);
-  } catch {
+  } catch (err) {
+    if (!(tolerateAbsentRoot && errCode(err) === "ENOENT")) skipped.push({ path: dir, reason: errCode(err) });
     return out;
   }
   for (const entry of entries) {
@@ -98,10 +161,11 @@ function walk(dir: string): string[] {
     let s;
     try {
       s = statSync(full);
-    } catch {
+    } catch (err) {
+      skipped.push({ path: full, reason: errCode(err) });
       continue;
     }
-    if (s.isDirectory()) out.push(...walk(full));
+    if (s.isDirectory()) out.push(...walk(full, skipped));
     else out.push(full);
   }
   return out;
@@ -111,6 +175,8 @@ export interface ScanResult {
   hits: Hit[];
   filesScanned: number;
   sandboxSkipped: boolean;
+  /** Paths the scan could NOT read. Non-empty ⇒ the tree is unverified ⇒ the gate must fail (SF-1/2). */
+  skipped: SkippedPath[];
 }
 
 export interface ScanOptions {
@@ -132,10 +198,13 @@ export function scan(opts: ScanOptions = {}): ScanResult {
   }
 
   const hits: Hit[] = [];
+  const skipped: SkippedPath[] = [];
   let filesScanned = 0;
 
   for (const spec of categorySpecs(opts.bundle ?? false)) {
-    const files = walk(join(cwd, spec.dir));
+    // Source categories may legitimately be absent (partial fixtures); a missing `.next` under
+    // --bundle is a real skip and is recorded (see `walk`).
+    const files = walk(join(cwd, spec.dir), skipped, spec.category !== "bundle");
     for (const file of files) {
       const ext = extname(file).toLowerCase();
       const allowed = spec.exts ? spec.exts.includes(ext) : TEXT_EXT.has(ext);
@@ -144,7 +213,9 @@ export function scan(opts: ScanOptions = {}): ScanResult {
       let text: string;
       try {
         text = readFileSync(file, "utf8");
-      } catch {
+      } catch (err) {
+        // SF-2: an unreadable file is an unverified file — recorded, never silently dropped.
+        skipped.push({ path: relative(cwd, file), reason: errCode(err) });
         continue;
       }
       if (text.includes(String.fromCharCode(0))) continue; // binary guard (skip files with a NUL byte)
@@ -166,18 +237,24 @@ export function scan(opts: ScanOptions = {}): ScanResult {
     hits.push({ file: "public/resume.pdf", line: 0, pattern: "resume.pdf while resumeAvailable=false", match: "present" });
   }
 
-  return { hits, filesScanned, sandboxSkipped: opts.sandboxSkipped ?? false };
+  return { hits, filesScanned, sandboxSkipped: opts.sandboxSkipped ?? false, skipped };
 }
 
-/** Read the git-ignored sandbox-code list; returns null when the file is absent. */
+/**
+ * Read the git-ignored sandbox-code list. Returns `null` when the file is ABSENT (the documented,
+ * loud "SKIP" path) and THROWS when it is present but unreadable/malformed — SF-3 (Stage 9): a corrupt
+ * file previously returned `[]`, silently degrading to "verified zero codes" with no SKIP line.
+ */
 export function readSandboxCodes(cwd = process.cwd()): string[] | null {
   const p = join(cwd, "tests", "forbidden.local.json");
   if (!existsSync(p)) return null;
   try {
     const parsed = JSON.parse(readFileSync(p, "utf8")) as { strings?: string[] };
     return parsed.strings ?? [];
-  } catch {
-    return [];
+  } catch (err) {
+    throw new Error(
+      `tests/forbidden.local.json exists but is unreadable/malformed (${errCode(err)}) — fix or delete it; a corrupt sandbox-code list is not "no codes".`,
+    );
   }
 }
 
@@ -190,6 +267,15 @@ function main(): void {
   }
 
   const result = scan({ bundle, sandboxCodes: codes ?? [], sandboxSkipped });
+
+  // SF-1/SF-2: an unverified path is a failure, not a smaller "0 hits" (fail closed).
+  if (result.skipped.length > 0) {
+    for (const s of result.skipped) {
+      console.error(`SKIPPED (cannot verify): ${s.path} — ${s.reason}`);
+    }
+    console.error(`\n${result.skipped.length} path${result.skipped.length === 1 ? "" : "s"} could not be scanned — tree is unverified`);
+    process.exit(1);
+  }
 
   if (result.hits.length > 0) {
     for (const h of result.hits) {

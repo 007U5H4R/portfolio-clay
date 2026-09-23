@@ -39,7 +39,15 @@ export default function WorkPage() {
   return (
     <>
       <WorkHero />
-      <Container as="section" aria-label="Projects" className="pb-[var(--section-gap-desktop)]">
+      <Container as="section" aria-labelledby="work-personal-heading" className="pb-[var(--section-gap-desktop)]">
+        {/* QA-004 (TKT-48 follow-up): the page h1 ("Work") was followed directly by the ProjectCard
+            h3s — an h1→h3 heading-outline skip for screen-reader users navigating by heading (caught
+            by the CF-3 heading-order guard, invisible to axe's WCAG2AA tags). A real (sr-only) h2
+            names the personal-builds region so the outline reads h1 → h2 → h3; the visible framing
+            already lives in WorkHero's lead + FilterTabs, so no visual change. */}
+        <h2 id="work-personal-heading" className="sr-only">
+          Personal builds
+        </h2>
         <Suspense fallback={<FilterTabsFallback />}>
           <FilterTabs />
         </Suspense>

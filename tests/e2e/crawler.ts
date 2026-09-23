@@ -122,8 +122,21 @@ async function headOnce(url: string, method: "HEAD" | "GET"): Promise<Response> 
 }
 
 /**
+ * True for the abort/timeout error thrown when `AbortSignal.timeout(EXTERNAL_TIMEOUT_MS)` fires —
+ * Node's fetch (undici) throws a `DOMException`/`Error` named `TimeoutError` or `AbortError`
+ * depending on runtime. A timeout means "this bot couldn't confirm it in N seconds" (the external
+ * host may still be perfectly live for a human), never "the link is dead" — same class of leniency
+ * as the existing `BOT_BLOCK_STATUSES` → WARN handling (EVAL-011 robustness, CF-1).
+ */
+export function isTimeoutError(err: unknown): boolean {
+  const name = (err as { name?: string } | undefined)?.name;
+  return name === "AbortError" || name === "TimeoutError";
+}
+
+/**
  * Check an external URL. HEAD first (falling back to GET on 405), retry once after 2 s on 429/5xx.
- * 200–399 ⇒ ok; 403 from a known bot-blocking host ⇒ warn; anything else ⇒ dead. Cached per run.
+ * 200–399 ⇒ ok; 403 from a known bot-blocking host ⇒ warn; a timeout ⇒ warn (unconfirmed, not dead);
+ * anything else ⇒ dead. Cached per run.
  */
 export async function checkExternal(url: string): Promise<FetchOutcome> {
   const cached = fetchCache.get(url);
@@ -137,7 +150,9 @@ export async function checkExternal(url: string): Promise<FetchOutcome> {
       res = await headOnce(url, "HEAD");
       if (res.status === 405) res = await headOnce(url, "GET");
     } catch (err) {
-      outcome = { verdict: "dead", status: null, detail: `fetch error: ${(err as Error).message}` };
+      outcome = isTimeoutError(err)
+        ? { verdict: "warn", status: null, detail: `timeout after ${EXTERNAL_TIMEOUT_MS}ms — unconfirmed, not dead` }
+        : { verdict: "dead", status: null, detail: `fetch error: ${(err as Error).message}` };
       fetchCache.set(url, outcome);
       return outcome;
     }
@@ -165,8 +180,17 @@ export async function checkExternal(url: string): Promise<FetchOutcome> {
   return outcome;
 }
 
-/** Fetch an internal URL (GET, same-origin) and return its status + body for hash-target checks. */
-async function getInternal(url: string): Promise<{ status: number; body: string } | null> {
+type InternalFetch =
+  | { status: number; body: string }
+  | { failed: true; timeout: boolean; detail: string };
+
+/**
+ * Fetch an internal URL (GET, same-origin) and return its status + body for hash-target checks.
+ * SF-4 (Stage 9): never collapses a failure to a bare `null` — the caller gets the real error text
+ * and whether it was a timeout, so a slow local server is classified `warn` (unconfirmed, exactly
+ * like `checkExternal`'s CF-1 rule) instead of a hard `dead` with the diagnostic thrown away.
+ */
+async function getInternal(url: string): Promise<InternalFetch> {
   await acquire();
   try {
     const res = await fetch(url, {
@@ -177,8 +201,14 @@ async function getInternal(url: string): Promise<{ status: number; body: string 
     });
     const body = await res.text();
     return { status: res.status, body };
-  } catch {
-    return null;
+  } catch (err) {
+    const timeout = isTimeoutError(err);
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      failed: true,
+      timeout,
+      detail: timeout ? `timeout after ${EXTERNAL_TIMEOUT_MS}ms — unconfirmed, not dead` : message,
+    };
   } finally {
     release();
   }
@@ -478,8 +508,16 @@ export async function classifyControl(
       const owner = KNOWN_UNBUILT[cls.path];
       const url = ctx.baseUrl + cls.path;
       const res = await getInternal(url);
-      if (!res) {
-        return { ...base, kind: "internal-link", target: cls.path, verdict: "dead", detail: "fetch failed" };
+      if ("failed" in res) {
+        // SF-4: a timeout is "unconfirmed" (warn), mirroring checkExternal; anything else is dead —
+        // and either way the real error text is kept instead of a bare "fetch failed".
+        return {
+          ...base,
+          kind: "internal-link",
+          target: cls.path,
+          verdict: res.timeout ? "warn" : "dead",
+          detail: `fetch failed: ${res.detail}`,
+        };
       }
       const status2xx = res.status >= 200 && res.status <= 299;
       if (!status2xx) {

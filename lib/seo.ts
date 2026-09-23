@@ -17,8 +17,12 @@ export function siteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return explicit.replace(/\/+$/, "");
 
+  // Only a PRODUCTION build may self-reference the production host. Vercel sets
+  // VERCEL_PROJECT_PRODUCTION_URL on preview builds too, so without this gate every preview's
+  // canonical/og:url/og:image pointed at production — a 404 until the first production deploy
+  // exists, and never the preview actually being shared/inspected (CR-002 / QA-006, Stage 9).
   const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (productionHost) return `https://${productionHost}`;
+  if (productionHost && process.env.VERCEL_ENV === "production") return `https://${productionHost}`;
 
   const previewHost = process.env.VERCEL_URL;
   if (previewHost) return `https://${previewHost}`;
