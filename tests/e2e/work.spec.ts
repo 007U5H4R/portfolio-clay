@@ -178,30 +178,31 @@ test("@EVAL-007 FilterTabs: arrow keys move focus, activate the filter, and show
 });
 
 // ---------------------------------------------------------------------------
-// AC1 — editorial grid spans: a lead hero card, never a uniform matrix.
+// AC1 (superseded, M-008 Stage B / TASK-57): the "hero + rail + 3-up" positional grid was replaced
+// by a numbered `01/02/03…` editorial index (mockup 6) — there is no longer a lead "hero" card, so
+// the old span-ratio assertion no longer describes the layout. Replaced with an assertion on the
+// new contract: every visible row carries an ascending, zero-padded numeral (re-sequenced for the
+// active filter) and every row spans the same full width (no positional hierarchy).
 // ---------------------------------------------------------------------------
-test("editorial grid gives card[0] the hero span (≈8/12 desktop, full-width tablet)", async ({
+test("editorial index numbers rows 01, 02, 03… in order, each spanning the full row width", async ({
   page,
 }) => {
-  test.skip(width(page) !== 1440 && width(page) !== 768, "span math measured at 1440 and 768");
+  test.skip(width(page) !== 1440, "numeral/width check is viewport-independent; checked once at w1440");
   await page.goto("/work", { waitUntil: "load" });
   await expect.poll(async () => (await gridSlugs(page)).length).toBe(EXPECTED.all!.length);
 
-  const gridBox = await page.locator("[role=tabpanel] ul").boundingBox();
-  const heroBox = await page.locator("[role=tabpanel] ul > li").nth(0).boundingBox();
-  const mediumBox = await page.locator("[role=tabpanel] ul > li").nth(1).boundingBox();
-  expect(gridBox && heroBox && mediumBox).toBeTruthy();
-  const heroRatio = heroBox!.width / gridBox!.width;
+  const numerals = await page.locator('[role=tabpanel] ol > li').evaluateAll((rows) =>
+    rows.map((row) => row.querySelector("span[aria-hidden]")?.textContent?.trim()),
+  );
+  const expectedNumerals = EXPECTED.all!.map((_, i) => String(i + 1).padStart(2, "0"));
+  expect(numerals).toEqual(expectedNumerals);
 
-  if (width(page) === 1440) {
-    // Hero ≈ 8/12; medium ≈ 4/12 — the hero is markedly wider than a rail medium.
-    expect(heroRatio).toBeGreaterThan(0.6);
-    expect(heroRatio).toBeLessThan(0.72);
-    expect(heroBox!.width).toBeGreaterThan(mediumBox!.width * 1.6);
-  } else {
-    // 768–1023: hero full width, mediums 2-up (≈half).
-    expect(heroRatio).toBeGreaterThan(0.95);
-    expect(mediumBox!.width / gridBox!.width).toBeLessThan(0.55);
+  const widths = await page.locator('[role=tabpanel] ol > li').evaluateAll((rows) =>
+    rows.map((row) => row.getBoundingClientRect().width),
+  );
+  const first = widths[0]!;
+  for (const w of widths) {
+    expect(Math.abs(w - first)).toBeLessThan(2); // every row the same width — no lead "hero" card
   }
 });
 
