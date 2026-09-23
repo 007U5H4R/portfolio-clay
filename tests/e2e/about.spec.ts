@@ -25,21 +25,28 @@ import { site } from "@/lib/site";
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
 // ---------------------------------------------------------------------------
-// AboutHero — flat hero variant: headline, bio, avatar. No FloatingTiles, no Annotation.
+// AboutHero — editorial opening (M-008 Stage B redesign): statement headline, 3-stat row,
+// pull-quote, avatar. No FloatingTiles, no Annotation.
 // ---------------------------------------------------------------------------
-test("AboutHero renders the flat headline, bio, and avatar — no floating tiles", async ({ page }) => {
+test("AboutHero renders the editorial headline, stat row, pull-quote, and avatar — no floating tiles", async ({
+  page,
+}) => {
   await page.goto("/about", { waitUntil: "load" });
 
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Senior Product Manager. Product Thinker · AI Builder · Problem Solver.",
-  );
-
-  // The bio paragraph traces to CONTENT_INVENTORY §4.1 and omits "AI Product Manager" (brief AC1).
   const heroSection = page.locator('section[aria-labelledby="about-hero-heading"]');
-  const bio = heroSection.locator("p").first();
-  await expect(bio).toContainText("7+ years");
-  await expect(bio).toContainText("cloud-native, AI, and data-driven products across GCP and AWS");
-  await expect(page.locator("body")).not.toContainText("AI Product Manager");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("I started with machines.");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Now, intelligent products.");
+  await expect(heroSection).toContainText("Same curiosity");
+
+  // 3-stat row (derived from data/experience.ts + data/impact.ts — see AboutHero.tsx docstring).
+  await expect(heroSection).toContainText("years building products");
+  await expect(heroSection).toContainText("industries");
+  await expect(heroSection).toContainText("curiosity");
+
+  // Pull-quote.
+  await expect(heroSection).toContainText(
+    "I build at the intersection of people, products and intelligent systems.",
+  );
 
   // Avatar reused from the home Hero (same alt text, single source of truth in lib/site.ts).
   await expect(page.getByRole("img", { name: site.avatarAlt })).toBeVisible();
@@ -48,15 +55,6 @@ test("AboutHero renders the flat headline, bio, and avatar — no floating tiles
   // the flat variant omits it entirely (AboutHero.tsx does not import FloatingTiles).
   await expect(heroSection.getByText("AI Products", { exact: true })).toHaveCount(0);
   await expect(heroSection.getByText("Progress", { exact: true })).toHaveCount(0);
-});
-
-test("AboutHero's bio measure stays within the ≤600px cap", async ({ page }) => {
-  test.skip(width(page) !== 1440, "measure cap is a max-width, checked once at the widest viewport");
-  await page.goto("/about", { waitUntil: "load" });
-  const heroSection = page.locator('section[aria-labelledby="about-hero-heading"]');
-  const bio = heroSection.locator("p").first();
-  const box = await bio.boundingBox();
-  expect(box?.width ?? 0, "AboutHero bio paragraph width").toBeLessThanOrEqual(600);
 });
 
 // ---------------------------------------------------------------------------
@@ -69,7 +67,7 @@ test("ProductJourney renders exactly 4 stages with no click interaction and no g
   await page.goto("/about", { waitUntil: "load" });
 
   const section = page.locator("#product-journey");
-  await expect(section.getByRole("heading", { name: "The product journey" })).toBeVisible();
+  await expect(section.getByRole("heading", { name: "Different tools. Same curiosity." })).toBeVisible();
 
   const stages = section.locator("ol > li");
   await expect(stages).toHaveCount(4);
