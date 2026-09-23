@@ -1,23 +1,26 @@
 "use client";
 
 /**
- * HowIThink (home section, TKT-13; technical-plan.md §B S13.02/S13.03, Design.md §3 "How I Think").
+ * HowIThink (home section, TKT-13; redesigned M-008 Stage B / TASK-55 to mockup 3 "A product
+ * journey, not a process"). Design.md §3 "How I Think" describes the pre-redesign row-of-tiles
+ * layout; this pass restyles it into a connected journey path per the mockup while preserving
+ * every behavioural contract from that spec verbatim (see below) — nothing here re-opens the
+ * interaction model, only its visual presentation.
  *
- * Six `ClayTile` (utility tier) disclosure buttons in a row (≥1024) / stack (<1024), one per
- * framework stage, each keyed to its own `tone` (Law of Similarity — one stage, one colour,
- * everywhere the stage is referenced). Clicking (or Enter/Space on) a tile reveals a single shared
- * card below the row holding that stage's real, sourced example — quote, attribution, and a link
- * into the case study that proves it. Only one stage is open at a time; opening a second closes the
- * first. `Escape` closes without moving focus off the tile; a `pointerdown` outside the module also
- * closes it.
+ * Six round icon "nodes" in a row (≥1024) / stack (<1024), one per framework stage, each keyed to
+ * its own `tone` (Law of Similarity — one stage, one colour, everywhere the stage is referenced),
+ * connected by a decorative path (a static inline-SVG wave at ≥1024, a straight left-edge line
+ * below it — both `aria-hidden`, purely visual). Clicking (or Enter/Space on) a node reveals a
+ * single shared "sticky-note" card below the row holding that stage's DRAFT principle framing plus
+ * its real, sourced example — quote, attribution, and a link into the case study that proves it.
+ * Only one stage is open at a time; opening a second closes the first. `Escape` closes without
+ * moving focus off the node; a `pointerdown` outside the module also closes it.
  *
  * `ClayTile` only ever renders a `<div>` (no polymorphic `as`, unlike `ClayCard`), and its `utility`
  * tier structurally forbids `interactive` (Design.md §2 / D1 — a utility surface has no press
- * state). Each tile is therefore wrapped in a real `<button>` that owns focus/click/keyboard
+ * state). Each node is therefore wrapped in a real `<button>` that owns focus/click/keyboard
  * handling — the same "div carries the visual, a wrapping control owns focus" pattern `ClayTile`'s
  * own docstring already uses for the card-tier interactive tiles (`components/hero/FloatingTiles`).
- * The only hover effect on the tile itself is the principle line's text-colour shift (Design.md §3:
- * "200ms, desktop only") — never a shadow/lift, which utility tier doesn't have.
  *
  * Motion deviation (documented, same reasoning as `AskPortfolio`'s TKT-10 report): the plan named
  * `m.div layout` for the expand/collapse, but Design.md §4's own "How-I-Think stage expand" row
@@ -25,11 +28,14 @@
  * which `LazyMotionRoot` deliberately does not load (A6 bundle budget). A CSS `grid-template-rows`
  * transition on the shared expand region gives the same in-place height change without the extra
  * bundle weight; `motion-reduce:transition-none` collapses it to instant, matching the table's
- * reduced-motion mapping exactly.
+ * reduced-motion mapping exactly. The decorative SVG path is static (no draw-in animation), so it
+ * needs no reduced-motion handling of its own.
  *
  * Every `principle` line is unsigned-off editorial framing (see `data/thinking-framework.ts`'s
  * header), so it always renders the same "Draft" badge `AnswerView` already established for DRAFT
- * Ask copy — one visual convention for "this line is DRAFT", reused rather than re-invented.
+ * Ask copy — one visual convention for "this line is DRAFT", reused rather than re-invented. It now
+ * renders inside the expanded sticky-note card (alongside the real quote) rather than on the node
+ * itself, since the mockup's nodes are icon+label only.
  */
 import {
   CircleAlert,
@@ -146,22 +152,40 @@ export function HowIThink({ stages }: HowIThinkProps) {
     <Section id="how-i-think" aria-labelledby="how-i-think-heading">
       <SectionHeading
         id="how-i-think-heading"
-        eyebrow="Process"
-        title="How I think"
-        lead="Six stages I return to on every product, each grounded in one real, sourced example."
-        className="mb-[var(--space-8)]"
+        eyebrow="How I think"
+        title="A product journey, not a process."
+        lead="From ambiguity to impact — six stages I return to on every product, each grounded in one real, sourced example."
+        className="mb-[var(--space-9)]"
       />
 
       <ol
         ref={listRef}
-        className="relative flex flex-col gap-[var(--space-4)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-3 before:content-[''] lg:flex-row lg:flex-wrap lg:gap-[var(--space-3)] lg:pl-0 lg:before:inset-x-0 lg:before:bottom-[-14px] lg:before:top-auto lg:before:left-0 lg:before:h-px lg:before:w-auto"
+        className="relative flex flex-col gap-[var(--space-6)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-3 before:content-[''] lg:flex-row lg:items-start lg:justify-between lg:gap-[var(--space-2)] lg:pl-0 lg:pt-[var(--space-6)] lg:before:content-none"
       >
+        {/* Decorative journey-path connector (≥1024 only). Static, aria-hidden — no draw-in
+            animation, so it needs no reduced-motion handling of its own. */}
+        <svg
+          aria-hidden
+          viewBox="0 0 1200 100"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-x-0 top-[26px] hidden h-[52px] w-full lg:block"
+        >
+          <path
+            d="M100,66 Q200,26 300,26 T500,66 T700,26 T900,66 T1100,26"
+            fill="none"
+            className="stroke-ink-3/35"
+            strokeWidth="2"
+            strokeDasharray="1 10"
+            strokeLinecap="round"
+          />
+        </svg>
+
         {stages.map((stage, index) => {
           const isOpen = stage.id === openId;
           const StageIcon = STAGE_ICON[stage.id];
 
           return (
-            <li key={stage.id} className="relative">
+            <li key={stage.id} className="relative z-[1]">
               <button
                 type="button"
                 data-stage-trigger
@@ -174,37 +198,30 @@ export function HowIThink({ stages }: HowIThinkProps) {
                 }}
                 onFocus={() => setActiveIndex(index)}
                 onKeyDown={(event) => onTriggerKeyDown(event, index)}
-                className="group block rounded-[var(--radius-utility)] text-left focus-ring"
+                className="group flex items-center gap-[var(--space-3)] rounded-[var(--radius-utility)] text-left focus-ring lg:flex-col lg:items-center lg:gap-[var(--space-2)] lg:text-center"
               >
-                {/* Design.md §3 spec's literal "~160px wide"; ClayTile's discrete sizes are
-                    40/56/120/140/180 (components/clay/ClayTile.tsx) — 140 is the nearest without
-                    widening that shared primitive's size union out of this ticket's scope.
-                    `!h-auto` relaxes ClayTile's square default so the icon/label/principle stack
-                    can grow the box (same relaxed-aspect idiom as `components/hero/FloatingTiles`),
-                    while width stays pinned at the fixed 140px (Design.md wants fixed-width tiles
-                    in a row, not stretched-to-fill). */}
+                {/* Node: a circular icon medallion (journey "step") — the tile's square utility
+                    shape is overridden to a circle with `!rounded-full`, same override idiom this
+                    file already used for `!h-auto` pre-redesign. `isOpen` gets the hover-lift ring
+                    permanently on, so the currently-open step stays visually marked. */}
                 <ClayTile
                   tier="utility"
                   tone={stage.tone}
-                  size={140}
-                  className="!h-auto flex-col items-start gap-[var(--space-2)] p-[var(--space-4)] text-left"
+                  size={56}
+                  className={`!rounded-full shrink-0 transition-shadow duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none ${
+                    isOpen ? "shadow-[var(--shadow-clay-hover)]" : ""
+                  }`}
                 >
                   <Icon icon={StageIcon} size={24} />
-                  <span className="text-[length:var(--text-body)] font-bold text-ink">{stage.label}</span>
-                  <span className="text-caption leading-snug text-ink-2 transition-colors duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none [@media(hover:hover)]:group-hover:text-ink">
-                    {stage.principle}
-                  </span>
                 </ClayTile>
+                <span className="text-[length:var(--text-body)] font-bold text-ink transition-colors duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none [@media(hover:hover)]:group-hover:text-accent">
+                  {stage.label}
+                </span>
               </button>
             </li>
           );
         })}
       </ol>
-
-      <div className="flex items-center gap-[var(--space-2)] pt-[var(--space-3)] lg:pt-[var(--space-6)]">
-        <DraftBadge />
-        <span className="text-caption text-ink-3">Principle lines are my own framing, not yet signed off.</span>
-      </div>
 
       <div
         id={PANEL_ID}
@@ -217,8 +234,19 @@ export function HowIThink({ stages }: HowIThinkProps) {
               tier="card"
               tone={openStage.tone}
               padding="card"
-              className="mt-[var(--space-6)] flex flex-col items-start gap-[var(--space-3)]"
+              className="relative mt-[var(--space-8)] flex max-w-[520px] -rotate-1 flex-col items-start gap-[var(--space-3)]"
             >
+              {/* "Washi tape" accent — decorative, aria-hidden, one existing token (butter), no new
+                  colour added (13-token gate). */}
+              <span
+                aria-hidden
+                className="absolute -top-[var(--space-3)] left-[var(--space-7)] h-[var(--space-5)] w-[var(--space-9)] rotate-2 rounded-[3px] bg-butter/70"
+              />
+              <div className="flex items-center gap-[var(--space-2)]">
+                <DraftBadge />
+                <span className="text-caption text-ink-3">{openStage.label} — my own framing, not yet signed off</span>
+              </div>
+              <p className="text-body font-semibold text-ink">{openStage.principle}</p>
               <blockquote className="max-w-[65ch] text-[length:var(--text-lead)] text-ink">
                 “{openStage.example.quote}”
               </blockquote>
