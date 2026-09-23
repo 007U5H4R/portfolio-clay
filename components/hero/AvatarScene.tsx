@@ -12,7 +12,7 @@ import { HERO_MOTION } from "@/lib/heroMotion";
 import { usePointerParallax, useParallaxLayer, type PointerParallax } from "@/hooks/usePointerParallax";
 import { useHeroActivation } from "./HeroActivationContext";
 
-// The avatar is the LCP element: intrinsic 1800×2250 (4:5), rendered at the frame's CSS width.
+// The avatar is the LCP element: intrinsic 1440×1800 (4:5), rendered at the frame's CSS width.
 const AVATAR_SIZES =
   "(min-width:1440px) 520px, (min-width:1024px) 480px, (min-width:768px) 300px, 200px";
 
@@ -123,8 +123,8 @@ export function AvatarScene({ blurDataURL }: AvatarSceneProps) {
               <Image
                 src="/avatar/avatar.webp"
                 alt={site.avatarAlt}
-                width={1800}
-                height={2250}
+                width={1440}
+                height={1800}
                 priority
                 // Next 16's next/image does NOT derive `fetchpriority` from `priority`; the avatar is
                 // the LCP element, so set it explicitly.

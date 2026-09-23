@@ -20,6 +20,7 @@
  * OG image (final ticket — `/about` is fully assembled after this).
  */
 import { test, expect } from "./fixtures";
+import { site } from "@/lib/site";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
@@ -41,7 +42,7 @@ test("AboutHero renders the flat headline, bio, and avatar — no floating tiles
   await expect(page.locator("body")).not.toContainText("AI Product Manager");
 
   // Avatar reused from the home Hero (same alt text, single source of truth in lib/site.ts).
-  await expect(page.getByRole("img", { name: "Clay illustration of Tushar Pathak at a laptop" })).toBeVisible();
+  await expect(page.getByRole("img", { name: site.avatarAlt })).toBeVisible();
 
   // No FloatingTiles (home Hero's "AI Products / People / Progress" 3-tile proof stack) on /about —
   // the flat variant omits it entirely (AboutHero.tsx does not import FloatingTiles).

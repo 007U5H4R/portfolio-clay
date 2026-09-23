@@ -16,7 +16,7 @@ export const site = {
   priorSite: "https://tushar-pathak.vercel.app/",
   resumeAvailable: false as boolean,
   /** The only place this alt string lives (EVAL-013 alt rule) — every avatar <img> derives it from here. */
-  avatarAlt: "Clay illustration of Tushar Pathak at a laptop",
+  avatarAlt: "Claymorphic portrait of Tushar Pathak, arms crossed in a grey blazer",
 };
 
 export interface ResumeAction {
