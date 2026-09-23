@@ -22,9 +22,12 @@ jobs:
     # dotenv-cli never overrides a variable already present in the environment, so setting both
     # here keeps the local scar guard intact while giving the Linux runner paths that exist.
     # The Playwright install step below must see the same PLAYWRIGHT_BROWSERS_PATH as the tests.
+    # Literal paths: the `runner` context is not available in job-level `env` (first CI run failed
+    # to parse on `${{ runner.temp }}`); these are ubuntu-latest's real temp dir and Playwright's
+    # default cache location for the `runner` user.
     env:
-      TMPDIR: ${{ runner.temp }}
-      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
+      TMPDIR: /tmp
+      PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
     steps:
       - name: Checkout
         uses: actions/checkout@v4
