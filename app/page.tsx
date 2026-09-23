@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
+import { HeroActivationProvider } from "@/components/hero/HeroActivationContext";
 import { AskPortfolio } from "@/components/ai/AskPortfolio";
 import { Section } from "@/components/layout/Section";
 import { SectionHeading } from "@/components/layout/SectionHeading";
@@ -42,7 +43,10 @@ export const metadata: Metadata = buildMetadata({
 
 export default function Home() {
   return (
-    <>
+    // HeroActivationProvider lifts one boolean ("is the Ask input focused?") to a common ancestor of
+    // both the Hero and the Ask section so focusing the input can subtly activate the hero avatar
+    // scene (animation prompt.md §5). Client provider; the server sections pass through as children.
+    <HeroActivationProvider>
       <Hero />
 
       {/*
@@ -80,6 +84,6 @@ export default function Home() {
         section's single lavender accent (the hero-tier card) and the three conversion actions.
       */}
       <FinalCTA />
-    </>
+    </HeroActivationProvider>
   );
 }
