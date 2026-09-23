@@ -57,6 +57,20 @@ export const HERO_MOTION = {
   idle: {
     breathMs: 4800, // breathing loop period on the avatar
   },
+
+  /**
+   * Pose/expression variant swaps (A-bis). The base avatar.webp is always the LCP layer; normalized
+   * variant webps (scripts/avatar-poses.ts) crossfade over it: gaze toward a hovered tile, an ask-
+   * focus lean, and — when otherwise at rest — an occasional subtle expression. All pointer-fine and
+   * motion-allowing only; reduced-motion / touch never swap (static base). `crossfadeMs` is CSS-paired
+   * (fed to `--hero-xfade`); the idle timings are JS-consumed by the idle cycle in AvatarScene.
+   */
+  expression: {
+    crossfadeMs: 420, // variant opacity crossfade (also set as --hero-xfade on the scene)
+    idleHoldMs: 1900, // how long an idle expression is held before returning to base
+    idleGapMinMs: 6000, // shortest wait between idle expressions
+    idleGapMaxMs: 11000, // longest wait between idle expressions
+  },
   hover: {
     liftPx: 6, // icon-tile lift on hover
   },

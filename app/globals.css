@@ -445,6 +445,25 @@ body::before {
   }
 }
 
+/* A-bis pose/expression variant layers: normalized webps (scripts/avatar-poses.ts) that crossfade
+   over the base avatar. Opacity-only (transform-free — parallax/tilt/lean/entrance all live on
+   ancestor elements, so these never fight them). Only the [data-active] layer is shown; --hero-xfade
+   is set on the scene container from HERO_MOTION.expression.crossfadeMs. Reduced motion removes them
+   entirely (AvatarScene also never mounts them without a fine pointer + motion — belt and braces). */
+.hero-avatar-variant {
+  opacity: 0;
+  transition: opacity var(--hero-xfade, 420ms) var(--ease-hover);
+  will-change: opacity;
+}
+.hero-avatar-variant[data-active="true"] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-avatar-variant {
+    display: none !important;
+  }
+}
+
 @keyframes hero-breathe {
   0%,
   100% {

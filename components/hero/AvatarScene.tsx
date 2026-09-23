@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { BookMarked, Laptop, Sprout, type LucideIcon } from "lucide-react";
 import { ClayFrame } from "@/components/clay/ClayFrame";
 import { ClayIcon } from "@/components/clay/ClayIcon";
 import type { Tone } from "@/components/clay/tiers";
-import { useReducedMotionSafe } from "@/lib/motion";
+import { useReducedMotionSafe, usePointerFine } from "@/lib/motion";
 import { site } from "@/lib/site";
 import { HERO_MOTION } from "@/lib/heroMotion";
 import { usePointerParallax, useParallaxLayer, type PointerParallax } from "@/hooks/usePointerParallax";
@@ -43,6 +43,27 @@ const CONCEPT_LEAN: Record<Concept, number> = {
   learn: HERO_MOTION.activation.leanX, // book sits right → lean right
   grow: -HERO_MOTION.activation.leanX, // plant sits left → lean left
 };
+
+// A-bis pose/expression variants — normalized webps (scripts/avatar-poses.ts) crossfaded over the
+// LCP base avatar. Gaze variants map 1:1 to the hovered concept; ask-lean is the Ask-focus pose; the
+// idle cycle draws from the expression pool. Each key has an /avatar/avatar-<key>.webp asset.
+const GAZE_BY_CONCEPT: Record<Concept, VariantKey> = {
+  build: "gaze-laptop", // laptop tile (top-left)
+  learn: "gaze-book", // book tile (right)
+  grow: "gaze-plant", // plant tile (bottom-left)
+};
+const IDLE_EXPRESSIONS = ["smile", "thinking", "surprised"] as const;
+// Every variant that gets a preloaded crossfade layer (gazes + ask-lean + the idle expressions).
+const VARIANT_KEYS = [
+  "gaze-laptop",
+  "gaze-book",
+  "gaze-plant",
+  "ask-lean",
+  "smile",
+  "thinking",
+  "surprised",
+] as const;
+type VariantKey = (typeof VARIANT_KEYS)[number];
 
 export interface AvatarSceneProps {
   /** blurDataURL read from disk in the server AvatarStage wrapper (keeps readFileSync server-side). */
@@ -81,6 +102,14 @@ export function AvatarScene({ blurDataURL }: AvatarSceneProps) {
   // Which tile is hovered (drives the avatar's lean direction). Pointer-only by nature.
   const [hovered, setHovered] = useState<Concept | null>(null);
 
+  // Pose/expression swaps run only on a fine pointer with motion allowed. `activated` defers loading
+  // the variant webps until the visitor first engages the scene, keeping them off the LCP / initial
+  // path; `idleExpr` is the current at-rest expression chosen by the idle cycle below.
+  const pointerFine = usePointerFine();
+  const swapsEnabled = pointerFine && !reduced;
+  const [activated, setActivated] = useState(false);
+  const [idleExpr, setIdleExpr] = useState<VariantKey | null>(null);
+
   const p = HERO_MOTION.parallax;
 
   // Frame+avatar: parallax translate + ±tilt (perspective) composited into one transform string on
@@ -106,10 +135,55 @@ export function AvatarScene({ blurDataURL }: AvatarSceneProps) {
   // Scene glow rises when a tile is hovered or the Ask input is focused.
   const sceneActive = askActive || hovered !== null;
 
+  // Which variant (if any) is showing right now. Priority: a hovered tile's gaze (most direct
+  // intent) › the Ask-focus lean › the idle at-rest expression › none (the base avatar).
+  const activeVariant: VariantKey | null = !swapsEnabled
+    ? null
+    : hovered
+      ? GAZE_BY_CONCEPT[hovered]
+      : askActive
+        ? "ask-lean"
+        : idleExpr;
+
+  // Idle expression cycle: when engaged and otherwise at rest, occasionally hold a subtle expression
+  // then return to the base ("alive, not animated"). A bounded recursive-timeout loop (its stop rule
+  // is unmount / deps change); paused while the tab is hidden. Idle picks are ignored by the priority
+  // above whenever a tile is hovered or Ask is focused, so no need to coordinate with those here.
+  useEffect(() => {
+    if (!activated || !swapsEnabled) return;
+    const { idleHoldMs, idleGapMinMs, idleGapMaxMs } = HERO_MOTION.expression;
+    let gapTimer: ReturnType<typeof setTimeout>;
+    let holdTimer: ReturnType<typeof setTimeout>;
+    const scheduleNext = () => {
+      const gap = idleGapMinMs + Math.random() * (idleGapMaxMs - idleGapMinMs);
+      gapTimer = setTimeout(() => {
+        if (typeof document !== "undefined" && document.hidden) {
+          scheduleNext(); // tab backgrounded — don't emote, just try again later
+          return;
+        }
+        const expr = IDLE_EXPRESSIONS[Math.floor(Math.random() * IDLE_EXPRESSIONS.length)]!;
+        setIdleExpr(expr);
+        holdTimer = setTimeout(() => {
+          setIdleExpr(null);
+          scheduleNext();
+        }, idleHoldMs);
+      }, gap);
+    };
+    scheduleNext();
+    return () => {
+      clearTimeout(gapTimer);
+      clearTimeout(holdTimer);
+      setIdleExpr(null);
+    };
+  }, [activated, swapsEnabled]);
+
   return (
     <div
       ref={containerRef}
       data-scene-active={sceneActive ? "true" : undefined}
+      // Defer mounting/loading the variant layers until the visitor first engages the scene.
+      onPointerEnter={swapsEnabled ? () => setActivated(true) : undefined}
+      style={{ "--hero-xfade": `${HERO_MOTION.expression.crossfadeMs}ms` } as CSSProperties}
       className="relative mx-auto w-full max-w-[200px] md:max-w-[300px] lg:max-w-[480px] 2xl:max-w-[520px]"
     >
       {/* 1 — activation glow (decorative; colour-only ramp, safe under reduced motion) */}
@@ -135,13 +209,32 @@ export function AvatarScene({ blurDataURL }: AvatarSceneProps) {
                 className="absolute inset-0 h-full w-full object-cover"
               />
               {/*
-                EXTENSION SEAM — per-object effects (laptop-screen glow, plant-leaf tilt, books
-                emphasise, gaze/blink/expressions). The current avatar is ONE flat webp, so these
-                cannot be done without separated foreground/background or multi-frame avatar assets.
-                When those land, mount the per-object overlay layers here (e.g. an absolutely-
-                positioned `laptopGlow` element keyed off `hovered === "build"`) — the hover/focus
-                state that would drive them (`hovered`, `askActive`) is already wired above.
+                A-bis variant layers — normalized pose/expression webps (scripts/avatar-poses.ts)
+                crossfaded over the base: gaze toward a hovered tile, the Ask-focus lean, and the
+                idle expression. Mounted only after first engagement on a fine pointer with motion
+                allowed (deferred off the LCP path); each is decorative (aria-hidden), opacity-only,
+                and toggled via `data-active` (see `.hero-avatar-variant` in globals.css).
+
+                STILL DEFERRED (need a separated foreground/background avatar, not a full-frame swap):
+                per-object effects like laptop-screen glow, plant-leaf tilt, books emphasise, and true
+                eyelid blink — independent gens won't align tightly enough for a clean partial swap.
               */}
+              {activated &&
+                swapsEnabled &&
+                VARIANT_KEYS.map((key) => (
+                  <Image
+                    key={key}
+                    src={`/avatar/avatar-${key}.webp`}
+                    alt=""
+                    aria-hidden
+                    width={1440}
+                    height={1800}
+                    sizes={AVATAR_SIZES}
+                    loading="lazy"
+                    data-active={activeVariant === key ? "true" : undefined}
+                    className="hero-avatar-variant absolute inset-0 h-full w-full object-cover"
+                  />
+                ))}
             </ClayFrame>
           </div>
         </div>
