@@ -17,6 +17,14 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # `pnpm build` / `pnpm eval` / `pnpm test:e2e` wrap their command in `dotenv -e .env.tooling`,
+    # which pins TMPDIR + PLAYWRIGHT_BROWSERS_PATH to this machine's E Drive (machine constraint).
+    # dotenv-cli never overrides a variable already present in the environment, so setting both
+    # here keeps the local scar guard intact while giving the Linux runner paths that exist.
+    # The Playwright install step below must see the same PLAYWRIGHT_BROWSERS_PATH as the tests.
+    env:
+      TMPDIR: ${{ runner.temp }}
+      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
     steps:
       - name: Checkout
         uses: actions/checkout@v4
