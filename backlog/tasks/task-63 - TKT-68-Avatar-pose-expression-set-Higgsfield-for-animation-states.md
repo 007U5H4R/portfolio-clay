@@ -1,9 +1,10 @@
 ---
 id: TASK-63
 title: TKT-68 Avatar pose + expression set (Higgsfield) for animation states
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-23 05:19'
+updated_date: '2026-09-23 06:59'
 labels:
   - P2
   - 'sp:3'
