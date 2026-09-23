@@ -135,6 +135,7 @@ async function measure(buffer: Buffer): Promise<Metrics> {
       headCenterX = (rowMin + rowMax) / 2;
     }
   }
+  if (headW <= 0) throw new Error("measure: no opaque row found in the head zone (degenerate cutout)");
   return { x: bx, y: by, w: bw, h: bh, headW, headCenterX, imgW: width, imgH: height };
 }
 
@@ -233,6 +234,17 @@ async function main(): Promise<void> {
   }
   const baseBuf = await sharp(BASE).ensureAlpha().png().toBuffer();
   const base = await measure(baseBuf);
+  // Sanity-guard the reference: a real background-removed bust has a head far narrower than the frame.
+  // A ratio near 1 means the base has no true alpha (e.g. a fully-opaque render) and every variant
+  // would be scaled to a bogus "head" — fail loudly instead of writing mis-sized outputs.
+  const headRatio = base.headW / base.w;
+  if (headRatio < 0.1 || headRatio > 0.95) {
+    console.error(
+      `avatar-poses.ts: base head/width ratio ${headRatio.toFixed(2)} is implausible — is ${BASE} ` +
+        `a real background-removed cutout with alpha? Aborting rather than mis-scaling the variants.`,
+    );
+    process.exit(1);
+  }
   console.log(
     `base: bbox x=${base.x} y=${base.y} w=${base.w} h=${base.h} · headW=${base.headW} ` +
       `headCx=${base.headCenterX.toFixed(0)} (in ${base.imgW}×${base.imgH})`,
