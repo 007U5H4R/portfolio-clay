@@ -3,10 +3,10 @@ id: TASK-48
 title: >-
   TKT-52: Hand-off to review - full pnpm eval record run + evidence pack +
   HANDOFF
-status: Blocked
+status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 12:46'
+updated_date: '2026-09-22 19:10'
 labels:
   - P0
   - 'sp:2'
