@@ -40,6 +40,9 @@ function run(args: string[]): { status: number; stdout: string } {
 }
 
 beforeAll(() => {
+  // `.eval/` is gitignored and only created by the eval runner — on a fresh clone (CI) it does not
+  // exist yet and `mkdtempSync` does not create parents (first Actions run failed here with ENOENT).
+  mkdirSync(resolve(ROOT, ".eval"), { recursive: true });
   fixtureDir = mkdtempSync(resolve(ROOT, ".eval", "bundle-fixture-"));
   const appDir = resolve(fixtureDir, ".next/server/app");
   const staticDir = resolve(fixtureDir, ".next/static/chunks");
