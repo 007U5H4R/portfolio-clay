@@ -154,7 +154,12 @@ function loadEnvTooling(): Record<string, string> {
   }
   return out;
 }
-const CHILD_ENV: NodeJS.ProcessEnv = { ...process.env, ...loadEnvTooling() };
+// The ambient environment wins over `.env.tooling`, matching the `dotenv -e .env.tooling` wrapper's
+// own non-override semantics (dotenv-cli never overwrites a var already set). Locally the wrapper has
+// already injected these before this process starts, so both orders agree; on CI the runner exports
+// real Linux TMPDIR / PLAYWRIGHT_BROWSERS_PATH (the E-Drive paths in .env.tooling do not exist there,
+// so letting the file win made the internal `pnpm build` fail with ENOENT on `/Volumes`).
+const CHILD_ENV: NodeJS.ProcessEnv = { ...loadEnvTooling(), ...process.env };
 if (baseUrlFlag) CHILD_ENV.PW_BASE_URL = baseUrlFlag;
 
 function runInherit(cmd: string, args: string[]): number {
