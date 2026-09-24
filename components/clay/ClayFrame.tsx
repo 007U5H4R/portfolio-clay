@@ -22,7 +22,7 @@ export interface ClayFrameProps {
   children?: ReactNode | undefined;
 }
 
-/** Intrinsic-ratio bezel around avatar/media — `AvatarStage`, case-study hero media, `PrototypeFrame`. */
+/** Intrinsic-ratio bezel around media — case-study hero media, `PrototypeFrame`. */
 export function ClayFrame({
   ratio = "4/5",
   tier = "hero",

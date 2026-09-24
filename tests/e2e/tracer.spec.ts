@@ -14,9 +14,12 @@
  * AskAIButton tab-order (S04.06), resume placeholder + /resume.pdf 404 (E-13).
  */
 import { test, expect } from "./fixtures";
+// The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
+// JPEGs for `next/image`, which Playwright's TypeScript transform cannot load.
+import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
-const AVATAR_ALT = /Clay illustration of Tushar Pathak/;
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
+const HERO_DESK_ALT = ILLUSTRATIONS.find((entry) => entry.id === "hero-desk")!.alt;
 
 const ROUTES = [
   { path: "/", label: "home" },
@@ -57,83 +60,41 @@ for (const route of ROUTES) {
 }
 
 // ---------------------------------------------------------------------------
-// S05.02 — hero avatar frame is responsive and column-capped (<= breakpoint ladder).
-// EXE-6 visual-gate decision: AvatarStage uses w-full max-w-[cap], so rendered width
-// is min(breakpoint cap, grid column width), not the exact cap. Design-fidelity check
-// (not an EVAL-008 overflow/target criterion), so intentionally untagged.
+// S14/D10 (TSK-37/TSK-38) — the paper hero's poster image is visible, alt-sourced from the
+// manifest, and responsive (positive width at every project width). Design-fidelity check (not an
+// EVAL-008 overflow/target criterion), so intentionally untagged. Replaces the old M-008
+// avatar-scene cap-ladder assertion (deleted with the hero motion system at TSK-38).
 // ---------------------------------------------------------------------------
-test("hero avatar frame is responsive and column-capped (<= breakpoint ladder)", async ({
+test("hero poster illustration is visible, alt-sourced from the manifest, and responsive", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "load" });
   const w = width(page);
-  // Breakpoint cap ladder = AvatarStage's max-w rungs (EXE-9 rebalance: 200/300/480/520). Rendered
-  // width is min(cap, grid column width), so this is the upper bound only.
-  const cap = w >= 1440 ? 520 : w >= 1024 ? 480 : w >= 768 ? 300 : 200;
-  const img = page.getByRole("img", { name: AVATAR_ALT });
-  // Let layout settle before measuring geometry (M-004 QA: this measurement flaked under host load
-  // when it read boundingBox() before hydration/fonts had finished, not from a stale assertion) —
-  // wait for the element to be visible, the load event, and web fonts (they can reflow the grid),
-  // then scroll it into view so it isn't mid-transition off-screen.
+  const img = page.getByRole("img", { name: HERO_DESK_ALT });
   await expect(img).toBeVisible();
   await page.waitForLoadState("load");
   await page.evaluate(() => document.fonts.ready);
   await img.scrollIntoViewIfNeeded();
-  // Substantial-focal-element floor — the EXE-9 hero-rebalance contract. Widening the avatar track
-  // to 42fr and letting the content column shrink (min-w-0) + trimming the lg headline clamp frees
-  // the avatar from the old min-content squeeze (it used to collapse to ~252px at 1024). The floors
-  // assert it now reads as a balanced focal element (~349px @1024, ~474px @1440 measured) — kept as a
-  // responsive contract with margin, not a fixed-px pin, so it guards against a regression back to the
-  // squeezed 35fr layout without being brittle to sub-pixel/font-metric drift.
-  const focalFloor = w >= 1440 ? 420 : w >= 1024 ? 320 : null;
-  // Retry the read+assert together (Playwright's retrying toPass, not a one-shot getBoundingClientRect)
-  // so a transient mid-layout read under host load is retried instead of failing the whole run.
   await expect(async () => {
     const box = await img.boundingBox();
-    expect(box, "avatar image must be laid out").toBeTruthy();
-    expect(box!.width, `hero frame width at ${w} must be positive`).toBeGreaterThan(0);
-    expect(
-      box!.width,
-      `hero frame width at ${w} = ${box!.width}, must not exceed cap ${cap} (+1px tolerance)`,
-    ).toBeLessThanOrEqual(cap + 1);
-    if (focalFloor !== null) {
-      expect(
-        box!.width,
-        `hero frame width at ${w} = ${box!.width}, must remain a substantial focal element (>= ${focalFloor})`,
-      ).toBeGreaterThanOrEqual(focalFloor);
-    }
+    expect(box, "hero poster must be laid out").toBeTruthy();
+    expect(box!.width, `hero poster width at ${w} must be positive`).toBeGreaterThan(0);
   }).toPass({ timeout: 6000 });
 });
 
 // ---------------------------------------------------------------------------
-// S05.03 — hero floating tiles asymmetric offset ladder (-24 / 0 / +24 at lg+).
-// Design-fidelity check (not an EVAL-008 criterion), so intentionally untagged.
+// S14/D10 (TSK-37) — the paper hero's two CTAs are present with the correct targets. Replaces the
+// old M-008 proof-tile offset-ladder assertion (the tile stack was deleted at TSK-38).
 // ---------------------------------------------------------------------------
-test("hero floating tiles use the asymmetric offset ladder at lg+", async ({
-  page,
-}) => {
-  test.skip(width(page) < 1024, "tiles are a single column below lg (offsets only apply at lg+)");
+test("hero CTAs are present and target /work and #ask", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
-  // Let layout settle before measuring vertical offsets (M-004 QA: this ladder comparison flaked
-  // under host load, reading y-positions mid-reflow, not from a stale assertion) — wait for each
-  // tile to be visible, the load event, and web fonts, then retry the y-position read+compare
-  // together instead of a one-shot getBoundingClientRect.
-  const tileLabels = ["AI Products", "People", "Progress"] as const;
-  for (const label of tileLabels) {
-    await expect(page.getByText(label, { exact: true })).toBeVisible();
-  }
-  await page.waitForLoadState("load");
-  await page.evaluate(() => document.fonts.ready);
-  await expect(async () => {
-    const y = async (label: string) => {
-      const box = await page.getByText(label, { exact: true }).boundingBox();
-      expect(box, `tile "${label}" must be laid out`).toBeTruthy();
-      return box!.y;
-    };
-    const [ai, people, progress] = [await y("AI Products"), await y("People"), await y("Progress")];
-    expect(ai, `AI Products (${ai}) should sit above People (${people})`).toBeLessThan(people);
-    expect(people, `People (${people}) should sit above Progress (${progress})`).toBeLessThan(progress);
-  }).toPass({ timeout: 6000 });
+  const primary = page.getByRole("link", { name: "View my work →" });
+  await expect(primary).toBeVisible();
+  await expect(primary).toHaveAttribute("href", "/work");
+
+  const secondary = page.getByRole("link", { name: "Ask my portfolio" });
+  await expect(secondary).toBeVisible();
+  await expect(secondary).toHaveAttribute("href", "#ask");
 });
 
 // ---------------------------------------------------------------------------

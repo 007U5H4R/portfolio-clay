@@ -21,7 +21,6 @@ import { ArrowUp } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Icon } from "@/components/common/Icon";
 import { ClayCard } from "@/components/clay/ClayCard";
-import { useHeroActivation } from "@/components/hero/HeroActivationContext";
 import { AnswerView } from "./AnswerView";
 import { useAsk } from "./AskProvider";
 
@@ -37,9 +36,6 @@ export interface AskPortfolioProps {
 
 export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
   const { status, answer, submit, retry, reset } = useAsk("home");
-  // Cross-section link to the hero avatar (animation prompt.md §5): focusing this input makes the
-  // hero scene subtly "activate". No-op default context, so the /dev/ask harness (no hero) is safe.
-  const { setActive } = useHeroActivation();
 
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -105,8 +101,6 @@ export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
             type="text"
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            onFocus={() => setActive(true)}
-            onBlur={() => setActive(false)}
             placeholder="Ask about my work…"
             autoComplete="off"
             aria-label="Ask about my work"

@@ -36,7 +36,7 @@ import { LazyMotionRoot, useReducedMotionSafe } from "@/lib/motion";
  * status-communication the rest of the site guarantees, so it stays, docked beside the tags).
  *
  * Interaction model unchanged from the old grid: each row is exactly ONE link (same single-link
- * anatomy `ProjectCard` and `ProductScene` use — Law of Figure-Ground), so the mockup's "View
+ * anatomy `ProjectCard` uses — Law of Figure-Ground), so the mockup's "View
  * project →" pill is rendered as an inert `aria-hidden` span (never a second, nested `<a>`), and
  * the row itself carries `data-card-mode="grid"` — the exact hook `tests/e2e/work.spec.ts`'s
  * `gridSlugs()` already reads — plus the same `project-{slug}` / `icon-{slug}` view-transition

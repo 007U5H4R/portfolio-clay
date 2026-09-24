@@ -1,6 +1,6 @@
 import { Quote } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { AvatarStage } from "@/components/hero/AvatarStage";
+import { Illustration } from "@/components/paper";
 import { ClayCard } from "@/components/clay/ClayCard";
 import { Icon } from "@/components/common/Icon";
 import { experience } from "@/data/experience";
@@ -11,14 +11,11 @@ import { experience } from "@/data/experience";
  * flat-hero-variant bio (TSK-23/TKT-40, "headline + avatar, no floating tiles") with a statement
  * headline + 3-stat row + pull-quote, per the brief: "an editorial opening (NOT a résumé)".
  *
- * Reuses the SAME `AvatarStage` (same avatar asset, same corner `ClayIcon` tiles, same cursor
- * parallax / reduced-motion behaviour) the home `Hero` uses, and the same two-column grid shape
- * (AvatarStage / content) as `Hero.tsx` (Law of Similarity — one avatar treatment, one hero
- * skeleton, everywhere they appear) — this pass restyles the CONTENT column only, never the
- * avatar or the grid. `.hero-highlight` on the closing headline line reuses `Hero.tsx`'s own
- * accent-wash span (app/globals.css `.hero-highlight` + `@keyframes wash`, already
- * `prefers-reduced-motion`-safe there) rather than adding any new CSS (guardrail: this file must
- * not touch app/globals.css).
+ * TSK-38: the M-008 avatar scene (same asset, corner tiles, cursor-parallax hero treatment) is
+ * deleted with the rest of the hero motion system. The illustration column now renders a temporary
+ * `Illustration id="scene-about" placement="photo"` stand-in (paper primitives, no motion) until
+ * TKT-86 rebuilds this page with the §6.4 scene-bleed treatment; only the CONTENT column below is
+ * restyled by this ticket's own scope.
  *
  * Content truth:
  *   - Headline ("I started with machines. Then systems. Then people. Now, intelligent products.")
@@ -43,9 +40,8 @@ import { experience } from "@/data/experience";
  *         bio paragraph used ("Driven by curiosity, systems thinking…", CONTENT_INVENTORY §4.1),
  *         reused rather than re-invented.
  *
- * Server component: the only interactivity (cursor parallax) is isolated inside `AvatarStage`,
- * same as `Hero`. No new motion is introduced here, so there is nothing else to gate behind
- * `useReducedMotionSafe`/`usePointerFine`.
+ * Server component: no interactivity/motion remains in this file, so there is nothing to gate
+ * behind `useReducedMotionSafe`/`usePointerFine`.
  */
 
 // Earliest experience start year (data/experience.ts) — never hard-coded past this derivation.
@@ -69,7 +65,10 @@ export function AboutHero() {
       className="flex flex-col items-center gap-8 pt-8 pb-16 text-left lg:grid lg:grid-cols-[42fr_58fr] lg:items-center lg:gap-16 lg:pt-32 lg:pb-20 2xl:gap-24"
     >
       <div className="flex w-full justify-center lg:justify-start">
-        <AvatarStage />
+        {/* Temporary stand-in (TSK-38) — TKT-86 rebuilds this page with the §6.4 scene-bleed
+            treatment; `photo` placement keeps a single-image, alt-from-manifest illustration in
+            the same column slot the deleted M-008 avatar scene occupied. */}
+        <Illustration id="scene-about" placement="photo" sizes="(min-width: 1024px) 42vw, 100vw" />
       </div>
 
       <div className="flex min-w-0 flex-col items-start gap-6 text-left md:gap-7">
@@ -106,7 +105,8 @@ export function AboutHero() {
         </div>
 
         {/* Pull-quote — DRAFT, see docstring. `tier="card"` gives it the same clay-card language
-            as `ProductScene`'s pull-quote (mockup 2) rather than a plain blockquote. */}
+            the former flagship product scene's pull-quote used (mockup 2, removed at TSK-38)
+            rather than a plain blockquote. */}
         <ClayCard tier="card" tone="lavender" padding="card" className="flex w-full max-w-[440px] flex-col gap-3">
           <Icon icon={Quote} size={24} className="text-rust" />
           <blockquote className="text-[length:var(--text-lead)] font-semibold text-navy">

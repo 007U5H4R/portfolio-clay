@@ -20,15 +20,18 @@
  * OG image (final ticket — `/about` is fully assembled after this).
  */
 import { test, expect } from "./fixtures";
-import { site } from "@/lib/site";
+// The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
+// JPEGs for `next/image`, which Playwright's TypeScript transform cannot load.
+import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
+const SCENE_ABOUT_ALT = ILLUSTRATIONS.find((entry) => entry.id === "scene-about")!.alt;
 
 // ---------------------------------------------------------------------------
 // AboutHero — editorial opening (M-008 Stage B redesign): statement headline, 3-stat row,
-// pull-quote, avatar. No FloatingTiles, no Annotation.
+// pull-quote, illustration. No proof-tile stack.
 // ---------------------------------------------------------------------------
-test("AboutHero renders the editorial headline, stat row, pull-quote, and avatar — no floating tiles", async ({
+test("AboutHero renders the editorial headline, stat row, pull-quote, and illustration — no proof tiles", async ({
   page,
 }) => {
   await page.goto("/about", { waitUntil: "load" });
@@ -48,11 +51,13 @@ test("AboutHero renders the editorial headline, stat row, pull-quote, and avatar
     "I build at the intersection of people, products and intelligent systems.",
   );
 
-  // Avatar reused from the home Hero (same alt text, single source of truth in lib/site.ts).
-  await expect(page.getByRole("img", { name: site.avatarAlt })).toBeVisible();
+  // Illustration stand-in (TSK-38) — `scene-about` has no `publicSrc` (Design.md §6.1: scenes go
+  // through `next/image`, not this component's `publicSrc` path yet), so `IllustrationImg` renders
+  // its documented fallback: the manifest alt as visible caption text (never a broken `<img>`).
+  await expect(heroSection.getByText(SCENE_ABOUT_ALT)).toBeVisible();
 
-  // No FloatingTiles (home Hero's "AI Products / People / Progress" 3-tile proof stack) on /about —
-  // the flat variant omits it entirely (AboutHero.tsx does not import FloatingTiles).
+  // No proof-tile stack (home Hero's former "AI Products / People / Progress" tiles, removed at
+  // TSK-38) on /about — the flat variant never rendered it.
   await expect(heroSection.getByText("AI Products", { exact: true })).toHaveCount(0);
   await expect(heroSection.getByText("Progress", { exact: true })).toHaveCount(0);
 });

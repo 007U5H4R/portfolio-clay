@@ -20,7 +20,8 @@
  * tier structurally forbids `interactive` (Design.md §2 / D1 — a utility surface has no press
  * state). Each node is therefore wrapped in a real `<button>` that owns focus/click/keyboard
  * handling — the same "div carries the visual, a wrapping control owns focus" pattern `ClayTile`'s
- * own docstring already uses for the card-tier interactive tiles (`components/hero/FloatingTiles`).
+ * own docstring already uses for the card-tier interactive tiles (the former hero proof-tile stack,
+ * removed at TSK-38).
  *
  * Motion deviation (documented, same reasoning as `AskPortfolio`'s TKT-10 report): the plan named
  * `m.div layout` for the expand/collapse, but Design.md §4's own "How-I-Think stage expand" row

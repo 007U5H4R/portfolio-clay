@@ -238,47 +238,12 @@ body::before {
 }
 
 /*
-  Soft radial glow halo behind a focal element (hero avatar, CTA). Decorative only — sits behind its
-  positioned parent's content via a ::before. Uses --color-rust/--color-paper-2 via color-mix.
-  Kept until TKT-73 replaces the hero (live consumer: components/hero/Hero.tsx).
-*/
-.glow-halo {
-  position: relative;
-  isolation: isolate;
-}
-.glow-halo::before {
-  content: "";
-  position: absolute;
-  inset: -12%;
-  z-index: -1;
-  border-radius: 999px;
-  background: radial-gradient(
-    closest-side,
-    color-mix(in oklch, var(--color-rust) 34%, transparent),
-    color-mix(in oklch, var(--color-paper-2) 22%, transparent) 55%,
-    transparent 72%
-  );
-  filter: blur(26px);
-  animation: glow-pulse 7s ease-in-out infinite alternate;
-}
-
-@keyframes glow-pulse {
-  from {
-    opacity: 0.7;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1.04);
-  }
-}
-
-/*
   Hero headline accent + one-time reveal wash (S05.04 / Design.md §3–§4). "AI-native products"
   renders as the accent word with a paper-2 sweep that washes in once on first view over 700ms
   and holds (`forwards`). Uses only existing colour tokens (--color-rust, --color-paper-2) —
   the --color- token count stays at 13. Removed entirely under reduced motion (decorative).
-  Kept until TKT-73 replaces the hero (live consumers: Hero.tsx, AboutHero.tsx).
+  TSK-38: the M-008 hero motion system + `.glow-halo` are removed; `.hero-highlight`'s only
+  remaining consumer is `AboutHero.tsx`, kept until TKT-86 rebuilds that page.
 */
 .hero-highlight {
   color: var(--color-rust);
@@ -460,157 +425,6 @@ body::before {
   clip-path: inset(0);
 }
 
-/*
-  Hero avatar scene motion (animation prompt.md; components/hero/AvatarScene.tsx). CSS owns the
-  parts that need NO per-frame JS: the staged entrance, the idle breathing loop, the avatar lean and
-  the icon-tile hover lift/glow. The cursor parallax + ±2° card tilt are driven by JS springs
-  (hooks/usePointerParallax.ts) writing `transform` to `.hero-card` / the tile wrappers directly.
-
-  LCP / no-JS safety: these entrance animations are PURE CSS that play on load (no JS class toggle),
-  so server-rendered HTML paints fully in place and JS-off pages animate normally and end visible.
-  The avatar's own entrance is transform-ONLY (opacity stays 1) so the LCP image is never faded in;
-  only the (non-LCP) icon tiles fade. Tuning figures mirror lib/heroMotion.ts (`HERO_MOTION`).
-*/
-
-/* Activation glow behind the avatar — rises on hover / Ask-focus (colour only; z-1 under the card). */
-.hero-scene-glow {
-  position: absolute;
-  inset: -10%;
-  z-index: -1;
-  border-radius: 999px;
-  pointer-events: none;
-  background: radial-gradient(
-    closest-side,
-    color-mix(in oklch, var(--color-rust) 26%, transparent),
-    color-mix(in oklch, var(--color-paper-2) 18%, transparent) 55%,
-    transparent 72%
-  );
-  filter: blur(22px);
-  opacity: 0;
-  transition: opacity 400ms var(--ease-hover);
-}
-[data-scene-active="true"] .hero-scene-glow {
-  opacity: 1;
-}
-
-/* Frame+avatar composite. `.hero-card` is the JS parallax+tilt target (no CSS transform of its own,
-   so the inline transform the hook writes is never fought). `.hero-avatar-lean` transitions a small
-   lean toward a hovered object / the desk. `.hero-avatar-motion` runs entrance, then breathing. */
-.hero-avatar-lean {
-  transform: translateX(var(--lean-x, 0px)) rotate(var(--lean-rot, 0deg));
-  transition: transform 300ms var(--ease-hover);
-}
-.hero-avatar-motion {
-  will-change: transform;
-  animation: hero-enter-avatar 520ms var(--ease-reveal) both;
-}
-
-@keyframes hero-enter-avatar {
-  from {
-    transform: translateY(12px) scale(0.985);
-  }
-  to {
-    transform: none;
-  }
-}
-
-/* A-bis pose/expression variant layers: normalized webps (scripts/avatar-poses.ts) that crossfade
-   over the base avatar. Opacity-only (transform-free — parallax/tilt/lean/entrance all live on
-   ancestor elements, so these never fight them). Only the [data-active] layer is shown; --hero-xfade
-   is set on the scene container from HERO_MOTION.expression.crossfadeMs. Reduced motion removes them
-   entirely (AvatarScene also never mounts them without a fine pointer + motion — belt and braces). */
-.hero-avatar-variant {
-  opacity: 0;
-  transition: opacity var(--hero-xfade, 420ms) var(--ease-hover);
-  will-change: opacity;
-}
-.hero-avatar-variant[data-active="true"] {
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-avatar-variant {
-    display: none !important;
-  }
-}
-
-@keyframes hero-breathe {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-1.5px) scale(1.01);
-  }
-}
-
-/* Idle breathing is added only on a capable, motion-allowing device — it starts after the entrance
-   settles (delay > entrance duration) so the two transform animations never overlap and fight. */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .hero-avatar-motion {
-    animation:
-      hero-enter-avatar 520ms var(--ease-reveal) both,
-      hero-breathe 4800ms ease-in-out 1000ms infinite;
-  }
-}
-
-/* Icon tiles. `.hero-tile-enter` runs the staggered entrance (delay set inline per tile). `.hero-tile`
-   composes the inward Ask-focus drift (--drift-x/y) and the hover lift (--lift) into one transform,
-   plus a soft ::after glow. The outer wrapper (not shown here) carries the JS cursor parallax. */
-.hero-tile-enter {
-  animation: hero-enter-tile 320ms var(--ease-reveal) both;
-}
-
-@keyframes hero-enter-tile {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.94);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.hero-tile {
-  --lift: 0px;
-  position: relative;
-  display: inline-block;
-  border-radius: var(--radius-utility);
-  transform: translate(var(--drift-x, 0px), calc(var(--drift-y, 0px) + var(--lift)));
-  transition:
-    transform 260ms var(--ease-hover),
-    box-shadow 200ms var(--ease-hover);
-}
-.hero-tile::after {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    closest-side,
-    color-mix(in oklch, var(--color-rust) 40%, transparent),
-    transparent 72%
-  );
-  filter: blur(14px);
-  opacity: 0;
-  transition: opacity 220ms var(--ease-hover);
-}
-/* Ask-focus raises a soft glow across all tiles; hover raises it fully + lifts + deepens the shadow. */
-[data-scene-active="true"] .hero-tile::after {
-  opacity: 0.55;
-}
-@media (hover: hover) and (pointer: fine) {
-  .hero-tile:hover {
-    --lift: -6px;
-    box-shadow: var(--shadow-clay-hover);
-  }
-  .hero-tile:hover::after {
-    opacity: 0.9;
-  }
-}
-
 /* Motion: reduced-motion collapses every transition/animation to ~instant (A6) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -631,25 +445,6 @@ body::before {
   .hero-highlight {
     animation-name: none;
     background-image: none;
-  }
-
-  /* Decorative glow motion removed entirely under reduced motion (the halo still renders, just
-     static). The paper grain (body::before) has no animation to remove. */
-  .glow-halo::before {
-    animation: none !important;
-  }
-
-  /* Hero avatar scene (animation prompt.md §6): remove ALL movement — entrance, breathing, lean,
-     tile drift and hover lift — so the scene renders static and fully visible. The hover / Ask-focus
-     GLOW (::after opacity, .hero-scene-glow opacity) is colour-only and stays, so hover/focus remain
-     functional but simplified. Parallax + tilt are already inert (usePointerParallax seeds off). */
-  .hero-avatar-motion,
-  .hero-tile-enter {
-    animation: none !important;
-  }
-  .hero-avatar-lean,
-  .hero-tile {
-    transform: none !important;
   }
 
   /* Reveal collapses to an opacity-only, ~instant fade (A6: ".reveal { transition-property:

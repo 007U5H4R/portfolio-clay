@@ -15,7 +15,7 @@
  * RESOLVED (EXE-7 · EVAL-008 findings from the original broadened sweep):
  *   • /contact 44px target — the "email me" action is now a `ClayButton` (min-h-11/min-w-11) on
  *     its own line, not a sub-44px inline link. Fixed by TKT-06/EXE-7, not exempted.
- *   • 14px text floor — the FloatingTiles one-liner `copy` was CONTENT rendered at 12px; it now
+ *   • 14px text floor — the former hero proof-tile (removed at TSK-38) one-liner `copy` was CONTENT rendered at 12px; it now
  *     uses `--text-caption` (14px). The header wordmark subtitle ("Senior Product Manager") and
  *     the "TP" monogram are decorative brand micro-labels, not content — EXE-7 grants them a
  *     documented exception (`data-micro-label`): exempt from the 14px floor, but still required to
