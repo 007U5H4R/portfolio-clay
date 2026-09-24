@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 
 /** Rotation caps, degrees (Design.md §3.1 / §2.3 — "never more"). */
-export const ROTATION_CAP = { sticky: 5, annotation: 4, note: 6, tape: 12 } as const;
+export const ROTATION_CAP = { sticky: 5, annotation: 4, note: 6, tape: 12, sheet: 0.9, photo: 2.4, draftTag: 4 } as const;
 
 /**
  * `--rot` for a paper decoration, clamped to ±`cap` (S70.02). Always set inline — never left to

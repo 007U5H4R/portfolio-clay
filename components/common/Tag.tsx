@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { ClayPill } from "@/components/clay/ClayPill";
 
 export interface TagProps {
   children: ReactNode;
@@ -7,15 +6,17 @@ export interface TagProps {
 }
 
 /**
- * Static utility pill — `ink-2` text, deliberately no hover state, so it is never mistaken for
- * an interactive control (Law of Similarity note, Design.md §3 "Common primitives"). A thin
- * wrapper over `ClayPill variant="tag"` so tag styling lives in exactly one place; contrast with
- * `FilterTabs`' pills (`ClayPill variant="filter"`), which are interactive.
+ * Static tag pill (M-009 Design.md §2.2 "Eyebrow / kicker / tags": Inter 600 uppercase 12 px,
+ * tracking .12em, `green-2`) on an ivory pill with a `--line` hairline. Deliberately no hover
+ * state, so it is never mistaken for an interactive control (Law of Similarity). Never Caveat
+ * (§3.4). No longer wraps the clay pill (TSK-34).
  */
 export function Tag({ children, className }: TagProps) {
-  return (
-    <ClayPill variant="tag" className={className}>
-      {children}
-    </ClayPill>
-  );
+  const classes = [
+    "inline-flex items-center rounded-full border border-[var(--line)] bg-ivory px-[10px] py-[3px] font-body text-[12px] font-semibold uppercase leading-[1.4] tracking-[.12em] text-green-2",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return <span className={classes}>{children}</span>;
 }

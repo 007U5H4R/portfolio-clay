@@ -854,3 +854,219 @@ body::before {
     }
   }
 }
+
+/* TSK-34 · content paper — `Sheet` variants, fasteners, `Illustration`, `Hand` cite, `DraftTag`
+   (Design.md §3.1, radii/rotation/shadow §2.3, placements §6.4; values lifted from
+   docs/redesign-mockups/m-009). `data-paper` is content, never counted. Colours are paper tokens /
+   derived vars only (EVAL-020). Rotation uses the individual `rotate` property off the inline,
+   clamped `--rot` (same as the TSK-33 decorations). */
+@layer components {
+  .paper-sheet {
+    position: relative;
+    background: var(--color-ivory);
+    border-radius: var(--radius-paper);
+    box-shadow: var(--shadow-paper);
+    rotate: var(--rot, 0deg);
+  }
+  .paper-sheet[data-paper="card"] {
+    padding: 24px 22px;
+  }
+  /* index card: red header rule at 46 px over 24 px blue rules */
+  .paper-sheet[data-paper="index"] {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 20px 18px 18px;
+    background-image:
+      linear-gradient(180deg, transparent 0 46px, var(--margin-red) 46px 47.5px, transparent 47.5px),
+      repeating-linear-gradient(0deg, transparent 0 23px, var(--rule-blue-card) 23px 24px);
+  }
+  /* postcard: stamp chrome top-right */
+  .paper-sheet[data-paper="postcard"] {
+    display: grid;
+    gap: 12px;
+    padding: 22px 24px 24px;
+  }
+  .paper-stamp {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 64px;
+    font-family: var(--font-hand);
+    font-size: 17px;
+    color: var(--color-green-2);
+    background: var(--color-paper-2);
+    border: 2px dashed var(--color-kraft);
+    rotate: 6deg;
+  }
+  /* notebook: 32 px blue rules, red margin line, five punched holes */
+  .paper-sheet[data-paper="notebook"] {
+    padding: 30px 30px 26px 54px;
+    border-radius: var(--radius-paper-sheet);
+    background-image: repeating-linear-gradient(0deg, transparent 0 31px, var(--rule-blue-notebook) 31px 32px);
+  }
+  .paper-sheet[data-paper="notebook"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 36px;
+    width: 1.5px;
+    background: var(--margin-red);
+  }
+  .paper-holes {
+    position: absolute;
+    top: 22px;
+    bottom: 22px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .paper-holes i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--color-paper-2);
+    box-shadow: inset 0 1px 2px color-mix(in oklab, var(--color-navy) 25%, transparent);
+  }
+  /* photo frame: 14 px ivory border around the image, caption below */
+  .paper-sheet[data-paper="photo"] {
+    padding: 14px 14px 16px;
+  }
+  /* kraft tag with an eyelet */
+  .paper-sheet[data-paper="tag"] {
+    padding: 8px 12px 8px 24px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+    background: var(--color-kraft);
+    border-radius: var(--radius-paper-sheet);
+  }
+  .paper-sheet[data-paper="tag"]::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-paper);
+    box-shadow: inset 0 1px 2px color-mix(in oklab, var(--color-navy) 35%, transparent);
+    translate: 0 -50%;
+  }
+
+  /* Fasteners (inside their host; not counted — D6) */
+  .paper-fastener {
+    position: absolute;
+    top: -12px;
+    z-index: 1;
+  }
+  .paper-fastener[data-side="c"] {
+    left: 50%;
+    translate: -50% 0;
+  }
+  .paper-fastener[data-side="l"] {
+    left: 34px;
+  }
+  .paper-fastener[data-side="r"] {
+    right: 24px;
+  }
+  .paper-pin {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    z-index: 1;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    translate: -50% 0;
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+      var(--color-rust);
+    box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 35%, transparent);
+  }
+  .paper-pin[data-tone="forest"] {
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+      var(--color-forest);
+  }
+  .paper-pin[data-tone="steel"] {
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+      var(--color-steel);
+  }
+
+  /* Illustration: one <img>; photo frame image or a masked scene bleed (§6.4, Dev-06) */
+  .illustration-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
+  .illustration-fallback {
+    display: block;
+    padding: 24px 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+    background: var(--color-ivory);
+    border-radius: 2px;
+  }
+  /* < 1024: a 4:3 masked photograph under the copy */
+  .illustration-bleed {
+    position: relative;
+    margin: 0;
+  }
+  .illustration-bleed .illustration-img {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    mask-image: linear-gradient(180deg, var(--color-navy) 78%, transparent);
+  }
+  /* ≥ 1024: absolutely positioned behind the copy, cream-masked on the copy side and bottom */
+  @media (min-width: 1024px) {
+    .illustration-bleed {
+      position: absolute;
+      inset: 0 0 0 auto;
+      z-index: 0;
+      width: 62%;
+      pointer-events: none;
+    }
+    .illustration-bleed .illustration-img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+      mask-image:
+        linear-gradient(90deg, transparent, var(--color-navy) 28%),
+        linear-gradient(180deg, var(--color-navy) 72%, transparent);
+      mask-composite: intersect;
+    }
+  }
+
+  /* Hand quote source (the §3.4 cite sibling) — Inter, never Caveat */
+  .hand-cite {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: normal;
+    color: var(--color-ink-soft);
+  }
+
+  /* DraftTag: Inter 12 px uppercase terracotta tag with a hairline border (never Caveat) */
+  .draft-tag {
+    display: inline-block;
+    padding: 1px 7px;
+    line-height: 1.4;
+    border: 1px solid color-mix(in oklab, var(--color-terracotta) 50%, transparent);
+    border-radius: 3px;
+    rotate: var(--rot, 0deg);
+    vertical-align: middle;
+  }
+}

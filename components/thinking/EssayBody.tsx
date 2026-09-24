@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type { Essay } from "@/data/schema";
 import { getProject } from "@/data/projects";
 import { Prose } from "@/components/common/Prose";
-import { Tag } from "@/components/common/Tag";
+import { DraftTag } from "@/components/paper/DraftTag";
 import { Icon } from "@/components/common/Icon";
 
 export interface EssayBodyProps {
@@ -13,7 +13,7 @@ export interface EssayBodyProps {
 /**
  * `/thinking/[slug]` essay body (TKT-43, Design.md §3 "Thinking → EssayBody"; §3 "Common
  * primitives" `Prose`): flat text zone, `Prose`-wrapped (≤600px / 60ch measure, same convention as
- * a case-study `Chapter`). Title → reading-time caption + a "Draft — pending sign-off" `Tag` in
+ * a case-study `Chapter`). Title → reading-time caption + a "Draft — pending sign-off" `DraftTag` in
  * place of a publish date (no essay has shipped, so none carries `publishedOn`) → body → a
  * related-project link at the end.
  *
@@ -37,7 +37,7 @@ export function EssayBody({ essay }: EssayBodyProps) {
           <span className="text-caption text-ink-soft">
             {essay.readingMinutes} min read
           </span>
-          {essay.draft ? <Tag>Draft — pending sign-off</Tag> : null}
+          {essay.draft ? <DraftTag /> : null}
         </div>
       </header>
 

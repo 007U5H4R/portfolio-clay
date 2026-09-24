@@ -138,14 +138,14 @@ describe("Common primitives — S04.06", () => {
     expect((container.firstElementChild as HTMLElement).className).toMatch(/\bsr-only\b/);
   });
 
-  it("Prose is a flat 60ch measure (no tier prop, no clay classes)", () => {
+  it("Prose is a flat 68ch measure (no tier prop, no clay classes)", () => {
     const { container } = render(
       <Prose>
         <p>body</p>
       </Prose>,
     );
     const el = container.firstElementChild as HTMLElement;
-    expect(el.className).toMatch(/max-w-\[60ch\]/);
+    expect(el.className).toMatch(/max-w-\[68ch\]/);
     expect(el.className).not.toMatch(/shadow/);
   });
 

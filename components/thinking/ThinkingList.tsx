@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Essay } from "@/data/schema";
-import { Tag } from "@/components/common/Tag";
+import { DraftTag } from "@/components/paper/DraftTag";
 
 export interface ThinkingListProps {
   essays: Pick<Essay, "slug" | "title" | "dek" | "draft">[];
@@ -15,7 +15,7 @@ export interface ThinkingListProps {
  * No published essay exists yet (CONTENT_INVENTORY §5's own "Any published article/URL" row:
  * "MISSING — none exist"), so the honest empty-state line renders above the list every time — the
  * list itself still shows all 5 DRAFT rows underneath it (AC2/AC3: never silently hide the drafts,
- * never imply one is finished). Each row carries a "Draft — pending sign-off" `Tag` so the DRAFT
+ * never imply one is finished). Each row carries a "Draft — pending sign-off" `DraftTag` so the DRAFT
  * status is visible without opening the essay.
  *
  * The title renders as a real `<h3>` nested inside the row `<a>` (same transparent-content-model
@@ -53,7 +53,7 @@ export function ThinkingList({ essays }: ThinkingListProps) {
                   <h3 className="text-[length:var(--text-h3)] font-bold text-navy">
                     {essay.title}
                   </h3>
-                  {essay.draft ? <Tag>Draft — pending sign-off</Tag> : null}
+                  {essay.draft ? <DraftTag /> : null}
                 </span>
                 <span className="text-[length:var(--text-body)] text-navy-2">{essay.dek}</span>
               </span>
