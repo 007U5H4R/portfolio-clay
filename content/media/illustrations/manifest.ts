@@ -3,11 +3,12 @@
  * (Design.md §6.1; S20 — EVAL-021, EVAL-013). Components never write an alt inline: they render
  * `illustration(id).alt` from `lib/illustrations.ts`.
  *
- * STUB (TSK-34): the nine ids, kinds, routes and the exact §6.3 alt strings are final; `file` is
- * `""`, `publicSrc` is unset and `width`/`height` are the reference renditions' pixel sizes from
- * `docs/redesign-mockups/m-009/assets/` (hero: the §5.2 1280 × 684 frame; the character sheet has no
- * rendition yet). TSK-36 adds the asset files and fills `file` / `publicSrc` / `width` / `height`
- * — the exported types below must not change (they are Design.md §6.1 verbatim).
+ * TSK-36: `file` / `publicSrc` / `width` / `height` now point at the shipped renditions under
+ * `content/media/illustrations/` and `public/media/illustrations/` (provenance in this folder's
+ * `README.md`). Scenes were re-encoded from the PNG masters with sharp (`jpeg({ quality: 82,
+ * mozjpeg: true })`, long edge 2048) — `width`/`height` are the re-encoded pixel sizes, not the
+ * mockup renditions' (scene-thinking and scene-contact differ from the earlier stub because their
+ * long edge, not width, is 2336/2240 in the master).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference";
@@ -25,7 +26,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   {
     id: "hero-desk",
     kind: "poster",
-    file: "",
+    file: "hero-desk.webp",
+    publicSrc: "/media/illustrations/hero-poster.webp",
     width: 1280,
     height: 684,
     alt: "Illustration of Tushar at a warm desk — laptop, notebook, books, a plant, a lamp, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
@@ -35,6 +37,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "hero-clip",
     kind: "clip",
     file: "",
+    publicSrc: "/media/illustrations/hero-animation.webm",
     width: 1280,
     height: 684,
     alt: "Animated illustration of Tushar thinking at his desk and turning a pen — plays once.",
@@ -43,7 +46,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   {
     id: "scene-work",
     kind: "scene",
-    file: "",
+    file: "scene-work.jpg",
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below.",
@@ -52,7 +55,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   {
     id: "scene-casestudy",
     kind: "scene",
-    file: "",
+    file: "scene-casestudy.jpg",
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug beside him, a mug and a stack of books on the side table.",
@@ -61,7 +64,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   {
     id: "scene-about",
     kind: "scene",
-    file: "",
+    file: "scene-about.jpg",
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar from behind on a hillside path at dawn, coffee in one hand and a notebook under his arm, looking out over pine forest towards a snow-capped mountain horizon.",
@@ -70,16 +73,16 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   {
     id: "scene-thinking",
     kind: "scene",
-    file: "",
-    width: 2336,
-    height: 1744,
+    file: "scene-thinking.jpg",
+    width: 2048,
+    height: 1529,
     alt: "Illustration of Tushar writing in an open notebook at a wooden desk by a window — a green lamp, a cup of tea, stacked books, a plant, and a sketched flow diagram on loose paper.",
     usedOn: ["/thinking"],
   },
   {
     id: "scene-playground",
     kind: "scene",
-    file: "",
+    file: "scene-playground.jpg",
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar at a tinkering workbench, holding up a small cardboard prototype with wires; a breadboard, tape, scissors, paper planes and a tablet sketch sit on the desk under a green lamp.",
@@ -88,18 +91,18 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   {
     id: "scene-contact",
     kind: "scene",
-    file: "",
-    width: 1792,
-    height: 2240,
+    file: "scene-contact.jpg",
+    width: 1638,
+    height: 2048,
     alt: "Illustration of Tushar standing by a window next to a tall leafy plant, a terracotta coffee mug in one hand, the other raised in a friendly wave.",
     usedOn: ["/contact"],
   },
   {
     id: "character-sheet-b",
     kind: "reference",
-    file: "",
-    width: 0, // no rendition yet — TSK-36 (never rendered)
-    height: 0,
+    file: "reference/character-sheet-b.jpg",
+    width: 2688, // never rendered on a page (usedOn: []) — Stage-8 drift check only
+    height: 1520,
     alt: "Illustration reference sheet of the Tushar character — front, three-quarter and profile views.",
     usedOn: [],
   },

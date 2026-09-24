@@ -73,7 +73,7 @@ Every field is generated from real execution output — nothing is hand-entered.
 
 | Layer | Command | Cases |
 |-------|---------|-------|
-| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`) |
+| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`), EVAL-021 (illustration provenance, `tests/unit/eval-021.test.ts`) |
 | Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`) |
 | Lighthouse CI | `lhci autorun` mobile + desktop, median of 3 | EVAL-004 (category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget) |
 | Content gate | `validate-content` + `forbidden-strings` + fixture proof | EVAL-013 |
@@ -107,6 +107,35 @@ Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-020` status is this fil
 ```bash
 pnpm test -- eval-020                          # the unit file on its own
 pnpm eval --only EVAL-020 --skip-build         # through the harness → evals/results/<label>.json
+```
+
+## EVAL-021 — illustration provenance (M-009, S20; TKT-73 S73.04)
+
+`tests/unit/eval-021.test.ts` (TC-138, TC-142). `scripts/eval.ts` maps it by file name (generic
+Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-021` status is this file's pass/fail. The
+automated scope covers provenance, alt-naming and forbidden-string checks; the "depicts no
+metric/logo/product UI/claim" checklist is manual (Stage 8, filed at
+`evals/results/eval-021-<sha>.md`).
+
+| Part | Checks | Threshold |
+|------|--------|-----------|
+| 1 | Every file under `content/media/illustrations/**` (excluding `README.md`, `manifest.ts`; `reference/` included) has exactly one manifest entry, and vice versa | 0 orphans either way |
+| 2 | Every manifest `id` has a `README.md` provenance row (§6.2 columns) with every cell non-empty | 9/9 |
+| 3 | Every `alt` starts with `Illustration of ` / `Animated illustration of ` (scenes, poster, clip) or `Illustration reference sheet` (the reference kind); `character-sheet-b.usedOn` is `[]` | 0 mismatches |
+| 4 | Every filename + alt passes `scripts/forbidden-strings.ts` `contentForbiddenHits` and `PII_PATTERNS` | 0 hits |
+| 5 | Every `publicSrc` file exists under `public/`; `content/media/illustrations/hero-desk.webp` and `public/media/illustrations/hero-poster.webp` have equal sha256 (E-18) | byte-identical |
+| 6 | Positive control: the same `check()` function run over the two one-sided fixtures in `tests/fixtures/illustrations-onesided/` (an extra file with no manifest entry; a manifest entry with no file) | ≥ 1 finding each |
+
+- `check(dir, entries, readme)` is a pure function exported from the test file so it can run against
+  both the real tree (0 findings) and each fixture (≥ 1 finding) without duplicating the rules.
+- Nine manifest ids match Design.md §6.1 exactly; `lib/illustrations.ts` re-exports `ILLUSTRATION_IDS`
+  and adds `sceneImage(id)` — static `next/image` imports of the six scenes for intrinsic size +
+  AVIF/WebP (§6.4). The hero poster and clip are served as-is from `public/media/illustrations/` via
+  `illustration(id).publicSrc`.
+
+```bash
+pnpm test -- eval-021                          # the unit file on its own
+pnpm eval --only EVAL-021 --skip-build         # through the harness → evals/results/<label>.json
 ```
 
 ## EVAL-018 — decoration budget (M-009, S15/EV5/D6/TP12)
