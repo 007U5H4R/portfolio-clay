@@ -95,6 +95,15 @@ Pre-existing e2e failures (TSK-30 §4a: `.glow-halo` overflow, `featured.spec`, 
 
 Nothing visibly broken. Cards, index cards, tape (l/c/r rotation), pins, notebook rules/holes/margin, postcard stamp, kraft tag, photo frame and the terracotta torn edge all render as the mockups intend at both widths; the underline finished drawing under "system"; the band's ivory text on terracotta reads (axe AA clean). Two expected-until-TSK-36 artefacts: (1) `Illustration` renders its alt as a caption box (stub manifest, no `publicSrc`) — on the hero the **bleed** placement's caption box sits absolutely at the top-right of the section, which is where the bleed scene will sit; (2) the taped photo frame is an ivory card carrying the alt text. One judgement call for TKT-86/TKT-88: the free-standing `Tape` (96 × 26) and the `Note` scraps are small at 390 — fine on a board, but page tickets should place them near a paper host so they read as intentional.
 
+## 6a. Fix round 1 — §3.4 placement enforced (orchestrator review item 3)
+
+`collectDecorations` now enforces placement, not only length: `data-hand="label"` is an exemption only with a `[data-paper]` ancestor (or self); `data-hand="quote"` needs a cite — a `<cite>`, a `[data-cite]`, or an element whose text starts `Source:` (sr-only counts) — inside its closest `[data-paper]` or `blockquote` (a blockquote/span hand with no paper scopes to its parent, so the `Hand` `<cite>` next-sibling and the TKT-72 BandFooter shape `<span data-hand="quote">…</span><span class="sr-only">Source: …</span>` both pass — the board's band section is exactly that shape and stays clean); `cta` has no placement rule. The fixture gained a Caveat `<p data-hand="label">Chosen</p>` outside any paper and a `<blockquote data-hand="quote">` with no cite; the positive control asserts both details and exactly 3 caveat hits. Results after the change (fresh `ALLOW_DEV_ROUTES=1` build):
+
+- `pnpm test:e2e --project=w1440 --project=w390 tests/e2e/eval-018.spec.ts` → **51 passed · 2 failed** (the same `/about` hit at both widths); clean board and controls pass; the positive control reports 3 caveat hits per width (`… no valid data-hand`, `label has no [data-paper] ancestor …`, `quote has no cite …`).
+- `pnpm eval --only EVAL-018 --skip-build --label tkt-70-tsk35-fix1-eval018` → `FAIL EVAL-018 (high): … 24 routes × 2 widths · 198 units · max 4/4 per unit · 2 unparked hit(s) (caveat 2) · 0 parked · 0 stale park(s) · failing routes: /about`.
+- **Legacy-hit count unchanged: 1 hit × 2 widths** (`/about` hero hand-sub → TKT-86). No legacy page carries a `data-hand` yet, so the placement rules found nothing new; they bite from TKT-72 onward.
+- Item 7.3 below is superseded by this fix.
+
 ## 7. Deviations and judgement calls
 
 1. **`scripts/eval.ts` edited** (not in the brief's Scope list, but S70.11's gate reads "writes real per-unit counts (`details` non-empty)"). Without it `details` would have been the generic "2 failing: …". The change is EVAL-018-only (one appended string) plus an optional `annotations` field on the `PwTest` type.

@@ -15,7 +15,9 @@
  *   budget     = ≤ 4 `[data-decor]` per unit (rule 3)
  *   caveat     = every p/h1–h6/li/td/th/dt/dd whose computed font-family resolves to Caveat must be
  *                inside `[data-decor]` / `[aria-hidden="true"]`, or carry a valid `data-hand`
- *                exemption within its §3.4 limit (rule 5)
+ *                exemption within its §3.4 limit *and placement* (rule 5): `quote` needs a cite in
+ *                its `[data-paper]`/blockquote scope, `label` needs a `[data-paper]` ancestor, `cta`
+ *                has no placement rule
  *   flat       = `[data-flat] [data-decor]` is empty (rule 4)
  *   hidden     = sticky / annotation / note, and a sketch with text, are `aria-hidden="true"` (rule 6)
  */
@@ -136,24 +138,31 @@ export function collectDecorations(limits: RuleLimits): CollectResult {
 
   // ---- rule 5 · Caveat -----------------------------------------------------------------------------
   const words = (text: string): string[] => text.split(/\s+/).filter((t) => /[\p{L}\p{N}]/u.test(t));
+  /**
+   * §3.4 quote rule: a cite within the same closest `[data-paper]` or `blockquote`. The scope is the
+   * closest `[data-paper]`; without one, the enclosing `blockquote` — or, when the hand *is* the
+   * blockquote (the `Hand` default, whose `<cite>` renders as its next sibling) or a plain span (the
+   * BandFooter tagline with an sr-only "Source: …" sibling), its parent. A cite is a `<cite>`, a
+   * `[data-cite]`, or any element outside the quote itself whose text starts with "Source:".
+   */
   const hasCite = (hand: Element): boolean => {
-    if (hand.querySelector("cite")) return true;
-    const sib = hand.nextElementSibling;
-    if (sib && (sib.tagName.toLowerCase() === "cite" || /^\s*Source:/.test(sib.textContent ?? ""))) return true;
-    const scope = hand.closest("[data-paper], blockquote") ?? hand.parentElement;
-    if (!scope) return false;
-    if (scope.querySelector("cite")) return true;
-    return Array.from(scope.children).some((c) => c !== hand && /^\s*Source:/.test(c.textContent ?? ""));
+    const paper = hand.closest("[data-paper]");
+    const scope =
+      paper ?? (hand.tagName === "BLOCKQUOTE" ? hand.parentElement : hand.closest("blockquote") ?? hand.parentElement) ?? hand;
+    if (scope.matches("[data-cite]") || scope.querySelector("cite, [data-cite]")) return true;
+    return Array.from(scope.querySelectorAll("*")).some((el) => !hand.contains(el) && /^\s*Source:/.test(el.textContent ?? ""));
   };
   const handProblem = (hand: Element, kind: string): string | null => {
     const text = (hand.textContent ?? "").trim();
     if (kind === "quote") {
       if (text.length > limits.quoteChars) return `quote is ${text.length} chars (limit ${limits.quoteChars})`;
-      if (!hasCite(hand)) return "quote has no cite / Source: sibling";
+      if (!hasCite(hand)) return 'quote has no cite (no <cite>, [data-cite] or "Source:" text in its [data-paper]/blockquote scope)';
       return null;
     }
     const w = words(text);
     if (kind === "cta") return w.length > limits.ctaWords ? `cta is ${w.length} words (limit ${limits.ctaWords})` : null;
+    // §3.4: a label lives inside a data-paper object — placement, not just length.
+    if (!hand.closest("[data-paper]")) return "label has no [data-paper] ancestor (labels live inside a paper object)";
     if (w.length > limits.labelWords) return `label is ${w.length} words (limit ${limits.labelWords})`;
     const bad = w.filter((t) => /\d/.test(t) && !/^\d{2}$/.test(t));
     return bad.length > 0 ? `label has digits other than a 2-digit numeral: "${bad.join(" ")}"` : null;

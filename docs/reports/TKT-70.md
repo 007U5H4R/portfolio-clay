@@ -31,6 +31,6 @@
 1. **TKT-74** — add the `/about` parked entry from TSK-35 §4 (the only legacy hit); expect EVAL-018 to go PASS-with-PARKED in the tracer run.
 2. **TSK-36** — `Illustration` currently shows its alt as a caption (stub manifest, no `publicSrc`); the `character-sheet-b` alt wording inconsistency (TSK-34 §5.2).
 3. **TC-126 step 5 wording** (TSK-33 finding 1) was already updated in `07dfebf`.
-4. **Design.md §3.4 vs the algorithm** — the `label` exemption is measured without the "inside a `data-paper` object" ancestry check (TSK-35 §7.3); Stage 8 can decide whether to tighten.
+4. ~~Design.md §3.4 vs the algorithm~~ — resolved in TSK-35 fix 1 (§6a): the collector enforces label placement (`[data-paper]` ancestor) and quote cites (`<cite>` / `[data-cite]` / `Source:` text in the `[data-paper]`/blockquote scope; the BandFooter sr-only shape passes). Legacy-hit count unchanged (1).
 5. **Parked schema has no width** (TSK-35 §7.4) — only matters if a Phase-A/B section becomes width-conditional.
 6. **Visible restyle on legacy pages** from `Tag`/`StatusBadge` (TSK-34 §5.4) stands until those pages are redesigned.

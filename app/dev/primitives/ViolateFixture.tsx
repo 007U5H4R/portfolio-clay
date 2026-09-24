@@ -16,6 +16,8 @@ import { useSearchParams } from "next/navigation";
  *   caveat  — a `<p class="font-hand">` with no `data-decor`, no `aria-hidden`, no `data-hand`
  *   flat    — a `[data-decor="tape"]` inside a `[data-flat]` zone
  *   hidden  — a `[data-decor="sticky"]` without `aria-hidden="true"`
+ *   caveat placement (§3.4, fix 1) — a `data-hand="label"` with no `[data-paper]` ancestor; a
+ *             `data-hand="quote"` with no cite in its scope
  */
 export function ViolateFixture() {
   const params = useSearchParams();
@@ -31,8 +33,8 @@ export function ViolateFixture() {
         Violating fixture (EVAL-018 positive control)
       </h2>
       <p className="text-caption text-ink-soft">
-        Raw markup, not primitives. Expected: budget 7 / 4 · 1 Caveat paragraph · 1 decoration in a flat zone · 1 unhidden
-        sticky.
+        Raw markup, not primitives. Expected: budget 7 / 4 · 3 Caveat hits (bare paragraph, label outside paper, quote
+        without cite) · 1 decoration in a flat zone · 1 unhidden sticky.
       </p>
       <div className="mt-[var(--space-4)] flex flex-wrap items-start gap-[var(--space-4)]">
         {["one", "two", "three", "four", "five"].map((n) => (
@@ -51,6 +53,13 @@ export function ViolateFixture() {
       <p data-decor="sticky" data-tone="note" className="paper-sticky font-hand mt-[var(--space-4)]">
         An unhidden sticky — a hidden rule hit.
       </p>
+      {/* §3.4 placement (fix 1): a label outside any data-paper object; a quote with no cite. */}
+      <p data-hand="label" className="font-hand mt-[var(--space-4)] text-[20px] text-rust">
+        Chosen
+      </p>
+      <blockquote data-hand="quote" className="font-hand mt-[var(--space-2)] text-[20px] text-navy">
+        <p>A quote with no cite and no Source: sibling anywhere in its scope.</p>
+      </blockquote>
     </section>
   );
 }

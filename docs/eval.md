@@ -121,7 +121,7 @@ branch and appends the real per-unit summary from the spec's `eval-018` annotati
 | Rule | What the collector measures | Threshold |
 |------|-----------------------------|-----------|
 | `budget` | Counting units = the page `<header>`, every `<section>`, the page `<footer>`. Every `[data-decor]` belongs to its **nearest ancestor** unit (`el.closest("section, header, footer")` — a nested chapter owns its own; D6). `data-fastener` / `data-paper` never count. | ≤ 4 per unit |
-| `caveat` | Every `p, h1–h6, li, td, th, dt, dd` whose computed `font-family` matches `/Caveat/i` must sit inside `[data-decor]` or `[aria-hidden="true"]`, **or** under a `data-hand` ∈ `{quote, cta, label}` within its §3.4 limit (quote ≤ 240 chars **and** a `cite` / `Source:` sibling; cta ≤ 6 words; label ≤ 3 words, digits only as a 2-digit numeral). | 0 |
+| `caveat` | Every `p, h1–h6, li, td, th, dt, dd` whose computed `font-family` matches `/Caveat/i` must sit inside `[data-decor]` or `[aria-hidden="true"]`, **or** under a `data-hand` ∈ `{quote, cta, label}` within its §3.4 limit **and placement**: `quote` ≤ 240 chars **and** a cite — a `<cite>`, a `[data-cite]`, or text starting `Source:` (sr-only counts) — inside its closest `[data-paper]` or `blockquote` (for a `blockquote`/span hand with no paper, its parent, so the `Hand` `<cite>` sibling and the BandFooter tagline's sr-only `Source:` sibling pass); `cta` ≤ 6 words, no placement rule; `label` ≤ 3 words, digits only as a 2-digit numeral, **and** a `[data-paper]` ancestor. | 0 |
 | `flat` | `[data-flat] [data-decor]` is empty (`data-hand="quote"` inside a flat zone is content, allowed). | 0 |
 | `hidden` | `[data-decor="sticky" \| "annotation" \| "note"]` and any `[data-decor="sketch"]` with text carry `aria-hidden="true"`. | 0 |
 
@@ -140,7 +140,8 @@ reached. The file must be `[]` by TKT-90 (TC-175).
 
 **Controls.** The untagged test `violating fixture fails all four rules` runs the collector on
 `/dev/primitives?violate=1` (a raw-markup section, `app/dev/primitives/ViolateFixture.tsx`) and
-asserts each rule reports ≥ 1 hit — it never counts as a case failure. Removing the `@EVAL-018` tag
+asserts each rule reports ≥ 1 hit and that the §3.4 placement hits (a Caveat `label` outside any
+`[data-paper]`, a `quote` with no cite) are both reported — it never counts as a case failure. Removing the `@EVAL-018` tag
 makes `pnpm exec tsx scripts/eval-cases.ts --check-specs` fail naming EVAL-018 (negative control).
 `/dev/primitives` 404s on a plain build (its tests **skip**); build with `ALLOW_DEV_ROUTES=1` to run
 the board, the fixture and `tests/e2e/paper-drawin.spec.ts` (TC-128 draw-in checks).

@@ -159,6 +159,11 @@ test("violating fixture fails all four rules (positive control, /dev/primitives?
   for (const rule of RULES) {
     expect(byRule(rule).length, `fixture must trip the "${rule}" rule at least once; got:\n${JSON.stringify(result.violations, null, 2)}`).toBeGreaterThanOrEqual(1);
   }
+  // §3.4 placement (fix 1): the label outside any data-paper and the quote without a cite are caveat hits.
+  const caveatDetails = byRule("caveat").map((v) => v.detail);
+  expect(caveatDetails.some((d) => d.includes("no [data-paper] ancestor")), `label outside data-paper must fail:\n${caveatDetails.join("\n")}`).toBe(true);
+  expect(caveatDetails.some((d) => d.includes("quote has no cite")), `quote without cite must fail:\n${caveatDetails.join("\n")}`).toBe(true);
+  expect(byRule("caveat").length, "bare paragraph + label + quote = 3 caveat hits").toBe(3);
   // Every hit lands on the fixture section only: the rest of the board stays clean.
   const elsewhere = result.violations.filter((v) => v.unit !== "section#fixture-violate");
   expect(elsewhere, "the fixture must not leak violations into other units").toEqual([]);
