@@ -73,12 +73,41 @@ Every field is generated from real execution output — nothing is hand-entered.
 
 | Layer | Command | Cases |
 |-------|---------|-------|
-| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit) |
+| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`) |
 | Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017 |
 | Lighthouse CI | `lhci autorun` mobile + desktop, median of 3 | EVAL-004 (category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget) |
 | Content gate | `validate-content` + `forbidden-strings` + fixture proof | EVAL-013 |
 | Security | `forbidden-strings --bundle` + `pnpm audit` + TP9 headers (`--base-url`) | EVAL-016 |
 | Manual | recorded, not executed (`status: MANUAL`) | EVAL-001, 003, 009, and the EVAL-017 inspector sub-result |
+
+## EVAL-020 — paper token gate (M-009, S12/D2)
+
+`tests/unit/eval-020.test.ts` (TC-122, TC-123). `scripts/eval.ts` maps it by file name (generic
+Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-020` status is this file's pass/fail.
+
+| Part | Checks | Threshold |
+|------|--------|-----------|
+| 1 | `scripts/tokens-check.ts` stdout starts `13/13 tokens round-trip OK`, exit 0 | 13/13 |
+| 2 | `app/globals.css` defines exactly the 13 paper `--color-*` names (paper … kraft) | 13 |
+| 3 | No colour literal (`#hex`, `rgb(`/`rgba(`, `hsl(`/`hsla(`, `oklch(`, `oklab(`) in `app/**`, `components/**`, `lib/**` (`.ts/.tsx/.css`) outside the allow-list `app/globals.css` + `lib/og.tsx` | 0 |
+| 4 | No retired clay name (`bg surface lavender ink ink-2 ink-3 accent accent-deep mint sky blush peach butter`) as a Tailwind utility (`bg-/text-/border-/divide-/fill-/stroke-/outline-/ring-/from-/via-/to-/decoration-/placeholder-/shadow-/accent-` + name, variants and `/opacity` included) or as `var(--color-<name>)` / `--color-<name>:` in `app/**`, `components/**`, `lib/**` | 0 |
+| 5 | Positive control: the same scanner functions over `tests/fixtures/retired-tokens.fixture.txt` find exactly its 5 planted hits and none of its decoys | 5 |
+
+- **Comment-stripping rule.** The literal scan (part 3) runs after `//` and `/* */` comments are
+  blanked out (string literals kept, line numbers preserved). A comment is not a colour, and the hex
+  regex otherwise matches error-code references like `React #185` (`Header.tsx`, `lib/motion.ts`).
+  The retired-name scan (part 4) is **not** comment-stripped: a stale token name in a comment is
+  still dead code.
+- **No English-word allow-list.** The retired-name regex is prefix-anchored, so copy ("surface"),
+  tone prop values (`tone="mint"`, enum values — technical-plan F1-11) and paper names with a retired
+  stem (`text-ink-soft`) cannot match; the fixture's decoy lines prove it.
+- **Allow-list changes** are limited to the two files above (TKT-78 owns `lib/og.tsx`). Anything
+  else needing a literal defines a `color-mix()` custom property in `globals.css` instead.
+
+```bash
+pnpm test -- eval-020                          # the unit file on its own
+pnpm eval --only EVAL-020 --skip-build         # through the harness → evals/results/<label>.json
+```
 
 ## Local performance is informational (EVAL-004 / EVAL-005)
 

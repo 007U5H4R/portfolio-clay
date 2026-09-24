@@ -1,0 +1,15 @@
+EVAL-020 positive control (tests/unit/eval-020.test.ts). Every marked line below must be caught by
+the same scanner functions that run over the real tree; the decoys must not. Expected: 5 hits.
+
+HIT retired utility (prefix + retired name, token suffix): <p className="text-ink-3">x</p>
+HIT retired utility (variant prefix + opacity suffix): <a className="hover:bg-lavender/30">x</a>
+HIT colour literal (hex): const legacy = "#FAF9FF";
+HIT colour literal (function): const wash = "oklch(0.5 0.1 200)";
+HIT retired custom property: .x { color: var(--color-accent); }
+
+DECOY non-token utility: <div className="bg-white text-white">x</div>
+DECOY tone prop (enum value, not a token): <ClayPill tone="mint">x</ClayPill>
+DECOY paper names that contain a retired stem: <p className="text-ink-soft bg-paper-2 text-navy-2">x</p>
+DECOY comment-only line, stripped before the literal scan:
+// see React #185 (an error-code reference, not a colour)
+/* block comment with #ABCDEF inside, also stripped */
