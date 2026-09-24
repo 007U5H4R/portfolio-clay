@@ -6,12 +6,13 @@
  *
  * Invariants enforced (fail loudly — a bad case file must never run silently):
  *   1. The file parses against the zod schema (every field validated, unknown fields rejected).
- *   2. Exactly 17 cases, ids EVAL-001 … EVAL-017, each unique.
+ *   2. Exactly CASE_COUNT cases, ids EVAL-001 … EVAL-0<CASE_COUNT>, each unique
+ *      (17 at Stage 6; 22 since the M-009 evaluation addendum, evaluation-plan.md §8 / EV3).
  *   3. Every `automated: true` case names a real automated runner (a runner mapping exists);
  *      every `automated: false` case is runner "manual".
  *
  * CLI:
- *   tsx scripts/eval-cases.ts                → validates and prints `17 cases OK · 14 automated · 3 manual`
+ *   tsx scripts/eval-cases.ts                → validates and prints `22 cases OK · 18 automated · 4 manual`
  *   tsx scripts/eval-cases.ts --check-specs  → additionally asserts every Playwright-automated EVAL
  *                                              id (except those explicitly deferred to a later ticket)
  *                                              has a `@EVAL-0xx`-tagged spec under tests/e2e/.
@@ -26,6 +27,9 @@ const ROOT = process.cwd();
 const EVAL_CASES_PATH = resolve(ROOT, "evals/eval-cases.json");
 const E2E_DIR = resolve(ROOT, "tests/e2e");
 
+/** Number of cases the catalogue must hold: EVAL-001 … EVAL-017 (Stage 6) + EVAL-018 … 022 (M-009, EV3). */
+const CASE_COUNT = 22;
+
 /** Runners that actually execute a case (i.e. constitute a "runner mapping" for an automated case). */
 const AUTOMATED_RUNNERS = [
   "playwright",
@@ -39,10 +43,14 @@ const AUTOMATED_RUNNERS = [
 
 /**
  * EVAL ids whose Playwright spec is deferred to a later ticket, so `--check-specs` does not treat a
- * missing spec as a failure. Empty as of TKT-07b: EVAL-011's dead-control crawler spec now exists
- * (tests/e2e/eval-011-dead-controls.spec.ts), so every Playwright-automated id is covered.
+ * missing spec as a failure. Was empty as of TKT-07b (EVAL-011's crawler spec exists). The M-009
+ * rows (evaluation-plan.md §8.7) are deferred until their Stage-7 tickets build the paper
+ * primitives' `[data-decor]` contract and the hero video; remove each entry when its spec lands.
  */
-const DEFERRED_SPECS: Record<string, string> = {};
+const DEFERRED_SPECS: Record<string, string> = {
+  "EVAL-018": "M-009 Stage 7 — decoration-budget spec needs the paper primitives' [data-decor]/[data-flat] contract",
+  "EVAL-019": "M-009 Stage 7 — hero once-and-hold spec needs the illustrated hero + video",
+};
 
 const EvalCaseSchema = z
   .object({
@@ -88,17 +96,17 @@ export function loadCases(): EvalCase[] {
   const parsed = EvalCasesFileSchema.parse(JSON.parse(raw));
   const cases = parsed.cases;
 
-  // Invariant 2 — exactly 17 unique ids EVAL-001…017.
+  // Invariant 2 — exactly CASE_COUNT unique ids EVAL-001…0<CASE_COUNT>.
   const ids = cases.map((c) => c.id);
   const unique = new Set(ids);
-  if (cases.length !== 17) {
-    throw new Error(`[eval-cases] expected 17 cases, found ${cases.length}`);
+  if (cases.length !== CASE_COUNT) {
+    throw new Error(`[eval-cases] expected ${CASE_COUNT} cases, found ${cases.length}`);
   }
   if (unique.size !== ids.length) {
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
     throw new Error(`[eval-cases] duplicate ids: ${[...new Set(dupes)].join(", ")}`);
   }
-  for (let i = 1; i <= 17; i++) {
+  for (let i = 1; i <= CASE_COUNT; i++) {
     const want = `EVAL-${String(i).padStart(3, "0")}`;
     if (!unique.has(want)) throw new Error(`[eval-cases] missing id ${want}`);
   }

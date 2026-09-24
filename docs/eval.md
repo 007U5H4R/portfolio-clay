@@ -127,8 +127,10 @@ and `layout.spec.ts`.
 ## Adding a new evaluation case
 
 1. Add the case to `evals/eval-cases.json` (id, priority, category, `automated`, `runner`, …). The
-   loader (`scripts/eval-cases.ts`) enforces 17-unique-ids and the automation↔runner invariant, so
-   update its counts/mappings if you change the catalogue shape.
+   loader (`scripts/eval-cases.ts`) enforces `CASE_COUNT` unique ids (22 since the M-009 addendum,
+   `evaluation-plan.md` §8) and the automation↔runner invariant, so update its count/mappings if you
+   change the catalogue shape. A Playwright-automated id whose spec is not built yet goes in
+   `DEFERRED_SPECS` with the ticket that owns it, so `--check-specs` stays honest.
 2. Author the runner: a `@EVAL-0xx`-tagged Playwright spec, a Vitest test, or an LHCI assertion.
 3. Map the id in `scripts/eval.ts` (add it to the relevant `*_CASES` array) so the orchestrator
    reads its status from the right layer.
