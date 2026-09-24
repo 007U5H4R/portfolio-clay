@@ -14,36 +14,108 @@ test("@EVAL-007 desktop nav: every tab stop shows the 2px rust focus ring", { ta
   page,
   keyboardOnly,
 }) => {
-  test.skip(width(page) < 1024, "primary nav is visible at md+ (keyboard sweep at desktop widths)");
+  test.skip(width(page) < 1024, "primary nav is visible at lg+ (keyboard sweep at desktop widths)");
   await page.goto("/", { waitUntil: "load" });
-  // Skip link → header logo → primary nav links → Ask control: all opt into .focus-ring.
-  await keyboardOnly(page, { tabs: 7 });
+  // Skip link → brand → 5 nav links (D8) → "Let's connect →" pill → Ask ghost: all opt into
+  // .focus-ring (TKT-71).
+  await keyboardOnly(page, { tabs: 9 });
 });
 
-test("@EVAL-007 mobile menu: opens, traps focus, Esc closes and restores focus to the toggle", {
+/**
+ * TC-132 (TKT-71 AC 2, AC 8) — the MobileMenu paper sheet by keyboard alone: Tab from load reaches
+ * the skip link then the menu button; Enter opens the native <dialog>; focus lands inside; Tab walks
+ * the 5 nav rows (56 px), the pill, the résumé row and the Ask row without ever escaping to a page
+ * control; axe is clean with the sheet open; Escape closes it, restores focus to the button and
+ * releases the <html> overflow lock.
+ */
+test("@EVAL-007 mobile menu: Tab → button → Enter opens the sheet, Tab cycles inside, axe clean, Esc restores focus", {
   tag: "@EVAL-007",
-}, async ({ page }) => {
+}, async ({ page, axe }) => {
   test.skip(width(page) !== 390, "mobile menu is the w390 navigation");
   await page.goto("/", { waitUntil: "load" });
 
-  const toggle = page.locator('button[aria-label="Open menu"]');
+  // By class, not name: the label flips "Open menu" ↔ "Close menu" with `aria-expanded`.
+  const toggle = page.locator("button.header-menu-btn");
   await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveAccessibleName("Open menu");
 
+  await page.keyboard.press("Tab");
+  await expect(page.locator('a[href="#main"]')).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Tushar Pathak — home" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(toggle).toBeFocused();
+
+  const dialog = page.locator('dialog[aria-label="Site navigation"]');
+  await expect(async () => {
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 6000 });
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(toggle).toHaveAccessibleName("Close menu");
+  await expect(toggle).toHaveAttribute("aria-controls", (await dialog.getAttribute("id")) ?? "");
+
+  const focusInside = () =>
+    page.evaluate(() => {
+      const d = document.querySelector('dialog[aria-label="Site navigation"]');
+      return !!(d && document.activeElement && d.contains(document.activeElement));
+    });
+  expect(await focusInside(), "focus must move inside the modal dialog").toBeTruthy();
+
+  // Rows: 5 nav (56 px, Fraunces 18) + pill + résumé + Ask — every one ≥ 44 px tall.
+  const rows = dialog.locator('nav[aria-label="Primary"] a');
+  await expect(rows).toHaveCount(5);
+  for (const row of await rows.all()) {
+    const box = await row.boundingBox();
+    expect(box!.height, "nav rows are 56 px").toBeGreaterThanOrEqual(55);
+    const font = await row.evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(font).toContain("Fraunces");
+  }
+  await expect(dialog.getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
+  await expect(dialog.getByRole("link", { name: "Resume — updating" })).toHaveAttribute("href", "/contact#resume");
+  await expect(dialog.getByRole("button", { name: "Ask AI" })).toBeVisible();
+
+  // Tab cycles inside: 10 Tabs never reach a page control (native showModal + inert background).
+  const escaped = () =>
+    page.evaluate(() => {
+      const a = document.activeElement;
+      if (!a || a === document.body || a === document.documentElement) return false;
+      const d = document.querySelector('dialog[aria-label="Site navigation"]');
+      return !(d && d.contains(a));
+    });
+  let landedInside = false;
+  for (let i = 0; i < 10; i++) {
+    await page.keyboard.press("Tab");
+    expect(await escaped(), `Tab ${i + 1} reached a page control`).toBeFalsy();
+    if (await focusInside()) landedInside = true;
+  }
+  expect(landedInside, "focus must cycle back inside the sheet").toBeTruthy();
+
+  await axe(page);
+  expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("hidden");
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(toggle).toBeFocused();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(toggle).toHaveAccessibleName("Open menu");
+  expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("");
+});
+
+test("@EVAL-007 mobile menu: a backdrop click closes the sheet", { tag: "@EVAL-007" }, async ({ page }) => {
+  test.skip(width(page) !== 390, "mobile menu is the w390 navigation");
+  await page.goto("/", { waitUntil: "load" });
+  const toggle = page.getByRole("button", { name: "Open menu" });
   const dialog = page.locator('dialog[aria-label="Site navigation"]');
   await expect(async () => {
     await toggle.click();
     await expect(dialog).toBeVisible({ timeout: 1000 });
   }).toPass({ timeout: 6000 });
-
-  const focusInside = await page.evaluate(() => {
-    const d = document.querySelector('dialog[aria-label="Site navigation"]');
-    return !!(d && document.activeElement && d.contains(document.activeElement));
-  });
-  expect(focusInside, "focus must move inside the modal dialog").toBeTruthy();
-
-  await page.keyboard.press("Escape");
+  // The sheet hangs under the header; a tap well below it lands on the ::backdrop, whose click
+  // target is the <dialog> element itself.
+  const box = await dialog.boundingBox();
+  await page.mouse.click(195, box!.y + box!.height + 120);
   await expect(dialog).toBeHidden();
-  await expect(toggle).toBeFocused();
 });
 
 const focusInsidePanel = (page: import("@playwright/test").Page) =>
@@ -71,6 +143,7 @@ test("@EVAL-007 keyboard: AskPanel opens, traps focus, answers, Esc closes and r
   test.skip(width(page) < 1024, "the header Ask AI trigger is desktop-only (MobileMenu covers 390)");
   await page.goto("/", { waitUntil: "load" });
 
+  // The 44 px icon-only ghost (TKT-71, S21) — named by its aria-label, not visible text.
   const trigger = page.locator("header").getByRole("button", { name: "Ask AI" });
   await trigger.focus();
   await expect(trigger).toBeFocused();

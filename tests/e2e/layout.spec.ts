@@ -1,6 +1,8 @@
 /**
- * layout.spec.ts (technical-plan.md §B S05.05) — S05.01/S05.02 assertions for `Container` /
- * `Section` / `SectionHeading` / `Reveal` at all 4 widths, plus the S05.04 `Footer` content gate.
+ * layout.spec.ts (technical-plan.md §B S05.05; TKT-71 S71.02/S71.04 header + reading-progress
+ * gates) — the paper header contract (TC-130, TC-131, TC-133) at all 4 widths, then the S05.01/S05.02
+ * assertions for `Container` / `Section` / `SectionHeading` / `Reveal`, plus the S05.04 `Footer`
+ * content gate.
  *
  * Deliberately tagged `@primitives`, NOT `@EVAL-*` — same reasoning as `primitives.spec.ts`
  * (TKT-04): the `/dev/primitives` board it targets is a QA-only route that only renders on an
@@ -30,6 +32,150 @@ async function gotoDev(
     "/dev/primitives 404s without ALLOW_DEV_ROUTES=1 — run the QA job to exercise it",
   );
 }
+
+// ---------------------------------------------------------------------------
+// TC-130 (TKT-71 AC 1, D12) — one header height at every width; `data-scrolled` toggles the hairline
+// only, and is removed again at the top.
+// ---------------------------------------------------------------------------
+test("header keeps one height across scroll; data-scrolled only toggles the hairline", async ({ page }) => {
+  await page.goto("/", { waitUntil: "load" });
+  const header = page.locator("header[data-site-header]");
+  await expect(header).toBeVisible();
+  const lineColor = await page.evaluate(() => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--line)";
+    document.body.appendChild(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  });
+
+  const restBox = await header.boundingBox();
+  await expect(header).not.toHaveAttribute("data-scrolled");
+  const restBorder = await header.evaluate((el) => getComputedStyle(el).borderBottomColor);
+  expect(restBorder, "no hairline at rest").not.toBe(lineColor);
+
+  await page.evaluate(() => window.scrollTo(0, 400));
+  // Waits for hydration — the attribute is only written by the client HeaderScroll listener.
+  await expect(header).toHaveAttribute("data-scrolled", "");
+  const scrolledBox = await header.boundingBox();
+  expect(
+    Math.abs(scrolledBox!.height - restBox!.height),
+    `height at scrollY 400 (${scrolledBox!.height}) must equal rest (${restBox!.height}) ±1 at ${width(page)}`,
+  ).toBeLessThanOrEqual(1);
+  const scrolledBorder = await header.evaluate((el) => getComputedStyle(el).borderBottomColor);
+  expect(scrolledBorder, "the --line hairline appears after scroll").toBe(lineColor);
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(header).not.toHaveAttribute("data-scrolled");
+  const backBox = await header.boundingBox();
+  expect(Math.abs(backBox!.height - restBox!.height)).toBeLessThanOrEqual(1);
+});
+
+// ---------------------------------------------------------------------------
+// TC-131 (TKT-71 AC 3, AC 4, D8) — the subline annotation is gated by width (TP14 MediaGate), the
+// nav is hidden < 1024 with five items and an aria-current underline ≥ 1024, every control ≥ 44 px.
+// ---------------------------------------------------------------------------
+test("header subline annotation is absent from the DOM < 640 and present + aria-hidden ≥ 640", async ({ page }) => {
+  await page.goto("/", { waitUntil: "load" });
+  const header = page.locator("header[data-site-header]");
+  // Hydration gate (the annotation only mounts client-side): wait for the scroll listener to exist.
+  await page.evaluate(() => window.scrollTo(0, 40));
+  await expect(header).toHaveAttribute("data-scrolled", "");
+  await page.evaluate(() => window.scrollTo(0, 0));
+
+  const annotations = header.locator('[data-decor="annotation"]');
+  const decor = header.locator("[data-decor]");
+  if (width(page) < 640) {
+    await expect(annotations).toHaveCount(0);
+    await expect(decor, "header unit count 0 below 640").toHaveCount(0);
+  } else {
+    await expect(annotations).toHaveCount(1);
+    await expect(annotations).toHaveAttribute("aria-hidden", "true");
+    await expect(annotations).toHaveText("Build · Learn · Solve · Grow");
+    await expect(decor, "header unit count 1 (Design.md §3.3)").toHaveCount(1);
+  }
+});
+
+test("primary nav: five items (D8), hidden < 1024, aria-current draws the underline on /work", async ({ page }) => {
+  await page.goto("/work", { waitUntil: "load" });
+  const nav = page.locator('header nav[aria-label="Primary"]').first();
+  const links = nav.locator("a");
+  await expect(links).toHaveCount(5);
+  await expect(links.nth(4)).toHaveAttribute("href", "/playground");
+  if (width(page) < 1024) {
+    await expect(nav).toBeHidden();
+    await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
+    await expect(page.locator('header a[href="/contact"]:visible')).toHaveCount(0);
+    return;
+  }
+  await expect(nav).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open menu" })).toBeHidden();
+  const active = nav.locator('a[aria-current="page"]');
+  await expect(active).toHaveText("Work");
+  await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
+  await expect(nav.locator('a[href="/"] svg.ink-underline')).toHaveCSS("opacity", "0");
+  const font = await active.evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(font).toContain("Fraunces");
+  await expect(page.locator("header").getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
+  await expect(page.locator("header").getByRole("button", { name: "Ask AI" })).toBeVisible();
+});
+
+test("every visible header control is at least 44×44", async ({ page }) => {
+  await page.goto("/", { waitUntil: "load" });
+  const undersized = await page.evaluate(() => {
+    const out: { tag: string; name: string; w: number; h: number }[] = [];
+    document.querySelectorAll("header a[href], header button").forEach((el) => {
+      const s = getComputedStyle(el);
+      if (s.display === "none" || s.visibility === "hidden") return;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return;
+      if (Math.round(r.width) < 44 || Math.round(r.height) < 44) {
+        out.push({ tag: el.tagName, name: (el.getAttribute("aria-label") ?? el.textContent ?? "").trim(), w: r.width, h: r.height });
+      }
+    });
+    return out;
+  });
+  expect(undersized).toEqual([]);
+});
+
+// ---------------------------------------------------------------------------
+// TC-133 (TKT-71 AC 6) — the reading-progress bar exists only on case studies, is aria-hidden, and
+// its scaleX tracks the scroll fraction (also under reduced motion — position, not motion).
+// ---------------------------------------------------------------------------
+test("reading progress: present on /work/teachspark, absent on / and /about, scaleX follows scroll", async ({
+  page,
+  withReducedMotion,
+}) => {
+  test.skip(width(page) !== 1440 && width(page) !== 390, "progress geometry checked at 390 and 1440");
+  for (const route of ["/", "/about"]) {
+    await page.goto(route, { waitUntil: "load" });
+    await expect(page.locator("[data-progress]")).toHaveCount(0);
+  }
+
+  await withReducedMotion(page);
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+  const bar = page.locator("[data-progress]");
+  await expect(bar).toHaveCount(1);
+  await expect(bar).toHaveAttribute("aria-hidden", "true");
+  const scaleX = () =>
+    bar.evaluate((el) => {
+      const t = getComputedStyle(el).transform;
+      const m = /matrix\(([^,]+),/.exec(t);
+      return m ? parseFloat(m[1]!) : NaN;
+    });
+  await expect.poll(scaleX).toBeCloseTo(0, 2);
+
+  const half = await page.evaluate(() => {
+    const doc = document.documentElement;
+    const range = doc.scrollHeight - doc.clientHeight;
+    window.scrollTo(0, range / 2);
+    return range;
+  });
+  expect(half, "the case study must scroll").toBeGreaterThan(0);
+  await expect.poll(scaleX, { timeout: 5000 }).toBeGreaterThan(0.4);
+  await expect.poll(scaleX).toBeLessThan(0.6);
+});
 
 // ---------------------------------------------------------------------------
 // S05.01 — Container gutters + max-width ladder

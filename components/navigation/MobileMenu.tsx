@@ -2,23 +2,25 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import { ClayButton } from "@/components/clay/ClayButton";
-import { Icon } from "@/components/common/Icon";
+import { usePathname } from "next/navigation";
 import { navItems } from "@/lib/nav";
 import { resumeAction } from "@/lib/site";
 import { AskAIButton } from "./AskAIButton";
 
 /**
- * Full-screen `<dialog>` sheet (technical-plan.md §B S04.05, Design.md §3) — deliberately not a
- * small anchored dropdown, so the browser's native modal behaviour (focus trap, inert
- * background, Esc → `cancel` → `close`, and focus restored to the trigger on close) is correct
- * for free, and every row can be a full 56px/44px target without fighting a cramped popover.
+ * The mobile paper sheet (Design.md §4.1; TKT-71 restyle of the S04.05 `<dialog>`). Still a native
+ * modal `<dialog aria-label="Site navigation">` — the browser's focus trap, inert background, `Esc`
+ * → `cancel` → `close`, and focus restored to the trigger on close are correct for free — but it now
+ * drops from the header's bottom edge as a full-width paper sheet (`--shadow-paper`) instead of a
+ * full-screen page: the five nav rows (56 px, Fraunces 18), a hairline, then the "Let's connect →"
+ * pill, the `resumeAction()` row and the Ask row (S21). A click on the backdrop (the `<dialog>`
+ * element itself) closes it; `overflow:hidden` on `<html>` while open is unchanged.
  */
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dialogId = useId();
+  const pathname = usePathname();
   const resume = resumeAction();
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export function MobileMenu() {
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
-  // `overflow:hidden` on <html> while open (S04.05) — the dialog itself scrolls its own content.
+  // `overflow:hidden` on <html> while open (S04.05) — the sheet scrolls its own content.
   useEffect(() => {
     if (!open) return;
     const html = document.documentElement;
@@ -41,65 +43,66 @@ export function MobileMenu() {
 
   return (
     <>
-      <ClayButton
-        variant="ghost"
-        iconOnly
+      <button
+        type="button"
         aria-label={open ? "Close menu" : "Open menu"}
         aria-controls={dialogId}
         aria-expanded={open}
-        className="md:hidden"
+        className="header-menu-btn focus-ring"
         onClick={() => setOpen((value) => !value)}
       >
-        <Icon icon={open ? X : Menu} size={24} />
-      </ClayButton>
+        <svg viewBox="0 0 18 14" width={18} height={14} aria-hidden="true" focusable="false">
+          <path d="M1 2 C 6 1, 12 3, 17 2 M1 7 C 6 6, 12 8, 17 7 M1 12 C 6 11, 12 13, 17 12" />
+        </svg>
+      </button>
 
       <dialog
         ref={dialogRef}
         id={dialogId}
         aria-label="Site navigation"
-        className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-paper p-0 backdrop:bg-navy/40"
-        // Native `cancel` (Esc) closes the dialog itself, which then fires `close` — syncing
-        // React state from `close` covers both Esc and the explicit close button below.
+        className="menu-sheet"
+        // Native `cancel` (Esc) closes the dialog itself, which then fires `close` — syncing React
+        // state from `close` covers Esc and every explicit close path below.
         onClose={() => setOpen(false)}
         onClick={(event) => {
-          // A click that lands on the `<dialog>` element itself (not a descendant) is a click on
-          // its backdrop/padding — the standard native-dialog "click outside closes" pattern.
+          // A click that lands on the `<dialog>` element itself (not a descendant) is a click on its
+          // backdrop — the standard native-dialog "click outside closes" pattern.
           if (event.target === dialogRef.current) setOpen(false);
         }}
       >
-        <div
-          className="flex h-full flex-col overflow-y-auto px-[var(--gutter-mobile)] py-[var(--space-6)]"
-          style={{ paddingTop: "calc(var(--space-6) + env(safe-area-inset-top))" }}
-        >
-          <div className="flex justify-end">
-            <ClayButton variant="ghost" iconOnly aria-label="Close menu" onClick={() => setOpen(false)}>
-              <Icon icon={X} size={24} />
-            </ClayButton>
-          </div>
-
-          <nav aria-label="Primary" className="mt-[var(--space-6)] flex flex-1 flex-col">
+        <div className="menu-sheet-body">
+          <nav aria-label="Primary" className="sheet-nav">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={pathname === item.href ? "page" : undefined}
                 onClick={() => setOpen(false)}
-                className="flex min-h-14 items-center text-[18px] font-medium text-navy focus-ring"
+                className="sheet-row sheet-row-nav focus-ring"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex flex-col gap-3 border-t border-navy/10 pt-[var(--space-5)]">
-            <AskAIButton />
-            <ClayButton
-              variant="secondary"
-              href={resume.href}
-              download={resume.download}
+          <div className="sheet-actions">
+            <Link
+              href="/contact"
+              data-hand="cta"
               onClick={() => setOpen(false)}
+              className="header-pill sheet-pill font-hand focus-ring"
+            >
+              Let&apos;s connect <span aria-hidden="true">→</span>
+            </Link>
+            <Link
+              href={resume.href}
+              download={resume.download ? true : undefined}
+              onClick={() => setOpen(false)}
+              className="sheet-row sheet-row-resume focus-ring"
             >
               {resume.label}
-            </ClayButton>
+            </Link>
+            <AskAIButton variant="row" />
           </div>
         </div>
       </dialog>

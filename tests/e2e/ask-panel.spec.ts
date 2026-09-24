@@ -19,9 +19,12 @@ const OFF_TOPIC_QUERY = "what is the weather in paris";
 
 const panel = (page: Page) => page.locator("dialog.ask-panel");
 
-/** Open the panel from the width-appropriate trigger (header at md+, MobileMenu row at 390). */
+/**
+ * Open the panel from the width-appropriate trigger: the header's icon-only Ask ghost at lg+
+ * (1024 — the D12 nav collapse point, TKT-71), the MobileMenu sheet's Ask row below it.
+ */
 async function openPanel(page: Page): Promise<void> {
-  if (width(page) < 768) {
+  if (width(page) < 1024) {
     const hamburger = page.getByRole("button", { name: "Open menu" });
     await hamburger.click();
     const menu = page.locator('dialog[aria-label="Site navigation"]');

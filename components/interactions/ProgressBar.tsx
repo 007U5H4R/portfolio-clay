@@ -1,45 +1,45 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { m, useMotionValueEvent, useScroll } from "motion/react";
-import { LazyMotionRoot } from "@/lib/motion";
-
-/** aria-valuenow update ceiling (technical-plan.md §B S05.03: "updated at most 4×/s"). */
-const ARIA_UPDATE_INTERVAL_MS = 250;
+import { useEffect, useRef } from "react";
 
 /**
- * Reading-progress bar (technical-plan.md §B S05.03, Design.md §4). A 3px bar whose `scaleX`
- * tracks page-scroll position via `motion`'s `useScroll`. Not mounted by this ticket — TSK-18
- * (case-study shell, M-003) wires it into `/work/[slug]`.
+ * Reading-progress bar (Design.md §4.1 "Reading progress", §8 last row; TKT-71 restyle of S05.03).
+ * A 3 px rust bar fixed at the header's bottom edge whose `transform: scaleX(var(--p))` tracks the
+ * page-scroll fraction, mounted only by `/work/[slug]` (the long-form route). `aria-hidden`: it is a
+ * position indicator duplicated by the scrollbar, not information — the TKT-11-era
+ * `role="progressbar"` + throttled `aria-valuenow` went with it (a hidden element carries no role).
  *
- * Kept (not disabled) under reduced motion: it is a direct 1:1 mapping to scroll position, never
- * an autoplaying animation, so there is nothing to collapse (A6). `aria-valuenow` is throttled to
- * at most 4 updates/second via a `useMotionValueEvent` listener so screen-reader polling doesn't
- * thrash on every scroll pixel.
+ * Kept (not disabled) under reduced motion: a direct 1:1 mapping to scroll position, never an
+ * autoplaying animation, so there is nothing to collapse (A6). The passive scroll listener writes
+ * the `--p` custom property straight to the element — no React state, no `motion` (`useScroll`)
+ * dependency in the shared chrome.
  */
 export function ProgressBar() {
-  const { scrollYProgress } = useScroll();
-  const [valueNow, setValueNow] = useState(0);
-  const lastUpdateRef = useRef(0);
+  const ref = useRef<HTMLDivElement>(null);
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const now = Date.now();
-    if (now - lastUpdateRef.current < ARIA_UPDATE_INTERVAL_MS) return;
-    lastUpdateRef.current = now;
-    setValueNow(Math.round(latest * 100));
-  });
+  useEffect(() => {
+    const bar = ref.current;
+    if (!bar) return;
+    let frame = 0;
+    const apply = () => {
+      frame = 0;
+      const doc = document.documentElement;
+      const range = doc.scrollHeight - doc.clientHeight;
+      const p = range > 0 ? Math.min(1, Math.max(0, window.scrollY / range)) : 0;
+      bar.style.setProperty("--p", p.toFixed(4));
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(apply);
+    };
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
-  return (
-    <LazyMotionRoot>
-      <m.div
-        role="progressbar"
-        aria-label="Reading progress"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={valueNow}
-        className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-rust"
-        style={{ scaleX: scrollYProgress }}
-      />
-    </LazyMotionRoot>
-  );
+  return <div ref={ref} data-progress="" aria-hidden="true" className="reading-progress" />;
 }

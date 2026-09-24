@@ -9,6 +9,8 @@ import {
   loadRoutes,
   type FetchLike,
 } from "@/tests/e2e/routes";
+import { navItems } from "@/lib/nav";
+import allowlist from "@/tests/e2e/crawler-allowlist.json";
 
 const SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -67,5 +69,30 @@ describe("loadRoutes fallback order (S09.03)", () => {
       fetchImpl: fakeFetch(() => ({ ok: false, status: 404, text: async () => "" })),
     });
     expect(withDev).toEqual([...STATIC_ROUTES, ...DEV_ROUTES]);
+  });
+});
+
+// TC-131 step 1 (TKT-71 AC 5, decision D8): five nav items with Playground; every href is a static
+// route the crawler (EVAL-011) can reach, and none needs the allow-list. If Tushar reverts D8 the
+// expected length becomes 4 and the band gains a Playground link (one documented edit each).
+describe("primary nav (lib/nav.ts, D8)", () => {
+  it("has five items ending in Playground, in the Design.md §4.1 order", () => {
+    expect(navItems).toHaveLength(5);
+    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/thinking", "/about", "/playground"]);
+    expect(navItems.map((item) => item.label)).toEqual(["Home", "Work", "Thinking", "About", "Playground"]);
+  });
+
+  it("never lists Contact — the pill, the band and page CTAs carry that path", () => {
+    expect(navItems.some((item) => item.href === "/contact")).toBe(false);
+  });
+
+  it("every href is a static route and none is on the crawler allow-list", () => {
+    for (const item of navItems) {
+      expect(STATIC_ROUTES, `${item.href} must be a static route`).toContain(item.href);
+    }
+    const allowed = (allowlist as unknown[]).map((entry) => JSON.stringify(entry));
+    for (const item of navItems) {
+      expect(allowed.some((entry) => entry.includes(`"${item.href}"`)), `${item.href} needs no allow-list entry`).toBe(false);
+    }
   });
 });

@@ -9,9 +9,10 @@
  *   @EVAL-010 — reduced-motion: card hover does not translate, header transition collapses
  *   @EVAL-015 — View-Transition fallback (EXE-5 plain navigation, identical end state) + no-JS
  *               static HTML content
- * plus hero frame ladder (S05.02), tile offsets (S05.03), header compaction (S04.03),
- * NavPill (S04.04), MobileMenu focus-trap/Esc (S04.05), SkipLink (S04.02),
- * AskAIButton tab-order (S04.06), resume placeholder + /resume.pdf 404 (E-13).
+ * plus hero frame ladder (S05.02), tile offsets (S05.03), the one-height header + ink underline
+ * (TKT-71 / D12 — replacing the S04.03 compaction and S04.04 active-pill checks), MobileMenu
+ * focus-trap/Esc (S04.05), SkipLink (S04.02), AskAIButton tab-order (S04.06), resume placeholder +
+ * /resume.pdf 404 (E-13).
  */
 import { test, expect } from "./fixtures";
 // The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
@@ -160,8 +161,8 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
 // threshold: compacting shrank the sticky header 28px, which clamped scrollY back under the
 // threshold, which un-compacted it — an infinite render loop (React #185 "Maximum update depth
 // exceeded"), rendered as Next's default error page instead of the case study. Only reproduced in
-// the production build, at w768, under reduced motion. The fix is hysteresis on useScrollY
-// (lib/motion.ts) — see docs/reports/F6-debug.md. This asserts the navigation raises NO page error
+// the production build, at w768, under reduced motion. The fix was hysteresis on the scroll
+// hook (deleted with the compaction at TKT-71 / D12 — the header no longer changes height) — see docs/reports/F6-debug.md. This asserts the navigation raises NO page error
 // and lands on the real case study, at every width, so the loop cannot silently return.
 // ---------------------------------------------------------------------------
 test("F6: card -> case study nav does not trip a render loop (React #185)", { tag: "@EVAL-015" }, async ({
@@ -219,50 +220,42 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
 });
 
 // ---------------------------------------------------------------------------
-// S04.03 — header compaction 96 -> 68 with backdrop blur
+// TKT-71 / D12 — the header keeps one ~72 px height and a constant 10 px blur; scrolling only
+// turns the hairline on (the S04.03 96→68 compaction is deleted). Full matrix: layout.spec.ts.
 // ---------------------------------------------------------------------------
-test("header compacts 96 -> 68 with a backdrop blur on scroll", async ({ page }) => {
-  test.skip(width(page) !== 1440, "compaction geometry measured at w1440");
+test("header keeps one height with a constant blur; scrolling only adds the hairline", async ({ page }) => {
+  test.skip(width(page) !== 1440, "header geometry measured at w1440 (all widths in layout.spec.ts)");
   await page.goto("/", { waitUntil: "load" });
   const header = page.locator("header").first();
 
   const restBox = await header.boundingBox();
-  expect(restBox!.height, `rest height ${restBox!.height} should be ~96`).toBeGreaterThanOrEqual(94);
-  expect(restBox!.height).toBeLessThanOrEqual(98);
+  expect(restBox!.height, `rest height ${restBox!.height} should be ~72`).toBeGreaterThanOrEqual(70);
+  expect(restBox!.height).toBeLessThanOrEqual(74);
   const restFilter = await header.evaluate((el) => {
     const s = getComputedStyle(el);
     return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter");
   });
-  expect(["none", ""], `rest backdrop-filter was "${restFilter}"`).toContain(restFilter);
+  expect(restFilter, `rest backdrop-filter was "${restFilter}"`).toContain("blur(10px)");
+  await expect(header).not.toHaveAttribute("data-scrolled");
 
-  // Scroll past the threshold; retry until the client `useScrollY` listener has hydrated and the
-  // 250 ms compaction transition has settled (avoids a fixed sleep racing hydration).
   await page.evaluate(() => window.scrollTo(0, 240));
-  await expect(async () => {
-    await page.evaluate(() => window.scrollTo(0, 240));
-    const compactBox = await header.boundingBox();
-    expect(
-      compactBox!.height,
-      `compact height ${compactBox!.height} should be ~68`,
-    ).toBeGreaterThanOrEqual(66);
-    expect(compactBox!.height).toBeLessThanOrEqual(70);
-    const compactFilter = await header.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter");
-    });
-    expect(compactFilter, `compact backdrop-filter was "${compactFilter}"`).toContain("blur(12px)");
-  }).toPass({ timeout: 6000 });
+  await expect(header).toHaveAttribute("data-scrolled", "");
+  const scrolledBox = await header.boundingBox();
+  expect(Math.abs(scrolledBox!.height - restBox!.height), "height must not change on scroll").toBeLessThanOrEqual(1);
 });
 
 // ---------------------------------------------------------------------------
-// S04.04 — NavPill sits behind the active nav link
+// TKT-71 — the active nav link is marked current and draws the ink-stroke underline
+// (the S04.04 active-link pill is deleted).
 // ---------------------------------------------------------------------------
-test("active nav link is marked current and shows the NavPill", async ({ page }) => {
-  test.skip(width(page) < 1024, "primary nav is visible at md+ (measured at desktop widths)");
+test("active nav link is marked current and shows the ink underline", async ({ page }) => {
+  test.skip(width(page) < 1024, "primary nav is visible at lg+ (measured at desktop widths)");
   await page.goto("/", { waitUntil: "load" });
-  const active = page.locator('nav[aria-label="Primary"] a[aria-current="page"]');
+  const nav = page.locator('header nav[aria-label="Primary"]').first();
+  const active = nav.locator('a[aria-current="page"]');
   await expect(active).toHaveText("Home");
-  await expect(active.locator('span[aria-hidden="true"]').first()).toBeVisible();
+  await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
+  await expect(nav.locator('a[href="/work"] svg.ink-underline')).toHaveCSS("opacity", "0");
 });
 
 // ---------------------------------------------------------------------------
@@ -317,8 +310,9 @@ test("skip link is the first tab stop and targets #main", async ({ page }) => {
 test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page }) => {
   test.skip(width(page) !== 1440, "Ask AI button is desktop-only (hidden on mobile)");
   await page.goto("/", { waitUntil: "load" });
-  // Scope to the visible desktop control (the closed MobileMenu <dialog> holds a hidden duplicate).
-  const ask = page.locator("header button").filter({ hasText: "Ask AI" }).filter({ visible: true }).first();
+  // The visible desktop control is the 44 px icon-only ghost named by aria-label (TKT-71, S21);
+  // getByRole skips the closed MobileMenu <dialog>'s hidden Ask row.
+  const ask = page.locator("header").getByRole("button", { name: "Ask AI" });
   await expect(ask).toBeVisible();
   await expect(ask).not.toHaveAttribute("aria-disabled", "true");
   await ask.focus();
