@@ -3,10 +3,10 @@ id: TASK-65.1
 title: >-
   TSK-33: Counted decorations — TornEdge · Sticky · Annotation · Sketch (7
   variants) · Note · free Tape
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 09:16'
+updated_date: '2026-09-24 09:36'
 labels:
   - P0
   - 'sp:2'

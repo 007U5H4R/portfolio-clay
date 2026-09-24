@@ -39,3 +39,5 @@ The legacy-hit table (route · width · unit · rule · detail · fixing ticket)
 
 - **Server scar (TSK-30):** Playwright reuses any live server on :3000 — after every `pnpm build`, kill any running `pnpm start`/`next start` and restart it, or Playwright tests the stale build. Restore any `docs/screenshots/**` PNGs that e2e runs churn (`git checkout -- docs/screenshots`) unless your task produces them.
 - **Known pre-existing e2e failures on this branch (M-008 debris, 19):** `.glow-halo` overflow ×11, `featured.spec` vs ProductScene ×5, `tracer.spec` AVATAR_ALT ×4 — see `docs/reports/TSK-30.md` §4a. Report them as pre-existing; any *other* failure is yours to explain.
+
+- **TSK-33 note:** `data-drawin` is only on the `underline` Sketch variant (Design §8) — the TC-128 draw-in checks target the underline.
