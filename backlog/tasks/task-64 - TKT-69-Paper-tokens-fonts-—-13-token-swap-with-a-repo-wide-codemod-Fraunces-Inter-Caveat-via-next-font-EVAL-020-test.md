@@ -3,10 +3,10 @@ id: TASK-64
 title: >-
   TKT-69: Paper tokens + fonts — 13-token swap with a repo-wide codemod,
   Fraunces/Inter/Caveat via next/font, EVAL-020 test
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 07:12'
+updated_date: '2026-09-24 09:16'
 labels:
   - P0
   - 'sp:5'

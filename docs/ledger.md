@@ -289,9 +289,9 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 |---|---|---|---|---|---|---|
 | Preflight | — | orchestrator | — | — | ✅ green | — |
 | TSK-30 codemod | TASK-64.1 | fable | docs/briefs/TSK-30.md | docs/reports/TSK-30.md | ✅ `a08d2ff` | — |
-| TSK-31 fonts | TASK-64.2 | opus | docs/briefs/TSK-31.md | docs/reports/TSK-31.md | dispatched | — |
-| TSK-32 eval-020 | TASK-64.3 | opus | docs/briefs/TSK-32.md | docs/reports/TSK-32.md | pending | — |
-| TSK-33 decorations | TASK-65.1 | opus | docs/briefs/TSK-33.md | docs/reports/TSK-33.md | pending | — |
+| TSK-31 fonts | TASK-64.2 | opus | docs/briefs/TSK-31.md | docs/reports/TSK-31.md | ✅ `5ea0ca4` | — |
+| TSK-32 eval-020 | TASK-64.3 | opus | docs/briefs/TSK-32.md | docs/reports/TSK-32.md | ✅ `5bea19b` | EVAL-020 PASS |
+| TSK-33 decorations | TASK-65.1 | opus | docs/briefs/TSK-33.md | docs/reports/TSK-33.md | dispatched | — |
 | TSK-34 content paper | TASK-65.2 | opus | docs/briefs/TSK-34.md | docs/reports/TSK-34.md | pending | — |
 | TSK-35 eval-018 | TASK-65.3 | fable | docs/briefs/TSK-35.md | docs/reports/TSK-35.md | pending | — |
 | TKT-71 header | TASK-66 | fable | docs/briefs/TKT-71.md | docs/reports/TKT-71.md | pending | — |
@@ -304,3 +304,5 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 ### Log
 - 2026-09-24 · Preflight at `1a3422f`: install frozen OK · typecheck/lint 0 · tokens 13/13 (clay) · vitest 316 passed / 2 skipped · build 13 routes static · `df -h /` 10 GiB free (E Drive 29 GiB) · Campfire :6480 200, `task list -m m-8` lists TASK-64…86 · TASK-64 + .1 → In Progress.
 - 2026-09-24 · TSK-30 accepted (`a08d2ff`): 368 rewrites / 77 files (below plan's ≈428 — tone enum words correctly untouched; all retired-name greps 0, re-verified by orchestrator), tokens 13/13 re-verified, hexes == Design §2.1. **Baseline e2e debt (pre-existing on 1a3422f, M-008): 19 fails** — `.glow-halo` overflow ×11, `featured.spec` vs ProductScene ×5, `tracer.spec` AVATAR_ALT ×4 → expected to clear with TSK-38. Bundle `/` 194.1 kB (pre-existing EXE-11 overage; TSK-38 target < 180). Focus-ring radius not applied → `Design.md` §11 **Dev-19**. Playbook scar: restart `pnpm start` after every rebuild (Playwright reuses a live :3000).
+- 2026-09-24 · TSK-31 accepted (`5ea0ca4`): **Fraunces axes accepted by next/font — no fallback, Dev-18 unused**; 3 woff2 self-hosted, 0 Google Fonts requests (listener proven with a throwaway injection); Manrope only in `lib/og.tsx`; e2e 691/19 (same 19 pre-existing); bundle 194.1 kB unchanged. `html` font → body (Inter), Caveat 400/600 per §2.2.
+- 2026-09-24 · TSK-32 accepted (`5bea19b`) → **TKT-69 DONE** (`docs/reports/TKT-69.md`). EVAL-020 PASS (6/6 re-run by orchestrator; mutation `text-ink` fails; fixture 5/5). Literal scan widened to `rgba/hsla` + `lib/**` (stricter; allow-list unchanged). **Carry to TKT-89:** clay `rgba()` shadows/gradients in `globals.css` l.106–110 (allow-listed file, invisible to EVAL-020) must be deleted. e2e 691/19 (same pre-existing). Bundle 194.1 kB.

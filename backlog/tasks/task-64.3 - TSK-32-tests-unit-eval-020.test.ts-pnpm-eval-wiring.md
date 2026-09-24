@@ -1,9 +1,10 @@
 ---
 id: TASK-64.3
 title: 'TSK-32: tests/unit/eval-020.test.ts + pnpm eval wiring'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-24 09:16'
 labels:
   - P0
   - 'sp:2'
