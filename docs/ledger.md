@@ -292,8 +292,8 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 | TSK-31 fonts | TASK-64.2 | opus | docs/briefs/TSK-31.md | docs/reports/TSK-31.md | ✅ `5ea0ca4` | — |
 | TSK-32 eval-020 | TASK-64.3 | opus | docs/briefs/TSK-32.md | docs/reports/TSK-32.md | ✅ `5bea19b` | EVAL-020 PASS |
 | TSK-33 decorations | TASK-65.1 | opus | docs/briefs/TSK-33.md | docs/reports/TSK-33.md | ✅ `db88cfd` | — |
-| TSK-34 content paper | TASK-65.2 | opus | docs/briefs/TSK-34.md | docs/reports/TSK-34.md | dispatched | — |
-| TSK-35 eval-018 | TASK-65.3 | fable | docs/briefs/TSK-35.md | docs/reports/TSK-35.md | pending | — |
+| TSK-34 content paper | TASK-65.2 | opus | docs/briefs/TSK-34.md | docs/reports/TSK-34.md | ✅ `1f78022` | — |
+| TSK-35 eval-018 | TASK-65.3 | fable | docs/briefs/TSK-35.md | docs/reports/TSK-35.md | dispatched | — |
 | TKT-71 header | TASK-66 | fable | docs/briefs/TKT-71.md | docs/reports/TKT-71.md | pending | — |
 | TKT-72 band | TASK-67 | opus | docs/briefs/TKT-72.md | docs/reports/TKT-72.md | pending | — |
 | TSK-36 assets+manifest | TASK-68.1 | sonnet | docs/briefs/TSK-36.md | docs/reports/TSK-36.md | pending | — |
@@ -307,3 +307,4 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 - 2026-09-24 · TSK-31 accepted (`5ea0ca4`): **Fraunces axes accepted by next/font — no fallback, Dev-18 unused**; 3 woff2 self-hosted, 0 Google Fonts requests (listener proven with a throwaway injection); Manrope only in `lib/og.tsx`; e2e 691/19 (same 19 pre-existing); bundle 194.1 kB unchanged. `html` font → body (Inter), Caveat 400/600 per §2.2.
 - 2026-09-24 · TSK-32 accepted (`5bea19b`) → **TKT-69 DONE** (`docs/reports/TKT-69.md`). EVAL-020 PASS (6/6 re-run by orchestrator; mutation `text-ink` fails; fixture 5/5). Literal scan widened to `rgba/hsla` + `lib/**` (stricter; allow-list unchanged). **Carry to TKT-89:** clay `rgba()` shadows/gradients in `globals.css` l.106–110 (allow-listed file, invisible to EVAL-020) must be deleted. e2e 691/19 (same pre-existing). Bundle 194.1 kB.
 - 2026-09-24 · TSK-33 accepted (`db88cfd`): paper 41/41 + 11 snapshots, vitest 363/2, e2e 691/19 (same). Accepted deviations: TC-126 step 5 rewritten (TS can't type-check hyphenated JSX attrs → `keyof` + runtime proof); `data-drawin` on the underline only (Design §8 wins over S70.03 — dashed variants keep their dash); `path` sketch from about.html (home journey curve = a second variant in TKT-76); `up` arrow = mirrored `down`; `Note` gained `stamp`.
+- 2026-09-24 · TSK-34 accepted (`1f78022`): paper 94 pass, limit mutations bite (5 fail), vitest 416/2; targeted e2e 162/4 (4 ⊂ pre-existing glow-halo set). Only 2 literal DraftTag swaps (EssayBody, ThinkingList); `DraftBadge`s left for TKT-76/77. Stub manifest renders alt-as-caption until TSK-36. Reference-sheet alt verbatim per §6.3 (S73.04 allows the prefix).

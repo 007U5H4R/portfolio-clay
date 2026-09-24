@@ -41,3 +41,5 @@ The legacy-hit table (route · width · unit · rule · detail · fixing ticket)
 - **Known pre-existing e2e failures on this branch (M-008 debris, 19):** `.glow-halo` overflow ×11, `featured.spec` vs ProductScene ×5, `tracer.spec` AVATAR_ALT ×4 — see `docs/reports/TSK-30.md` §4a. Report them as pre-existing; any *other* failure is yours to explain.
 
 - **TSK-33 note:** `data-drawin` is only on the `underline` Sketch variant (Design §8) — the TC-128 draw-in checks target the underline.
+
+- **TSK-34 note:** the board is the first browser look at the Sheet/fastener/Illustration CSS — Read your two screenshots and flag anything visibly broken in the report. Until TSK-36, `Illustration` shows its alt as a caption (stub manifest) — expected.

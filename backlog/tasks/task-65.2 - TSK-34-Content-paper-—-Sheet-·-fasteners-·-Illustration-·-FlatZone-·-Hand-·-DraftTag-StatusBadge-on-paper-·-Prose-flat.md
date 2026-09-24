@@ -3,10 +3,10 @@ id: TASK-65.2
 title: >-
   TSK-34: Content paper — Sheet · fasteners · Illustration · FlatZone · Hand ·
   DraftTag/StatusBadge on paper · Prose flat
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 09:36'
+updated_date: '2026-09-24 09:50'
 labels:
   - P0
   - 'sp:2'

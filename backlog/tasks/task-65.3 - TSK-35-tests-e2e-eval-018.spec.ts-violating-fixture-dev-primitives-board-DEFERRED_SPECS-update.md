@@ -3,9 +3,10 @@ id: TASK-65.3
 title: >-
   TSK-35: tests/e2e/eval-018.spec.ts + violating fixture + /dev/primitives board
   + DEFERRED_SPECS update
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-24 09:50'
 labels:
   - P0
   - 'sp:1'
