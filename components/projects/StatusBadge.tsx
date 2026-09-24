@@ -38,7 +38,7 @@ export function StatusBadge({ status, statusLabel, onPaper = false, className }:
     .join(" ");
 
   return (
-    <span className={classes} data-paper={onPaper ? "tag" : undefined}>
+    <span className={classes} data-paper={onPaper ? "tag" : undefined} data-micro-label="">
       <Icon icon={icon} size={20} className={`size-[14px] ${iconClass}`} />
       {statusLabel}
     </span>

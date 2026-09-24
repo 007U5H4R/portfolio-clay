@@ -95,7 +95,7 @@ const CONTENT_FIXTURES: Record<string, { make: () => ReactElement; attrs: Record
   },
   FlatZone: { make: () => <FlatZone>reading</FlatZone>, attrs: { "data-flat": "" } },
   Hand: { make: () => <Hand kind="label">Chosen</Hand>, attrs: { "data-hand": "label" } },
-  DraftTag: { make: () => <DraftTag />, attrs: { "data-paper": "tag" } },
+  DraftTag: { make: () => <DraftTag />, attrs: { "data-paper": "tag", "data-micro-label": "" } },
 };
 
 describe("S70.01 TornEdge", () => {
@@ -641,7 +641,7 @@ describe("S70.07 FlatZone · Hand · DraftTag · Prose · Tag · StatusBadge", (
   it("DraftTag: default text, data-paper=tag, Inter (never Caveat), ±4° clamp", () => {
     const el = root(<DraftTag />);
     expect(el.textContent).toBe("Draft — pending sign-off");
-    expect(contractAttrs(el)).toEqual({ "data-paper": "tag" });
+    expect(contractAttrs(el)).toEqual({ "data-paper": "tag", "data-micro-label": "" });
     expect(el).toHaveClass("font-body", "text-[12px]", "uppercase", "text-terracotta");
     expect(el).not.toHaveClass("font-hand");
     expect(root(<DraftTag rotate={-9} />).style.getPropertyValue("--rot")).toBe("-4deg");

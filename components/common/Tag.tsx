@@ -18,5 +18,9 @@ export function Tag({ children, className }: TagProps) {
   ]
     .filter(Boolean)
     .join(" ");
-  return <span className={classes}>{children}</span>;
+  return (
+    <span className={classes} data-micro-label="">
+      {children}
+    </span>
+  );
 }

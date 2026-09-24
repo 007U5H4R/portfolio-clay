@@ -17,6 +17,7 @@ export function DraftTag({ rotate, className, children = "Draft — pending sign
   return (
     <span
       data-paper="tag"
+      data-micro-label=""
       className={[
         "draft-tag font-body text-[12px] font-semibold uppercase tracking-[.12em] text-terracotta",
         className,
