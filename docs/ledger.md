@@ -281,3 +281,26 @@ Processed + wired the 7 variants. **New reproducible script `scripts/avatar-pose
 **Gate:** typecheck 0 · lint 0 · tokens 13/13 · build all-static(13). **Verified on a `next start` prod build** (fresh image cache): hover→gaze-laptop/gaze-book crossfade (laptop opacity 1→0 as book →1), Ask-focus→ask-lean, all `data-active`/opacity correct, edges clean. **Reduced-motion AND touch/mobile: 0 variant layers mounted** (static base) — Playwright-verified both. Followed the dev-AVIF scar (prod build, not `next dev`).
 
 ### NEXT (this milestone): **B TASK-54…59,61** (redesign screens to mockups) — **BLOCKED: mockups not in-repo**; see `docs/redesign-brief.md` (per-screen current-state + gap catalogue) — drop the 8 mockup paths to unblock. Then **C TASK-62** (redesign QA).
+
+## M-009 · Illustrated editorial (paper) redesign — branch `m-009-redesign` (Stage 7, started 2026-09-24)
+Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, no changes). Campfire `m-8`, TKT-69…91 = `TASK-64…86`. Orchestrator: Opus 5.5 (session model; stage table says Opus 4.8 — superseded by the available model). Tier map for subagents: most-capable = **Fable 5.1** (`fable`), standard = **Opus 5.5** (`opus`), cheap = **Sonnet 5** (`sonnet`). Briefs `docs/briefs/<id>.md`, reports `docs/reports/<id>.md`.
+
+| Ticket / task | TASK | Implementer model | Brief | Report | Status | Eval label |
+|---|---|---|---|---|---|---|
+| Preflight | — | orchestrator | — | — | ✅ green | — |
+| TSK-30 codemod | TASK-64.1 | fable | docs/briefs/TSK-30.md | docs/reports/TSK-30.md | ✅ `a08d2ff` | — |
+| TSK-31 fonts | TASK-64.2 | opus | docs/briefs/TSK-31.md | docs/reports/TSK-31.md | dispatched | — |
+| TSK-32 eval-020 | TASK-64.3 | opus | docs/briefs/TSK-32.md | docs/reports/TSK-32.md | pending | — |
+| TSK-33 decorations | TASK-65.1 | opus | docs/briefs/TSK-33.md | docs/reports/TSK-33.md | pending | — |
+| TSK-34 content paper | TASK-65.2 | opus | docs/briefs/TSK-34.md | docs/reports/TSK-34.md | pending | — |
+| TSK-35 eval-018 | TASK-65.3 | fable | docs/briefs/TSK-35.md | docs/reports/TSK-35.md | pending | — |
+| TKT-71 header | TASK-66 | fable | docs/briefs/TKT-71.md | docs/reports/TKT-71.md | pending | — |
+| TKT-72 band | TASK-67 | opus | docs/briefs/TKT-72.md | docs/reports/TKT-72.md | pending | — |
+| TSK-36 assets+manifest | TASK-68.1 | sonnet | docs/briefs/TSK-36.md | docs/reports/TSK-36.md | pending | — |
+| TSK-37 hero+HeroClip | TASK-68.2 | fable | docs/briefs/TSK-37.md | docs/reports/TSK-37.md | pending | — |
+| TSK-38 motion removal | TASK-68.3 | sonnet | docs/briefs/TSK-38.md | docs/reports/TSK-38.md | pending | — |
+| TKT-74 tracer | TASK-69 | orchestrator + QA (opus) | docs/briefs/TKT-74.md | docs/reports/TKT-74.md | pending | baseline-m009-tracer |
+
+### Log
+- 2026-09-24 · Preflight at `1a3422f`: install frozen OK · typecheck/lint 0 · tokens 13/13 (clay) · vitest 316 passed / 2 skipped · build 13 routes static · `df -h /` 10 GiB free (E Drive 29 GiB) · Campfire :6480 200, `task list -m m-8` lists TASK-64…86 · TASK-64 + .1 → In Progress.
+- 2026-09-24 · TSK-30 accepted (`a08d2ff`): 368 rewrites / 77 files (below plan's ≈428 — tone enum words correctly untouched; all retired-name greps 0, re-verified by orchestrator), tokens 13/13 re-verified, hexes == Design §2.1. **Baseline e2e debt (pre-existing on 1a3422f, M-008): 19 fails** — `.glow-halo` overflow ×11, `featured.spec` vs ProductScene ×5, `tracer.spec` AVATAR_ALT ×4 → expected to clear with TSK-38. Bundle `/` 194.1 kB (pre-existing EXE-11 overage; TSK-38 target < 180). Focus-ring radius not applied → `Design.md` §11 **Dev-19**. Playbook scar: restart `pnpm start` after every rebuild (Playwright reuses a live :3000).

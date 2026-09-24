@@ -3,9 +3,10 @@ id: TASK-64.2
 title: >-
   TSK-31: Fonts — Fraunces + Inter + Caveat via next/font/google; Manrope
   removed
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-24 08:43'
 labels:
   - P0
   - 'sp:1'

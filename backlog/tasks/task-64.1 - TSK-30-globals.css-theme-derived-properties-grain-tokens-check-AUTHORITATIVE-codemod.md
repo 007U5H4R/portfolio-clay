@@ -3,9 +3,10 @@ id: TASK-64.1
 title: >-
   TSK-30: globals.css @theme + derived properties + grain + tokens-check
   AUTHORITATIVE + codemod
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-24 08:43'
 labels:
   - P0
   - 'sp:2'

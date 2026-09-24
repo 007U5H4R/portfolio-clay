@@ -485,5 +485,6 @@ Each row: what differs from the mockup or the earlier spec, why, and the disposi
 | Dev-15 | Hero second CTA = "Ask my portfolio" (mockup) instead of the résumé control; résumé stays in the band and mobile sheet | mockup approved; one target away on every page | Stage-4 default |
 | Dev-16 | Mockup-only notes removed: "not on the live site yet — sits in the data file", "twelve labels, one live link", "↑ order to confirm — the data runs oldest → newest" | they describe the mockup, not the site; S18 fixes the timeline lead | Stage-4 default |
 | Dev-17 | Case-study essay margin note "Draft — pending sign-off:" removed; the `DraftTag` renders once in the meta row and the data prefix once in the paragraph | S18 double-prefix fix | Stage-4 default |
+| Dev-19 | Focus ring ships as 2 px rust / 3 px offset **without** the §10 `border-radius: 4px` (Dev-18 is reserved for the Fraunces-axes fallback) | an outline follows the element's own radius; forcing 4 px on `:focus-visible` would square the legacy clay pills on focus. Revisit once TKT-89 removes the pills (TKT-90 a11y pass) | Stage-7 default (TSK-30, orchestrator-accepted) |
 
 Nothing here re-opens the palette (S12), typography (S13), hero (S14), the budget threshold (S15/EV5 — only its definitions are refined by D6), the band (S16) or the scope (§12.3–12.4).
