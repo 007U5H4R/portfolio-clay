@@ -1,0 +1,53 @@
+# TKT-71 report — Header (one height, D12) + `MobileMenu` paper sheet + nav (D8 five items) + reading progress + `AskAIButton` ghost
+
+**Ticket:** TKT-71 (`TASK-66`) · M-009 · Feature · P0 · sp:3 · depends on TKT-69, TKT-70 (done); TKT-73 hero untouched
+**Branch:** `m-009-redesign` (never `main`, not pushed) · **Implementer:** Fable 5.1
+**Commits:** `b701406` feat(header) · `daaedb5` refactor(header) · (this report + 3 screenshots — SHA in the chat reply)
+
+## AC 1 — header height constant across scroll at 390/768/1024/1440; `data-scrolled` toggles the border only
+`tests/e2e/layout.spec.ts` "header keeps one height across scroll; data-scrolled only toggles the hairline" runs in all four projects: `boundingBox().height` at scrollY 0 vs 400 equal ±1 (measured 73 px = 44 px control row + 2 × 14 px + 1 px border at every width), `data-scrolled` absent at rest, present after the scroll with `border-bottom-color` resolving to `--line`, removed again at 0. `tracer.spec.ts` asserts the constant `blur(10px)` too. 4/4 projects **PASS**. The header carries `transition: none`, so the EVAL-010 "header transition collapses" sweep (23 routes) stays green. **PASS.**
+
+## AC 2 — nav hidden < 1024; sheet reachable by keyboard: Tab → menu button → Enter → focus inside → Esc returns focus
+`tests/e2e/eval-007.spec.ts` "@EVAL-007 mobile menu: Tab → button → Enter opens the sheet…" (w390): Tab → skip link → brand → menu button (3rd stop); Enter opens `dialog[aria-label="Site navigation"]`; `aria-expanded` true + `aria-controls` = the dialog id; `activeElement` inside; 10 Tabs never reach a page control and land back inside (native `showModal` trap); Escape → dialog hidden, focus on the button, `aria-expanded` false, `<html>` overflow lock released. A second test proves the backdrop click closes it. `layout.spec.ts` "primary nav…" asserts `nav[aria-label="Primary"]` hidden + menu button visible at 390/768 and the inverse at 1024/1440. **PASS.**
+
+## AC 3 — `aria-current="page"` renders the underline; every control ≥ 44×44
+`layout.spec.ts` on `/work` ≥ 1024: the `Work` link has `aria-current="page"`, its `svg.ink-underline` has computed `opacity` 1 while `/`'s is 0, font resolves to Fraunces. "every visible header control is at least 44×44" measures every visible `header a[href], header button` at all four widths → `[]`. `minTargets` (EVAL-008, 333 runs) PASS. **PASS.** *Adaptation (TC-131 step 2):* the underline is an inline `aria-hidden` SVG in `currentColor` (`components/navigation/InkUnderline.tsx`) rather than the mockup's `::after` data-URI with a hex stroke — a hex inside a `.tsx` would be an EVAL-020 literal; the test reads the SVG's opacity instead of `::after`.
+
+## AC 4 — subline absent from the DOM < 640, `aria-hidden` ≥ 640; header EVAL-018 unit count 1
+`components/paper/MediaGate.tsx` (TP14: `null` until mounted, `matchMedia` evaluated once, no `change` subscription — 6 Vitest cases in `tests/unit/media-gate.test.tsx`, incl. the SSR-empty and no-subscription proofs). `layout.spec.ts` "header subline annotation…": at 390 `header [data-decor]` = 0; at 768/1024/1440 = 1, `aria-hidden="true"`, text "Build · Learn · Solve · Grow". EVAL-018 run: 170 units, max 3/4 per unit, header never flagged on any of the 23 routes × 2 widths. **PASS.**
+
+## AC 5 — `lib/nav.ts` = 5 items (D8); `routes.test.ts` + crawler allow-list agree; one-line revert path documented
+`lib/nav.ts` = Home · Work · Thinking · About · Playground with the doc comment "D8 … remove the `Playground` line below to return to four items; then add the band Playground link in `BandFooter` (TKT-72 note, technical-plan E-20)" and an inline `// D8 — remove this line…` marker. `grep -c href lib/nav.ts` → 6 (5 item lines + the `href: string` interface field — the plan's "5" was counted against the 4-item file, so the literal check is off by one; the Vitest length assertion is the real gate). `tests/unit/routes.test.ts` gains a `primary nav (lib/nav.ts, D8)` describe: length 5, order + hrefs, no `/contact`, every href in `STATIC_ROUTES`, none needing `tests/e2e/crawler-allowlist.json` (still `[]`, unchanged). EVAL-011 crawler PASS (reaches `/playground` via the header on both widths). **PASS** (D8 remains Tushar's call — default applied).
+
+## AC 6 — reading progress only on case studies, `aria-hidden`, `transform: scaleX`
+`ProgressBar.tsx`: `<div data-progress aria-hidden class="reading-progress">`, passive scroll/resize listener writing `--p`; CSS `transform: scaleX(var(--p, 0))` at `top: safe-area + --header-h`. Mounted only by `app/work/[slug]/page.tsx` (already the sole consumer — no page change needed). `layout.spec.ts` (390 + 1440, under `reducedMotion: reduce`): absent on `/` and `/about`; on `/work/teachspark` present, `aria-hidden`, computed matrix `a` ≈ 0 at top and 0.4–0.6 after scrolling to 50 %. `motion`'s `useScroll`/`LazyMotionRoot` dropped from the shared chrome. **PASS.**
+
+## AC 7 — `useScrollY`/hysteresis + `NavPill` removed with their unit tests; `layout.spec.ts` updated
+Deleted: `components/navigation/NavPill.tsx`; `useScrollY` + `durations.header` from `lib/motion.ts`; `headerGlassClass` from `components/clay/tiers.ts`; `.glass` from `app/globals.css` (no consumer left); the M-008 compaction classes (`data-compact`, `--header-py`, `py-[26px]`…) with the old `Header.tsx`; `ClayTile`/`ClayButton`/lucide usage in the header/menu/Ask trigger. `tests/unit/motion.test.tsx` kept, assertions replaced (export gone, no `header` duration); `tests/unit/tiers.test.ts` asserts `headerGlassClass` is gone. `grep -rn "useScrollY\|NavPill" app components lib tests scripts` → **0** (`hooks/` no longer exists). `git diff --stat main..HEAD -- tests/unit/motion.test.tsx` = edits, not deletion. **PASS.**
+
+## AC 8 — axe 0 critical/serious on `/` at 390 & 1440
+`tracer.spec.ts` axe on `/` and `/work/teachspark` at 390 + 1440, plus axe with the sheet open (tracer + the new eval-007 test); `not-found.spec` axe; ask-panel axe. All PASS in the full run. **PASS.**
+
+## Gates
+- `pnpm typecheck` ✓ · `pnpm lint` ✓ · `pnpm tokens:check` 13/13 ✓ · `pnpm test` **442 passed / 2 skipped** (47 files) ✓ · `pnpm build` ✓ (13 routes static).
+- **Full `pnpm test:e2e`** (4 projects, freshly restarted `pnpm start` after the final build): **781 passed · 2 failed · 893 skipped** (8.0 min). The 2 failures are exactly the baseline — `eval-018 /about` @ w390 + w1440 (parked at TKT-74). Zero new failures; no spec deleted. Churned `docs/screenshots/**` PNGs restored (`git restore`).
+- `pnpm eval --only EVAL-007,EVAL-008,EVAL-011,EVAL-018 --skip-build` → `evals/results/eval-run-0.2.0-8392795.json`: **EVAL-007 PASS** (23 runs) · **EVAL-008 PASS** (333 runs; runner notes "improvement EVAL-008: FAIL → PASS" vs the previous stored run) · **EVAL-011 PASS** (21 runs) · **EVAL-018 FAIL** — 2 unparked hits, both the legacy `/about` hero hand-sub Caveat `<p>` (TKT-86; to be parked at TKT-74). Header unit = 1 on every route at 1440, 0 at 390.
+- Screenshots (prod build, `deviceScaleFactor` 2): `docs/screenshots/m-009/header-390.png`, `header-1440.png` (menu closed), `header-390-menu.png` (sheet open). Header height read back as 73 px in all three.
+
+## Deleted code (summary)
+`NavPill.tsx` · `useScrollY` (+ `useCallback`/`useRef` imports) and `durations.header` in `lib/motion.ts` · `headerGlassClass` in `tiers.ts` · `.glass` in `globals.css` · old `Header.tsx` compaction constants/classes (`COMPACT_ENTER/EXIT`, `data-compact`, `--header-py`) · `ClayButton` + lucide `Menu`/`X`/`Sparkles` in `MobileMenu`/`AskAIButton` · `role="progressbar"` + throttled `aria-valuenow` + `motion` `useScroll` in `ProgressBar` · tracer.spec S04.03/S04.04 tests (replaced, not dropped).
+
+## Judgement calls / deviations (for the orchestrator)
+1. **`PrimaryNav` is a fourth tiny client component** (`usePathname` for `aria-current`) — the brief's `"use client"` list names the scroll listener, the menu button/dialog and `AskAIButton`; a server shell cannot know the route on a static build (TP1). It still SSRs, so the EVAL-015 no-JS nav check passes.
+2. **Ink underline = inline SVG, not `::after` data-URI** (EVAL-020; see AC 3). `InkUnderline.tsx` exists per the plan but holds the SVG, not a background string.
+3. **`MediaGate` is not added to the `components/paper` barrel** (the S70.04 barrel check demands a fixture per export; it is a client wrapper, not a primitive). Imported directly; its own unit file covers it.
+4. **`ask-panel.spec.ts`** trigger threshold moved 768 → 1024 (the D12 collapse point) — the header Ask ghost is `lg:`-only now.
+5. **Lightning CSS scar:** writing `backdrop-filter` followed by `-webkit-backdrop-filter` made the compiler drop the unprefixed declaration (compiled rule lost `backdrop-filter`); unprefixed only, noted in the CSS.
+6. **Sheet nav shares `aria-label="Primary"`** with the desktop nav (pre-existing pattern; `not-found.spec`/`eval-015.spec` rely on `.first()`); axe reports no critical/serious.
+7. The `AskAIButton` `row` variant and the icon variant both expose the accessible name "Ask AI" so every existing EVAL-007/ask-panel script addresses one name.
+8. Bundle: `pnpm exec tsx scripts/bundle-budget.ts --route /` not re-run here (TKT-74 S74.03 gate); this ticket removes `motion` from the shared chrome (`ProgressBar` no longer imports `useScroll`), which should only help the 188.9 kB overage.
+
+## Staged files (explicit paths; never `docs/ledger.md`, `docs/briefs/*`, `backlog/**`)
+Commit 1: `lib/nav.ts`, `app/globals.css`, `components/navigation/{Header,HeaderScroll,PrimaryNav,Monogram,InkUnderline,MobileMenu,AskAIButton}.tsx`, `components/paper/MediaGate.tsx`, `components/interactions/ProgressBar.tsx`, `tests/e2e/{layout,eval-007,ask-panel,tracer}.spec.ts`, `tests/unit/{routes.test.ts,ProgressBar.test.tsx,media-gate.test.tsx}`.
+Commit 2: `components/navigation/NavPill.tsx` (deleted), `lib/motion.ts`, `components/clay/tiers.ts`, `tests/unit/{motion.test.tsx,tiers.test.ts}`.
+Commit 3: this report + `docs/screenshots/m-009/header-{390,1440,390-menu}.png`.
