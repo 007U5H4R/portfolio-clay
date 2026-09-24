@@ -29,3 +29,5 @@ AC 1–8 each with evidence; deleted code list; e2e counts; eval statuses; scree
 
 - **Server scar (TSK-30):** Playwright reuses any live server on :3000 — after every `pnpm build`, kill any running `pnpm start`/`next start` and restart it, or Playwright tests the stale build. Restore any `docs/screenshots/**` PNGs that e2e runs churn (`git checkout -- docs/screenshots`) unless your task produces them.
 - **Known pre-existing e2e failures on this branch (M-008 debris, 19):** `.glow-halo` overflow ×11, `featured.spec` vs ProductScene ×5, `tracer.spec` AVATAR_ALT ×4 — see `docs/reports/TSK-30.md` §4a. Report them as pre-existing; any *other* failure is yours to explain.
+
+- **Full-suite rule (TSK-34 scar):** run the FULL `pnpm test:e2e` (all four projects) on a freshly restarted prod server — never a subset — and diff the failure list against the current baseline: **2 known failures** (`eval-018 /about` @ w390 + w1440 → parked at TKT-74). Any other failure is yours. (The 19-failure list above is obsolete — cleared by TSK-38.)

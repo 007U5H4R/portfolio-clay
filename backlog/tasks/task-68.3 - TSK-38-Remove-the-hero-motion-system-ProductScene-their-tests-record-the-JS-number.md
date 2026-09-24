@@ -3,10 +3,10 @@ id: TASK-68.3
 title: >-
   TSK-38: Remove the hero motion system + ProductScene + their tests; record the
   JS number
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 14:10'
+updated_date: '2026-09-24 14:58'
 labels:
   - P0
   - 'sp:1'

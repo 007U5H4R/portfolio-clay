@@ -3,9 +3,10 @@ id: TASK-66
 title: >-
   TKT-71: Header (no compaction, D12) + MobileMenu paper sheet + nav (D8
   variant) + reading progress + AskAIButton ghost
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-24 14:58'
 labels:
   - P0
   - 'sp:3'
