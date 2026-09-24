@@ -18,6 +18,9 @@
  *   consoleErrors     — opt-in collector: any console.error or uncaught page error during a test
  *                       that destructures this fixture fails that test at teardown (A12: no silent
  *                       client errors).
+ *   saveData          — opt-in (TSK-37, EVAL-019 Save-Data mode): stubs `navigator.connection` to
+ *                       `{ saveData: true }` on the whole context before any page script runs, so
+ *                       `HeroClip` takes its poster-only branch (Design.md §5.3.1).
  */
 import { test as base, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -54,6 +57,7 @@ interface TracerFixtures {
   noViewTransitions: PageCheck;
   keyboardOnly: KeyboardOnlyCheck;
   consoleErrors: string[];
+  saveData: void;
 }
 
 export const test = base.extend<TracerFixtures>({
@@ -225,6 +229,16 @@ export const test = base.extend<TracerFixtures>({
     expect(errors, `app console/JS errors captured during the test:\n${errors.join("\n")}`).toEqual(
       [],
     );
+  },
+
+  saveData: async ({ context }, provide) => {
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, "connection", {
+        configurable: true,
+        value: { saveData: true },
+      });
+    });
+    await provide();
   },
 });
 

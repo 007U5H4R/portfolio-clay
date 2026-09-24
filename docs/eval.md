@@ -74,7 +74,7 @@ Every field is generated from real execution output — nothing is hand-entered.
 | Layer | Command | Cases |
 |-------|---------|-------|
 | Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`), EVAL-021 (illustration provenance, `tests/unit/eval-021.test.ts`) |
-| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`) |
+| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`), 019 (hero once-and-hold, `tests/e2e/eval-019.spec.ts`) |
 | Lighthouse CI | `lhci autorun` mobile + desktop, median of 3 | EVAL-004 (category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget) |
 | Content gate | `validate-content` + `forbidden-strings` + fixture proof | EVAL-013 |
 | Security | `forbidden-strings --bundle` + `pnpm audit` + TP9 headers (`--base-url`) | EVAL-016 |
@@ -136,6 +136,43 @@ metric/logo/product UI/claim" checklist is manual (Stage 8, filed at
 ```bash
 pnpm test -- eval-021                          # the unit file on its own
 pnpm eval --only EVAL-021 --skip-build         # through the harness → evals/results/<label>.json
+```
+
+## EVAL-019 — hero once-and-hold (M-009, S14/D10/TP13; TKT-73 S73.07)
+
+`tests/e2e/eval-019.spec.ts` (tag `@EVAL-019`; TC-139 step 1, TC-140, TC-141, TC-142) with the
+`saveData` fixture in `tests/e2e/fixtures.ts`. Runs on `/` at **w390 and w1440** only (w768/w1024
+skip with the reason; the case's `viewport` is ["390","1440"]). `scripts/eval.ts` maps it through the
+generic Playwright branch. The component under test is `components/hero/HeroClip.tsx` (the state
+machine of decision TP13) inside `components/hero/Hero.tsx` (Design.md §5.2 markup).
+
+| Mode / part | How the spec produces it | Expected |
+|---|---|---|
+| default | the w1440 project (fine pointer, `reducedMotion: "no-preference"`) | `video[data-hero-clip]` with `autoplay muted playsinline preload="metadata" poster="/media/illustrations/hero-poster.webp" aria-hidden="true" tabindex="-1"`, **no** `loop`/`controls`, sources webm → mp4; `ended` ≤ **4 000 ms** after navigation (measured in-page with `performance.now()` on the `ended` event); over the next 3 s — with a scroll, a dispatched `visibilitychange` and a `resize` — `currentTime` sampled every 250 ms never decreases and the element stays `paused`/`ended`; the held frame is screenshotted to `docs/screenshots/m-009/tracer/hero-end-1440.png` (eyeballed against `animation/export/hero-end.webp` — a pixel diff would flake on codec differences, TC-141 note) |
+| reduced motion | `test.use({ reducedMotion: "reduce" })`, both widths | 0 `<video>` after load + 2 s; poster `<img>` visible |
+| touch / coarse pointer | the w390 project (`hasTouch: true`, `isMobile: true`) | 0 `<video>` |
+| Save-Data | the `saveData` fixture (`context.addInitScript` → `navigator.connection = { saveData: true }`), both widths | 0 `<video>` |
+| autoplay rejected | `addInitScript` overriding `HTMLMediaElement.prototype.play` to reject (`NotAllowedError`) | 0 `<video>` after 2 s — the video unmounts, the poster is the error state |
+| SSR | `request.get("/")`, no JavaScript | exactly one poster `<img>` with `fetchpriority="high"`, `loading="eager"`, `width="1280" height="684"`, the §5.2 `sizes`, alt byte-equal to `illustration("hero-desk").alt`; **0** `<video` in the HTML |
+| caps | `fs.statSync` on `public/media/illustrations/` | webm ≤ 204 800 B · mp4 ≤ 358 400 B · poster ≤ 122 880 B |
+
+Every measured value (ended ms, the currentTime samples, the post-hold state, per-mode video counts,
+byte sizes) is pushed into `test.info().annotations` (type `eval-019`) so `.eval/playwright.json`
+carries the evidence. "After hydration" for the poster-only modes = `load` + a 2 s settle (TC-140
+steps 2–4); the default-mode test shows hydration lands well inside that window (the clip has *ended*).
+
+**Static guards.** `HeroClip.tsx` carries a file-scoped ESLint `no-restricted-syntax` configuration
+comment (`.currentTime =`, `.load(`, `loop`, `visibilitychange`, `addEventListener("change"`) and
+`tests/unit/hero-clip.test.tsx` greps the source for the same list from outside the file, plus the
+jsdom state machine (TC-140 step 5, TC-141 step 5): reduced-motion/coarse/Save-Data → no `<video>`;
+default → the exact attribute set, `play()` called once, a re-render with flipped signals never
+remounts or replays; `play()` rejected or an `error` event → unmounted. The hero decoration count (3)
+is EVAL-018's job (`/` hero unit).
+
+```bash
+pnpm test -- hero-clip                                                            # the jsdom state machine
+pnpm test:e2e --project=w1440 --project=w390 tests/e2e/eval-019.spec.ts           # the matrix (server up or auto-started)
+pnpm eval --only EVAL-019 --skip-build                                            # through the harness
 ```
 
 ## EVAL-018 — decoration budget (M-009, S15/EV5/D6/TP12)

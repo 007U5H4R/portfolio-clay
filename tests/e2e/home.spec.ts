@@ -13,6 +13,10 @@
  */
 import { test, expect } from "./fixtures";
 import { site } from "@/lib/site";
+// The manifest directly (not `lib/illustrations.ts`, whose static JPEG imports Playwright cannot load).
+import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
+
+const HERO_POSTER_ALT = ILLUSTRATIONS.find((e) => e.id === "hero-desk")!.alt;
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
@@ -53,19 +57,20 @@ test("home sections use the 72/96/128 vertical-rhythm ladder for the current vie
 });
 
 // ---------------------------------------------------------------------------
-// S14.02 — mobile reading order at 390: avatar → headline → CTAs → Ask → projects → How-I-Think →
-// final CTA (the authoritative fixed order, Design.md §3 line 162). boundingBox().y strictly
-// increasing. (Tiles are not a checkpoint here: their intra-hero placement is TKT-09's concern, not
-// this assembly ticket's.)
+// S14.02 — mobile reading order at 390: headline → CTAs → hero poster → Ask → projects →
+// How-I-Think → final CTA. Since TSK-37 the illustrated hero (Design.md §5.1) puts the copy first
+// and the scene second below 1024 so the copy is above the fold; the poster is the manifest
+// `hero-desk` illustration (its alt comes from the manifest, §6.1). boundingBox().y strictly
+// increasing.
 // ---------------------------------------------------------------------------
 test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({ page }) => {
   test.skip(width(page) !== 390, "mobile reading order checked at w390");
   await page.goto("/", { waitUntil: "load" });
 
   const ordered = [
-    page.getByAltText(site.avatarAlt),
     page.locator("h1"),
-    page.getByRole("link", { name: "View My Work →" }),
+    page.getByRole("link", { name: "View my work →" }),
+    page.getByAltText(HERO_POSTER_ALT),
     page.locator("#ask-heading"),
     page.locator("#work-featured-heading"),
     page.locator("#how-i-think-heading"),

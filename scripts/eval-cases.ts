@@ -44,13 +44,12 @@ const AUTOMATED_RUNNERS = [
 /**
  * EVAL ids whose Playwright spec is deferred to a later ticket, so `--check-specs` does not treat a
  * missing spec as a failure. Was empty as of TKT-07b (EVAL-011's crawler spec exists). The M-009
- * rows (evaluation-plan.md §8.7) are deferred until their Stage-7 tickets build the paper
- * primitives' `[data-decor]` contract and the hero video; remove each entry when its spec lands.
+ * rows (evaluation-plan.md §8.7) were deferred until their Stage-7 tickets built the paper
+ * primitives' `[data-decor]` contract (EVAL-018 → TSK-35, tests/e2e/eval-018.spec.ts) and the hero
+ * video (EVAL-019 → TSK-37, tests/e2e/eval-019.spec.ts). Empty again since TSK-37; add an entry
+ * only for a case whose spec is genuinely pending, and remove it when the spec lands.
  */
-const DEFERRED_SPECS: Record<string, string> = {
-  // EVAL-018 left this list at TSK-35 (tests/e2e/eval-018.spec.ts, tag @EVAL-018).
-  "EVAL-019": "M-009 Stage 7 — hero once-and-hold spec needs the illustrated hero + video",
-};
+const DEFERRED_SPECS: Record<string, string> = {};
 
 const EvalCaseSchema = z
   .object({
