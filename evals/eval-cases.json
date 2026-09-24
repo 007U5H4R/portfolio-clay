@@ -1,5 +1,5 @@
 {
-  "$schema_note": "Machine-readable form of evaluation-plan.md §3 + §8 (Stage 3, EV1/EV2; M-009 addendum EV3–EV6, 2026-09-24: EVAL-018…022 added, character gate reworded per S14, no threshold changed). Generic case schema from eval-framework.md extended for UI (viewport, accessibility_requirement) and for this project (method, threshold, related_tickets, runner). Authored Stage 6 (technical-plan.md A16). IDs, priorities and thresholds are stable; thresholds are never lowered to pass (EV2). related_tickets 'M-009' is a milestone placeholder until Stage 5 allocates ticket ids. Read by scripts/eval.ts.",
+  "$schema_note": "Machine-readable form of evaluation-plan.md §3 + §8 (Stage 3, EV1/EV2; M-009 addendum EV3–EV6, 2026-09-24: EVAL-018…022 added, character gate reworded per S14, no threshold changed). Generic case schema from eval-framework.md extended for UI (viewport, accessibility_requirement) and for this project (method, threshold, related_tickets, runner). Authored Stage 6 (technical-plan.md A16). IDs, priorities and thresholds are stable; thresholds are never lowered to pass (EV2). M-009 ticket ids (TKT-69…91, tickets.md M-009 section) allocated at Stage 5, 2026-09-24. Read by scripts/eval.ts.",
   "version": "1.1.0",
   "project": "portfolio-clay",
   "source": "evaluation-plan.md",
@@ -309,7 +309,7 @@
       "viewport": null,
       "accessibility_requirement": "og:image alt provided",
       "tags": ["seo", "open-graph", "twitter-card", "link-preview"],
-      "related_tickets": ["TKT-06", "TKT-07", "TKT-19", "TKT-42", "TKT-43", "TKT-51", "TKT-53", "M-009"]
+      "related_tickets": ["TKT-06", "TKT-07", "TKT-19", "TKT-42", "TKT-43", "TKT-51", "TKT-53", "TKT-78", "TKT-91"]
     },
     {
       "id": "EVAL-018",
@@ -327,7 +327,7 @@
       "viewport": ["390", "1440"],
       "accessibility_requirement": "Handwritten annotations are aria-hidden and never carry unique information (DESIGN_DIRECTION §7 rule kept, S15 d)",
       "tags": ["design", "paper-primitives", "decoration-budget", "caveat", "anti-scrapbook", "S15", "m-009"],
-      "related_tickets": ["M-009"]
+      "related_tickets": ["TKT-70", "TKT-71", "TKT-72", "TKT-73", "TKT-74", "TKT-75", "TKT-76", "TKT-77", "TKT-79", "TKT-80", "TKT-81", "TKT-82", "TKT-83", "TKT-84", "TKT-85", "TKT-86", "TKT-87", "TKT-88", "TKT-90"]
     },
     {
       "id": "EVAL-019",
@@ -345,7 +345,7 @@
       "viewport": ["390", "1440"],
       "accessibility_requirement": "Video is decorative (aria-hidden, no audio track, no controls); the poster alt carries the description; WCAG 2.2.2 satisfied because the clip is 2.5 s and never loops — no pause control required",
       "tags": ["hero", "video", "poster", "lcp", "reduced-motion", "save-data", "S14", "m-009"],
-      "related_tickets": ["M-009"]
+      "related_tickets": ["TKT-73", "TKT-74", "TKT-90", "TKT-91"]
     },
     {
       "id": "EVAL-020",
@@ -363,7 +363,7 @@
       "viewport": null,
       "accessibility_requirement": "Token pairs used for text keep body ≥ 7:1 and secondary ≥ 4.5:1 (verified by EVAL-006 axe on the rendered pages)",
       "tags": ["tokens", "design-system", "S12", "D2", "dead-code", "m-009"],
-      "related_tickets": ["M-009"]
+      "related_tickets": ["TKT-69", "TKT-74", "TKT-78", "TKT-89", "TKT-90"]
     },
     {
       "id": "EVAL-021",
@@ -382,7 +382,7 @@
       "viewport": null,
       "accessibility_requirement": "Every illustration has alt text naming it as an illustration; decorative-only images used as backgrounds are aria-hidden with empty alt",
       "tags": ["content-integrity", "illustrations", "provenance", "truth-rule", "S20", "m-009"],
-      "related_tickets": ["M-009"]
+      "related_tickets": ["TKT-73", "TKT-80", "TKT-81", "TKT-84", "TKT-86", "TKT-88", "TKT-90"]
     },
     {
       "id": "EVAL-022",
@@ -400,7 +400,7 @@
       "viewport": ["390", "1440"],
       "accessibility_requirement": null,
       "tags": ["design", "mockup", "fidelity", "S17", "human-review", "m-009"],
-      "related_tickets": ["M-009"]
+      "related_tickets": ["TKT-74", "TKT-79", "TKT-85", "TKT-90", "TKT-91"]
     }
   ]
 }
