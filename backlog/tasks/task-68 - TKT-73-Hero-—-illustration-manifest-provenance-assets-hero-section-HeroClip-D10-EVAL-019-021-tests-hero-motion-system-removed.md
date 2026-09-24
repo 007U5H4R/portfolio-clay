@@ -3,9 +3,10 @@ id: TASK-68
 title: >-
   TKT-73: Hero — illustration manifest + provenance + assets, hero section +
   HeroClip (D10), EVAL-019/021 tests, hero motion system removed
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-24 11:17'
 labels:
   - P0
   - 'sp:8'

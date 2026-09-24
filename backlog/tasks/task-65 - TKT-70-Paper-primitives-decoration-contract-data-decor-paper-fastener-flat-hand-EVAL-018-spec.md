@@ -3,10 +3,10 @@ id: TASK-65
 title: >-
   TKT-70: Paper primitives + decoration contract
   (data-decor/paper/fastener/flat/hand) + EVAL-018 spec
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 09:16'
+updated_date: '2026-09-24 11:17'
 labels:
   - P0
   - 'sp:5'
