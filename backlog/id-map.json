@@ -16,7 +16,9 @@
     "M-004": "m-3",
     "M-005": "m-4",
     "M-006": "m-5",
-    "M-007": "m-6"
+    "M-007": "m-6",
+    "M-009": "m-8",
+    "M-008": "m-7"
   },
   "tickets": {
     "TKT-01": "TASK-1",
@@ -67,7 +69,30 @@
     "TKT-50": "TASK-46",
     "TKT-51": "TASK-47",
     "TKT-52": "TASK-48",
-    "TKT-53": "TASK-49"
+    "TKT-53": "TASK-49",
+    "TKT-69": "TASK-64",
+    "TKT-70": "TASK-65",
+    "TKT-71": "TASK-66",
+    "TKT-72": "TASK-67",
+    "TKT-73": "TASK-68",
+    "TKT-74": "TASK-69",
+    "TKT-75": "TASK-70",
+    "TKT-76": "TASK-71",
+    "TKT-77": "TASK-72",
+    "TKT-78": "TASK-73",
+    "TKT-79": "TASK-74",
+    "TKT-80": "TASK-75",
+    "TKT-81": "TASK-76",
+    "TKT-82": "TASK-77",
+    "TKT-83": "TASK-78",
+    "TKT-84": "TASK-79",
+    "TKT-85": "TASK-80",
+    "TKT-86": "TASK-81",
+    "TKT-87": "TASK-82",
+    "TKT-88": "TASK-83",
+    "TKT-89": "TASK-84",
+    "TKT-90": "TASK-85",
+    "TKT-91": "TASK-86"
   },
   "tasks": {
     "TSK-01": "TASK-1.1",
@@ -106,5 +131,25 @@
     "TKT-36": "TKT-54",
     "TKT-37": "TKT-54",
     "TKT-38": "TKT-54"
+  },
+  "subtasks": {
+    "TSK-30": "TASK-64.1",
+    "TSK-31": "TASK-64.2",
+    "TSK-32": "TASK-64.3",
+    "TSK-33": "TASK-65.1",
+    "TSK-34": "TASK-65.2",
+    "TSK-35": "TASK-65.3",
+    "TSK-36": "TASK-68.1",
+    "TSK-37": "TASK-68.2",
+    "TSK-38": "TASK-68.3",
+    "TSK-39": "TASK-75.1",
+    "TSK-40": "TASK-75.2",
+    "TSK-41": "TASK-75.3",
+    "TSK-42": "TASK-78.1",
+    "TSK-43": "TASK-78.2",
+    "TSK-44": "TASK-78.3",
+    "TSK-45": "TASK-83.1",
+    "TSK-46": "TASK-83.2",
+    "TSK-47": "TASK-83.3"
   }
 }

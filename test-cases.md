@@ -1,10 +1,10 @@
 # Test Cases — Clay Portfolio
 
-Stage 6.4 (Technical Planning · planned test suite) · 2026-09-15 · consumes `Solution-PRD.md` (§5, §8), `evaluation-plan.md` (EVAL-001…017), `tickets.md` (TKT-01…54, TSK-01…29), `milestones.md` (M-001…007), `Design.md` (§2 tiers, §3 component states, §4 motion + reduced-motion mapping, §5 checklist, Deviations 1–6), `COMPONENT_ARCHITECTURE.md` §4–§5, `SITEMAP.md`, `decisions.md` (S1–S10, EV1–EV2, D1–D5, PB1–PB5). Consumed by Execution QA gates (Stage 7, per phase), Stage 9B (test execution), `QA-report.md`.
+Stage 6.4 (Technical Planning · planned test suite) · 2026-09-15 · **M-009 addendum 2026-09-24: TC-122…177 (see the M-009 section before Appendix A)** · consumes `Solution-PRD.md` (§5, §8), `evaluation-plan.md` (EVAL-001…017), `tickets.md` (TKT-01…54, TSK-01…29), `milestones.md` (M-001…007), `Design.md` (§2 tiers, §3 component states, §4 motion + reduced-motion mapping, §5 checklist, Deviations 1–6), `COMPONENT_ARCHITECTURE.md` §4–§5, `SITEMAP.md`, `decisions.md` (S1–S10, EV1–EV2, D1–D5, PB1–PB5). Consumed by Execution QA gates (Stage 7, per phase), Stage 9B (test execution), `QA-report.md`.
 
 ## 0. Conventions
 
-- **IDs are stable.** `TC-001…TC-121`, never reused or renumbered. New cases append at the end (`TC-122+`); retired cases keep their ID with status `Retired — reason`.
+- **IDs are stable.** `TC-001…TC-121` (v1) and `TC-122…TC-177` (M-009, 2026-09-24), never reused or renumbered. New cases append at the end (`TC-178+`); retired cases keep their ID with status `Retired — reason`. M-009 cases that supersede a v1 case for the paper system say so in their Notes; the v1 case stays as history.
 - **Order.** Grouped by milestone in execution order; inside a milestone by ticket. Cross-cutting sweeps live in M-007 but are also run at each phase QA gate on whatever routes exist.
 - **Fields per case.** Title · Related (M-/TKT-/TSK-) · EVAL · Component · Objective · Preconditions · Steps · Test data · Expected · Type · Priority · Automation (Y/N + tool) · Status · Defect ref · Notes. A case with **EVAL: —** is functional-only by design (no product-quality metric attached).
 - **Types.** functional · integration · e2e · regression · negative · edge/boundary · validation · error-handling · accessibility · responsive · performance · security-functional · content-integrity · deployment-smoke · visual-review.
@@ -1384,6 +1384,628 @@ Stage 6.4 (Technical Planning · planned test suite) · 2026-09-15 · consumes `
 
 ---
 
+## M-009 · Illustrated editorial (paper) redesign — Stage 6.4, 2026-09-24
+
+Consumes `tickets.md` M-009 (TKT-69…91, TSK-30…47), `technical-plan.md` §F, `Design.md` (paper spec) §3–§10, `evaluation-plan.md` §8 (EVAL-018…022), `decisions.md` S11–S21 · EV3–EV6 · D6–D12. Conventions as §0; additions: **"both widths"** for EVAL-018 means the Playwright projects `w390` and `w1440`; **"unit count"** = the number of `[data-decor]` descendants owned by a `<section>`/`<header>`/`<footer>` under the nearest-ancestor rule (`Design.md` §3.2). The four S18 regression tests are **TC-135, TC-157, TC-164, TC-167** (bold in Appendix A). Every gate-type case (EVAL-018 spec, EVAL-020 greps, EVAL-021 manifest, contrast pairs) carries a positive control.
+
+### TC-122 · Paper token gate: 13/13 round-trip, exactly 13 `--color-*`, `--write` idempotent (EVAL-020 part 1)
+- **Related:** M-009 · TKT-69 AC 1 (TSK-30, TSK-32) · **EVAL:** EVAL-020
+- **Component:** `scripts/tokens-check.ts`, `app/globals.css` `@theme`, `tests/unit/eval-020.test.ts`
+- **Objective:** The palette swap is mechanical from the first commit (S12): the check reads the paper names, the CSS declares only them, and regeneration is a no-op.
+- **Preconditions:** TKT-69 S69.01–S69.02 applied.
+- **Steps:** 1. Run `pnpm tokens:check`; capture stdout. 2. Parse `@theme` and collect every `--color-<name>:` definition. 3. Run `pnpm tokens:check --write` then `git diff --stat app/globals.css`. 4. Negative control: temporarily change one hex in `AUTHORITATIVE` and re-run step 1.
+- **Test data:** `Design.md` §2.1 table (13 hex values).
+- **Expected:** 1 → `13/13 tokens round-trip OK`; 2 → exactly `{paper, ivory, paper-2, navy, navy-2, ink-soft, rust, terracotta, forest, green-2, steel, note, kraft}`; 3 → empty diff; 4 → `12/13` and exit 1.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — Vitest (steps 1–2) / script (3–4) · **Status:** Planned · **Defect:** —
+- **Notes:** Supersedes TC-002's clay expectations for M-009 (TC-002 stays as history).
+
+### TC-123 · Retired-name and colour-literal greps with positive control (EVAL-020 parts 2–3)
+- **Related:** M-009 · TKT-69 AC 2, AC 5 (TSK-30, TSK-32); TKT-78 AC (allow-list); TKT-89 AC 3 · **EVAL:** EVAL-020
+- **Component:** `tests/unit/eval-020.test.ts`, `tests/fixtures/retired-tokens.fixture.txt`
+- **Objective:** No consumer keeps a clay name (`bg…butter`, incl. Tailwind utility forms with prefixes/variants/opacity) and no colour literal exists outside `app/globals.css` + `lib/og.tsx`.
+- **Preconditions:** codemod (S69.04) committed.
+- **Steps:** 1. Scan `app/**`, `components/**`, `lib/**` (`.ts/.tsx/.css`) with the utility regex `(?<![\w-])(bg|text|border|fill|stroke|outline|ring|from|via|to|decoration|placeholder|shadow|accent)-(bg|surface|lavender|ink|ink-2|ink-3|accent|accent-deep|mint|sky|blush|peach|butter)(?=[\s"'\`/:\]]|$)` and `var(--color-<retired>)`. 2. Scan `app/**` + `components/**` for `#[0-9a-f]{3,8}\b|\b(rgb|hsl|oklch|oklab)\(` excluding the two allow-listed files. 3. Run both scanners over the fixture file. 4. Assert `lib/og.tsx` is the only file under `lib/` with a hex literal.
+- **Test data:** fixture containing `text-ink-3`, `hover:bg-lavender/30`, `#FAF9FF`, `oklch(0.5 0.1 200)`, `var(--color-accent)`, plus the non-token decoys `bg-white`, `tone="mint"`.
+- **Expected:** 1–2 → 0 hits on the real tree; 3 → 5 hits, decoys not matched; 4 → true.
+- **Type:** negative · **Priority:** P0 · **Automation:** Y — Vitest (in `pnpm eval`) · **Status:** Planned · **Defect:** —
+- **Notes:** Tone prop names (`tone="mint"`) are enum values, not tokens (technical-plan F1-11); the regex must not match them.
+
+### TC-124 · Fonts self-hosted: three families via `next/font`, zero Google Fonts requests, Fraunces axes (or the recorded fallback)
+- **Related:** M-009 · TKT-69 AC 3, AC 4 (TSK-31) · **EVAL:** EVAL-004 (best-practices), EVAL-005 (transfer), EVAL-016 (CSP)
+- **Component:** `app/layout.tsx`, `app/globals.css`, `tests/e2e/smoke.spec.ts`
+- **Objective:** S13 — self-hosted Fraunces + Inter + Caveat with the TP9 CSP untouched; Manrope gone.
+- **Preconditions:** `pnpm build && pnpm start`.
+- **Steps:** 1. Fetch `/` HTML; list `/_next/static/media/*.woff2` references. 2. Playwright `w1440`: `page.on("request")` over `/`; collect hosts. 3. `getComputedStyle(h1)`: `fontFamily`, `fontVariationSettings`; `getComputedStyle(body).fontFamily`; a `.font-hand` element's family. 4. `grep -rni manrope app components lib tests --include=*.ts*` and `assets/fonts/`. 5. Positive control: add a `<link href="https://fonts.googleapis.com/…">` in a throwaway page, load it, assert the request appears (then remove).
+- **Test data:** —
+- **Expected:** 1 → ≥ 3 distinct woff2 files (one per family); 2 → 0 requests to `fonts.googleapis.com`/`fonts.gstatic.com`; 3 → h1 Fraunces with `"opsz"`/`"SOFT"` set **or** (Dev-18 fallback) static Fraunces 500 with a `Design.md` §11 row present; body Inter; hand Caveat; 4 → only `lib/og.tsx` until TKT-78, then 0; 5 → detected.
+- **Type:** integration · **Priority:** P0 · **Automation:** Y — Playwright + script · **Status:** Planned · **Defect:** —
+- **Notes:** A runtime font request would also be blocked by `font-src 'self'` and appear in EVAL-004 best-practices — two independent signals.
+
+### TC-125 · Codemod completeness: tree builds and every existing suite is green with no spec deleted
+- **Related:** M-009 · TKT-69 AC 5, AC 6 (TSK-30) · **EVAL:** EVAL-005 (recorded)
+- **Component:** `scripts/codemod-tokens.ts`, whole tree
+- **Objective:** The one-commit rename (S12) leaves nothing broken and hides nothing — assertions are renamed, never removed.
+- **Preconditions:** S69.03 dry-run output saved to the ticket report.
+- **Steps:** 1. `pnpm exec tsx scripts/codemod-tokens.ts --dry | wc -l` and the self-test fixture line. 2. After the run: `pnpm typecheck && pnpm lint && pnpm tokens:check && pnpm test && pnpm build`. 3. `pnpm test:e2e` (all projects). 4. `git diff --stat main..HEAD -- tests` — count deleted test files. 5. `bundle-budget --route / --json` before/after.
+- **Test data:** self-test string `"bg-bg text-ink-3 hover:bg-lavender/30 bg-white tone-mint"`.
+- **Expected:** 1 → ≈ 428 ± 30 rewrites; self-test → `"bg-paper text-ink-soft hover:bg-paper-2/30 bg-white tone-mint"`; 2–3 → exit 0; 4 → 0 deleted spec files; 5 → `firstLoadJsGzipKb` unchanged ± 1.
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — script · **Status:** Planned · **Defect:** —
+- **Notes:** The orchestrator reads the dry-run list for false positives before the commit is accepted (technical-plan S69.04).
+
+### TC-126 · Paper primitive attribute contract and limit enforcement (Design.md §3.1/§3.4)
+- **Related:** M-009 · TKT-70 AC 1, AC 2 (TSK-33, TSK-34) · **EVAL:** EVAL-018 (contract), EVAL-006
+- **Component:** `components/paper/*`, `tests/unit/paper.test.tsx`
+- **Objective:** Every counted object, fastener, content paper, flat zone and hand exemption renders exactly the attribute §3.1 specifies, with the limits enforced at render.
+- **Preconditions:** TKT-70 TSK-33/34 built.
+- **Steps:** 1. Render each primitive with defaults; collect `data-decor`/`data-fastener`/`data-paper`/`data-flat`/`data-hand`/`aria-hidden`. 2. `Sticky rotate={30}` → read `--rot`. 3. `Sheet` with three `Tape` children in test env. 4. `Hand kind="label"` with 4 words; `kind="cta"` with 7 words; `kind="quote"` with 241 chars; `kind="quote"` without `cite`. 5. Attempt `<Sticky aria-hidden={false}>` (type-level). 6. `Prose` output; `DraftTag` default text; `Tag` no longer imports `ClayPill`.
+- **Test data:** fixture strings per limit.
+- **Expected:** 1 → `data-decor ∈ {torn,sticky,annotation,sketch,note,tape}`, `data-fastener ∈ {tape,pin}`, `data-paper ∈ {card,index,postcard,notebook,photo,tag}`, text-bearing decorations always `aria-hidden="true"`; 2 → `5deg` (clamped); 3 → throws; 4 → each throws in dev/test; 5 → TypeScript error (`@ts-expect-error` line compiles); 6 → `data-flat` present, "Draft — pending sign-off", `ClayPill` absent.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** These are the guarantees `eval-018.spec.ts` relies on; a primitive that can be rendered without its attribute makes EVAL-018 meaningless.
+
+### TC-127 · EVAL-018 spec: counting algorithm proven with the violating fixture and a clean board
+- **Related:** M-009 · TKT-70 AC 3, AC 6 (TSK-35); decisions EV5, D6, TP12 · **EVAL:** EVAL-018
+- **Component:** `tests/e2e/eval-018.spec.ts`, `tests/e2e/eval-018-lib.ts`, `app/dev/primitives/page.tsx`
+- **Objective:** The four rules (≤ 4 per unit · Caveat only via `data-decor`/`aria-hidden`/valid `data-hand` · 0 decorations in `[data-flat]` · text decorations hidden) are measured exactly as §3.2 defines, including nearest-ancestor ownership for nested sections.
+- **Preconditions:** `pnpm build && pnpm start`; `/dev/primitives` reachable.
+- **Steps:** 1. Run the collector on `/dev/primitives?violate=1` at both widths. 2. Run it on `/dev/primitives` (clean board). 3. Nested-section fixture on the board: a decoration inside a chapter-style nested `<section>` must be counted for the inner section only. 4. A `data-hand="quote"` blockquote inside a `[data-flat]` zone. 5. Inspect the Playwright annotation table for one route.
+- **Test data:** fixture section = 5 decorations + a Caveat `<p>` without `data-decor` + a `Sticky` inside a `FlatZone` + an unhidden `Sticky`.
+- **Expected:** 1 → each of the four rules reports ≥ 1 violation; 2 → 0 violations, every unit ≤ 4; 3 → outer count excludes the inner decoration; 4 → allowed (0 violations); 5 → a per-unit table with `unit`, `count`, `caveatViolations`, `flatViolations`, `hiddenViolations`.
+- **Type:** negative · **Priority:** P0 · **Automation:** Y — Playwright (the fixture test is untagged so it never counts as an EVAL-018 case failure) · **Status:** Planned · **Defect:** —
+- **Notes:** Positive control for the whole EVAL-018 gate; "0 violations" on the site is only meaningful while this test passes.
+
+### TC-128 · Draw-ins and `Reveal` under motion and reduced motion (Design.md §8)
+- **Related:** M-009 · TKT-70 AC 5 (TSK-33); TKT-79 (Reveal on home) · **EVAL:** EVAL-010
+- **Component:** `components/paper/Sketch.tsx`, `components/interactions/Reveal.tsx`, `app/globals.css`
+- **Objective:** Draw-ins run once (400 → 0 over 1.1 s after 0.5 s) and render complete under reduced motion; `Reveal` is opacity + 12 px, never scale.
+- **Preconditions:** `/dev/primitives` with every `Sketch` variant.
+- **Steps:** 1. `w1440` default: read `strokeDashoffset` at t=0 and t=2 s. 2. `test.use({ reducedMotion: "reduce" })`: read `strokeDashoffset` and `animationName` at t=0. 3. `Reveal` element before/after intersection: computed `transform` and `opacity`. 4. Grep `globals.css` for `scale(0` inside `.reveal` rules.
+- **Test data:** —
+- **Expected:** 1 → 400 px then 0 px; 2 → 0 px and `none` immediately; 3 → `translateY(12px)`/`0` → `none`/`1`; 4 → 0 matches.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Playwright (`withReducedMotion`) · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-129 · EVAL-018 wired into `pnpm eval`: not deferred, real counts, parked-list semantics with stale-park guard
+- **Related:** M-009 · TKT-70 AC 4, DoD (TSK-35); TKT-74 AC 4; TKT-90 AC 4 · **EVAL:** EVAL-018
+- **Component:** `scripts/eval-cases.ts` (`DEFERRED_SPECS`), `scripts/eval.ts`, `tests/e2e/eval-018-parked.json`, `docs/eval.md`
+- **Objective:** The runner executes the spec and reports honestly; legacy hits are parked with a reason and a ticket, never hidden, and stale parks fail.
+- **Preconditions:** TKT-70 done; `.next` built.
+- **Steps:** 1. `pnpm exec tsx scripts/eval-cases.ts --check-specs`. 2. `pnpm eval --only EVAL-018 --skip-build`; read `cases[EVAL-018]`. 3. Negative control: remove the `@EVAL-018` tag from the spec and re-run step 1. 4. Add a parked entry that matches nothing; run the spec. 5. Add a parked entry matching a real legacy hit; run the spec. 6. At TKT-90: assert the file is `[]`.
+- **Test data:** parked entry `{ route:"/about", unit:"section#impact", rule:"budget", reason:"legacy clay section — rebuilt in TKT-86", ticket:"TKT-86" }`.
+- **Expected:** 1 → `22 cases OK`; 2 → status `PASS`/`FAIL` with non-empty `details` (never `SKIP … not built yet`); 3 → check-specs fails naming EVAL-018; 4 → spec fails (stale park); 5 → the hit is reported `PARKED` and the test passes; 6 → `[]`.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — script · **Status:** Planned · **Defect:** —
+- **Notes:** Decision TP12.
+
+### TC-130 · Header keeps one height; `data-scrolled` toggles the hairline only (D12)
+- **Related:** M-009 · TKT-71 AC 1 · **EVAL:** EVAL-008, EVAL-010
+- **Component:** `components/navigation/Header.tsx`, `tests/e2e/layout.spec.ts`
+- **Objective:** The F6-scar compaction is gone: no rest→compact height change at any width.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. On `/` at each of the 4 projects: `header.boundingBox().height` at scrollY 0. 2. Scroll to 400 px; re-measure; read `[data-scrolled]` and `border-bottom-color`. 3. Scroll back to 0; read `[data-scrolled]`. 4. `grep -rn "useScrollY\|NavPill\|data-compact" app components lib hooks tests`.
+- **Test data:** —
+- **Expected:** 1–2 → heights equal ± 1 px; `data-scrolled` present only after scroll with the `--line` border; 3 → attribute removed; 4 → 0 matches.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright + script · **Status:** Planned · **Defect:** —
+- **Notes:** Replaces TC-003's compaction assertions for M-009.
+
+### TC-131 · Nav D8 variant: five items, `aria-current` underline, subline annotation gated by width, header unit count 1
+- **Related:** M-009 · TKT-71 AC 3, AC 4, AC 5; decision D8 · **EVAL:** EVAL-007, EVAL-011, EVAL-018
+- **Component:** `lib/nav.ts`, `components/navigation/Header.tsx`, `components/paper/MediaGate.tsx`, `tests/unit/routes.test.ts`, `tests/e2e/crawler-allowlist.json`
+- **Objective:** Playground is reachable from the header (D8 default) and the one header decoration is present only ≥ 640 and always `aria-hidden`.
+- **Preconditions:** TKT-71 done.
+- **Steps:** 1. Unit: `navItems.length` and hrefs. 2. Playwright `w1440` on `/work`: the `Work` link has `aria-current="page"` and the underline pseudo-element is rendered (`::after` `opacity` = 1). 3. `w390`: `header [data-decor="annotation"]` count; `w1440`: count + `aria-hidden`. 4. EVAL-011 crawler reaches `/playground` via the header. 5. Every header control `boundingBox` ≥ 44×44.
+- **Test data:** —
+- **Expected:** 1 → 5, includes `/playground`; 2 → true; 3 → 0 at 390, 1 + `aria-hidden="true"` at 1440 (header unit count = 1); 4 → PASS; 5 → all ≥ 44.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** If Tushar reverts D8 the expected value in step 1 becomes 4 and the band gains a Playground link (technical-plan E-20) — one documented edit each.
+
+### TC-132 · `MobileMenu` paper sheet: keyboard path, rows, focus return, axe with the sheet open
+- **Related:** M-009 · TKT-71 AC 2, AC 8 · **EVAL:** EVAL-007, EVAL-006
+- **Component:** `components/navigation/MobileMenu.tsx`, `tests/e2e/eval-007.spec.ts`
+- **Objective:** The restyled sheet keeps the native `<dialog>` guarantees (TC-004) and carries the pill + résumé + Ask rows.
+- **Preconditions:** `w390`.
+- **Steps:** 1. Tab from load → skip link → menu button; `Enter`. 2. `document.activeElement` inside `dialog[aria-label="Site navigation"]`; Tab through: 5 nav rows (56 px tall), pill "Let's connect →", résumé row text = `resumeAction().label`, Ask row. 3. `Escape` → focus on the menu button; `html` overflow restored. 4. Backdrop click closes. 5. axe with the sheet open.
+- **Test data:** —
+- **Expected:** all pass; 0 critical/serious.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y — Playwright + axe · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-133 · Reading-progress bar only on case studies; compaction/NavPill code removed with their tests
+- **Related:** M-009 · TKT-71 AC 6, AC 7 · **EVAL:** EVAL-010
+- **Component:** `components/interactions/ProgressBar.tsx`, `app/work/[slug]/page.tsx`
+- **Objective:** The 3 px rust bar is a position indicator, `aria-hidden`, present only where the page is long-form.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. `/work/teachspark`: `[data-progress]` present, `aria-hidden="true"`, computed `transform` at top vs after scrolling 50 %. 2. `/`, `/about`: absent. 3. `reducedMotion:"reduce"`: still updates (position, not motion). 4. `git diff --stat main..HEAD -- tests/unit/motion.test.tsx` shows edits, not deletion; `NavPill` test file gone with the component.
+- **Test data:** —
+- **Expected:** 1 → `scaleX(0)` → `scaleX(≈0.5)`; 2 → 0; 3 → updates; 4 → true.
+- **Type:** functional · **Priority:** P2 · **Automation:** Y — Playwright + script · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-134 · Band footer on every route: exactly one `<footer>`, landmark, links resolve, `FinalCTA` gone, safe-area padding
+- **Related:** M-009 · TKT-72 AC 1, AC 4 · **EVAL:** EVAL-011, EVAL-006, EVAL-008
+- **Component:** `components/layout/BandFooter.tsx`, `app/layout.tsx`, `tests/e2e/layout.spec.ts`
+- **Objective:** S16 — one closing CTA on every page, no second footer, no dead link.
+- **Preconditions:** `pnpm start`; sitemap routes + 11 slugs + 5 essays + `/definitely-missing`.
+- **Steps:** 1. For each route: `footer` count; `footer[aria-labelledby]` resolves to `h2#band-h`; band unit count under EVAL-018. 2. Every `footer a[href]` → crawler 200/anchor/mailto/allow-listed external. 3. `grep -rn "FinalCTA\|layout/Footer" app components tests`. 4. The © bar's declared `padding-bottom` includes `env(safe-area-inset-bottom)` (assert on the stylesheet rule). 5. `w390`: no horizontal overflow with the band in view.
+- **Test data:** —
+- **Expected:** 1 → 1 per route, unit count 1 (`torn`); 2 → all resolve; 3 → 0; 4 → present; 5 → none.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright + crawler + script · **Status:** Planned · **Defect:** —
+- **Notes:** Supersedes TC-029 for M-009.
+
+### TC-135 · **S18 regression** — `hero.tagline` rendered exactly once site-wide, in the band © bar, as a sourced hand quote
+- **Related:** M-009 · TKT-72 AC 5; decision S18; technical-plan F1-3 · **EVAL:** EVAL-013, EVAL-018
+- **Component:** `components/layout/BandFooter.tsx`, `data/hero.ts`, `tests/unit/band-footer.test.tsx`, `tests/e2e/layout.spec.ts`
+- **Objective:** The VERIFIED tagline "Observing what others overlook." — defined in data but never rendered before M-009 — appears once, where the mockup places it, and satisfies the §3.4 quote rule.
+- **Preconditions:** TKT-72 done.
+- **Steps:** 1. Unit: render `BandFooter`; `getAllByText(hero.tagline.text).length`; the match is inside `[data-hand="quote"]` with a sibling `.sr-only` starting "Source:". 2. Playwright: on every route, `page.getByText(hero.tagline.text).count()`. 3. Negative control: temporarily blank the tagline in a mocked `data/hero` → the unit test fails on the count.
+- **Test data:** `hero.tagline.text` from `data/hero.ts` (never typed into the test).
+- **Expected:** 1 → 1, inside the © bar; 2 → exactly 1 per route (not 0, not 2); 3 → fails as expected.
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** Kept permanently (production-defect-to-regression rule).
+
+### TC-136 · Band contrast, social circles, résumé/GitHub conditionals, location flag
+- **Related:** M-009 · TKT-72 AC 2, AC 3, AC 6; decisions S5, PB5, Dev-13 · **EVAL:** EVAL-006, EVAL-008, EVAL-002
+- **Component:** `components/layout/BandFooter.tsx`, `lib/site.ts`, `tests/unit/{band-footer,contrast-pairs}.test.ts(x)`
+- **Objective:** Every band pair passes WCAG at its size, controls are ≥ 44 px with names, and the conditional parts follow their single sources of truth.
+- **Preconditions:** TKT-72 done.
+- **Steps:** 1. Unit: culori contrast for ivory/terracotta, kraft/terracotta, note/terracotta, `--on-band-muted`/terracotta computed from `AUTHORITATIVE` + the `color-mix` percentages. 2. Playwright: axe on `/` at both widths; each social circle `boundingBox` ≥ 56 and has an `aria-label`. 3. Unit with `site.github` unset **or** no `links.repoPublic` project → no GitHub circle; with both → present. 4. `resumeAvailable:false` → the résumé circle's label is `resumeAction().label` and href `/contact#resume`. 5. `site.showLocation` false → "Bengaluru, India" absent; mocked true → present in the © bar.
+- **Test data:** mocked `site` module variants.
+- **Expected:** 1 → ≥ 4.5 (text) and ≥ 4 (h2 line 2 kraft); 2 → 0 critical/serious; 3–5 → as stated.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y — Vitest + Playwright + axe · **Status:** Planned · **Defect:** —
+- **Notes:** Flip of `showLocation` is Tushar's call (HANDOFF §6); the test covers both states so the flip needs no test change.
+
+### TC-137 · Band forbidden-strings / PII regression over markup and bundle
+- **Related:** M-009 · TKT-72 AC 8, DoD Sec · **EVAL:** EVAL-013, EVAL-016
+- **Component:** `scripts/forbidden-strings.ts`, `tests/unit/forbidden-strings.test.ts`
+- **Objective:** The band adds the approved public contact (email, EXE-8) and nothing else.
+- **Preconditions:** `pnpm build`.
+- **Steps:** 1. `forbidden-strings --bundle` after TKT-72. 2. Assert the band's rendered text contains no phone/DOB/address pattern (unit over `BandFooter` output through `PII_PATTERNS`). 3. Positive control from TC-022 still detects the fixture.
+- **Test data:** TC-022 pattern table.
+- **Expected:** 0 hits; control detected.
+- **Type:** security-functional · **Priority:** P0 · **Automation:** Y — Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-138 · Illustration manifest ↔ files ↔ README provenance both ways, alt prefixes, forbidden strings, poster identity (EVAL-021 automated part)
+- **Related:** M-009 · TKT-73 AC 1 (TSK-36); decisions S20, E-18 · **EVAL:** EVAL-021, EVAL-013
+- **Component:** `content/media/illustrations/{manifest.ts,README.md,**}`, `public/media/illustrations/*`, `tests/unit/eval-021.test.ts`, `tests/fixtures/illustrations-onesided/`
+- **Objective:** Every generated asset is accounted for with provenance and a decorative alt; no orphan file, no orphan entry.
+- **Preconditions:** TSK-36 done.
+- **Steps:** 1. Walk `content/media/illustrations/**` (excluding `README.md`, `manifest.ts`; including `reference/`): each file ↔ exactly one entry. 2. Each entry `id` has a README table row with all §6.2 columns non-empty. 3. Each `alt` starts with "Illustration of " / "Animated illustration of " (or "Illustration reference sheet" for `kind:"reference"`); `character-sheet-b.usedOn` is `[]`. 4. Filenames + alts through `contentForbiddenHits` + `PII_PATTERNS`. 5. `publicSrc` files exist; `content/media/illustrations/hero-desk.webp` and `public/media/illustrations/hero-poster.webp` have equal sha256. 6. Run the checker over the two one-sided fixtures.
+- **Test data:** fixtures: extra file without entry; entry without file.
+- **Expected:** 1–5 → 0 findings; 6 → ≥ 1 finding each.
+- **Type:** content-integrity · **Priority:** P0 · **Automation:** Y — Vitest (in `pnpm eval`) · **Status:** Planned · **Defect:** —
+- **Notes:** The manual "depicts no metric/logo/product UI/claim" checklist is TC-175 (Stage 8 confirms).
+
+### TC-139 · Hero SSR markup: poster in static HTML with `fetchpriority="high"`, exact alt, no `<video>`, CTAs, unit count 3, no tiles
+- **Related:** M-009 · TKT-73 AC 2 (SSR part), AC 5 (TSK-37); decision D10 · **EVAL:** EVAL-019, EVAL-001, EVAL-013, EVAL-018
+- **Component:** `components/hero/Hero.tsx`, `app/page.tsx`
+- **Objective:** The LCP candidate exists before JavaScript and the copy carries the 5-second test.
+- **Preconditions:** `pnpm build && pnpm start`.
+- **Steps:** 1. `curl -s /` (no JS): count `<video`; find the `img` with `fetchpriority="high"` and `hero-poster`; read its `alt`, `width`, `height`, `loading`. 2. Count `[data-decor]` inside `section.hero` → 3 (`annotation` hand-sub, `sketch` underline, `annotation` figcaption). 3. CTAs: `a[href="/work"]` text "View my work →", `a[href="#ask"]` text "Ask my portfolio". 4. `grep -c FloatingTiles` over `components app` → 0. 5. `w390` + `w1440`: eyebrow, h1 containing "AI-native products", both CTAs and the poster all intersect the first viewport (EVAL-001 structural precondition).
+- **Test data:** `illustration("hero-desk").alt` from the manifest.
+- **Expected:** 1 → 0 videos; one poster `img` with `fetchpriority="high"`, `loading="eager"`, 1280×684, alt byte-equal; 2 → 3; 3 → present; 4 → 0; 5 → true at both widths.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — script + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-140 · EVAL-019 four-mode matrix at 390 and 1440: default mounts the exact `<video>`, fallbacks never do
+- **Related:** M-009 · TKT-73 AC 2 (TSK-37); decisions S14, D10, TP13 · **EVAL:** EVAL-019, EVAL-010
+- **Component:** `components/hero/HeroClip.tsx`, `tests/e2e/eval-019.spec.ts`, `tests/e2e/fixtures.ts` (`saveData`)
+- **Objective:** Reduced motion, touch/coarse pointer and Save-Data get the poster only; the default mode gets the once-and-hold clip with no `loop`.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. `w1440` default: wait for `video[data-hero-clip]`; assert attributes `autoplay`, `muted`, `playsinline`, `preload="metadata"`, `poster` = the poster path, `aria-hidden="true"`, `tabindex="-1"`; `loop` and `controls` absent; `source` order webm → mp4. 2. `w1440` + `test.use({ reducedMotion:"reduce" })`: `video` count after 2 s. 3. `w390` (project has `hasTouch`): `video` count. 4. `w1440` + `saveData` fixture: `video` count. 5. Unit (`hero-clip.test.tsx`): `matchMedia` mocked per mode → same expectations; `play()` rejecting → `video` unmounted.
+- **Test data:** —
+- **Expected:** 1 → all true; 2–4 → 0; 5 → as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** A `<video>` under reduced motion fails EVAL-010 and EVAL-019 together (evaluation-plan §8.3).
+
+### TC-141 · Once-and-hold: `ended` ≤ 4 s, `currentTime` never decreases, stays paused on the last frame, rejection → poster
+- **Related:** M-009 · TKT-73 AC 3 · **EVAL:** EVAL-019
+- **Component:** `components/hero/HeroClip.tsx`, `tests/e2e/eval-019.spec.ts`
+- **Objective:** The clip plays exactly once and holds; nothing restarts it.
+- **Preconditions:** `w1440` default mode.
+- **Steps:** 1. `page.goto("/")`; `waitForFunction(v => v.ended, video, { timeout: 4000 })`; record elapsed. 2. For 3 s sample `currentTime` every 250 ms while: `mouse.wheel(0, 600)`, `document.dispatchEvent(new Event("visibilitychange"))`, `window.dispatchEvent(new Event("resize"))`. 3. Read `paused`, `ended`, `loop`. 4. Screenshot the frame → `docs/screenshots/m-009/tracer/hero-end-1440.png`; orchestrator compares with `animation/export/hero-end.webp`. 5. `addInitScript` overriding `HTMLMediaElement.prototype.play` to reject → after hydration `video` count. 6. Static analysis: the file contains no `.currentTime =`, `.load(`, `loop`, `visibilitychange`, `addEventListener("change"` (ESLint rule or grep).
+- **Test data:** —
+- **Expected:** 1 → ≤ 4000 ms; 2 → monotonic non-decreasing; 3 → `paused=true`, `ended=true`, `loop=false`; 4 → visually the last frame; 5 → 0; 6 → 0 matches.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright + script (step 4 manual compare) · **Status:** Planned · **Defect:** —
+- **Notes:** Critical failure condition (evaluation-plan §8.4: "the hero clip loops or restarts").
+
+### TC-142 · Asset caps and byte-exactness of the shipped hero renditions
+- **Related:** M-009 · TKT-73 AC 4 (TSK-36) · **EVAL:** EVAL-019, EVAL-005
+- **Component:** `public/media/illustrations/*`, `content/media/illustrations/scene-*.jpg`
+- **Objective:** Transfer cost stays inside the measured caps (webm 176 / mp4 312 / poster 87 kB) and the shipped files are the approved cuts.
+- **Preconditions:** TSK-36 done.
+- **Steps:** 1. `fs.statSync` sizes. 2. sha256 of the three public files vs the on-disk sources in `Portfolio-illustration/animation/export/` (recorded in the README provenance row as `sha256`). 3. `sharp().metadata()` on the poster. 4. Scenes ≤ 600 kB each.
+- **Test data:** —
+- **Expected:** webm ≤ 204 800 B, mp4 ≤ 358 400 B, poster ≤ 122 880 B; shas equal; 1280×684; scenes within cap.
+- **Type:** performance · **Priority:** P0 · **Automation:** Y — Vitest (sizes, metadata) / script (sha compare, run once at TSK-36) · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-143 · Hero motion system removed: files, imports, `site.avatarAlt`, tests; first-load JS recorded
+- **Related:** M-009 · TKT-73 AC 6 (TSK-38); TKT-74 AC 2 · **EVAL:** EVAL-005
+- **Component:** deletions per technical-plan S73.09, `scripts/bundle-budget.ts`
+- **Objective:** EVAL-005 is re-measurable on real code, not on tree-shaking luck (EV6).
+- **Preconditions:** TSK-38 done.
+- **Steps:** 1. `grep -rn "AvatarScene\|AvatarStage\|FloatingTiles\|HeroActivation\|usePointerParallax\|heroMotion\|ProductScene\|avatarAlt" app components lib hooks tests`. 2. `ls` the deleted paths. 3. `pnpm typecheck && pnpm lint && pnpm test && pnpm build`. 4. `bundle-budget --route / --json` → `firstLoadJsGzipKb`.
+- **Test data:** —
+- **Expected:** 1 → 0; 2 → absent; 3 → exit 0; 4 → number recorded in the report (target ≤ 180; gated at TC-145).
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — script · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-144 · Tracer baseline run `baseline-m009-tracer.json` with real paper-gate values and parked legacy hits
+- **Related:** M-009 · TKT-74 AC 1, AC 4; decision EV6 · **EVAL:** EVAL-018, EVAL-019, EVAL-020, EVAL-021, EVAL-005
+- **Component:** `scripts/eval.ts`, `evals/results/baseline-m009-tracer.json`, `tests/e2e/eval-018-parked.json`
+- **Objective:** The M-009 baseline exists with provenance and the first real values for EVAL-018…021.
+- **Preconditions:** TKT-71/72/73 merged; S74.02 parked list populated.
+- **Steps:** 1. `pnpm eval --label baseline-m009-tracer`. 2. `node -e` read: `provenance.commit` (40 chars), `branch === "m-009-redesign"`, `dirty === false`, `cases[EVAL-018..021].status ∈ {PASS,FAIL}` (never SKIP), `EVAL-005.measured.jsKbGzip`. 3. `criticalFailures` empty. 4. `pnpm eval --baseline baseline-v1.json --reuse` diff → no Critical regression vs the pre-redesign baseline.
+- **Test data:** —
+- **Expected:** file committed; all reads as stated.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — script · **Status:** Planned · **Defect:** —
+- **Notes:** Every later M-009 run diffs against this file (evaluation-plan §8.6).
+
+### TC-145 · Preview performance gate: JS ≤ 180 kB gz, LCP element = hero poster, LCP ≤ 2.5 s mobile, perf ≥ 90, tracer pack
+- **Related:** M-009 · TKT-74 AC 2, AC 3, AC 5; decision EV6; technical-plan F5 · **EVAL:** EVAL-004, EVAL-005
+- **Component:** Vercel preview, `.lighthouseci/`, `evals/results/lighthouse-m009-tracer/`, `docs/screenshots/m-009/tracer/`
+- **Objective:** The riskiest assumption (fonts + illustration + clip within budget) is measured on a real deployment.
+- **Preconditions:** branch pushed with Tushar's OK; preview 200.
+- **Steps:** 1. `bundle-budget --route / --json` locally on the same commit. 2. `lhci autorun --config lighthouserc.mobile.json --collect.url=<preview>/` (3 runs) then desktop. 3. From the median JSON: `audits["largest-contentful-paint-element"]` (must name the `img` whose `src` contains `hero-poster`), `audits["largest-contentful-paint"].numericValue`, performance category score. 4. `pnpm eval --base-url <preview> --label eval-run-preview-m009-tracer-<sha>` (headers/axe/Playwright on the deployed origin). 5. 8 tracer PNGs present.
+- **Test data:** —
+- **Expected:** 1 → ≤ 180 (else `TKT-92 perf` opened; the budget is never edited); 3 → poster element, ≤ 2500 ms, ≥ 90; 4 → headers PASS; 5 → 8.
+- **Type:** performance · **Priority:** P0 · **Automation:** Y — script / N — manual (push approval, dashboard) · **Status:** Planned · **Defect:** —
+- **Notes:** Never measured on `next dev` (image-cache scar).
+
+### TC-146 · Hero gate with Tushar on the preview (EVAL-022 sub-gate)
+- **Related:** M-009 · TKT-74 AC 6, AC 7; Solution-PRD §12.6.7 · **EVAL:** EVAL-022, EVAL-001, EVAL-009 (item 6)
+- **Component:** `evals/results/gate-m009-hero.md`, `decisions.md` EXE-n, `Design.md` §11, `HANDOFF.md`
+- **Objective:** Written approval of the hero before any other page is built.
+- **Preconditions:** TC-144/145 done; preview URL shared.
+- **Steps:** 1. Present the preview at 390 and 1440 plus the numbers. 2. Score EVAL-001 (6 items × 2 widths) and EVAL-009 item 6 (character matches the locked sheet, no drift) in `gate-m009-hero.md`. 3. Record Tushar's words in `decisions.md` as `EXE-n · M-009 hero gate — approved | approved with changes: …`. 4. Each change request → a `Design.md` §11 row before TKT-75 starts. 5. `HANDOFF.md` updated.
+- **Test data:** —
+- **Expected:** EXE entry exists quoting Tushar; silence is not approval; TKT-75/76/77 remain blocked until then.
+- **Type:** visual-review · **Priority:** P0 · **Automation:** N — manual · **Status:** Planned · **Defect:** —
+- **Notes:** Human-in-the-loop gate by design.
+
+### TC-147 · Featured Work: three taped cards from data, whole-card links, layout, unit count 4, fasteners ≤ 2, reduced-motion hover
+- **Related:** M-009 · TKT-75 AC 1–6 · **EVAL:** EVAL-001, EVAL-002, EVAL-011, EVAL-013, EVAL-015, EVAL-018
+- **Component:** `components/projects/{FeaturedWork,ProjectCard}.tsx`
+- **Objective:** The VERIFIED proof numbers that left the hero tiles live on the cards, byte-equal to data, in the approved paper form.
+- **Preconditions:** TKT-75 done.
+- **Steps:** 1. Unit: rendered name/tagline/kicker/metrics/status/`asOf` equal the `data/projects.ts` records for the three featured slugs; Velora card shows metrics only if `measured` rows exist. 2. Playwright: 3 cards, each one `a` with `aria-label` = name, `href="/work/<slug>"`; clicking navigates (EVAL-002 hop, EVAL-015 fallback). 3. Layout at 1024 (2 cols, large spans) and 390 (1 col, no overflow). 4. Unit count of `section#work-featured` = 4 at both widths; `[data-fastener]` per card ≤ 2. 5. Hover on `w1440`: `transform` changes; under reduced motion only `box-shadow` changes.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** Supersedes TC-054/055 for M-009.
+
+### TC-148 · How I think: six stages verbatim, quotes sourced and ≤ 240 chars, anchors resolve, path sketch gated, only pills focusable
+- **Related:** M-009 · TKT-76 AC 1–5 · **EVAL:** EVAL-003, EVAL-007, EVAL-011, EVAL-013, EVAL-018
+- **Component:** `components/home/HowIThink.tsx`, `lib/stages.ts`
+- **Objective:** The framework section in journey form with every quote visible and sourced, no interactive expand.
+- **Preconditions:** TKT-76 done.
+- **Steps:** 1. Unit: six cards, label/principle/quote/attribution equal `data/thinking-framework.ts`; each quote length ≤ 240; each `blockquote[data-hand="quote"]` has a `cite`. 2. Crawler: the six pill links resolve to `lib/anchors.ts` anchors. 3. Unit count: 2 at `w1440`, 1 at `w390` (path sketch absent from the DOM). 4. Tab through the section: focus lands only on the six pills. 5. `grep -rn "roving\|tabIndex={-1}" components/home/HowIThink.tsx` → 0.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Vitest + Playwright + crawler · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-149 · Ask notebook: five states, panel keyboard path, no navigation, Inter input, unit count 2, Ask logic untouched
+- **Related:** M-009 · TKT-77 AC 1–7; decisions S21, TP3 · **EVAL:** EVAL-012, EVAL-007, EVAL-014, EVAL-015, EVAL-018
+- **Component:** `components/ai/*`, `app/dev/ask/page.tsx`
+- **Objective:** Only the surface changed; the deterministic Ask feature and its Critical evals are intact.
+- **Preconditions:** TKT-77 done.
+- **Steps:** 1. `git diff --stat main..HEAD -- lib/ask tests/unit/eval-012.test.ts tests/unit/ask-*.test.ts tests/unit/use-ask.test.tsx components/ai/AskProvider.tsx` → empty. 2. `pnpm test -- eval-012` → 11/11 · 5/5 · 0 fabricated. 3. Playwright `/dev/ask` + `/`: idle · loading (shimmer + sr-only status) · answer (h3 "Answer", `DraftTag`, evidence pills, "Ask another") · empty (FALLBACK + 3 chips) · error (rust border + "Try again"). 4. Submit → URL unchanged; `document.activeElement` = the "Answer" heading. 5. Panel: open via the ghost button → type → answer → close → focus returns (EVAL-007). 6. Input computed `fontFamily` contains "Inter"; `section#ask` unit count = 2. 7. Reduced motion: expand height instant.
+- **Test data:** mocked provider routes from TC-046.
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — script + Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** If Tushar drops the panel (variant), step 5 is replaced by "panel components absent + `EXE-n` retiring the EVAL-007 clause".
+
+### TC-150 · OG paper re-skin: 7 families 1200×630 ≤ 300 kB, tags absolute HTTPS, snapshots, no Manrope, no avatar read, hex allow-list only
+- **Related:** M-009 · TKT-78 AC 1–6; decision D11 · **EVAL:** EVAL-017 (automated), EVAL-020
+- **Component:** `lib/og.tsx`, `assets/fonts/*`, `app/**/opengraph-image.tsx`, `docs/og/m-009/`
+- **Objective:** No og:image carries the superseded identity (evaluation-plan §8.3).
+- **Preconditions:** `pnpm build`.
+- **Steps:** 1. `tests/unit/seo.test.ts`: each family's PNG dimensions and size. 2. `tests/e2e/eval-017.spec.ts`: `og:url`/`og:image` absolute HTTPS, `twitter:card`, `og:image:alt`. 3. `ls assets/fonts` and `grep -rni manrope lib app assets tests`. 4. `grep -n "avatar\|components/clay" lib/og.tsx`. 5. TC-123 step 4 (hex only in `lib/og.tsx`). 6. 7 snapshots in `docs/og/m-009/` visually show the paper canvas (orchestrator eyeball).
+- **Test data:** —
+- **Expected:** 1 → 1200×630, ≤ 300 kB × 7; 2 → green; 3 → 4 TTF + OFL, 0 Manrope refs; 4 → 0; 5 → true; 6 → paper skin.
+- **Type:** integration · **Priority:** P1 · **Automation:** Y — Vitest + Playwright + script / N — manual (step 6; inspectors are TC-177) · **Status:** Planned · **Defect:** —
+- **Notes:** Satori: static TTFs, PNG/JPEG only, hex only — the allow-list reason.
+
+### TC-151 · Home assembly + Phase A gate: order, fills, per-section counts, JS ≤ 180, EVAL-001 elements, no regression, approval
+- **Related:** M-009 · TKT-79 AC 1–5 · **EVAL:** EVAL-001, EVAL-004, EVAL-005, EVAL-018, EVAL-022
+- **Component:** `app/page.tsx`, `docs/screenshots/m-009/{home,pairs}/`, `evals/results/eval-001-m009-home.md`
+- **Objective:** Home complete in paper with evidence for Stage 8 and a recorded checkpoint.
+- **Preconditions:** TKT-75–78 merged.
+- **Steps:** 1. Playwright: DOM order hero → `#work-featured` → `#how-i-think` → `#ask` → `footer`; section backgrounds alternate `paper`/`paper-2` (computed `background-color` round-trips to the token hex); each section's first child is `[data-decor="torn"]` except the hero. 2. EVAL-018 counts: hero 3 · featured 4 · how-I-think 2 · ask 2 · header 1 · band 1 at both widths. 3. `bundle-budget --json` ≤ 180. 4. EVAL-001 structural: the six elements in the first viewport at 390/1440; checklist scored in the md. 5. `pnpm eval --baseline baseline-m009-tracer.json --label eval-run-m009-phase-a-<sha>` → no Critical FAIL/regression. 6. Mockup pair `home-{1440,390}.png` committed. 7. Approval line quoted in `HANDOFF.md` (or `EXE-n`).
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — Playwright + script / N — manual (4 scoring, 7) · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-152 · `/work` filter tabs: keyboard, `aria-selected`, URL sync, deep link, numbering re-sequence, rows are links
+- **Related:** M-009 · TKT-80 AC 1, AC 2 (TSK-40); decision TP7 · **EVAL:** EVAL-007, EVAL-002
+- **Component:** `components/projects/{FilterTabs,WorkIndex,WorkGrid}.tsx`, `lib/filters.ts`
+- **Objective:** The serif tabs keep TC-064's contract and the numbered index re-sequences per filter.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. `role="tablist"`; ArrowRight moves `aria-selected` and focus; `?filter=` updates without reload. 2. Deep link `/work?filter=enterprise` → after hydration only matching rows; numerals restart at 01. 3. All: 11 personal builds numbered 01–11 in data order. 4. Every `ol > li` contains exactly one `a[href^="/work/"]`. 5. Unit: `filters.test.tsx` + `work-grid.test.tsx` green.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** One-frame flash on deep links accepted (TP7).
+
+### TC-153 · `/work` empty state only when a filter yields 0 rows (Dev-05); experience strip `<details name="job">` one-open, hidden under Experiments, no live affordance
+- **Related:** M-009 · TKT-80 AC 3, AC 4 (TSK-40, TSK-41) · **EVAL:** EVAL-007, EVAL-011, EVAL-013
+- **Component:** `components/projects/{EmptyState,ExperienceStrip}.tsx`
+- **Objective:** The empty card is a screen state, not a decoration; corporate work reads as employment.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. Default filter: `[data-paper="index"]` empty-state card absent. 2. An empty filter (Experiments if empty, else a `WORK_FILTERS` fixture) → card present, "Show all →" `data-hand="cta"` resets. 3. Strip: three `details[name="job"]`; opening the second closes the first; keyboard (`Enter`/`Space` on `summary`). 4. Under Experiments the strip is absent. 5. Inside `details`: no `a[href^="http"]` and no arrow affordance; the only link is "See my experience →" → `/about#experience`.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-154 · `/work` scene bleed = one `<img>` with manifest alt and `sizes`, no CLS, unit counts 2/3/1, no overflow at 390
+- **Related:** M-009 · TKT-80 AC 5, AC 6, AC 7 (TSK-39); Dev-06 · **EVAL:** EVAL-008, EVAL-013, EVAL-018, EVAL-021
+- **Component:** `components/projects/WorkHero.tsx`, `components/paper/Illustration.tsx`
+- **Objective:** One download, one announcement, counts per §3.3, mobile intact.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. `section.work-hero img` count = 1; `alt` = `illustration("scene-work").alt`; `sizes` present; `width`/`height` attributes set. 2. Unit counts opener 2 · index 3 · strip 1 at both widths (the "start here" arrow hides < 900 inside the same object — count unchanged). 3. `noOverflow` at `w390`; rows collapse to `40px 1fr`. 4. LCP/CLS from the phase eval run on `/work` (informational).
+- **Test data:** —
+- **Expected:** all as stated; CLS < 0.05.
+- **Type:** responsive · **Priority:** P0 · **Automation:** Y — Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-155 · Case-study 11-slug sweep: builds, no invented content, rich vs thin degradation, media tag contrast
+- **Related:** M-009 · TKT-81 AC 1, AC 2, AC 6; decisions S18 (honest placeholder), PB4 · **EVAL:** EVAL-013, EVAL-006, EVAL-021
+- **Component:** `components/case-study/{CaseStudyHeader,MetricStrip,OverviewToggle}.tsx`, `app/work/[slug]/page.tsx`
+- **Objective:** The template renders every project honestly in paper.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. For each of `ALL_PROJECT_SLUGS` at both widths: 200, no console errors, `noOverflow`. 2. `teachspark`: `section[aria-label="Headline metrics"]` with 3 `[data-paper="index"]` cards + the "smaller, honest number" annotation. 3. A thin slug (`token-toli`): no metric section; "Deep dive coming" kraft tag containing its `statusLabel`; no `OverviewToggle`. 4. Header photo frame shows `scene-casestudy` with the "Hero media coming" tag; the tag's computed text colour round-trips to `navy` on `kraft` (≥ 4.5:1, axe). 5. TC-091-style rule: no string on the page absent from the record (data snapshot per slug).
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** content-integrity · **Priority:** P0 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-156 · Case-study header/overview/next interactions: folder tabs radiogroup, anchors unchanged (TP8), `DemoVideo` states in the frame, next band link, unit counts 2/2/2/2
+- **Related:** M-009 · TKT-81 AC 3, AC 4, AC 5, AC 7 · **EVAL:** EVAL-007, EVAL-014, EVAL-002, EVAL-018
+- **Component:** `components/case-study/{OverviewToggle,NextProject,CaseStudyHeader}.tsx`, `components/projects/DemoVideo.tsx`
+- **Objective:** Behaviour contracts from M-004 survive the re-skin.
+- **Preconditions:** `pnpm start`; `eval-014` fixture project.
+- **Steps:** 1. Folder tabs: `role="radiogroup"`, arrow keys move selection, deep-dive reveals `#deep`. 2. `#deep`, `#01-context` … `#08-what-i-learned` resolve (anchors test unchanged and green). 3. `eval-014.spec.ts` four `DemoVideo` states rendered inside the photo frame; with media present the "Hero media coming" tag is absent. 4. Next band: the whole `section.next` is inside one `a`; kraft focus ring visible on keyboard focus; arrow translates on hover (not under reduced motion). 5. Unit counts header 2 · strip 2 · overview 2 · next 2. 6. EVAL-002 hop `/work` → `/work/[slug]` green.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-157 · **S18 regression** — "What I learned" renders every `learnings[]` string once; section absent for `[]`
+- **Related:** M-009 · TKT-82 AC 1, AC 5; decision S18; technical-plan F1 · **EVAL:** EVAL-003, EVAL-013, EVAL-018
+- **Component:** `components/case-study/Learnings.tsx`, `tests/unit/case-study-learnings.test.tsx`, `tests/e2e/case-study.spec.ts`
+- **Objective:** Data that was defined but never rendered before M-009 is now shown verbatim, and an empty array renders nothing (no invented section).
+- **Preconditions:** TKT-82 done.
+- **Steps:** 1. Unit: fixture with 3 learnings → `getAllByText(s).length === 1` for each; the `<ol>` has 3 items in data order. 2. Fixture with `[]` → no `region` named "What I learned"; no `section.learned`. 3. Playwright `/work/teachspark`: each `teachspark.learnings[i]` present exactly once on the page. 4. Negative control: a fixture learning string typed differently by one character is not found.
+- **Test data:** fixture project records (synthetic).
+- **Expected:** all as stated; unit count learned = 1.
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** Kept permanently.
+
+### TC-158 · Sources section derived, de-duplicated, byte-equal labels, links only for public URLs, crawler-clean, unit count 0
+- **Related:** M-009 · TKT-82 AC 2, AC 3, AC 4 · **EVAL:** EVAL-011, EVAL-013, EVAL-018
+- **Component:** `lib/sources.ts`, `components/case-study/Sources.tsx`, `tests/unit/case-study-sources.test.ts`
+- **Objective:** A page-level provenance index with zero new content.
+- **Preconditions:** TKT-82 done.
+- **Steps:** 1. Unit: `projectSources(fixture)` returns unique ids in first-appearance order; every label equals a `sources[].label`; `href` present only when the SourceRef has a `url`. 2. A fixture where two artifacts cite the same source → one row. 3. Playwright: `section.sources ol li` count equals the unit result for `teachspark`; every `a` resolves (crawler/allow-list). 4. `[data-decor]` inside `section.sources` = 0; the `<ol>` contains no decoration.
+- **Test data:** synthetic project fixtures.
+- **Expected:** all as stated.
+- **Type:** content-integrity · **Priority:** P1 · **Automation:** Y — Vitest + Playwright + crawler · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-159 · Flat zones: every chapter `Prose` is `[data-flat]` with 0 decorations at both widths; hand quotes allowed
+- **Related:** M-009 · TKT-83 AC 1 (TSK-42); Design.md §3.2 rule 4 · **EVAL:** EVAL-018
+- **Component:** `components/case-study/Chapter.tsx`, `components/common/Prose.tsx`
+- **Objective:** Reading zones stay clean — the anti-scrapbook guard where it matters most.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. For every slug at both widths: `section.chapter [data-flat]` count ≥ 1 per chapter with body; `[data-flat] [data-decor]` count. 2. A chapter containing an `insight` artifact: `blockquote[data-hand="quote"]` inside the flat zone is not flagged. 3. `Prose` computed `max-width` ≈ 68ch.
+- **Test data:** —
+- **Expected:** 1 → 0; 2 → allowed; 3 → 68ch.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y — Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-160 · The eight artifact paper forms from fixtures; Inter for hypothesis text, kind badges and status (Dev-04)
+- **Related:** M-009 · TKT-83 AC 2 (TSK-43) · **EVAL:** EVAL-003, EVAL-006, EVAL-013, EVAL-018
+- **Component:** `components/case-study/artifacts/*`, `app/dev/artifacts/page.tsx`, `tests/unit/artifacts.test.tsx`
+- **Objective:** One `Sheet` DNA per artifact type, Caveat only on labels/quotes.
+- **Preconditions:** TSK-43 done.
+- **Steps:** 1. Unit: render each of the 8 types from fixtures; assert `data-paper` present, the §7.3 form (insight → `blockquote[data-hand="quote"]` + cite; hypothesis → labels `data-hand="label"` and body text without `font-hand`; decision → Chosen/Rejected labels; evaluation → `dl` with `dt[data-hand="label"]`; experiment → three steps; prototype → taped frame with image/video/alt caption; generic → kraft tag; metric → index card with kind badge in Inter). 2. Playwright `/dev/artifacts`: EVAL-018 collector → 0 violations; axe 0. 3. `EVAL-003` mapping unchanged (TC-093 table still resolves 8/8).
+- **Test data:** existing `artifacts.test.tsx` fixtures + 1 per type.
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-161 · `ChapterNav` absent < 1024, `aria-current` tracks the visible chapter ≥ 1024, anchors resolve
+- **Related:** M-009 · TKT-83 AC 3 (TSK-42); Dev-09 · **EVAL:** EVAL-007, EVAL-011
+- **Component:** `components/case-study/ChapterNav.tsx`, `components/paper/MediaGate.tsx`
+- **Objective:** Chapter navigation exists only where the mockup has it and stays keyboard-usable there.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. `w390`, `w768`: `nav[aria-label*="Chapters"]` count. 2. `w1024`, `w1440`: present; scroll to chapter 04 → the matching link has `aria-current`; Tab reaches every link; clicking scrolls to the anchor. 3. Anchors `#01-context` … resolve (anchors test).
+- **Test data:** —
+- **Expected:** 1 → 0; 2 → as stated; 3 → green.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-162 · Show the thinking on paper: click-only reveal, keyboard path, reduced motion all-at-once, unit count 2, axe on the rich page
+- **Related:** M-009 · TKT-83 AC 4, AC 5, AC 6 (TSK-44) · **EVAL:** EVAL-007, EVAL-010, EVAL-006, EVAL-018
+- **Component:** `components/interactions/{ShowTheThinking,ThinkingNode}.tsx`
+- **Objective:** TC-083/084/085 behaviour survives the re-skin.
+- **Preconditions:** `/work/teachspark`.
+- **Steps:** 1. On load and after scrolling the section into view: `[aria-expanded]` = false, 8 nodes hidden. 2. Click → `aria-expanded=true`, 8 nodes visible in order (stagger 120 ms observed as increasing `opacity` timestamps). 3. Keyboard: Tab → button → `Enter` → Tab reaches each source link. 4. `reducedMotion:"reduce"`: all 8 visible immediately after click. 5. `section.thinking` unit count = 2 (annotation + chain sketch); deep-dive outer 0; each chapter 0. 6. axe on `/work/teachspark` at both widths.
+- **Test data:** —
+- **Expected:** all as stated; 0 critical/serious.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y — Playwright + axe · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-163 · `/thinking` list: five entries in order, empty-state line by published count, margin annotation gated ≥ 1320, counts 3 / 4|3, underline complete under reduced motion
+- **Related:** M-009 · TKT-84 AC 1, AC 3, AC 6; Dev-02 · **EVAL:** EVAL-011, EVAL-013, EVAL-018, EVAL-010
+- **Component:** `components/thinking/{ThinkingHero,ThinkingList}.tsx`
+- **Objective:** The essays sheet in paper with the honest empty state.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. 5 entries in `data/writing.ts` order, each `h3 a` → `/thinking/<slug>` (crawler). 2. Empty-state line present (0 `publishedOn` in data); unit fixture with one `publishedOn` → absent. 3. `w1440`: margin annotation present + `aria-hidden`; `w390`: absent from the DOM. 4. Unit counts opener 3 · essays 4 (1440) / 3 (390). 5. `reducedMotion`: the h2 underline `strokeDashoffset` = 0.
+- **Test data:** writing fixture.
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-164 · **S18 regression** — "Draft — pending sign-off:" appears exactly once per essay page and the `DraftTag` once in the meta row
+- **Related:** M-009 · TKT-84 AC 2; decision S18; technical-plan F1-1 · **EVAL:** EVAL-013
+- **Component:** `components/thinking/EssayBody.tsx`, `tests/unit/writing.test.ts`, `tests/e2e/thinking-page.spec.ts`
+- **Objective:** The component no longer prefixes the string the data already carries; the previous substring tests could not catch the duplicate, so this one counts.
+- **Preconditions:** TKT-84 done.
+- **Steps:** 1. Unit: for every essay render `EssayBody`; `textContent.split("Draft — pending sign-off:").length - 1`. 2. Playwright: for all 5 slugs, `main` inner text split count; `[data-paper="tag"]` `DraftTag` count in the meta row. 3. Negative control: re-add the span in a test double → count 2 → test fails. 4. `.prose[data-flat] [data-decor]` = 0; pull quotes ≤ 240 chars with cites; pager links resolve.
+- **Test data:** `data/writing.ts` (the prefix is in the data, never typed into the test — the test reads `essay.framing`).
+- **Expected:** 1–2 → exactly 1 and 1; 3 → fails; 4 → as stated.
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** Kept permanently; replaces the `toContainText` assertion at `thinking-page.spec.ts:113`.
+
+### TC-165 · Phase B gate sweep: `/work` + 11 slugs + `/thinking` + 5 essays × 4 widths; EVAL-018 green on every Phase 0–B route; pairs; approval
+- **Related:** M-009 · TKT-85 AC 1–5 · **EVAL:** EVAL-006, EVAL-008, EVAL-018, EVAL-022
+- **Component:** `tests/e2e/sweep.spec.ts`, `docs/screenshots/m-009/{phase-b,pairs}/`, `tests/e2e/eval-018-parked.json`
+- **Objective:** Evidence that Phase B is complete before Phase C starts.
+- **Preconditions:** TKT-80/82/83/84 merged.
+- **Steps:** 1. Sweep: `noOverflow`, `minTargets`, axe (390/1440) on the 18 routes × 4 widths; screenshots saved. 2. `pnpm eval --baseline baseline-m009-tracer.json --label eval-run-m009-phase-b-<sha>`; parked list names only `/about`, `/playground`, `/contact`, 404. 3. EVAL-005 on `/work/teachspark` recorded. 4. Pairs `work`, `case-study-teachspark`, `case-study-token-toli`, `thinking`, `essay` at 1440/390. 5. Approval quoted in `HANDOFF.md`.
+- **Test data:** —
+- **Expected:** 0 overflow/sub-44/axe; no Critical regression; pairs committed; approval recorded.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — Playwright + script / N — manual (5) · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-166 · `/about` part 1: data snapshots, DRAFT subline out of the a11y tree (Dev-10), counts 2/3(1)/1/2, impact-card anatomy, one scene `<img>`, mobile stacking
+- **Related:** M-009 · TKT-86 AC 1–6; decision DC2 · **EVAL:** EVAL-006, EVAL-008, EVAL-013, EVAL-018, EVAL-021
+- **Component:** `components/about/{AboutHero,CapabilityClusters,Impact}.tsx`, `components/timeline/ProductJourney.tsx`
+- **Objective:** The person and the proof of level in paper, every number still dated and labelled.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. Unit snapshots: hero copy, journey cards, clusters, impact tier 1/2 equal `data/{experience,skills,impact}.ts`. 2. Playwright: the subline "Same curiosity → bigger problems." is `aria-hidden` (not in `page.accessibility` snapshot); the `h1` carries the narrative. 3. Unit counts hero 2 · journey 3 (1 at 390) · capabilities 1 · impact 2. 4. Every tier-1 card: value, label, context, kind badge (Inter), `asOf`, `Source` link. 5. `section.ahero img` count = 1 with the manifest alt; `w390`: copy above a 4:3 masked photo; stats 2-up ≤ 640; no overflow.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-167 · **S18 regression** — experience timeline lead reads "oldest to newest" and the rendered order equals the data order; four cards open on load; anchors preserved
+- **Related:** M-009 · TKT-87 AC 1, AC 2; decision S18; technical-plan F1-2; Dev-11 · **EVAL:** EVAL-007, EVAL-013
+- **Component:** `components/timeline/{ExperienceTimeline,StoryCard,timeline-logic}.ts(x)`, `tests/unit/experience-skills.test.ts`, `tests/e2e/timeline.spec.ts`
+- **Objective:** The lead no longer contradicts the order on the page ("newest to oldest" vs oldest-first data), and the always-open cards keep their deep links.
+- **Preconditions:** TKT-87 done.
+- **Steps:** 1. Unit: the rendered lead equals `"Four roles, oldest to newest — open any node for the context, scale, and what changed."` exactly. 2. Unit: the sequence of company `h3`s equals `experience.map(e => e.company)` and the first role's `dates.start` is the earliest. 3. Unit: every `StoryCard` is visible (no `hidden`/collapsed state) on render. 4. Playwright: `/about#experience-<id>` for each role scrolls the matching card into view; Tab reaches each Source link. 5. `grep -rn "toggleOpen\|roleIdFromHash\|nextNodeIndex" components tests` → 0 (logic deleted). 6. Negative control: reverse the fixture order → step 2 fails.
+- **Test data:** `data/experience.ts` (order read from data, never hard-coded).
+- **Expected:** all as stated.
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — Vitest + Playwright · **Status:** Planned · **Defect:** —
+- **Notes:** Kept permanently.
+
+### TC-168 · `/about` part 2: story `dl` flat with 0 decorations, counts 1/2/1, résumé placeholder path, patent/DOI links, axe
+- **Related:** M-009 · TKT-87 AC 3–6 · **EVAL:** EVAL-002, EVAL-011, EVAL-018, EVAL-006
+- **Component:** `components/timeline/StoryCard.tsx`, `components/about/{Awards,Research,Education,AboutCta}.tsx`, `app/about/page.tsx`
+- **Objective:** Close the About page in paper with its reading zones and funnel endpoints intact.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. Every `[data-paper="card"] dl` is `[data-flat]` with 0 `[data-decor]` descendants at both widths. 2. Unit counts experience 1 · proof 2 · CTA 1. 3. `#about-cta` résumé control = `resumeAction()` (placeholder → `/contact#resume`, EVAL-002 path from `/about`). 4. Patent link + DOI pill resolve (crawler); "DOI pending" element is Inter (`font-hand` absent). 5. axe 0 critical/serious at both widths; page order hero → journey → capabilities → impact → experience → proof → CTA → band.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Playwright + crawler · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-169 · Playground bench: four experiments from data, new-tab links with `rel="noopener"` + sr-only note, no tone/status line, board layout, counts 3/3
+- **Related:** M-009 · TKT-88 AC 1, AC 4 (TSK-45); Dev-07 · **EVAL:** EVAL-011, EVAL-008, EVAL-018
+- **Component:** `components/playground/{PlaygroundHero,PlaygroundGrid}.tsx`
+- **Objective:** The playful corner in paper without retired clay tones or Caveat body text.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. 4 cards, titles/taglines from `data/projects.ts` playground entries. 2. Each live link: `target="_blank"`, `rel` contains `noopener`, an sr-only "(opens in new tab)"; crawler treats external 200s as resolved. 3. `grep -rn "tone:" components/playground` → 0; no `p/h3` in Caveat (EVAL-018 rule). 4. Unit counts opener 3 · bench 3. 5. Layout 6-col ≤ 1024, 1-col ≤ 640; no overflow at 390.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Playwright + crawler + script · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-170 · Contact: `CopyButton` idle/copied/error with selectable fallback, mailto/LinkedIn/résumé, PII grep, postcard labels valid, counts 3/3, portrait ≤ 420 px < 900
+- **Related:** M-009 · TKT-88 AC 2, AC 4, AC 5 (TSK-46); decisions S10, EXE-8 · **EVAL:** EVAL-002, EVAL-007, EVAL-013, EVAL-016, EVAL-018
+- **Component:** `components/contact/{ContactCard,ContactDetails}.tsx`, `components/common/CopyButton.tsx`
+- **Objective:** The conversion endpoint keeps TC-102's states and PII rules in paper form.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. Clipboard stub resolves → "Copied" for 2 s (forest border) then idle; live region announces. 2. Stub rejects → "Copy failed" (rust border) + `output` with the selectable address. 3. `a[href^="mailto:"]`, LinkedIn external, `#resume` row = `resumeAction()`; the location line "Bengaluru, India" present (already public on this route). 4. `forbidden-strings` over the route markup: 0 phone/DOB/address. 5. Postcard: every `[data-hand="label"]` ≤ 3 words; values Inter. 6. Unit counts opener 3 · details 3; `w768`: portrait `boundingBox().width` ≤ 420; no overflow at 390.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P1 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-171 · 404 in the paper system: renders for an unknown route with three CTAs, the tools sketch (count 1) and the band; axe clean
+- **Related:** M-009 · TKT-88 AC 3 (TSK-47); Design.md §4.3 · **EVAL:** EVAL-011, EVAL-006, EVAL-018
+- **Component:** `app/not-found.tsx`
+- **Objective:** A graceful, on-system dead end with no new illustration spend.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. `/definitely-missing` → HTTP 404; `h1` "This page wandered off."; links `/`, `/work`, `/contact`. 2. Unit count of the section = 1 (`sketch`); exactly one `footer`. 3. axe at both widths. 4. No `img` (no illustration), no overflow at 390.
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** functional · **Priority:** P2 · **Automation:** Y — Playwright + axe · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-172 · Dead-code removal proof: clay/aurora/avatar/Manrope gone from the tree and the build; gates green; deleted-test ledger; diff shape
+- **Related:** M-009 · TKT-89 AC 1–6; decision S11 · **EVAL:** EVAL-005, EVAL-016, EVAL-020
+- **Component:** whole tree, `docs/reports/TKT-89.md`
+- **Objective:** EVAL-020's "0 retired names" and EVAL-005 hold on real code.
+- **Preconditions:** TKT-78/87/88 merged.
+- **Steps:** 1. `grep -rniE "clay|aurora|avatar|manrope" app components lib hooks public content scripts package.json` → list; each hit must be the `lib/og.tsx` allow-list comment or a documented history mention. 2. `pnpm build`; `ls .next/static/media | grep -ci avatar`. 3. `pnpm typecheck && pnpm lint && pnpm tokens:check && pnpm test && pnpm build`; `pnpm eval --only EVAL-016,EVAL-020 --skip-build`. 4. `bundle-budget --json` ≤ 180. 5. `git diff --stat` for the ticket = deletions + `package.json` + `globals.css` + the three doc files. 6. The report's ledger maps every deleted test file to a replacement or "behaviour removed".
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** regression · **Priority:** P0 · **Automation:** Y — script / N — manual (5–6 review) · **Status:** Planned · **Defect:** —
+- **Notes:** Delete-only commit so `git revert` restores the clay tree if a consumer was missed.
+
+### TC-173 · Redesign responsive + a11y sweep: every route × 4 widths — overflow, ≥ 44 px targets, ≥ 12 px text, intrinsic image sizes, axe
+- **Related:** M-009 · TKT-90 AC 1, AC 2 · **EVAL:** EVAL-006, EVAL-008
+- **Component:** `tests/e2e/sweep.spec.ts`, `docs/screenshots/m-009/<route>/<width>.png`
+- **Objective:** The whole paper site holds at 390/768/1024/1440 with no micro-text or sub-44 control.
+- **Preconditions:** TKT-89 merged; `pnpm start`.
+- **Steps:** 1. Routes = sitemap + 11 slugs + 5 essays + `/definitely-missing`; per width: `noOverflow`, `minTargets` (allow-list reviewed), every visible text node's computed `font-size` ≥ 12 px unless inside `[aria-hidden="true"]` (11 px allowed there), every `img` has `width`/`height`. 2. axe at 390 and 1440 on every route. 3. Screenshots saved.
+- **Test data:** —
+- **Expected:** 0 findings or `QA-###` rows; 0 critical/serious.
+- **Type:** responsive · **Priority:** P0 · **Automation:** Y — Playwright + axe · **Status:** Planned · **Defect:** —
+- **Notes:** Supersedes TC-104/105 for M-009 routes.
+
+### TC-174 · Keyboard flows, reduced-motion collapse of every §8 row, and the used-pair contrast table
+- **Related:** M-009 · TKT-90 AC 3 · **EVAL:** EVAL-007, EVAL-010, EVAL-006
+- **Component:** `tests/e2e/{eval-007,eval-010}.spec.ts`, `tests/unit/contrast-pairs.test.ts`
+- **Objective:** Every interaction is reachable with a visible 2 px rust ring, every motion row collapses, every colour pair in use passes.
+- **Preconditions:** `pnpm start`.
+- **Steps:** 1. Flows: nav + mobile sheet · filter tabs · `details` strip · folder tabs · Ask inline + panel · Show the thinking · `CopyButton` · band links — each completable by keyboard with `outline` = 2 px rust / 3 px offset on the focused element (kraft on the navy next band). 2. `reducedMotion:"reduce"`: hero poster only; draw-ins complete; reveals opacity-only; card hovers shadow-only; Ask expand instant; thinking nodes all-at-once; strip chevron instant. 3. Unit: every pair enumerated from Design.md §2.1 computed with culori ≥ 4.5 (text) / ≥ 3 (large) / ≥ 4 (band h2 line 2).
+- **Test data:** pair table.
+- **Expected:** 100 % flows; all rows collapse; all pairs pass.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y — Playwright + Vitest · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-175 · Paper gates in one run (EVAL-018 0/0/0/0 with an empty parked list · EVAL-019 4/4 · EVAL-020 · EVAL-021) + manual eval-021 checklist drafted + Stage-8 packs
+- **Related:** M-009 · TKT-90 AC 4–7 · **EVAL:** EVAL-018, EVAL-019, EVAL-020, EVAL-021, EVAL-022
+- **Component:** `scripts/eval.ts`, `evals/results/eval-run-m009-phase-d-<sha>.json`, `evals/results/eval-021-<sha>.md`, `docs/screenshots/m-009/pairs/*`, `docs/a11y-pass.md`
+- **Objective:** All four automated paper gates green together on the final tree, with the manual evidence Stage 8 needs prepared.
+- **Preconditions:** TC-173/174 done.
+- **Steps:** 1. Assert `tests/e2e/eval-018-parked.json` is `[]`. 2. `pnpm eval --baseline baseline-m009-tracer.json --label eval-run-m009-phase-d-<sha>`; read the four statuses and details. 3. Draft `eval-021-<sha>.md`: one row per manifest asset with the four checks (metric / logo / product UI / claim) marked for Stage 8 confirmation. 4. Pairs for all 9 route families at 1440/390 committed. 5. VoiceOver notes appended for `/`, `/work/teachspark`, `/about`.
+- **Test data:** —
+- **Expected:** 1 → `[]`; 2 → EVAL-018 PASS with 0/0/0/0, EVAL-019 PASS 4/4, EVAL-020 PASS 13/13·0·0, EVAL-021 PASS 100 %; 3–5 → files exist.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — script / N — manual (3, 5) · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-176 · Preview record run `eval-run-m009-rc-<sha>.json` with provenance; Critical PASS; EVAL-005 number + LCP element; diff review; PWA sync; HANDOFF
+- **Related:** M-009 · TKT-91 AC 1, AC 2, AC 5, AC 6, AC 7 · **EVAL:** all 22 (record run)
+- **Component:** Vercel preview, `evals/results/eval-run-m009-rc-<sha>.json`, Campfire, `HANDOFF.md`
+- **Objective:** Stages 8–10 start from evidence produced on a real deployment.
+- **Preconditions:** TC-175 green; final Phase-D commit pushed; preview 200.
+- **Steps:** 1. `pnpm eval --base-url <preview> --label eval-run-m009-rc-<sha>`; assert provenance (commit, branch, `baseUrl` = preview, dataset sha), every Critical `PASS`, no High `FAIL` without a `QA-###` park. 2. `bundle-budget --json` on the same commit ≤ 180; preview Lighthouse `largest-contentful-paint-element` = hero poster — both written into the results `details`. 3. `git diff main..HEAD --stat` reviewed: only intended files. 4. Campfire: every M-009 task status/`sp:`/deps match `tickets.md` (`backlog task list -m m-8 --plain`). 5. `HANDOFF.md` names the Stage-8 inputs (packs, `QA-###`, `eval-021-<sha>.md`, parked hits = none).
+- **Test data:** —
+- **Expected:** all as stated.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y — script (1, 2, 4) / N — manual (3, 5) · **Status:** Planned · **Defect:** —
+- **Notes:** —
+
+### TC-177 · OG inspector pass on the M-009 preview (7 families × LinkedIn Post Inspector + opengraph.xyz) and `Design.md` §11 reconciled
+- **Related:** M-009 · TKT-91 AC 3, AC 4 · **EVAL:** EVAL-017 (manual), EVAL-022
+- **Component:** `docs/og/m-009/inspectors/`, `Design.md` §11
+- **Objective:** Real link previews show the paper identity; every deviation the packs revealed has a row with a disposition.
+- **Preconditions:** preview live; TC-150 green.
+- **Steps:** 1. For each family URL: LinkedIn Post Inspector → screenshot; opengraph.xyz → screenshot (14 files). 2. WhatsApp re-scrape note (`?v=N`) recorded. 3. Walk the pairs pack; for each visible difference from the mockup confirm a `Design.md` §11 row exists with reason + disposition (pending rows list Tushar's open calls).
+- **Test data:** —
+- **Expected:** 7/7 families render the paper skin on both inspectors; 0 unrecorded deviations.
+- **Type:** visual-review · **Priority:** P1 · **Automation:** N — manual (screenshots are the evidence) · **Status:** Planned · **Defect:** —
+- **Notes:** Inspector logins may need Tushar (TKT-91 blocker).
+
+---
+
 ## Appendix A · Coverage matrix — ticket → test cases
 
 Every live ticket's acceptance criteria are covered by at least one case; task-level coverage is listed where a task has its own criteria. "Shared AC" for content tickets = TKT-28…33/54 common contract (a)–(f).
@@ -1440,6 +2062,30 @@ Every live ticket's acceptance criteria are covered by at least one case; task-l
 | TKT-52 | TC-119 (AC1–4) | |
 | TKT-53 | TC-120 (AC1–7), TC-117 (AC2), TC-118 (AC3), TC-113 (Lighthouse on prod) | |
 | TKT-34…38 | — | retired into TKT-54 (PB2); no cases by design |
+| **M-009 (2026-09-24)** | | native ids `TASK-64…86`; S18 regression cases in bold |
+| TKT-69 | TC-122 (AC1), TC-123 (AC2, AC5), TC-124 (AC3, AC4), TC-125 (AC5, AC6) | TSK-30 → TC-122/123/125 · TSK-31 → TC-124 · TSK-32 → TC-123 |
+| TKT-70 | TC-126 (AC1, AC2), TC-127 (AC3, AC6), TC-128 (AC5), TC-129 (AC4, DoD) | TSK-33/34 → TC-126/128 · TSK-35 → TC-127/129 |
+| TKT-71 | TC-130 (AC1), TC-131 (AC3, AC4, AC5), TC-132 (AC2, AC8), TC-133 (AC6, AC7) | |
+| TKT-72 | TC-134 (AC1, AC4), **TC-135** (AC5 — S18 tagline), TC-136 (AC2, AC3, AC6, AC7), TC-137 (AC8) | |
+| TKT-73 | TC-138 (AC1), TC-139 (AC2 SSR, AC5), TC-140 (AC2 modes), TC-141 (AC3), TC-142 (AC4), TC-143 (AC6), TC-129 (AC7 wiring) | TSK-36 → TC-138/142 · TSK-37 → TC-139/140/141 · TSK-38 → TC-143 |
+| TKT-74 | TC-144 (AC1, AC4), TC-145 (AC2, AC3, AC5), TC-146 (AC6, AC7) | manual gate |
+| TKT-75 | TC-147 (AC1–6) | |
+| TKT-76 | TC-148 (AC1–5) | |
+| TKT-77 | TC-149 (AC1–7) | variant if the panel is dropped |
+| TKT-78 | TC-150 (AC1–6), TC-123 (allow-list) | inspectors → TC-177 |
+| TKT-79 | TC-151 (AC1–5), TC-128 (Reveal) | |
+| TKT-80 | TC-152 (AC1, AC2), TC-153 (AC3, AC4), TC-154 (AC5, AC6, AC7) | TSK-39 → TC-154 · TSK-40 → TC-152/153 · TSK-41 → TC-153 |
+| TKT-81 | TC-155 (AC1, AC2, AC6), TC-156 (AC3, AC4, AC5, AC7) | |
+| TKT-82 | **TC-157** (AC1, AC5 — S18 learnings), TC-158 (AC2, AC3, AC4) | |
+| TKT-83 | TC-159 (AC1), TC-160 (AC2, AC7), TC-161 (AC3), TC-162 (AC4, AC5, AC6) | TSK-42 → TC-159/161 · TSK-43 → TC-160 · TSK-44 → TC-162 |
+| TKT-84 | TC-163 (AC1, AC3, AC4, AC5, AC6), **TC-164** (AC2 — S18 double prefix) | |
+| TKT-85 | TC-165 (AC1–5) | manual approval |
+| TKT-86 | TC-166 (AC1–6) | |
+| TKT-87 | **TC-167** (AC1, AC2 — S18 timeline lead), TC-168 (AC3–6) | |
+| TKT-88 | TC-169 (AC1, AC4), TC-170 (AC2, AC4, AC5), TC-171 (AC3) | TSK-45 → TC-169 · TSK-46 → TC-170 · TSK-47 → TC-171 |
+| TKT-89 | TC-172 (AC1–6) | |
+| TKT-90 | TC-173 (AC1, AC2), TC-174 (AC3), TC-175 (AC4–7) | |
+| TKT-91 | TC-176 (AC1, AC2, AC5, AC6, AC7), TC-177 (AC3, AC4) | |
 
 ## Appendix B · EVAL → test cases
 
@@ -1461,7 +2107,13 @@ Every live ticket's acceptance criteria are covered by at least one case; task-l
 | EVAL-014 | **TC-071**, TC-072, TC-073, TC-086, TC-089, TC-111, TC-116 | automated |
 | EVAL-015 | TC-015, TC-055, TC-067, TC-068, TC-074, TC-103, TC-107, **TC-110** | automated + manual browser smoke |
 | EVAL-016 | TC-022, TC-026, TC-040, TC-080, TC-088, TC-111, **TC-114**, **TC-115**, TC-120 | automated + manual frame review |
-| EVAL-017 | **TC-030**, TC-031, TC-032, TC-033, TC-079, TC-099, TC-100, **TC-118**, TC-120 | automated tags + manual inspectors |
+| EVAL-017 | **TC-030**, TC-031, TC-032, TC-033, TC-079, TC-099, TC-100, **TC-118**, TC-120; M-009: TC-150, **TC-177** | automated tags + manual inspectors |
+| EVAL-018 | TC-126, **TC-127** (positive control), TC-129, TC-131, TC-134, TC-135, TC-139, TC-147, TC-148, TC-149, TC-151, TC-154, TC-156, TC-157, TC-158, **TC-159**, TC-160, TC-162, TC-163, TC-166, TC-168, TC-169, TC-170, TC-171, **TC-175** | automated (Playwright selector contract) |
+| EVAL-019 | TC-139, **TC-140**, **TC-141**, TC-142, TC-144, TC-175 | automated (Playwright modes + file caps) |
+| EVAL-020 | **TC-122**, **TC-123**, TC-144, TC-150, TC-172, TC-175 | automated (Vitest) |
+| EVAL-021 | **TC-138**, TC-142, TC-154, TC-166, TC-175 (manual checklist drafted) | automated + manual per-asset checklist (Stage 8) |
+| EVAL-022 | TC-146 (hero sub-gate), TC-151, TC-165, TC-175 (pairs), TC-176, **TC-177** | manual (Stage 8 critique against the mockups) |
+| M-009 additions to existing rows | 001 → TC-139, TC-146, TC-151 · 002 → TC-147, TC-152, TC-156, TC-168, TC-170 · 003 → TC-148, TC-157, TC-160 · 004/005 → TC-124, TC-125, TC-143, TC-144, **TC-145**, TC-151, TC-172, TC-176 · 006 → TC-132, TC-136, TC-155, TC-162, TC-168, TC-171, TC-173, TC-174 · 007 → TC-131, TC-132, TC-148, TC-149, TC-152, TC-153, TC-156, TC-161, TC-162, TC-167, TC-174 · 008 → TC-130, TC-134, TC-136, TC-154, TC-169, TC-173 · 010 → TC-128, TC-130, TC-133, TC-140, TC-162, TC-163, TC-174 · 011 → TC-131, TC-134, TC-148, TC-153, TC-158, TC-163, TC-168, TC-169 · 012 → TC-149 · 013 → TC-135, TC-137, TC-138, TC-139, TC-155, TC-157, TC-164, TC-167 · 014 → TC-156 · 015 → TC-147 · 016 → TC-124, TC-137, TC-170, TC-172 | |
 
 ## Appendix C · Manual-only cases and why
 
@@ -1487,6 +2139,14 @@ Every live ticket's acceptance criteria are covered by at least one case; task-l
 | TC-119 (diff review, HANDOFF) | Judging "only intended files" and hand-off completeness is a human review; the gate assertions on the results JSON are scripted. |
 | TC-120 (steps 6–10) | Analytics traffic, rollback drill, provenance write-up, monitoring decision, and the "cinematic site untouched" confirmation are operational checks. |
 | TC-121 | Premium rubric (EVAL-009) is the Stage-8 `impeccable` critique by design (evaluation-plan §5). |
+| TC-141 (step 4) | Last-frame hold is compared visually against `hero-end.webp`; a pixel diff would flake on codec differences, so the `paused`/`ended`/monotonic assertions are automated and the frame is eyeballed. |
+| TC-145 (push, dashboard) | The first branch push is externally visible (public repo) and needs Tushar's OK; Lighthouse numbers are read from the LHCI JSON but the Vercel build/dashboard state is confirmed by a human. |
+| TC-146 | Human-in-the-loop hero gate: written approval on the preview is the deliverable (Solution-PRD §12.6.7). |
+| TC-150 (step 6), TC-177 | OG snapshots and inspector renders are judged by eye; LinkedIn Post Inspector and opengraph.xyz have no stable API. |
+| TC-151 (scoring, approval), TC-165 (approval) | EVAL-001 5-second scoring and phase approvals are comprehension/judgement calls; the structural preconditions are automated. |
+| TC-172 (diff review, ledger) | "Only intended files" and the deleted-test ledger are review judgements. |
+| TC-175 (eval-021 checklist, VoiceOver) | Whether an illustration depicts a metric/logo/UI/claim and how VoiceOver reads a page are human checks; the manifest/provenance rules are automated (TC-138). |
+| TC-176 (diff review, HANDOFF) | Hand-off completeness is a human review; the results-JSON gate assertions are scripted. |
 
 ## Appendix D · Product-leader question traceability (EVAL-003 — verified TC-093 / TKT-39)
 
@@ -1507,4 +2167,6 @@ Anchors follow the TKT-19 scheme (`#01-context` … `#08-what-i-learned`, `lib/a
 
 ---
 
-*Totals (counted from the case fields): 121 cases · P0 60 · P1 49 · P2 12 · P3 0. By primary type: functional 38 · validation 16 · accessibility 15 · content-integrity 11 · responsive 10 · visual-review 7 · security-functional 5 · performance 5 · deployment-smoke 3 · regression 3 · negative 3 · error-handling 2 · edge/boundary 2 · e2e 1. Automation: 110 cases have an automated component (Playwright 73 · Vitest 38 · script 19 · axe 17 · LHCI 5; many cases use more than one tool), of which 9 also carry a manual step; 11 are manual-only (Appendix C lists all 20 with a manual component). Authored before implementation; statuses are `Planned` until Stage 7 QA gates and Stage 9B fill them from real runs.*
+*M-009 addendum (2026-09-24): TC-122…TC-177 = 56 cases · P0 40 · P1 13 · P2 3 · P3 0; four permanent S18 regression cases (TC-135, TC-157, TC-164, TC-167); five gate-type positive controls (TC-122, TC-123, TC-127, TC-129, TC-138); 47 automated or partly automated, 9 with a manual component, 2 manual-only (TC-146, TC-177). Grand total TC-001…TC-177 = 177 cases.*
+
+*v1 totals (counted from the case fields): 121 cases · P0 60 · P1 49 · P2 12 · P3 0. By primary type: functional 38 · validation 16 · accessibility 15 · content-integrity 11 · responsive 10 · visual-review 7 · security-functional 5 · performance 5 · deployment-smoke 3 · regression 3 · negative 3 · error-handling 2 · edge/boundary 2 · e2e 1. Automation: 110 cases have an automated component (Playwright 73 · Vitest 38 · script 19 · axe 17 · LHCI 5; many cases use more than one tool), of which 9 also carry a manual step; 11 are manual-only (Appendix C lists all 20 with a manual component). Authored before implementation; statuses are `Planned` until Stage 7 QA gates and Stage 9B fill them from real runs.*
