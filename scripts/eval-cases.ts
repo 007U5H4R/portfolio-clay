@@ -48,7 +48,7 @@ const AUTOMATED_RUNNERS = [
  * primitives' `[data-decor]` contract and the hero video; remove each entry when its spec lands.
  */
 const DEFERRED_SPECS: Record<string, string> = {
-  "EVAL-018": "M-009 Stage 7 — decoration-budget spec needs the paper primitives' [data-decor]/[data-flat] contract",
+  // EVAL-018 left this list at TSK-35 (tests/e2e/eval-018.spec.ts, tag @EVAL-018).
   "EVAL-019": "M-009 Stage 7 — hero once-and-hold spec needs the illustrated hero + video",
 };
 

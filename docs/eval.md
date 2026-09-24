@@ -74,7 +74,7 @@ Every field is generated from real execution output — nothing is hand-entered.
 | Layer | Command | Cases |
 |-------|---------|-------|
 | Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`) |
-| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017 |
+| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`) |
 | Lighthouse CI | `lhci autorun` mobile + desktop, median of 3 | EVAL-004 (category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget) |
 | Content gate | `validate-content` + `forbidden-strings` + fixture proof | EVAL-013 |
 | Security | `forbidden-strings --bundle` + `pnpm audit` + TP9 headers (`--base-url`) | EVAL-016 |
@@ -107,6 +107,51 @@ Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-020` status is this fil
 ```bash
 pnpm test -- eval-020                          # the unit file on its own
 pnpm eval --only EVAL-020 --skip-build         # through the harness → evals/results/<label>.json
+```
+
+## EVAL-018 — decoration budget (M-009, S15/EV5/D6/TP12)
+
+`tests/e2e/eval-018.spec.ts` (tag `@EVAL-018`; TC-127, TC-129) with the in-page collector in
+`tests/e2e/eval-018-lib.ts`. It implements `Design.md` §3.2 verbatim on every route — `routes.json`
+static + every `/work/<slug>` (`lib/anchors.ts` `ALL_PROJECT_SLUGS`) + every `/thinking/<slug>`
+(`data/writing.ts`) + `/definitely-missing` (the 404 page) + `/dev/primitives` — at **w390 and w1440**
+only (w768/w1024 skip with the reason). `scripts/eval.ts` maps it through the generic Playwright
+branch and appends the real per-unit summary from the spec's `eval-018` annotations to `details`.
+
+| Rule | What the collector measures | Threshold |
+|------|-----------------------------|-----------|
+| `budget` | Counting units = the page `<header>`, every `<section>`, the page `<footer>`. Every `[data-decor]` belongs to its **nearest ancestor** unit (`el.closest("section, header, footer")` — a nested chapter owns its own; D6). `data-fastener` / `data-paper` never count. | ≤ 4 per unit |
+| `caveat` | Every `p, h1–h6, li, td, th, dt, dd` whose computed `font-family` matches `/Caveat/i` must sit inside `[data-decor]` or `[aria-hidden="true"]`, **or** under a `data-hand` ∈ `{quote, cta, label}` within its §3.4 limit (quote ≤ 240 chars **and** a `cite` / `Source:` sibling; cta ≤ 6 words; label ≤ 3 words, digits only as a 2-digit numeral). | 0 |
+| `flat` | `[data-flat] [data-decor]` is empty (`data-hand="quote"` inside a flat zone is content, allowed). | 0 |
+| `hidden` | `[data-decor="sticky" \| "annotation" \| "note"]` and any `[data-decor="sketch"]` with text carry `aria-hidden="true"`. | 0 |
+
+Each route test pushes a per-unit table (`unit`, `count`, `decor[]`, `caveatViolations`,
+`flatViolations`, `hiddenViolations`) plus the violations into `test.info().annotations` (type
+`eval-018`), so `.eval/playwright.json` is the evidence and the assertion message prints the table.
+
+**Parked hits (decision TP12).** `tests/e2e/eval-018-parked.json` = `[{ route, unit, rule, reason,
+ticket }]` (unit labels as the collector prints them: `section#id`, `section[aria-labelledby="…"]`,
+`section:nth(n)`, `header`, `footer`). A hit whose route + unit + rule match an entry is reported
+`PARKED` (annotation; the test passes); an unmatched hit fails; an entry that matches nothing on its
+route fails too (stale-park guard, so a park cannot outlive its fix). `/` and `/dev/primitives` never
+carry entries; a `@EVAL-018` test also rejects unknown routes/rules and entries without a reason and a
+`TKT-` ticket. Thresholds are never lowered — parking is scoped to sections the design has not
+reached. The file must be `[]` by TKT-90 (TC-175).
+
+**Controls.** The untagged test `violating fixture fails all four rules` runs the collector on
+`/dev/primitives?violate=1` (a raw-markup section, `app/dev/primitives/ViolateFixture.tsx`) and
+asserts each rule reports ≥ 1 hit — it never counts as a case failure. Removing the `@EVAL-018` tag
+makes `pnpm exec tsx scripts/eval-cases.ts --check-specs` fail naming EVAL-018 (negative control).
+`/dev/primitives` 404s on a plain build (its tests **skip**); build with `ALLOW_DEV_ROUTES=1` to run
+the board, the fixture and `tests/e2e/paper-drawin.spec.ts` (TC-128 draw-in checks).
+
+```bash
+# one route, both measured widths (the server must already be up, or Playwright starts `pnpm start`)
+pnpm test:e2e --project=w390 --project=w1440 tests/e2e/eval-018.spec.ts --grep "@EVAL-018 /about "
+# the whole case through the harness
+pnpm eval --only EVAL-018 --skip-build
+# board + fixture + draw-ins (dev route)
+ALLOW_DEV_ROUTES=1 pnpm build && pnpm test:e2e --project=w390 --project=w1440 tests/e2e/eval-018.spec.ts tests/e2e/paper-drawin.spec.ts
 ```
 
 ## Local performance is informational (EVAL-004 / EVAL-005)
