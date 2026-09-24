@@ -49,10 +49,10 @@ function OutcomeBadge({ kind }: { kind: Kind }) {
 function DefEntry({ term, wide, children }: { term: string; wide?: boolean; children: ReactNode }) {
   return (
     <div className={["flex flex-col gap-[var(--space-1)]", wide ? "md:col-span-2" : ""].filter(Boolean).join(" ")}>
-      <dt className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2">
+      <dt className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2">
         {term}
       </dt>
-      <dd className="text-[length:var(--text-body)] text-ink">{children}</dd>
+      <dd className="text-[length:var(--text-body)] text-navy">{children}</dd>
     </div>
   );
 }
@@ -97,14 +97,14 @@ export function StoryCard({ role, isOpen, onClose }: StoryCardProps) {
             className="mt-[var(--space-4)] scroll-mt-[var(--space-10)] focus:outline-none lg:mt-[var(--space-6)]"
           >
             <div className="flex items-start justify-between gap-[var(--space-4)]">
-              <h3 id={headingId} className="text-[length:var(--text-h3)] font-extrabold text-ink">
+              <h3 id={headingId} className="text-[length:var(--text-h3)] font-extrabold text-navy">
                 {title} — {role.title}
               </h3>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label={`Close ${role.company} details`}
-                className="inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] text-ink transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] text-navy transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
               >
                 <Icon icon={X} size={24} />
               </button>

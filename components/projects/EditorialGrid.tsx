@@ -68,7 +68,7 @@ const EXIT_SEC = 0.15; // Design.md §4 fade-out 150ms
  */
 const rowClass =
   "group relative isolate flex min-w-0 flex-1 flex-col gap-[var(--space-4)] p-[var(--card-padding)] " +
-  "rounded-[var(--radius-clay)] bg-surface bg-[image:var(--gradient-clay-volume)] shadow-[var(--shadow-clay-rest)] text-ink focus-ring " +
+  "rounded-[var(--radius-clay)] bg-ivory bg-[image:var(--gradient-clay-volume)] shadow-[var(--shadow-clay-rest)] text-navy focus-ring " +
   "transition-[transform,box-shadow] duration-200 ease-[var(--ease-hover)] " +
   "sm:flex-row sm:items-center sm:gap-[var(--space-6)] " +
   "hover:-translate-y-[5px] hover:shadow-[var(--shadow-clay-hover)] " +
@@ -88,7 +88,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
     <>
       <span
         aria-hidden="true"
-        className="w-[2ch] shrink-0 pt-[var(--space-1)] text-right text-[length:var(--text-h3)] font-extrabold text-ink-3 sm:pt-0"
+        className="w-[2ch] shrink-0 pt-[var(--space-1)] text-right text-[length:var(--text-h3)] font-extrabold text-ink-soft sm:pt-0"
       >
         {numeral}
       </span>
@@ -114,8 +114,8 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         </span>
 
         <div className="flex min-w-0 flex-1 flex-col gap-[var(--space-2)]">
-          <h3 className="text-[length:var(--text-h3)] font-bold leading-tight text-ink">{name}</h3>
-          <p className="line-clamp-2 text-[length:var(--text-body)] text-ink-2">{tagline}</p>
+          <h3 className="text-[length:var(--text-h3)] font-bold leading-tight text-navy">{name}</h3>
+          <p className="line-clamp-2 text-[length:var(--text-body)] text-navy-2">{tagline}</p>
           <div className="flex flex-wrap items-center gap-[var(--space-2)]">
             {tags.slice(0, 3).map((tag) => (
               <Tag key={tag}>{tag}</Tag>
@@ -128,7 +128,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             a second link: the row above already carries the one accessible link (aria-label). */}
         <span
           aria-hidden
-          className="hidden shrink-0 items-center gap-[var(--space-2)] self-start rounded-[var(--radius-pill)] bg-ink px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-bg transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 sm:inline-flex sm:self-center"
+          className="hidden shrink-0 items-center gap-[var(--space-2)] self-start rounded-[var(--radius-pill)] bg-navy px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-paper transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 sm:inline-flex sm:self-center"
         >
           View project
           <Icon icon={ArrowRight} size={20} />
@@ -136,7 +136,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         {/* Mobile equivalent: the same ghost-arrow footprint ProjectCard uses elsewhere. */}
         <span
           aria-hidden
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-[var(--radius-clay-sm)] text-ink transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 sm:hidden"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-[var(--radius-clay-sm)] text-navy transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 sm:hidden"
         >
           <Icon icon={ArrowRight} size={24} />
         </span>

@@ -38,10 +38,10 @@ export function CapabilityClusters() {
             tone={cluster.tone}
             className="!h-auto !w-full flex-col items-start gap-[var(--space-3)] p-[var(--space-5)] text-left"
           >
-            <span className="text-[length:var(--text-body)] font-bold text-ink">{cluster.name}</span>
+            <span className="text-[length:var(--text-body)] font-bold text-navy">{cluster.name}</span>
             <ul className="flex flex-col gap-[var(--space-2)]">
               {cluster.items.map((item) => (
-                <li key={item} className="text-caption text-ink-2">
+                <li key={item} className="text-caption text-navy-2">
                   {item}
                 </li>
               ))}

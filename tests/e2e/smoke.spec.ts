@@ -1,7 +1,7 @@
 /**
  * smoke.spec.ts (technical-plan.md §B S09.01) — the fast fixture smoke gate. Proves the two
  * fixtures finalised in S09.01 work against the real build:
- *   • keyboardOnly — every tab stop in the header wears the 3px accent focus ring (EVAL-007)
+ *   • keyboardOnly — every tab stop in the header wears the 2px rust focus ring (EVAL-007)
  *   • consoleErrors — the home page loads with zero console.error / uncaught page errors (A12)
  * Tagged @smoke so `pnpm test:e2e --grep @smoke` runs just these.
  */
@@ -17,7 +17,7 @@ test("home loads with no console errors", { tag: "@smoke" }, async ({ page, cons
   void consoleErrors;
 });
 
-test("keyboard focus ring is the 3px accent on the first tab stops", { tag: "@smoke" }, async ({
+test("keyboard focus ring is the 2px rust on the first tab stops", { tag: "@smoke" }, async ({
   page,
   keyboardOnly,
 }) => {

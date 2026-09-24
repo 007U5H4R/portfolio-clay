@@ -34,8 +34,8 @@ export function Awards() {
             tone="butter"
             className="!h-auto !w-full flex-col items-start gap-[var(--space-2)] p-[var(--space-5)] text-left"
           >
-            <span className="text-[length:var(--text-body)] font-bold text-ink">{award.title}</span>
-            <span className="text-caption text-ink-2">{award.year}</span>
+            <span className="text-[length:var(--text-body)] font-bold text-navy">{award.title}</span>
+            <span className="text-caption text-navy-2">{award.year}</span>
           </ClayTile>
         ))}
       </div>

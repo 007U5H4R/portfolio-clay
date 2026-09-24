@@ -54,9 +54,9 @@ const sizeClass: Record<ClayButtonSize, string> = {
 
 /** Primary = `bg` text on `accent` (4.9:1, AA) — `ink` on `accent` is 3.4:1 and fails AA (E-7). */
 const variantClass: Record<ClayButtonVariant, string> = {
-  primary: "bg-accent text-bg hover:bg-accent-deep",
-  secondary: "border border-ink/15 text-ink bg-surface",
-  ghost: "bg-transparent text-ink",
+  primary: "bg-rust text-paper hover:bg-terracotta",
+  secondary: "border border-navy/15 text-navy bg-ivory",
+  ghost: "bg-transparent text-navy",
 };
 
 export function ClayButton(props: ClayButtonProps) {

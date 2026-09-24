@@ -120,7 +120,7 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
       // No `display` utility on the <dialog> itself: the UA `dialog:not([open])` rule must keep it
       // hidden when closed (an author `display` here would win over the UA origin and leave the closed
       // dialog visible). The flex column lives on the inner wrapper below (the MobileMenu pattern).
-      className="ask-panel m-0 max-h-none bg-bg p-0 text-ink shadow-[var(--shadow-clay-rest)] fixed left-auto right-4 inset-y-4 h-auto w-[400px] rounded-[var(--radius-clay)] 2xl:w-[480px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:h-[90vh] max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-[var(--radius-clay)]"
+      className="ask-panel m-0 max-h-none bg-paper p-0 text-navy shadow-[var(--shadow-clay-rest)] fixed left-auto right-4 inset-y-4 h-auto w-[400px] rounded-[var(--radius-clay)] 2xl:w-[480px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:h-[90vh] max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-[var(--radius-clay)]"
       // Esc → native `cancel`: route it through closePanel() so it takes the same animated close
       // path as the close button / scrim (preventDefault keeps the dialog open until the slide-out).
       onCancel={(event) => {
@@ -142,8 +142,8 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
         className="flex h-full flex-col"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <div className="flex items-center justify-between gap-[var(--space-3)] border-b border-ink/10 px-[var(--space-5)] py-[var(--space-4)]">
-          <h2 id="ask-panel-title" className="text-h3 text-ink">
+        <div className="flex items-center justify-between gap-[var(--space-3)] border-b border-navy/10 px-[var(--space-5)] py-[var(--space-4)]">
+          <h2 id="ask-panel-title" className="text-h3 text-navy">
             Ask AI
           </h2>
           <ClayButton variant="ghost" iconOnly aria-label="Close Ask panel" onClick={closePanel}>
@@ -165,7 +165,7 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
 
         <form
           onSubmit={onSubmit}
-          className="flex items-center gap-[var(--space-3)] border-t border-ink/10 px-[var(--space-5)] py-[var(--space-4)]"
+          className="flex items-center gap-[var(--space-3)] border-t border-navy/10 px-[var(--space-5)] py-[var(--space-4)]"
         >
           <label htmlFor="ask-panel-input" className="sr-only">
             Ask about my work
@@ -179,12 +179,12 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
             placeholder="Ask about my work…"
             autoComplete="off"
             aria-label="Ask about my work"
-            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-ink/10 bg-bg px-[var(--space-4)] text-[length:var(--text-body)] text-ink placeholder:text-ink-3 focus-ring"
+            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-navy/10 bg-paper px-[var(--space-4)] text-[length:var(--text-body)] text-navy placeholder:text-ink-soft focus-ring"
           />
           <button
             type="submit"
             aria-label="Ask"
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-accent text-bg transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-accent-deep active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-rust text-paper transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-terracotta active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
           >
             <Icon icon={ArrowUp} size={24} />
           </button>

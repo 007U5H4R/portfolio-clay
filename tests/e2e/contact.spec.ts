@@ -185,7 +185,7 @@ test("CopyButton falls back to selectable text when the clipboard is blocked", a
 });
 
 // ---------------------------------------------------------------------------
-// @EVAL-007 — CopyButton is fully keyboard-operable: Tab reaches it, the shared 3px accent focus
+// @EVAL-007 — CopyButton is fully keyboard-operable: Tab reaches it, the shared 2px rust focus
 // ring is visible, and Enter/Space both activate it (TKT-48; closes the /contact CopyButton
 // keyboard-e2e follow-up flagged in M-006).
 // ---------------------------------------------------------------------------
@@ -212,10 +212,10 @@ test("@EVAL-007 CopyButton: Tab focuses it with a visible ring, Enter and Space 
   await button.focus();
   await expect(button).toBeFocused();
 
-  // The focused button wears the shared 3px solid accent ring (EVAL-007).
+  // The focused button wears the shared 2px solid rust ring (EVAL-007).
   const accent = await page.evaluate(() => {
     const probe = document.createElement("span");
-    probe.style.color = "var(--color-accent)";
+    probe.style.color = "var(--color-rust)";
     document.body.appendChild(probe);
     const c = getComputedStyle(probe).color;
     probe.remove();
@@ -225,7 +225,7 @@ test("@EVAL-007 CopyButton: Tab focuses it with a visible ring, Enter and Space 
     const s = getComputedStyle(el);
     return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
   });
-  expect(ring.w).toBe("3px");
+  expect(ring.w).toBe("2px");
   expect(ring.style).toBe("solid");
   expect(ring.color).toBe(accent);
 

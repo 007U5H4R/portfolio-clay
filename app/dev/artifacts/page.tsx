@@ -13,13 +13,13 @@ export default function ArtifactsDevPage() {
   devOnly();
 
   return (
-    <main className="min-h-screen bg-bg px-[var(--gutter-mobile)] py-[var(--space-9)] text-ink md:px-[var(--gutter-tablet)]">
+    <main className="min-h-screen bg-paper px-[var(--gutter-mobile)] py-[var(--space-9)] text-navy md:px-[var(--gutter-tablet)]">
       <header className="mb-[var(--space-8)]">
-        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
           Dev board · QA only
         </p>
         <h1 className="text-h2">Case-study artifacts</h1>
-        <p className="mt-[var(--space-3)] max-w-[60ch] text-[length:var(--text-body)] text-ink-2">
+        <p className="mt-[var(--space-3)] max-w-[60ch] text-[length:var(--text-body)] text-navy-2">
           Every artifact variant the schema defines, rendered through <code>ArtifactRenderer</code>{" "}
           with fixture data. Each carries a source label (never a filesystem path) and every metric
           is dated and sourced.

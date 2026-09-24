@@ -35,13 +35,13 @@ export const headerGlassClass = "glass";
 
 /** Tone tint classes — always paired with `ink` text (Design.md §2 contrast rule). */
 export const toneClass: Record<Tone, string> = {
-  neutral: "bg-surface text-ink-2",
-  lavender: "bg-lavender/30 text-ink",
-  sky: "bg-sky/30 text-ink",
-  mint: "bg-mint/30 text-ink",
-  blush: "bg-blush/30 text-ink",
-  peach: "bg-peach/30 text-ink",
-  butter: "bg-butter/30 text-ink",
+  neutral: "bg-ivory text-navy-2",
+  lavender: "bg-paper-2/30 text-navy",
+  sky: "bg-green-2/30 text-navy",
+  mint: "bg-forest/30 text-navy",
+  blush: "bg-steel/30 text-navy",
+  peach: "bg-note/30 text-navy",
+  butter: "bg-kraft/30 text-navy",
 };
 
 /**

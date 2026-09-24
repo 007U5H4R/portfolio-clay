@@ -73,14 +73,14 @@ export function AboutHero() {
       </div>
 
       <div className="flex min-w-0 flex-col items-start gap-6 text-left md:gap-7">
-        <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-surface px-4 py-2 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2 shadow-[var(--shadow-utility)]">
-          <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-accent" />
+        <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-ivory px-4 py-2 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
+          <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-rust" />
           About
         </span>
 
         <h1
           id="about-hero-heading"
-          className="text-[length:var(--text-hero)] font-extrabold tracking-[var(--tracking-hero)] leading-[var(--leading-hero)] text-ink lg:text-[length:var(--text-hero-lg)]"
+          className="text-[length:var(--text-hero)] font-extrabold tracking-[var(--tracking-hero)] leading-[var(--leading-hero)] text-navy lg:text-[length:var(--text-hero-lg)]"
         >
           <span className="block">I started with machines.</span>
           <span className="block">Then systems. Then people.</span>
@@ -90,17 +90,17 @@ export function AboutHero() {
         {/* DRAFT subline — see docstring. Hand annotation styling matches the home Hero's own
             `Annotation` arrow-copy treatment (`--font-hand`), but this line carries real content
             (not decorative), so it stays in the accessibility tree — no `aria-hidden`. */}
-        <p style={{ fontFamily: "var(--font-hand)" }} className="text-[1.5rem] leading-none text-ink-3">
+        <p style={{ fontFamily: "var(--font-hand)" }} className="text-[1.5rem] leading-none text-ink-soft">
           Same curiosity <span aria-hidden="true">→</span> bigger problems.
         </p>
 
         {/* Plain value/label pairs — same convention as `MetricCard`'s body (`<p>`s, no `dl`), not
             a citation-bearing metric so it does not reuse `MetricCard` itself (see docstring). */}
-        <div className="grid w-full grid-cols-3 gap-4 border-y border-ink/10 py-5 sm:gap-6">
+        <div className="grid w-full grid-cols-3 gap-4 border-y border-navy/10 py-5 sm:gap-6">
           {STATS.map((stat) => (
             <div key={stat.label} className="flex flex-col gap-1">
-              <p className="text-[length:var(--text-h3)] font-extrabold text-ink">{stat.value}</p>
-              <p className="text-caption leading-snug text-ink-3">{stat.label}</p>
+              <p className="text-[length:var(--text-h3)] font-extrabold text-navy">{stat.value}</p>
+              <p className="text-caption leading-snug text-ink-soft">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -108,8 +108,8 @@ export function AboutHero() {
         {/* Pull-quote — DRAFT, see docstring. `tier="card"` gives it the same clay-card language
             as `ProductScene`'s pull-quote (mockup 2) rather than a plain blockquote. */}
         <ClayCard tier="card" tone="lavender" padding="card" className="flex w-full max-w-[440px] flex-col gap-3">
-          <Icon icon={Quote} size={24} className="text-accent" />
-          <blockquote className="text-[length:var(--text-lead)] font-semibold text-ink">
+          <Icon icon={Quote} size={24} className="text-rust" />
+          <blockquote className="text-[length:var(--text-lead)] font-semibold text-navy">
             I build at the intersection of people, products and intelligent systems.
           </blockquote>
         </ClayCard>

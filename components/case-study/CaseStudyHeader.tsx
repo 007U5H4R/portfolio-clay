@@ -51,14 +51,14 @@ export function CaseStudyHeader({ project, icon }: CaseStudyHeaderProps) {
   return (
     <header className="grid gap-[var(--space-8)] lg:grid-cols-[60fr_40fr] lg:items-start">
       <div className="flex flex-col gap-[var(--space-5)]">
-        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-ink">
+        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
           {name}
         </h1>
-        <p className="max-w-[44ch] text-[length:var(--text-lead)] text-ink-2">{tagline}</p>
+        <p className="max-w-[44ch] text-[length:var(--text-lead)] text-navy-2">{tagline}</p>
         <div className="flex flex-wrap items-center gap-[var(--space-3)]">
           {meta.map((entry) => (
-            <span key={entry.label} className="text-[length:var(--text-caption)] text-ink-3">
-              <span className="font-semibold text-ink-2">{entry.label}:</span> {entry.value}
+            <span key={entry.label} className="text-[length:var(--text-caption)] text-ink-soft">
+              <span className="font-semibold text-navy-2">{entry.label}:</span> {entry.value}
             </span>
           ))}
           <StatusBadge status={status} statusLabel={statusLabel} />
@@ -109,7 +109,7 @@ export function CaseStudyHeader({ project, icon }: CaseStudyHeaderProps) {
           />
         ) : (
           // Media.kind:'placeholder' — real hero media lands with the case-study content (M-005).
-          <div className="flex h-full w-full items-center justify-center p-[var(--space-6)] text-center text-[length:var(--text-body)] font-medium text-ink-3">
+          <div className="flex h-full w-full items-center justify-center p-[var(--space-6)] text-center text-[length:var(--text-body)] font-medium text-ink-soft">
             Hero media coming
           </div>
         )}

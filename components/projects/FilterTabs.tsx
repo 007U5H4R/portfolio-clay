@@ -37,7 +37,7 @@ const tablistClass =
   "md:flex-wrap md:overflow-visible md:pr-0";
 
 function tabClass(active: boolean): string {
-  return `${tabBase} ${active ? "text-ink" : "text-ink-2 hover:text-ink"}`;
+  return `${tabBase} ${active ? "text-navy" : "text-navy-2 hover:text-navy"}`;
 }
 
 export function FilterTabs() {
@@ -115,7 +115,7 @@ export function FilterTabs() {
                   {...(reduced
                     ? { layout: false as const, transition: { duration: 0 } }
                     : { layout: "position" as const, transition: springs.filter })}
-                  className="absolute inset-0 rounded-[var(--radius-pill)] bg-lavender/30 shadow-[var(--shadow-utility)]"
+                  className="absolute inset-0 rounded-[var(--radius-pill)] bg-paper-2/30 shadow-[var(--shadow-utility)]"
                 />
               ) : null}
               <span className="relative z-10">{filter.label}</span>
@@ -150,7 +150,7 @@ export function FilterTabsFallback() {
             {isActive ? (
               <span
                 aria-hidden="true"
-                className="absolute inset-0 rounded-[var(--radius-pill)] bg-lavender/30 shadow-[var(--shadow-utility)]"
+                className="absolute inset-0 rounded-[var(--radius-pill)] bg-paper-2/30 shadow-[var(--shadow-utility)]"
               />
             ) : null}
             <span className="relative z-10">{filter.label}</span>

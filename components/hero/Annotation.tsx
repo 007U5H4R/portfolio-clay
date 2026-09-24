@@ -18,7 +18,7 @@ export function Annotation({ className }: AnnotationProps) {
     <span
       aria-hidden="true"
       style={style}
-      className={["inline-block rotate-[-4deg] text-[1.5rem] leading-none text-ink-3", className]
+      className={["inline-block rotate-[-4deg] text-[1.5rem] leading-none text-ink-soft", className]
         .filter(Boolean)
         .join(" ")}
     >

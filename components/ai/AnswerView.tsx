@@ -47,14 +47,14 @@ export interface AnswerViewProps {
 
 function DraftBadge() {
   return (
-    <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-butter/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink">
+    <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-kraft/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy">
       Draft
     </span>
   );
 }
 
 function Microcopy() {
-  return <p className="text-caption text-ink-3">{ASK_MICROCOPY}</p>;
+  return <p className="text-caption text-ink-soft">{ASK_MICROCOPY}</p>;
 }
 
 export function AnswerView({
@@ -70,8 +70,8 @@ export function AnswerView({
     return (
       <div role="status" aria-busy="true" className="flex flex-col gap-[var(--space-3)]">
         <span className="sr-only">{LOADING_LABEL}</span>
-        <span aria-hidden className="h-4 w-full rounded-[var(--radius-utility)] bg-ink/10 animate-pulse motion-reduce:animate-none" />
-        <span aria-hidden className="h-4 w-4/5 rounded-[var(--radius-utility)] bg-ink/10 animate-pulse motion-reduce:animate-none" />
+        <span aria-hidden className="h-4 w-full rounded-[var(--radius-utility)] bg-navy/10 animate-pulse motion-reduce:animate-none" />
+        <span aria-hidden className="h-4 w-4/5 rounded-[var(--radius-utility)] bg-navy/10 animate-pulse motion-reduce:animate-none" />
       </div>
     );
   }
@@ -84,13 +84,13 @@ export function AnswerView({
           <h3
             ref={headingRef}
             tabIndex={-1}
-            className="text-h3 text-ink outline-none focus-ring rounded-[var(--radius-utility)]"
+            className="text-h3 text-navy outline-none focus-ring rounded-[var(--radius-utility)]"
           >
             Answer
           </h3>
           {isDraft ? <DraftBadge /> : null}
         </div>
-        <p className="max-w-[65ch] text-[length:var(--text-body)] text-ink">{answer.text}</p>
+        <p className="max-w-[65ch] text-[length:var(--text-body)] text-navy">{answer.text}</p>
         <EvidenceLinks evidence={answer.evidence} />
         <Microcopy />
         <div>
@@ -105,7 +105,7 @@ export function AnswerView({
   if (status === "empty" && answer && answer.kind === "empty") {
     return (
       <div className="flex flex-col gap-[var(--space-4)]">
-        <p className="max-w-[65ch] text-[length:var(--text-body)] text-ink">{answer.text}</p>
+        <p className="max-w-[65ch] text-[length:var(--text-body)] text-navy">{answer.text}</p>
         {answer.suggestions.length > 0 ? (
           <SuggestedPrompts prompts={answer.suggestions} onSelect={onSelectPrompt} />
         ) : null}
@@ -116,8 +116,8 @@ export function AnswerView({
   if (status === "error") {
     return (
       <div className="flex flex-col gap-[var(--space-4)]">
-        <div className="flex items-start gap-[var(--space-3)] rounded-[var(--radius-clay-sm)] bg-blush/30 p-[var(--space-4)] text-ink">
-          <Icon icon={AlertTriangle} size={24} className="shrink-0 text-ink" />
+        <div className="flex items-start gap-[var(--space-3)] rounded-[var(--radius-clay-sm)] bg-steel/30 p-[var(--space-4)] text-navy">
+          <Icon icon={AlertTriangle} size={24} className="shrink-0 text-navy" />
           <p className="max-w-[65ch] text-[length:var(--text-body)]">
             Something went wrong finding that answer. Please try again.
           </p>

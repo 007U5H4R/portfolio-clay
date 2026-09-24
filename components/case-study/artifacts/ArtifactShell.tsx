@@ -31,12 +31,12 @@ export function ArtifactShell({ source, label, caption, className, children }: A
         .filter(Boolean)
         .join(" ")}
     >
-      <p className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+      <p className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
         {label}
       </p>
       {children}
       <div className="mt-auto flex flex-col gap-[var(--space-1)] pt-[var(--space-2)]">
-        {caption ? <p className="text-caption text-ink-2">{caption}</p> : null}
+        {caption ? <p className="text-caption text-navy-2">{caption}</p> : null}
         <SourceCaption source={source} />
       </div>
     </ClayCard>

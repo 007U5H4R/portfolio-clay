@@ -48,19 +48,19 @@ export function ArtifactCard({ artifact, source }: ArtifactCardProps) {
         <div className="flex flex-1 flex-col gap-[var(--space-1)]">
           {href ? (
             isExternal(href) ? (
-              <ExternalLink href={href} className="text-[length:var(--text-body)] font-semibold text-ink">
+              <ExternalLink href={href} className="text-[length:var(--text-body)] font-semibold text-navy">
                 {artifact.title}
               </ExternalLink>
             ) : (
               <a
                 href={href}
-                className="w-fit rounded-[2px] text-[length:var(--text-body)] font-semibold text-accent underline underline-offset-2 focus-ring"
+                className="w-fit rounded-[2px] text-[length:var(--text-body)] font-semibold text-rust underline underline-offset-2 focus-ring"
               >
                 {artifact.title}
               </a>
             )
           ) : (
-            <span className="text-[length:var(--text-body)] font-semibold text-ink">
+            <span className="text-[length:var(--text-body)] font-semibold text-navy">
               {artifact.title}
             </span>
           )}

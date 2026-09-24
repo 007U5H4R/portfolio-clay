@@ -15,10 +15,10 @@ export interface SourceCaptionProps {
  * plain text (a path-only source is a label, never a live link).
  */
 export function SourceCaption({ source, className }: SourceCaptionProps) {
-  const classes = ["text-caption text-ink-3", className].filter(Boolean).join(" ");
+  const classes = ["text-caption text-ink-soft", className].filter(Boolean).join(" ");
   return (
     <p className={classes}>
-      <span className="font-semibold text-ink-2">Source: </span>
+      <span className="font-semibold text-navy-2">Source: </span>
       {source.url ? <ExternalLink href={source.url}>{source.label}</ExternalLink> : source.label}
     </p>
   );

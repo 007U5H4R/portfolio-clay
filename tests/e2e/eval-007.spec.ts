@@ -1,6 +1,6 @@
 /**
  * eval-007.spec.ts (technical-plan.md §B S09.02, `@EVAL-007`) — keyboard operability: every flow
- * completes with the keyboard alone, focus is always visible (3px accent ring), and focus returns
+ * completes with the keyboard alone, focus is always visible (2px rust ring), and focus returns
  * to the trigger after a dialog closes. Live now for the two navigation surfaces that exist — the
  * primary nav (desktop) and the MobileMenu (390). The Ask panel, FilterTabs, ExperienceTimeline,
  * OverviewToggle and CopyButton flows are fixme'd until their tickets (TKT-10/16/17/45).
@@ -10,7 +10,7 @@ import { test, expect } from "./fixtures";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
-test("@EVAL-007 desktop nav: every tab stop shows the 3px accent focus ring", { tag: "@EVAL-007" }, async ({
+test("@EVAL-007 desktop nav: every tab stop shows the 2px rust focus ring", { tag: "@EVAL-007" }, async ({
   page,
   keyboardOnly,
 }) => {

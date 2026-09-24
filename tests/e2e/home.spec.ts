@@ -90,7 +90,7 @@ test("FinalCTA carries a single lavender accent card", async ({ page }) => {
   test.skip(width(page) !== 1440, "accent is viewport-independent; checked once at w1440");
   await page.goto("/", { waitUntil: "load" });
   // The one tinted surface in #cta is the card; assert it is lavender (Design.md §3).
-  const lavenderSurfaces = page.locator('#cta [class*="bg-lavender/30"]');
+  const lavenderSurfaces = page.locator('#cta [class*="bg-paper-2/30"]');
   await expect(lavenderSurfaces).toHaveCount(1);
 });
 

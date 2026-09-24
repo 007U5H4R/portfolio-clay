@@ -58,11 +58,11 @@ export function MetricCard({ metric, source, caption, variant = "card" }: Metric
   // surface differs (clay card shell vs. flat inline block), so it is defined once here.
   const body = (
     <div className="flex flex-col gap-[var(--space-2)]">
-      <p className="text-[length:var(--text-h2)] font-extrabold tabular-nums leading-none text-ink">
+      <p className="text-[length:var(--text-h2)] font-extrabold tabular-nums leading-none text-navy">
         {metric.value}
       </p>
-      <p className="text-[length:var(--text-body)] font-semibold text-ink">{metric.label}</p>
-      <p className="text-caption text-ink-2">{metric.context}</p>
+      <p className="text-[length:var(--text-body)] font-semibold text-navy">{metric.label}</p>
+      <p className="text-caption text-navy-2">{metric.context}</p>
       <div className="mt-[var(--space-1)] flex flex-wrap items-center gap-[var(--space-3)]">
         <span
           className={[
@@ -74,7 +74,7 @@ export function MetricCard({ metric, source, caption, variant = "card" }: Metric
           <Icon icon={icon} size={20} />
           {label}
         </span>
-        <span className="text-caption text-ink-3">{formatAsOf(metric.asOf)}</span>
+        <span className="text-caption text-ink-soft">{formatAsOf(metric.asOf)}</span>
       </div>
     </div>
   );
@@ -85,7 +85,7 @@ export function MetricCard({ metric, source, caption, variant = "card" }: Metric
     return (
       <div className="flex flex-col gap-[var(--space-2)]">
         {body}
-        {caption ? <p className="text-caption text-ink-2">{caption}</p> : null}
+        {caption ? <p className="text-caption text-navy-2">{caption}</p> : null}
         <SourceCaption source={source} />
       </div>
     );

@@ -110,12 +110,12 @@ export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
             placeholder="Ask about my work…"
             autoComplete="off"
             aria-label="Ask about my work"
-            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-ink/10 bg-bg px-[var(--space-4)] text-[length:var(--text-body)] text-ink placeholder:text-ink-3 focus-ring"
+            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-navy/10 bg-paper px-[var(--space-4)] text-[length:var(--text-body)] text-navy placeholder:text-ink-soft focus-ring"
           />
           <button
             type="submit"
             aria-label="Ask"
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-accent text-bg transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-accent-deep active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-rust text-paper transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-terracotta active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
           >
             <Icon icon={ArrowUp} size={24} />
           </button>

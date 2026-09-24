@@ -32,22 +32,22 @@ export function Hero() {
           track claims its full share at lg; paired with min-w-0 on the FloatingTiles items so the
           tile row reflows narrower instead of overflowing. */}
       <div className="flex min-w-0 flex-col items-start gap-5 text-left md:gap-6">
-        <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-surface px-4 py-2 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2 shadow-[var(--shadow-utility)]">
+        <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-ivory px-4 py-2 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
           <span
             aria-hidden="true"
-            className="inline-block h-2 w-2 rounded-full bg-accent"
+            className="inline-block h-2 w-2 rounded-full bg-rust"
           />
           {hero.eyebrow.text}
         </span>
 
-        <h1 className="text-[length:var(--text-hero)] font-extrabold tracking-[var(--tracking-hero)] leading-[var(--leading-hero)] text-ink lg:text-[length:var(--text-hero-lg)]">
+        <h1 className="text-[length:var(--text-hero)] font-extrabold tracking-[var(--tracking-hero)] leading-[var(--leading-hero)] text-navy lg:text-[length:var(--text-hero-lg)]">
           {hero.headline.before}
           <span className="hero-highlight">{hero.headline.highlight}</span>
           {hero.headline.after}
         </h1>
 
         {/* EXE-9: hidden below md so the primary CTA + first proof tile clear the mobile fold. */}
-        <p className="hidden max-w-[46ch] text-[length:var(--text-lead)] text-ink-2 md:block">
+        <p className="hidden max-w-[46ch] text-[length:var(--text-lead)] text-navy-2 md:block">
           {hero.support.text}
         </p>
 

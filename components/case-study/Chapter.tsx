@@ -46,9 +46,9 @@ export function Chapter({ chapter, number, anchor, sources }: ChapterProps) {
           reads h1 → h2 (chapter) → h3 (decision) with no skip in either direction. */}
       <h2
         id={`chapter-${anchor}`}
-        className="text-[length:var(--text-h3)] font-bold text-ink"
+        className="text-[length:var(--text-h3)] font-bold text-navy"
       >
-        <span className="mr-[var(--space-3)] tabular-nums text-ink-3">{numberLabel}</span>
+        <span className="mr-[var(--space-3)] tabular-nums text-ink-soft">{numberLabel}</span>
         {chapter.title}
       </h2>
 

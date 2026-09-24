@@ -129,15 +129,15 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
             {hasChapters ? (
               deepView
             ) : (
-              <div className="flex max-w-[60ch] flex-col gap-[var(--space-2)] rounded-[var(--radius-utility)] bg-surface p-[var(--space-6)] shadow-[var(--shadow-utility)]">
+              <div className="flex max-w-[60ch] flex-col gap-[var(--space-2)] rounded-[var(--radius-utility)] bg-ivory p-[var(--space-6)] shadow-[var(--shadow-utility)]">
                 {/* ink-2, not ink-3: ink-3 on this surface measures 4.48 (< AA 4.5, axe serious);
                     ink-2 clears every surface/tone with margin (same rule as SectionHeading). */}
-                <p className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2">
+                <p className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2">
                   Deep dive coming
                 </p>
-                <p className="text-[length:var(--text-body)] text-ink-2">
+                <p className="text-[length:var(--text-body)] text-navy-2">
                   The full case study is being written up. This project is documented as{" "}
-                  <span className="font-semibold text-ink">{project.statusLabel}</span>.
+                  <span className="font-semibold text-navy">{project.statusLabel}</span>.
                 </p>
               </div>
             )}

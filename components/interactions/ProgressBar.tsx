@@ -37,7 +37,7 @@ export function ProgressBar() {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={valueNow}
-        className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-accent"
+        className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-rust"
         style={{ scaleX: scrollYProgress }}
       />
     </LazyMotionRoot>

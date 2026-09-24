@@ -15,10 +15,10 @@ export function EmptyState() {
   return (
     <div className="flex flex-col items-center gap-[var(--space-4)] py-[var(--space-12)] text-center">
       <ClayIcon icon={SearchX} size={56} tone="lavender" />
-      <p className="text-[length:var(--text-lead)] font-bold text-ink">
+      <p className="text-[length:var(--text-lead)] font-bold text-navy">
         No projects match this filter
       </p>
-      <p className="max-w-[44ch] text-[length:var(--text-body)] text-ink-2">
+      <p className="max-w-[44ch] text-[length:var(--text-body)] text-navy-2">
         Nothing here yet under this lens. Clear the filter to see every build.
       </p>
       <ClayPill variant="link" href={filterHref("all")}>

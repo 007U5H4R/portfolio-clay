@@ -125,7 +125,7 @@ export function ProductJourney() {
         className="mb-[var(--space-9)]"
       />
 
-      <ol className="relative flex flex-col gap-[var(--space-7)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-3 before:content-[''] lg:flex-row lg:flex-wrap lg:items-start lg:gap-[var(--space-4)] lg:pl-0 lg:pt-[var(--space-6)] lg:before:content-none">
+      <ol className="relative flex flex-col gap-[var(--space-7)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-soft before:content-[''] lg:flex-row lg:flex-wrap lg:items-start lg:gap-[var(--space-4)] lg:pl-0 lg:pt-[var(--space-6)] lg:before:content-none">
         {/* Decorative journey-path connector (≥1024 only) — the same static, aria-hidden inline SVG
             pattern `HowIThink` uses for its own journey path (no draw-in animation, so no
             reduced-motion handling is needed). */}
@@ -138,7 +138,7 @@ export function ProductJourney() {
           <path
             d="M100,40 Q250,10 400,30 T800,30 T1100,15"
             fill="none"
-            className="stroke-ink-3/35"
+            className="stroke-ink-soft/35"
             strokeWidth="2"
             strokeDasharray="1 10"
             strokeLinecap="round"
@@ -155,22 +155,22 @@ export function ProductJourney() {
                     <Icon icon={StageIcon} size={24} />
                   </ClayTile>
                   <div className="flex flex-col lg:items-center">
-                    <span className="text-[length:var(--text-h3)] font-extrabold text-ink">{stage.year}</span>
-                    <span className="text-[length:var(--text-body)] font-bold text-ink">{stage.milestone}</span>
+                    <span className="text-[length:var(--text-h3)] font-extrabold text-navy">{stage.year}</span>
+                    <span className="text-[length:var(--text-body)] font-bold text-navy">{stage.milestone}</span>
                   </div>
                 </div>
 
-                <span className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+                <span className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
                   {stage.range} · {stage.label}
                 </span>
-                <span className="text-caption text-ink-2 lg:max-w-[22ch]">{stage.description}</span>
+                <span className="text-caption text-navy-2 lg:max-w-[22ch]">{stage.description}</span>
               </Reveal>
             </li>
           );
         })}
       </ol>
 
-      <p className="mt-[var(--space-9)] text-[length:var(--text-lead)] font-semibold text-ink-2">
+      <p className="mt-[var(--space-9)] text-[length:var(--text-lead)] font-semibold text-navy-2">
         The tools changed. The curiosity didn&apos;t.
       </p>
     </Section>

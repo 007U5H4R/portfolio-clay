@@ -19,14 +19,14 @@ export function WorkHero() {
       className="pt-[var(--space-12)] pb-[var(--space-8)] md:pt-[var(--space-13)]"
     >
       <div className="flex max-w-[44ch] flex-col gap-[var(--space-3)]">
-        <span className="inline-flex w-fit items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] bg-surface px-[var(--space-4)] py-[var(--space-2)] text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2 shadow-[var(--shadow-utility)]">
-          <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-accent" />
+        <span className="inline-flex w-fit items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
+          <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-rust" />
           Work
         </span>
-        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-ink">
+        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
           Work
         </h1>
-        <p className="text-[length:var(--text-lead)] text-ink-2">
+        <p className="text-[length:var(--text-lead)] text-navy-2">
           Personal builds first. Corporate work is listed as experience, not product.
         </p>
       </div>

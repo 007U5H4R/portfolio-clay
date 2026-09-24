@@ -72,8 +72,8 @@ export function Impact() {
       {resumeRows.length > 0 ? (
         <div className="mt-[var(--space-10)] flex flex-col gap-[var(--space-6)]">
           <div className="flex max-w-[44ch] flex-col gap-[var(--space-2)]">
-            <h3 className="text-[length:var(--text-h3)] font-bold text-ink">From my résumé</h3>
-            <p className="text-[length:var(--text-body)] text-ink-2">
+            <h3 className="text-[length:var(--text-h3)] font-bold text-navy">From my résumé</h3>
+            <p className="text-[length:var(--text-body)] text-navy-2">
               Self-reported outcomes from earlier enterprise roles at American Express and Godrej,
               dated to my résumé snapshot.
             </p>

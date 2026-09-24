@@ -70,8 +70,8 @@ function PlaygroundTile({ project, tone }: PlaygroundEntry) {
         size={180}
         className="!h-auto !w-full flex-col items-start gap-[var(--space-3)] p-[var(--card-padding)] text-left"
       >
-        <h2 className="text-[length:var(--text-h3)] font-bold text-ink">{name}</h2>
-        <p className="text-[length:var(--text-body)] text-ink-2">{tagline}</p>
+        <h2 className="text-[length:var(--text-h3)] font-bold text-navy">{name}</h2>
+        <p className="text-[length:var(--text-body)] text-navy-2">{tagline}</p>
         <VisuallyHidden>(opens in new tab)</VisuallyHidden>
       </ClayTile>
     </a>

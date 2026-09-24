@@ -25,8 +25,8 @@ export function Education() {
       <ul className="flex flex-col gap-[var(--space-5)]">
         {education.map((entry) => (
           <li key={entry.id} className="flex flex-col gap-[var(--space-1)]">
-            <p className="text-[length:var(--text-body)] font-semibold text-ink">{entry.degree}</p>
-            <p className="text-caption text-ink-2">
+            <p className="text-[length:var(--text-body)] font-semibold text-navy">{entry.degree}</p>
+            <p className="text-caption text-navy-2">
               {entry.institution} · {entry.year}
             </p>
           </li>
@@ -34,7 +34,7 @@ export function Education() {
       </ul>
 
       {languages.length > 0 ? (
-        <p className="mt-[var(--space-6)] text-caption text-ink-3">Languages: {languages.join(", ")}.</p>
+        <p className="mt-[var(--space-6)] text-caption text-ink-soft">Languages: {languages.join(", ")}.</p>
       ) : null}
     </Section>
   );

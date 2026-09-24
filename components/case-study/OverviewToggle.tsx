@@ -65,7 +65,7 @@ export function OverviewToggle({ summary, deep }: OverviewToggleProps) {
         role="radiogroup"
         aria-label="Case-study depth"
         onKeyDown={onKeyDown}
-        className="inline-flex w-fit items-center gap-[var(--space-1)] rounded-[var(--radius-pill)] bg-surface p-[var(--space-1)] shadow-[var(--shadow-utility)]"
+        className="inline-flex w-fit items-center gap-[var(--space-1)] rounded-[var(--radius-pill)] bg-ivory p-[var(--space-1)] shadow-[var(--shadow-utility)]"
       >
         {OPTIONS.map((option) => {
           const checked = option.view === view;
@@ -81,7 +81,7 @@ export function OverviewToggle({ summary, deep }: OverviewToggleProps) {
               onClick={() => setView(option.view)}
               className={[
                 "min-h-11 rounded-[var(--radius-pill)] px-[var(--space-5)] text-caption font-semibold transition-[color,background-color] duration-200 ease-[var(--ease-hover)] focus-ring motion-reduce:transition-none",
-                checked ? "bg-lavender text-ink shadow-[var(--shadow-utility)]" : "bg-transparent text-ink-2 hover:text-ink",
+                checked ? "bg-paper-2 text-navy shadow-[var(--shadow-utility)]" : "bg-transparent text-navy-2 hover:text-navy",
               ].join(" ")}
             >
               {option.label}

@@ -50,9 +50,9 @@ export default function PrimitivesDevPage() {
   devOnly();
 
   return (
-    <main className="min-h-screen bg-bg px-[var(--gutter-mobile)] py-[var(--space-9)] text-ink md:px-[var(--gutter-tablet)]">
+    <main className="min-h-screen bg-paper px-[var(--gutter-mobile)] py-[var(--space-9)] text-navy md:px-[var(--gutter-tablet)]">
       <header>
-        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
           Dev board · QA only
         </p>
         <h1 className="text-h2">Clay primitive system</h1>
@@ -62,7 +62,7 @@ export default function PrimitivesDevPage() {
       <Board id="board-claycard" title="ClayCard — tier × tone">
         {(["hero", "card"] as const).map((tier) => (
           <div key={tier} className="mb-[var(--space-6)]">
-            <p className="text-caption font-semibold text-ink-3 mb-[var(--space-3)]">{tier} tier</p>
+            <p className="text-caption font-semibold text-ink-soft mb-[var(--space-3)]">{tier} tier</p>
             <div className="flex flex-wrap gap-[var(--space-4)]">
               {TONES.map((tone) => (
                 <ClayCard
@@ -81,15 +81,15 @@ export default function PrimitivesDevPage() {
           </div>
         ))}
         <div className="mb-[var(--space-4)]">
-          <p className="text-caption font-semibold text-ink-3 mb-[var(--space-3)]">
+          <p className="text-caption font-semibold text-ink-soft mb-[var(--space-3)]">
             utility &amp; flat tiers (no volume, neutral only)
           </p>
           <div className="flex flex-wrap gap-[var(--space-4)]">
             <ClayCard tier="utility" padding="card" data-state="rest" className="w-[150px]">
-              <span className="text-caption font-semibold text-ink-2">utility</span>
+              <span className="text-caption font-semibold text-navy-2">utility</span>
             </ClayCard>
             <ClayCard tier="flat" padding="card" data-state="rest" className="w-[150px]">
-              <span className="text-caption font-semibold text-ink-2">flat</span>
+              <span className="text-caption font-semibold text-navy-2">flat</span>
             </ClayCard>
           </div>
         </div>
@@ -216,8 +216,8 @@ export default function PrimitivesDevPage() {
           documented "≥2 sections" precondition for TC-027/TC-028 before a real page adopts them
           (TKT-14+). QA-only, same ALLOW_DEV_ROUTES gate as the rest of this route. */}
       <Board id="board-layout" title="Layout system — Container · Section · SectionHeading · Reveal">
-        <Container data-testid="layout-demo-container" className="border border-dashed border-ink/20 py-[var(--space-4)]">
-          <p className="text-caption text-ink-3">Container gutter/max-width demo</p>
+        <Container data-testid="layout-demo-container" className="border border-dashed border-navy/20 py-[var(--space-4)]">
+          <p className="text-caption text-ink-soft">Container gutter/max-width demo</p>
         </Container>
         <Section
           data-testid="layout-demo-section"
@@ -231,7 +231,7 @@ export default function PrimitivesDevPage() {
             lead="Vertical padding follows the 72/96/128 token ladder; tone is the one-accent-per-section mechanism."
           />
           <Reveal data-testid="reveal-demo" className="mt-[var(--space-5)]">
-            <p className="text-caption text-ink-2">
+            <p className="text-caption text-navy-2">
               Reveal fires once via IntersectionObserver, then disconnects.
             </p>
           </Reveal>

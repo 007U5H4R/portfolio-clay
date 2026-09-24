@@ -141,7 +141,7 @@ export function ExperienceTimeline() {
           horizontal grid ≥1024 (nodes in row 1, the open StoryCard spanning row 2, full width). */}
       <div
         onKeyDown={onRailKeyDown}
-        className="relative flex flex-col before:absolute before:left-[var(--space-5)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:-translate-x-1/2 before:bg-ink-3 before:content-[''] lg:grid lg:grid-cols-4 lg:gap-x-0 lg:before:hidden"
+        className="relative flex flex-col before:absolute before:left-[var(--space-5)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:-translate-x-1/2 before:bg-ink-soft before:content-[''] lg:grid lg:grid-cols-4 lg:gap-x-0 lg:before:hidden"
       >
         {experience.map((role, index) => (
           <div key={role.id} className="contents">

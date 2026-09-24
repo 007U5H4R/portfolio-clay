@@ -14,7 +14,7 @@
  *   noViewTransitions — delete document.startViewTransition before any script runs, forcing the
  *                       EXE-5 plain-navigation fallback (EVAL-015).
  *   keyboardOnly      — press Tab `opts.tabs` times and, after each, assert the focus-visible
- *                       element wears the shared 3px solid accent ring (EVAL-007).
+ *                       element wears the shared 2px solid rust ring (EVAL-007).
  *   consoleErrors     — opt-in collector: any console.error or uncaught page error during a test
  *                       that destructures this fixture fails that test at teardown (A12: no silent
  *                       client errors).
@@ -170,7 +170,7 @@ export const test = base.extend<TracerFixtures>({
       // comparison is exact regardless of rgb()/oklch() serialisation across Chromium versions.
       const accent = await page.evaluate(() => {
         const probe = document.createElement("span");
-        probe.style.color = "var(--color-accent)";
+        probe.style.color = "var(--color-rust)";
         probe.style.position = "absolute";
         probe.style.opacity = "0";
         probe.style.pointerEvents = "none";
@@ -198,9 +198,9 @@ export const test = base.extend<TracerFixtures>({
         });
         if (!info) continue; // no focus-visible target at this stop (e.g. a container) — skip
         const where = `tab ${i + 1} → <${info.tag}> "${info.name}"`;
-        expect(info.outlineWidth, `${where}: focus ring must be 3px`).toBe("3px");
+        expect(info.outlineWidth, `${where}: focus ring must be 2px`).toBe("2px");
         expect(info.outlineStyle, `${where}: focus ring must be solid`).toBe("solid");
-        expect(info.outlineColor, `${where}: focus ring must be the accent colour`).toBe(accent);
+        expect(info.outlineColor, `${where}: focus ring must be the rust colour`).toBe(accent);
       }
     });
   },

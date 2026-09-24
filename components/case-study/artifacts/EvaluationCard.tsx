@@ -23,10 +23,10 @@ export function EvaluationCard({ artifact, source }: EvaluationCardProps) {
       <dl className="flex flex-col gap-[var(--space-3)]">
         {rows.map((row) => (
           <div key={row.label} className="flex flex-col gap-[var(--space-1)]">
-            <dt className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+            <dt className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
               {row.label}
             </dt>
-            <dd className="text-[length:var(--text-body)] text-ink">{row.value}</dd>
+            <dd className="text-[length:var(--text-body)] text-navy">{row.value}</dd>
           </div>
         ))}
       </dl>

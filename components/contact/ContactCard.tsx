@@ -43,7 +43,7 @@ export function ContactCard() {
       padding="hero"
       className="mx-auto flex max-w-[640px] flex-col items-center gap-[var(--space-6)] text-center"
     >
-      <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-ink">
+      <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
         Still curious?
       </h1>
 
@@ -73,11 +73,11 @@ export function ContactCard() {
           >
             {resume.label}
           </ClayButton>
-          {resume.note ? <p className="max-w-[28ch] text-caption text-ink-3">{resume.note}</p> : null}
+          {resume.note ? <p className="max-w-[28ch] text-caption text-ink-soft">{resume.note}</p> : null}
         </div>
       </div>
 
-      <p className="text-[length:var(--text-body)] text-ink-2">Bengaluru, India</p>
+      <p className="text-[length:var(--text-body)] text-navy-2">Bengaluru, India</p>
     </ClayCard>
   );
 }

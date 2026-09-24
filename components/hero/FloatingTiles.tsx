@@ -27,12 +27,12 @@ export function FloatingTiles({ tiles }: FloatingTilesProps) {
               tier="card"
               className="!h-auto w-full flex-col items-start gap-1.5 p-4 text-left lg:aspect-[9/7] lg:!w-full"
             >
-              <span className="text-[length:var(--text-caption)] font-bold tracking-[var(--tracking-eyebrow)] uppercase text-ink">
+              <span className="text-[length:var(--text-caption)] font-bold tracking-[var(--tracking-eyebrow)] uppercase text-navy">
                 {tile.label}
               </span>
               {/* EXE-7 / EVAL-008: this is CONTENT copy, not a micro-label — it must clear the
                   14px `--text-caption` floor rather than take the data-micro-label exception. */}
-              <span className="text-[length:var(--text-caption)] leading-snug text-ink-2">
+              <span className="text-[length:var(--text-caption)] leading-snug text-navy-2">
                 {tile.copy}
               </span>
             </ClayTile>

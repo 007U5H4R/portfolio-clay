@@ -25,14 +25,14 @@ export function SectionHeading({ id, eyebrow, title, lead, className }: SectionH
         // ink-3 only clears WCAG AA 4.5:1 on `bg`/`surface` (~4.4-4.6) and fails against every
         // `toneClass` wash (e.g. lavender/30 measures ~3.85 — axe `color-contrast`, caught while
         // wiring this ticket's own `/dev/primitives` demo). ink-2 clears every tone with margin.
-        <p className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2">
+        <p className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2">
           {eyebrow}
         </p>
       ) : null}
-      <h2 id={id} className="text-[length:var(--text-h2)] font-extrabold text-ink">
+      <h2 id={id} className="text-[length:var(--text-h2)] font-extrabold text-navy">
         {title}
       </h2>
-      {lead ? <p className="text-[length:var(--text-lead)] text-ink-2">{lead}</p> : null}
+      {lead ? <p className="text-[length:var(--text-lead)] text-navy-2">{lead}</p> : null}
     </div>
   );
 }

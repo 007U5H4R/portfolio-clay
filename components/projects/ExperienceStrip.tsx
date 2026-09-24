@@ -64,7 +64,7 @@ function ExperienceRow({
   const summary = project.overview.thirtySecond[0];
 
   return (
-    <li className="border-t border-ink-3/20 first:border-t-0">
+    <li className="border-t border-ink-soft/20 first:border-t-0">
       <button
         type="button"
         aria-expanded={isOpen}
@@ -74,10 +74,10 @@ function ExperienceRow({
       >
         <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--space-4)] gap-y-[var(--space-1)]">
           <div>
-            <p className="font-bold text-ink">{project.role}</p>
-            <p className="text-caption text-ink-2">{project.name}</p>
+            <p className="font-bold text-navy">{project.role}</p>
+            <p className="text-caption text-navy-2">{project.name}</p>
           </div>
-          <p className="whitespace-nowrap text-caption text-ink-3">{project.duration}</p>
+          <p className="whitespace-nowrap text-caption text-ink-soft">{project.duration}</p>
         </div>
         <div className="flex flex-wrap items-center gap-[var(--space-2)]">
           {project.tags.map((tag) => (
@@ -86,7 +86,7 @@ function ExperienceRow({
           <Icon
             icon={ChevronDown}
             size={20}
-            className={`ml-auto shrink-0 text-ink-3 transition-transform duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none ${
+            className={`ml-auto shrink-0 text-ink-soft transition-transform duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -99,7 +99,7 @@ function ExperienceRow({
       >
         <div className="overflow-hidden">
           {isOpen && summary ? (
-            <p className="max-w-[60ch] pb-[var(--space-4)] text-[length:var(--text-body)] text-ink-2">
+            <p className="max-w-[60ch] pb-[var(--space-4)] text-[length:var(--text-body)] text-navy-2">
               {summary}
             </p>
           ) : null}
@@ -115,8 +115,8 @@ function ExperienceStripShell({ projects }: ExperienceStripProps) {
   if (projects.length === 0) return null;
 
   return (
-    <div className="border-t border-ink-3/20 pt-[var(--space-8)]">
-      <h2 className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-2">
+    <div className="border-t border-ink-soft/20 pt-[var(--space-8)]">
+      <h2 className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2">
         Professional experience — corporate work, not a public product.
       </h2>
       <ol className="mt-[var(--space-4)] flex flex-col">

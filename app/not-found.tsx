@@ -25,10 +25,10 @@ export default function NotFound() {
         padding="hero"
         className="mx-auto flex max-w-[640px] flex-col items-center gap-[var(--space-6)] text-center"
       >
-        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-ink">
+        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
           This page wandered off.
         </h1>
-        <p className="text-[length:var(--text-lead)] text-ink-2">
+        <p className="text-[length:var(--text-lead)] text-navy-2">
           Whatever you were looking for isn&apos;t at this address. Here are a few places that are still there.
         </p>
 

@@ -37,12 +37,12 @@ export function Research() {
 
       <div className="flex flex-col gap-[var(--space-6)]">
         <ClayCard tier="card" tone="lavender" padding="card" className="flex flex-col gap-[var(--space-3)]">
-          <p className="text-[length:var(--text-body)] font-bold text-ink">{patent.title}</p>
-          <p className="text-caption text-ink-2">
+          <p className="text-[length:var(--text-body)] font-bold text-navy">{patent.title}</p>
+          <p className="text-caption text-navy-2">
             Patent {patent.number} · Application {patent.application} · Filed {patent.filed} · Granted{" "}
             {patent.granted}
           </p>
-          <p className="text-caption text-ink-2">
+          <p className="text-caption text-navy-2">
             Patentee: {patent.patentee}. Inventors: {patent.inventors.join(", ")}.
           </p>
           <ExternalLink href={patent.href}>View Pratyasa — the patent record</ExternalLink>
@@ -51,8 +51,8 @@ export function Research() {
         <ul className="flex flex-col gap-[var(--space-5)]">
           {papers.map((paper) => (
             <li key={paper.id} className="flex flex-col gap-[var(--space-2)]">
-              <p className="text-[length:var(--text-body)] font-semibold text-ink">{paper.title}</p>
-              <p className="text-caption text-ink-2">
+              <p className="text-[length:var(--text-body)] font-semibold text-navy">{paper.title}</p>
+              <p className="text-caption text-navy-2">
                 {paper.authors ? `${paper.authors} ` : ""}
                 {paper.journal} {paper.year}
                 {paper.volumeIssue ? `, ${paper.volumeIssue}` : ""}
@@ -66,7 +66,7 @@ export function Research() {
           ))}
         </ul>
 
-        <p className="max-w-[60ch] text-caption text-ink-3">{researchDisclaimer}</p>
+        <p className="max-w-[60ch] text-caption text-ink-soft">{researchDisclaimer}</p>
       </div>
     </Section>
   );

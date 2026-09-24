@@ -295,7 +295,7 @@ for (const study of CASE_STUDIES) {
 
 // ---------------------------------------------------------------------------
 // @EVAL-007 — OverviewToggle is a keyboard-operable WAI-ARIA radiogroup: roving tabindex, arrow
-// keys move AND select, and the focused segment wears the shared 3px accent focus ring (TKT-48;
+// keys move AND select, and the focused segment wears the shared 2px rust focus ring (TKT-48;
 // checked once on teachspark — the same component every deep-dive study shares).
 // ---------------------------------------------------------------------------
 test("@EVAL-007 OverviewToggle: arrow keys move focus, select the segment, and show the focus ring", {
@@ -317,10 +317,10 @@ test("@EVAL-007 OverviewToggle: arrow keys move focus, select the segment, and s
   await expect(deep).toHaveAttribute("aria-checked", "true");
   await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
 
-  // The focused segment wears the shared 3px solid accent ring (EVAL-007).
+  // The focused segment wears the shared 2px solid rust ring (EVAL-007).
   const accent = await page.evaluate(() => {
     const probe = document.createElement("span");
-    probe.style.color = "var(--color-accent)";
+    probe.style.color = "var(--color-rust)";
     document.body.appendChild(probe);
     const c = getComputedStyle(probe).color;
     probe.remove();
@@ -330,7 +330,7 @@ test("@EVAL-007 OverviewToggle: arrow keys move focus, select the segment, and s
     const s = getComputedStyle(el);
     return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
   });
-  expect(ring.w).toBe("3px");
+  expect(ring.w).toBe("2px");
   expect(ring.style).toBe("solid");
   expect(ring.color).toBe(accent);
 

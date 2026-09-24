@@ -22,7 +22,7 @@ export interface NextProjectProps {
  */
 export function NextProject({ project, icon }: NextProjectProps) {
   return (
-    <section aria-label="Next project" className="mt-[var(--section-gap-desktop)] border-t border-ink/10 bg-surface/40">
+    <section aria-label="Next project" className="mt-[var(--section-gap-desktop)] border-t border-navy/10 bg-ivory/40">
       <Container>
         <ViewTransitionLink
           href={`/work/${project.slug}`}
@@ -31,10 +31,10 @@ export function NextProject({ project, icon }: NextProjectProps) {
           className="group flex min-h-24 items-center justify-between gap-[var(--space-4)] py-[var(--space-6)] focus-ring"
         >
           <span className="flex flex-col gap-[var(--space-1)]">
-            <span className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+            <span className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
               Next
             </span>
-            <span className="flex items-center gap-[var(--space-3)] text-[length:var(--text-h3)] font-bold text-ink">
+            <span className="flex items-center gap-[var(--space-3)] text-[length:var(--text-h3)] font-bold text-navy">
               {project.name}
               <Icon
                 icon={ArrowRight}

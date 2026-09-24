@@ -85,7 +85,7 @@ describe("ClayPill — S04.04 variants", () => {
     const { container } = render(<ClayPill variant="filter">All</ClayPill>);
     const el = container.firstElementChild as HTMLElement;
     expect(el.tagName).toBe("BUTTON");
-    expect(el.className).toMatch(/hover:bg-lavender/);
+    expect(el.className).toMatch(/hover:bg-paper-2/);
     expect(el.className).toMatch(/min-h-11/);
 
     const { container: activeC } = render(
@@ -94,7 +94,7 @@ describe("ClayPill — S04.04 variants", () => {
       </ClayPill>,
     );
     const activeEl = activeC.firstElementChild as HTMLElement;
-    expect(activeEl.className).toMatch(/\bbg-lavender\b/);
+    expect(activeEl.className).toMatch(/\bbg-paper-2\b/);
     expect(activeEl.getAttribute("aria-pressed")).toBe("true");
   });
 

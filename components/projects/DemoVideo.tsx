@@ -150,17 +150,17 @@ export function DemoVideo({
       <div
         ref={containerRef}
         data-video-state="no-video"
-        className={["relative h-full w-full overflow-hidden bg-surface", className].filter(Boolean).join(" ")}
+        className={["relative h-full w-full overflow-hidden bg-ivory", className].filter(Boolean).join(" ")}
       >
         {showImage && posterFallback ? (
           <Image src={posterFallback.src} alt={posterFallback.alt} fill sizes={sizes} className="object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-ink/5">
-            <Icon icon={Film} size={24} className="text-ink-3" />
+          <div className="flex h-full w-full items-center justify-center bg-navy/5">
+            <Icon icon={Film} size={24} className="text-ink-soft" />
           </div>
         )}
-        <div className="absolute inset-0 flex items-center justify-center bg-ink/30">
-          <span className="inline-flex items-center gap-[var(--space-2)] rounded-[var(--radius-utility)] bg-surface px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-ink">
+        <div className="absolute inset-0 flex items-center justify-center bg-navy/30">
+          <span className="inline-flex items-center gap-[var(--space-2)] rounded-[var(--radius-utility)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-navy">
             <Icon icon={Film} size={20} />
             Demo coming
           </span>
@@ -173,7 +173,7 @@ export function DemoVideo({
     <div
       ref={containerRef}
       data-video-state={phase}
-      className={["relative h-full w-full overflow-hidden bg-surface", className].filter(Boolean).join(" ")}
+      className={["relative h-full w-full overflow-hidden bg-ivory", className].filter(Boolean).join(" ")}
     >
       {intent ? (
         // No caption track: these are silent, muted product-demo clips — nothing spoken to transcribe.
@@ -210,9 +210,9 @@ export function DemoVideo({
       ) : null}
 
       {phase === "loading" ? (
-        <div role="status" aria-busy="true" className="pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/40">
+        <div role="status" aria-busy="true" className="pointer-events-none absolute inset-0 flex items-center justify-center bg-navy/40">
           <VisuallyHidden>Loading demo video</VisuallyHidden>
-          <Icon icon={Loader2} size={24} className="animate-spin text-surface motion-reduce:animate-none" />
+          <Icon icon={Loader2} size={24} className="animate-spin text-ivory motion-reduce:animate-none" />
         </div>
       ) : null}
 
@@ -220,7 +220,7 @@ export function DemoVideo({
         <div
           role="alert"
           aria-labelledby={errorHeadingId}
-          className="absolute inset-0 flex flex-col items-center justify-center gap-[var(--space-3)] bg-blush/90 p-[var(--space-4)] text-center text-ink"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-[var(--space-3)] bg-steel/90 p-[var(--space-4)] text-center text-navy"
         >
           <Icon icon={AlertTriangle} size={24} />
           <p id={errorHeadingId} className="text-caption font-semibold">
@@ -231,7 +231,7 @@ export function DemoVideo({
               View live
             </ClayButton>
           ) : (
-            <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-surface px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-ink">
+            <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-navy">
               Demo coming
             </span>
           )}
@@ -239,7 +239,7 @@ export function DemoVideo({
       ) : null}
 
       {phase !== "error" ? (
-        <span className="pointer-events-none absolute bottom-[var(--space-2)] right-[var(--space-2)] rounded-[var(--radius-utility)] bg-ink/60 px-[var(--space-2)] py-[2px] text-caption text-surface">
+        <span className="pointer-events-none absolute bottom-[var(--space-2)] right-[var(--space-2)] rounded-[var(--radius-utility)] bg-navy/60 px-[var(--space-2)] py-[2px] text-caption text-ivory">
           {formatDuration(video.durationSec)}
         </span>
       ) : null}

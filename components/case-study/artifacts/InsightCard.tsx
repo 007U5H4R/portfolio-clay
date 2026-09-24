@@ -15,10 +15,10 @@ export function InsightCard({ artifact, source }: InsightCardProps) {
   return (
     <ArtifactShell source={source} label="Insight" caption={artifact.caption}>
       <figure className="flex flex-col gap-[var(--space-3)]">
-        <blockquote className="border-l-[4px] border-butter pl-[var(--space-4)] text-[length:var(--text-lead)] font-medium text-ink">
+        <blockquote className="border-l-[4px] border-kraft pl-[var(--space-4)] text-[length:var(--text-lead)] font-medium text-navy">
           “{artifact.quote}”
         </blockquote>
-        <figcaption className="text-caption text-ink-2">— {artifact.attribution}</figcaption>
+        <figcaption className="text-caption text-navy-2">— {artifact.attribution}</figcaption>
       </figure>
     </ArtifactShell>
   );

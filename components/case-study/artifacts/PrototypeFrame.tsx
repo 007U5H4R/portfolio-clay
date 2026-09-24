@@ -50,14 +50,14 @@ export function PrototypeFrame({ artifact, source, sizes = DEFAULT_SIZES }: Prot
             className="h-full w-full rounded-[var(--radius-clay)] object-cover"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-[var(--space-2)] bg-ink/5 text-center text-ink-3">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-[var(--space-2)] bg-navy/5 text-center text-ink-soft">
             <Icon icon={ImageOff} size={24} />
             <span className="text-caption font-medium">{media.alt}</span>
           </div>
         )}
       </ClayFrame>
       <figcaption className="flex flex-col gap-[var(--space-1)]">
-        {caption ? <span className="text-caption text-ink-2">{caption}</span> : null}
+        {caption ? <span className="text-caption text-navy-2">{caption}</span> : null}
         <SourceCaption source={source} />
       </figcaption>
     </figure>

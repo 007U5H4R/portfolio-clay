@@ -88,7 +88,7 @@ const PANEL_ID = "how-i-think-panel";
 
 function DraftBadge() {
   return (
-    <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-butter/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink">
+    <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-kraft/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy">
       Draft
     </span>
   );
@@ -160,7 +160,7 @@ export function HowIThink({ stages }: HowIThinkProps) {
 
       <ol
         ref={listRef}
-        className="relative flex flex-col gap-[var(--space-6)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-3 before:content-[''] lg:flex-row lg:items-start lg:justify-between lg:gap-[var(--space-2)] lg:pl-0 lg:pt-[var(--space-6)] lg:before:content-none"
+        className="relative flex flex-col gap-[var(--space-6)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-soft before:content-[''] lg:flex-row lg:items-start lg:justify-between lg:gap-[var(--space-2)] lg:pl-0 lg:pt-[var(--space-6)] lg:before:content-none"
       >
         {/* Decorative journey-path connector (≥1024 only). Static, aria-hidden — no draw-in
             animation, so it needs no reduced-motion handling of its own. */}
@@ -173,7 +173,7 @@ export function HowIThink({ stages }: HowIThinkProps) {
           <path
             d="M100,66 Q200,26 300,26 T500,66 T700,26 T900,66 T1100,26"
             fill="none"
-            className="stroke-ink-3/35"
+            className="stroke-ink-soft/35"
             strokeWidth="2"
             strokeDasharray="1 10"
             strokeLinecap="round"
@@ -214,7 +214,7 @@ export function HowIThink({ stages }: HowIThinkProps) {
                 >
                   <Icon icon={StageIcon} size={24} />
                 </ClayTile>
-                <span className="text-[length:var(--text-body)] font-bold text-ink transition-colors duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none [@media(hover:hover)]:group-hover:text-accent">
+                <span className="text-[length:var(--text-body)] font-bold text-navy transition-colors duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none [@media(hover:hover)]:group-hover:text-rust">
                   {stage.label}
                 </span>
               </button>
@@ -240,17 +240,17 @@ export function HowIThink({ stages }: HowIThinkProps) {
                   colour added (13-token gate). */}
               <span
                 aria-hidden
-                className="absolute -top-[var(--space-3)] left-[var(--space-7)] h-[var(--space-5)] w-[var(--space-9)] rotate-2 rounded-[3px] bg-butter/70"
+                className="absolute -top-[var(--space-3)] left-[var(--space-7)] h-[var(--space-5)] w-[var(--space-9)] rotate-2 rounded-[3px] bg-kraft/70"
               />
               <div className="flex items-center gap-[var(--space-2)]">
                 <DraftBadge />
-                <span className="text-caption text-ink-3">{openStage.label} — my own framing, not yet signed off</span>
+                <span className="text-caption text-ink-soft">{openStage.label} — my own framing, not yet signed off</span>
               </div>
-              <p className="text-body font-semibold text-ink">{openStage.principle}</p>
-              <blockquote className="max-w-[65ch] text-[length:var(--text-lead)] text-ink">
+              <p className="text-body font-semibold text-navy">{openStage.principle}</p>
+              <blockquote className="max-w-[65ch] text-[length:var(--text-lead)] text-navy">
                 “{openStage.example.quote}”
               </blockquote>
-              <p className="text-caption text-ink-2">— {openStage.example.attribution}</p>
+              <p className="text-caption text-navy-2">— {openStage.example.attribution}</p>
               <ClayPill variant="link" href={openStage.example.href}>
                 {`See how I tested this in ${openStage.example.projectName}`}
               </ClayPill>

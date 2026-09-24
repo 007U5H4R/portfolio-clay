@@ -15,7 +15,7 @@ export interface ProseProps {
 export function Prose({ children, as, className }: ProseProps) {
   const Component = (as ?? "div") as ElementType;
   const classes = [
-    "max-w-[60ch] text-[length:var(--text-body)] leading-relaxed text-ink-2 [&_p+p]:mt-5 [&_a]:underline [&_a]:text-accent",
+    "max-w-[60ch] text-[length:var(--text-body)] leading-relaxed text-navy-2 [&_p+p]:mt-5 [&_a]:underline [&_a]:text-rust",
     className,
   ]
     .filter(Boolean)

@@ -30,13 +30,13 @@ export function HypothesisCard({ artifact, source }: HypothesisCardProps) {
     <ArtifactShell source={source} label="Hypothesis" caption={artifact.caption}>
       <div className="flex flex-col gap-[var(--space-4)]">
         <div className="flex flex-col gap-[var(--space-1)]">
-          <p className="text-caption font-semibold text-ink-3">We believe</p>
-          <p className="text-[length:var(--text-body)] text-ink">{artifact.believe}</p>
+          <p className="text-caption font-semibold text-ink-soft">We believe</p>
+          <p className="text-[length:var(--text-body)] text-navy">{artifact.believe}</p>
         </div>
-        <hr className="border-0 border-t border-ink/10" />
+        <hr className="border-0 border-t border-navy/10" />
         <div className="flex flex-col gap-[var(--space-1)]">
-          <p className="text-caption font-semibold text-ink-3">We&apos;ll know when</p>
-          <p className="text-[length:var(--text-body)] text-ink">{artifact.knowWhen}</p>
+          <p className="text-caption font-semibold text-ink-soft">We&apos;ll know when</p>
+          <p className="text-[length:var(--text-body)] text-navy">{artifact.knowWhen}</p>
         </div>
         <span
           className={[

@@ -20,7 +20,7 @@ export function NavPill() {
   return (
     <span
       aria-hidden="true"
-      className="absolute inset-0 rounded-[var(--radius-pill)] bg-lavender/30"
+      className="absolute inset-0 rounded-[var(--radius-pill)] bg-paper-2/30"
     />
   );
 }

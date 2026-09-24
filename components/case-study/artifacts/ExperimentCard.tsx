@@ -35,13 +35,13 @@ export function ExperimentCard({ artifact, source }: ExperimentCardProps) {
         {steps.map((step, i) => (
           <Fragment key={step.label}>
             <li className="flex min-w-0 flex-1 flex-col gap-[var(--space-1)]">
-              <span className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+              <span className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
                 {step.label}
               </span>
-              <span className="text-[length:var(--text-body)] text-ink">{step.value}</span>
+              <span className="text-[length:var(--text-body)] text-navy">{step.value}</span>
             </li>
             {i < steps.length - 1 ? (
-              <span aria-hidden="true" className="flex justify-center text-ink-3">
+              <span aria-hidden="true" className="flex justify-center text-ink-soft">
                 <span className="rotate-90">
                   <Icon icon={ArrowRight} size={20} />
                 </span>

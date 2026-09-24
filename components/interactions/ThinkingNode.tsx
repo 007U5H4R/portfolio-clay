@@ -64,24 +64,24 @@ export function ThinkingNode({ node, index, sourceLabel }: ThinkingNodeProps) {
       className="thinking-node relative flex gap-[var(--space-4)] pb-[var(--space-6)] last:pb-0"
       style={{ "--i": index } as CSSProperties}
     >
-      <span className="relative z-[1] flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-ink shadow-[var(--shadow-utility)]">
+      <span className="relative z-[1] flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ivory text-navy shadow-[var(--shadow-utility)]">
         <Icon icon={StageIcon} size={20} />
       </span>
       <div className="flex flex-col gap-[var(--space-1)] pt-[var(--space-1)]">
-        <p className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+        <p className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
           {STAGE_LABEL[node.stage]}
         </p>
-        <p className="max-w-[60ch] text-[length:var(--text-body)] text-ink-2">{node.text}</p>
+        <p className="max-w-[60ch] text-[length:var(--text-body)] text-navy-2">{node.text}</p>
         {node.href ? (
           <a
             href={node.href}
             data-inline-link=""
-            className="w-fit text-caption font-semibold text-accent underline underline-offset-2 focus-ring rounded-[2px]"
+            className="w-fit text-caption font-semibold text-rust underline underline-offset-2 focus-ring rounded-[2px]"
           >
             {sourceLabel}
           </a>
         ) : (
-          <span className="text-caption text-ink-3">{sourceLabel}</span>
+          <span className="text-caption text-ink-soft">{sourceLabel}</span>
         )}
       </div>
     </li>

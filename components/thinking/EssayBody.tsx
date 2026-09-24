@@ -30,11 +30,11 @@ export function EssayBody({ essay }: EssayBodyProps) {
   return (
     <article className="flex flex-col gap-[var(--space-7)]">
       <header className="flex flex-col gap-[var(--space-3)]">
-        <h1 className="max-w-[44ch] text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-ink">
+        <h1 className="max-w-[44ch] text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
           {essay.title}
         </h1>
         <div className="flex flex-wrap items-center gap-[var(--space-3)]">
-          <span className="text-caption text-ink-3">
+          <span className="text-caption text-ink-soft">
             {essay.readingMinutes} min read
           </span>
           {essay.draft ? <Tag>Draft — pending sign-off</Tag> : null}
@@ -48,12 +48,12 @@ export function EssayBody({ essay }: EssayBodyProps) {
           const source = sourceById.get(passage.source);
           return (
             <figure key={index} className="flex flex-col gap-[var(--space-2)]">
-              <blockquote className="border-l-[4px] border-butter pl-[var(--space-4)] text-[length:var(--text-lead)] font-medium text-ink">
+              <blockquote className="border-l-[4px] border-kraft pl-[var(--space-4)] text-[length:var(--text-lead)] font-medium text-navy">
                 “{passage.quote}”
               </blockquote>
               {source ? (
-                <figcaption className="text-caption text-ink-3">
-                  <span className="font-semibold text-ink-2">Source: </span>
+                <figcaption className="text-caption text-ink-soft">
+                  <span className="font-semibold text-navy-2">Source: </span>
                   {source.label}
                 </figcaption>
               ) : null}
@@ -62,7 +62,7 @@ export function EssayBody({ essay }: EssayBodyProps) {
         })}
 
         <p>
-          <span className="font-semibold text-ink">Draft — pending sign-off: </span>
+          <span className="font-semibold text-navy">Draft — pending sign-off: </span>
           {essay.framing}
         </p>
       </Prose>
@@ -70,7 +70,7 @@ export function EssayBody({ essay }: EssayBodyProps) {
       {relatedProject ? (
         <Link
           href={`/work/${relatedProject.slug}`}
-          className="group flex min-h-11 w-fit items-center gap-[var(--space-2)] text-[length:var(--text-body)] font-semibold text-accent underline underline-offset-2 focus-ring rounded-[2px]"
+          className="group flex min-h-11 w-fit items-center gap-[var(--space-2)] text-[length:var(--text-body)] font-semibold text-rust underline underline-offset-2 focus-ring rounded-[2px]"
         >
           Related project: {relatedProject.name}
           <Icon

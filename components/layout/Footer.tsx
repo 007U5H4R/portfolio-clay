@@ -33,16 +33,16 @@ export function Footer() {
 
   return (
     <footer
-      // Flat, untinted (Design.md §3: "Flat, two-tier") — deliberately no `bg-surface`/tone wash:
-      // `ink-3`/`text-accent` only clear WCAG AA 4.5:1 against `--color-bg`'s lighter L (0.985);
+      // Flat, untinted (Design.md §3: "Flat, two-tier") — deliberately no `bg-ivory`/tone wash:
+      // `ink-3`/`text-rust` only clear WCAG AA 4.5:1 against `--color-bg`'s lighter L (0.985);
       // surface (L 0.966) drops both to ~4.4 (axe `color-contrast`, caught by tracer's @EVAL-006).
-      className="border-t border-ink/10 bg-bg pt-[var(--space-12)]"
+      className="border-t border-navy/10 bg-paper pt-[var(--space-12)]"
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)" }}
     >
       <Container className="flex flex-col gap-[var(--space-9)]">
         {/* Tier 1 — headline + the three actions. */}
         <div className="flex flex-col gap-[var(--space-6)]">
-          <h2 className="max-w-[20ch] text-[length:var(--text-h3)] font-extrabold text-ink">
+          <h2 className="max-w-[20ch] text-[length:var(--text-h3)] font-extrabold text-navy">
             Still curious? Let&apos;s build what&apos;s next.
           </h2>
           <div className="flex flex-wrap items-center gap-[var(--space-4)]">
@@ -59,9 +59,9 @@ export function Footer() {
         </div>
 
         {/* Tier 2 — caption-size site map + credit. */}
-        <div className="flex flex-col gap-[var(--space-5)] border-t border-ink/10 pt-[var(--space-6)] text-[length:var(--text-caption)] text-ink-3 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-[var(--space-5)] border-t border-navy/10 pt-[var(--space-6)] text-[length:var(--text-caption)] text-ink-soft md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="font-semibold text-ink-2">{site.name}</p>
+            <p className="font-semibold text-navy-2">{site.name}</p>
             <p>{site.title}</p>
           </div>
 
@@ -80,7 +80,7 @@ export function Footer() {
         </div>
 
         {/* Footer credit — exactly "Built with curiosity." (decision TP10/E-1). */}
-        <p className="text-[length:var(--text-caption)] text-ink-3">Built with curiosity.</p>
+        <p className="text-[length:var(--text-caption)] text-ink-soft">Built with curiosity.</p>
       </Container>
     </footer>
   );

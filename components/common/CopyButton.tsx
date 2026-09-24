@@ -109,9 +109,9 @@ export function CopyButton({ value, state: forcedState, className }: CopyButtonP
 
       {/* Never a dead end (A12): on failure the value is shown as selectable text. */}
       {state === "error" ? (
-        <span className="flex flex-col gap-[2px] text-caption text-ink-2" data-copy-fallback>
-          <output className="select-all font-medium text-ink">{value}</output>
-          <span className="text-ink-3">Select to copy</span>
+        <span className="flex flex-col gap-[2px] text-caption text-navy-2" data-copy-fallback>
+          <output className="select-all font-medium text-navy">{value}</output>
+          <span className="text-ink-soft">Select to copy</span>
         </span>
       ) : null}
     </span>

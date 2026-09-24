@@ -57,7 +57,7 @@ export function MobileMenu() {
         ref={dialogRef}
         id={dialogId}
         aria-label="Site navigation"
-        className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-bg p-0 backdrop:bg-ink/40"
+        className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-paper p-0 backdrop:bg-navy/40"
         // Native `cancel` (Esc) closes the dialog itself, which then fires `close` — syncing
         // React state from `close` covers both Esc and the explicit close button below.
         onClose={() => setOpen(false)}
@@ -83,14 +83,14 @@ export function MobileMenu() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="flex min-h-14 items-center text-[18px] font-medium text-ink focus-ring"
+                className="flex min-h-14 items-center text-[18px] font-medium text-navy focus-ring"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex flex-col gap-3 border-t border-ink/10 pt-[var(--space-5)]">
+          <div className="flex flex-col gap-3 border-t border-navy/10 pt-[var(--space-5)]">
             <AskAIButton />
             <ClayButton
               variant="secondary"

@@ -94,7 +94,7 @@ test.describe("ask-inline", () => {
     await page.goto("/", { waitUntil: "load" });
 
     // Every focus-visible stop from the top of the page through the Ask idle controls wears the
-    // shared 3px accent ring (fixture asserts this on each stop it lands on).
+    // shared 2px rust ring (fixture asserts this on each stop it lands on).
     await keyboardOnly(page, { tabs: 16 });
 
     // Functional keyboard path: reach the field, submit with Enter, land on the answer heading, then

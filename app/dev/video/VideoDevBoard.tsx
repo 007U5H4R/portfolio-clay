@@ -63,7 +63,7 @@ function Fixture({
 }) {
   return (
     <section data-fixture={fixture} className="flex flex-col gap-[var(--space-3)]">
-      <h2 className="text-h3 text-ink">{title}</h2>
+      <h2 className="text-h3 text-navy">{title}</h2>
       <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-[var(--radius-clay-sm)] shadow-[var(--shadow-clay-rest)]">
         {children}
       </div>
@@ -73,9 +73,9 @@ function Fixture({
 
 export function VideoDevBoard() {
   return (
-    <main className="min-h-screen bg-bg px-[var(--gutter-mobile)] py-[var(--space-9)] text-ink md:px-[var(--gutter-tablet)]">
+    <main className="min-h-screen bg-paper px-[var(--gutter-mobile)] py-[var(--space-9)] text-navy md:px-[var(--gutter-tablet)]">
       <header className="mb-[var(--space-8)]">
-        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
           Dev board · QA only
         </p>
         <h1 className="text-h2">DemoVideo states (EVAL-014)</h1>

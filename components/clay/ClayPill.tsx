@@ -14,7 +14,7 @@ export type ClayPillVariant = "filter" | "tag" | "link";
  * Utility-radius pill (Design.md §3). Three deliberately-distinguishable variants (Law of
  * Similarity — a static tag must never read as a control):
  *   - `filter` → interactive `<button>` (FilterTabs / SuggestedPrompts): hover + active states,
- *                44px tall for Fitts. `active` marks the selected tab (bg-lavender + ink text).
+ *                44px tall for Fitts. `active` marks the selected tab (bg-paper-2 + ink text).
  *   - `tag`    → static `<span>`, NO hover state, `ink-2` text.
  *   - `link`   → `<a>` pill with a trailing arrow (EvidenceLinks, "View RailCite →").
  */
@@ -34,7 +34,7 @@ const interactivePill =
 
 type ClayPillFilterProps = {
   variant: "filter";
-  /** Selected/active tab state (bg-lavender + ink text). */
+  /** Selected/active tab state (bg-paper-2 + ink text). */
   active?: boolean | undefined;
   className?: string | undefined;
   children: ReactNode;
@@ -61,7 +61,7 @@ export function ClayPill(props: ClayPillProps) {
     const classes = [
       pillBase,
       interactivePill,
-      active ? "bg-lavender text-ink shadow-[var(--shadow-utility)]" : "bg-transparent text-ink-2 hover:bg-lavender/40",
+      active ? "bg-paper-2 text-navy shadow-[var(--shadow-utility)]" : "bg-transparent text-navy-2 hover:bg-paper-2/40",
       className,
     ]
       .filter(Boolean)
@@ -79,7 +79,7 @@ export function ClayPill(props: ClayPillProps) {
       pillBase,
       interactivePill,
       tierClass.utility,
-      "bg-surface text-ink hover:bg-lavender/40",
+      "bg-ivory text-navy hover:bg-paper-2/40",
       className,
     ]
       .filter(Boolean)
@@ -95,7 +95,7 @@ export function ClayPill(props: ClayPillProps) {
   // Default: static tag — no hover, never mistaken for a control.
   const { variant: _variant, className, children, ...rest } = props;
   void _variant;
-  const classes = [pillBase, tierClass.utility, "text-ink-2", className].filter(Boolean).join(" ");
+  const classes = [pillBase, tierClass.utility, "text-navy-2", className].filter(Boolean).join(" ");
   return (
     <span className={classes} {...rest}>
       {children}

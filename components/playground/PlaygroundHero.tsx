@@ -13,7 +13,7 @@ export function PlaygroundHero() {
       as="section"
       className="pt-[var(--space-12)] pb-[var(--space-8)] md:pt-[var(--space-13)]"
     >
-      <h1 className="max-w-[44ch] text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-ink">
+      <h1 className="max-w-[44ch] text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
         Small experiments. Big questions.
       </h1>
     </Container>

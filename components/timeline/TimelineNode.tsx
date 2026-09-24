@@ -60,8 +60,8 @@ export const TimelineNode = forwardRef<HTMLButtonElement, TimelineNodeProps>(fun
       {/* Text block: a stacked label/date column on mobile; flattened into the button's own column
           flow at desktop (`lg:contents`) so label → dot → date order via the `order` utilities. */}
       <span className="flex min-w-0 flex-col lg:contents">
-        <span className="font-bold text-ink lg:order-1">{label}</span>
-        <span className="text-caption text-ink-3 lg:order-3">{dateRange}</span>
+        <span className="font-bold text-navy lg:order-1">{label}</span>
+        <span className="text-caption text-ink-soft lg:order-3">{dateRange}</span>
       </span>
 
       {/* Dot band: absolutely pinned onto the vertical rail line on mobile; a normal, centered
@@ -70,10 +70,10 @@ export const TimelineNode = forwardRef<HTMLButtonElement, TimelineNodeProps>(fun
         aria-hidden="true"
         className="absolute left-[var(--space-5)] top-1/2 -translate-x-1/2 -translate-y-1/2 lg:static lg:order-2 lg:flex lg:w-full lg:translate-x-0 lg:translate-y-0 lg:items-center lg:justify-center"
       >
-        <span className="absolute left-0 right-0 top-1/2 hidden h-px -translate-y-1/2 bg-ink-3 transition-colors duration-200 ease-[var(--ease-hover)] group-hover:bg-ink-2 group-focus-visible:bg-ink-2 lg:block" />
+        <span className="absolute left-0 right-0 top-1/2 hidden h-px -translate-y-1/2 bg-ink-soft transition-colors duration-200 ease-[var(--ease-hover)] group-hover:bg-navy-2 group-focus-visible:bg-navy-2 lg:block" />
         <span
           data-timeline-dot
-          className="relative size-3 rounded-full bg-ink-3 ring-4 ring-bg transition-transform duration-200 ease-[var(--ease-hover)] group-hover:scale-125 group-focus-visible:scale-125 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-focus-visible:scale-100"
+          className="relative size-3 rounded-full bg-ink-soft ring-4 ring-paper transition-transform duration-200 ease-[var(--ease-hover)] group-hover:scale-125 group-focus-visible:scale-125 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-focus-visible:scale-100"
         />
       </span>
     </button>

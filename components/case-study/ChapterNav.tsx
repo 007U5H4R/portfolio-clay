@@ -81,11 +81,11 @@ export function ChapterNav({ items }: ChapterNavProps) {
                 className={[
                   "flex min-h-11 items-center gap-[var(--space-3)] rounded-[var(--radius-utility)] px-[var(--space-3)] text-[length:var(--text-caption)] focus-ring",
                   active
-                    ? "font-bold text-ink underline decoration-accent decoration-2 underline-offset-4"
-                    : "text-ink-2 hover:text-ink",
+                    ? "font-bold text-navy underline decoration-rust decoration-2 underline-offset-4"
+                    : "text-navy-2 hover:text-navy",
                 ].join(" ")}
               >
-                <span className="tabular-nums text-ink-3">{numberLabel(item.number)}</span>
+                <span className="tabular-nums text-ink-soft">{numberLabel(item.number)}</span>
                 {item.title}
               </a>
             </li>
@@ -94,7 +94,7 @@ export function ChapterNav({ items }: ChapterNavProps) {
       </ul>
 
       {/* <1024: sticky horizontal scrollable pill row. */}
-      <ul className="sticky top-[5rem] z-20 -mx-[var(--gutter-mobile)] flex gap-[var(--space-2)] overflow-x-auto bg-bg/90 px-[var(--gutter-mobile)] py-[var(--space-2)] backdrop-blur md:-mx-[var(--gutter-tablet)] md:px-[var(--gutter-tablet)] lg:hidden">
+      <ul className="sticky top-[5rem] z-20 -mx-[var(--gutter-mobile)] flex gap-[var(--space-2)] overflow-x-auto bg-paper/90 px-[var(--gutter-mobile)] py-[var(--space-2)] backdrop-blur md:-mx-[var(--gutter-tablet)] md:px-[var(--gutter-tablet)] lg:hidden">
         {items.map((item) => {
           const active = item.anchor === activeAnchor;
           return (
@@ -104,7 +104,7 @@ export function ChapterNav({ items }: ChapterNavProps) {
                 aria-current={active ? "location" : undefined}
                 className={[
                   "inline-flex min-h-11 items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] px-[var(--space-4)] text-[length:var(--text-caption)] font-semibold focus-ring",
-                  active ? "bg-lavender text-ink shadow-[var(--shadow-utility)]" : "bg-surface text-ink-2",
+                  active ? "bg-paper-2 text-navy shadow-[var(--shadow-utility)]" : "bg-ivory text-navy-2",
                 ].join(" ")}
               >
                 <span className="tabular-nums">{numberLabel(item.number)}</span>

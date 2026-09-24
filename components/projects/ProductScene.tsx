@@ -47,14 +47,14 @@ export function ProductScene({ project, quote }: ProductSceneProps) {
       {/* Browser-window mock of the live product. Decorative traffic-light dots are neutral
           (ink-3) rather than red/amber/green — DESIGN_DIRECTION's "no rainbow UI" rule and the
           one-accent-per-section discipline both rule out a literal 3-colour set here. */}
-      <div className="overflow-hidden rounded-[var(--radius-utility)] bg-bg shadow-[var(--shadow-utility)]">
-        <div className="flex items-center gap-[var(--space-3)] border-b border-ink/10 px-[var(--space-4)] py-[var(--space-3)]">
+      <div className="overflow-hidden rounded-[var(--radius-utility)] bg-paper shadow-[var(--shadow-utility)]">
+        <div className="flex items-center gap-[var(--space-3)] border-b border-navy/10 px-[var(--space-4)] py-[var(--space-3)]">
           <span aria-hidden className="flex shrink-0 gap-[6px]">
-            <span className="h-2.5 w-2.5 rounded-full bg-ink-3/25" />
-            <span className="h-2.5 w-2.5 rounded-full bg-ink-3/25" />
-            <span className="h-2.5 w-2.5 rounded-full bg-ink-3/25" />
+            <span className="h-2.5 w-2.5 rounded-full bg-ink-soft/25" />
+            <span className="h-2.5 w-2.5 rounded-full bg-ink-soft/25" />
+            <span className="h-2.5 w-2.5 rounded-full bg-ink-soft/25" />
           </span>
-          <span className="min-w-0 flex-1 truncate rounded-[var(--radius-pill)] bg-surface px-[var(--space-3)] py-[2px] text-caption text-ink-3">
+          <span className="min-w-0 flex-1 truncate rounded-[var(--radius-pill)] bg-ivory px-[var(--space-3)] py-[2px] text-caption text-ink-soft">
             {addressBarLabel}
           </span>
         </div>
@@ -67,22 +67,22 @@ export function ProductScene({ project, quote }: ProductSceneProps) {
             >
               <ClayIcon icon={IconComponent} size={40} tone="lavender" />
             </span>
-            <span className="text-[length:var(--text-h3)] font-bold text-ink">{name}</span>
+            <span className="text-[length:var(--text-h3)] font-bold text-navy">{name}</span>
           </div>
 
           {/* UI chrome only — not a factual claim (see docstring above). */}
-          <div className="rounded-[var(--radius-utility)] bg-surface px-[var(--space-4)] py-[var(--space-3)] text-body text-ink-3">
+          <div className="rounded-[var(--radius-utility)] bg-ivory px-[var(--space-4)] py-[var(--space-3)] text-body text-ink-soft">
             Ask about {name}…
           </div>
 
-          <div className="flex flex-col gap-[var(--space-3)] rounded-[var(--radius-utility)] bg-lavender/20 p-[var(--space-4)]">
-            <p className="text-body text-ink">{tagline}</p>
+          <div className="flex flex-col gap-[var(--space-3)] rounded-[var(--radius-utility)] bg-paper-2/20 p-[var(--space-4)]">
+            <p className="text-body text-navy">{tagline}</p>
             {metrics.length > 0 && (
               <div className="flex flex-wrap gap-[var(--space-2)]">
                 {metrics.slice(0, 2).map((metric) => (
                   <span
                     key={metric.label}
-                    className="rounded-[var(--radius-pill)] bg-surface px-[var(--space-3)] py-[2px] text-caption font-semibold text-ink-2"
+                    className="rounded-[var(--radius-pill)] bg-ivory px-[var(--space-3)] py-[2px] text-caption font-semibold text-navy-2"
                   >
                     {metric.value} {metric.label}
                   </span>
@@ -95,10 +95,10 @@ export function ProductScene({ project, quote }: ProductSceneProps) {
 
       {/* Pull-quote + CTA (mockup 2's right column). */}
       <div className="flex flex-col items-start gap-[var(--space-4)]">
-        <blockquote className="max-w-[28ch] text-[length:var(--text-h3)] font-bold leading-tight text-ink">
+        <blockquote className="max-w-[28ch] text-[length:var(--text-h3)] font-bold leading-tight text-navy">
           “{quote.text}”
         </blockquote>
-        <p className="text-caption text-ink-2">— {quote.attribution}</p>
+        <p className="text-caption text-navy-2">— {quote.attribution}</p>
         <ClayButton
           variant="primary"
           href={`/work/${slug}`}

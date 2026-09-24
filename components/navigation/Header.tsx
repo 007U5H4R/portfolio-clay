@@ -40,7 +40,7 @@ export function Header() {
       // is a CSS custom property (not a JS-computed inline style keyed off `isCompact`) so the
       // React-owned `data-compact` attribute only ever flips a class — see docs/reports/TKT-01-fix.md
       // (F6) for why a JS-computed value here is best avoided on this element.
-      className="sticky top-0 z-40 py-[26px] [--header-py:26px] transition-[padding,background-color,backdrop-filter] duration-[250ms] ease-in-out motion-reduce:transition-none data-[compact]:bg-bg/80 data-[compact]:py-3 data-[compact]:[--header-py:12px] data-[compact]:backdrop-blur-[12px]"
+      className="sticky top-0 z-40 py-[26px] [--header-py:26px] transition-[padding,background-color,backdrop-filter] duration-[250ms] ease-in-out motion-reduce:transition-none data-[compact]:bg-paper/80 data-[compact]:py-3 data-[compact]:[--header-py:12px] data-[compact]:backdrop-blur-[12px]"
       style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + var(--header-py))" }}
     >
       <Container className="flex items-center justify-between gap-4">
@@ -51,17 +51,17 @@ export function Header() {
           <ClayTile size={40} tier="utility">
             {/* EXE-7 micro-label exception: decorative brand monogram, not content — ink on the
                 utility tile clears AA contrast by a wide margin at 13px. */}
-            <span className="text-[13px] font-semibold text-ink" aria-hidden="true" data-micro-label="">
+            <span className="text-[13px] font-semibold text-navy" aria-hidden="true" data-micro-label="">
               TP
             </span>
           </ClayTile>
           <span className="flex flex-col leading-tight">
-            <span className="text-[14px] font-semibold text-ink">{site.name}</span>
+            <span className="text-[14px] font-semibold text-navy">{site.name}</span>
             {/* Deviation 5 (Design.md): subtitle hides below 768px so the mobile header stays
                 short enough for the Hero to pass its 5-second test without scrolling.
                 EXE-7 micro-label exception: decorative brand label, ink-3 on bg ≈ 4.8:1 (AA-safe
                 at 12px) — exempt from the 14px content floor, not exempt from contrast. */}
-            <span className="hidden text-[12px] text-ink-3 md:block" data-micro-label="">
+            <span className="hidden text-[12px] text-ink-soft md:block" data-micro-label="">
               {site.title}
             </span>
           </span>
@@ -76,7 +76,7 @@ export function Header() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 data-active={active || undefined}
-                className="relative flex min-h-11 items-center px-4 text-[14px] font-medium text-ink-2 focus-ring data-[active]:text-ink"
+                className="relative flex min-h-11 items-center px-4 text-[14px] font-medium text-navy-2 focus-ring data-[active]:text-navy"
               >
                 {active ? <NavPill /> : null}
                 <span className="relative">{item.label}</span>

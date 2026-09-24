@@ -27,7 +27,7 @@ export interface ProjectCardProps {
  */
 const cardClass =
   "group relative isolate flex h-full flex-col gap-[var(--space-4)] p-[var(--card-padding)] " +
-  "rounded-[var(--radius-clay)] bg-surface bg-[image:var(--gradient-clay-volume)] shadow-[var(--shadow-clay-rest)] text-ink focus-ring " +
+  "rounded-[var(--radius-clay)] bg-ivory bg-[image:var(--gradient-clay-volume)] shadow-[var(--shadow-clay-rest)] text-navy focus-ring " +
   "transition-[transform,box-shadow] duration-200 ease-[var(--ease-hover)] " +
   "hover:-translate-y-[5px] hover:shadow-[var(--shadow-clay-hover)] " +
   "active:translate-y-px active:scale-[.98] active:shadow-[var(--shadow-clay-press)] " +
@@ -59,9 +59,9 @@ export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
         <ClayIcon icon={IconComponent} size={56} tone="lavender" />
       </span>
 
-      <h3 className="text-[length:var(--text-h3)] font-bold leading-tight text-ink">{name}</h3>
+      <h3 className="text-[length:var(--text-h3)] font-bold leading-tight text-navy">{name}</h3>
 
-      <p className="line-clamp-2 text-[length:var(--text-body)] text-ink-2">{tagline}</p>
+      <p className="line-clamp-2 text-[length:var(--text-body)] text-navy-2">{tagline}</p>
 
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-[var(--space-2)]">
@@ -77,7 +77,7 @@ export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
             nested control (aria-hidden). Ghost-button footprint (44×44); nudges +4px on hover. */}
         <span
           aria-hidden
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] text-ink transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] text-navy transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         >
           <Icon icon={ArrowRight} size={24} />
         </span>

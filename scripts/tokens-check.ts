@@ -1,9 +1,10 @@
 /**
  * tokens-check.ts (D2) — OKLCH regeneration guard.
  *
- * The authoritative colour source is the 13 hex values in DESIGN_DIRECTION.md §2 (mirrored
- * below). Design.md's `@theme` block carries hand-computed oklch() placeholders; this script
- * regenerates them exactly from the hex via culori and guards them from drift.
+ * The authoritative colour source is the 13 paper hex values in Design.md §2.1 (mirrored
+ * below; S12/D2 — the clay set in DESIGN_DIRECTION.md §2 is retired). `app/globals.css`'s
+ * `@theme` block carries the oklch() forms; this script regenerates them exactly from the hex
+ * via culori and guards them from drift.
  *
  *   pnpm tokens:check --write   rewrites the 13 `--color-*` oklch() lines in app/globals.css
  *                               from the authoritative hex (culori, 3-decimal precision).
@@ -19,21 +20,21 @@ import { oklch, formatHex } from "culori";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GLOBALS = resolve(HERE, "../app/globals.css");
 
-// Authoritative hex — DESIGN_DIRECTION.md §2 (surface uses the opaque #F4F2FF variant).
+// Authoritative hex — Design.md §2.1 (13 paper tokens, in table order).
 const AUTHORITATIVE: Record<string, string> = {
-  "--color-bg": "#FAF9FF",
-  "--color-surface": "#F4F2FF",
-  "--color-ink": "#101646",
-  "--color-ink-2": "#3D4270",
-  "--color-ink-3": "#6B6F94",
-  "--color-accent": "#6657F5",
-  "--color-accent-deep": "#4E40D8",
-  "--color-lavender": "#BFA8FF",
-  "--color-sky": "#A8D7FF",
-  "--color-mint": "#A5EBD2",
-  "--color-blush": "#FFB4C6",
-  "--color-peach": "#FFD2B2",
-  "--color-butter": "#FFE389",
+  "--color-paper": "#F7F1E7",
+  "--color-ivory": "#FBF7EF",
+  "--color-paper-2": "#EFE7D8",
+  "--color-navy": "#0D1735",
+  "--color-navy-2": "#2E3854",
+  "--color-ink-soft": "#5A6178",
+  "--color-rust": "#B64927",
+  "--color-terracotta": "#92381F",
+  "--color-forest": "#214F43",
+  "--color-green-2": "#496D58",
+  "--color-steel": "#63799E",
+  "--color-note": "#EEDCA9",
+  "--color-kraft": "#D7BE93",
 };
 
 function escapeRegExp(s: string): string {

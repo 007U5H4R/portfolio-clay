@@ -56,7 +56,7 @@ export default function AboutPage() {
       <Education />
 
       <Section id="about-cta" aria-labelledby="about-cta-heading">
-        <h2 id="about-cta-heading" className="text-[length:var(--text-h3)] font-extrabold text-ink">
+        <h2 id="about-cta-heading" className="text-[length:var(--text-h3)] font-extrabold text-navy">
           Let&apos;s build what&apos;s next.
         </h2>
         <div className="mt-[var(--space-6)] flex flex-wrap items-center gap-[var(--space-4)]">
@@ -67,7 +67,7 @@ export default function AboutPage() {
             {resume.label}
           </ClayButton>
         </div>
-        <p className="mt-[var(--space-9)] text-caption text-ink-3">Designed and built with Claude Code.</p>
+        <p className="mt-[var(--space-9)] text-caption text-ink-soft">Designed and built with Claude Code.</p>
       </Section>
     </>
   );

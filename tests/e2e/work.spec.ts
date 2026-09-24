@@ -148,10 +148,10 @@ test("@EVAL-007 FilterTabs: arrow keys move focus, activate the filter, and show
   await expect(ai).toBeFocused();
   await expect(page).toHaveURL(/\/work\?filter=ai$/);
 
-  // The focused tab wears the shared 3px solid accent ring (EVAL-007).
+  // The focused tab wears the shared 2px solid rust ring (EVAL-007).
   const accent = await page.evaluate(() => {
     const probe = document.createElement("span");
-    probe.style.color = "var(--color-accent)";
+    probe.style.color = "var(--color-rust)";
     document.body.appendChild(probe);
     const c = getComputedStyle(probe).color;
     probe.remove();
@@ -161,7 +161,7 @@ test("@EVAL-007 FilterTabs: arrow keys move focus, activate the filter, and show
     const s = getComputedStyle(el);
     return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
   });
-  expect(ring.w).toBe("3px");
+  expect(ring.w).toBe("2px");
   expect(ring.style).toBe("solid");
   expect(ring.color).toBe(accent);
 

@@ -22,13 +22,13 @@ describe("ClayButton", () => {
     expect(el.hasAttribute("download")).toBe(true);
   });
 
-  it("E-7: primary is 'bg' text on 'accent', 'accent-deep' on hover — never 'ink' on 'accent'", () => {
+  it("E-7: primary is 'paper' text on 'rust', 'terracotta' on hover — never 'navy' on 'rust'", () => {
     const { container } = render(<ClayButton variant="primary">Primary</ClayButton>);
     const el = container.firstElementChild as HTMLElement;
-    expect(el.className).toMatch(/\bbg-accent\b/);
-    expect(el.className).toMatch(/\btext-bg\b/);
-    expect(el.className).toMatch(/hover:bg-accent-deep/);
-    expect(el.className).not.toMatch(/\btext-ink\b/);
+    expect(el.className).toMatch(/\bbg-rust\b/);
+    expect(el.className).toMatch(/\btext-paper\b/);
+    expect(el.className).toMatch(/hover:bg-terracotta/);
+    expect(el.className).not.toMatch(/\btext-navy\b/);
   });
 
   it("meets the 44x44 minimum target classes", () => {

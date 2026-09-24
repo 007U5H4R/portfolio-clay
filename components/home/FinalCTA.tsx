@@ -33,11 +33,11 @@ export function FinalCTA() {
         <div className="flex flex-col items-center gap-[var(--space-3)]">
           <h2
             id="cta-heading"
-            className="max-w-[20ch] text-[length:var(--text-h2)] font-extrabold text-ink"
+            className="max-w-[20ch] text-[length:var(--text-h2)] font-extrabold text-navy"
           >
             Building something AI-native? Let&apos;s talk.
           </h2>
-          <p className="max-w-[44ch] text-[length:var(--text-lead)] text-ink-2">
+          <p className="max-w-[44ch] text-[length:var(--text-lead)] text-navy-2">
             Copy my email, drop me a line, or grab my resume — whichever is easiest.
           </p>
         </div>
@@ -56,10 +56,10 @@ export function FinalCTA() {
 
         {/* DRAFT provenance marker (see docstring) — unsigned closing copy, same convention as HowIThink. */}
         <div className="flex flex-wrap items-center justify-center gap-[var(--space-2)]">
-          <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-butter/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink">
+          <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-kraft/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy">
             Draft
           </span>
-          <span className="text-caption text-ink-3">Closing copy is my framing, not yet signed off.</span>
+          <span className="text-caption text-ink-soft">Closing copy is my framing, not yet signed off.</span>
         </div>
       </ClayCard>
     </Section>
