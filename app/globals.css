@@ -299,7 +299,8 @@ body::before {
 }
 
 /*
-  Section reveal (S05.02 / Design.md §4 "section reveal" row). `Reveal` (components/interactions/
+  Section reveal (S05.02; restyled TSK-33 to M-009 Design.md §8 "Section reveal" row: opacity +
+  translateY(12px) → none, never scale). `Reveal` (components/interactions/
   Reveal.tsx) adds this class only AFTER mount — it is never present in server-rendered HTML, so
   JS-off static HTML renders children at their natural, fully visible styles (EVAL-015).
   `--stagger-index` is set per-instance via inline style; siblings 70ms apart.
@@ -313,7 +314,7 @@ body::before {
      instantly the moment `data-revealed` is set, while opacity/transform animate in over it. */
   visibility: hidden;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(12px);
   transition:
     opacity 500ms var(--ease-reveal),
     transform 500ms var(--ease-reveal);
@@ -671,5 +672,185 @@ body::before {
   }
   .thinking-node:not(:last-child)::before {
     transition: none;
+  }
+}
+
+/* TSK-33 · paper decorations — the counted `data-decor` primitives in components/paper/ (Design.md
+   §3.1, sizes §2.2, rotation caps §2.3, draw-in §8; values lifted from docs/redesign-mockups/m-009).
+   In `@layer components` so a consumer's Tailwind utilities (utilities layer) override placement and
+   width. Rotation uses the individual `rotate` property off the inline, clamped `--rot`, so it never
+   fights a consumer `transform`. Colours are paper tokens / derived vars only (EVAL-020). */
+@layer components {
+  .paper-sticky {
+    display: block;
+    width: 168px;
+    padding: 14px 16px;
+    font-size: 19px;
+    line-height: 1.2;
+    color: var(--color-navy);
+    background: var(--color-note);
+    box-shadow: var(--shadow-sticky);
+    rotate: var(--rot, 0deg);
+  }
+  .paper-sticky[data-tone="kraft"] {
+    background: var(--color-kraft);
+  }
+
+  .paper-annotation {
+    font-size: 20px;
+    line-height: 1.1;
+    color: var(--color-navy-2);
+    rotate: var(--rot, 0deg);
+    transform-origin: left;
+  }
+  .paper-annotation[data-size="sm"] {
+    font-size: 17px;
+  }
+  .paper-annotation[data-size="lg"] {
+    font-size: 22px;
+  }
+  .paper-annotation[data-size="hero"] {
+    font-size: clamp(26px, 2.6vw, 34px);
+  }
+  .annotation-arrow {
+    display: block;
+    margin-top: 2px;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .annotation-arrow .shaft {
+    stroke-dasharray: 5 6;
+  }
+
+  .paper-note {
+    display: inline-grid;
+    place-items: center;
+    padding: 6px 10px;
+    font-size: 17px;
+    line-height: 1.05;
+    text-align: center;
+    color: var(--color-navy);
+    background: var(--color-paper-2);
+    rotate: var(--rot, 0deg);
+  }
+  .paper-note[data-tone="note"] {
+    background: var(--color-note);
+  }
+  .paper-note[data-tone="kraft"] {
+    background: var(--color-kraft);
+  }
+  .paper-note[data-stamp] {
+    min-width: 54px;
+    min-height: 64px;
+    border: 2px dashed var(--color-kraft);
+    color: var(--color-green-2);
+  }
+
+  .paper-tape {
+    display: block;
+    width: 96px;
+    height: 26px;
+    background: var(--tape);
+    border: 1px solid var(--tape-border);
+    box-shadow: inset 0 1px 1px color-mix(in oklab, var(--color-navy) 5%, transparent);
+    rotate: var(--rot, 0deg);
+  }
+
+  /* Sketch line art */
+  svg.sketch {
+    display: block;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-navy-2);
+    stroke-linecap: round;
+  }
+  .sketch[data-sketch="underline"] {
+    stroke: var(--color-rust);
+    stroke-width: 5;
+  }
+  .sketch[data-sketch="spark"] {
+    stroke: var(--color-rust);
+    stroke-width: 3;
+  }
+  .sketch[data-sketch="path"],
+  .sketch[data-sketch="chain"] {
+    stroke-width: 1.8;
+    stroke-dasharray: 6 7;
+    opacity: 0.7;
+  }
+  .sketch[data-sketch="chain"] path {
+    vector-effect: non-scaling-stroke;
+  }
+  .sketch[data-sketch="tools"] {
+    stroke-width: 1.5;
+    opacity: 0.55;
+  }
+  .sketch[data-sketch="arrow"] {
+    stroke-width: 1.6;
+  }
+  .sketch[data-sketch="arrow"] .shaft {
+    stroke-dasharray: 5 6;
+  }
+
+  /* Flow sketch (home.html `.work-card .sketch`): ruled box, Caveat boxes, hand arrows */
+  .sketch-flow {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border: 1.5px solid var(--line-sketch);
+    border-radius: 6px;
+    background: repeating-linear-gradient(0deg, transparent 0 27px, var(--rule-blue) 27px 28px);
+  }
+  .sketch-flow .flow-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .sketch-flow .flow-box {
+    padding: 4px 10px;
+    font-size: 17px;
+    border: 1.5px solid var(--color-navy-2);
+    border-radius: 3px;
+    background: var(--color-ivory);
+    rotate: -0.4deg;
+  }
+  .sketch-flow .flow-box[data-tone="rust"] {
+    border-color: var(--color-rust);
+    color: var(--color-rust);
+  }
+  .sketch-flow .flow-box[data-tone="forest"] {
+    border-color: var(--color-forest);
+    color: var(--color-forest);
+  }
+  .sketch-flow .flow-arr {
+    font-size: 20px;
+    color: var(--color-ink-soft);
+  }
+  .sketch-flow .flow-arr[data-indent] {
+    margin-left: 24px;
+  }
+
+  /* Draw-in (Design.md §8): stroke-dashoffset 400 → 0, 1.1 s ease-out after 0.5 s, once on load.
+     Set on the <svg>; its paths inherit the (animated) dash values. */
+  .sketch[data-drawin] {
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    animation: drawin 1.1s ease-out 0.5s forwards;
+  }
+  @keyframes drawin {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  /* Reduced motion: drawn complete, no animation (TC-128 step 2). */
+  @media (prefers-reduced-motion: reduce) {
+    .sketch[data-drawin] {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
   }
 }

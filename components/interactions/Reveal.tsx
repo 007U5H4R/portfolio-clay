@@ -32,9 +32,10 @@ function useMounted(): boolean {
 }
 
 /**
- * Section-reveal leaf (technical-plan.md §B S05.02, Design.md §4 "section reveal" row). Fires
+ * Section-reveal leaf (technical-plan.md §B S05.02, Design.md §8 "Section reveal" row). Fires
  * once via `IntersectionObserver` at `threshold` (default 0.2), then disconnects — `data-revealed`
- * marks the fired state.
+ * marks the fired state. The motion is opacity 0 → 1 + `translateY(12px)` → none, never a scale
+ * (TSK-33 restyle; `.reveal` in app/globals.css).
  *
  * The `.reveal` class (and therefore the pre-reveal hidden state) is applied only **after mount**,
  * never in the server-rendered markup. So with JavaScript disabled the class is never added and
