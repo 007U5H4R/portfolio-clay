@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Caveat } from "next/font/google";
+import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -17,18 +17,28 @@ const PANEL_PROMPTS = knowledge
   .filter((entry) => entry.surface.includes("panel"))
   .map((entry) => entry.prompt);
 
-// Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com).
-// The CSS variables are mapped into @theme's --font-display / --font-hand in globals.css.
-const manrope = Manrope({
+// Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com — the TP9 CSP
+// `font-src 'self'` stays untouched; S13). The CSS variables are mapped into @theme's --font-display /
+// --font-body / --font-hand in globals.css (Design.md §2.2). Fraunces is the variable font with the
+// `opsz` + `SOFT` axes (per-role `font-variation-settings`); Inter is body/UI; Caveat is the hand.
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: "variable",
+  axes: ["opsz", "SOFT"],
   display: "swap",
-  variable: "--font-manrope",
+  variable: "--font-fraunces",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
 const caveat = Caveat({
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["400", "600"],
   display: "swap",
   variable: "--font-caveat",
 });
@@ -47,7 +57,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${manrope.variable} ${caveat.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}>
       <body>
         {/*
           AskProvider is hoisted here (from app/page.tsx, TKT-10) so the deterministic Ask provider

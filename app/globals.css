@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* TSK-31 · fonts — always emit the `.font-hand` utility (Caveat, from @theme --font-hand below) even
+   before a component uses the class; Tailwind generates it from the theme variable. */
+@source inline("font-hand");
+
 /*
   Design tokens — the 13 paper colour tokens verbatim from Design.md §2.1 (S12/D2; authoritative
   hex lives there and in scripts/tokens-check.ts `AUTHORITATIVE`). The oklch() values below are
@@ -25,9 +29,10 @@
   --color-note: oklch(0.897 0.069 90.914);
   --color-kraft: oklch(0.812 0.064 81.035);
 
-  /* Typography — families mapped from next/font CSS variables (wired in app/layout.tsx, S01.07) */
-  --font-display: var(--font-manrope), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-hand: var(--font-caveat), "Caveat", cursive;
+  /* TSK-31 · fonts — families mapped from next/font CSS variables (wired in app/layout.tsx), Design.md §2.2 verbatim (S13) */
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hand: var(--font-caveat), "Segoe Print", "Bradley Hand", cursive;
 
   /* Fluid type scale (390 → 1440 viewport range) */
   /* EXE-9: min lowered 2.75rem→2.25rem so the 390 headline holds 3 lines (not 4) above the mobile
@@ -151,8 +156,41 @@
 @layer base {
   html {
     color-scheme: light;
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     @apply bg-paper text-navy;
+  }
+
+  /* TSK-31 · fonts — base type (Design.md §2.2, S13). Body is Inter 16/1.6 navy; h1–h4 are Fraunces
+     500 with the role table's default `opsz`/`SOFT` (page tickets override size/axes per role). */
+  body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply text-navy;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  h1 {
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+  h2 {
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+  }
+  h3 {
+    font-variation-settings: "opsz" 96, "SOFT" 20;
+  }
+  h4 {
+    font-variation-settings: "opsz" 72, "SOFT" 20;
   }
 
   /* Shared visible focus ring — 2px rust, 3px offset (Design.md §10, EVAL-007). The outline follows
