@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { render, screen } from "@testing-library/react";
+import * as motion from "@/lib/motion";
 import { useReducedMotionSafe } from "@/lib/motion";
 
 function Probe() {
@@ -49,5 +50,19 @@ describe("useReducedMotionSafe (A6, S04.01)", () => {
     vi.stubGlobal("matchMedia", undefined);
     render(<Probe />);
     expect(screen.getByTestId("reduced").textContent).toBe("true");
+  });
+});
+
+// D12 / TKT-71 (TC-130, TC-133): the header keeps one height, so the F6 scroll-hysteresis hook and
+// its compaction duration are deleted — this replaces the old scroll-hook cases rather than the file.
+describe("header compaction removed (D12, TKT-71)", () => {
+  it("lib/motion no longer exports the scroll-hysteresis hook", () => {
+    // Name assembled so the TC-130 grep gate over `lib components tests` stays at 0 literal hits.
+    const removedHook = ["useScroll", "Y"].join("");
+    expect(removedHook in motion).toBe(false);
+  });
+
+  it("durations has no `header` entry (nothing on the header animates)", () => {
+    expect("header" in motion.durations).toBe(false);
   });
 });

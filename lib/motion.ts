@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useCallback, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { LazyMotion, domAnimation, type Variants } from "motion/react";
 
 /**
@@ -21,7 +21,6 @@ export const durations = {
   press: 90,
   lift: 180,
   reveal: 500,
-  header: 250,
   panel: 320,
   node: 220,
 } as const;
@@ -127,55 +126,10 @@ export function usePointerFine(): boolean {
  * re-introduce the re-export here and swap `ViewTransitionLink`'s fallback for it in one place.
  */
 
-/**
- * True once the page has scrolled past `enterThreshold` px, staying true until it scrolls back
- * above `exitThreshold` px — a Schmitt-trigger (hysteresis) that drives `Header`'s rest→compact
- * state (S04.03). Passive scroll listener + rAF-throttled so it never blocks the scroll thread;
- * the rAF callback only notifies the store (`onChange`) — React itself re-reads `getSnapshot`.
- *
- * The hysteresis is **load-bearing, not a nicety** (F6, docs/reports/F6-debug.md). The consumer
- * (`Header`) is a `sticky` in-flow element whose height shrinks by `Δ` px (96→68 = 28px) when this
- * returns true, which reduces the document's scrollable height by `Δ`, which clamps `window.scrollY`
- * down by up to `Δ`. On a page whose scroll range straddles a *single* threshold (the tracer
- * case-study page at w768 has a 41px range against the old 24px threshold), the toggle keeps
- * flipping the value that produced it — an infinite render loop (React #185, "Maximum update
- * depth exceeded"). A loop is possible iff `enterThreshold - exitThreshold < Δ`; keeping the band
- * (`enterThreshold - exitThreshold`) **≥ the header height delta** makes it provably impossible:
- * once compacted, the clamped `scrollY` lands inside the dead band and the state latches.
+/*
+ * The F6 Schmitt-trigger scroll hook that drove the header's rest→compact state is deleted
+ * (decision D12, TKT-71): the header keeps one height, so there is no layout change left for a
+ * scroll threshold to clamp `scrollY` against, and the hysteresis has nothing to guard. The header's
+ * `data-scrolled` hairline is a render-less DOM toggle in `components/navigation/HeaderScroll.tsx`.
+ * `tests/unit/motion.test.tsx` asserts the export stays gone.
  */
-export function useScrollY(enterThreshold: number, exitThreshold: number): boolean {
-  // Latched state survives across renders so the dead band can hold the value steady. Reading it
-  // in getSnapshot is idempotent: with an unchanged scrollY, repeated calls return the same value
-  // (required — React re-reads getSnapshot after commit to detect tearing).
-  const latched = useRef(false);
-
-  const getSnapshot = useCallback(() => {
-    if (typeof window === "undefined") return false;
-    const y = window.scrollY;
-    if (y > enterThreshold) latched.current = true;
-    else if (y < exitThreshold) latched.current = false;
-    // Between the two thresholds, hold the current state (the hysteresis dead band).
-    return latched.current;
-  }, [enterThreshold, exitThreshold]);
-
-  const getServerSnapshot = useCallback(() => false, []);
-
-  const subscribe = useCallback((onChange: () => void) => {
-    if (typeof window === "undefined") return () => {};
-    let frame = 0;
-    const onScroll = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        onChange();
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
-
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-}

@@ -24,14 +24,12 @@ export const tierClass: Record<Tier, string> = {
   flat: "",
 };
 
-/**
- * Glass is the compacted-header treatment ONLY — NOT a clay tier (Design.md §2: "Glass … is
- * reserved for the compacted header only — never combined with clay shadows on the same
- * element"). It is exported here, separate from `tierClass`, precisely so it can never be
- * selected through the tier map; the class body lives in `app/globals.css` (`.glass`, S04.05).
- * Consumed only by `Header` in its compact state — never by a clay primitive.
+/*
+ * `headerGlassClass` / `.glass` (the compacted-header treatment, S04.05) are deleted with the
+ * header compaction (decision D12, TKT-71) — the paper header's `--header-bg` + 10 px blur live in
+ * `app/globals.css` under the `TKT-71 · header` banner. Glass was never a tier; it stays out of
+ * `tierClass` (tests/unit/tiers.test.ts).
  */
-export const headerGlassClass = "glass";
 
 /** Tone tint classes — always paired with `ink` text (Design.md §2 contrast rule). */
 export const toneClass: Record<Tone, string> = {

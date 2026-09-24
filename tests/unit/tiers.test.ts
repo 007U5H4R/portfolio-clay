@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import * as tiers from "@/components/clay/tiers";
 import {
-  headerGlassClass,
   tierClass,
   toneClass,
   type ClayProps,
@@ -29,8 +29,8 @@ describe("clay tiers", () => {
     }
   });
 
-  it("glass is exported separately from the tier map (glass is NOT a tier)", () => {
-    expect(headerGlassClass).toBe("glass");
+  it("glass is gone with the header compaction (D12, TKT-71) and was never a tier", () => {
+    expect("headerGlassClass" in tiers).toBe(false);
     // The tier union has no 'glass' member — proven structurally by tierClass's keys.
     expect(Object.keys(tierClass).sort()).toEqual(["card", "flat", "hero", "utility"]);
   });
