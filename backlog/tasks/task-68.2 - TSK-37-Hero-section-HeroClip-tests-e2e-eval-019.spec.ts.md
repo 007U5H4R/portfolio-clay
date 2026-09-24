@@ -1,10 +1,10 @@
 ---
 id: TASK-68.2
 title: 'TSK-37: Hero section + HeroClip + tests/e2e/eval-019.spec.ts'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 12:57'
+updated_date: '2026-09-24 14:10'
 labels:
   - P0
   - 'sp:3'
