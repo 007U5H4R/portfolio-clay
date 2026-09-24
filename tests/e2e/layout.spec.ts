@@ -36,7 +36,7 @@ async function gotoDev(
 // ---------------------------------------------------------------------------
 test("Container gutters and max-width match the token ladder", { tag: "@primitives" }, async ({ page }) => {
   await gotoDev(page);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Clay primitive system");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Paper primitive system");
 
   const container = page.getByTestId("layout-demo-container");
   const { paddingLeft, paddingRight, maxWidth } = await container.evaluate((el) => {

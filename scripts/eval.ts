@@ -199,11 +199,66 @@ function nextVersionFromLockfile(): string {
 interface PwTest {
   projectName: string;
   status: string; // expected | unexpected | flaky | skipped
+  /** Runtime annotations (`test.info().annotations.push`) — EVAL-018 writes its per-unit table here. */
+  annotations?: { type: string; description?: string }[];
 }
 interface PwSpec {
   title: string;
   tags: string[];
   tests: PwTest[];
+}
+
+/**
+ * EVAL-018 `details` (TSK-35 / TC-129): the per-unit counts the spec pushed as `eval-018` annotations,
+ * summarised so the run JSON carries real numbers, never just "N failing". The full per-unit table
+ * stays in `.eval/playwright.json` (the case's artifact).
+ */
+function eval018Details(specs: PwSpec[]): string {
+  type Row = { unit: string; count: number };
+  type Hit = { rule: string; unit: string };
+  type Table = { route: string; width: number; units: Row[]; violations: Hit[]; parked: Hit[]; stale: unknown[] };
+  const tables: Table[] = [];
+  for (const sp of specs) {
+    if (!(sp.tags ?? []).includes("EVAL-018")) continue;
+    for (const t of sp.tests) {
+      for (const a of t.annotations ?? []) {
+        if (a.type !== "eval-018" || !a.description) continue;
+        try {
+          tables.push(JSON.parse(a.description) as Table);
+        } catch {
+          /* a malformed annotation is not a result — ignore it here; the test itself already failed or passed on its assertions */
+        }
+      }
+    }
+  }
+  if (tables.length === 0) return "no eval-018 annotations (tests skipped or not run)";
+  const routes = new Set(tables.map((t) => t.route));
+  const units = tables.reduce((n, t) => n + t.units.length, 0);
+  const maxCount = Math.max(0, ...tables.flatMap((t) => t.units.map((u) => u.count)));
+  const byRule: Record<string, number> = {};
+  let parked = 0;
+  let stale = 0;
+  const failingRoutes = new Set<string>();
+  for (const t of tables) {
+    const parkedKeys = new Set(t.parked.map((p) => `${p.rule}|${p.unit}`));
+    for (const v of t.violations) {
+      if (parkedKeys.has(`${v.rule}|${v.unit}`)) continue;
+      byRule[v.rule] = (byRule[v.rule] ?? 0) + 1;
+      failingRoutes.add(t.route);
+    }
+    parked += t.parked.length;
+    stale += t.stale.length;
+  }
+  const unparked = Object.values(byRule).reduce((a, b) => a + b, 0);
+  const rules = Object.entries(byRule)
+    .sort()
+    .map(([r, n]) => `${r} ${n}`)
+    .join(", ");
+  return (
+    `${routes.size} routes × ${new Set(tables.map((t) => t.width)).size} widths · ${units} units · max ${maxCount}/4 per unit · ` +
+    `${unparked} unparked hit(s)${rules ? ` (${rules})` : ""} · ${parked} parked · ${stale} stale park(s)` +
+    (failingRoutes.size > 0 ? ` · failing routes: ${[...failingRoutes].sort().join(", ")}` : "")
+  );
 }
 function collectSpecs(node: { specs?: PwSpec[]; suites?: unknown[] }, acc: PwSpec[] = []): PwSpec[] {
   for (const s of node.specs ?? []) acc.push(s);
@@ -634,7 +689,9 @@ async function main(): Promise<void> {
       });
     } else if (PLAYWRIGHT_CASES.includes(def.id)) {
       const r = playwrightStatus(specs, def.id);
-      cases.push({ ...base, status: r.status, details: r.details + scopeNote(def), artifacts: [".eval/playwright.json"] });
+      // EVAL-018 appends the real per-unit summary from the spec's annotations (TC-129: never a bare count).
+      const extra = def.id === "EVAL-018" && r.status !== "SKIP" ? ` · ${eval018Details(specs)}` : "";
+      cases.push({ ...base, status: r.status, details: r.details + extra + scopeNote(def), artifacts: [".eval/playwright.json"] });
     } else if (MANUAL_CASES.includes(def.id)) {
       cases.push({ ...base, status: "MANUAL", details: "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability" });
     } else {

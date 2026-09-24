@@ -33,7 +33,7 @@ test("primitives board · no-overflow + min-targets + screenshots", { tag: "@pri
 }) => {
   await gotoDev(page);
   // Confirm the dev route actually rendered (not a 404 from a non-flag build).
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Clay primitive system");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Paper primitive system");
 
   await noOverflow(page);
   await minTargets(page);
@@ -54,29 +54,32 @@ test("primitives board · axe wcag2.1 AA", { tag: "@primitives" }, async ({ page
   await axe(page);
 });
 
-test("primitives board · filter pill changes bg on hover; tag pill does not", {
+// TSK-35: the ClayPill hover test that lived here was retired with the clay board — `ClayPill` is no
+// longer rendered on `/dev/primitives` (the paper board replaced it; TKT-89 deletes `components/clay`).
+// In its place: the server-side count readout must agree with the DOM it describes.
+test("primitives board · every section's server-side readout matches its owned [data-decor] count", {
   tag: "@primitives",
 }, async ({ page }) => {
-  test.skip(width(page) !== 1440, "hover behaviour measured once at w1440 (fine pointer)");
+  test.skip(width(page) !== 1440, "readout agreement measured once at w1440");
   await gotoDev(page);
 
-  const bg = (loc: import("@playwright/test").Locator) =>
-    loc.evaluate((el) => getComputedStyle(el).backgroundColor);
-
-  const filter = page.getByTestId("pill-filter");
-  const tag = page.getByTestId("pill-tag");
-  await expect(filter).toBeVisible();
-  await expect(tag).toBeVisible();
-
-  const filterRest = await bg(filter);
-  await filter.hover();
-  await expect
-    .poll(async () => bg(filter), { message: "filter pill bg must change on hover" })
-    .not.toBe(filterRest);
-
-  const tagRest = await bg(tag);
-  await tag.hover();
-  // Static tag must never change on hover (Law of Similarity).
-  await page.waitForTimeout(150);
-  expect(await bg(tag), "static tag bg must be identical on hover").toBe(tagRest);
+  const rows = await page.evaluate(() => {
+    const out: { id: string; readout: number; dom: number; over: boolean }[] = [];
+    for (const section of Array.from(document.querySelectorAll("section[id^='board-']"))) {
+      const readout = section.querySelector(":scope > div > [data-readout]");
+      if (!readout) continue;
+      const m = /^(\d+) \/ 4/.exec((readout.textContent ?? "").trim());
+      // Owned = nearest-ancestor section is this one (nested chapters own their own).
+      const dom = Array.from(section.querySelectorAll("[data-decor]")).filter(
+        (el) => el.closest("section") === section,
+      ).length;
+      out.push({ id: section.id, readout: m ? Number(m[1]) : -1, dom, over: readout.hasAttribute("data-over") });
+    }
+    return out;
+  });
+  expect(rows.length, "the board renders its sections with a readout").toBeGreaterThanOrEqual(10);
+  for (const row of rows) {
+    expect(row.readout, `${row.id}: readout must equal the DOM count`).toBe(row.dom);
+    expect(row.over, `${row.id}: the clean board is never over budget`).toBe(false);
+  }
 });
