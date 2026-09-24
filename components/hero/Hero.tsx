@@ -1,74 +1,90 @@
+import Image from "next/image";
+import Link from "next/link";
 import { Container } from "@/components/layout/Container";
-import { ClayButton } from "@/components/clay/ClayButton";
-import { AvatarStage } from "@/components/hero/AvatarStage";
-import { FloatingTiles } from "@/components/hero/FloatingTiles";
-import { Annotation } from "@/components/hero/Annotation";
+import { HeroClip } from "@/components/hero/HeroClip";
+import { Annotation, Hand, Sketch } from "@/components/paper";
 import { hero } from "@/data/hero";
-import { resumeAction } from "@/lib/site";
+import { illustration } from "@/lib/illustrations";
+
+/** The h1 split so the rust underline `Sketch` sits under the last three words (Design.md §5.1). */
+const HEADLINE = `${hero.headline.before}${hero.headline.highlight}${hero.headline.after}`;
+const HEADLINE_WORDS = HEADLINE.trim().split(/\s+/);
+const UNDERLINED = HEADLINE_WORDS.slice(-3).join(" ");
+const HEADLINE_HEAD = HEADLINE_WORDS.slice(0, -3).join(" ");
+
+const POSTER = illustration("hero-desk");
+const CLIP = illustration("hero-clip");
+/** The mp4 is the second rendition of the same clip (Design.md §5.2 source order webm → mp4). */
+const CLIP_MP4 = CLIP.publicSrc!.replace(/\.webm$/, ".mp4");
 
 /**
- * Home hero (redesign — Design.md §3, evolved for the "WoW" visual pass). Two-column at ≥1024
- * (42fr AvatarStage / 58fr content); below that it stacks avatar → eyebrow/headline → CTAs → tiles,
- * left-aligned (Law of Continuity — one vertical reading axis). The avatar sits inside a soft
- * animated glow halo (`.glow-halo`, decorative, reduced-motion-safe); the whole section floats over
- * the fixed aurora background painted in globals.css.
- *
- * Server component: the only interactivity (cursor parallax) is isolated in the `Parallax` client
- * leaves inside `AvatarStage` / `FloatingTiles`.
+ * Home hero (Design.md §5; S14 / D10 / TP13; TSK-37). Server component: the §5.1 grid (copy 42fr /
+ * scene 58fr ≥ 1024, single column below with the copy first), every string from `data/hero.ts`
+ * (D7), and the §5.2 markup — the `next/image` poster is in the static HTML in every mode as the
+ * LCP element; `HeroClip` mounts the once-and-hold `<video>` over it only in default mode, after
+ * hydration. Three counted decorations (§3.3): the hand-sub annotation, the h1 underline sketch and
+ * the scene caption. The poster's `src`/`alt` are `illustration("hero-desk")` — never inline (§6.1).
  */
 export function Hero() {
-  const resume = resumeAction();
-
   return (
-    <Container
-      as="section"
-      className="grid gap-8 pt-8 pb-20 lg:grid-cols-[42fr_58fr] lg:items-center lg:gap-16 lg:pt-28 lg:pb-24 2xl:gap-24"
-    >
-      <div className="glow-halo flex justify-center lg:justify-start">
-        <AvatarStage />
-      </div>
+    <section className="hero" aria-labelledby="hero-h">
+      <Container className="hero-wrap">
+        <div className="hero-copy">
+          <p className="hero-eyebrow">{hero.eyebrow.text}</p>
 
-      {/* lg:min-w-0 lets this grid item shrink below its content's min-content so the avatar's 42fr
-          track claims its full share at lg; paired with min-w-0 on the FloatingTiles items so the
-          tile row reflows narrower instead of overflowing. */}
-      <div className="flex min-w-0 flex-col items-start gap-5 text-left md:gap-6">
-        <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-ivory px-4 py-2 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
-          <span
-            aria-hidden="true"
-            className="inline-block h-2 w-2 rounded-full bg-rust"
-          />
-          {hero.eyebrow.text}
-        </span>
+          <h1 id="hero-h" className="hero-h1">
+            {HEADLINE_HEAD}{" "}
+            <span className="underline-host">
+              {UNDERLINED}
+              <Sketch variant="underline" />
+            </span>
+          </h1>
 
-        <h1 className="text-[length:var(--text-hero)] font-extrabold tracking-[var(--tracking-hero)] leading-[var(--leading-hero)] text-navy lg:text-[length:var(--text-hero-lg)]">
-          {hero.headline.before}
-          <span className="hero-highlight">{hero.headline.highlight}</span>
-          {hero.headline.after}
-        </h1>
+          <Annotation size="hero" rotate={-1.5} className="hero-hand-sub">
+            Same curiosity.
+            <br />
+            Bigger problems.
+          </Annotation>
 
-        {/* EXE-9: hidden below md so the primary CTA + first proof tile clear the mobile fold. */}
-        <p className="hidden max-w-[46ch] text-[length:var(--text-lead)] text-navy-2 md:block">
-          {hero.support.text}
-        </p>
+          {/* Hidden below md so the CTAs clear the 390 fold (5-second test, §5.1). */}
+          <p className="hero-support">{hero.support.text}</p>
 
-        <div className="flex w-full flex-col items-start gap-4 md:w-auto md:flex-row md:items-center">
-          <ClayButton variant="primary" href="/work" className="w-full md:w-auto">
-            View My Work →
-          </ClayButton>
-          <ClayButton
-            variant="secondary"
-            href={resume.href}
-            download={resume.download}
-            title={resume.note}
-            className="w-full md:w-auto"
-          >
-            {resume.label}
-          </ClayButton>
-          <Annotation className="md:ml-2" />
+          <div className="hero-cta-row">
+            <Link href="/work" className="hero-btn hero-btn-primary focus-ring">
+              <Hand kind="cta">View my work →</Hand>
+            </Link>
+            <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">
+              <svg className="hero-btn-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <circle cx="7" cy="7" r="5" />
+                <path d="M11 11 L 15 15" />
+              </svg>
+              Ask my portfolio
+            </a>
+          </div>
         </div>
 
-        <FloatingTiles tiles={hero.tiles} />
-      </div>
-    </Container>
+        <figure className="hero-scene" data-illustration={POSTER.id}>
+          <div className="frame">
+            <Image
+              src={POSTER.publicSrc!}
+              alt={POSTER.alt}
+              width={POSTER.width}
+              height={POSTER.height}
+              sizes="(min-width: 1024px) 58vw, 100vw"
+              preload
+              // Next 16 does not derive fetchpriority from preload; the poster is the LCP image (§5.2).
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
+              className="hero-poster"
+            />
+            <HeroClip poster={POSTER.publicSrc!} webm={CLIP.publicSrc!} mp4={CLIP_MP4} />
+          </div>
+          <Annotation as="figcaption" size="sm" className="hero-caption">
+            the desk where most of it happens
+          </Annotation>
+        </figure>
+      </Container>
+    </section>
   );
 }
