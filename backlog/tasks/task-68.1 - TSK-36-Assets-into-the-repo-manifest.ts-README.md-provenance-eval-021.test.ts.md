@@ -3,10 +3,10 @@ id: TASK-68.1
 title: >-
   TSK-36: Assets into the repo + manifest.ts + README.md provenance +
   eval-021.test.ts
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 11:17'
+updated_date: '2026-09-24 12:57'
 labels:
   - P0
   - 'sp:2'

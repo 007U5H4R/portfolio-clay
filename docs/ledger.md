@@ -296,8 +296,8 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 | TSK-35 eval-018 | TASK-65.3 | fable | docs/briefs/TSK-35.md | docs/reports/TSK-35.md | ✅ `7b4dec4` `7b290fc` `c15a28e` (fix 1) | EVAL-018 honest FAIL (1 legacy hit) |
 | TKT-71 header | TASK-66 | fable | docs/briefs/TKT-71.md | docs/reports/TKT-71.md | pending | — |
 | TKT-72 band | TASK-67 | opus | docs/briefs/TKT-72.md | docs/reports/TKT-72.md | pending | — |
-| TSK-36 assets+manifest | TASK-68.1 | sonnet | docs/briefs/TSK-36.md | docs/reports/TSK-36.md | dispatched | — |
-| TSK-37 hero+HeroClip | TASK-68.2 | fable | docs/briefs/TSK-37.md | docs/reports/TSK-37.md | pending | — |
+| TSK-36 assets+manifest | TASK-68.1 | sonnet | docs/briefs/TSK-36.md | docs/reports/TSK-36.md | ✅ `20d278b` | EVAL-021 PASS |
+| TSK-37 hero+HeroClip | TASK-68.2 | fable | docs/briefs/TSK-37.md | docs/reports/TSK-37.md | dispatched | — |
 | TSK-38 motion removal | TASK-68.3 | sonnet | docs/briefs/TSK-38.md | docs/reports/TSK-38.md | pending | — |
 | TKT-74 tracer | TASK-69 | orchestrator + QA (opus) | docs/briefs/TKT-74.md | docs/reports/TKT-74.md | pending | baseline-m009-tracer |
 
@@ -309,3 +309,4 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 - 2026-09-24 · TSK-33 accepted (`db88cfd`): paper 41/41 + 11 snapshots, vitest 363/2, e2e 691/19 (same). Accepted deviations: TC-126 step 5 rewritten (TS can't type-check hyphenated JSX attrs → `keyof` + runtime proof); `data-drawin` on the underline only (Design §8 wins over S70.03 — dashed variants keep their dash); `path` sketch from about.html (home journey curve = a second variant in TKT-76); `up` arrow = mirrored `down`; `Note` gained `stamp`.
 - 2026-09-24 · TSK-34 accepted (`1f78022`): paper 94 pass, limit mutations bite (5 fail), vitest 416/2; targeted e2e 162/4 (4 ⊂ pre-existing glow-halo set). Only 2 literal DraftTag swaps (EssayBody, ThinkingList); `DraftBadge`s left for TKT-76/77. Stub manifest renders alt-as-caption until TSK-36. Reference-sheet alt verbatim per §6.3 (S73.04 allows the prefix).
 - 2026-09-24 · TSK-35 accepted after **fix round 1** (orchestrator spec review: collector skipped Design §3.4 placement — `label` needs a `[data-paper]` ancestor, `quote` needs a cite/`Source:` in scope; fixed in `c15a28e`, fixture now trips both). → **TKT-70 DONE**. EVAL-018 un-deferred; `--check-specs` 22 OK; controls pass at w390+w1440. **Legacy hits: 1 × 2 widths** — `/about` hero hand-sub Caveat `<p>` → TKT-86 (park at TKT-74). Accepted: `scripts/eval.ts` EVAL-018 details summary (out-of-brief but needed), client `useSearchParams` for `?violate=1` (keeps assert-static), park schema has no width, `primitives.spec` ClayPill hover test replaced by readout test. Lane order: TKT-73 → TKT-71 → TKT-72 (sequential, shared worktree).
+- 2026-09-24 · TSK-36 accepted (`20d278b`): shas re-verified by orchestrator (webm/mp4/poster byte-exact; hero-desk == hero-poster); 9 alts == Design §6.3 verbatim (checked); scenes ≤ 600 kB at q82; EVAL-021 PASS (6/6, both one-sided fixtures bite); vitest 422. Scene dims now reflect the 2048 long-edge re-encode (static imports carry the real size).
