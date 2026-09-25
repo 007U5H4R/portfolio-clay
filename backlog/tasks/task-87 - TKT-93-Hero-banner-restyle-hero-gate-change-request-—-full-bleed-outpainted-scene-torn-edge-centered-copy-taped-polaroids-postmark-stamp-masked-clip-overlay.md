@@ -4,10 +4,10 @@ title: >-
   TKT-93: Hero banner restyle (hero-gate change request) — full-bleed outpainted
   scene, torn edge, centered copy, taped polaroids, postmark stamp, masked clip
   overlay
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-25 05:59'
-updated_date: '2026-09-25 06:03'
+updated_date: '2026-09-25 06:45'
 labels:
   - P0
   - 'sp:5'

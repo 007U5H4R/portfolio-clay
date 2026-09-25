@@ -4,9 +4,10 @@ title: >-
   TKT-95: Page scene openers pulled forward — /work, /work/[slug], /thinking
   (+essays), /about, /playground, /contact open with their mockup scene as a
   full-bleed banner + torn edge (home banner style)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-25 06:01'
+updated_date: '2026-09-25 06:45'
 labels:
   - P1
   - 'sp:3'
