@@ -5744,6 +5744,7 @@ html.lenis body {
   @media (prefers-reduced-motion: reduce) {
     .pg-board .pg-ex,
     .pg-ex-live { transition: none; }
+    .pg-board .pg-ex:hover { translate: none; }
   }
 }
 /* end TKT-88 */
