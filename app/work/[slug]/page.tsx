@@ -10,6 +10,10 @@ import { OverviewToggle } from "@/components/case-study/OverviewToggle";
 import { Chapter } from "@/components/case-study/Chapter";
 import { ChapterNav, type ChapterNavItem } from "@/components/case-study/ChapterNav";
 import { NextProject } from "@/components/case-study/NextProject";
+// TKT-82 · What I learned + Sources (Design.md §7.3)
+import { Learnings } from "@/components/case-study/Learnings";
+import { Sources } from "@/components/case-study/Sources";
+import { projectSources } from "@/lib/sources";
 import { getProject, projectIcon, projects } from "@/data/projects";
 import { CHAPTER_ANCHORS } from "@/lib/anchors";
 import { buildMetadata } from "@/lib/seo";
@@ -147,6 +151,11 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
           </div>
         )}
       </Container>
+
+      {/* TKT-82 · §7.3 order: … deep dive → What I learned → Sources → next project. Both return null when empty. */}
+      <Learnings learnings={project.learnings} />
+      <Sources sources={projectSources(project)} />
+      {/* end TKT-82 */}
 
       <NextProject project={nextProject} icon={projectIcon(nextProject.icon)} />
     </>
