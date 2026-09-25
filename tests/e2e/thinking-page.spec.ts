@@ -17,6 +17,11 @@
  *   @EVAL-017 — (covered by eval-017.spec.ts's derived sitemap count + this file's own sitemap
  *               membership check) — `/thinking` and its 5 slugs are listed.
  * Plus no-overflow at all four widths and the screenshot pack (AC/TDD gate item 7).
+ *
+ * TKT-84 (M-009 paper rebuild): + TC-164 (S18 — the DRAFT prefix counted exactly once per essay page,
+ * DraftTag once, flat prose, pager links) and TC-163 (row order, margin annotation width gate,
+ * reduced-motion underlines, essay margin under the header < 900). They live here rather than in
+ * `thinking.spec.ts` for the reason given above (that file is TKT-21's ShowTheThinking spec).
  */
 import { test, expect } from "./fixtures";
 import { writing } from "@/data/writing";
@@ -41,12 +46,15 @@ test("ThinkingList renders the empty-state line + all 5 DRAFT rows with a Draft 
   const rows = page.locator("ol > li");
   await expect(rows).toHaveCount(5);
 
+  // TKT-84: the row is the `li` (h3 link + dek + meta); the DraftTag sits in the meta row.
   for (const essay of writing) {
-    const row = page.locator(`ol > li a[href="/thinking/${essay.slug}"]`);
-    await expect(row).toBeVisible();
-    await expect(row).toContainText(essay.title);
+    const row = rows.filter({ has: page.locator(`a[href="/thinking/${essay.slug}"]`) });
+    await expect(row).toHaveCount(1);
+    await expect(row.locator(`h3 a[href="/thinking/${essay.slug}"]`)).toHaveText(essay.title);
     await expect(row.getByText("Draft — pending sign-off")).toBeVisible();
   }
+  // Data order (TC-163 step 1).
+  await expect(page.locator("ol > li h3 a")).toHaveText(writing.map((essay) => essay.title));
 
   // No publish date rendered anywhere on the list (AC2).
   await expect(page.locator("ol")).not.toContainText("2026-");
@@ -109,8 +117,88 @@ test("essay page shows the DRAFT tag, reading time, no publish date, and only so
   for (const passage of essay.passages) {
     await expect(page.locator("article")).toContainText(passage.quote);
   }
-  // The framing paragraph is clearly labelled, never presented as finished prose.
-  await expect(page.locator("article")).toContainText("Draft — pending sign-off:");
+  // The framing paragraph renders from the data, which carries its own DRAFT label (count: see TC-164).
+  await expect(page.locator("article")).toContainText(essay.framing);
+});
+
+// ---------------------------------------------------------------------------
+// TC-164 · S18 regression (permanent): the DRAFT prefix appears EXACTLY ONCE per essay page — a
+// count, not `toContainText` (which could not see the duplicate the old EssayBody rendered) — and
+// the DraftTag exactly once, in the header's meta row. The prefix is read from the data.
+// ---------------------------------------------------------------------------
+const DRAFT_PREFIX = /^[^:]+:/.exec(writing[0]!.framing)![0];
+
+for (const essay of writing) {
+  test(`TC-164 · ${essay.slug}: "${DRAFT_PREFIX}" once, DraftTag once`, { tag: "@EVAL-013" }, async ({ page }) => {
+    test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
+    expect(DRAFT_PREFIX).toBe("Draft — pending sign-off:");
+    await page.goto(`/thinking/${essay.slug}`, { waitUntil: "load" });
+    const text = await page.locator("#main").innerText();
+    expect(text.split(DRAFT_PREFIX).length - 1, "DRAFT prefix occurrences in <main>").toBe(1);
+    await expect(page.locator('#main [data-paper="tag"]')).toHaveCount(1);
+    await expect(page.locator('.essay-meta [data-paper="tag"]')).toHaveCount(1);
+    // Flat prose: 0 decorations; every passage is a hand quote with a Source cite.
+    await expect(page.locator(".essay-prose[data-flat] [data-decor]")).toHaveCount(0);
+    await expect(page.locator('.essay-prose [data-hand="quote"]')).toHaveCount(essay.passages.length);
+    await expect(page.locator(".essay-prose cite")).toHaveCount(essay.passages.length);
+    for (const cite of await page.locator(".essay-prose cite").allInnerTexts()) {
+      expect(cite.startsWith("Source:"), cite).toBe(true);
+    }
+    for (const quote of await page.locator('.essay-prose [data-hand="quote"]').allInnerTexts()) {
+      expect(quote.trim().length, quote).toBeLessThanOrEqual(240);
+    }
+  });
+}
+
+test("TC-164 · pager links resolve 200 on every essay (prev → /thinking, next in data order)", async ({ page }) => {
+  test.skip(width(page) !== 1440, "link resolution checked once at w1440");
+  for (const [index, essay] of writing.entries()) {
+    await page.goto(`/thinking/${essay.slug}`, { waitUntil: "load" });
+    const pager = page.getByRole("navigation", { name: "Essay navigation" });
+    const hrefs = await pager.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    const next = writing[index + 1];
+    expect(hrefs).toEqual(next ? ["/thinking", `/thinking/${next.slug}`] : ["/thinking"]);
+    for (const href of hrefs) {
+      const res = await page.request.get(href!);
+      expect(res.status(), `${href} must resolve 200`).toBe(200);
+    }
+  }
+});
+
+// ---------------------------------------------------------------------------
+// TC-163 · margin annotation width gate, reduced-motion underline, margin under the header < 900.
+// ---------------------------------------------------------------------------
+test("TC-163 · margin annotation is in the DOM (aria-hidden) at 1440 and absent at 390", async ({ page }) => {
+  test.skip(width(page) !== 1440 && width(page) !== 390, "gate measured at 390 and 1440");
+  await page.goto("/thinking", { waitUntil: "load" });
+  const margin = page.locator('[data-decor="annotation"]', { hasText: "the same lesson, told twice" });
+  if (width(page) === 1440) {
+    await expect(margin).toHaveCount(1);
+    await expect(margin).toHaveAttribute("aria-hidden", "true");
+  } else {
+    await page.waitForTimeout(300); // MediaGate decides once, after hydration
+    await expect(margin).toHaveCount(0);
+  }
+});
+
+test("TC-163 · reduced motion: the h1 and h2 underlines are drawn complete", async ({ page }) => {
+  test.skip(width(page) !== 1440, "checked once at w1440");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/thinking", { waitUntil: "load" });
+  for (const selector of [".thinking-h1 .sketch", ".essays-h2 .sketch"]) {
+    const offset = await page.locator(selector).evaluate((el) => getComputedStyle(el).strokeDashoffset);
+    expect(parseFloat(offset), `${selector} stroke-dashoffset`).toBe(0);
+  }
+});
+
+test("TC-163 · < 900 the essay margin sits under the header, not beside it", async ({ page }) => {
+  test.skip(width(page) !== 390, "narrow layout checked at w390");
+  await page.goto(`/thinking/${ESSAY_SLUG}`, { waitUntil: "load" });
+  const head = await page.locator(".essay-head").boundingBox();
+  const margin = await page.locator(".essay-margin").boundingBox();
+  const prose = await page.locator(".essay-prose").boundingBox();
+  expect(margin!.y).toBeGreaterThanOrEqual(head!.y + head!.height - 1);
+  expect(margin!.y).toBeLessThan(prose!.y);
 });
 
 test("essay body stays within the ≤600px measure", async ({ page }) => {
@@ -126,7 +214,8 @@ test("@EVAL-011 the related-project link resolves 200", { tag: "@EVAL-011" }, as
   test.skip(width(page) !== 1440, "link resolution checked once at w1440");
   const essay = writing.find((e) => e.slug === ESSAY_SLUG)!;
   await page.goto(`/thinking/${ESSAY_SLUG}`, { waitUntil: "load" });
-  const link = page.locator(`article a[href="/work/${essay.relatedProject}"]`);
+  // Two links to the project (meta row + the end of the prose) — both resolve to the same href.
+  const link = page.locator(`article a[href="/work/${essay.relatedProject}"]`).first();
   await expect(link).toBeVisible();
   const href = await link.getAttribute("href");
   const res = await page.request.get(href!);
