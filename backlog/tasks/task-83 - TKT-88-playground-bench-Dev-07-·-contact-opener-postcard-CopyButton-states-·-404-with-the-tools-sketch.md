@@ -3,9 +3,10 @@ id: TASK-83
 title: >-
   TKT-88: /playground bench (Dev-07) · /contact opener + postcard + CopyButton
   states · 404 with the tools sketch
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 12:25'
 labels:
   - P1
   - 'sp:5'

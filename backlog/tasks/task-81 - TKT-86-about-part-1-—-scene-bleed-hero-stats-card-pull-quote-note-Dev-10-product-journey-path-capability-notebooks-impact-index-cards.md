@@ -3,9 +3,10 @@ id: TASK-81
 title: >-
   TKT-86: /about part 1 — scene-bleed hero + stats card + pull-quote note
   (Dev-10), product journey path, capability notebooks, impact index cards
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 12:25'
 labels:
   - P1
   - 'sp:5'

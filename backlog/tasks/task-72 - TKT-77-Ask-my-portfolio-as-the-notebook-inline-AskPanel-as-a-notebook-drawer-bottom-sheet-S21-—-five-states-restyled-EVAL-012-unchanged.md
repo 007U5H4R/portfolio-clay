@@ -3,9 +3,10 @@ id: TASK-72
 title: >-
   TKT-77: Ask my portfolio as the notebook (inline) + AskPanel as a notebook
   drawer / bottom sheet (S21) — five states restyled, EVAL-012 unchanged
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 09:50'
 labels:
   - P0
   - 'sp:3'

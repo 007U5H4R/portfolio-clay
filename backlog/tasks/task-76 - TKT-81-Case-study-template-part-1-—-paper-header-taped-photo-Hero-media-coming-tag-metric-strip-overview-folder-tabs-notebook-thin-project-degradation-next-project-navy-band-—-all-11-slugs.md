@@ -4,9 +4,10 @@ title: >-
   TKT-81: Case-study template part 1 — paper header (taped photo + 'Hero media
   coming' tag), metric strip, overview folder tabs + notebook, thin-project
   degradation, next-project navy band — all 11 slugs
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 09:50'
 labels:
   - P0
   - 'sp:5'

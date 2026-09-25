@@ -3,9 +3,10 @@ id: TASK-77
 title: >-
   TKT-82: Case-study template part 2 — 'What I learned' renders learnings[]
   (S18, regression test) + derived 'Sources' section
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 09:50'
 labels:
   - P1
   - 'sp:3'

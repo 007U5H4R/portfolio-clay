@@ -4,9 +4,10 @@ title: >-
   TKT-84: /thinking opener + essays ruled sheet (Dev-02) and /thinking/[slug]
   essay page — double 'Draft — pending sign-off:' prefix fixed (S18, regression
   test); quiet-close dropped (D9)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 09:50'
 labels:
   - P1
   - 'sp:5'

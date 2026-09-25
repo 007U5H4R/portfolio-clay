@@ -3,9 +3,10 @@ id: TASK-71
 title: >-
   TKT-76: How I think — six pinned stage cards over the journey path sketch
   (static, quotes always visible)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 09:50'
 labels:
   - P0
   - 'sp:3'
