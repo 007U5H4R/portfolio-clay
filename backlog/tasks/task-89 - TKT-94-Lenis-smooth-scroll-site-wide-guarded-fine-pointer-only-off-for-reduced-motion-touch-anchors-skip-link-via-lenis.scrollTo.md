@@ -3,10 +3,10 @@ id: TASK-89
 title: >-
   TKT-94: Lenis smooth scroll site-wide, guarded (fine pointer only; off for
   reduced motion + touch; anchors/skip link via lenis.scrollTo)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-25 05:59'
-updated_date: '2026-09-25 07:08'
+updated_date: '2026-09-25 07:38'
 labels:
   - P2
   - 'sp:2'

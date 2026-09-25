@@ -7,7 +7,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-09-25 06:01'
-updated_date: '2026-09-25 07:08'
+updated_date: '2026-09-25 07:38'
 labels:
   - P1
   - 'sp:3'
@@ -27,3 +27,9 @@ ordinal: 105150
 - [ ] #2 Rest of each page unchanged until its Phase B/C ticket; no layout overflow at 390/768/1024/1440; EVAL-018 opener unit <= 4; EVAL-021 usedOn matches
 - [ ] #3 Opener image is each route's LCP candidate with correct sizes/priority; full e2e green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Follow-up (EXE-19, 2026-09-25): /contact scene replaced by a 16:9 outpaint so the wave fits the banner; focalY 0.1; full e2e 820/0.
+<!-- SECTION:NOTES:END -->
