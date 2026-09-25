@@ -1654,3 +1654,329 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* TKT-77 · ask — the home `section#ask` (paper-2 + torn edge), the notebook `AskPortfolio`, the five
+   Ask states on ruled paper and the notebook body of the `AskPanel` drawer / bottom sheet (Design.md
+   §7.1 Ask, §7.9, §8; decision S21; values from docs/redesign-mockups/m-009/home.html `.ask`,
+   `.notebook`, `.chips`, `.answer`). Tokens / derived values only (EVAL-020). The input value and
+   answer text are Inter (Dev-04); only the "Ask →" pill (`data-hand="cta"`) and the prompt
+   annotation are Caveat. Every control keeps the 44 px floor (EVAL-008). */
+@layer components {
+  /* section: the 72/96/128 top rhythm stays on the section (transparent, above the tear); the
+     paper-2 body starts at the torn edge, like the band footer. */
+  .ask-section {
+    position: relative;
+    z-index: 1;
+    padding-top: var(--section-gap-mobile);
+  }
+  .ask-section-body {
+    background: var(--color-paper-2);
+  }
+  .ask-section-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: center;
+    padding-block: clamp(40px, 7vw, 96px) clamp(72px, 8vw, 120px);
+  }
+  .ask-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-navy-2);
+  }
+  .ask-h2 {
+    margin-top: 10px;
+    font-size: clamp(38px, 4.2vw, 58px);
+    color: var(--color-navy);
+  }
+  .ask-lead {
+    margin-top: 18px;
+    max-width: 42ch;
+    font-size: 17px;
+    color: var(--color-navy-2);
+  }
+  @media (min-width: 768px) {
+    .ask-section {
+      padding-top: var(--section-gap-tablet);
+    }
+  }
+  @media (min-width: 900px) {
+    .ask-section-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .ask-section {
+      padding-top: var(--section-gap-desktop);
+    }
+  }
+
+  /* notebook: grows in place when a state opens (Design.md §8 "Ask inline expand") */
+  .ask-notebook-wrap {
+    min-width: 0;
+  }
+  .ask-notebook {
+    transition: min-height 280ms var(--ease-panel);
+  }
+  .ask-notebook-wrap[data-expanded] .ask-notebook {
+    min-height: 240px;
+  }
+  .ask-prompt {
+    color: var(--color-navy-2);
+  }
+  .ask-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .ask-input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 2px;
+    border: 0;
+    border-bottom: 1.5px solid var(--color-navy-2);
+    border-radius: 0;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: var(--color-navy);
+  }
+  .ask-input::placeholder {
+    color: var(--color-ink-soft);
+  }
+  .ask-submit {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 6px 18px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-navy);
+    color: var(--color-ivory);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 180ms ease;
+  }
+  .ask-submit:hover {
+    background: var(--color-navy-2);
+  }
+  .ask-body {
+    margin-top: 18px;
+  }
+
+  /* the five states on the ruled paper */
+  .ask-state {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .ask-microcopy {
+    font-size: 13px;
+    color: var(--color-ink-soft);
+  }
+  .ask-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ask-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--color-ivory);
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.25;
+    color: var(--color-navy-2);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 180ms ease;
+  }
+  .ask-pill:hover {
+    border-color: var(--color-navy-2);
+  }
+  .ask-pill-link {
+    color: var(--color-navy);
+  }
+  .ask-pill-arrow {
+    color: var(--color-rust);
+  }
+  .ask-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-block: 8px;
+  }
+  .ask-shimmer {
+    display: block;
+    width: 100%;
+    height: 14px;
+    border-radius: var(--radius-paper);
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-navy) 8%, transparent) 0%,
+      color-mix(in oklab, var(--color-navy) 16%, transparent) 50%,
+      color-mix(in oklab, var(--color-navy) 8%, transparent) 100%
+    );
+    background-size: 200% 100%;
+    animation: ask-shimmer 1.4s linear infinite;
+  }
+  .ask-shimmer-short {
+    width: 72%;
+  }
+  .ask-answer-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .ask-answer-heading {
+    border-radius: var(--radius-paper);
+    font-size: clamp(24px, 2vw, 28px);
+    color: var(--color-navy);
+    outline: none;
+  }
+  .ask-answer-text {
+    max-width: 65ch;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-navy-2);
+  }
+  .ask-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--color-rust);
+    border-radius: var(--radius-paper);
+    background: var(--color-ivory);
+    font-size: 15px;
+    color: var(--color-navy);
+  }
+  .ask-error-glyph {
+    flex-shrink: 0;
+    color: var(--color-rust);
+  }
+  .ask-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-navy);
+    cursor: pointer;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+  .ask-btn-secondary {
+    border: 1.5px solid var(--line);
+    background: var(--color-ivory);
+  }
+  .ask-btn-secondary:hover {
+    border-color: var(--color-navy-2);
+  }
+  .ask-btn-ghost {
+    border: 1.5px solid transparent;
+    background: transparent;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .ask-btn-ghost:hover {
+    border-color: var(--line);
+  }
+
+  /* AskPanel: the drawer / bottom sheet is one notebook page (geometry + slide live in .ask-panel) */
+  .paper-sheet.ask-panel-sheet[data-paper="notebook"] {
+    height: 100%;
+    padding: 0 0 0 46px;
+  }
+  .ask-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 16px 12px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .ask-panel-title {
+    font-size: clamp(24px, 2vw, 28px);
+  }
+  .ask-panel-close {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--color-ivory);
+    color: var(--color-navy);
+    cursor: pointer;
+  }
+  .ask-panel-close:hover {
+    border-color: var(--color-navy-2);
+  }
+  .ask-panel-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px 20px 20px 8px;
+  }
+  .ask-panel-form {
+    margin-top: 0;
+    padding: 14px 20px 18px 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Reduced motion (Design.md §8): the height is instant; the state body is a 150 ms opacity-only
+     fade — a transition from `@starting-style`, not a keyframe, so the EVAL-010 sweep (no animation
+     survives; transitions only on transform/position) stays green. Layered !important outranks the
+     global 1 ms rule. The shimmer holds still. */
+  @media (prefers-reduced-motion: reduce) {
+    .ask-notebook {
+      transition: none !important;
+    }
+    .ask-reveal {
+      animation: none !important;
+      transition: opacity 150ms linear !important;
+    }
+    @starting-style {
+      .ask-reveal {
+        opacity: 0;
+      }
+    }
+    .ask-shimmer {
+      animation: none !important;
+    }
+    .ask-submit,
+    .ask-pill,
+    .ask-btn {
+      transition: none;
+    }
+  }
+}
+@keyframes ask-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+/* end TKT-77 */

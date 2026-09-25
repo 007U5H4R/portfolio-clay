@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
-import { AskPortfolio } from "@/components/ai/AskPortfolio";
-import { Section } from "@/components/layout/Section";
-import { SectionHeading } from "@/components/layout/SectionHeading";
+import { AskSection } from "@/components/ai/AskSection";
 import { FeaturedWork } from "@/components/projects/FeaturedWork";
 import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
 import { knowledge } from "@/data/knowledge";
@@ -59,20 +57,11 @@ export default function Home() {
       <HowIThink stages={HOW_I_THINK_STAGES} />
 
       {/*
-        Ask my portfolio (home inline surface, TKT-10). The AskProvider is now hoisted to
-        app/layout.tsx (TKT-11) so the inline surface and the global slide-over AskPanel share one
-        provider/context; this section just renders the inline AskPortfolio within that context.
+        Ask my portfolio (TKT-77, Design.md §7.1): section#ask on paper-2 with a torn edge and the
+        notebook AskPortfolio. The AskProvider is hoisted to app/layout.tsx (TKT-11) so the inline
+        surface and the global AskPanel share one provider/context.
       */}
-      <Section id="ask" aria-labelledby="ask-heading">
-        <SectionHeading
-          id="ask-heading"
-          eyebrow="Ask"
-          title="Ask my portfolio"
-          lead="Type a question and get a sourced answer drawn only from this site — no live AI."
-          className="mx-auto mb-[var(--space-8)] items-center text-center"
-        />
-        <AskPortfolio prompts={HOME_PROMPTS} />
-      </Section>
+      <AskSection prompts={HOME_PROMPTS} />
 
       {/* No closing CTA section here (S16, TKT-72): the band footer in app/layout.tsx is the one
           closing call-to-action on every route. */}

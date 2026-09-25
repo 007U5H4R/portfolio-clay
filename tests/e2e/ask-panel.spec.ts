@@ -182,4 +182,37 @@ test.describe("ask-panel", () => {
     await expect(panel(page).getByRole("heading", { level: 3, name: "Answer" })).toBeVisible();
     await axe(page, { include: "dialog.ask-panel" }); // answer
   });
+
+  test("@TC-149 the panel body is a notebook sheet: ruled paper, Inter input, Caveat cta, 20% navy scrim", {
+    tag: "@TC-149",
+  }, async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    await openPanel(page);
+    const sheet = panel(page).locator('[data-paper="notebook"]');
+    await expect(sheet).toBeVisible();
+    // The sheet fills the drawer / bottom sheet.
+    const [sheetBox, panelBox] = await Promise.all([sheet.boundingBox(), panel(page).boundingBox()]);
+    expect(Math.round(sheetBox!.height)).toBe(Math.round(panelBox!.height));
+    expect(
+      await panel(page).locator("#ask-panel-input").evaluate((el) => getComputedStyle(el).fontFamily),
+    ).toMatch(/Inter/);
+    await expect(sheet.locator('button[type="submit"] [data-hand="cta"]')).toHaveText("Ask →");
+    // The Lenis scroll opt-out survives the restyle (TKT-94).
+    await expect(sheet.locator("[data-lenis-prevent]")).toHaveCount(1);
+    const scrim = await panel(page).evaluate((el) => getComputedStyle(el, "::backdrop").backgroundColor);
+    expect(scrim).not.toBe("rgba(0, 0, 0, 0)");
+  });
+
+  test("@TC-149 screenshot pack: the notebook panel answer state at 390 / 1440", async ({ page }) => {
+    const w = width(page);
+    test.skip(w !== 390 && w !== 1440, "S77.03 SHOT(m-009/ask-panel-{390,1440})");
+    await page.goto("/", { waitUntil: "load" });
+    await openPanel(page);
+    await panel(page).locator("#ask-panel-input").fill(REAL_QUERY);
+    await panel(page).locator("#ask-panel-input").press("Enter");
+    await expect(panel(page).getByRole("heading", { level: 3, name: "Answer" })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `docs/screenshots/m-009/ask-panel-${w}.png` });
+  });
 });
