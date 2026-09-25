@@ -1,5 +1,6 @@
 import type { Project, SourceRef } from "@/data/schema";
 import { Prose } from "@/components/common/Prose";
+import { Hand } from "@/components/paper";
 import { ArtifactGrid, ArtifactRenderer } from "@/components/case-study/artifacts";
 
 /** One chapter of a project (the schema exports no standalone `Chapter` type). */
@@ -17,38 +18,31 @@ export interface ChapterProps {
 }
 
 /**
- * One case-study chapter (Design.md §3): a flat text zone — numbered `h2` + `Prose` body capped at
- * the 60ch/≤600px reading measure — with 1–3 artifacts laid out 1/2/3-up **within** the chapter
- * column (never full-bleed, Law of Proximity). The `<section>` carries the chapter's `id={anchor}`
- * so `/work/<slug>#<anchor>` deep links (How I Think, Ask evidence) resolve to it (E-3, EVAL-011);
- * `scroll-mt` offsets the jump past the sticky header + pill nav so the heading isn't obscured.
+ * One case-study chapter (TKT-83 / Design.md §7.3 deep dive): a nested `<section class="chapter">` —
+ * an `h2` whose numeral is a Caveat `Hand label` in rust, the body in `Prose` (a **flat zone**,
+ * `data-flat`, ≤ 68ch — §3.2 rule 4: 0 decorations inside, ever), then the artifact cluster
+ * (`ArtifactGrid`, paper objects alternating ±0.6°). The section carries the chapter's `id={anchor}`
+ * so `/work/<slug>#<anchor>` deep links (How I Think, Ask evidence, `ChapterNav`) resolve to it
+ * (E-3, EVAL-011); `scroll-margin-top` (`.chapter`, 7rem) keeps the heading clear of the sticky
+ * header — Lenis reads it too (`lib/smooth-scroll.ts`).
+ *
+ * As a nested `<section>` it is its own EVAL-018 counting unit (§3.2 rule 1) — planned count 0 (§3.3):
+ * the artifacts are `data-paper`, never `data-decor`.
  *
  * Rendered only for chapters that actually have content — an empty chapter is omitted by the page
- * (short honest page), so this component never renders a bare heading over nothing.
- *
- * Body paragraphs render as plain text today. The schema notes bodies may carry inline markdown
- * links; a link renderer is deferred to the content milestone (M-005) that first supplies real
- * bodies — no body ships today, so there is nothing to mis-render.
+ * (short honest page). Body paragraphs render as plain text (D7 — verbatim from `data/projects.ts`).
  */
 export function Chapter({ chapter, number, anchor, sources }: ChapterProps) {
   const numberLabel = String(number).padStart(2, "0");
 
   return (
-    <section
-      id={anchor}
-      aria-labelledby={`chapter-${anchor}`}
-      className="scroll-mt-[7rem] flex flex-col gap-[var(--space-5)]"
-    >
-      {/* QA-003 (TKT-48): the case-study `h1` was followed directly by this chapter heading with
-          nothing at h2 — a heading-outline skip (h1 → h3) for every screen-reader user navigating
-          by heading, on every deep-dive study. Promoted to `h2` (font size stays `--text-h3`, set
-          by class, not tag) and `DecisionCard`'s heading bumped h4 → h3 alongside it so the outline
-          reads h1 → h2 (chapter) → h3 (decision) with no skip in either direction. */}
-      <h2
-        id={`chapter-${anchor}`}
-        className="text-[length:var(--text-h3)] font-bold text-navy"
-      >
-        <span className="mr-[var(--space-3)] tabular-nums text-ink-soft">{numberLabel}</span>
+    <section id={anchor} aria-labelledby={`chapter-${anchor}`} className="chapter">
+      {/* QA-003 (TKT-48): `h2` so the outline reads h1 → h2 (chapter) → h3 (decision) with no skip.
+          The space after the numeral keeps the accessible name "01 Context", not "01Context". */}
+      <h2 id={`chapter-${anchor}`}>
+        <Hand kind="label" className="chapter-num">
+          {numberLabel}
+        </Hand>{" "}
         {chapter.title}
       </h2>
 
@@ -61,7 +55,7 @@ export function Chapter({ chapter, number, anchor, sources }: ChapterProps) {
       ) : null}
 
       {chapter.artifacts.length > 0 ? (
-        <ArtifactGrid className="max-w-[60ch]">
+        <ArtifactGrid>
           {chapter.artifacts.map((artifact) => (
             <ArtifactRenderer key={artifact.id} artifact={artifact} sources={sources} />
           ))}

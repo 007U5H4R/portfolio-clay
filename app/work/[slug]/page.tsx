@@ -100,9 +100,12 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   // overview tabs and the `#deep` anchor keep working.
   const deepSection = hasChapters ? (
     <section id="deep" aria-label="Deep dive" className="cs-deep">
-      <Container className="grid gap-[var(--space-8)] lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)]">
+      {/* TKT-83 (Design.md §7.3 deep dive): `200px 1fr` grid. `ChapterNav` mounts only ≥ 1024 via
+          MediaGate (Dev-09), so the chapters column is pinned to column 2 and never shifts when the nav
+          is absent. Chapters + ShowTheThinking are nested sections and own their EVAL-018 counts. */}
+      <Container className="grid items-start gap-[clamp(32px,4vw,64px)] lg:grid-cols-[200px_minmax(0,1fr)]">
         <ChapterNav items={navItems} />
-        <div className="flex flex-col gap-[var(--section-gap-mobile)] md:gap-[var(--section-gap-tablet)]">
+        <div className="chapters lg:col-start-2 lg:row-start-1">
           {renderedChapters.map(({ chapter, anchor, number }) => (
             <Chapter key={chapter.id} chapter={chapter} anchor={anchor} number={number} sources={project.sources} />
           ))}
@@ -148,6 +151,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       )}
     </div>
   );
+  // end TKT-83
 
   return (
     <>

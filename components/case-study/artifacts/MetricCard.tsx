@@ -1,6 +1,6 @@
 import { Gauge, Ruler, UserRound, type LucideIcon } from "lucide-react";
 import type { Metric, SourceRef } from "@/data/schema";
-import { tierClass, toneClass, type Tone } from "@/components/clay/tiers";
+import { Pin } from "@/components/paper";
 import { Icon } from "@/components/common/Icon";
 import { formatAsOf } from "@/lib/format";
 import { ArtifactShell } from "./ArtifactShell";
@@ -18,30 +18,29 @@ export interface MetricCardProps {
   source: SourceRef;
   caption?: string | undefined;
   /**
-   * `card` (default) = the full clay-tier artifact card used inside chapter columns and the
-   * `/dev/artifacts` board. `inline` = the compact, flat mini-metric the `CaseStudyHeader` places
-   * beside the lead (Design.md §3 "2–3 inline mini MetricCards" / TKT-19 TSK-16 "inline variant").
-   * Both carry the SAME five sourced fields (value + label + context + asOf + kind badge + source,
-   * TKT-19 AC 2); the inline variant drops only the clay shell so a row of them reads as header
-   * meta rather than stacked cards.
+   * `card` (default) = the pinned ruled index card (Design.md §7.3 `metric`) used inside chapter
+   * clusters, `Impact` and the `/dev/artifacts` board. `inline` = the flat mini-metric the legacy
+   * `CaseStudyHeader` places beside the lead (TKT-81 replaces it with `MetricStrip`). Both carry the
+   * SAME sourced fields (value + label + context + asOf + kind badge + source, TKT-19 AC 2).
    */
   variant?: "card" | "inline" | undefined;
 }
 
 type Kind = Metric["kind"];
 
-/** kind → {tone, icon, label} — the measured/structural/self-reported badge (icon + text). */
-const kindMap: Record<Kind, { tone: Tone; icon: LucideIcon; label: string }> = {
-  measured: { tone: "mint", icon: Gauge, label: "Measured" },
-  structural: { tone: "sky", icon: Ruler, label: "Structural" },
-  "self-reported": { tone: "peach", icon: UserRound, label: "Self-reported" },
+/** kind → {icon, label, pin} — the measured/structural/self-reported badge (icon + Inter text, Dev-04). */
+const kindMap: Record<Kind, { icon: LucideIcon; label: string; pin: "rust" | "forest" | "steel" }> = {
+  measured: { icon: Gauge, label: "Measured", pin: "rust" },
+  structural: { icon: Ruler, label: "Structural", pin: "steel" },
+  "self-reported": { icon: UserRound, label: "Self-reported", pin: "forest" },
 };
 
 /**
- * MetricCard (Design.md §3): a large `tabular-nums` value, its label, a context sentence, the
- * `formatAsOf(asOf)` freshness caption, and a kind badge. It renders ONLY sourced, dated data —
- * a metric that arrives without `asOf` or `source` throws rather than rendering a bare number
- * (no fabricated / floating metric ever reaches the page — EVAL-013).
+ * MetricCard (Design.md §7.3 `metric`): a pinned ruled index card (`Sheet index` + `Pin`) — Fraunces
+ * value, Inter label / context, and a foot with the **Inter** kind badge (Dev-04 — never Caveat), the
+ * `formatAsOf(asOf)` freshness caption and the Source. It renders ONLY sourced, dated data — a metric
+ * that arrives without `asOf` or `source` throws rather than rendering a bare number (no fabricated /
+ * floating metric ever reaches the page — EVAL-013).
  */
 export function MetricCard({ metric, source, caption, variant = "card" }: MetricCardProps) {
   // Runtime sourcing guard (the type already forbids this at compile time; this catches data that
@@ -52,47 +51,38 @@ export function MetricCard({ metric, source, caption, variant = "card" }: Metric
     );
   }
 
-  const { tone, icon, label } = kindMap[metric.kind];
+  const { icon, label, pin } = kindMap[metric.kind];
 
-  // The value/label/context/badge/asOf body is identical in both variants — only the surrounding
-  // surface differs (clay card shell vs. flat inline block), so it is defined once here.
+  // The body is identical in both variants — only the surrounding material differs.
   const body = (
-    <div className="flex flex-col gap-[var(--space-2)]">
-      <p className="text-[length:var(--text-h2)] font-extrabold tabular-nums leading-none text-navy">
-        {metric.value}
-      </p>
-      <p className="text-[length:var(--text-body)] font-semibold text-navy">{metric.label}</p>
-      <p className="text-caption text-navy-2">{metric.context}</p>
-      <div className="mt-[var(--space-1)] flex flex-wrap items-center gap-[var(--space-3)]">
-        <span
-          className={[
-            tierClass.utility,
-            toneClass[tone],
-            "inline-flex items-center gap-[var(--space-2)] px-[var(--space-3)] py-[var(--space-1)] text-caption font-semibold",
-          ].join(" ")}
-        >
+    <>
+      <p className="metric-val">{metric.value}</p>
+      <p className="metric-lbl font-body">{metric.label}</p>
+      <p className="metric-ctx font-body">{metric.context}</p>
+      <p className="metric-foot font-body">
+        <span className="metric-kind font-body" data-kind={metric.kind}>
           <Icon icon={icon} size={20} />
           {label}
         </span>
-        <span className="text-caption text-ink-soft">{formatAsOf(metric.asOf)}</span>
-      </div>
-    </div>
+        <span>{formatAsOf(metric.asOf)}</span>
+        <SourceCaption as="span" source={source} className="artifact-src" />
+      </p>
+    </>
   );
 
   if (variant === "inline") {
-    // Flat header mini-metric: no clay shell (a row of these is header meta, not stacked cards),
-    // but it still carries the mandatory source line so no metric ever renders without provenance.
+    // Flat header mini-metric: no sheet (a row of these is header meta, not stacked cards), but it
+    // still carries the mandatory source line so no metric ever renders without provenance.
     return (
-      <div className="flex flex-col gap-[var(--space-2)]">
+      <div className="metric-inline grid gap-[var(--space-1)]">
         {body}
-        {caption ? <p className="text-caption text-navy-2">{caption}</p> : null}
-        <SourceCaption source={source} />
+        {caption ? <p className="artifact-caption">{caption}</p> : null}
       </div>
     );
   }
 
   return (
-    <ArtifactShell source={source} label="Metric" caption={caption}>
+    <ArtifactShell form="metric" variant="index" label="Metric" caption={caption} fasteners={<Pin tone={pin} />}>
       {body}
     </ArtifactShell>
   );
