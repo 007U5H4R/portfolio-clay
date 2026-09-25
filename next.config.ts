@@ -54,6 +54,15 @@ const nextConfig: NextConfig = {
   // Do not auto-generate AGENTS.md / CLAUDE.md into the repo root (Next 16 default);
   // this repo keeps its own docs and a surgical commit surface.
   agentRules: false,
+  // TKT-92 (EXE-17): inline the CSS as a <style> so the first frame is not held behind a pending
+  // render-blocking stylesheet. Paired with `preload: false` on the three next/font families
+  // (app/layout.tsx): with both, the hero/opener LCP image paints before the fonts and JS finish, so
+  // Lighthouse's simulated LCP stops charging them to LCP. Either change alone does not move the
+  // metric (docs/reports/TKT-92.md). Cost: the CSS also rides in the RSC payload (HTML ≈ +17 kB br)
+  // and pages don't share a cached stylesheet on first load. CSP already allows inline styles (TP9).
+  experimental: {
+    inlineCss: true,
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [390, 768, 1024, 1440, 1920],
