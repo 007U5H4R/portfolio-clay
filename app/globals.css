@@ -6111,5 +6111,16 @@ html.lenis body {
       padding-block-start: clamp(28px, 2.5vw, 40px);
     }
   }
+  /* Narrow art direction (mobile LCP): < 768 the banner's <picture> serves a pre-cropped rendition of just
+     the region the 4:3 box shows; the <img> sits on the canvas at that crop's own position (fractions of
+     the scene width from SceneBanner's `narrow` prop), so it stays on the canvas grid — the canvas is
+     still what the box crops. */
+  @media (max-width: 767px) {
+    .scene-banner-img--narrow-crop {
+      right: auto;
+      left: calc(var(--narrow-left, 0) * 100%);
+      width: calc(var(--narrow-span, 1) * 100%);
+    }
+  }
 }
 /* end TKT-92r2 */

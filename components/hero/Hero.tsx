@@ -32,6 +32,25 @@ const BANNER_FOCAL_X = 0.49;
 const BANNER_FOCAL_Y = 0.36;
 
 /**
+ * Narrow-screen rendition of the banner (TKT-92r2, mobile LCP): < 768 the 4:3 box shows only the scene's
+ * x 0.2072–0.7728 (box 100vw × 75vw over a 176.8vw canvas at focal 0.49 — vw-proportional, so the same
+ * at every narrow width; a classic scrollbar only narrows it). The crop is x 640–2464 of 3168 (that
+ * region plus ≈ 0.5 % a side), full height, 1824×1344 — provenance in
+ * content/media/illustrations/README.md. `sizes` is a density cap, not the displayed width (≈ 102vw):
+ * `54vw` keeps the image at about the pixels-per-CSS-px the full banner gets today (its `100vw` covers
+ * a 177vw-wide canvas), so a 412 px / DPR 1.75 phone takes the 390w rendition (≈ half the bytes of
+ * today's 768w full scene) instead of a sharper but heavier crop.
+ */
+const BANNER_NARROW = {
+  src: "/media/illustrations/hero-banner-mobile.webp",
+  width: 1824,
+  height: 1344,
+  left: 640 / 3168,
+  span: 1824 / 3168,
+  sizes: "54vw",
+} as const;
+
+/**
  * Three taped polaroids down the banner's left edge (Dev-21): crops of existing scenes, decorative
  * (`alt=""`, group `aria-hidden` — Dev-23), rotations inside the photo cap (±2.4°, Design.md §3.1).
  * Their job is to cover the outpaint's garbled corkboard (the banner's top-left ~21 % × 45 %): the first
@@ -60,7 +79,7 @@ export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-banner">
-        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} focalY={BANNER_FOCAL_Y} sizes="100vw">
+        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} focalY={BANNER_FOCAL_Y} sizes="100vw" narrow={BANNER_NARROW}>
           <div className="hero-clip-slot" style={clipSlotStyle()}>
             <HeroClip poster={POSTER.publicSrc!} webm={CLIP.publicSrc!} mp4={CLIP_MP4} />
           </div>

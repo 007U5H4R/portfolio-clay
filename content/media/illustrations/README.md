@@ -50,6 +50,17 @@ white = show clip) by writing the luminance into the alpha channel over black �
 reads alpha (`mask-mode: match-source`), and the `-webkit-` form is alpha-only. It is not an
 illustration (no manifest entry): it carries no picture, only the clip's shape.
 
+### TKT-92 round 2 · narrow-screen banner rendition
+
+`public/media/illustrations/hero-banner-mobile.webp` is a second rendition of `hero-banner` (like the
+clip's `.mp4` is of `hero-clip`, so it has no manifest entry of its own): a crop of the same outpaint
+master (`hero-banner-outpaint-a1.png`), `removeAlpha().extract({ left: 640, top: 0, width: 1824, height:
+1344 })` → `webp({ quality: 86, effort: 6, smartSubsample: true })`, 1824×1344, **210,964 bytes**, sha256
+`31e30331c5fb8919d5d68dc1a86b9ccb7078d7dd77650f2b8ca47307d62a1703`. Only the region the < 768 px 4:3
+banner box shows (x 0.2072–0.7728 of the scene) plus ≈ 0.5 % a side, so phones download the visible part
+only (`<picture>` art direction in `components/paper/SceneBanner.tsx`; placement in `components/hero/Hero.tsx`).
+Same pixels, same alt (the `<img>` element is unchanged); no new picture content.
+
 ## Manual per-asset checklist (Stage 8)
 
 Filed separately at `evals/results/eval-021-<sha>.md` once Stage 8 runs: confirms per asset that it
