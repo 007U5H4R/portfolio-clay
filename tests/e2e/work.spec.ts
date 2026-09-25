@@ -269,7 +269,7 @@ test("@EVAL-018 /work: one scene img, decoration counts 2 / 3 / 1", { tag: ["@EV
 });
 
 // ---------------------------------------------------------------------------
-// @EVAL-008 — responsive: no page overflow at 390, tabs are real ≥44 targets, peek is scrollable.
+// @EVAL-008 — responsive: no page overflow at 390, tabs are real ≥44 targets, the row wraps (TKT-90b).
 // ---------------------------------------------------------------------------
 test("@EVAL-008 /work has no horizontal overflow and ≥44 tab targets", { tag: "@EVAL-008" }, async ({
   page,
@@ -282,23 +282,24 @@ test("@EVAL-008 /work has no horizontal overflow and ≥44 tab targets", { tag: 
   await minTargets(page);
 });
 
-test("@EVAL-008 the filter row scrolls horizontally at 390 (peek, not a page-level overflow)", {
+test("@EVAL-008 the filter row wraps at 390 (no clipped tab, no page-level overflow)", {
   tag: "@EVAL-008",
 }, async ({ page }) => {
-  test.skip(width(page) !== 390, "the peeking scroll row is the <768 layout");
+  test.skip(width(page) !== 390, "the wrapping row is the <768 layout");
   await page.goto("/work", { waitUntil: "load" });
-  // Right after "load" the static Suspense fallback row (FilterTabsFallback, TP7) can be swapped for the
-  // hydrated FilterTabs between locator resolution and evaluate — a detached node measures 0 × 0
-  // (integration-abc: reproduced 1/3 at 1 worker). Poll until the live row is measured.
+  // TKT-90b: the old peeking scroll row hid its scrollbar and cut "Exp…" mid-word at 390 (TKT-85 sweep);
+  // the row now wraps. Right after "load" the static Suspense fallback row (FilterTabsFallback, TP7) can be
+  // swapped for the hydrated FilterTabs between locator resolution and evaluate — a detached node measures
+  // 0 × 0 (integration-abc: reproduced 1/3 at 1 worker). Poll until the live row is measured.
   const measure = () =>
     page.getByRole("tablist").evaluate((el) => ({
+      measured: el.clientWidth > 0,
       scrollable: el.scrollWidth > el.clientWidth,
       doc: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
     }));
-  await expect
-    .poll(async () => (await measure()).scrollable, { message: "the tab row itself scrolls (content wider than the row)" })
-    .toBe(true);
+  await expect.poll(async () => (await measure()).measured, { message: "the hydrated tab row is laid out" }).toBe(true);
   const overflow = await measure();
+  expect(overflow.scrollable, "the tab row wraps; nothing is clipped behind a hidden scroll").toBe(false);
   expect(overflow.doc, "the page must not scroll horizontally").toBe(true);
 });
 
