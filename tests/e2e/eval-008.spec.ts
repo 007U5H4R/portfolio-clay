@@ -13,7 +13,7 @@
  * only had `/work/teachspark`, missing 10 case studies + 5 essays).
  *
  * RESOLVED (EXE-7 · EVAL-008 findings from the original broadened sweep):
- *   • /contact 44px target — the "email me" action is now a `ClayButton` (min-h-11/min-w-11) on
+ *   • /contact 44px target — the "email me" action is now a 44 px button (min-h-11/min-w-11) on
  *     its own line, not a sub-44px inline link. Fixed by TKT-06/EXE-7, not exempted.
  *   • 14px text floor — the former hero proof-tile (removed at TSK-38) one-liner `copy` was CONTENT rendered at 12px; it now
  *     uses `--text-caption` (14px). The header wordmark subtitle ("Senior Product Manager") and
@@ -72,7 +72,7 @@ for (const route of DEEP_DIVE_ROUTES) {
   });
 }
 
-// EXE-7: /contact's "email me" is now a real ≥44×44 ClayButton — every route runs this check.
+// EXE-7: /contact's "email me" is now a real ≥44×44 button — every route runs this check.
 for (const route of ROUTES) {
   test(`@EVAL-008 44px touch targets · ${route}`, { tag: "@EVAL-008" }, async ({
     page,
