@@ -39,25 +39,30 @@ export async function generateMetadata({ params }: EssayPageProps): Promise<Meta
 }
 
 /**
- * `/thinking/[slug]` (TKT-43, M-006): one essay, `EssayBody`-rendered, in `Container`. Static (all
- * 5 slugs prerendered). Every essay is `draft: true` — `EssayBody` is the single place the DRAFT
- * tag, reading-time caption, sourced passages, framing paragraph, and related-project link render.
+ * `/thinking/[slug]` (TKT-84, Design.md §7.6): TKT-95's scene opener (EXE-18) → `section.essay-section`
+ * holding the `EssayBody` article (crumb, header, margin, flat prose, pager) → band. Static (all 5
+ * slugs prerendered). The pager's "next note" follows `data/writing.ts` order; the last essay has none.
  */
 export default async function EssayPage({ params }: EssayPageProps) {
   const { slug } = await params;
-  const essay = getEssay(slug);
+  const index = writing.findIndex((essay) => essay.slug === slug);
+  const essay = writing[index];
   if (!essay) notFound();
+  const next = writing[index + 1];
 
   return (
     <>
       {/* TKT-95 scene opener (EXE-18): the /thinking scene opens every essay too. */}
       <SceneOpener id="scene-thinking" focalX={0.5} focalY={0.29} priority />
-      <Container
-        as="section"
-        className="py-[var(--section-gap-mobile)] md:py-[var(--section-gap-tablet)] lg:py-[var(--section-gap-desktop)]"
-      >
-        <EssayBody essay={essay} />
-      </Container>
+      <section className="essay-section" aria-labelledby="essay-h">
+        <Container>
+          <EssayBody
+            essay={essay}
+            number={index + 1}
+            next={next ? { slug: next.slug, title: next.title } : undefined}
+          />
+        </Container>
+      </section>
     </>
   );
 }

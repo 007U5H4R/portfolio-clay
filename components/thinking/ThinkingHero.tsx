@@ -1,20 +1,33 @@
 import { Container } from "@/components/layout/Container";
+import { Annotation } from "@/components/paper/Annotation";
+import { Sketch } from "@/components/paper/Sketch";
 
 /**
- * `/thinking` page intro (TKT-43, Design.md §3 "Thinking → ThinkingHero"): flat, h1 only — no lead
- * line, no clay (text-leading pages open flat, same convention as `WorkHero`). No copy source exists
- * for a supporting line beyond the SITEMAP.md page name itself, so the hero stays h1-only rather
- * than inventing one.
+ * `/thinking` opener copy (TKT-84 S84.01, Design.md §7.5): eyebrow "Product Thinking", the oversized
+ * h1 "Thinking" with the draw-in underline `Sketch`, and the hand-sub `Annotation` "Notes first.
+ * Essays later." (an aside, not copy — `aria-hidden`).
+ *
+ * The §7.5 taped `scene-thinking` photo + its caption annotation are **not** rendered here: TKT-95's
+ * `SceneOpener` already shows that scene as the page's full-bleed banner directly above this section
+ * (EXE-18 / Dev-24 supersede §6.4's per-page placements), so a second copy of the same picture would
+ * be a duplicate. Unit count: 2 (underline sketch · hand-sub annotation) — §3.3 planned 3 with the
+ * photo caption.
  */
 export function ThinkingHero() {
   return (
-    <Container
-      as="section"
-      className="pt-[var(--space-12)] pb-[var(--space-8)] md:pt-[var(--space-13)]"
-    >
-      <h1 className="max-w-[44ch] text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
-        Thinking
-      </h1>
-    </Container>
+    <section className="thinking-opener" aria-labelledby="thinking-h">
+      <Container className="thinking-opener-copy">
+        <p className="thinking-eyebrow">Product Thinking</p>
+        <h1 id="thinking-h" className="thinking-h1">
+          <span className="thinking-ul">
+            Thinking
+            <Sketch variant="underline" />
+          </span>
+        </h1>
+        <Annotation size="hero" rotate={-1.5} className="thinking-hand-sub">
+          Notes first. Essays later.
+        </Annotation>
+      </Container>
+    </section>
   );
 }
