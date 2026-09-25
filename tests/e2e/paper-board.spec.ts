@@ -1,5 +1,6 @@
 /**
- * primitives.spec.ts (S04.08) — the /dev/primitives board QA gate for TKT-04.
+ * paper-board.spec.ts (S04.08; renamed from primitives.spec.ts in TKT-89) — the /dev/primitives
+ * board QA gate, now the paper board.
  *
  * Deliberately tagged `@primitives` (NOT `@EVAL-006/008/010`): the /dev board is a QA-only route
  * (TSK-09 routes.json) that only exists in an ALLOW_DEV_ROUTES build, so it must not be pulled into
@@ -55,7 +56,7 @@ test("primitives board · axe wcag2.1 AA", { tag: "@primitives" }, async ({ page
 });
 
 // TSK-35: the ClayPill hover test that lived here was retired with the clay board — `ClayPill` is no
-// longer rendered on `/dev/primitives` (the paper board replaced it; TKT-89 deletes `components/clay`).
+// longer rendered on `/dev/primitives` (the paper board replaced it; TKT-89 deleted `ClayPill`).
 // In its place: the server-side count readout must agree with the DOM it describes.
 test("primitives board · every section's server-side readout matches its owned [data-decor] count", {
   tag: "@primitives",

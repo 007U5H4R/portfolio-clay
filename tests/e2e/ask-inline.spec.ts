@@ -6,7 +6,7 @@
  * local provider resolves a matching query to an answer and an off-topic query to the graceful empty
  * state — no dev flag needed. The `error` and `loading` (slow) states need a forced provider, so they
  * run on the QA-only `/dev/ask` fixture and SKIP (never fail) when it 404s under a normal production
- * build — exactly the `primitives.spec.ts` pattern (run the full five under `ALLOW_DEV_ROUTES=1`).
+ * build — exactly the `paper-board.spec.ts` pattern (run the full five under `ALLOW_DEV_ROUTES=1`).
  *
  * M-009 (TKT-77, TC-149): the surface is now a ruled notebook `Sheet` in a paper-2 `section#ask` with a
  * torn edge; the selectors below target the notebook (`[data-paper="notebook"]`) and the `DraftTag`

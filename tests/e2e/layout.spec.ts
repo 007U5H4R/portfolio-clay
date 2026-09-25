@@ -4,7 +4,7 @@
  * assertions for `Container` / `Section` / `SectionHeading` / `Reveal`, plus the TKT-72 band footer
  * (TC-134, TC-135, TC-136) that replaced the S05.04 two-tier footer.
  *
- * Deliberately tagged `@primitives`, NOT `@EVAL-*` — same reasoning as `primitives.spec.ts`
+ * Deliberately tagged `@primitives`, NOT `@EVAL-*` — same reasoning as `paper-board.spec.ts`
  * (TKT-04): the `/dev/primitives` board it targets is a QA-only route that only renders on an
  * `ALLOW_DEV_ROUTES` build, so it must not be pulled into the eval harness's plain-build grep.
  * Run with: `ALLOW_DEV_ROUTES=1 pnpm build && ALLOW_DEV_ROUTES=1 pnpm test:e2e --grep primitives`

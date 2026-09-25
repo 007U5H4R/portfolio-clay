@@ -88,8 +88,7 @@
   --card-padding: var(--space-7);
   --card-padding-hero: var(--space-9);
 
-  /* Radius — clay values stay until TKT-89 deletes their consumers; paper values per Design.md §2.3 */
-  --radius-clay: 28px;
+  /* Radius — --radius-clay-sm/--radius-utility still have live consumers (TKT-89 report); paper values per Design.md §2.3 */
   --radius-clay-sm: 20px;
   --radius-pill: 999px;
   --radius-utility: 14px;
@@ -101,13 +100,10 @@
   --shadow-paper-hover: 0 2px 3px color-mix(in oklab, var(--color-navy) 8%, transparent), 0 22px 40px -18px color-mix(in oklab, var(--color-navy) 35%, transparent);
   --shadow-sticky: 0 8px 14px -8px color-mix(in oklab, var(--color-navy) 35%, transparent);
 
-  /* Shadows — the three clay states + utility + volume gradient (verbatim DESIGN_DIRECTION §5);
-     kept until TKT-89 deletes the clay primitives that consume them */
+  /* Shadows — clay rest + utility (verbatim DESIGN_DIRECTION §5); TKT-89 deleted hover/press/volume;
+     these two remain because SkipLink, not-found and the /dev/video board still consume them */
   --shadow-clay-rest: 0 16px 35px rgba(16, 22, 70, 0.1), 0 5px 10px rgba(16, 22, 70, 0.06), inset 0 2px 3px rgba(255, 255, 255, 0.85), inset 0 -3px 6px rgba(16, 22, 70, 0.05);
-  --shadow-clay-hover: 0 22px 44px rgba(16, 22, 70, 0.14), 0 8px 14px rgba(16, 22, 70, 0.08), inset 0 2px 3px rgba(255, 255, 255, 0.85), inset 0 -3px 6px rgba(16, 22, 70, 0.05);
-  --shadow-clay-press: 0 6px 14px rgba(16, 22, 70, 0.1), 0 2px 4px rgba(16, 22, 70, 0.06), inset 0 3px 6px rgba(16, 22, 70, 0.08);
   --shadow-utility: 0 2px 6px rgba(16, 22, 70, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.6);
-  --gradient-clay-volume: linear-gradient(160deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0) 55%);
 
   /* Motion easings — values from technical-plan A6 `easings`; consumed by CSS class strings
      `ease-[var(--ease-*)]` (ClayCard/ClayButton/Reveal/AskPanel/VT). Kept identical to the
@@ -222,32 +218,6 @@ body::before {
   background-image: var(--grain-a), var(--grain-b);
   background-size: 7px 7px, 11px 11px;
   opacity: 0.9;
-}
-
-/*
-  Hero headline accent + one-time reveal wash (S05.04 / Design.md §3–§4). "AI-native products"
-  renders as the accent word with a paper-2 sweep that washes in once on first view over 700ms
-  and holds (`forwards`). Uses only existing colour tokens (--color-rust, --color-paper-2) —
-  the --color- token count stays at 13. Removed entirely under reduced motion (decorative).
-  TSK-38: the M-008 hero motion system + `.glow-halo` are removed; `.hero-highlight`'s only
-  remaining consumer is `AboutHero.tsx`, kept until TKT-86 rebuilds that page.
-*/
-.hero-highlight {
-  color: var(--color-rust);
-  background-image: linear-gradient(90deg, transparent 50%, var(--color-paper-2) 50%);
-  background-size: 200% 100%;
-  background-position: 100% 0;
-  background-repeat: no-repeat;
-  padding-inline: 0.08em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  animation: wash 700ms var(--ease-reveal) forwards;
-}
-
-@keyframes wash {
-  to {
-    background-position: 0 0;
-  }
 }
 
 /*
@@ -425,13 +395,6 @@ body::before {
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
-  }
-
-  /* The hero wash is decorative — remove it entirely (no animation, no sweep); the accent word
-     still reads as accent-coloured text (S05.04 gate: animation-name resolves to none). */
-  .hero-highlight {
-    animation-name: none;
-    background-image: none;
   }
 
   /* Reveal collapses to an opacity-only, ~instant fade (A6: ".reveal { transition-property:
