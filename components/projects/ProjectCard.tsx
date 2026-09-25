@@ -1,87 +1,103 @@
-import { ArrowRight } from "lucide-react";
-import type { Project } from "@/data/schema";
-import { projectIcon } from "@/data/projects";
-import { ClayIcon } from "@/components/clay/ClayIcon";
-import { Icon } from "@/components/common/Icon";
-import { Tag } from "@/components/common/Tag";
-import { StatusBadge } from "@/components/projects/StatusBadge";
+import type { ReactNode } from "react";
+import type { Metric, Project } from "@/data/schema";
+import { Hand, Sheet, Tape, type TapeSide } from "@/components/paper";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
+import { formatAsOf } from "@/lib/format";
 
 export interface ProjectCardProps {
-  /** A schema-validated `Project` (TKT-03); the card reads a card-fidelity subset of its fields. */
+  /** A schema-validated `Project`; kicker, name, tagline and status render verbatim (D7). */
   project: Project;
   /**
-   * `featured` (home) and `grid` (/work `EditorialGrid`) share the same card anatomy — the size
-   * difference is carried entirely by the grid span, not the card. `grid` additionally reserves the
-   * `DemoVideo` slot that TKT-18 populates; today both modes render identically.
+   * The metric rows this card shows, taken as-is from `project.metrics` (FeaturedWork picks them —
+   * Design.md §7.1). Values, labels and `asOf` render verbatim; a non-`measured` row names its kind.
+   * Empty → no metrics row.
    */
-  mode?: "featured" | "grid";
+  metrics?: readonly Metric[] | undefined;
+  /** `large` = the TeachSpark card (bigger h3 + padding, rust hero metric). */
+  size?: "large" | "medium" | undefined;
+  /** Where the fastening tape sits (mockup `.tape.l` / `.tape` / `.tape.r`). */
+  tape?: TapeSide | undefined;
+  /** Degrees; `Sheet` clamps to ±0.9. */
+  rotate?: number | undefined;
+  /** Optional slot between the tagline and the metrics (the flow `Sketch`). */
+  children?: ReactNode | undefined;
+  /**
+   * A decoration pinned to the card (the `Sticky`). Rendered inside the host but outside the link,
+   * so it never becomes part of the link's content.
+   */
+  aside?: ReactNode | undefined;
+}
+
+/** Unique `as of …` captions, in row order (one line when every row shares a date). */
+function asOfCaption(metrics: readonly Metric[]): string {
+  return [...new Set(metrics.map((m) => formatAsOf(m.asOf)))].join(" · ");
 }
 
 /**
- * Card-tier clay surface that is itself the link (Law of Figure-Ground: the shadow/radius makes it
- * read as one clickable figure — no secondary "read more"). `isolate` gives it its own stacking
- * context so the hover sheen (a `-z-10` child) paints over the surface but under the content. Hover
- * physics verbatim from Design.md §3 states row (rise 5px / shadow swap, 200ms), collapsed under
- * `motion-reduce`; `.focus-ring` gives the shared visible focus treatment.
+ * Featured work card (Design.md §7.1, TKT-75 S75.01): a taped ivory `Sheet` whose content is one
+ * `ViewTransitionLink` (exactly one `a` per card, `aria-label` = the project name, EXE-5 CSS-only VT
+ * name `project-{slug}` on the anchor). Hover lifts the sheet −3 px and swaps to
+ * `--shadow-paper-hover`; rotation lives on the separate `rotate` property, so it is preserved.
+ * Reduced motion keeps only the shadow change (globals.css TKT-75 block). Server component.
  */
-const cardClass =
-  "group relative isolate flex h-full flex-col gap-[var(--space-4)] p-[var(--card-padding)] " +
-  "rounded-[var(--radius-clay)] bg-ivory bg-[image:var(--gradient-clay-volume)] shadow-[var(--shadow-clay-rest)] text-navy focus-ring " +
-  "transition-[transform,box-shadow] duration-200 ease-[var(--ease-hover)] " +
-  "hover:-translate-y-[5px] hover:shadow-[var(--shadow-clay-hover)] " +
-  "active:translate-y-px active:scale-[.98] active:shadow-[var(--shadow-clay-press)] " +
-  "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100";
-
-export function ProjectCard({ project, mode = "featured" }: ProjectCardProps) {
-  const { slug, name, tagline, tags, status, statusLabel, icon } = project;
-  const IconComponent = projectIcon(icon);
+export function ProjectCard({
+  project,
+  metrics = [],
+  size = "medium",
+  tape = "c",
+  rotate,
+  children,
+  aside,
+}: ProjectCardProps) {
+  const { slug, name, tagline, tags, statusLabel } = project;
 
   return (
-    <ViewTransitionLink
-      href={`/work/${slug}`}
-      transitionName={`project-${slug}`}
-      aria-label={name}
-      data-card-mode={mode}
-      className={cardClass}
-    >
-      {/* Hover: tone gradient +8% opacity (Design.md §3). Decorative + inert; sits under content. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 rounded-[inherit] bg-[image:var(--gradient-clay-volume)] opacity-0 transition-opacity duration-200 ease-[var(--ease-hover)] group-hover:opacity-[0.08] motion-reduce:transition-none motion-reduce:group-hover:opacity-0"
-      />
-
-      {/* Icon carries the `icon-{slug}` shared-element name (EXE-5 CSS hook) and scales on hover. */}
-      <span
-        className="inline-flex w-fit transition-transform duration-200 ease-[var(--ease-hover)] group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-        style={{ viewTransitionName: `icon-${slug}` }}
+    <Sheet as="article" variant="card" rotate={rotate} className={size === "large" ? "work-card work-card-large" : "work-card"}>
+      <Tape side={tape} />
+      <ViewTransitionLink
+        href={`/work/${slug}`}
+        transitionName={`project-${slug}`}
+        aria-label={name}
+        data-card-size={size}
+        className="work-card-link focus-ring"
       >
-        <ClayIcon icon={IconComponent} size={56} tone="lavender" />
-      </span>
-
-      <h3 className="text-[length:var(--text-h3)] font-bold leading-tight text-navy">{name}</h3>
-
-      <p className="line-clamp-2 text-[length:var(--text-body)] text-navy-2">{tagline}</p>
-
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-[var(--space-2)]">
-          {tags.slice(0, 3).map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-auto flex items-center justify-between gap-[var(--space-3)] pt-[var(--space-2)]">
-        <StatusBadge status={status} statusLabel={statusLabel} />
-        {/* Presentational arrow — the whole card is already the link, so this is a span, never a
-            nested control (aria-hidden). Ghost-button footprint (44×44); nudges +4px on hover. */}
-        <span
-          aria-hidden
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] text-navy transition-transform duration-200 ease-[var(--ease-hover)] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-        >
-          <Icon icon={ArrowRight} size={24} />
-        </span>
-      </div>
-    </ViewTransitionLink>
+        <p className="work-kicker">
+          <span data-kicker="tags">{tags.join(" · ")}</span>{" "}
+          <span className="work-kicker-status">
+            · <span data-kicker="status">{statusLabel}</span>
+          </span>
+        </p>
+        <h3 className="work-card-h">{name}</h3>
+        <p className="work-card-tagline">{tagline}</p>
+        {children}
+        {metrics.length > 0 ? (
+          <div className="work-metrics">
+            <div className="work-metric-row">
+              {metrics.map((metric, i) => (
+                <div
+                  key={metric.label}
+                  className="work-metric"
+                  data-metric={metric.kind}
+                  data-tone={size === "large" && i === 0 ? "hero" : metric.value === "0" ? "zero" : undefined}
+                >
+                  <b data-metric-value="">{metric.value}</b>
+                  <span>
+                    <span data-metric-label="">{metric.label}</span>
+                    {metric.kind !== "measured" ? <span className="work-metric-kind"> · {metric.kind}</span> : null}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="work-metric-asof" data-metric-asof="">
+              {asOfCaption(metrics)}
+            </p>
+          </div>
+        ) : null}
+        <Hand kind="cta" className="work-card-cta">
+          Read the case study →
+        </Hand>
+      </ViewTransitionLink>
+      {aside}
+    </Sheet>
   );
 }
