@@ -3,10 +3,10 @@ id: TASK-67
 title: >-
   TKT-72: BandFooter on every route (S16) + hero.tagline rendered (S18
   regression test) + home FinalCTA removed
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-24 16:42'
+updated_date: '2026-09-25 03:23'
 labels:
   - P0
   - 'sp:3'

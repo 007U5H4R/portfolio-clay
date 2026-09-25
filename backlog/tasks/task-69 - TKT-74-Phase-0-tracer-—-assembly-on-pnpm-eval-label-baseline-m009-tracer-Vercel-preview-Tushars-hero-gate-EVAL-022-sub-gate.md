@@ -3,9 +3,10 @@ id: TASK-69
 title: >-
   TKT-74: Phase-0 tracer — assembly on /, pnpm eval --label
   baseline-m009-tracer, Vercel preview, Tushar's hero gate (EVAL-022 sub-gate)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 03:23'
 labels:
   - P0
   - 'sp:2'
