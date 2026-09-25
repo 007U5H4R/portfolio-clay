@@ -1654,3 +1654,769 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* TKT-83 · deep dive — chapters, `ChapterNav`, the eight artifact paper forms and the show-the-thinking
+   chain (Design.md §7.3, §3.1–3.4, §8; values lifted from docs/redesign-mockups/m-009/case-study.html
+   `.chapnav` / `.chapter` / `.artifacts` / `.art-*` / `.thinking` / `.chain` / `.node`). Unlayered on
+   purpose: these rules override the `@layer components` `.paper-sheet[data-paper=…]` defaults where an
+   artifact form needs its own padding / fill. Colours are paper tokens or color-mix() derivations only
+   (EVAL-020); the mockup's rgba(13,23,53,·) is navy, rgba(182,73,39,·) is rust. Two mockup pairs that
+   fail contrast are corrected: steel eval labels → forest (steel/paper-2 is 3.6:1), terracotta text on
+   the kraft doc tag → navy (4.2:1 → 9.8:1, the §2.1 correction). */
+
+/* ChapterNav — Fraunces 16, Caveat numerals, ink underline on the current chapter (≥ 1024 only; the
+   component is inside `MediaGate min={1024}`, TP14). Rows are 44 px tall so every link is a full target
+   (EVAL-008) — the mockup's 9 px gap becomes row height. */
+.chapnav {
+  font-family: var(--font-display);
+  font-size: 16px;
+  position: sticky;
+  top: 7rem;
+  align-self: start;
+}
+.chapnav-eyebrow {
+  margin-bottom: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+}
+.chapnav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.chapnav a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 2px;
+  color: var(--color-navy-2);
+  text-decoration: none;
+}
+.chapnav a:hover,
+.chapnav a[aria-current] {
+  color: var(--color-navy);
+}
+.chapnav-num {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  margin-right: 8px;
+}
+/* The hand-drawn ink underline (mockup: an inline SVG stroke) — a `::after` bar with a slight wobble via
+   a rotated, rounded rule; no colour literal. */
+.chapnav a[aria-current]::after {
+  content: "";
+  position: absolute;
+  left: 26px;
+  right: -2px;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-navy);
+  rotate: -0.6deg;
+}
+
+/* Chapters — nested sections; the h2 numeral is a `Hand label` in rust; the body `Prose` is `data-flat`. */
+.chapters {
+  display: grid;
+  gap: clamp(60px, 7vw, 96px);
+  min-width: 0;
+}
+.chapter {
+  display: grid;
+  gap: 22px;
+  /* Clear of the sticky header (`lib/smooth-scroll.ts` subtracts a target's own scroll-margin). */
+  scroll-margin-top: 7rem;
+}
+.chapter > h2 {
+  font-size: clamp(34px, 3.6vw, 48px);
+  font-variation-settings: "opsz" 120, "SOFT" 30;
+}
+.chapter-num {
+  font-size: 0.56em;
+  font-weight: 600;
+  color: var(--color-rust);
+  margin-right: 12px;
+  vertical-align: 0.22em;
+  letter-spacing: 0;
+}
+.chapter [data-flat] {
+  display: grid;
+  gap: 18px;
+  font-size: 17px;
+  line-height: 1.65;
+}
+.chapter [data-flat] p + p {
+  margin-top: 0;
+}
+
+/* Artifact cluster — paper objects that may hang past the reading column on desktop. Each child sits in
+   an `.art` slot; the slot alternates ±0.6° (never the bare insight quote). */
+.artifacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 26px 24px;
+  max-width: calc(68ch + 260px);
+  min-width: 0;
+  margin-top: 6px;
+}
+.art {
+  position: relative;
+  flex: 1 1 260px;
+  max-width: 400px;
+  min-width: 0;
+}
+.artifacts > .art:nth-child(odd):not(:has(.artifact-insight)) {
+  rotate: -0.6deg;
+}
+.artifacts > .art:nth-child(even):not(:has(.artifact-insight)) {
+  rotate: 0.5deg;
+}
+.art:has(.artifact-insight) {
+  flex-basis: 320px;
+  max-width: 520px;
+}
+.art:has(.artifact-hyp) {
+  flex-basis: 280px;
+  max-width: 360px;
+}
+.art:has(.artifact-metric) {
+  flex-basis: 250px;
+  max-width: 320px;
+}
+.art:has(.artifact-dec) {
+  flex-basis: 300px;
+  max-width: 420px;
+}
+.art:has(.artifact-eval),
+.art:has(.artifact-exp) {
+  flex-basis: 300px;
+  max-width: 440px;
+}
+.art:has(.artifact-doc) {
+  flex-basis: 260px;
+  max-width: 360px;
+}
+.art:has(.artifact-proto) {
+  flex-basis: 320px;
+  max-width: 480px;
+}
+
+/* Shared artifact chrome — Inter eyebrow + source line (Design.md §3.4: never Caveat). */
+.artifact {
+  position: relative;
+}
+.artifact-eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+}
+.artifact-src {
+  margin-top: 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.artifact-caption {
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+}
+
+/* insight — a bare hand pull-quote (no sheet fill) with the big Fraunces “ glyph, cite + Source. */
+.artifact-insight {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 10px 0 0 26px;
+  margin: 0;
+}
+.artifact-insight::before {
+  content: "“";
+  position: absolute;
+  left: -14px;
+  top: -28px;
+  font-family: var(--font-display);
+  font-size: 72px;
+  line-height: 1;
+  color: var(--color-rust);
+  opacity: 0.55;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+}
+.artifact-insight blockquote {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--color-navy);
+}
+/* A sourced quote longer than the §3.4 240-character Caveat limit stays verbatim (D7) and renders in
+   Fraunces instead of the hand — never truncated, never Caveat. */
+.artifact-insight blockquote.artifact-quote-long {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.3;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+}
+.artifact-insight figcaption {
+  display: grid;
+  gap: 2px;
+}
+.artifact-insight cite {
+  display: block;
+  font-style: normal;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  margin-top: 8px;
+}
+
+/* hypothesis — note-coloured card: Caveat labels, Inter 15 px text, status pill (icon + Inter text). */
+.artifact-hyp {
+  background: var(--color-note);
+  border-radius: var(--radius-paper);
+  box-shadow: 0 10px 18px -10px color-mix(in oklab, var(--color-navy) 40%, transparent);
+  padding: 18px 20px 16px;
+}
+.artifact-lbl {
+  display: block;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-terracotta);
+  margin-top: 8px;
+}
+.artifact-hyp .artifact-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-navy);
+  margin-top: 3px;
+}
+.artifact-rule {
+  border-top: 1px dashed color-mix(in oklab, var(--color-navy) 30%, transparent);
+  margin: 12px 0 10px;
+}
+.artifact-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-ivory) 55%, transparent);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+.artifact-status svg {
+  width: 14px;
+  height: 14px;
+}
+.artifact-status[data-status="validated"] svg {
+  color: var(--color-forest);
+}
+.artifact-status[data-status="partially-validated"] svg {
+  color: var(--color-navy-2);
+}
+.artifact-status[data-status="invalidated"] svg {
+  color: var(--color-terracotta);
+}
+.artifact-status[data-status="unmeasured"] svg {
+  color: var(--color-ink-soft);
+}
+
+/* metric — pinned ruled index card (`Sheet index` + `Pin`): Fraunces value, Inter label / context /
+   kind badge (Dev-04) / as-of / Source. */
+.artifact-metric {
+  padding: 30px 20px 14px;
+}
+.metric-val {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "opsz" 96, "SOFT" 20;
+  color: var(--color-navy);
+}
+.metric-lbl {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+  margin-top: 2px;
+}
+.metric-ctx {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+}
+.metric-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-ink-soft);
+}
+.metric-foot .artifact-src {
+  margin-top: 0;
+}
+.metric-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-forest);
+}
+.metric-kind[data-kind="self-reported"] {
+  color: var(--color-terracotta);
+}
+.metric-kind[data-kind="structural"] {
+  color: var(--color-navy-2);
+}
+.metric-kind svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* decision — ivory card: Fraunces h3, Chosen (forest ✓) / Rejected (rust, struck) hand labels, Why:. */
+.artifact-dec {
+  display: grid;
+  gap: 10px;
+  padding: 22px 22px 18px;
+}
+.artifact-dec > h3 {
+  font-size: 24px;
+  font-variation-settings: "opsz" 72, "SOFT" 20;
+}
+.dec-col {
+  display: grid;
+  gap: 4px;
+}
+.artifact-dec .dec-col-lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-forest);
+}
+.dec-col-lbl svg {
+  width: 16px;
+  height: 16px;
+}
+.artifact-dec .dec-rej .dec-col-lbl {
+  color: var(--color-rust);
+}
+.artifact-dec p,
+.artifact-dec li {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+}
+.artifact-dec ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.artifact-dec li {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--color-rust) 75%, transparent);
+  text-decoration-thickness: 1.5px;
+  color: var(--color-ink-soft);
+}
+.dec-why {
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+.dec-why-lbl {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-navy-2);
+  margin-right: 6px;
+}
+
+/* evaluation — paper-2 bordered card; `dl` with hand `dt` labels (forest, see the header note). */
+.artifact-eval {
+  background: var(--color-paper-2);
+  border: 1.5px solid color-mix(in oklab, var(--color-navy) 20%, transparent);
+  border-radius: 6px;
+  box-shadow: none;
+  padding: 18px 20px 14px;
+}
+.artifact-eval dl {
+  margin: 10px 0 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 14px;
+  font-size: 14px;
+}
+.artifact-eval dt {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-forest);
+  padding-block: 8px;
+  border-top: 1px dashed color-mix(in oklab, var(--color-navy) 18%, transparent);
+}
+.artifact-eval dd {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-navy-2);
+  line-height: 1.5;
+  padding-block: 8px;
+  border-top: 1px dashed color-mix(in oklab, var(--color-navy) 18%, transparent);
+}
+.artifact-eval dt:first-of-type,
+.artifact-eval dd:first-of-type {
+  border-top: 0;
+}
+
+/* experiment — ivory card: Setup ↓ Result ↓ Learning, hand step labels (last in rust). */
+.artifact-exp {
+  padding: 18px 20px 14px;
+}
+.artifact-exp ol {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.artifact-exp li {
+  position: relative;
+  padding-left: 92px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+}
+.exp-lbl {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-forest);
+}
+.artifact-exp li:last-child .exp-lbl {
+  color: var(--color-rust);
+}
+/* The ↓ between steps is decorative — `/ ""` keeps it out of the accessibility tree. */
+.artifact-exp li + li::before {
+  content: "↓" / "";
+  position: absolute;
+  left: 26px;
+  top: -19px;
+  font-family: var(--font-hand);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-ink-soft);
+}
+
+/* prototype — taped photo frame (`Sheet photo` + 2 `Tape`) around a 16:9 image / video / alt caption. */
+.artifact-proto {
+  padding: 14px 14px 12px;
+}
+.proto-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-paper-2);
+}
+.proto-frame > img,
+.proto-frame > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.proto-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-ink-soft);
+}
+.artifact-proto figcaption {
+  display: grid;
+  gap: 2px;
+  margin-top: 10px;
+}
+
+/* generic — kraft doc tag (`Sheet tag`, its uppercase 12 px tag typography reset for a titled card). */
+.artifact-doc {
+  border-radius: 3px 14px 14px 3px;
+  padding: 16px 18px 14px 32px;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.artifact-doc::before {
+  left: 11px;
+  top: 26px;
+  width: 10px;
+  height: 10px;
+  translate: 0 0;
+}
+.artifact-doc .artifact-eyebrow,
+.artifact-doc .artifact-src,
+.artifact-doc .artifact-src * {
+  color: var(--color-navy);
+}
+.artifact-doc h3 {
+  font-size: 20px;
+  font-variation-settings: "opsz" 48, "SOFT" 20;
+  margin-top: 4px;
+}
+.artifact-doc h3 a {
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-navy) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.artifact-doc h3 a:hover {
+  text-decoration-color: var(--color-navy);
+}
+.artifact-doc .artifact-note {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+  margin-top: 8px;
+}
+
+/* Show the thinking — nested `section.thinking`: secondary paper button, annotation, dashed chain
+   sketch, 42 px ivory medallions, pinned Inter label tags, Inter 15 px text ≤ 60ch, rust source links.
+   The TKT-21 `::before` connector line is replaced by the chain sketch; the TKT-21 `.thinking-nodes` /
+   `.thinking-node` opacity reveal (220 ms, 120 ms/node; all-at-once under reduced motion) is reused
+   unchanged — the `thinking-nodes` class now sits on the `.chain` wrapper so the sketch collapses with
+   the nodes. */
+.thinking {
+  position: relative;
+  margin-top: clamp(56px, 7vw, 96px);
+  max-width: calc(68ch + 260px);
+}
+.thinking-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.think-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--color-ivory);
+  color: var(--color-navy);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 180ms ease;
+}
+.think-btn:hover {
+  border-color: var(--color-navy-2);
+}
+.thinking > .thinking-head > .paper-annotation {
+  font-size: 21px;
+  color: var(--color-ink-soft);
+}
+.chain {
+  position: relative;
+  margin-top: 32px;
+  padding-left: 68px;
+}
+.chain > .sketch {
+  position: absolute;
+  left: 13px;
+  top: 10px;
+  width: 28px;
+  height: calc(100% - 20px);
+  pointer-events: none;
+}
+.chain > ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 34px;
+}
+.node {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.node-med {
+  position: absolute;
+  left: -68px;
+  top: -4px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-ivory);
+  border: 1.8px solid var(--color-navy-2);
+  box-shadow: var(--shadow-paper);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+.node-lab {
+  position: relative;
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--color-paper-2);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--color-navy) 14%, transparent),
+    0 6px 12px -8px color-mix(in oklab, var(--color-navy) 25%, transparent);
+  rotate: -1.2deg;
+}
+.node:nth-child(even) .node-lab {
+  rotate: 0.9deg;
+}
+/* The label's pin is chrome on the tag (a pseudo-element, not a `Pin` fastener): rust, every third
+   forest, every fourth steel — as the mockup. */
+.node-lab::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+    var(--color-rust);
+  box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 35%, transparent);
+}
+.node:nth-child(3n) .node-lab::before {
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+    var(--color-forest);
+}
+.node:nth-child(4n) .node-lab::before {
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+    var(--color-steel);
+}
+.node-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-navy-2);
+  max-width: 60ch;
+}
+/* Rust, as the mockup: rendered rust (#b64927) on paper is 4.71:1 at 13 px / 600 once the node's fade
+   has settled (axe-verified at 390 + 1440). */
+.node-src {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-rust);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-rust) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.node-src:hover {
+  text-decoration-color: var(--color-rust);
+}
+.node-src-plain {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+/* The chain sketch is the connector now — drop TKT-21's per-node line. */
+.thinking .thinking-node:not(:last-child)::before {
+  content: none;
+}
+
+/* No `display:none` for the nav below 1024: it is removed from the DOM by `MediaGate` (TP14 / Dev-09). */
+@media (max-width: 640px) {
+  .artifacts {
+    max-width: none;
+  }
+  .artifacts > .art {
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .artifact-insight {
+    padding-left: 22px;
+  }
+  .chain {
+    padding-left: 56px;
+  }
+  .node-med {
+    left: -56px;
+    width: 38px;
+    height: 38px;
+  }
+  .chain > .sketch {
+    left: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .think-btn {
+    transition: none;
+  }
+}
+/* end TKT-83 */

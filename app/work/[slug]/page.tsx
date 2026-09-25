@@ -97,10 +97,18 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     </Prose>
   );
 
+  // TKT-83 (Design.md §7.3 deep dive): `section#deep` on a `200px 1fr` grid. `ChapterNav` mounts only
+  // ≥ 1024 via MediaGate (Dev-09), so the chapters column is pinned to column 2 and never shifts when
+  // the nav is absent. Chapters + ShowTheThinking are nested sections and own their EVAL-018 counts
+  // (outer 0 · chapter 0 · thinking 2, §3.3).
   const deepView = (
-    <div className="grid gap-[var(--space-8)] lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)]">
+    <section
+      id="deep"
+      aria-label="Deep dive"
+      className="grid items-start gap-[clamp(32px,4vw,64px)] lg:grid-cols-[200px_minmax(0,1fr)]"
+    >
       <ChapterNav items={navItems} />
-      <div className="flex flex-col gap-[var(--section-gap-mobile)] md:gap-[var(--section-gap-tablet)]">
+      <div className="chapters lg:col-start-2 lg:row-start-1">
         {renderedChapters.map(({ chapter, anchor, number }) => (
           <Chapter
             key={chapter.id}
@@ -113,8 +121,9 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
         {/* ShowTheThinking returns null for a thin project (empty chain) — no empty toggle. */}
         <ShowTheThinking chain={project.thinking} sources={project.sources} />
       </div>
-    </div>
+    </section>
   );
+  // end TKT-83
 
   return (
     <>

@@ -1,6 +1,7 @@
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import type { SourceRef } from "@/data/schema";
 import type { DecisionArtifact } from "./types";
+import { Hand } from "@/components/paper";
 import { Icon } from "@/components/common/Icon";
 import { ArtifactShell } from "./ArtifactShell";
 
@@ -10,48 +11,42 @@ export interface DecisionCardProps {
 }
 
 /**
- * DecisionCard (Design.md §3): a titled decision, then two columns — "Chosen" with a `mint` check
- * vs the "Rejected" alternatives in muted `ink-3` — split by a divider, plus an optional reason.
- * Stacks to one column below 768; the divider becomes a top border between the two blocks.
+ * DecisionCard (Design.md §7.3 `decision`): an ivory card — Fraunces `h3` title, "Chosen" (forest
+ * check) and "Rejected" (rust) as Caveat `Hand label`s over Inter 14 px text, the rejected
+ * alternatives struck through in ink-soft, and a "Why:" line (Caveat label + Inter reason).
+ *
+ * QA-003 (TKT-48): the heading stays `h3`, one level under the chapter `h2`, so the outline reads
+ * h1 → h2 (chapter) → h3 (decision) with no skip.
  */
 export function DecisionCard({ artifact, source }: DecisionCardProps) {
   return (
-    <ArtifactShell source={source} label="Decision" caption={artifact.caption}>
-      <div className="flex flex-col gap-[var(--space-4)]">
-        {/* QA-003 (TKT-48): kept one level below the chapter heading (now `h2`, was `h3`) so the
-            outline stays h1 → h2 → h3 with no skip. */}
-        <h3 className="text-[length:var(--text-body)] font-bold text-navy">{artifact.title}</h3>
-        <div className="grid gap-[var(--space-4)] md:grid-cols-2 md:divide-x md:divide-navy/10">
-          <div className="flex flex-col gap-[var(--space-2)] md:pr-[var(--space-4)]">
-            <p className="inline-flex items-center gap-[var(--space-2)] text-caption font-semibold text-navy">
-              <span className="inline-flex items-center justify-center rounded-full bg-forest p-[2px] text-navy">
-                <Icon icon={Check} size={20} label="Chosen" />
-              </span>
-              Chosen
-            </p>
-            <p className="text-[length:var(--text-body)] text-navy">{artifact.chosen}</p>
-          </div>
-          <div className="flex flex-col gap-[var(--space-2)] border-t border-navy/10 pt-[var(--space-4)] md:border-t-0 md:pl-[var(--space-4)] md:pt-0">
-            <p className="inline-flex items-center gap-[var(--space-2)] text-caption font-semibold text-ink-soft">
-              <Icon icon={X} size={20} label="Rejected" />
-              Rejected
-            </p>
-            <ul className="flex flex-col gap-[var(--space-1)]">
-              {artifact.rejected.map((option, i) => (
-                <li key={i} className="text-[length:var(--text-body)] text-ink-soft line-through decoration-ink-soft/40">
-                  {option}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        {artifact.reason ? (
-          <p className="text-caption text-navy-2">
-            <span className="font-semibold text-navy-2">Why: </span>
-            {artifact.reason}
-          </p>
-        ) : null}
+    <ArtifactShell form="dec" label="Decision" source={source} caption={artifact.caption}>
+      <h3>{artifact.title}</h3>
+      <div className="dec-col dec-chosen">
+        <p className="dec-col-lbl">
+          <Icon icon={Check} size={20} />
+          <Hand kind="label">Chosen</Hand>
+        </p>
+        <p>{artifact.chosen}</p>
       </div>
+      <div className="dec-col dec-rej">
+        <p className="dec-col-lbl">
+          <Hand kind="label">Rejected</Hand>
+        </p>
+        <ul>
+          {artifact.rejected.map((option, i) => (
+            <li key={i}>{option}</li>
+          ))}
+        </ul>
+      </div>
+      {artifact.reason ? (
+        <p className="dec-why">
+          <Hand kind="label" as="b" className="dec-why-lbl">
+            Why:
+          </Hand>
+          {artifact.reason}
+        </p>
+      ) : null}
     </ArtifactShell>
   );
 }

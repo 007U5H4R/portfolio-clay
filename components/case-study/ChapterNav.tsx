@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Hand } from "@/components/paper";
+import { MediaGate } from "@/components/paper/MediaGate";
 
 export interface ChapterNavItem {
   /** Presentation anchor (`CHAPTER_ANCHORS[id].anchor`) — the `#hash` this link targets (E-3). */
@@ -17,24 +19,37 @@ export interface ChapterNavProps {
   items: ChapterNavItem[];
 }
 
+/** The nav mounts at this width and above (Design.md §7.3 / §11 Dev-09). */
+export const CHAPTER_NAV_MIN_WIDTH = 1024;
+
 /**
- * Case-study chapter navigation (Design.md §3, Deviation §4): a sticky flat left rail ≥1024
- * (numbered 01–NN, active chapter bold + `accent` underline — Law of Continuity marking the active
- * point on the path) and a sticky horizontal scrollable pill row <1024 (a fixed rail at tablet
- * width would eat into the 600px prose measure). Both variants render the SAME links and share one
- * active-chapter state driven by a single `IntersectionObserver`; only one is ever visible at a
- * time (`display:none` on the other), so no link is double-counted or double-crawled.
+ * Case-study chapter navigation (TKT-83 / Design.md §7.3 deep dive, Dev-09): the sticky Fraunces rail
+ * beside the chapters — Caveat numerals (`Hand label`), ink underline on the current chapter — rendered
+ * **only at ≥ 1024 px**. Below that the mockup drops it, and per §3.2 rule 3 / TP14 it is removed from
+ * the DOM through `MediaGate`, never hidden with CSS; the old sticky pill row is gone. SSR HTML therefore
+ * never contains the nav; it mounts after hydration where the width allows (the page reserves its grid
+ * column so nothing shifts).
  *
- * The observer tracks which chapter section is in view and marks it `aria-current="location"`;
- * `rootMargin` biases the trigger line below the sticky header so the "current" chapter matches
- * what the reader actually sees. With JS off there is no active state — every link is still a real
- * anchor that resolves (EVAL-015): the nav degrades to a plain list of in-page links.
+ * One `IntersectionObserver` tracks which chapter section is in the trigger band under the sticky
+ * header and marks its link `aria-current="location"`. Links are plain in-page anchors: `SmoothScroll`
+ * (TKT-94) intercepts same-document hash clicks site-wide and runs `scrollToTarget` (Lenis scroll clear
+ * of the header + focus to the chapter); with native scroll the browser honours the chapter's
+ * `scroll-margin-top`. With JS off there is no nav at all (a decoration-class element), and every chapter
+ * is still reachable by reading order.
  */
 export function ChapterNav({ items }: ChapterNavProps) {
+  if (items.length === 0) return null;
+  return (
+    <MediaGate min={CHAPTER_NAV_MIN_WIDTH}>
+      <ChapterNavRail items={items} />
+    </MediaGate>
+  );
+}
+
+function ChapterNavRail({ items }: ChapterNavProps) {
   const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
 
   useEffect(() => {
-    if (items.length === 0) return undefined;
     if (typeof IntersectionObserver === "undefined") return undefined;
 
     const sections = items
@@ -42,17 +57,22 @@ export function ChapterNav({ items }: ChapterNavProps) {
       .filter((el): el is HTMLElement => el !== null);
     if (sections.length === 0) return undefined;
 
+    // The set of chapters currently inside the trigger band; the topmost one is "current". Kept across
+    // callbacks because an observer only reports the entries that CHANGED.
+    const visible = new Set<Element>();
     const observer = new IntersectionObserver(
       (entries) => {
-        // The topmost section currently intersecting the trigger band is the active chapter.
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        const top = visible[0];
-        if (top) setActiveAnchor(top.target.id);
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target);
+          else visible.delete(entry.target);
+        }
+        const top = Array.from(visible).sort(
+          (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+        )[0];
+        if (top) setActiveAnchor(top.id);
       },
-      // Trigger band sits just under the sticky header (top ~112px) so "current" tracks the reading
-      // position, not the very top of the viewport.
+      // Trigger band sits just under the sticky header (7rem = 112px, the chapters' scroll-margin) so
+      // "current" tracks the reading position, not the very top of the viewport.
       { rootMargin: "-112px 0px -55% 0px", threshold: 0 },
     );
 
@@ -60,60 +80,27 @@ export function ChapterNav({ items }: ChapterNavProps) {
     return () => observer.disconnect();
   }, [items]);
 
-  if (items.length === 0) return null;
-
   const numberLabel = (n: number) => String(n).padStart(2, "0");
 
-  // `min-w-0` on the nav: as a grid item it must be allowed to shrink below its content width, or
-  // the <1024 pill row's `overflow-x-auto` can't clip — the row would blow out the page (TKT-28 was
-  // the first study to render chapters, surfacing this horizontal overflow at 390px).
   return (
-    <nav aria-label="Chapters" className="min-w-0 lg:sticky lg:top-[7rem] lg:self-start">
-      {/* ≥1024: vertical flat rail. */}
-      <ul className="hidden flex-col gap-[var(--space-1)] lg:flex">
-        {items.map((item) => {
-          const active = item.anchor === activeAnchor;
-          return (
-            <li key={item.anchor}>
-              <a
-                href={`#${item.anchor}`}
-                aria-current={active ? "location" : undefined}
-                className={[
-                  "flex min-h-11 items-center gap-[var(--space-3)] rounded-[var(--radius-utility)] px-[var(--space-3)] text-[length:var(--text-caption)] focus-ring",
-                  active
-                    ? "font-bold text-navy underline decoration-rust decoration-2 underline-offset-4"
-                    : "text-navy-2 hover:text-navy",
-                ].join(" ")}
-              >
-                <span className="tabular-nums text-ink-soft">{numberLabel(item.number)}</span>
-                {item.title}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-
-      {/* <1024: sticky horizontal scrollable pill row. */}
-      <ul className="sticky top-[5rem] z-20 -mx-[var(--gutter-mobile)] flex gap-[var(--space-2)] overflow-x-auto bg-paper/90 px-[var(--gutter-mobile)] py-[var(--space-2)] backdrop-blur md:-mx-[var(--gutter-tablet)] md:px-[var(--gutter-tablet)] lg:hidden">
-        {items.map((item) => {
-          const active = item.anchor === activeAnchor;
-          return (
-            <li key={item.anchor} className="shrink-0">
-              <a
-                href={`#${item.anchor}`}
-                aria-current={active ? "location" : undefined}
-                className={[
-                  "inline-flex min-h-11 items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] px-[var(--space-4)] text-[length:var(--text-caption)] font-semibold focus-ring",
-                  active ? "bg-paper-2 text-navy shadow-[var(--shadow-utility)]" : "bg-ivory text-navy-2",
-                ].join(" ")}
-              >
-                <span className="tabular-nums">{numberLabel(item.number)}</span>
-                {item.title}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+    <nav aria-label="Chapters" className="chapnav min-w-0 lg:col-start-1 lg:row-start-1">
+      <p className="chapnav-eyebrow">Chapters</p>
+      <ol>
+        {items.map((item) => (
+          <li key={item.anchor}>
+            <a
+              href={`#${item.anchor}`}
+              aria-current={item.anchor === activeAnchor ? "location" : undefined}
+              className="focus-ring rounded-[2px]"
+            >
+              <Hand kind="label" className="chapnav-num">
+                {numberLabel(item.number)}
+              </Hand>{" "}
+              {item.title}
+            </a>
+          </li>
+        ))}
+      </ol>
     </nav>
   );
 }

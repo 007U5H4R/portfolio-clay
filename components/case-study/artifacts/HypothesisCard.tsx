@@ -1,7 +1,7 @@
 import { CheckCircle2, CircleDashed, CircleDot, XCircle, type LucideIcon } from "lucide-react";
 import type { SourceRef } from "@/data/schema";
 import type { HypothesisArtifact } from "./types";
-import { tierClass, toneClass, type Tone } from "@/components/clay/tiers";
+import { Hand } from "@/components/paper";
 import { Icon } from "@/components/common/Icon";
 import { ArtifactShell } from "./ArtifactShell";
 
@@ -12,43 +12,37 @@ export interface HypothesisCardProps {
 
 type Status = HypothesisArtifact["status"];
 
-/** status → {tone, icon, label} — colour is never the only signal (icon + text always). */
-const statusMap: Record<Status, { tone: Tone; icon: LucideIcon; label: string }> = {
-  validated: { tone: "mint", icon: CheckCircle2, label: "Validated" },
-  "partially-validated": { tone: "butter", icon: CircleDot, label: "Partially validated" },
-  invalidated: { tone: "blush", icon: XCircle, label: "Invalidated" },
-  unmeasured: { tone: "neutral", icon: CircleDashed, label: "Unmeasured" },
+/** status → {icon, label} — colour is never the only signal (icon + text always; icon tint via CSS). */
+const statusMap: Record<Status, { icon: LucideIcon; label: string }> = {
+  validated: { icon: CheckCircle2, label: "Validated" },
+  "partially-validated": { icon: CircleDot, label: "Partially validated" },
+  invalidated: { icon: XCircle, label: "Invalidated" },
+  unmeasured: { icon: CircleDashed, label: "Unmeasured" },
 };
 
 /**
- * HypothesisCard (Design.md §3): a two-part "We believe…" / "We'll know when…" split divided by a
- * thin rule, plus the hypothesis status as an icon+text badge.
+ * HypothesisCard (Design.md §7.3 `hypothesis`): a note-coloured card — "We believe" / "We'll know
+ * when" as Caveat `Hand label`s, the hypothesis text in **Inter 15 px** (Dev-04: the mockup's Caveat
+ * body is normalised — data is never hand-written), a dashed rule between the two, and the status as
+ * an icon + Inter text pill. `data-status` drives only the icon tint.
  */
 export function HypothesisCard({ artifact, source }: HypothesisCardProps) {
-  const { tone, icon, label } = statusMap[artifact.status];
+  const { icon, label } = statusMap[artifact.status];
   return (
-    <ArtifactShell source={source} label="Hypothesis" caption={artifact.caption}>
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <div className="flex flex-col gap-[var(--space-1)]">
-          <p className="text-caption font-semibold text-ink-soft">We believe</p>
-          <p className="text-[length:var(--text-body)] text-navy">{artifact.believe}</p>
-        </div>
-        <hr className="border-0 border-t border-navy/10" />
-        <div className="flex flex-col gap-[var(--space-1)]">
-          <p className="text-caption font-semibold text-ink-soft">We&apos;ll know when</p>
-          <p className="text-[length:var(--text-body)] text-navy">{artifact.knowWhen}</p>
-        </div>
-        <span
-          className={[
-            tierClass.utility,
-            toneClass[tone],
-            "inline-flex w-fit items-center gap-[var(--space-2)] px-[var(--space-3)] py-[var(--space-1)] text-caption font-semibold",
-          ].join(" ")}
-        >
-          <Icon icon={icon} size={20} />
-          {label}
-        </span>
-      </div>
+    <ArtifactShell form="hyp" label="Hypothesis" source={source} caption={artifact.caption}>
+      <Hand kind="label" className="artifact-lbl">
+        We believe
+      </Hand>
+      <p className="artifact-text font-body">{artifact.believe}</p>
+      <div className="artifact-rule" aria-hidden="true" />
+      <Hand kind="label" className="artifact-lbl">
+        We&apos;ll know when
+      </Hand>
+      <p className="artifact-text font-body">{artifact.knowWhen}</p>
+      <span className="artifact-status font-body" data-status={artifact.status}>
+        <Icon icon={icon} size={20} />
+        {label}
+      </span>
     </ArtifactShell>
   );
 }
