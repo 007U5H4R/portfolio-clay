@@ -222,24 +222,26 @@ body::before {
 */
 .reveal {
   --stagger-index: 0;
-  /* `visibility: hidden` (not opacity alone) keeps not-yet-revealed content out of the
-     accessibility tree and tab order — an opacity:0 element is still focusable/announceable and
-     axe's color-contrast rule still evaluates its (near-invisible) blended colour as a false
-     positive. `visibility` has no transition-duration of its own below, so it flips to `visible`
-     instantly the moment `data-revealed` is set, while opacity/transform animate in over it. */
-  visibility: hidden;
+  /* TKT-90d (A11Y-1): hidden VISUALLY only — opacity + a 12px drop, `pointer-events: none` — never
+     `visibility: hidden`, which removed not-yet-revealed content from the accessibility tree (a
+     screen-reader user jumping by heading never reached How I think / the product journey). The
+     content is always announced; `Reveal` also reveals on `focusin`, `:focus-within` shows it at
+     once for keyboard users, and reduced motion shows it immediately (below). axe skips opacity:0
+     content, so audits scroll the section into view (revealed) before scanning. */
   opacity: 0;
   transform: translateY(12px);
+  pointer-events: none;
   transition:
     opacity 500ms var(--ease-reveal),
     transform 500ms var(--ease-reveal);
   transition-delay: calc(var(--stagger-index) * 70ms);
 }
 
-.reveal[data-revealed] {
-  visibility: visible;
+.reveal[data-revealed],
+.reveal:focus-within {
   opacity: 1;
   transform: none;
+  pointer-events: auto;
 }
 
 /*
@@ -396,6 +398,10 @@ body::before {
   .reveal {
     transition-property: opacity;
     transition-delay: 0ms;
+    /* TKT-90d (A11Y-1): no scroll-triggered entrance at all under reduced motion — shown at once. */
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
   }
 
   /* Show-the-thinking (TKT-21, Design.md §4 reduced-motion mapping: "all 8 appear at once,
@@ -6071,3 +6077,42 @@ html.lenis body {
   }
 }
 /* end TKT-92r2 */
+/* TKT-90d · a11y + /work bundle follow-ups (docs/a11y-pass.md A11Y-2/3/4, INTEGRATION-ABC bundle) */
+/* A11Y-2 / A11Y-3: the "●" kind-badge dot and the insight's big opening-quote glyph are decorative
+   CSS generated content — give them empty alt text (`content: <glyph> / ""`) so they are not read
+   aloud ("black circle", "left double quotation mark"). The first declaration is the fallback for
+   engines without the alt-text syntax; the visual is unchanged. */
+.aimp-kind::before,
+.story-kind::before {
+  content: "●";
+  content: "●" / "";
+}
+.artifact-insight::before {
+  content: "“";
+  content: "“" / "";
+}
+/* A11Y-4: DecisionCard now renders a real space after "Why:"; trim the label margin so the gap
+   stays ≈ the old 6 px. */
+.dec-why-lbl {
+  margin-right: 2px;
+}
+/* /work filter crossfade in CSS (Design.md §4: fade-in 200 / fade-out 150, opacity only) — replaces
+   motion/react's AnimatePresence in components/projects/WorkIndex.tsx. The global A6 reduced-motion
+   rule forces both to ~1 ms. */
+@keyframes work-item-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.work-item[data-enter] {
+  animation: work-item-in 200ms var(--ease-reveal) both;
+}
+.work-item[data-exit] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--ease-reveal);
+}
+/* end TKT-90d */

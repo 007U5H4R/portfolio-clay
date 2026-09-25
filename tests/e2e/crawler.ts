@@ -421,6 +421,20 @@ export async function observeButtonEffect(
   };
 }
 
+/** Load `url#hash` in a scratch tab and report whether element `#hash` attaches within 5 s. */
+async function hashMountsInBrowser(page: Page, url: string, hash: string): Promise<boolean> {
+  const probe = await page.context().newPage();
+  try {
+    await probe.goto(`${url}#${hash}`, { waitUntil: "load", timeout: 15_000 });
+    await probe.waitForFunction((h) => !!document.getElementById(h), hash, { timeout: 5_000 });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    await probe.close().catch(() => {});
+  }
+}
+
 // --------------------------------------------------------------------------- classify one control
 export async function classifyControl(
   page: Page,
@@ -533,7 +547,11 @@ export async function classifyControl(
         return { ...base, kind: "internal-link", target: cls.path, verdict: "dead", detail: `HTTP ${res.status}` };
       }
       // 200: if it carries a hash, that id must exist on the target page.
-      if (cls.hash && !bodyHasId(res.body, cls.hash)) {
+      // TKT-90d: an id the static HTML lacks may be mounted client-side by the hash itself (the
+      // case-study deep-dive chapters `#01-context`… open on load when the URL points inside them —
+      // OverviewToggle, TP8). Only call it dead if a real browser load of the full URL never
+      // attaches the id either; the id must still exist, so a genuinely wrong anchor stays dead.
+      if (cls.hash && !bodyHasId(res.body, cls.hash) && !(await hashMountsInBrowser(page, url, cls.hash))) {
         return {
           ...base,
           kind: "internal-link",
