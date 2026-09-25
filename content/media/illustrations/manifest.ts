@@ -105,8 +105,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "scene-contact",
     kind: "scene",
     file: "scene-contact.jpg",
-    width: 1638,
-    height: 2048,
+    width: 2048,
+    height: 1143, // 16:9 outpaint of the 1638×2048 portrait so the wave fits the page banner (EXE-19)
     alt: "Illustration of Tushar standing by a window next to a tall leafy plant, a terracotta coffee mug in one hand, the other raised in a friendly wave.",
     usedOn: ["/contact"],
   },
