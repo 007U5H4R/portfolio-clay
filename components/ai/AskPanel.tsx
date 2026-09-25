@@ -151,7 +151,7 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
           </ClayButton>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-[var(--space-5)] py-[var(--space-5)]">
+        <div data-lenis-prevent="" className="flex-1 overflow-y-auto px-[var(--space-5)] py-[var(--space-5)]">
           <AnswerView
             status={status}
             answer={answer}

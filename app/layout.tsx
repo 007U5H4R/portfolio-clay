@@ -10,6 +10,7 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
 import { BandFooter } from "@/components/layout/BandFooter";
 import { AskProvider } from "@/components/ai/AskProvider";
+import { SmoothScroll } from "@/components/interactions/SmoothScroll";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
 // plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
@@ -65,6 +66,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           the MobileMenu Ask row (both inside <Header/>) open the same panel. AskPanel itself is a lazy
           chunk mounted only after the first open (EVAL-005), so this hoist does not add it to first-load.
         */}
+        {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
+        <SmoothScroll />
         <AskProvider panelPrompts={PANEL_PROMPTS}>
           <SkipLink />
           <Header />

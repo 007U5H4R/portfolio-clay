@@ -1635,3 +1635,22 @@ body::before {
     }
   }
 }
+
+/* TKT-94 · lenis — the recommended rules for the installed Lenis (1.3.26, `lenis/dist/lenis.css`, minus
+   the unused `autoToggle` rules). Only active while SmoothScroll has mounted Lenis (fine pointer, no
+   reduced motion — EXE-16, Design.md §11 Dev-22): `html.lenis` is never set on touch / reduced motion,
+   so native scroll is untouched there. `scroll-behavior: smooth` must never be set on `html` alongside
+   Lenis (the two fight); nothing in this file sets it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "@/lib/nav";
 import { resumeAction } from "@/lib/site";
+import { stopSmoothScroll } from "@/lib/smooth-scroll";
 import { AskAIButton } from "./AskAIButton";
 
 /**
@@ -30,14 +31,17 @@ export function MobileMenu() {
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
-  // `overflow:hidden` on <html> while open (S04.05) — the sheet scrolls its own content.
+  // `overflow:hidden` on <html> while open (S04.05) — the sheet scrolls its own content. Lenis (when
+  // mounted — a narrow desktop window can open the sheet) is stopped too and restarted on close (TKT-94).
   useEffect(() => {
     if (!open) return;
     const html = document.documentElement;
     const previousOverflow = html.style.overflow;
     html.style.overflow = "hidden";
+    const releaseScroll = stopSmoothScroll();
     return () => {
       html.style.overflow = previousOverflow;
+      releaseScroll();
     };
   }, [open]);
 
@@ -61,6 +65,7 @@ export function MobileMenu() {
         id={dialogId}
         aria-label="Site navigation"
         className="menu-sheet"
+        data-lenis-prevent=""
         // Native `cancel` (Esc) closes the dialog itself, which then fires `close` — syncing React
         // state from `close` covers Esc and every explicit close path below.
         onClose={() => setOpen(false)}
