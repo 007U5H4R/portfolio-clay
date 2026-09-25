@@ -1,10 +1,10 @@
 ---
 id: TASK-75.3
 title: 'TSK-41: ExperienceStrip as <details name=job> rows'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P1
   - 'sp:1'

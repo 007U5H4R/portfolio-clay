@@ -1,10 +1,10 @@
 ---
 id: TASK-75.1
 title: 'TSK-39: WorkHero scene bleed (one <img>) + opener copy + caption'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:1'

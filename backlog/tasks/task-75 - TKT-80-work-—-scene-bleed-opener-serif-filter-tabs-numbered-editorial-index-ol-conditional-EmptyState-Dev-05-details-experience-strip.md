@@ -3,10 +3,10 @@ id: TASK-75
 title: >-
   TKT-80: /work — scene-bleed opener, serif filter tabs, numbered editorial
   index (<ol>), conditional EmptyState (Dev-05), <details> experience strip
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 09:50'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:5'

@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-09-25 05:59'
-updated_date: '2026-09-25 07:39'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:3'
@@ -28,3 +28,9 @@ ordinal: 105200
 - [ ] #2 Root cause measured first (LCP breakdown: TTFB, resource load delay/duration, render delay; font weight); fix is a smarter approach, thresholds never edited
 - [ ] #3 Before/after Lighthouse JSON in evals/results/lighthouse-m009-tracer/
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-25: r2 merged (banner cap + mobile crop), preview mobile / LCP 2338 ms PASS; r3 in progress — desktop / CLS 0.054 > 0.05 (font-swap shift of h1#hero-h).
+<!-- SECTION:NOTES:END -->

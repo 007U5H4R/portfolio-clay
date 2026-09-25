@@ -3,10 +3,10 @@ id: TASK-75.2
 title: >-
   TSK-40: FilterTabs serif tabs + numbered <ol> index (openers + rows) +
   conditional EmptyState
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:3'

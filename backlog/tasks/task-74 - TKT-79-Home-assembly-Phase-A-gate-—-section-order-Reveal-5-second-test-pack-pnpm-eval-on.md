@@ -6,12 +6,13 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 12:33'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:2'
   - m-009
   - phase-a
+  - awaiting-tushar
 milestone: m-8
 dependencies:
   - TASK-70
@@ -37,3 +38,9 @@ app/page.tsx = hero → Featured → How I think → Ask → band with alternati
 - [ ] #4 No Critical regression vs the tracer baseline
 - [ ] #5 Approval recorded (EXE-n or a HANDOFF line quoting Tushar)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-25 (EXE-21): evidence complete on RC 809e326 — full e2e 1050/0, eval 16 pass / 2 informational local-perf fail / 4 manual; preview 2bd4949 mobile / LCP 2338 ms, perf 95. Gate sign-off is Tushar's (not self-approved under EXE-20).
+<!-- SECTION:NOTES:END -->

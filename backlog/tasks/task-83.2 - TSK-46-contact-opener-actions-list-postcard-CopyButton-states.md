@@ -1,10 +1,10 @@
 ---
 id: TASK-83.2
 title: 'TSK-46: /contact opener + actions list + postcard + CopyButton states'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P1
   - 'sp:2'

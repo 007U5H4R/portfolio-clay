@@ -1,10 +1,10 @@
 ---
 id: TASK-78.1
 title: 'TSK-42: Chapter + ChapterNav + Prose flat + deep-dive grid'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:2'

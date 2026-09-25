@@ -4,10 +4,10 @@ title: >-
   TKT-83: Case-study deep dive — chapters with data-flat prose, ChapterNav
   (hidden <1024, Dev-09), the 8 artifact paper forms (Dev-04), ShowTheThinking
   chain
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 09:50'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:8'

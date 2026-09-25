@@ -3,10 +3,10 @@ id: TASK-85
 title: >-
   TKT-90: Redesign QA sweep — responsive · a11y · reduced motion ·
   EVAL-018/019/020/021 · contrast · mockup-pair screenshot pack for Stage 8
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 14:26'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:5'

@@ -4,10 +4,10 @@ title: >-
   TKT-87: /about part 2 — experience timeline always-open (Dev-11) with the lead
   fixed (S18, regression test), awards · research · education, page-foot CTA,
   assembly
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 12:25'
+updated_date: '2026-09-25 17:46'
 labels:
   - P1
   - 'sp:5'

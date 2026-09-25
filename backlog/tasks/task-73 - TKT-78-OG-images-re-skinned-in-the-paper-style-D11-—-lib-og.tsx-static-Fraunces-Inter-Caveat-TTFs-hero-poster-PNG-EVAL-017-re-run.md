@@ -3,10 +3,10 @@ id: TASK-73
 title: >-
   TKT-78: OG images re-skinned in the paper style (D11) — lib/og.tsx, static
   Fraunces/Inter/Caveat TTFs, hero poster PNG, EVAL-017 re-run
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 09:50'
+updated_date: '2026-09-25 17:46'
 labels:
   - P1
   - 'sp:3'

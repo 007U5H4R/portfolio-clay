@@ -3,10 +3,10 @@ id: TASK-78.2
 title: >-
   TSK-43: The 8 artifact paper forms + ArtifactShell/ArtifactGrid cluster +
   /dev/artifacts
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:3'

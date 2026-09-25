@@ -1,10 +1,10 @@
 ---
 id: TASK-83.3
 title: 'TSK-47: 404 in the paper system'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 13:35'
+updated_date: '2026-09-25 17:46'
 labels:
   - P2
   - 'sp:1'

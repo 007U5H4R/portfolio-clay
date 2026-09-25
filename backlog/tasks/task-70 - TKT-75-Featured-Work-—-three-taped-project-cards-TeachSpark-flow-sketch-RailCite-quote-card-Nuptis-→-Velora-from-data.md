@@ -3,10 +3,10 @@ id: TASK-70
 title: >-
   TKT-75: Featured Work — three taped project cards (TeachSpark flow sketch,
   RailCite quote card, Nuptis → Velora) from data
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 09:50'
+updated_date: '2026-09-25 17:46'
 labels:
   - P0
   - 'sp:3'
