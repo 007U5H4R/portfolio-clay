@@ -12,6 +12,8 @@
  *               in eval-017.spec.ts; this is the home-assembly smoke of the same set).
  */
 import { test, expect } from "./fixtures";
+import { collectDecorations, RULE_LIMITS } from "./eval-018-lib";
+import { hero } from "@/data/hero";
 import { resumeAction, site } from "@/lib/site";
 // The manifest directly (not `lib/illustrations.ts`, whose static JPEG imports Playwright cannot load).
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
@@ -148,4 +150,108 @@ test("@EVAL-017 home carries title, description and an OG image", async ({ page 
   await expect(page).toHaveTitle(/Tushar Pathak/);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /^https:\/\//);
+});
+
+// ---------------------------------------------------------------------------
+// TKT-79 · TC-151 step 1 — fills alternate paper / paper-2 down the page, and every section below the
+// hero opens with its torn edge as the first child (Design.md §7.1). The hero's copy block sits on
+// `paper` under the banner's torn edge, so Featured (paper-2) → How-I-think (paper) → Ask (paper-2).
+// ---------------------------------------------------------------------------
+test("TC-151 home sections alternate paper / paper-2 and open with a torn edge", async ({ page }) => {
+  test.skip(width(page) !== 1440, "fills + DOM structure are viewport-independent; checked once at w1440");
+  await page.goto("/", { waitUntil: "load" });
+
+  // Resolve the two tokens to the browser's computed colour string so the comparison round-trips.
+  const tokens = await page.evaluate(() => {
+    const probe = document.createElement("div");
+    document.body.appendChild(probe);
+    const read = (v: string) => {
+      probe.style.backgroundColor = `var(${v})`;
+      return getComputedStyle(probe).backgroundColor;
+    };
+    const out = { paper: read("--color-paper"), paper2: read("--color-paper-2") };
+    probe.remove();
+    return out;
+  });
+  expect(tokens.paper).not.toBe(tokens.paper2);
+
+  const expected: [string, string][] = [
+    ["#work-featured", tokens.paper2],
+    ["#how-i-think", tokens.paper],
+    ["#ask", tokens.paper2],
+  ];
+  for (const [selector, bg] of expected) {
+    const section = page.locator(selector);
+    // The fill lives on the section or its body wrapper (`.featured-body`, `.ask-section-body`), or
+    // as a gradient stop on the section (`.hit` overlaps Featured by 44px, transparent above it).
+    const fills = await section.evaluate((el) =>
+      [el, ...Array.from(el.children)].flatMap((node) => {
+        const cs = getComputedStyle(node);
+        return [cs.backgroundColor, cs.backgroundImage];
+      }),
+    );
+    expect(
+      fills.some((f) => f === bg || f.includes(bg)),
+      `${selector} is filled with ${bg} (saw ${JSON.stringify(fills)})`,
+    ).toBe(true);
+    const firstIsTorn = await section.evaluate((el) => el.firstElementChild?.getAttribute("data-decor") === "torn");
+    expect(firstIsTorn, `${selector} first child is the torn edge`).toBe(true);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// TKT-79 AC 1 · TC-151 step 2 — EVAL-018 per-unit decoration counts on `/` at both widths.
+// Plan AC said hero 3; the hero shipped with 4 counted objects after the EXE-15 banner change
+// (torn · h1 underline · hand-sub · postmark — components/hero/Hero.tsx, Design §11 Dev-21), still
+// inside the ≤ 4 budget. Exact counts are asserted so any drift is a deliberate edit here.
+// ---------------------------------------------------------------------------
+test("@EVAL-018 home per-section decoration counts match the design of record", async ({ page }) => {
+  test.skip(![390, 1440].includes(width(page)), "EVAL-018 is measured at w390 and w1440");
+  await page.goto("/", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  const result = await page.evaluate(collectDecorations, RULE_LIMITS);
+  const counts = Object.fromEntries(result.units.map((r) => [r.unit, r.count]));
+  // At 390 two objects are removed from the DOM by design: the header subline annotation
+  // (`MediaGate min={640}`, components/navigation/Header.tsx) and How-I-think's journey path
+  // sketch (desktop-only). Measured counts, both inside the ≤ 4 budget.
+  const mobile = width(page) === 390;
+  expect(counts).toEqual({
+    header: mobile ? 0 : 1,
+    'section[aria-labelledby="hero-h"]': 4,
+    "section#work-featured": 4,
+    "section#how-i-think": mobile ? 1 : 2,
+    "section#ask": 2,
+    footer: 1,
+  });
+  expect(result.violations).toEqual([]);
+});
+
+// ---------------------------------------------------------------------------
+// TKT-79 AC 3 · TC-151 step 4 — EVAL-001 structural precondition: the six 5-second-test elements are
+// laid out inside the first viewport (no scroll) at 390 and 1440 — name (header wordmark), title
+// (eyebrow "Senior Product Manager · …"), value (h1 "AI-native products"), the illustrated desk
+// (hero banner — "actually builds"), and the two ways in ("View my work →", "Ask my portfolio").
+// Scoring the comprehension itself is manual (evals/results/eval-001-m009-home.md).
+// ---------------------------------------------------------------------------
+test("@EVAL-001 the six 5-second-test elements sit in the first viewport", async ({ page }) => {
+  test.skip(![390, 1440].includes(width(page)), "EVAL-001 is scored at w390 and w1440");
+  await page.goto("/", { waitUntil: "load" });
+  const vh = page.viewportSize()!.height;
+  const elements = {
+    name: page.locator("header .header-name"),
+    title: page.getByText(hero.eyebrow.text, { exact: true }),
+    value: page.locator("h1#hero-h"),
+    desk: page.getByAltText(HERO_BANNER_ALT),
+    work: page.getByRole("link", { name: "View my work →" }),
+    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask my portfolio" }),
+  };
+  for (const [label, locator] of Object.entries(elements)) {
+    await expect(locator, label).toBeVisible();
+    const box = (await locator.boundingBox())!;
+    expect(box.y, `${label} top inside the first viewport`).toBeGreaterThanOrEqual(0);
+    // Text and CTAs must be wholly above the fold; the banner only needs to be on screen.
+    const bottom = label === "desk" ? box.y : box.y + box.height;
+    expect(bottom, `${label} (${Math.round(box.y)}–${Math.round(box.y + box.height)}) within ${vh}px`).toBeLessThanOrEqual(vh);
+  }
+  await expect(elements.value).toContainText("AI-native products");
 });
