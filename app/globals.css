@@ -6093,3 +6093,23 @@ html.lenis body {
   }
 }
 /* end TSK-46 */
+
+/* TKT-92r2 · hero first viewport (TKT-79 EVAL-001 5-second test, orchestrator 2026-09-25): at ≥ 1024 the
+   full-bleed banner is capped by the viewport height so the eyebrow, h1, hand line, support and both CTAs
+   sit inside the first viewport (1440×900 and 1024×768). `100svh − 480px − 6vw` is the header (73 px) +
+   the copy block's measured height (≈ 390 px at 1024, ≈ 440 px at 1440, which grows with the h1 clamp)
+   + the reduced top padding + a ≥ 16 px margin; the 240 px floor keeps a short laptop from collapsing
+   the scene. Still one box cropping one canvas (the TKT-93 contract — the clip stays registered); the
+   face is kept in the crop by `focalY` on the hero's SceneBanner (components/hero/Hero.tsx). 768–1023
+   and < 768 are unchanged. */
+@layer components {
+  @media (min-width: 1024px) {
+    .hero-banner .scene-banner {
+      --banner-h: clamp(240px, min(42vw, 100svh - 480px - 6vw), 620px);
+    }
+    .hero-copy {
+      padding-block-start: clamp(28px, 2.5vw, 40px);
+    }
+  }
+}
+/* end TKT-92r2 */
