@@ -4581,17 +4581,14 @@ html.lenis body {
     gap: 24px;
     margin-bottom: clamp(36px, 4.5vw, 60px);
   }
+  /* TKT-90b: the row WRAPS at every width. The < 768 horizontal scroll (hidden scrollbar, Deviation 3)
+     cut "Experiments" mid-word at 390 with no visible affordance (TKT-85 finding 14). */
   .work-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px clamp(18px, 2.6vw, 34px);
     padding-bottom: 4px;
-    overflow-x: auto;
     border-bottom: 1px solid var(--line);
-    scrollbar-width: none;
-    scroll-snap-type: x proximity;
-  }
-  .work-tabs::-webkit-scrollbar {
-    display: none;
   }
   .work-tab {
     position: relative;
@@ -4608,7 +4605,6 @@ html.lenis body {
     color: var(--color-navy-2);
     text-decoration: none;
     white-space: nowrap;
-    scroll-snap-align: start;
     border-radius: var(--radius-paper);
   }
   .work-tab[aria-selected="true"] {
@@ -4633,12 +4629,6 @@ html.lenis body {
     position: absolute;
     top: 100%;
     left: 34px;
-  }
-  @media (min-width: 768px) {
-    .work-tabs {
-      flex-wrap: wrap;
-      overflow: visible;
-    }
   }
 
   /* The numbered index: an <ol> on a 12-column grid */

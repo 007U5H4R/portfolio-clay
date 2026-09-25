@@ -22,6 +22,15 @@ export interface ChapterNavProps {
 /** The nav mounts at this width and above (Design.md §7.3 / §11 Dev-09). */
 export const CHAPTER_NAV_MIN_WIDTH = 1024;
 
+/** Top edge of the scroll-spy trigger band: the chapters' 7 rem scroll-margin (clear of the header). */
+const BAND_TOP = 112;
+
+/** With the trigger band empty: the last chapter already scrolled past its top edge, else the first. */
+function chapterAboveBand(sections: HTMLElement[]): HTMLElement | undefined {
+  const passed = sections.filter((el) => el.getBoundingClientRect().top < BAND_TOP);
+  return passed[passed.length - 1] ?? sections[0];
+}
+
 /**
  * Case-study chapter navigation (TKT-83 / Design.md §7.3 deep dive, Dev-09): the sticky Fraunces rail
  * beside the chapters — Caveat numerals (`Hand label`), ink underline on the current chapter — rendered
@@ -69,11 +78,16 @@ function ChapterNavRail({ items }: ChapterNavProps) {
         const top = Array.from(visible).sort(
           (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
         )[0];
-        if (top) setActiveAnchor(top.id);
+        // TKT-90b: an empty band must still resolve. Before, an empty band kept the LAST active id, so
+        // scrolling back to the top of the page (every chapter now below the band) left "08" current
+        // instead of "01" (TKT-85 finding 5). With no chapter in the band, "current" is the last chapter
+        // whose top has already passed the band's top edge (reading between chapters / past the end), or
+        // the first chapter when none has been reached yet.
+        setActiveAnchor((top ?? chapterAboveBand(sections))?.id ?? null);
       },
       // Trigger band sits just under the sticky header (7rem = 112px, the chapters' scroll-margin) so
       // "current" tracks the reading position, not the very top of the viewport.
-      { rootMargin: "-112px 0px -55% 0px", threshold: 0 },
+      { rootMargin: `-${BAND_TOP}px 0px -55% 0px`, threshold: 0 },
     );
 
     for (const section of sections) observer.observe(section);
