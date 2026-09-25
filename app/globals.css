@@ -1980,3 +1980,220 @@ html.lenis body {
   }
 }
 /* end TKT-77 */
+/* TKT-75 · featured work — `section#work-featured` + the taped `ProjectCard` (Design.md §7.1; values
+   lifted from docs/redesign-mockups/m-009/home.html `.featured` / `.work-card`). The card's rotation
+   is the `rotate` property off `--rot` (Sheet), so the hover lift is a plain `transform` and the tilt
+   survives it. Reduced motion: no lift, the shadow swap only. Tokens only (EVAL-020). */
+@layer components {
+  .featured {
+    position: relative;
+  }
+  .featured-body {
+    background: var(--color-paper-2);
+  }
+  .featured-wrap {
+    padding-block: 16px clamp(72px, 8vw, 120px);
+  }
+  .featured-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 32px;
+    align-items: end;
+    margin-bottom: clamp(36px, 5vw, 64px);
+  }
+  .featured-head-copy {
+    display: grid;
+    gap: 10px;
+  }
+  .featured-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .featured-h2 {
+    font-size: clamp(40px, 4.6vw, 64px);
+    line-height: 1.02;
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+    color: var(--color-navy);
+  }
+  .featured-lead {
+    max-width: 44ch;
+    font-size: 17px;
+    color: var(--color-navy-2);
+  }
+  .featured-quote {
+    max-width: 360px;
+    font-size: 24px;
+  }
+  .featured-quote small {
+    display: block;
+    margin-top: 4px;
+    font-size: 18px;
+    color: var(--color-ink-soft);
+  }
+  .featured-quote .annotation-arrow {
+    width: 130px;
+    height: auto;
+    margin-top: 6px;
+  }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 28px;
+  }
+  .work-card.paper-sheet {
+    display: grid;
+    padding: 0;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .work-card-large {
+    grid-row: span 2;
+  }
+  .work-card:has(> .work-card-link:hover),
+  .work-card:has(> .work-card-link:focus-visible) {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-paper-hover);
+  }
+  .work-card-link {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    min-width: 0;
+    padding: 28px;
+    border-radius: inherit;
+    color: var(--color-navy);
+    text-decoration: none;
+  }
+  .work-card-large .work-card-link {
+    padding: 36px;
+  }
+  .work-kicker {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--color-green-2);
+  }
+  .work-kicker-status {
+    color: var(--color-rust);
+  }
+  .work-card-h {
+    font-size: clamp(28px, 2.6vw, 40px);
+    line-height: 1.05;
+    font-variation-settings: "opsz" 96, "SOFT" 20;
+  }
+  .work-card-large .work-card-h {
+    font-size: clamp(34px, 3.4vw, 52px);
+  }
+  .work-card-tagline {
+    max-width: 44ch;
+    font-size: 16px;
+    color: var(--color-navy-2);
+  }
+  .work-card-sketch {
+    margin-top: 4px;
+  }
+  .work-metrics {
+    display: grid;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+  }
+  .work-metric-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+  }
+  .work-metric {
+    display: grid;
+  }
+  .work-metric b {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .work-metric span {
+    font-size: 12px;
+    color: var(--color-ink-soft);
+  }
+  .work-metric[data-tone="hero"] b {
+    font-size: 44px;
+    color: var(--color-rust);
+  }
+  .work-metric[data-tone="zero"] b {
+    color: var(--color-forest);
+  }
+  .work-metric-asof {
+    font-size: 12px;
+    color: var(--color-ink-soft);
+  }
+  .work-card-cta {
+    justify-self: start;
+    font-size: 21px;
+    color: var(--color-rust);
+  }
+  .work-card-sticky {
+    position: absolute;
+    left: -28px;
+    bottom: -22px;
+    width: 156px;
+    pointer-events: none;
+  }
+
+  @media (max-width: 1024px) {
+    .work-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .work-card-large {
+      grid-column: span 2;
+      grid-row: auto;
+    }
+    /* No second row to absorb the sticky below 1024 — clear it under the cta. */
+    .work-card-large .work-card-link {
+      padding-bottom: 84px;
+    }
+  }
+  @media (max-width: 900px) {
+    .featured-head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .work-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .work-card-large {
+      grid-column: auto;
+    }
+    .work-card-link {
+      padding: 28px 22px;
+    }
+    .work-card-large .work-card-link {
+      padding: 28px 22px 84px;
+    }
+    .work-card-sticky {
+      left: 8px;
+      bottom: -18px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .work-card.paper-sheet {
+      transition: none;
+    }
+    .work-card:has(> .work-card-link:hover),
+    .work-card:has(> .work-card-link:focus-visible) {
+      transform: none;
+    }
+  }
+}
+/* end TKT-75 */

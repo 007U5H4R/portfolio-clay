@@ -1,48 +1,62 @@
 /**
- * featured.spec.ts (technical-plan.md §B S12.02–S12.04) — the FeaturedWork home section.
+ * featured.spec.ts (TKT-75 · TC-147; technical-plan.md §F3 S75.02) — the paper Featured Work section.
  *
- * Covers the TKT-12 gates:
- *   @EVAL-002 — hop 1 of the recruiter path: home featured card → its case study (each of the 3).
- *   @EVAL-011 — the three featured cards are live controls: every card href resolves 200.
- *   @EVAL-015 — View-Transition names present on card + header; the EXE-5 plain-navigation fallback
- *               (no startViewTransition) lands on the same end state; reduced motion removes the rise.
- *
- * Plus the S12.02 layout gate: exactly 3 cards in DOM order TeachSpark → RailCite → Nuptis → Velora,
- * equal heights at 1440 (±1px), with the one `large` card visibly wider than the two mediums (the
- * brief's "not three identical rectangles" / EXE-6 hero-balance requirement).
+ *   @EVAL-002 — hop 1 of the recruiter path: each featured card → its case study.
+ *   @EVAL-011 — the three cards are live controls: every href resolves 200.
+ *   @EVAL-015 — `project-{slug}` VT name on each card; with startViewTransition removed (EXE-5
+ *               fallback) + reduced motion, navigation lands on the same end state.
+ *   @EVAL-018 — `section#work-featured` carries exactly 4 decorations (torn · quote annotation ·
+ *               flow sketch · sticky — Design.md §3.3, Dev-03) at 390 and 1440; ≤ 2 fasteners/card.
+ *   Layout (Design.md §7.1): > 1024 two columns with the TeachSpark card spanning both rows; ≤ 1024
+ *   two columns with it spanning both columns; ≤ 640 one column; no horizontal overflow.
+ *   Hover (TC-147 step 5): the card's `transform` changes on hover; under reduced motion only its
+ *   `box-shadow` changes.
  */
+import type { Locator, Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 
-const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
+const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
 const FEATURED = [
-  { slug: "teachspark", name: "TeachSpark", size: "large" },
-  { slug: "railcite", name: "RailCite", size: "medium" },
-  { slug: "velora", name: "Nuptis → Velora", size: "medium" },
+  { slug: "teachspark", name: "TeachSpark" },
+  { slug: "railcite", name: "RailCite" },
+  { slug: "velora", name: "Nuptis → Velora" },
 ] as const;
 
-const cards = (page: import("@playwright/test").Page) =>
-  page.locator('#work-featured a[href^="/work/"]');
+const SECTION = "section#work-featured";
+const links = (page: Page) => page.locator(`${SECTION} a[href^="/work/"]`);
+const sheets = (page: Page) => page.locator(`${SECTION} [data-paper="card"]`);
+
+type Box = { x: number; y: number; w: number; h: number };
+const boxes = (loc: Locator) =>
+  loc.evaluateAll((els) =>
+    els.map((el) => {
+      // Un-rotated layout box: offset geometry ignores the paper tilt.
+      const e = el as HTMLElement;
+      const r = e.getBoundingClientRect();
+      return { x: r.left + r.width / 2 - e.offsetWidth / 2, y: e.offsetTop, w: e.offsetWidth, h: e.offsetHeight };
+    }),
+  ) as Promise<Box[]>;
 
 // ---------------------------------------------------------------------------
-// S12.02 — exactly 3 cards, correct DOM order, correct names (every width).
+// 3 cards, rank order, one link each (aria-label = name, href = /work/<slug>).
 // ---------------------------------------------------------------------------
 test("@EVAL-002 featured section lists the 3 case studies in rank order", {
   tag: "@EVAL-002",
 }, async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
-  const links = cards(page);
-  await expect(links).toHaveCount(3);
+  await expect(links(page)).toHaveCount(3);
+  await expect(sheets(page)).toHaveCount(3);
   for (let i = 0; i < FEATURED.length; i++) {
-    await expect(links.nth(i)).toHaveAttribute("href", `/work/${FEATURED[i]!.slug}`);
-    await expect(links.nth(i).getByRole("heading", { level: 3 })).toHaveText(FEATURED[i]!.name);
+    const { slug, name } = FEATURED[i]!;
+    const link = links(page).nth(i);
+    await expect(link).toHaveAttribute("href", `/work/${slug}`);
+    await expect(link).toHaveAttribute("aria-label", name);
+    await expect(link.locator("h3")).toHaveText(name);
+    await expect(sheets(page).nth(i).locator("a")).toHaveCount(1);
   }
 });
 
-// ---------------------------------------------------------------------------
-// EVAL-002 hop 1 + EVAL-015 fallback — each card navigates to its case study; with
-// startViewTransition removed (EXE-5 fallback) and reduced motion, the end state is identical.
-// ---------------------------------------------------------------------------
 test("@EVAL-002 @EVAL-015 each featured card navigates to its case study (VT fallback)", {
   tag: ["@EVAL-002", "@EVAL-015"],
 }, async ({ page, noViewTransitions, withReducedMotion }) => {
@@ -55,29 +69,22 @@ test("@EVAL-002 @EVAL-015 each featured card navigates to its case study (VT fal
     const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
     expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback path runs").toBeFalsy();
 
-    await page.locator(`#work-featured a[href="/work/${slug}"]`).click();
+    await page.locator(`${SECTION} a[href="/work/${slug}"]`).click();
     await page.waitForURL(`**/work/${slug}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
   }
 });
 
-// ---------------------------------------------------------------------------
-// EVAL-015 — View-Transition names are wired on both the card and its case-study header.
-// ---------------------------------------------------------------------------
-test("@EVAL-015 featured cards carry the project/icon View-Transition names", {
+test("@EVAL-015 featured cards carry the project View-Transition name", {
   tag: "@EVAL-015",
 }, async ({ page }) => {
   test.skip(width(page) !== 1440, "VT-name presence checked once at w1440");
   await page.goto("/", { waitUntil: "load" });
   for (const { slug } of FEATURED) {
-    await expect(page.locator(`#work-featured [style*="project-${slug}"]`)).toBeVisible();
-    await expect(page.locator(`#work-featured [style*="icon-${slug}"]`)).toBeVisible();
+    await expect(page.locator(`${SECTION} a[style*="project-${slug}"]`)).toBeVisible();
   }
 });
 
-// ---------------------------------------------------------------------------
-// EVAL-011 — the featured cards are live controls: every href resolves 200 (no dead links).
-// ---------------------------------------------------------------------------
 test("@EVAL-011 every featured card href resolves 200", { tag: "@EVAL-011" }, async ({ page }) => {
   test.skip(width(page) !== 1440, "link-resolution check runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
@@ -88,56 +95,84 @@ test("@EVAL-011 every featured card href resolves 200", { tag: "@EVAL-011" }, as
 });
 
 // ---------------------------------------------------------------------------
-// S12.02 layout gate — equal heights at 1440 (±1px), large card wider than the mediums
-// (EXE-6: editorial row, "not three identical rectangles").
+// EVAL-018 — section unit count 4 (390 + 1440); fasteners ≤ 2 per card (every width).
 // ---------------------------------------------------------------------------
-test("featured row is equal-height with one wider (large) card at 1440", async ({ page }) => {
-  test.skip(width(page) !== 1440, "editorial row geometry measured at w1440 (lg layout)");
+test("@EVAL-018 featured section carries exactly 4 decorations and ≤ 2 fasteners per card", {
+  tag: "@EVAL-018",
+}, async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
-  const boxes = await cards(page).evaluateAll((els) =>
-    els.map((el) => {
-      const r = el.getBoundingClientRect();
-      return { w: r.width, h: r.height };
-    }),
-  );
-  expect(boxes).toHaveLength(3);
-
-  const heights = boxes.map((b) => b.h);
-  const maxH = Math.max(...heights);
-  const minH = Math.min(...heights);
-  expect(maxH - minH, `card heights must be equal (±1px): ${heights.join(", ")}`).toBeLessThanOrEqual(1);
-
-  const [large, mediumA, mediumB] = boxes;
-  expect(
-    large!.w,
-    `large card (${large!.w}px) must be visibly wider than the medium cards (${mediumA!.w}, ${mediumB!.w})`,
-  ).toBeGreaterThan(mediumA!.w + 40);
-  expect(large!.w).toBeGreaterThan(mediumB!.w + 40);
-  expect(
-    Math.abs(mediumA!.w - mediumB!.w),
-    "the two medium cards should share a width",
-  ).toBeLessThanOrEqual(1);
+  const decor = await page
+    .locator(`${SECTION} [data-decor]`)
+    .evaluateAll((els) => els.map((el) => el.getAttribute("data-decor")).sort());
+  expect(decor).toEqual(["annotation", "sketch", "sticky", "torn"]);
+  // No nested <section> steals a decoration from the unit.
+  await expect(page.locator(`${SECTION} section`)).toHaveCount(0);
+  const fasteners = await sheets(page).evaluateAll((els) => els.map((el) => el.querySelectorAll("[data-fastener]").length));
+  expect(fasteners).toHaveLength(3);
+  for (const n of fasteners) expect(n).toBeLessThanOrEqual(2);
 });
 
 // ---------------------------------------------------------------------------
-// EVAL-015 — reduced motion removes the card hover rise (transform stays put).
+// Layout (Design.md §7.1) + no overflow.
 // ---------------------------------------------------------------------------
-test("@EVAL-015 reduced motion removes the featured card hover rise", {
-  tag: "@EVAL-015",
+test("featured grid: large card spans per breakpoint, no horizontal overflow", async ({ page, noOverflow }) => {
+  await page.goto("/", { waitUntil: "load" });
+  await noOverflow(page);
+  const [large, a, b] = await boxes(sheets(page));
+  expect(large && a && b, "3 cards laid out").toBeTruthy();
+  const w = width(page);
+
+  if (w > 1024) {
+    // Two columns: large left spanning both rows; RailCite over Velora on the right.
+    expect(large!.w).toBeGreaterThan(a!.w);
+    expect(Math.abs(a!.x - b!.x)).toBeLessThanOrEqual(1);
+    expect(a!.x).toBeGreaterThan(large!.x + large!.w);
+    expect(b!.y).toBeGreaterThan(a!.y);
+    expect(large!.h).toBeGreaterThanOrEqual(a!.h + b!.h);
+  } else if (w > 640) {
+    // Two columns: large spans both on top; RailCite and Velora side by side beneath.
+    expect(Math.abs(large!.w - (a!.w + b!.w))).toBeLessThanOrEqual(40);
+    expect(a!.y).toBeGreaterThan(large!.y + large!.h - 1);
+    expect(Math.abs(a!.y - b!.y)).toBeLessThanOrEqual(1);
+    expect(b!.x).toBeGreaterThan(a!.x + a!.w);
+  } else {
+    // One column, full width, stacked.
+    expect(Math.abs(large!.w - a!.w)).toBeLessThanOrEqual(1);
+    expect(Math.abs(a!.w - b!.w)).toBeLessThanOrEqual(1);
+    expect(a!.y).toBeGreaterThan(large!.y);
+    expect(b!.y).toBeGreaterThan(a!.y);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// TC-147 step 5 — hover lifts (transform) at 1440; reduced motion: shadow only.
+// ---------------------------------------------------------------------------
+const hoverStyles = async (page: Page, slug: string) => {
+  const link = page.locator(`${SECTION} a[href="/work/${slug}"]`);
+  // The link is the Sheet's direct child (ProjectCard anatomy) — its parent is the card.
+  const sheet = link.locator("..");
+  await link.scrollIntoViewIfNeeded();
+  await page.mouse.move(0, 0);
+  const read = () => sheet.evaluate((el) => ({ t: getComputedStyle(el).transform, s: getComputedStyle(el).boxShadow }));
+  const before = await read();
+  await link.hover();
+  await page.waitForTimeout(350);
+  const after = await read();
+  return { before, after };
+};
+
+test("@EVAL-010 featured card hover lifts; reduced motion changes the shadow only", {
+  tag: "@EVAL-010",
 }, async ({ page, withReducedMotion }) => {
   test.skip(width(page) !== 1440, "hover physics checked at w1440 (fine pointer)");
+  await page.goto("/", { waitUntil: "load" });
+  const normal = await hoverStyles(page, "railcite");
+  expect(normal.after.t, "hover must change transform").not.toBe(normal.before.t);
+  expect(normal.after.s).not.toBe(normal.before.s);
+
   await withReducedMotion(page);
   await page.goto("/", { waitUntil: "load" });
-
-  const card = page.locator('#work-featured a[href="/work/railcite"]');
-  await card.scrollIntoViewIfNeeded();
-  const before = await card.boundingBox();
-  await card.hover();
-  await page.waitForTimeout(300);
-  const after = await card.boundingBox();
-  expect(before && after, "card must be laid out").toBeTruthy();
-  expect(
-    Math.abs(after!.y - before!.y),
-    "card must not lift under reduced motion",
-  ).toBeLessThan(1);
+  const reduced = await hoverStyles(page, "railcite");
+  expect(reduced.after.t, "no lift under reduced motion").toBe(reduced.before.t);
+  expect(reduced.after.s, "shadow still swaps under reduced motion").not.toBe(reduced.before.s);
 });
