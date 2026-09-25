@@ -56,7 +56,7 @@ test("primitives board · axe wcag2.1 AA", { tag: "@primitives" }, async ({ page
 });
 
 // TSK-35: the ClayPill hover test that lived here was retired with the clay board — `ClayPill` is no
-// longer rendered on `/dev/primitives` (the paper board replaced it; TKT-89 deleted `ClayPill`).
+// longer rendered on `/dev/primitives` (the paper board replaced it; the clay tree is deleted in TKT-89/TKT-90a).
 // In its place: the server-side count readout must agree with the DOM it describes.
 test("primitives board · every section's server-side readout matches its owned [data-decor] count", {
   tag: "@primitives",

@@ -440,12 +440,12 @@ export default function PrimitivesDevPage() {
         <Container data-testid="layout-demo-container" className="border border-dashed border-navy/20 py-[var(--space-4)]">
           <p className="text-caption text-ink-soft">Container gutter/max-width demo</p>
         </Container>
-        <Section data-testid="layout-demo-section" tone="lavender" aria-labelledby="layout-demo-heading">
+        <Section data-testid="layout-demo-section" aria-labelledby="layout-demo-heading">
           <SectionHeading
             id="layout-demo-heading"
             eyebrow="Demo"
             title="Section rhythm"
-            lead="Vertical padding follows the 72/96/128 token ladder; tone is the one-accent-per-section mechanism."
+            lead="Vertical padding follows the 72/96/128 token ladder."
           />
           <Reveal data-testid="reveal-demo" className="mt-[var(--space-5)]">
             <p className="text-caption text-navy-2">Reveal fires once via IntersectionObserver, then disconnects.</p>

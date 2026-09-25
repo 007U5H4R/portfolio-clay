@@ -23,7 +23,7 @@ export function SectionHeading({ id, eyebrow, title, lead, className }: SectionH
       {eyebrow ? (
         // ink-2, not Hero's ink-3 (Hero's eyebrow sits on the plain `bg`, never a toned Section):
         // ink-3 only clears WCAG AA 4.5:1 on `bg`/`surface` (~4.4-4.6) and fails against every
-        // `toneClass` wash (e.g. lavender/30 measures ~3.85 — axe `color-contrast`, caught while
+        // clay tone wash (e.g. lavender/30 measures ~3.85 — axe `color-contrast`, caught while
         // wiring this ticket's own `/dev/primitives` demo). ink-2 clears every tone with margin.
         <p className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2">
           {eyebrow}

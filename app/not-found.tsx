@@ -25,7 +25,7 @@ export default function NotFound() {
       containerClassName="grid items-center gap-[var(--space-8)] lg:grid-cols-[1fr_auto]"
     >
       <div className="flex max-w-[52ch] flex-col gap-[var(--space-4)]">
-        <span className="inline-flex w-fit items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
+        <span className="inline-flex w-fit items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-paper)]">
           <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-rust" />
           Lost?
         </span>
@@ -39,7 +39,7 @@ export default function NotFound() {
           <Link
             href="/"
             data-hand="cta"
-            className="focus-ring inline-flex min-h-[44px] items-center rounded-[var(--radius-pill)] bg-rust px-[var(--space-5)] font-hand text-[22px] font-semibold text-paper shadow-[var(--shadow-utility)] transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:hover:translate-y-0"
+            className="focus-ring inline-flex min-h-[44px] items-center rounded-[var(--radius-pill)] bg-rust px-[var(--space-5)] font-hand text-[22px] font-semibold text-paper shadow-[var(--shadow-paper)] transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:hover:translate-y-0"
           >
             Back home
           </Link>

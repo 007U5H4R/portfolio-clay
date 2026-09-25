@@ -1,41 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
-import { ClayButton } from "@/components/clay/ClayButton";
 import { CopyButton } from "@/components/common/CopyButton";
 import { ExternalLink } from "@/components/common/ExternalLink";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
 import { Prose } from "@/components/common/Prose";
 
-describe("ClayButton — S04.03 full", () => {
-  it("loading sets aria-busy, disables the button and renders a spinner", () => {
-    const { container } = render(<ClayButton loading>Save</ClayButton>);
-    const el = container.firstElementChild as HTMLButtonElement;
-    expect(el.getAttribute("aria-busy")).toBe("true");
-    expect(el.disabled).toBe(true);
-    expect(container.querySelector("svg")).toBeTruthy();
-  });
-
-  it("external link gets target/rel and a VisuallyHidden 'opens in new tab' note", () => {
-    const { container } = render(
-      <ClayButton href="https://example.test" external>
-        Visit
-      </ClayButton>,
-    );
-    const el = container.firstElementChild as HTMLAnchorElement;
-    expect(el.tagName).toBe("A");
-    expect(el.getAttribute("target")).toBe("_blank");
-    expect(el.getAttribute("rel")).toContain("noopener");
-    expect(container.textContent).toContain("(opens in new tab)");
-  });
-
-  it("size lg applies the larger token classes", () => {
-    const { container } = render(<ClayButton size="lg">Big</ClayButton>);
-    const el = container.firstElementChild as HTMLElement;
-    expect(el.className).toMatch(/min-h-12/);
-    expect(el.className).toMatch(/px-8/);
-  });
-});
-
+// TKT-90a: moved verbatim from the retired tests/unit/clay.test.tsx (its clay blocks were deleted with the clay tree).
 describe("Common primitives — S04.06", () => {
   it("VisuallyHidden renders sr-only text", () => {
     const { container } = render(<VisuallyHidden>note</VisuallyHidden>);

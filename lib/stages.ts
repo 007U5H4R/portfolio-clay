@@ -1,5 +1,7 @@
 import type { ThinkingStageDef } from "@/data/schema";
-import type { Tone } from "@/components/clay/tiers";
+
+/** The schema's stage `tone` enum (`data/schema.ts` `Tone`) — type-only, no zod runtime (TKT-90a). */
+type Tone = ThinkingStageDef["tone"];
 
 /**
  * The 6 How-I-Think stage ids, in their fixed display order (CONTENT_INVENTORY §1.5:

@@ -32,7 +32,7 @@ const COPIED_MS = 2000;
  *
  * Skin (TSK-46): the paper secondary button — ivory, 1.5 px `--line` border, Inter 15 px, ≥ 44 px
  * tall (`.copy-btn` in the TSK-46 block of app/globals.css). `data-state` drives the state
- * borders: **copied** forest, **error** rust. The clay `ClayButton` is gone (S11 / TKT-89).
+ * borders: **copied** forest, **error** rust. The clay button primitive is gone (S11 / TKT-89, TKT-90a).
  *
  * Behaviour (unchanged): clicking writes `value` via `navigator.clipboard.writeText`, flips to
  * `copied` for 2 s (the icon morphs Copy → Check and a `role="status"` region announces
