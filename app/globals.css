@@ -2006,6 +2006,215 @@ html.lenis body {
     gap: 10px;
   }
   .featured-eyebrow {
+/* TKT-81 · case-study template part 1 — header, metric strip, overview (folder tabs + notebook), thin
+   "Deep dive coming" tag, next-project band (Design.md §7.3; values lifted from
+   docs/redesign-mockups/m-009/case-study.html `.cs-head` / `.mstrip*` / `.overview` / `.tab` / `.next`).
+   Torn sections use the mockup's `torn-fill` trick: the fill is painted from 44 px down and the
+   section pulls up 44 px, so its `TornEdge` (same fill) tears over the section above. Text sizes hold
+   the EVAL-008 14 px floor (mockup 12–13 px labels → 14 px; kraft tags stay 12 px as
+   `data-micro-label`). Tokens / derived vars only (EVAL-020). */
+@layer components {
+  .cs-article {
+    display: block;
+  }
+  .cs-torn-fill {
+    position: relative;
+    margin-top: -44px;
+    background-repeat: no-repeat;
+    background-position: 0 44px;
+    background-size: 100% calc(100% - 44px);
+  }
+
+  /* --- header --- */
+  .cs-head {
+    position: relative;
+    z-index: 1;
+    padding-block: clamp(24px, 4vw, 48px) clamp(84px, 9vw, 130px);
+  }
+  .cs-head-grid {
+    display: grid;
+    gap: clamp(28px, 5vw, 72px);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .cs-head[data-has-media] .cs-head-grid {
+      grid-template-columns: minmax(0, 56fr) minmax(0, 44fr);
+    }
+  }
+  .cs-copy {
+    display: grid;
+    gap: 20px;
+    max-width: 760px;
+  }
+  .cs-crumb {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: var(--text-caption);
+    color: var(--color-navy-2);
+  }
+  .cs-crumb a {
+    border-bottom: 1px solid var(--line);
+  }
+  .cs-crumb a:hover {
+    color: var(--color-rust);
+    border-color: var(--color-rust);
+  }
+  .cs-h1 {
+    font-size: clamp(52px, 6.4vw, 92px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    overflow-wrap: anywhere;
+  }
+  .cs-lead {
+    max-width: 44ch;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .cs-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    align-items: center;
+    font-size: var(--text-caption);
+    color: var(--color-navy-2);
+  }
+  .cs-meta b {
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+  .cs-media-tag {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+  }
+  .cs-media-tag .paper-annotation {
+    color: var(--color-navy-2);
+  }
+  .cs-photo {
+    justify-self: end;
+    width: min(100%, 560px);
+  }
+  .cs-photo-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  /* --- metric strip --- */
+  .cs-strip {
+    z-index: 2;
+    background-image: linear-gradient(var(--color-paper-2), var(--color-paper-2));
+  }
+  .cs-strip-wrap {
+    position: relative;
+    padding-block: 32px clamp(60px, 7vw, 96px);
+  }
+  @media (min-width: 900px) {
+    .cs-strip-wrap {
+      padding-top: 72px;
+    }
+  }
+  .cs-strip-note {
+    margin-bottom: 18px;
+    pointer-events: none;
+  }
+  @media (min-width: 900px) {
+    .cs-strip-note {
+      position: absolute;
+      top: 4px;
+      left: 36%;
+      width: 260px;
+      margin: 0;
+    }
+  }
+  .cs-strip-grid {
+    display: grid;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 900px) {
+    .cs-strip-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .cs-metric {
+    height: 100%;
+    padding: 24px 22px 16px;
+  }
+  .cs-metric-value {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 4vw, 56px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    font-variation-settings: "opsz" 96, "SOFT" 20;
+    color: var(--color-navy);
+  }
+  .cs-metric-label {
+    margin-top: 2px;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .cs-metric-context {
+    font-size: var(--text-caption);
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .cs-metric-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: var(--text-caption);
+    color: var(--color-navy-2);
+  }
+  .cs-kind {
+    display: inline-block;
+    padding: 1px 10px 2px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  /* --- overview: folder tabs + 30-sec notebook --- */
+  .cs-overview {
+    z-index: 3;
+    background-image: linear-gradient(var(--color-paper), var(--color-paper));
+  }
+  .cs-overview-grid {
+    display: grid;
+    gap: clamp(28px, 5vw, 88px);
+    align-items: start;
+    /* bottom ≥ 44 px + air: the next torn section pulls up 44 px over this one */
+    padding-block: clamp(28px, 4vw, 56px) clamp(76px, 8vw, 104px);
+  }
+  @media (min-width: 900px) {
+    .cs-overview-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    }
+  }
+  .cs-depth {
+    display: grid;
+    gap: 16px;
+  }
+  .cs-eyebrow {
     font-size: var(--text-caption);
     font-weight: 600;
     letter-spacing: var(--tracking-eyebrow);
@@ -2192,8 +2401,149 @@ html.lenis body {
     }
     .work-card:has(> .work-card-link:hover),
     .work-card:has(> .work-card-link:focus-visible) {
+  .cs-overview-note {
+    max-width: 16ch;
+  }
+  .cs-tabs {
+    display: inline-flex;
+    gap: 6px;
+    align-items: flex-end;
+    justify-self: start;
+    border-bottom: 1.5px solid var(--line-sketch);
+  }
+  .cs-tab {
+    position: relative;
+    top: 1.5px;
+    min-height: 44px;
+    padding: 8px 18px;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--color-navy-2);
+    background: var(--color-paper-2);
+    border: 1.5px solid var(--line);
+    border-bottom: 0;
+    border-radius: 7px 7px 0 0;
+    cursor: pointer;
+  }
+  .cs-tab[aria-checked="true"] {
+    color: var(--color-navy);
+    background: var(--color-ivory);
+    border-color: var(--line-sketch);
+  }
+  .cs-tab[aria-checked="true"]::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -1.5px;
+    left: 0;
+    height: 1.5px;
+    background: var(--color-ivory);
+  }
+  .cs-help {
+    max-width: 32ch;
+    font-size: var(--text-caption);
+    color: var(--color-navy-2);
+  }
+  .cs-notebook-col {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+    min-width: 0;
+  }
+  .cs-notebook {
+    width: 100%;
+  }
+  .cs-notebook p {
+    font-size: 17px;
+    line-height: 32px;
+    color: var(--color-navy);
+  }
+  .cs-notebook p + p {
+    margin-top: 32px;
+  }
+  .cs-notebook .cs-notebook-label {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    line-height: 32px;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .cs-notebook .cs-notebook-label + p {
+    margin-top: 0;
+  }
+  .cs-coming {
+    display: grid;
+    gap: 4px;
+    max-width: 52ch;
+    padding: 12px 16px 12px 28px;
+  }
+  .cs-coming-body {
+    font-size: var(--text-caption);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .cs-coming-body b {
+    font-weight: 600;
+  }
+
+  /* --- deep dive shell (TKT-83 owns the inside) --- */
+  .cs-deep {
+    position: relative;
+    z-index: 3;
+    padding-block: clamp(24px, 3vw, 40px) clamp(72px, 8vw, 120px);
+  }
+
+  /* --- next-project band --- */
+  .cs-next {
+    z-index: 5;
+    color: var(--color-ivory);
+    background-image: linear-gradient(var(--color-navy), var(--color-navy));
+  }
+  .cs-next-link {
+    display: grid;
+    gap: 8px;
+    padding-block: clamp(28px, 4vw, 48px) clamp(56px, 6vw, 84px);
+    border-radius: 4px;
+  }
+  .cs-next-link:focus-visible {
+    outline: 2px solid var(--color-kraft);
+    outline-offset: 3px;
+  }
+  .cs-next-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-kraft);
+  }
+  .cs-next-h {
+    font-size: clamp(44px, 6vw, 88px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    color: var(--color-ivory);
+    overflow-wrap: anywhere;
+  }
+  .cs-next-arr {
+    display: inline-block;
+    transition: transform 0.2s var(--ease-hover);
+  }
+  .cs-next-link:hover .cs-next-arr {
+    transform: translateX(8px);
+  }
+  .cs-next .cs-next-note {
+    color: var(--color-kraft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-next-arr {
+      transition: none;
+    }
+    .cs-next-link:hover .cs-next-arr {
       transform: none;
     }
   }
 }
 /* end TKT-75 */
+/* end TKT-81 */
