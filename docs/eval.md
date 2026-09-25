@@ -103,6 +103,11 @@ Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-020` status is this fil
   stem (`text-ink-soft`) cannot match; the fixture's decoy lines prove it.
 - **Allow-list changes** are limited to the two files above (TKT-78 owns `lib/og.tsx`). Anything
   else needing a literal defines a `color-mix()` custom property in `globals.css` instead.
+- **Clay leftovers (final state, TKT-89 S89.02 + TKT-90a).** The non-colour clay tokens (`--radius-clay*`,
+  `--shadow-clay-*`, `--gradient-clay-volume`, `--radius-utility`, `--shadow-utility`) are outside this
+  gate's colour scope; TKT-89 deleted the unused ones and TKT-90a migrates the last consumers
+  (`DemoVideo`, `SkipLink`, `app/not-found.tsx`, `/dev/video`) to `--radius-paper`/`--shadow-paper` and
+  deletes the rest, gated by `grep -rn "components/clay\|ClayButton\|toneClass\|radius-clay\|shadow-clay\|/avatar/" app components lib tests` → 0.
 
 ```bash
 pnpm test -- eval-020                          # the unit file on its own
@@ -115,12 +120,14 @@ pnpm eval --only EVAL-020 --skip-build         # through the harness → evals/r
 Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-021` status is this file's pass/fail. The
 automated scope covers provenance, alt-naming and forbidden-string checks; the "depicts no
 metric/logo/product UI/claim" checklist is manual (Stage 8, filed at
-`evals/results/eval-021-<sha>.md`).
+`evals/results/eval-021-<sha>.md` — the TKT-90c draft is `evals/results/eval-021-ff806f5.md`: 10 assets,
+5 clean, 5 flagged ⚠ for Stage-8 calls with recommendations, 0 ✗; manual status `PENDING` until Stage 8
+ticks it).
 
 | Part | Checks | Threshold |
 |------|--------|-----------|
 | 1 | Every file under `content/media/illustrations/**` (excluding `README.md`, `manifest.ts`; `reference/` included) has exactly one manifest entry, and vice versa | 0 orphans either way |
-| 2 | Every manifest `id` has a `README.md` provenance row (§6.2 columns) with every cell non-empty | 9/9 |
+| 2 | Every manifest `id` has a `README.md` provenance row (§6.2 columns) with every cell non-empty | 10/10 (the nine §6.1 ids + `hero-banner`, Dev-23) |
 | 3 | Every `alt` starts with `Illustration of ` / `Animated illustration of ` (scenes, poster, clip) or `Illustration reference sheet` (the reference kind); `character-sheet-b.usedOn` is `[]` | 0 mismatches |
 | 4 | Every filename + alt passes `scripts/forbidden-strings.ts` `contentForbiddenHits` and `PII_PATTERNS` | 0 hits |
 | 5 | Every `publicSrc` file exists under `public/`; `content/media/illustrations/hero-desk.webp` and `public/media/illustrations/hero-poster.webp` have equal sha256 (E-18) | byte-identical |
@@ -128,7 +135,10 @@ metric/logo/product UI/claim" checklist is manual (Stage 8, filed at
 
 - `check(dir, entries, readme)` is a pure function exported from the test file so it can run against
   both the real tree (0 findings) and each fixture (≥ 1 finding) without duplicating the rules.
-- Nine manifest ids match Design.md §6.1 exactly; `lib/illustrations.ts` re-exports `ILLUSTRATION_IDS`
+- Ten manifest ids: Design.md §6.1's nine plus `hero-banner` (the 3168×1344 outpaint of `hero-desk`,
+  Dev-21/Dev-23, the `/` LCP image). `hero-clip-mask.png` under `public/media/illustrations/` is a mask
+  for the clip, not an illustration, so it has no manifest row by design (it is not under
+  `content/media/illustrations/`, so rule 1 does not see it). `lib/illustrations.ts` re-exports `ILLUSTRATION_IDS`
   and adds `sceneImage(id)` — static `next/image` imports of the six scenes for intrinsic size +
   AVIF/WebP (§6.4). The hero poster and clip are served as-is from `public/media/illustrations/` via
   `illustration(id).publicSrc`.
@@ -155,6 +165,7 @@ machine of decision TP13) inside `components/hero/Hero.tsx` (Design.md §5.2 mar
 | autoplay rejected | `addInitScript` overriding `HTMLMediaElement.prototype.play` to reject (`NotAllowedError`) | 0 `<video>` after 2 s — the video unmounts, the poster is the error state |
 | SSR | `request.get("/")`, no JavaScript | exactly one banner `<img>` (TKT-93 / Dev-21: the static-imported 3168×1344 `hero-banner` is the LCP image) with `fetchpriority="high"`, `loading="eager"`, `width="3168" height="1344"`, `sizes="100vw"`, alt byte-equal to `illustration("hero-banner").alt`; **0** poster `<img>` (the poster is only the clip's `poster` attribute); **0** `<video` in the HTML |
 | registration (TKT-93) | the w1440 project resizes to 1024 / 1440 / 1920 | the mounted `video[data-hero-clip]` bounding box equals `CLIP_REGISTRATION` (`components/hero/registration.ts`: left 11.4268 % · top 0.4464 % · width 77.2525 % · height 97.3071 % of `.scene-banner-canvas`) within **±2 px** per edge; the canvas covers the `.scene-banner` box (no gap); the slot keeps the clip's 1280/684 aspect |
+| clip mask (TKT-93) | CSS on `.hero-clip` (`app/globals.css` TKT-93 block) | `mask-image: url("/media/illustrations/hero-clip-mask.png")` stretched `100% 100%` over the registered slot, so only the character moves over the still banner; it is asserted indirectly by the registration row (a slot drift would show the mask edge) and eyeballed in the held-frame screenshot |
 | caps | `fs.statSync` on `public/media/illustrations/` | webm ≤ 204 800 B · mp4 ≤ 358 400 B · poster ≤ 122 880 B |
 
 Every measured value (ended ms, the currentTime samples, the post-hold state, per-mode video counts,
@@ -205,7 +216,8 @@ ticket }]` (unit labels as the collector prints them: `section#id`, `section[ari
 route fails too (stale-park guard, so a park cannot outlive its fix). `/` and `/dev/primitives` never
 carry entries; a `@EVAL-018` test also rejects unknown routes/rules and entries without a reason and a
 `TKT-` ticket. Thresholds are never lowered — parking is scoped to sections the design has not
-reached. The file must be `[]` by TKT-90 (TC-175).
+reached. The file must be `[]` by TKT-90 (TC-175). **Final state (M-009 Phase D, TKT-90c): `[]`** — every
+route, including `/about` (the last park, closed by TKT-86/87), passes with no parked hit.
 
 **Controls.** The untagged test `violating fixture fails all four rules` runs the collector on
 `/dev/primitives?violate=1` (a raw-markup section, `app/dev/primitives/ViolateFixture.tsx`) and
@@ -265,8 +277,8 @@ The full control inventory (ok/warn/dead) is written to `.eval/dead-controls.jso
 ## Dev routes
 
 `/dev/*` pages only exist under `ALLOW_DEV_ROUTES=1` (the CI QA job). On a plain `pnpm test:e2e` /
-`pnpm eval` they 404, and their `@primitives` specs **SKIP** (never FAIL) — see `primitives.spec.ts`
-and `layout.spec.ts`.
+`pnpm eval` they 404, and their `@primitives` specs **SKIP** (never FAIL) — see `paper-board.spec.ts`
+(renamed from `primitives.spec.ts` in TKT-89 S89.02) and `layout.spec.ts`.
 
 ## Adding a new evaluation case
 
