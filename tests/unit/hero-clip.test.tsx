@@ -4,6 +4,7 @@ import { render, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { HeroClip } from "@/components/hero/HeroClip";
+import { BANNER_SIZE, CLIP_PLACEMENT, CLIP_REGISTRATION, CLIP_SIZE, clipSlotStyle } from "@/components/hero/registration";
 
 /**
  * `HeroClip` state machine (TSK-37 · technical-plan.md S73.05; decision TP13; Design.md §5.3;
@@ -138,5 +139,35 @@ describe("HeroClip (TP13 · Design.md §5.3)", () => {
     expect(src).not.toMatch(/visibilitychange/);
     expect(src).not.toMatch(/addEventListener\(\s*["']change["']/);
     expect(src).not.toMatch(/onEnded/);
+  });
+});
+
+/**
+ * TKT-93 — the clip's registration on the banner (decision EXE-15; `components/hero/registration.ts`).
+ * The prototype measured the 1280×684 clip on the 3168×1344 outpaint at scale 1.912, x 362, y 6; the
+ * percentages `Hero` writes as `--clip-*` must be exactly those numbers (the e2e registration guard
+ * in eval-019.spec.ts measures the rendered boxes against the same module).
+ */
+describe("hero clip registration (TKT-93 · EXE-15)", () => {
+  it("is derived from the measured placement, not typed in", () => {
+    expect(BANNER_SIZE).toEqual({ width: 3168, height: 1344 });
+    expect(CLIP_SIZE).toEqual({ width: 1280, height: 684 });
+    expect(CLIP_PLACEMENT).toEqual({ scale: 1.912, x: 362, y: 6 });
+    expect(CLIP_REGISTRATION.left).toBeCloseTo(11.4268, 3);
+    expect(CLIP_REGISTRATION.top).toBeCloseTo(0.4464, 3);
+    expect(CLIP_REGISTRATION.width).toBeCloseTo(77.2525, 3);
+    expect(CLIP_REGISTRATION.height).toBeCloseTo(97.3071, 3);
+    // The scaled clip stays inside the banner.
+    expect(CLIP_REGISTRATION.left + CLIP_REGISTRATION.width).toBeLessThanOrEqual(100);
+    expect(CLIP_REGISTRATION.top + CLIP_REGISTRATION.height).toBeLessThanOrEqual(100);
+  });
+
+  it("clipSlotStyle() emits the four --clip-* variables at four decimals", () => {
+    expect(clipSlotStyle()).toEqual({
+      "--clip-left": "11.4268%",
+      "--clip-top": "0.4464%",
+      "--clip-width": "77.2525%",
+      "--clip-height": "97.3071%",
+    });
   });
 });

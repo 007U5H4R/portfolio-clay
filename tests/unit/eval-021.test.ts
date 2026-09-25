@@ -140,10 +140,11 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the nine §6.1 ids", () => {
+  it("every manifest id matches the ten ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
+        "hero-banner",
         "hero-clip",
         "hero-desk",
         "scene-about",
@@ -154,7 +155,21 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "scene-work",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(9);
+    expect(ILLUSTRATIONS.length).toBe(10);
+  });
+
+  it("hero-banner is the 3168×1344 outpaint with the Dev-23 alt, used on / (TKT-93)", () => {
+    const banner = ILLUSTRATIONS.find((e) => e.id === "hero-banner")!;
+    expect(banner.file).toBe("hero-banner.webp");
+    expect([banner.width, banner.height]).toEqual([3168, 1344]);
+    expect(banner.alt).toBe(
+      "Illustration of Tushar at a warm desk — laptop, notebook, books, plants, a lamp, a sleeping golden retriever, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
+    );
+    expect(banner.usedOn).toEqual(["/"]);
+    // The three polaroid scenes declare the home route too (they render there as decorative crops).
+    for (const id of ["scene-work", "scene-about", "scene-playground"]) {
+      expect(ILLUSTRATIONS.find((e) => e.id === id)!.usedOn, id).toContain("/");
+    }
   });
 
   it("publicSrc files exist under public/", () => {

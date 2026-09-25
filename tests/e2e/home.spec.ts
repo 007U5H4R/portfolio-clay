@@ -16,7 +16,8 @@ import { resumeAction, site } from "@/lib/site";
 // The manifest directly (not `lib/illustrations.ts`, whose static JPEG imports Playwright cannot load).
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
-const HERO_POSTER_ALT = ILLUSTRATIONS.find((e) => e.id === "hero-desk")!.alt;
+// TKT-93: the hero's SSR image is the full-bleed banner (`hero-banner`), above the copy at every width.
+const HERO_BANNER_ALT = ILLUSTRATIONS.find((e) => e.id === "hero-banner")!.alt;
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
@@ -61,20 +62,20 @@ test("home sections use the 72/96/128 vertical-rhythm ladder for the current vie
 });
 
 // ---------------------------------------------------------------------------
-// S14.02 — mobile reading order at 390: headline → CTAs → hero poster → projects → How-I-Think →
-// Ask → band headline (M-009 order, Design.md §7.1). Since TSK-37 the illustrated hero (Design.md §5.1) puts the copy first
-// and the scene second below 1024 so the copy is above the fold; the poster is the manifest
-// `hero-desk` illustration (its alt comes from the manifest, §6.1). boundingBox().y strictly
-// increasing.
+// S14.02 — mobile reading order at 390: hero banner → headline → CTAs → projects → How-I-Think →
+// Ask → band headline (M-009 order, Design.md §7.1). Since TKT-93 (Dev-21) the hero is a full-bleed
+// banner under the header with the copy block centred below it at every width; the banner is the
+// manifest `hero-banner` illustration (its alt comes from the manifest, §6.1). boundingBox().y
+// strictly increasing.
 // ---------------------------------------------------------------------------
 test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({ page }) => {
   test.skip(width(page) !== 390, "mobile reading order checked at w390");
   await page.goto("/", { waitUntil: "load" });
 
   const ordered = [
+    page.getByAltText(HERO_BANNER_ALT),
     page.locator("h1"),
     page.getByRole("link", { name: "View my work →" }),
-    page.getByAltText(HERO_POSTER_ALT),
     page.locator("#work-featured-heading"),
     page.locator("#how-i-think-heading"),
     page.locator("#ask-heading"),

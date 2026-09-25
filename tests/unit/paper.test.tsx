@@ -489,18 +489,26 @@ describe("S70.05 Sheet + fasteners", () => {
 });
 
 describe("S70.06 Illustration + lib/illustrations", () => {
-  /** Design.md §6.3 — the authoritative alt strings, parsed from the table (parenthetical notes dropped). */
+  /**
+   * Design.md — the authoritative alt strings: the nine §6.3 table rows (parenthetical notes dropped)
+   * plus the tenth fixed in §11 Dev-23 (`hero-banner`, TKT-93 — the banner is an outpaint of
+   * `hero-desk` whose alt names what the wider frame adds, e.g. the sleeping golden retriever).
+   */
   const designAlts = (): Map<string, string> => {
     const md = readFileSync(join(process.cwd(), "Design.md"), "utf8");
     const section = md.slice(md.indexOf("### 6.3"), md.indexOf("### 6.4"));
     const rows = [...section.matchAll(/^\| `([a-z0-9-]+)`[^|]*\| (.+) \|$/gm)];
-    return new Map(rows.map(([, id, cell]) => [id as string, (cell as string).replace(/ \([^)]*\)$/, "")]));
+    const alts = new Map(rows.map(([, id, cell]) => [id as string, (cell as string).replace(/ \([^)]*\)$/, "")]));
+    const dev23 = /\| Dev-23 \| New manifest entry `hero-banner`[^|]*?with alt "([^"]+)"/.exec(md);
+    if (!dev23) throw new Error("Design.md §11 Dev-23 must fix the `hero-banner` alt");
+    alts.set("hero-banner", dev23[1]!);
+    return alts;
   };
 
-  it("the stub manifest has the nine §6.1 ids with the exact §6.3 alt strings", () => {
+  it("the manifest has the ten design ids (§6.1 nine + Dev-23 `hero-banner`) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(9);
-    expect([...ILLUSTRATION_IDS]).toEqual([...alts.keys()]);
+    expect(alts.size).toBe(10);
+    expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));
   });
 

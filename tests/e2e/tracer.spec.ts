@@ -20,7 +20,9 @@ import { test, expect } from "./fixtures";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
-const HERO_DESK_ALT = ILLUSTRATIONS.find((entry) => entry.id === "hero-desk")!.alt;
+// TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`); `hero-desk` survives only as the
+// clip's `poster` attribute.
+const HERO_BANNER_ALT = ILLUSTRATIONS.find((entry) => entry.id === "hero-banner")!.alt;
 
 const ROUTES = [
   { path: "/", label: "home" },
@@ -61,25 +63,26 @@ for (const route of ROUTES) {
 }
 
 // ---------------------------------------------------------------------------
-// S14/D10 (TSK-37/TSK-38) — the paper hero's poster image is visible, alt-sourced from the
-// manifest, and responsive (positive width at every project width). Design-fidelity check (not an
-// EVAL-008 overflow/target criterion), so intentionally untagged. Replaces the old M-008
-// avatar-scene cap-ladder assertion (deleted with the hero motion system at TSK-38).
+// S14/D10 (TSK-37/TSK-38; banner since TKT-93) — the paper hero's banner image is visible,
+// alt-sourced from the manifest, and responsive (positive width at every project width).
+// Design-fidelity check (not an EVAL-008 overflow/target criterion), so intentionally untagged.
+// Replaces the old M-008 avatar-scene cap-ladder assertion (deleted with the hero motion system at
+// TSK-38).
 // ---------------------------------------------------------------------------
-test("hero poster illustration is visible, alt-sourced from the manifest, and responsive", async ({
+test("hero banner illustration is visible, alt-sourced from the manifest, and responsive", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "load" });
   const w = width(page);
-  const img = page.getByRole("img", { name: HERO_DESK_ALT });
+  const img = page.getByRole("img", { name: HERO_BANNER_ALT });
   await expect(img).toBeVisible();
   await page.waitForLoadState("load");
   await page.evaluate(() => document.fonts.ready);
   await img.scrollIntoViewIfNeeded();
   await expect(async () => {
     const box = await img.boundingBox();
-    expect(box, "hero poster must be laid out").toBeTruthy();
-    expect(box!.width, `hero poster width at ${w} must be positive`).toBeGreaterThan(0);
+    expect(box, "hero banner must be laid out").toBeTruthy();
+    expect(box!.width, `hero banner width at ${w} must be positive`).toBeGreaterThan(0);
   }).toPass({ timeout: 6000 });
 });
 

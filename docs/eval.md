@@ -153,7 +153,8 @@ machine of decision TP13) inside `components/hero/Hero.tsx` (Design.md §5.2 mar
 | touch / coarse pointer | the w390 project (`hasTouch: true`, `isMobile: true`) | 0 `<video>` |
 | Save-Data | the `saveData` fixture (`context.addInitScript` → `navigator.connection = { saveData: true }`), both widths | 0 `<video>` |
 | autoplay rejected | `addInitScript` overriding `HTMLMediaElement.prototype.play` to reject (`NotAllowedError`) | 0 `<video>` after 2 s — the video unmounts, the poster is the error state |
-| SSR | `request.get("/")`, no JavaScript | exactly one poster `<img>` with `fetchpriority="high"`, `loading="eager"`, `width="1280" height="684"`, the §5.2 `sizes`, alt byte-equal to `illustration("hero-desk").alt`; **0** `<video` in the HTML |
+| SSR | `request.get("/")`, no JavaScript | exactly one banner `<img>` (TKT-93 / Dev-21: the static-imported 3168×1344 `hero-banner` is the LCP image) with `fetchpriority="high"`, `loading="eager"`, `width="3168" height="1344"`, `sizes="100vw"`, alt byte-equal to `illustration("hero-banner").alt`; **0** poster `<img>` (the poster is only the clip's `poster` attribute); **0** `<video` in the HTML |
+| registration (TKT-93) | the w1440 project resizes to 1024 / 1440 / 1920 | the mounted `video[data-hero-clip]` bounding box equals `CLIP_REGISTRATION` (`components/hero/registration.ts`: left 11.4268 % · top 0.4464 % · width 77.2525 % · height 97.3071 % of `.scene-banner-canvas`) within **±2 px** per edge; the canvas covers the `.scene-banner` box (no gap); the slot keeps the clip's 1280/684 aspect |
 | caps | `fs.statSync` on `public/media/illustrations/` | webm ≤ 204 800 B · mp4 ≤ 358 400 B · poster ≤ 122 880 B |
 
 Every measured value (ended ms, the currentTime samples, the post-hold state, per-mode video counts,
@@ -166,7 +167,9 @@ comment (`.currentTime =`, `.load(`, `loop`, `visibilitychange`, `addEventListen
 `tests/unit/hero-clip.test.tsx` greps the source for the same list from outside the file, plus the
 jsdom state machine (TC-140 step 5, TC-141 step 5): reduced-motion/coarse/Save-Data → no `<video>`;
 default → the exact attribute set, `play()` called once, a re-render with flipped signals never
-remounts or replays; `play()` rejected or an `error` event → unmounted. The hero decoration count (3)
+remounts or replays; `play()` rejected or an `error` event → unmounted; and (TKT-93) the registration
+percentages are derived from the measured placement (scale 1.912, x 362, y 6), never typed in. The hero
+decoration count (4 since TKT-93: torn edge, underline sketch, hand-sub annotation, postmark sketch)
 is EVAL-018's job (`/` hero unit).
 
 ```bash

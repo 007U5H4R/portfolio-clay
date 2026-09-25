@@ -12,8 +12,13 @@
  *   touch / coarse   — the w390 project (`hasTouch`, `isMobile`) → 0 `<video>`.
  *   Save-Data        — the `saveData` fixture (navigator.connection.saveData = true) → 0 `<video>`.
  *   play() rejected  — `HTMLMediaElement.prototype.play` overridden to reject → 0 `<video>` (poster).
- *   SSR              — `request.get("/")`: the poster `<img>` is in the static HTML with
- *                      fetchpriority="high", loading="eager", 1280×684 and the manifest alt; no `<video`.
+ *   SSR              — `request.get("/")`: the banner `<img>` (TKT-93 — the 3168×1344 outpaint is the LCP
+ *                      image; the poster survives only as the clip's `poster` attribute) is in the static
+ *                      HTML with fetchpriority="high", loading="eager", 3168×1344, `sizes="100vw"` and the
+ *                      manifest alt; no poster `<img>`; no `<video`.
+ *   registration     — TKT-93 guard: at 1024 / 1440 / 1920 the mounted video's bounding box equals the
+ *                      `CLIP_REGISTRATION` percentages of the banner canvas (±2 px) and the canvas covers
+ *                      the banner box.
  *   caps             — `fs.statSync` on the three shipped renditions.
  *
  * "After hydration" for the poster-only modes = the load event + a 2 s settle (TC-140 steps 2–4);
@@ -28,15 +33,20 @@ import { test, expect } from "./fixtures";
 // The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene JPEGs
 // for `next/image`, which Playwright's TypeScript transform cannot load (only the built app can).
 import { ILLUSTRATIONS, type Illustration } from "@/content/media/illustrations/manifest";
+// Pure numbers (no JSX / image imports) — the same module `Hero` renders its `--clip-*` vars from.
+import { CLIP_REGISTRATION } from "@/components/hero/registration";
 
 const MEASURED_WIDTHS = [390, 1440];
 const VIDEO = "video[data-hero-clip]";
+const BANNER_CANVAS = ".hero-banner .scene-banner-canvas";
+const BANNER_BOX = ".hero-banner .scene-banner";
 const entry = (id: Illustration["id"]): Illustration => {
   const found = ILLUSTRATIONS.find((e) => e.id === id);
   if (!found) throw new Error(`manifest has no "${id}"`);
   return found;
 };
 const POSTER = entry("hero-desk");
+const BANNER = entry("hero-banner");
 const CLIP = entry("hero-clip");
 const PUBLIC_DIR = resolve(process.cwd(), "public");
 const HELD_FRAME_SHOT = resolve(process.cwd(), "docs/screenshots/m-009/tracer/hero-end-1440.png");
@@ -45,6 +55,9 @@ const HELD_FRAME_SHOT = resolve(process.cwd(), "docs/screenshots/m-009/tracer/he
 const ENDED_WITHIN_MS = 4000;
 const CAPS_BYTES = { webm: 200 * 1024, mp4: 350 * 1024, poster: 120 * 1024 };
 const SETTLE_MS = 2000;
+/** TKT-93 registration guard: widths measured (in the w1440 project) and the tolerance per edge. */
+const REGISTRATION_WIDTHS = [1024, 1440, 1920];
+const REGISTRATION_TOLERANCE_PX = 2;
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
@@ -135,10 +148,70 @@ test("@EVAL-019 default mode mounts the once-and-hold clip: exact attributes, en
 
   // The held frame — compared visually with Portfolio-illustration/animation/export/hero-end.webp.
   // Instant scroll to the top (a wheel scroll is smooth and could still be mid-flight, letting the
-  // sticky header overlap the frame in the capture), then the frame element alone.
+  // sticky header overlap the frame in the capture), then the banner box alone (TKT-93: the clip is
+  // registered inside the banner, so the box is the frame).
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.waitForTimeout(300);
-  await page.locator(".hero-scene .frame").screenshot({ path: HELD_FRAME_SHOT });
+  await page.locator(BANNER_BOX).screenshot({ path: HELD_FRAME_SHOT });
+});
+
+// ---------------------------------------------------------------------------
+// TKT-93 registration guard — the video's box equals CLIP_REGISTRATION % of the banner canvas at
+// 1024 / 1440 / 1920 (±2 px), and the canvas covers the banner box. Runs once in the w1440 project
+// (fine pointer → default mode) by resizing the viewport; a drift in the CSS, the registration
+// constants or the cover math fails here before anyone eyeballs a seam.
+// ---------------------------------------------------------------------------
+test("@EVAL-019 the masked clip stays registered on the banner canvas at 1024, 1440 and 1920", async ({ page }) => {
+  skipUnmeasured(page);
+  test.skip(width(page) !== 1440, "registration is measured once, in the fine-pointer project, across three widths");
+
+  for (const w of REGISTRATION_WIDTHS) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.goto("/", { waitUntil: "load" });
+    const video = page.locator(VIDEO);
+    await video.waitFor({ state: "attached", timeout: ENDED_WITHIN_MS });
+    await page.evaluate(() => document.fonts.ready);
+
+    const boxes = await page.evaluate(
+      ({ canvasSel, boxSel, videoSel }) => {
+        const rect = (sel: string) => {
+          const el = document.querySelector(sel);
+          if (!el) throw new Error(`missing ${sel}`);
+          const r = el.getBoundingClientRect();
+          return { x: r.x, y: r.y, width: r.width, height: r.height };
+        };
+        return { canvas: rect(canvasSel), box: rect(boxSel), video: rect(videoSel) };
+      },
+      { canvasSel: BANNER_CANVAS, boxSel: BANNER_BOX, videoSel: VIDEO },
+    );
+    const expected = {
+      x: boxes.canvas.x + (boxes.canvas.width * CLIP_REGISTRATION.left) / 100,
+      y: boxes.canvas.y + (boxes.canvas.height * CLIP_REGISTRATION.top) / 100,
+      width: (boxes.canvas.width * CLIP_REGISTRATION.width) / 100,
+      height: (boxes.canvas.height * CLIP_REGISTRATION.height) / 100,
+    };
+    const delta = {
+      x: Math.abs(boxes.video.x - expected.x),
+      y: Math.abs(boxes.video.y - expected.y),
+      width: Math.abs(boxes.video.width - expected.width),
+      height: Math.abs(boxes.video.height - expected.height),
+    };
+    note(
+      "eval-019",
+      `registration @${w}: canvas ${boxes.canvas.width.toFixed(1)}×${boxes.canvas.height.toFixed(1)} at (${boxes.canvas.x.toFixed(1)}, ${boxes.canvas.y.toFixed(1)}); video ${boxes.video.width.toFixed(1)}×${boxes.video.height.toFixed(1)} at (${boxes.video.x.toFixed(1)}, ${boxes.video.y.toFixed(1)}); Δ x ${delta.x.toFixed(2)} y ${delta.y.toFixed(2)} w ${delta.width.toFixed(2)} h ${delta.height.toFixed(2)}`,
+    );
+    for (const [edge, d] of Object.entries(delta)) {
+      expect(d, `@${w} video ${edge} off registration by ${d.toFixed(2)} px (tolerance ${REGISTRATION_TOLERANCE_PX})`).toBeLessThanOrEqual(REGISTRATION_TOLERANCE_PX);
+    }
+    // The cover crop: the canvas never leaves a gap inside the banner box (Design brief — crop the canvas, not the img).
+    expect(boxes.canvas.x, `@${w} canvas left edge inside the box`).toBeLessThanOrEqual(boxes.box.x + 0.5);
+    expect(boxes.canvas.x + boxes.canvas.width, `@${w} canvas right edge covers the box`).toBeGreaterThanOrEqual(boxes.box.x + boxes.box.width - 0.5);
+    expect(boxes.canvas.y, `@${w} canvas top edge inside the box`).toBeLessThanOrEqual(boxes.box.y + 0.5);
+    expect(boxes.canvas.y + boxes.canvas.height, `@${w} canvas bottom edge covers the box`).toBeGreaterThanOrEqual(boxes.box.y + boxes.box.height - 0.5);
+    // The video's intrinsic aspect matches its slot (1280/684 = 2447.36/1307.8), so nothing is letterboxed inside it.
+    const slotRatio = boxes.video.width / boxes.video.height;
+    expect(Math.abs(slotRatio - 1280 / 684), `@${w} slot aspect ${slotRatio.toFixed(4)} vs clip 1280/684`).toBeLessThan(0.005);
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -152,7 +225,7 @@ test.describe("reduced motion", () => {
     const count = await videoCountAfterSettle(page);
     note("eval-019", `reduced motion @${width(page)}: ${count} <video>`);
     expect(count).toBe(0);
-    await expect(page.getByAltText(POSTER.alt)).toBeVisible();
+    await expect(page.getByAltText(BANNER.alt)).toBeVisible();
   });
 });
 
@@ -165,7 +238,7 @@ test("@EVAL-019 touch / coarse pointer (w390 project) never mounts a <video>", a
   const count = await videoCountAfterSettle(page);
   note("eval-019", `touch @${width(page)}: ${count} <video>`);
   expect(count).toBe(0);
-  await expect(page.getByAltText(POSTER.alt)).toBeVisible();
+  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -179,7 +252,7 @@ test("@EVAL-019 Save-Data never mounts a <video>", async ({ page, saveData }) =>
   expect(await page.evaluate(() => (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData)).toBe(true);
   note("eval-019", `saveData @${width(page)}: ${count} <video>`);
   expect(count).toBe(0);
-  await expect(page.getByAltText(POSTER.alt)).toBeVisible();
+  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -194,13 +267,13 @@ test("@EVAL-019 a rejected play() unmounts the clip — the poster is the error 
   const count = await videoCountAfterSettle(page);
   note("eval-019", `play() rejected @${width(page)}: ${count} <video>`);
   expect(count).toBe(0);
-  await expect(page.getByAltText(POSTER.alt)).toBeVisible();
+  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
 // SSR (TC-139 step 1, TC-140/EVAL-019 "every mode") — the static HTML, no JavaScript.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 static HTML carries the poster <img fetchpriority=high> and no <video>", async ({ page, request }) => {
+test("@EVAL-019 static HTML carries the banner <img fetchpriority=high> and no <video>", async ({ page, request }) => {
   skipUnmeasured(page);
   test.skip(width(page) !== 1440, "the served HTML is viewport-independent; checked once");
   const html = await (await request.get("/")).text();
@@ -208,29 +281,32 @@ test("@EVAL-019 static HTML carries the poster <img fetchpriority=high> and no <
   expect((html.match(/<video/g) ?? []).length, "no <video> in the SSR HTML").toBe(0);
 
   const imgTags = html.match(/<img\b[^>]*>/g) ?? [];
-  const posters = imgTags.filter((tag) => tag.includes("hero-poster"));
-  expect(posters, "exactly one poster <img>").toHaveLength(1);
-  const poster = posters[0]!;
+  // TKT-93: the LCP image is the static-imported banner (`/_next/static/media/hero-banner.<hash>.webp`
+  // + the optimizer srcset); the poster is no longer an <img> anywhere in the page.
+  const banners = imgTags.filter((tag) => tag.includes("hero-banner"));
+  expect(banners, "exactly one banner <img>").toHaveLength(1);
+  expect(imgTags.filter((tag) => tag.includes("hero-poster")), "the poster is not rendered as an <img> (it is the clip's poster attribute)").toHaveLength(0);
+  const banner = banners[0]!;
   // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML
   // attribute names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM
   // check below confirms `img.fetchPriority === "high"` where it matters.
-  expect(poster).toMatch(/\bfetchpriority="high"/i);
-  expect(poster).toMatch(/\bloading="eager"/);
-  expect(poster).toMatch(/\bwidth="1280"/);
-  expect(poster).toMatch(/\bheight="684"/);
-  expect(poster).toMatch(/\bsizes="\(min-width: 1024px\) 58vw, 100vw"/);
+  expect(banner).toMatch(/\bfetchpriority="high"/i);
+  expect(banner).toMatch(/\bloading="eager"/);
+  expect(banner).toMatch(/\bwidth="3168"/);
+  expect(banner).toMatch(/\bheight="1344"/);
+  expect(banner).toMatch(/\bsizes="100vw"/);
   // The alt byte-equal to the manifest (HTML-escaped by React — decode the few entities it emits).
-  const alt = /\balt="([^"]*)"/.exec(poster)?.[1] ?? "";
+  const alt = /\balt="([^"]*)"/.exec(banner)?.[1] ?? "";
   const decoded = alt.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&");
-  expect(decoded).toBe(POSTER.alt);
+  expect(decoded).toBe(BANNER.alt);
   // Rendered once in the markup. (The inline RSC flight payload in <script> repeats every prop
   // string, so scripts are stripped before counting — that copy is data, not a second <img>.)
   const markupOnly = html.replace(/<script\b[\s\S]*?<\/script>/g, "");
-  expect(markupOnly.split(POSTER.alt).length - 1, "alt string once in the rendered markup").toBe(1);
+  expect(markupOnly.split(BANNER.alt).length - 1, "alt string once in the rendered markup").toBe(1);
 
   // Live DOM at w1440: the parsed attribute + the LCP-relevant IDL property.
   await page.goto("/", { waitUntil: "load" });
-  const img = page.getByAltText(POSTER.alt);
+  const img = page.getByAltText(BANNER.alt);
   await expect(img).toHaveAttribute("fetchpriority", "high");
   expect(await img.evaluate((el: HTMLImageElement) => el.fetchPriority)).toBe("high");
   await expect(img).toHaveAttribute("loading", "eager");
