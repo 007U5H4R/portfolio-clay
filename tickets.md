@@ -1440,3 +1440,5 @@ Phase D   {78, 87, 88} → 89 → 90 → 91
 | TKT-94 | `TASK-89` | Feature · P2 · 2 | — | Lenis smooth scroll site-wide, guarded (Dev-22) |
 | TKT-92 | `TASK-88` | Bug · P0 · 3 | TKT-93, TKT-94 | Perf — preview mobile LCP ≤ 2.5 s, perf ≥ 90 on `/` and `/work/teachspark`; thresholds unchanged (EXE-17) |
 TKT-74 (`TASK-69`) now also depends on TKT-93 and TKT-92; the hero gate is re-presented after them. Related TC: TC-139…142 (hero, updated for the banner), TC-145 (perf); Lenis → TC-130/133 regression + EVAL-007/010/015.
+| TKT-95 | `TASK-90` | Feature · P1 · 3 | TKT-93 | Page scene openers pulled forward — six scenes as full-bleed banners + torn edge on /work, /work/[slug], /thinking(+essays), /about, /playground, /contact (EXE-18, Dev-24); TKT-92 now also depends on it |
+

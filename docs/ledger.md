@@ -329,3 +329,5 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 | TKT-93 hero banner | TASK-87 | fable | docs/briefs/TKT-93.md | docs/reports/TKT-93.md | pending | — |
 | TKT-94 Lenis | TASK-89 | opus | docs/briefs/TKT-94.md | docs/reports/TKT-94.md | pending | — |
 | TKT-92 perf | TASK-88 | opus | docs/briefs/TKT-92.md | docs/reports/TKT-92.md | pending | — |
+| TKT-95 page scene openers | TASK-90 | opus | docs/briefs/TKT-95.md | docs/reports/TKT-95.md | pending | — |
+- 2026-09-25 · Tushar: page illustrations missing on the preview → EXE-18 / Dev-24 / TKT-95 (TASK-90). Order: TKT-93 → TKT-95 → TKT-94 → TKT-92 → re-preview → hero gate.
