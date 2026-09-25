@@ -1,8 +1,8 @@
 /**
  * layout.spec.ts (technical-plan.md §B S05.05; TKT-71 S71.02/S71.04 header + reading-progress
  * gates) — the paper header contract (TC-130, TC-131, TC-133) at all 4 widths, then the S05.01/S05.02
- * assertions for `Container` / `Section` / `SectionHeading` / `Reveal`, plus the S05.04 `Footer`
- * content gate.
+ * assertions for `Container` / `Section` / `SectionHeading` / `Reveal`, plus the TKT-72 band footer
+ * (TC-134, TC-135, TC-136) that replaced the S05.04 two-tier footer.
  *
  * Deliberately tagged `@primitives`, NOT `@EVAL-*` — same reasoning as `primitives.spec.ts`
  * (TKT-04): the `/dev/primitives` board it targets is a QA-only route that only renders on an
@@ -10,10 +10,14 @@
  * Run with: `ALLOW_DEV_ROUTES=1 pnpm build && ALLOW_DEV_ROUTES=1 pnpm test:e2e --grep primitives`
  * (folded into EVAL-008/EVAL-010 formally at TKT-07, per docs/reports/TKT-04.md).
  *
- * The Footer tests below target `/` directly (Footer is mounted globally in app/layout.tsx) and
- * need no dev-route flag — they run under the plain `pnpm test:e2e` default too.
+ * The band tests below hit real routes (the band is mounted globally in app/layout.tsx) and need no
+ * dev-route flag — they run under the plain `pnpm test:e2e` default too.
  */
 import { test, expect } from "./fixtures";
+import { STATIC_ROUTES as SITEMAP_STATIC_ROUTES } from "@/app/sitemap";
+import { hero } from "@/data/hero";
+import { projects } from "@/data/projects";
+import { writing } from "@/data/writing";
 
 const PRIMITIVES_PATH = "/dev/primitives";
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
@@ -312,73 +316,81 @@ test("Reveal is opacity-only under reduced motion (transform never animates)", {
 });
 
 // ---------------------------------------------------------------------------
-// S05.04 — Footer: tier 1 actions, tier 2 site map + credit, safe-area padding
+// TKT-72 — the terracotta band footer (S16) replaces the S05.04 two-tier Footer on every route.
+// TC-134 (AC 1, AC 4): exactly one <footer> per route (static + every slug + 404), landmark resolves
+// to h2#band-h ("Let's …"), band unit count 1 (`torn`). TC-135 (AC 5, S18): `hero.tagline` renders
+// exactly once per route, as a `data-hand="quote"` with an sr-only "Source:" sibling.
 // ---------------------------------------------------------------------------
-test("Footer tier 1 actions resolve to the expected hrefs", async ({ page }) => {
-  test.skip(width(page) !== 1440, "footer content checked once at w1440");
-  await page.goto("/", { waitUntil: "load" });
-  const footer = page.locator("footer");
+const BAND_ROUTES = [
+  ...SITEMAP_STATIC_ROUTES,
+  ...projects.filter((p) => p.category === "personal").map((p) => `/work/${p.slug}`),
+  ...writing.map((e) => `/thinking/${e.slug}`),
+  "/definitely-missing",
+];
 
-  await expect(
-    footer.getByRole("heading", { name: "Still curious? Let's build what's next." }),
-  ).toBeVisible();
-  await expect(footer.getByRole("link", { name: "Resume — updating" })).toHaveAttribute(
-    "href",
-    "/contact#resume",
-  );
-  await expect(footer.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
-    "href",
-    "https://www.linkedin.com/in/pathaktushar",
-  );
-  await expect(footer.getByRole("link", { name: "Let's Talk" })).toHaveAttribute("href", "/contact");
+test("band footer: one <footer> per route, landmark → h2#band-h, torn unit 1, tagline once", async ({ page }) => {
+  test.skip(width(page) !== 1440, "route sweep is viewport-independent; runs once at w1440 (geometry below)");
+  test.setTimeout(BAND_ROUTES.length * 5_000 + 30_000);
+  for (const route of BAND_ROUTES) {
+    await page.goto(route, { waitUntil: "domcontentloaded" });
+    const footer = page.locator("footer");
+    await expect(footer, `${route}: exactly one <footer>`).toHaveCount(1);
+    await expect(footer).toHaveAttribute("aria-labelledby", "band-h");
+    await expect(footer.locator("h2#band-h"), `${route}: band heading`).toHaveText(/^Let.s /);
+    await expect(footer.locator("[data-decor]"), `${route}: band unit count`).toHaveCount(1);
+    await expect(footer.locator('[data-decor="torn"]')).toHaveCount(1);
+
+    const quote = page.getByText(hero.tagline.text, { exact: true });
+    await expect(quote, `${route}: tagline exactly once`).toHaveCount(1);
+    await expect(quote).toHaveAttribute("data-hand", "quote");
+    const source = footer.locator(".band-tagline .sr-only");
+    await expect(source).toHaveText(/^Source: /);
+    await expect(footer.getByText("Bengaluru, India"), `${route}: location hidden (showLocation=false)`).toHaveCount(0);
+  }
 });
 
-test("Footer tier 2 site map, GitHub/prior-site links and safe-area padding", async ({ page }) => {
-  test.skip(width(page) !== 1440, "footer content checked once at w1440");
+test("band footer geometry: social circles 56 px with names, no overflow, safe-area padding declared", async ({
+  page,
+  noOverflow,
+}) => {
+  test.skip(width(page) !== 1440 && width(page) !== 390, "band geometry checked at 390 and 1440");
   await page.goto("/", { waitUntil: "load" });
-  const footer = page.locator("footer");
+  const band = page.locator("footer.band");
+  await band.scrollIntoViewIfNeeded();
+  await noOverflow(page);
 
-  // Internal routes that already exist in this build resolve for real; /about and /thinking are
-  // later-ticket pages (M-003+) so only their href is asserted here — exhaustive site-wide link
-  // resolution is TC-037's crawler (TKT-07, EVAL-011), per test-cases.md TC-029 note 5.
-  await expect(footer.getByRole("link", { name: "Work", exact: true })).toHaveAttribute("href", "/work");
-  await expect(footer.getByRole("link", { name: "Contact", exact: true })).toHaveAttribute(
-    "href",
-    "/contact",
-  );
-  await expect(footer.getByRole("link", { name: "About", exact: true })).toHaveAttribute("href", "/about");
-  await expect(footer.getByRole("link", { name: "Thinking", exact: true })).toHaveAttribute(
-    "href",
-    "/thinking",
-  );
-  for (const path of ["/work", "/contact"]) {
-    const res = await page.request.get(path);
-    expect(res.status(), `${path} must resolve 200`).toBe(200);
+  const circles = band.locator(".band-social a");
+  const n = await circles.count();
+  expect(n, "LinkedIn + GitHub (S5: public repo exists) + résumé").toBe(3);
+  for (let i = 0; i < n; i++) {
+    const circle = circles.nth(i);
+    await expect(circle).toHaveAttribute("aria-label", /.+/);
+    const box = await circle.boundingBox();
+    expect(box!.width).toBeGreaterThanOrEqual(56);
+    expect(box!.height).toBeGreaterThanOrEqual(56);
   }
+  const email = await band.locator(".band-email").boundingBox();
+  expect(email!.height, "email link is a ≥ 44 px target").toBeGreaterThanOrEqual(44);
 
-  await expect(footer.getByRole("link", { name: "GitHub" })).toHaveAttribute(
-    "href",
-    "https://github.com/007U5H4R",
-  );
-  await expect(footer.getByRole("link", { name: "Previous portfolio" })).toHaveAttribute(
-    "href",
-    "https://tushar-pathak.vercel.app/",
-  );
-
-  // External links carry the new-tab safety attributes (TC-029 step 4).
-  for (const name of ["LinkedIn", "GitHub", "Previous portfolio"]) {
-    const link = footer.getByRole("link", { name }).first();
-    await expect(link).toHaveAttribute("target", "_blank");
-    await expect(link).toHaveAttribute("rel", /noopener/);
-  }
-
-  // CRITICAL correction (decision TP10/E-1): the credit line is exactly "Built with curiosity." —
-  // never "Built with Claude Code" (that authorship line lives on the /about colophon, M-006).
-  await expect(footer.getByText("Built with curiosity.", { exact: true })).toBeVisible();
-  await expect(footer.getByText("Built with Claude Code")).toHaveCount(0);
-
-  const paddingBottom = await footer.evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
-  expect(paddingBottom, "footer bottom padding must be >= the 40px floor + safe-area inset").toBeGreaterThanOrEqual(
-    40,
-  );
+  // TC-134 step 4: the © bar's declared padding-bottom carries the home-indicator inset.
+  const declared = await page.evaluate(() => {
+    const out: string[] = [];
+    const walk = (rules: CSSRuleList) => {
+      for (const rule of Array.from(rules)) {
+        if (rule instanceof CSSStyleRule && rule.selectorText === ".band-bar") {
+          out.push(rule.style.getPropertyValue("padding-bottom"));
+        }
+        if ("cssRules" in rule && (rule as CSSGroupingRule).cssRules) walk((rule as CSSGroupingRule).cssRules);
+      }
+    };
+    for (const sheet of Array.from(document.styleSheets)) {
+      try {
+        walk(sheet.cssRules);
+      } catch {
+        /* cross-origin sheet — not ours */
+      }
+    }
+    return out;
+  });
+  expect(declared.some((v) => v.includes("env(safe-area-inset-bottom")), `declared: ${declared.join(" | ")}`).toBe(true);
 });

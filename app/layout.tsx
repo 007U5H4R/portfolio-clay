@@ -8,7 +8,7 @@ import { siteUrl } from "@/lib/seo";
 import { knowledge } from "@/data/knowledge";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
-import { Footer } from "@/components/layout/Footer";
+import { BandFooter } from "@/components/layout/BandFooter";
 import { AskProvider } from "@/components/ai/AskProvider";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
@@ -69,7 +69,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SkipLink />
           <Header />
           <main id="main">{children}</main>
-          <Footer />
+          <BandFooter />
         </AskProvider>
         {/*
           Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less. QA-005 fix — these

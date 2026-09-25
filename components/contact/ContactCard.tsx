@@ -26,7 +26,7 @@ import { resumeAction, site } from "@/lib/site";
  *      flips the flag. Never hard-codes a resume href.
  *
  * `id="resume"` sits on the resume action itself (not the whole card) — it is the exact anchor
- * every placeholder resume link across the site (`Hero`, `Footer`, `FinalCTA`, `MobileMenu`)
+ * every placeholder resume link across the site (`Hero`, `BandFooter`, `MobileMenu`)
  * points at via `resumeAction()`'s placeholder `href` of `/contact#resume`; `scroll-mt-32` keeps it
  * clear of the sticky header on a deep link.
  *

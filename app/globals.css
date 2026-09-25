@@ -1324,3 +1324,159 @@ body::before {
     }
   }
 }
+
+/* TKT-72 · band — the terracotta band footer on every route (Design.md §4.2, §2.1 contrast; decisions
+   S16 / S18 / Dev-13; values from docs/redesign-mockups/m-009/home.html `.band*`). Tokens / derived
+   values only (EVAL-020): the mockup's rgba() ivory alphas become `--on-band` / `--on-band-muted`
+   (ivory 80 % — 5.1:1 on terracotta; the mockup's 65–70 % would drop below 4.5:1) and the h2's
+   second line is kraft, not navy 78 % (Dev-13). Every pair is asserted in
+   tests/unit/contrast-pairs.test.ts. The eyebrow, labels and © bar sit at `--text-caption` (14 px)
+   rather than the mockup's 12–13 px so the EVAL-008 14 px content floor holds without a
+   `data-micro-label` exemption (EXE-7 reserves that for brand micro-labels). */
+@layer components {
+  .band {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(48px, 6vw, 88px);
+    color: var(--on-band);
+  }
+  .band-body {
+    background-color: var(--color-terracotta);
+    background-image: var(--band-hatch);
+  }
+  .band-wrap {
+    padding-top: clamp(36px, 5vw, 64px);
+  }
+  .band-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--on-band-muted);
+  }
+  .band-h {
+    margin-top: 12px;
+    max-width: 28ch;
+    font-size: clamp(40px, 5vw, 72px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    color: var(--on-band);
+  }
+  .band-h em {
+    font-style: italic;
+    color: var(--color-note);
+    font-variation-settings: "opsz" 144, "SOFT" 60;
+  }
+  .band-h .dim {
+    color: var(--color-kraft);
+  }
+  .band-hire {
+    margin-top: 18px;
+    max-width: 46ch;
+    font-size: 18px;
+    color: var(--on-band-muted);
+  }
+  .band-hire .draft-tag {
+    margin-left: 4px;
+  }
+  .draft-tag-on-band {
+    border-color: color-mix(in oklab, var(--on-band) 55%, transparent);
+  }
+  .band-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 28px 40px;
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+  .band-row > div {
+    min-width: 0;
+  }
+  .band-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: var(--text-caption);
+    color: var(--on-band-muted);
+  }
+  .band-email {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    max-width: 100%;
+    font-size: clamp(18px, 2vw, 22px);
+    color: var(--on-band);
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 6px;
+    text-decoration-color: color-mix(in oklab, var(--on-band) 35%, transparent);
+    overflow-wrap: anywhere;
+  }
+  .band-email:hover {
+    text-decoration-color: var(--color-note);
+  }
+  .band-social {
+    display: flex;
+    gap: 14px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .band-social a {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-ivory);
+    color: var(--color-terracotta);
+    transition: transform 0.18s ease;
+  }
+  .band-social a:hover {
+    transform: translateY(-2px);
+  }
+  .band-social svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+  }
+  .band-in {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: -0.03em;
+  }
+  /* Kraft focus ring on the band (AC 3): rust on terracotta would be invisible. */
+  .band .focus-ring:focus-visible {
+    outline-color: var(--color-kraft);
+  }
+  .band-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px 24px;
+    margin-top: clamp(32px, 4vw, 48px);
+    /* 30 px plus the home-indicator inset (Design.md §4.2; TC-134 step 4). */
+    padding-top: 18px;
+    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid color-mix(in oklab, var(--on-band) 28%, transparent);
+    font-size: var(--text-caption);
+    letter-spacing: 0.08em;
+    color: var(--on-band-muted);
+  }
+  .band-tagline [data-hand="quote"] {
+    font-size: 17px;
+    letter-spacing: 0;
+    font-weight: 400;
+    color: var(--color-note);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .band-social a {
+      transition: none;
+    }
+    .band-social a:hover {
+      transform: none;
+    }
+  }
+}

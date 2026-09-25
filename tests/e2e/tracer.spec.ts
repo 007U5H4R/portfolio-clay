@@ -327,11 +327,10 @@ test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page 
 test("resume placeholder points at /contact#resume and /resume.pdf is 404", async ({ page }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
-  // Hero resume CTA is the first /contact#resume link in <main> (the FinalCTA carries a second one
-  // since TKT-14, and the MobileMenu's closed <dialog> holds a hidden duplicate) — scope to the hero.
-  const resume = page
-    .locator('main a[href="/contact#resume"]', { hasText: "Resume — updating" })
-    .first();
+  // Since TKT-72 the home page's in-page résumé control is the band footer's résumé circle (the
+  // TKT-73 hero carries no résumé CTA and the old closing-CTA section is gone; the MobileMenu's closed
+  // <dialog> holds a hidden duplicate) — scope to the band. Its name comes from resumeAction().
+  const resume = page.locator('footer.band a[href="/contact#resume"][aria-label="Resume — updating"]');
   await expect(resume).toBeVisible();
   const res = await page.request.get("/resume.pdf");
   expect(res.status(), "/resume.pdf must 404 while resumeAvailable=false").toBe(404);

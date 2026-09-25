@@ -15,6 +15,11 @@ export const site = {
   github: "https://github.com/007U5H4R",
   priorSite: "https://tushar-pathak.vercel.app/",
   resumeAvailable: false as boolean,
+  /**
+   * Whether the band footer's © bar shows "Bengaluru, India" (Design.md §4.2, TKT-72). Default
+   * `false`: flip to true once Tushar confirms — HANDOFF §6. One edit; `BandFooter` reads it.
+   */
+  showLocation: false as boolean,
 };
 
 export interface ResumeAction {
