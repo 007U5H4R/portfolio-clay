@@ -88,17 +88,19 @@ export function AskDevBoard() {
         ? OFF_TOPIC_QUERY
         : undefined;
 
+  // M-009 (TKT-77): the board sits on the same paper-2 ground as the home `section#ask`, so every
+  // state is captured on the notebook exactly as it renders on `/`.
   return (
-    <main className="min-h-screen bg-paper px-[var(--gutter-mobile)] py-[var(--space-9)] text-navy md:px-[var(--gutter-tablet)]">
-      <header className="mb-[var(--space-8)]">
-        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
-          Dev board · QA only
-        </p>
-        <h1 className="text-h2">Ask states · mode={mode}</h1>
+    <main className="min-h-screen bg-paper-2 px-[var(--gutter-mobile)] py-[var(--space-9)] text-navy md:px-[var(--gutter-tablet)]">
+      <header className="mx-auto mb-[var(--space-8)] max-w-[720px]">
+        <p className="ask-eyebrow">Dev board · QA only</p>
+        <h1 className="ask-h2">Ask states · mode={mode}</h1>
       </header>
-      <AskProvider provider={provider}>
-        <AskPortfolio prompts={HOME_PROMPTS} autoSubmit={autoSubmit} />
-      </AskProvider>
+      <div className="mx-auto max-w-[720px]">
+        <AskProvider provider={provider}>
+          <AskPortfolio prompts={HOME_PROMPTS} autoSubmit={autoSubmit} />
+        </AskProvider>
+      </div>
     </main>
   );
 }

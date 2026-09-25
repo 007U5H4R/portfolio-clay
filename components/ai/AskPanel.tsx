@@ -16,17 +16,24 @@
  * transition runs from the shown, not `display:none`, state); reduced motion collapses both to
  * ~instant via the global rule in globals.css.
  *
+ * M-009 (TKT-77 S77.02, Design.md §7.1 Ask, decision S21 keep): the drawer / sheet body is a ruled
+ * notebook page (`Sheet variant="notebook"`, unrotated — it is a fixed drawer, not a pinned sheet)
+ * with the same paper controls as the inline notebook (underline Inter input, navy "Ask →" pill,
+ * ivory chips / evidence pills). Geometry, the lazy chunk, focus trap, Lenis pause (via
+ * `lockBackground`, TKT-94) and the `data-lenis-prevent` scroll region are unchanged.
+ *
  * Body reuses the shared `useAsk('panel')` state machine + `AnswerView` (idle → loading → answer →
  * empty → error) with the 6 `surface:'panel'` prompts (PB3, passed in as `panelPrompts`). The input
  * is pinned to the panel bottom. The user's query is never rendered as HTML — answers come from the
  * deterministic local provider only (S7).
  */
-import { ArrowUp, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { durations, useReducedMotionSafe } from "@/lib/motion";
 import { lockBackground } from "@/lib/focus";
-import { ClayButton } from "@/components/clay/ClayButton";
 import { Icon } from "@/components/common/Icon";
+import { Hand } from "@/components/paper/Hand";
+import { Sheet } from "@/components/paper/Sheet";
 import { AnswerView } from "./AnswerView";
 import { useAsk, useAskContext } from "./AskProvider";
 
@@ -120,7 +127,7 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
       // No `display` utility on the <dialog> itself: the UA `dialog:not([open])` rule must keep it
       // hidden when closed (an author `display` here would win over the UA origin and leave the closed
       // dialog visible). The flex column lives on the inner wrapper below (the MobileMenu pattern).
-      className="ask-panel m-0 max-h-none bg-paper p-0 text-navy shadow-[var(--shadow-clay-rest)] fixed left-auto right-4 inset-y-4 h-auto w-[400px] rounded-[var(--radius-clay)] 2xl:w-[480px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:h-[90vh] max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-[var(--radius-clay)]"
+      className="ask-panel m-0 max-h-none bg-transparent p-0 text-navy fixed left-auto right-4 inset-y-4 h-auto w-[400px] 2xl:w-[480px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:h-[90vh] max-md:w-auto max-md:max-w-none"
       // Esc → native `cancel`: route it through closePanel() so it takes the same animated close
       // path as the close button / scrim (preventDefault keeps the dialog open until the slide-out).
       onCancel={(event) => {
@@ -138,58 +145,53 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
         if (trigger?.isConnected) trigger.focus();
       }}
     >
-      <div
-        className="flex h-full flex-col"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-      >
-        <div className="flex items-center justify-between gap-[var(--space-3)] border-b border-navy/10 px-[var(--space-5)] py-[var(--space-4)]">
-          <h2 id="ask-panel-title" className="text-h3 text-navy">
-            Ask AI
-          </h2>
-          <ClayButton variant="ghost" iconOnly aria-label="Close Ask panel" onClick={closePanel}>
-            <Icon icon={X} size={24} />
-          </ClayButton>
-        </div>
-
-        <div data-lenis-prevent="" className="flex-1 overflow-y-auto px-[var(--space-5)] py-[var(--space-5)]">
-          <AnswerView
-            status={status}
-            answer={answer}
-            prompts={panelPrompts}
-            onSelectPrompt={onSelectPrompt}
-            onAskAnother={onAskAnother}
-            onRetry={retry}
-            headingRef={headingRef}
-          />
-        </div>
-
-        <form
-          onSubmit={onSubmit}
-          className="flex items-center gap-[var(--space-3)] border-t border-navy/10 px-[var(--space-5)] py-[var(--space-4)]"
+      <Sheet variant="notebook" className="ask-panel-sheet">
+        <div
+          className="flex h-full flex-col"
+          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
-          <label htmlFor="ask-panel-input" className="sr-only">
-            Ask about my work
-          </label>
-          <input
-            id="ask-panel-input"
-            ref={inputRef}
-            type="text"
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            placeholder="Ask about my work…"
-            autoComplete="off"
-            aria-label="Ask about my work"
-            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-navy/10 bg-paper px-[var(--space-4)] text-[length:var(--text-body)] text-navy placeholder:text-ink-soft focus-ring"
-          />
-          <button
-            type="submit"
-            aria-label="Ask"
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-rust text-paper transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-terracotta active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
-          >
-            <Icon icon={ArrowUp} size={24} />
-          </button>
-        </form>
-      </div>
+          <div className="ask-panel-head">
+            <h2 id="ask-panel-title" className="ask-panel-title">
+              Ask AI
+            </h2>
+            <button type="button" aria-label="Close Ask panel" onClick={closePanel} className="ask-panel-close focus-ring">
+              <Icon icon={X} size={24} />
+            </button>
+          </div>
+
+          <div data-lenis-prevent="" className="ask-panel-scroll">
+            <AnswerView
+              status={status}
+              answer={answer}
+              prompts={panelPrompts}
+              onSelectPrompt={onSelectPrompt}
+              onAskAnother={onAskAnother}
+              onRetry={retry}
+              headingRef={headingRef}
+            />
+          </div>
+
+          <form onSubmit={onSubmit} className="ask-form ask-panel-form">
+            <label htmlFor="ask-panel-input" className="sr-only">
+              Ask about my work
+            </label>
+            <input
+              id="ask-panel-input"
+              ref={inputRef}
+              type="text"
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              placeholder="Ask about my work…"
+              autoComplete="off"
+              aria-label="Ask about my work"
+              className="ask-input focus-ring"
+            />
+            <button type="submit" aria-label="Ask" className="ask-submit focus-ring">
+              <Hand kind="cta">Ask →</Hand>
+            </button>
+          </form>
+        </div>
+      </Sheet>
     </dialog>
   );
 }

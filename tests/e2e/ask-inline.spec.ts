@@ -8,6 +8,12 @@
  * run on the QA-only `/dev/ask` fixture and SKIP (never fail) when it 404s under a normal production
  * build — exactly the `primitives.spec.ts` pattern (run the full five under `ALLOW_DEV_ROUTES=1`).
  *
+ * M-009 (TKT-77, TC-149): the surface is now a ruled notebook `Sheet` in a paper-2 `section#ask` with a
+ * torn edge; the selectors below target the notebook (`[data-paper="notebook"]`) and the `DraftTag`
+ * (`[data-paper="tag"]`). The TC-149 block at the end checks the paper contract: EVAL-018 unit count 2,
+ * Inter input + answer text, the Caveat "Ask →" cta, the five states' paper treatment, and the
+ * reduced-motion expand.
+ *
  * All titles carry the `ask-inline` prefix so `pnpm test:e2e --grep ask-inline` selects this file, and
  * each test is tagged with its EVAL id so the harness aggregates it.
  */
@@ -53,9 +59,8 @@ test.describe("ask-inline", () => {
     // The answer carries resolving evidence + the honesty microcopy + the DRAFT badge.
     await expect(page.getByRole("list", { name: "Sources" })).toBeVisible();
     await expect(page.getByText("Answers come from this portfolio's content — nothing generated.")).toBeVisible();
-    // Scoped to the Ask card (TKT-13's HowIThink section reuses the same "Draft" badge convention
-    // further down the page, so an unscoped page.getByText("Draft") is no longer unique).
-    await expect(card.getByText("Draft")).toBeVisible();
+    // Scoped to the Ask notebook: the answer's DraftTag (the site "not signed off" marker, M-009).
+    await expect(card.locator('[data-paper="tag"]')).toBeVisible();
 
     // Card grew in place to the expanded min-height.
     const afterHeight = (await card.boundingBox())?.height ?? 0;
@@ -82,9 +87,10 @@ test.describe("ask-inline", () => {
     ).toBeVisible();
     await expect(page.getByRole("heading", { level: 3, name: "Answer" })).toHaveCount(0);
     // Fresh suggestions to recover.
-    const suggestions = page.getByRole("list", { name: "Suggested questions" });
+    const suggestions = page.locator("#ask").getByRole("list", { name: "Suggested questions" });
     await expect(suggestions).toBeVisible();
-    expect(await suggestions.getByRole("button").count()).toBeGreaterThanOrEqual(1);
+    // Design.md §7.1: the FALLBACK line + 3 fresh chips.
+    await expect(suggestions.getByRole("button")).toHaveCount(3);
   });
 
   test("@EVAL-007 keyboard: field → prompts → answer heading → evidence → Ask another, focus ring at every stop", {
@@ -231,5 +237,113 @@ test.describe("ask-inline", () => {
     await expect(status).toHaveAttribute("aria-busy", "true");
     // It eventually resolves to an answer (proving the floor is a floor, not a stall).
     await expect(page.getByRole("heading", { level: 3, name: "Answer" })).toBeVisible({ timeout: 5000 });
+  });
+
+  // ── TC-149 · the paper contract (M-009, TKT-77) ─────────────────────────────────────────────────
+  test("@TC-149 notebook: section#ask on paper-2 with a torn edge, EVAL-018 unit count 2, Inter input, Caveat cta", {
+    tag: ["@EVAL-018", "@TC-149"],
+  }, async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const section = page.locator("section#ask");
+    await section.scrollIntoViewIfNeeded();
+
+    // The torn edge is the section's first child; the counted decorations are exactly torn + the
+    // prompt annotation (Design.md §3.3 planned count 2).
+    await expect(section.locator(":scope > svg[data-decor='torn']")).toHaveCount(1);
+    const decor = await section.evaluate((el) =>
+      Array.from(el.querySelectorAll("[data-decor]"))
+        .filter((d) => d.closest("section, header, footer") === el)
+        .map((d) => d.getAttribute("data-decor")),
+    );
+    expect(decor).toEqual(["torn", "annotation"]);
+
+    // The notebook sheet (ruled paper, +0.5°) holds the form.
+    const notebook = section.locator('[data-paper="notebook"]');
+    await expect(notebook).toBeVisible();
+    await expect(notebook.locator("#ask-portfolio-input")).toBeVisible();
+    await expect(notebook.locator('[data-decor="annotation"]')).toHaveAttribute("aria-hidden", "true");
+
+    // Dev-04: the input value is Inter; only the "Ask →" pill is a Caveat cta exemption.
+    const inputFont = await page.locator("#ask-portfolio-input").evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(inputFont).toMatch(/Inter/);
+    const cta = notebook.locator('button[type="submit"] [data-hand="cta"]');
+    await expect(cta).toHaveText("Ask →");
+    expect(await cta.evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/Caveat/);
+
+    // The answer text is Inter too.
+    await page.locator("#ask-portfolio-input").fill(REAL_QUERY);
+    await page.locator("#ask-portfolio-input").press("Enter");
+    await expect(section.getByRole("heading", { level: 3, name: "Answer" })).toBeVisible();
+    const answerFont = await section.locator(".ask-answer-text").evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(answerFont).toMatch(/Inter/);
+  });
+
+  test("@TC-149 reduced motion: the notebook expand is instant (no height transition)", {
+    tag: ["@EVAL-010", "@TC-149"],
+  }, async ({ page, withReducedMotion }) => {
+    test.skip(width(page) !== 1440, "reduced-motion check runs once at w1440");
+    await withReducedMotion(page);
+    await page.goto("/", { waitUntil: "load" });
+    const duration = await page
+      .locator('#ask [data-paper="notebook"]')
+      .evaluate((el) => getComputedStyle(el).transitionDuration);
+    expect(duration.split(",").every((d) => Number.parseFloat(d) === 0)).toBeTruthy();
+
+    // The state body fades on opacity only (150 ms), never a keyframe/transform.
+    const reveal = await page.locator("#ask .ask-reveal").evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { anim: s.animationName, prop: s.transitionProperty, dur: s.transitionDuration };
+    });
+    expect(reveal).toEqual({ anim: "none", prop: "opacity", dur: "0.15s" });
+  });
+
+  test("@TC-149 error state on paper: rust-bordered ivory panel with a glyph + Try again", {
+    tag: ["@EVAL-015", "@TC-149"],
+  }, async ({ page }) => {
+    test.skip(width(page) !== 1440, "state verified once at w1440");
+    if (!(await gotoDev(page, "/dev/ask?mode=error"))) return;
+    const panel = page.locator('[data-paper="notebook"] .ask-error');
+    await expect(panel).toBeVisible();
+    await expect(panel.locator("svg")).toHaveCount(1);
+    // A solid rust border (1.5 px in CSS; Chromium snaps it to device pixels, so width is only > 0
+    // here): its colour equals the rust alert glyph's.
+    const border = await panel.evaluate((el) => {
+      const s = getComputedStyle(el);
+      const glyph = el.querySelector("svg");
+      return {
+        width: Number.parseFloat(s.borderTopWidth),
+        style: s.borderTopStyle,
+        color: s.borderTopColor,
+        rust: glyph ? getComputedStyle(glyph).color : "",
+      };
+    });
+    expect(border.width).toBeGreaterThan(0);
+    expect(border.style).toBe("solid");
+    expect(border.color).toBe(border.rust);
+    await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+  });
+
+  test("@TC-149 loading state on paper: two shimmer lines + the sr-only status", {
+    tag: ["@EVAL-014", "@TC-149"],
+  }, async ({ page }) => {
+    test.skip(width(page) !== 1440, "state verified once at w1440");
+    if (!(await gotoDev(page, "/dev/ask?mode=slow"))) return;
+    const status = page.locator('[data-paper="notebook"]').getByRole("status");
+    await expect(status).toBeVisible();
+    await expect(status.locator(".ask-shimmer")).toHaveCount(2);
+    await expect(status.getByText("Looking through the portfolio…")).toHaveClass(/sr-only/);
+  });
+
+  test("@TC-149 screenshot pack: the Ask notebook answer state at 390 / 1440", async ({ page }) => {
+    const w = width(page);
+    test.skip(w !== 390 && w !== 1440, "S77.03 SHOT(m-009/home/ask-{390,1440})");
+    await page.goto("/", { waitUntil: "load" });
+    const input = page.locator("#ask-portfolio-input");
+    await input.fill(REAL_QUERY);
+    await input.press("Enter");
+    await expect(page.getByRole("heading", { level: 3, name: "Answer" })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(400);
+    await page.locator("section#ask").screenshot({ path: `docs/screenshots/m-009/home/ask-${w}.png` });
   });
 });
