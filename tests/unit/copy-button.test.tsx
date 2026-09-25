@@ -5,9 +5,13 @@
  * `copied`; a rejected/absent Clipboard API flips it to `error`, warns `[copy]` to the console
  * (A12: never silent), and renders the value as selectable text so the user is never stuck. The
  * controlled `state` prop (used by the /dev/primitives board) still pins a fixed visual.
+ *
+ * TSK-46 (TC-170, Design.md §7.8): the paper skin — a native `<button class="copy-btn">` (no clay
+ * primitive), `copied` holds for exactly 2 s then reverts to `idle`, and the error fallback is a
+ * selectable `<output>` inside `[data-copy-fallback]`.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { CopyButton } from "@/components/common/CopyButton";
 
 const EMAIL = "Tushar_Pathak@outlook.com";
@@ -83,5 +87,66 @@ describe("CopyButton — clipboard behaviour (S14.01)", () => {
     fireEvent.click(button);
     expect(writeText).not.toHaveBeenCalled();
     expect(button).toHaveAttribute("data-state", "copied");
+  });
+});
+
+describe("CopyButton — paper skin + state timing (TSK-46, TC-170)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    delete (navigator as { clipboard?: unknown }).clipboard;
+  });
+
+  it("is a native paper button (`.copy-btn`, type=button), not a clay primitive", () => {
+    const { container } = render(<CopyButton value={EMAIL} />);
+    const button = screen.getByRole("button", { name: `Copy ${EMAIL}` });
+    expect(button.tagName).toBe("BUTTON");
+    expect(button).toHaveAttribute("type", "button");
+    expect(button).toHaveClass("copy-btn", "focus-ring");
+    expect(container.innerHTML).not.toMatch(/clay/i);
+    // The sr-only live region is always mounted (empty at idle) so the first announcement is heard.
+    const status = screen.getByRole("status");
+    expect(status).toHaveClass("sr-only");
+    expect(status).toHaveTextContent("");
+  });
+
+  it("shows `Copied` for 2 s, then reverts to `idle`", async () => {
+    vi.useFakeTimers();
+    setClipboard(vi.fn().mockResolvedValue(undefined));
+    render(<CopyButton value={EMAIL} />);
+    const button = screen.getByRole("button", { name: `Copy ${EMAIL}` });
+
+    await act(async () => {
+      fireEvent.click(button);
+    });
+    expect(button).toHaveAttribute("data-state", "copied");
+    expect(button).toHaveTextContent("Copied");
+
+    await act(async () => {
+      vi.advanceTimersByTime(1999);
+    });
+    expect(button).toHaveAttribute("data-state", "copied");
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(button).toHaveAttribute("data-state", "idle");
+    expect(button).toHaveTextContent("Copy");
+    expect(screen.getByRole("status")).toHaveTextContent("");
+  });
+
+  it("error state: `Copy failed` label, announced, fallback `<output>` carries the value", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    setClipboard(vi.fn().mockRejectedValue(new Error("blocked")));
+    const { container } = render(<CopyButton value={EMAIL} />);
+    const button = screen.getByRole("button", { name: `Copy ${EMAIL}` });
+    fireEvent.click(button);
+
+    await waitFor(() => expect(button).toHaveAttribute("data-state", "error"));
+    expect(button).toHaveTextContent("Copy failed");
+    expect(button).toHaveAccessibleName(`Copy failed ${EMAIL}`);
+    // `<output>` also carries an implicit status role — target the sr-only live region itself.
+    expect(container.querySelector('span[role="status"]')).toHaveTextContent("Copy failed");
+    const fallback = container.querySelector("[data-copy-fallback]");
+    expect(fallback?.querySelector("output")).toHaveTextContent(EMAIL);
   });
 });

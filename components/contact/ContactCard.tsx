@@ -1,83 +1,114 @@
-import { ClayButton } from "@/components/clay/ClayButton";
-import { ClayCard } from "@/components/clay/ClayCard";
+import { ArrowUpRight, MapPin } from "lucide-react";
 import { CopyButton } from "@/components/common/CopyButton";
+import { VisuallyHidden } from "@/components/common/VisuallyHidden";
+import { Container } from "@/components/layout/Container";
+import { Annotation } from "@/components/paper/Annotation";
+import { Hand } from "@/components/paper/Hand";
+import { Sticky } from "@/components/paper/Sticky";
 import { resumeAction, site } from "@/lib/site";
 
 /**
- * ContactCard (TKT-45; Design.md §3 Contact, SITEMAP.md line 16, CONTENT_INVENTORY §7) — the
- * entire content of `/contact`: a single centred hero-tier lavender `ClayCard` (max 640px) with
- * four reach-out actions. No form (decision S10).
+ * `/contact` opener (TSK-46, Design.md §7.8; decisions S10 — no form, EXE-8 — email + LinkedIn only).
  *
- * The headline "Still curious?" is rendered as this page's own `h1` — the same flat-hero
- * convention `PlaygroundHero`/`WorkHero` use (one page, one hero heading, verbatim-matching the
- * OG title already shipped in `app/contact/opengraph-image.tsx`) — rather than nesting it under a
- * separate generic page heading. That keeps the outline a single, skip-free `h1` (TKT-43 a11y
- * scar: any title styled with a heading-size token must be a real heading at the correct level).
+ * Sits directly under TKT-95's `SceneOpener` (EXE-18 / Dev-24): the full-bleed banner already shows
+ * `scene-contact`, so the §7.8 taped portrait is **not** rendered here (a second copy of the same
+ * picture). Its caption annotation stays, as the banner's caption (same as the home hero's scene
+ * caption, §3.3 `/` hero). The `44fr 56fr` grid keeps the mockup's rhythm: the caption + the sticky
+ * "No form here…" in the narrow column, the copy in the wide one. < 900 it stacks copy-first.
  *
- * Actions (2×2 grid ≥768px / stacked <768px, 12px gaps — `--space-3` — all ≥44×44, Fitts's Law):
- *   1. `CopyButton` — copies `site.email`; idle → copied (2s) → error with a selectable-text
- *      fallback (component-owned, never silent — TKT-14).
- *   2. `mailto:` `ClayButton` — a real one-click fallback for a blocked clipboard.
- *   3. LinkedIn `ClayButton` — `external`, so it carries `target=_blank rel="noopener noreferrer"`
- *      and a VisuallyHidden "(opens in new tab)" note (ClayButton's own `external` contract).
- *   4. Resume `ClayButton` — derived from `resumeAction()` (PB5, `lib/site.ts`), the single source
- *      of truth: renders the placeholder label + the "email me for a copy" note (visible, not just
- *      a tooltip) while `site.resumeAvailable` is `false`, and a real `download` link once TKT-08
- *      flips the flag. Never hard-codes a resume href.
+ * Unit count (EVAL-018, §3.3 `/contact` opener = 3): caption annotation · sticky · "whichever is
+ * easiest for you ↓" annotation. All three are `aria-hidden`; none carries information the page
+ * doesn't state elsewhere ("no form" is also true by construction — there is none).
  *
- * `id="resume"` sits on the resume action itself (not the whole card) — it is the exact anchor
- * every placeholder resume link across the site (`Hero`, `BandFooter`, `MobileMenu`)
- * points at via `resumeAction()`'s placeholder `href` of `/contact#resume`; `scroll-mt-32` keeps it
- * clear of the sticky header on a deep link.
+ * Actions (`<ul>`, dashed rules, Caveat numerals — `aria-hidden` spans, not `data-hand="label"`:
+ * §3.4 labels live inside a `data-paper` object and this list is not one):
+ *   01 address + `CopyButton` (idle → copied 2 s → error + selectable `<output>`; sr-only live region)
+ *   02 primary "Email me →" `mailto:` (Caveat cta, `data-hand="cta"`)
+ *   03 secondary "LinkedIn ↗" — `target=_blank rel="noopener noreferrer"` + sr-only "(opens in new tab)"
+ *   04 `#resume` — `resumeAction()` (PB5 single source) + its visible note while no PDF exists.
  *
- * Email / LinkedIn / city are verbatim from CONTENT_INVENTORY §7 — no phone, no DOB, no street
- * address (EXE-8).
+ * Location line "Bengaluru, India" renders only behind `site.showLocation` (default `false`, the
+ * same flag the band reads — TKT-72 / HANDOFF §6). No phone, DOB or address anywhere (EXE-8).
  */
 export function ContactCard() {
   const resume = resumeAction();
 
   return (
-    <ClayCard
-      tier="hero"
-      tone="lavender"
-      padding="hero"
-      className="mx-auto flex max-w-[640px] flex-col items-center gap-[var(--space-6)] text-center"
-    >
-      <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
-        Still curious?
-      </h1>
-
-      {/* data-contact-actions: stable test hook (same convention as CopyButton's data-copy-button)
-          for asserting the 2×2/stacked grid's 12px gap directly, rather than re-deriving it from
-          bounding boxes. */}
-      <div
-        data-contact-actions=""
-        className="grid w-full grid-cols-1 justify-items-center gap-[var(--space-3)] md:grid-cols-2"
-      >
-        <CopyButton value={site.email} />
-
-        <ClayButton variant="secondary" href={`mailto:${site.email}`}>
-          Email me
-        </ClayButton>
-
-        <ClayButton variant="secondary" href={site.linkedin} external>
-          LinkedIn
-        </ClayButton>
-
-        <div id="resume" className="flex scroll-mt-32 flex-col items-center gap-[var(--space-2)]">
-          <ClayButton
-            variant="secondary"
-            href={resume.href}
-            download={resume.download}
-            title={resume.note}
-          >
-            {resume.label}
-          </ClayButton>
-          {resume.note ? <p className="max-w-[28ch] text-caption text-ink-soft">{resume.note}</p> : null}
+    <section id="contact" className="contact-opener" aria-labelledby="contact-h">
+      <Container className="contact-grid">
+        <div className="contact-aside">
+          <Annotation rotate={-1.2} className="contact-caption">
+            waving from the window seat — the coffee&apos;s usually on
+          </Annotation>
+          <Sticky rotate={3} className="contact-sticky">
+            No form here. A plain email is the whole process.
+          </Sticky>
         </div>
-      </div>
 
-      <p className="text-[length:var(--text-body)] text-navy-2">Bengaluru, India</p>
-    </ClayCard>
+        <div className="contact-copy">
+          <p className="contact-eyebrow">Contact</p>
+          <h1 id="contact-h" className="contact-h1">
+            Still curious?
+          </h1>
+          <Annotation size="lg" rotate={-1.2} className="contact-hand-aside">
+            whichever is easiest for you ↓
+          </Annotation>
+
+          <ul className="contact-actions" data-contact-actions="">
+            <li className="contact-action">
+              <span className="contact-num font-hand" aria-hidden="true">
+                01
+              </span>
+              <span className="contact-addr">{site.email}</span>
+              <CopyButton value={site.email} className="contact-copy-control" />
+            </li>
+            <li className="contact-action">
+              <span className="contact-num font-hand" aria-hidden="true">
+                02
+              </span>
+              <a className="contact-btn contact-btn-primary focus-ring" href={`mailto:${site.email}`}>
+                <Hand kind="cta">Email me →</Hand>
+              </a>
+            </li>
+            <li className="contact-action">
+              <span className="contact-num font-hand" aria-hidden="true">
+                03
+              </span>
+              <a
+                className="contact-btn contact-btn-secondary focus-ring"
+                href={site.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn
+                <ArrowUpRight size={14} strokeWidth={1.75} aria-hidden="true" />
+                <VisuallyHidden>(opens in new tab)</VisuallyHidden>
+              </a>
+            </li>
+            <li id="resume" className="contact-action contact-action-resume">
+              <span className="contact-num font-hand" aria-hidden="true">
+                04
+              </span>
+              <a
+                className="contact-btn contact-btn-secondary focus-ring"
+                href={resume.href}
+                download={resume.download || undefined}
+                title={resume.note}
+              >
+                {resume.label}
+              </a>
+              {resume.note ? <p className="contact-note">{resume.note}</p> : null}
+            </li>
+          </ul>
+
+          {site.showLocation ? (
+            <p className="contact-location">
+              <MapPin size={16} strokeWidth={1.75} aria-hidden="true" />
+              Bengaluru, India
+            </p>
+          ) : null}
+        </div>
+      </Container>
+    </section>
   );
 }
