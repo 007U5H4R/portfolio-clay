@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ExperienceTimeline } from "@/components/timeline/ExperienceTimeline";
 import { collections, validateAll } from "@/data/index";
 import { experience } from "@/data/experience";
 import { skills } from "@/data/skills";
@@ -163,5 +166,75 @@ describe("data/impact (TSK-24)", () => {
     expect(text).not.toMatch(/SAFe (Agilist|certif)/i);
     expect(text).not.toMatch(/\b(0?[1-9]|[12]\d|3[01])[/\-.](0?[1-9]|1[0-2])[/\-.](19|20)\d{2}\b/);
     expect(text).not.toMatch(/\+91[\s-]?\d{5}[\s-]?\d{5}/);
+  });
+});
+
+/**
+ * TC-167 · S18 regression (TKT-87, technical-plan F1-2; kept permanently). The timeline lead once read
+ * "newest to oldest" while the data — mapped unreversed — runs oldest first. These assertions pin the
+ * lead string, tie the rendered order to the data order (never a hard-coded list), and pin Dev-11's
+ * always-open cards.
+ */
+const S18_LEAD = "Four roles, oldest to newest — open any node for the context, scale, and what changed.";
+
+function decode(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .trim();
+}
+
+/** Company names in the order the timeline's story-card `h3`s render ("<company>[ (note)] — <title>"). */
+function renderedCompanies(html: string): string[] {
+  return [...html.matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>/g)].map((m) => decode(m[1] ?? "").split(" — ")[0]!.replace(/ \(.*\)$/, ""));
+}
+
+/** The pure check the regression rests on — exercised on the real render and on a reversed control. */
+function orderMatchesData(companies: string[], data: { company: string }[]): boolean {
+  return JSON.stringify(companies) === JSON.stringify(data.map((e) => e.company));
+}
+
+describe("ExperienceTimeline — S18 lead + order regression (TC-167, TKT-87)", () => {
+  const html = renderToStaticMarkup(createElement(ExperienceTimeline));
+
+  it("renders the lead exactly as the S18 string", () => {
+    const leads = [...html.matchAll(/<p class="xp-lead">([\s\S]*?)<\/p>/g)].map((m) => decode(m[1] ?? ""));
+    expect(leads).toEqual([S18_LEAD]);
+    expect(html).not.toContain("newest to oldest");
+  });
+
+  it("renders the company h3s in data order (oldest → newest); the first role starts earliest", () => {
+    const companies = renderedCompanies(html);
+    expect(companies).toHaveLength(experience.length);
+    expect(orderMatchesData(companies, experience)).toBe(true);
+    const starts = experience.map((e) => e.dates.start);
+    expect(starts[0]).toBe([...starts].sort()[0]);
+    expect(starts).toEqual([...starts].sort());
+  });
+
+  it("negative control: a reversed fixture order fails the order check", () => {
+    const companies = renderedCompanies(html);
+    expect(orderMatchesData(companies, [...experience].reverse())).toBe(false);
+  });
+
+  it("renders every story card open: one `#experience-<id>` entry and one flat dl per role, no collapse state", () => {
+    for (const role of experience) {
+      expect(html).toContain(`id="experience-${role.id}"`);
+    }
+    expect(html.match(/<dl data-flat=""/g) ?? []).toHaveLength(experience.length);
+    expect(html).not.toMatch(/\shidden[\s=>]|aria-expanded|data-open=|grid-rows-\[0fr\]/);
+    for (const role of experience) {
+      expect(decode(html)).toContain(role.whatChanged);
+    }
+  });
+
+  it("puts no decoration inside a story dl (flat zone, TC-168 step 1)", () => {
+    const dls = [...html.matchAll(/<dl data-flat=""[\s\S]*?<\/dl>/g)].map((m) => m[0]);
+    expect(dls).toHaveLength(experience.length);
+    for (const dl of dls) expect(dl).not.toContain("data-decor");
+    // The section's only decoration is its torn edge (§3.3: experience 1).
+    expect(html.match(/data-decor=/g) ?? []).toHaveLength(1);
   });
 });

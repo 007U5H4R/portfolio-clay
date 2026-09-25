@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AboutCta } from "@/components/about/AboutCta";
 import { AboutHero } from "@/components/about/AboutHero";
 import { Awards } from "@/components/about/Awards";
 import { CapabilityClusters } from "@/components/about/CapabilityClusters";
@@ -7,11 +8,11 @@ import { Impact } from "@/components/about/Impact";
 import { Research } from "@/components/about/Research";
 import { ExperienceTimeline } from "@/components/timeline/ExperienceTimeline";
 import { ProductJourney } from "@/components/timeline/ProductJourney";
-import { ClayButton } from "@/components/clay/ClayButton";
+import { Container } from "@/components/layout/Container";
 import { SceneOpener } from "@/components/paper/SceneOpener";
-import { Section } from "@/components/layout/Section";
+import { TornEdge } from "@/components/paper";
 import { buildMetadata } from "@/lib/seo";
-import { resumeAction, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: `About · ${site.name}`,
@@ -22,56 +23,51 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /**
- * `/about` (TSK-23, TSK-24, TKT-40, TKT-41, TKT-42, M-006, LAST ticket — this finalizes the page):
- * `AboutHero` (flat hero variant) → `ProductJourney` (decorative reduced-scale connector line, 4
- * stages, reveal-only) → `CapabilityClusters` ("What I Bring", 4 clusters) → `Impact` (numbers
- * with context, `MetricCard` shape) → `ExperienceTimeline` (`id="experience"`) → `Awards` →
- * `Research` → `Education` → page-foot CTAs + colophon — SITEMAP.md's `/about` row order exactly.
+ * `/about` — assembled in Design.md §7.4 order (TKT-87):
+ *   scene opener (TKT-95) → hero → product journey → capabilities → impact → experience →
+ *   awards · research · education → page-foot CTA → band (the band footer comes from the layout).
  *
- * The page-foot CTA row + colophon are inlined here rather than a new component: TKT-42's scope
- * lists only `Awards`/`Research`/`Education` + this file + the OG route (no dedicated CTA
- * component), and Footer already owns the reusable resume/LinkedIn/Let's-Talk row — this is a
- * second, page-local instance per SITEMAP.md line 38 ("resume reachable from … `/about`").
- * `resumeAction()` is the single source of truth for the resume control (PB5) — never hard-coded.
- * The colophon text is decision TP10's exact wording ("Designed and built with Claude Code") — the
- * footer's own credit line stays "Built with curiosity." and must never say this (layout.spec.ts).
+ * Slots marked "TKT-86" are owned by TKT-86 (`/about` part 1) — it rebuilds those components in
+ * paper; this file only mounts them. Slots marked "TKT-87" are this ticket's.
  *
- * Route MUST stay statically prerendered (TP1): no dynamic data, no `searchParams` read, matching
- * `/work`'s discipline (`app/work/page.tsx`).
+ * The proof section is ONE `<section>` (one EVAL-018 counting unit: torn + the patent "TP" stamp =
+ * 2, §3.3) holding three labelled band rows; the `#awards` / `#research` / `#education` anchors
+ * live on those rows.
+ *
+ * Route MUST stay statically prerendered (TP1): no dynamic data, no `searchParams` read.
  */
 export default function AboutPage() {
-  const resume = resumeAction();
-
   return (
     <>
-      {/* TKT-95 scene opener (EXE-18): replaces AboutHero's TSK-38 photo stand-in; the figure stands left of centre. */}
+      {/* TKT-95 scene opener (EXE-18): the page scene as a full-bleed banner; the figure stands left of centre. */}
       <SceneOpener id="scene-about" focalX={0.3} focalY={0.44} priority />
-      <AboutHero />
-      <ProductJourney />
-      <CapabilityClusters />
-      <Impact />
-      {/* TKT-41: ExperienceTimeline renders its own `<section id="experience">` (the `/work`
-          ExperienceStrip and Ask evidence deep-link to `/about#experience` and, per role,
-          `/about#experience-{id}`). It is a client component whose section HTML still prerenders. */}
-      <ExperienceTimeline />
-      <Awards />
-      <Research />
-      <Education />
 
-      <Section id="about-cta" aria-labelledby="about-cta-heading">
-        <h2 id="about-cta-heading" className="text-[length:var(--text-h3)] font-extrabold text-navy">
-          Let&apos;s build what&apos;s next.
-        </h2>
-        <div className="mt-[var(--space-6)] flex flex-wrap items-center gap-[var(--space-4)]">
-          <ClayButton variant="primary" href="/contact">
-            Let&apos;s talk
-          </ClayButton>
-          <ClayButton variant="secondary" href={resume.href} download={resume.download} title={resume.note}>
-            {resume.label}
-          </ClayButton>
+      {/* ── TKT-86 slot · hero (section incl. the hero-under row) ── */}
+      <AboutHero />
+      {/* ── TKT-86 slot · product journey (section#journey) ── */}
+      <ProductJourney />
+      {/* ── TKT-86 slot · capabilities (section#capability-clusters) ── */}
+      <CapabilityClusters />
+      {/* ── TKT-86 slot · impact (section#impact) ── */}
+      <Impact />
+
+      {/* ── TKT-87 · experience (section#experience; `#experience-<id>` anchors per role) ── */}
+      <ExperienceTimeline />
+
+      {/* ── TKT-87 · awards · research · education (one paper-2 section) ── */}
+      <section aria-label="Recognition, research and education" className="proof-s">
+        <TornEdge fill="paper-2" />
+        <div className="proof-body">
+          <Container className="proof-wrap">
+            <Awards />
+            <Research />
+            <Education />
+          </Container>
         </div>
-        <p className="mt-[var(--space-9)] text-caption text-ink-soft">Designed and built with Claude Code.</p>
-      </Section>
+      </section>
+
+      {/* ── TKT-87 · page-foot CTA (section#about-cta) ── */}
+      <AboutCta />
     </>
   );
 }

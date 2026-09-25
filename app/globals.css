@@ -5155,3 +5155,432 @@ html.lenis body {
   }
 }
 /* end TKT-80 */
+
+/* TKT-87 · about part 2 — experience timeline (always open, Dev-11; lead fixed, S18), the
+   awards · research · education proof section, and the page-foot CTA (Design.md §7.4, values lifted
+   from docs/redesign-mockups/m-009/about.html). Each section: `TornEdge` first child, then a body
+   carrying the section fill. Kind badges, dates, "not recorded", "DOI pending" and "Languages" are
+   Inter (Dev-04). Tokens / derived values only (EVAL-020). */
+@layer components {
+  .xp-s,
+  .proof-s,
+  .acta-s {
+    position: relative;
+    z-index: 1;
+  }
+  /* the torn edge overlaps the previous section's bottom padding, so its bite shows against that
+     section's fill (paper on paper-2 and vice versa), not against the page background */
+  .xp-s > [data-decor="torn"],
+  .proof-s > [data-decor="torn"],
+  .acta-s > [data-decor="torn"] {
+    margin-top: -44px;
+  }
+  .xp-body,
+  .acta-body {
+    background: var(--color-paper);
+  }
+  .proof-body {
+    background: var(--color-paper-2);
+  }
+  .xp-wrap,
+  .proof-wrap {
+    padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
+  }
+
+  /* section head (mockup `.sec-head`) */
+  .xp-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: end;
+    margin-bottom: clamp(36px, 5vw, 64px);
+  }
+  .xp-eyebrow,
+  .proof-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .xp-head h2 {
+    margin-top: 8px;
+    font-size: clamp(40px, 4.6vw, 64px);
+  }
+  .xp-lead {
+    justify-self: end;
+    max-width: 48ch;
+    font-size: 17px;
+    color: var(--color-navy-2);
+  }
+
+  /* the rail: dashed line at the dot column; dot per role rust / steel / forest / rust */
+  .xp-timeline {
+    position: relative;
+    display: grid;
+    gap: clamp(36px, 4vw, 56px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .xp-timeline::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 259px;
+    border-left: 2px dashed color-mix(in oklab, var(--color-navy) 30%, transparent);
+  }
+  .xp-role {
+    position: relative;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 32px 72px;
+    align-items: start;
+    scroll-margin-top: 96px;
+  }
+  .xp-role::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 252px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+      var(--color-rust);
+    box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 35%, transparent);
+  }
+  .xp-role:nth-child(2)::before {
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+      var(--color-steel);
+  }
+  .xp-role:nth-child(3)::before {
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+      var(--color-forest);
+  }
+  .xp-node {
+    position: sticky;
+    top: 96px;
+    display: grid;
+    gap: 4px;
+  }
+  .xp-co {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .xp-co small {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: 0;
+    color: var(--color-ink-soft);
+  }
+  .xp-when {
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-soft);
+  }
+
+  /* story card (Sheet card) — the dl is the flat zone */
+  .story-card.paper-sheet {
+    display: grid;
+    gap: 14px;
+    padding: 26px 28px 24px;
+  }
+  .story-card h3 {
+    font-size: 24px;
+    font-variation-settings: "opsz" 72, "SOFT" 20;
+  }
+  .story-dl {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 10px 18px;
+    align-items: baseline;
+    margin: 0;
+  }
+  .story-entry {
+    display: contents;
+  }
+  .story-dl dt {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-green-2);
+  }
+  .story-dl dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .story-dl dd.story-na {
+    font-style: italic;
+    color: var(--color-ink-soft);
+  }
+  .story-outcomes {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .story-outcomes li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+  .story-kind {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-terracotta);
+  }
+  .story-kind[data-kind="measured"] {
+    color: var(--color-forest);
+  }
+  .story-kind::before {
+    content: "●";
+    margin-right: 6px;
+    font-size: 8px;
+    vertical-align: 2px;
+  }
+  .story-src {
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    font-size: 12px;
+    color: var(--color-ink-soft);
+  }
+
+  /* proof section: three band rows 5fr / 7fr */
+  .proof-wrap {
+    display: grid;
+    gap: clamp(56px, 7vw, 96px);
+  }
+  .proof-band {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 32px 64px;
+    align-items: start;
+  }
+  .proof-head h2 {
+    margin-top: 8px;
+    font-size: clamp(34px, 3.6vw, 48px);
+  }
+  .proof-lead {
+    max-width: 36ch;
+    margin-top: 12px;
+    font-size: 16px;
+    color: var(--color-navy-2);
+  }
+  .proof-awards {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 18px 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .proof-award.paper-sheet[data-paper="tag"] {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 4px 16px;
+    max-width: 420px;
+    padding: 14px 22px 14px 40px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0;
+    text-transform: none;
+    border-radius: 3px 40px 40px 3px;
+  }
+  .proof-award.paper-sheet[data-paper="tag"]::before {
+    left: 14px;
+    width: 12px;
+    height: 12px;
+  }
+  .proof-award b {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-terracotta);
+  }
+  .proof-patent.paper-sheet {
+    display: grid;
+    gap: 12px;
+    padding: 30px 30px 26px;
+  }
+  .proof-pstamp.paper-note {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    width: 72px;
+    height: 64px;
+    font-size: 26px;
+  }
+  .proof-patent h3 {
+    padding-right: 84px;
+    font-size: 24px;
+    font-variation-settings: "opsz" 72, "SOFT" 20;
+  }
+  .proof-ids {
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-navy-2);
+  }
+  .proof-who {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+  }
+  .proof-patent-link {
+    justify-self: start;
+  }
+  .proof-papers {
+    display: grid;
+    gap: 22px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .proof-papers li {
+    display: grid;
+    justify-items: start;
+    gap: 6px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .proof-papers h3 {
+    font-size: 20px;
+    line-height: 1.2;
+    font-variation-settings: "opsz" 48, "SOFT" 20;
+  }
+  .proof-cite {
+    font-size: 14px;
+    color: var(--color-navy-2);
+  }
+  .proof-doi {
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-navy);
+    background: var(--color-ivory);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+  }
+  .proof-doi:hover {
+    border-color: var(--color-navy-2);
+  }
+  .proof-disclaimer {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--color-ink-soft);
+  }
+  .proof-edu {
+    display: grid;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .proof-edu li {
+    display: grid;
+    gap: 2px;
+    padding-left: 18px;
+    border-left: 2px solid var(--color-kraft);
+  }
+  .proof-edu h3 {
+    font-size: 22px;
+    font-variation-settings: "opsz" 48, "SOFT" 20;
+  }
+  .proof-edu p,
+  .proof-langs {
+    font-size: 15px;
+    color: var(--color-navy-2);
+  }
+  .proof-langs {
+    margin-top: 26px;
+  }
+
+  /* page-foot CTA + colophon */
+  .acta-wrap {
+    display: grid;
+    justify-items: start;
+    gap: 22px;
+    padding-block: clamp(56px, 7vw, 96px) 40px;
+  }
+  .acta-wrap h2 {
+    max-width: 14ch;
+    font-size: clamp(40px, 5vw, 72px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+  .acta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .acta-colophon {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--color-ink-soft);
+  }
+
+  @media (max-width: 900px) {
+    .xp-head,
+    .proof-band {
+      grid-template-columns: 1fr;
+    }
+    .xp-lead {
+      justify-self: start;
+    }
+    .xp-timeline::before {
+      left: 7px;
+    }
+    .xp-role {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding-left: 32px;
+    }
+    .xp-role::before {
+      left: 0;
+    }
+    .xp-node {
+      position: static;
+    }
+  }
+  @media (max-width: 640px) {
+    .story-dl {
+      grid-template-columns: 1fr;
+      gap: 2px 0;
+    }
+    .story-dl dt {
+      margin-top: 8px;
+    }
+    .proof-patent h3 {
+      padding-right: 0;
+    }
+    .proof-pstamp.paper-note {
+      position: static;
+      justify-self: start;
+    }
+  }
+}
+/* end TKT-87 */
