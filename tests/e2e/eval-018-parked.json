@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "route": "/about",
+    "unit": "section[aria-labelledby=\"about-hero-heading\"]",
+    "rule": "caveat",
+    "reason": "legacy clay section — rebuilt in TKT-86",
+    "ticket": "TKT-86"
+  }
+]
