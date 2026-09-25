@@ -61,7 +61,7 @@ export function ProjectCard({
         data-card-size={size}
         className="work-card-link focus-ring"
       >
-        <p className="work-kicker">
+        <p className="work-kicker" data-micro-label="">
           <span data-kicker="tags">{tags.join(" · ")}</span>{" "}
           <span className="work-kicker-status">
             · <span data-kicker="status">{statusLabel}</span>

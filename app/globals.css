@@ -1780,7 +1780,7 @@ html.lenis body {
     gap: 14px;
   }
   .ask-microcopy {
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     color: var(--color-ink-soft);
   }
   .ask-pills {
@@ -1798,7 +1798,7 @@ html.lenis body {
     border-radius: var(--radius-pill);
     background: var(--color-ivory);
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     line-height: 1.25;
     color: var(--color-navy-2);
     text-align: left;
@@ -2135,7 +2135,7 @@ html.lenis body {
     color: var(--color-forest);
   }
   .work-metric-asof {
-    font-size: 12px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     color: var(--color-ink-soft);
   }
   .work-card-cta {
@@ -2682,7 +2682,7 @@ html.lenis body {
     border-radius: 14px;
     background: var(--color-paper);
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     font-weight: 600;
     line-height: 1.3;
     color: var(--color-navy);
@@ -5279,7 +5279,7 @@ html.lenis body {
     display: block;
     margin-top: 2px;
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     letter-spacing: 0;
     color: var(--color-ink-soft);
   }
@@ -5310,7 +5310,7 @@ html.lenis body {
     display: contents;
   }
   .story-dl dt {
-    font-size: 11px;
+    font-size: 12px; /* EVAL-008 floor (integration-abc, Dev-27) */
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -5340,7 +5340,7 @@ html.lenis body {
     gap: 4px 12px;
   }
   .story-kind {
-    font-size: 11px;
+    font-size: 12px; /* EVAL-008 floor (integration-abc, Dev-27) */
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -5359,7 +5359,7 @@ html.lenis body {
   .story-src {
     padding-top: 8px;
     border-top: 1px dashed var(--line);
-    font-size: 12px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     color: var(--color-ink-soft);
   }
 
@@ -5439,7 +5439,7 @@ html.lenis body {
     font-variation-settings: "opsz" 72, "SOFT" 20;
   }
   .proof-ids {
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     font-variant-numeric: tabular-nums;
     color: var(--color-navy-2);
   }
@@ -5476,7 +5476,7 @@ html.lenis body {
   }
   .proof-doi {
     padding: 5px 12px;
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     font-weight: 500;
     text-decoration: none;
     color: var(--color-navy);
@@ -5489,7 +5489,7 @@ html.lenis body {
   }
   .proof-disclaimer {
     margin-top: 20px;
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     color: var(--color-ink-soft);
   }
   .proof-edu {
@@ -5539,7 +5539,7 @@ html.lenis body {
   }
   .acta-colophon {
     margin-top: 20px;
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
     color: var(--color-ink-soft);
   }
 

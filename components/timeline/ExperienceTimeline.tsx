@@ -26,7 +26,7 @@ export function ExperienceTimeline() {
         <Container className="xp-wrap">
           <div className="xp-head">
             <div>
-              <p className="xp-eyebrow">Experience</p>
+              <p className="xp-eyebrow" data-micro-label="">Experience</p>
               <h2 id="experience-heading">Where I&apos;ve built</h2>
             </div>
             <p className="xp-lead">{TIMELINE_LEAD}</p>

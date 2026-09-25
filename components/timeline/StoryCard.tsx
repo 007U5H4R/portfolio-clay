@@ -22,7 +22,7 @@ const KIND_LABEL: Record<Kind, string> = {
 function Entry({ term, na, children }: { term: string; na?: boolean; children: ReactNode }) {
   return (
     <div className="story-entry">
-      <dt>{term}</dt>
+      <dt data-micro-label="">{term}</dt>
       <dd className={na ? "story-na" : undefined}>{children}</dd>
     </div>
   );
@@ -61,7 +61,7 @@ export function StoryCard({ role, rotate }: StoryCardProps) {
               <li key={outcome.text}>
                 <span>{outcome.text}</span>
                 {textStatesKind(outcome.text, KIND_LABEL[outcome.kind]) ? null : (
-                  <span className="story-kind" data-kind={outcome.kind}>
+                  <span className="story-kind" data-kind={outcome.kind} data-micro-label="">
                     {KIND_LABEL[outcome.kind]}
                   </span>
                 )}

@@ -9,7 +9,7 @@ export function Education() {
   return (
     <div id="education" role="region" aria-labelledby="education-heading" className="proof-band">
       <div className="proof-head">
-        <p className="proof-eyebrow">Foundation</p>
+        <p className="proof-eyebrow" data-micro-label="">Foundation</p>
         <h2 id="education-heading">Education</h2>
       </div>
       <div>

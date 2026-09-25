@@ -15,7 +15,7 @@ export function Awards() {
   return (
     <div id="awards" role="region" aria-labelledby="awards-heading" className="proof-band">
       <div className="proof-head">
-        <p className="proof-eyebrow">Recognition</p>
+        <p className="proof-eyebrow" data-micro-label="">Recognition</p>
         <h2 id="awards-heading">Awards</h2>
         <p className="proof-lead">Text only — the underlying certificates aren&apos;t digitised yet.</p>
       </div>

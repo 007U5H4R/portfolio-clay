@@ -20,7 +20,7 @@ export function Research() {
   return (
     <div id="research" role="region" aria-labelledby="research-heading" className="proof-band">
       <div className="proof-head">
-        <p className="proof-eyebrow">Before product management</p>
+        <p className="proof-eyebrow" data-micro-label="">Before product management</p>
         <h2 id="research-heading">Research</h2>
         <p className="proof-lead">A granted patent and two peer-reviewed papers from the M.Tech years.</p>
       </div>
