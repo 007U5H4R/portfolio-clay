@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Copy, TriangleAlert } from "lucide-react";
 import { Icon } from "./Icon";
-import { ClayButton } from "@/components/clay/ClayButton";
 
 export type CopyButtonState = "idle" | "copied" | "error";
 
@@ -25,15 +24,19 @@ const STATE_LABEL: Record<CopyButtonState, string> = {
   error: "Copy failed",
 };
 
-/** How long the `copied` confirmation shows before reverting to `idle` (Design.md §3: "2s"). */
+/** How long the `copied` confirmation shows before reverting to `idle` (Design.md §7.8: "2 s"). */
 const COPIED_MS = 2000;
 
 /**
- * Copy-to-clipboard control (TKT-14; technical-plan.md §B S14.01, Design.md §3 ContactCard).
+ * Copy-to-clipboard control (TKT-14 behaviour; TSK-46 paper skin — Design.md §7.8 / §7.9).
  *
- * Uncontrolled by default: clicking writes `value` via `navigator.clipboard.writeText`, flips to
- * `copied` for 2s (the icon morphs Copy → Check and a `role="status"` region announces "Copied"),
- * then reverts to `idle`.
+ * Skin (TSK-46): the paper secondary button — ivory, 1.5 px `--line` border, Inter 15 px, ≥ 44 px
+ * tall (`.copy-btn` in the TSK-46 block of app/globals.css). `data-state` drives the state
+ * borders: **copied** forest, **error** rust. The clay `ClayButton` is gone (S11 / TKT-89).
+ *
+ * Behaviour (unchanged): clicking writes `value` via `navigator.clipboard.writeText`, flips to
+ * `copied` for 2 s (the icon morphs Copy → Check and a `role="status"` region announces
+ * "Copied …"), then reverts to `idle`.
  *
  * It NEVER fails silently (A12): if the Clipboard API is missing (insecure context / old browser)
  * or the write rejects (permission blocked), it flips to `error`, logs `console.warn('[copy]', err)`,
@@ -84,9 +87,10 @@ export function CopyButton({ value, state: forcedState, className }: CopyButtonP
         : "";
 
   return (
-    <span className={["inline-flex flex-col items-start gap-[var(--space-2)]", className].filter(Boolean).join(" ")}>
-      <ClayButton
-        variant="secondary"
+    <span className={["copy-control", className].filter(Boolean).join(" ")}>
+      <button
+        type="button"
+        className="copy-btn focus-ring"
         aria-label={`${STATE_LABEL[state]} ${value}`}
         // Stable hook: `aria-label` and `data-state` both change with the state machine, so a
         // consumer/test that needs to target the control across a state flip keys off this instead.
@@ -100,18 +104,18 @@ export function CopyButton({ value, state: forcedState, className }: CopyButtonP
           className="transition-[opacity,transform] duration-[160ms] ease-out motion-reduce:transition-none"
         />
         {STATE_LABEL[state]}
-      </ClayButton>
+      </button>
 
-      {/* Announce the state change without moving focus (Design.md §3 "toast"). */}
+      {/* Announce the state change without moving focus (sr-only live region). */}
       <span role="status" aria-live="polite" className="sr-only">
         {statusMessage}
       </span>
 
       {/* Never a dead end (A12): on failure the value is shown as selectable text. */}
       {state === "error" ? (
-        <span className="flex flex-col gap-[2px] text-caption text-navy-2" data-copy-fallback>
-          <output className="select-all font-medium text-navy">{value}</output>
-          <span className="text-ink-soft">Select to copy</span>
+        <span className="copy-fallback" data-copy-fallback="">
+          <output className="copy-fallback-value">{value}</output>
+          <span className="copy-fallback-hint">Select to copy</span>
         </span>
       ) : null}
     </span>

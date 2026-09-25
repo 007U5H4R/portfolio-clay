@@ -1,169 +1,200 @@
 /**
- * contact.spec.ts (TKT-45, M-006) — the `/contact` `ContactCard`: copy-email / mailto / LinkedIn /
- * resume, no form (decision S10).
+ * contact.spec.ts (TKT-45 → TSK-46 / TC-170) — `/contact` in paper: the opener copy + actions list
+ * (`section#contact`), the postcard details section, and `CopyButton`'s idle / copied / error states.
+ * No form (decision S10); only email + LinkedIn published (EXE-8).
  *
  * Runs in all four viewport projects (w390/w768/w1024/w1440, playwright.config.ts). Route-wide
- * axe (@EVAL-006), no-overflow and 44px-target sweeps (@EVAL-008) already cover `/contact`
- * generically via `tests/e2e/eval-006.spec.ts` / `tests/e2e/eval-008.spec.ts` (it is in
- * `routes.json`'s `static` list) — this file is NOT a second copy of those; it asserts what is
- * specific to `ContactCard`:
- *   AC1 — email/LinkedIn/city verbatim from CONTENT_INVENTORY §7; no phone anywhere.
- *   AC2 — the 4-action grid carries a real 12px gap (`--space-3`), on top of the generic ≥44×44
- *         sweep eval-008 already runs.
- *   AC3 — CopyButton idle → copied → (blocked clipboard → selectable-text fallback), mirroring the
- *         established stub pattern in `tests/e2e/home.spec.ts`'s `#cta` CopyButton coverage.
- *   AC4 — `#resume` anchor exists; the resume control renders the PB5 placeholder (label + the
- *         visible "email me for a copy" note) while `site.resumeAvailable` is `false`. The
- *         download-path (a real 200 once TKT-08 flips the flag) has no PDF to exercise yet — it is
- *         `test.fixme`'d here (same blocker/convention as `eval-002.spec.ts`'s full-journey fixme)
- *         and is already covered at the unit level by `tests/unit/site.test.ts`'s
- *         `resumeAction()` true-branch assertion (mocking the flag directly, per the brief's own
- *         "mock resumeAction" alternative).
- *   AC5 — LinkedIn is a real external link (target/rel/aria "opens in new tab").
- * Plus the screenshot pack (TDD gate item 7).
+ * axe (@EVAL-006), the generic overflow / 44 px sweeps (@EVAL-008) and the decoration budget
+ * (@EVAL-018) already cover `/contact` via `routes.json`; this file asserts what is specific to
+ * the page (Design.md §7.8, §7.9, §3.3):
+ *   TC-170.1 — copy → "Copied" (forest border) for 2 s → idle; the live region announces.
+ *   TC-170.2 — blocked clipboard → "Copy failed" (rust border) + selectable `<output>` fallback.
+ *   TC-170.3 — mailto / LinkedIn external / `#resume` = `resumeAction()`; location line only
+ *              behind `site.showLocation` (default false — dispatch rule for M-009).
+ *   TC-170.4 — no phone / DOB / street address in the route markup (PII_PATTERNS, EXE-8).
+ *   TC-170.5 — postcard labels are valid `data-hand="label"` (≤ 3 words); values are Inter.
+ *   TC-170.6 — unit counts opener 3 · details 3 at 390 and 1440; no overflow at 390. The §7.8
+ *              taped portrait (max 420 px < 900) is superseded by TKT-95's full-bleed opener
+ *              (EXE-18 / Dev-24) — covered by `scene-opener.spec.ts`, not re-asserted here.
+ * Plus the @EVAL-007 keyboard path for `CopyButton` and the screenshot pack.
  */
 import { test, expect } from "./fixtures";
-import { site } from "@/lib/site";
+import { resumeAction, site } from "@/lib/site";
+import { PII_PATTERNS } from "../../scripts/forbidden-strings";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
-// Same PII patterns the forbidden-strings scanner and the resume-pii gate ban (EXE-8).
-const PHONE_PATTERNS = [/\+91[\s-]?\d{5}[\s-]?\d{5}/, /\b\d{10}\b/];
+/** Resolve a CSS colour token to the computed `rgb(...)` string the browser reports. */
+async function tokenColor(page: import("@playwright/test").Page, token: string): Promise<string> {
+  return page.evaluate((t) => {
+    const probe = document.createElement("span");
+    probe.style.color = `var(${t})`;
+    document.body.appendChild(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  }, token);
+}
+
+async function stubClipboard(page: import("@playwright/test").Page, mode: "resolve" | "reject") {
+  await page.addInitScript((m) => {
+    (window as unknown as { __copied: string[] }).__copied = [];
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: (v: string) => {
+          if (m === "reject") return Promise.reject(new Error("blocked"));
+          (window as unknown as { __copied: string[] }).__copied.push(v);
+          return Promise.resolve();
+        },
+      },
+    });
+  }, mode);
+}
 
 // ---------------------------------------------------------------------------
-// Content — h1, the 4 actions, city line, no phone anywhere. Content is viewport-independent.
+// Content — h1, the four actions in order with their numerals, no form.
 // ---------------------------------------------------------------------------
-test("ContactCard renders the headline, all four actions, the city line, and no phone number", async ({
-  page,
-}) => {
+test("opener renders the headline and the four numbered actions, and no form", async ({ page }) => {
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
   await page.goto("/contact", { waitUntil: "load" });
 
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Still curious?");
+  const opener = page.locator("section#contact");
+  await expect(opener.getByRole("heading", { level: 1 })).toHaveText("Still curious?");
+  await expect(opener.locator(".contact-eyebrow")).toHaveText("Contact");
 
-  const card = page.locator("main");
-  await expect(card.locator("[data-copy-button]")).toBeVisible();
-  await expect(card.locator(`a[href="mailto:${site.email}"]`)).toContainText("Email me");
-  await expect(card.locator(`a[href="${site.linkedin}"]`)).toBeVisible();
-  await expect(card).toContainText("Bengaluru, India");
-
-  const bodyText = (await page.locator("body").innerText()).replace(/\s+/g, " ");
-  for (const pattern of PHONE_PATTERNS) {
-    expect(bodyText, `found what looks like a phone number matching ${pattern}`).not.toMatch(pattern);
+  const items = opener.locator("ul[data-contact-actions] > li");
+  await expect(items).toHaveCount(4);
+  await expect(items.locator(".contact-num")).toHaveText(["01", "02", "03", "04"]);
+  // Numerals are decoration (the list already numbers itself for AT).
+  for (const num of await items.locator(".contact-num").all()) {
+    await expect(num).toHaveAttribute("aria-hidden", "true");
   }
+
+  await expect(items.nth(0)).toContainText(site.email);
+  await expect(items.nth(0).locator("[data-copy-button]")).toBeVisible();
+  await expect(items.nth(1).locator(`a[href="mailto:${site.email}"]`)).toHaveText("Email me →");
+  await expect(items.nth(2).locator(`a[href="${site.linkedin}"]`)).toBeVisible();
+  await expect(items.nth(3)).toHaveAttribute("id", "resume");
+
+  await expect(page.locator("main form")).toHaveCount(0);
 });
 
 // ---------------------------------------------------------------------------
-// AC2 — the 4-action grid's real gap is 12px (--space-3), independent of the 44px floor eval-008
-// already enforces generically.
+// TC-170.3 — location line only behind site.showLocation (dispatch rule; default false).
 // ---------------------------------------------------------------------------
-test("the 4-action grid uses a 12px gap", async ({ page }) => {
-  test.skip(width(page) !== 390 && width(page) !== 1024, "gap token checked once stacked + once 2-col");
+test("'Bengaluru, India' renders only when site.showLocation is on", async ({ page }) => {
+  test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
   await page.goto("/contact", { waitUntil: "load" });
 
-  const grid = page.locator("[data-contact-actions]");
-  await expect(grid).toBeVisible();
-  const gaps = await grid.evaluate((el) => {
-    const s = getComputedStyle(el);
-    return { rowGap: s.rowGap, columnGap: s.columnGap };
-  });
-  expect(gaps.rowGap, "row-gap must be the 12px --space-3 token").toBe("12px");
-  if (width(page) >= 768) {
-    expect(gaps.columnGap, "column-gap must be the 12px --space-3 token").toBe("12px");
+  const main = page.locator("main");
+  if (site.showLocation) {
+    await expect(main.locator(".contact-location")).toHaveText("Bengaluru, India");
+  } else {
+    await expect(main).not.toContainText("Bengaluru");
+    await expect(main.locator(".contact-location")).toHaveCount(0);
   }
 });
 
 // ---------------------------------------------------------------------------
-// AC5 — LinkedIn: real external link (target/rel/aria).
+// TC-170.4 — PII: no phone / DOB / street address in the route's rendered text or markup (EXE-8).
 // ---------------------------------------------------------------------------
-test("LinkedIn is a real external link: target=_blank, rel=noopener, accessible name includes 'opens in new tab'", async ({
+test("no phone number, DOB or street address anywhere on /contact", async ({ page }) => {
+  test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
+  await page.goto("/contact", { waitUntil: "load" });
+
+  const text = (await page.locator("body").innerText()).replace(/\s+/g, " ");
+  const markup = await page.locator("main").innerHTML();
+  for (const [name, re] of Object.entries(PII_PATTERNS)) {
+    expect(text, `visible text matches the ${name} pattern`).not.toMatch(re);
+    expect(markup, `main markup matches the ${name} pattern`).not.toMatch(re);
+  }
+  // Only the approved contact channels are linked from <main>.
+  const hrefs = await page.locator("main a[href]").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+  expect(hrefs.filter((h) => h?.startsWith("tel:"))).toEqual([]);
+});
+
+// ---------------------------------------------------------------------------
+// LinkedIn: real external link (target/rel/aria) — actions row and postcard.
+// ---------------------------------------------------------------------------
+test("LinkedIn links are real external links: target=_blank, rel=noopener, 'opens in new tab'", async ({
   page,
 }) => {
   test.skip(width(page) !== 1440, "link attributes are viewport-independent; checked once at w1440");
   await page.goto("/contact", { waitUntil: "load" });
 
-  // Scoped to <main>: the Footer's own LinkedIn link reuses the same href, so an unscoped locator
-  // would collide under Playwright's strict-mode single-element resolution.
-  const link = page.locator("main").locator(`a[href="${site.linkedin}"]`);
-  await expect(link).toHaveAttribute("target", "_blank");
-  const rel = await link.getAttribute("rel");
-  expect(rel, "LinkedIn link rel must include noopener").toContain("noopener");
-  await expect(link).toHaveAccessibleName(/opens in new tab/i);
+  const links = page.locator("main").locator(`a[href="${site.linkedin}"]`);
+  await expect(links).toHaveCount(2);
+  for (const link of await links.all()) {
+    await expect(link).toHaveAttribute("target", "_blank");
+    expect(await link.getAttribute("rel"), "rel must include noopener").toContain("noopener");
+    await expect(link).toHaveAccessibleName(/opens in new tab/i);
+  }
 });
 
 // ---------------------------------------------------------------------------
-// AC4 — #resume anchor + the PB5 placeholder (visible note, not just a tooltip) while
-// site.resumeAvailable is false.
+// #resume = resumeAction() + the visible note while resumeAvailable is false (PB5).
 // ---------------------------------------------------------------------------
-test("#resume anchor exists and the resume control renders the PB5 placeholder while resumeAvailable is false", async ({
-  page,
-}) => {
+test("#resume row renders resumeAction() and its visible note", async ({ page }) => {
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
-  expect(site.resumeAvailable, "this suite runs against the tracer build (resumeAvailable=false)").toBe(
+  expect(site.resumeAvailable, "this suite runs against the placeholder build (resumeAvailable=false)").toBe(
     false,
   );
+  const resume = resumeAction();
   await page.goto("/contact", { waitUntil: "load" });
 
-  const resumeSection = page.locator("#resume");
-  await expect(resumeSection).toBeVisible();
-  await expect(resumeSection).toContainText("Resume — updating");
-  await expect(resumeSection).toContainText("Sanitised resume coming — email me for a copy");
-  await expect(resumeSection.locator("a")).toHaveAttribute("href", "/contact#resume");
+  const row = page.locator("#resume");
+  await expect(row).toBeVisible();
+  const control = row.locator("a");
+  await expect(control).toHaveText(resume.label);
+  await expect(control).toHaveAttribute("href", resume.href);
+  await expect(row.locator(".contact-note")).toHaveText(resume.note ?? "");
 });
 
-// The real 200-download path only exists once TKT-08 lands a sanitised public/resume.pdf and
-// flips site.resumeAvailable — until then there is no file to download and nothing to assert
-// against in the browser. resumeAction()'s download-shape branch is already verified by mocking
-// the flag directly in tests/unit/site.test.ts (the brief's documented alternative), so the
-// resume control's contract is covered end-to-end; this fixme is the live e2e leg, same blocker
-// and convention as eval-002.spec.ts's full-journey fixme.
+// The real 200-download path only exists once TKT-08 lands a sanitised public/resume.pdf and flips
+// site.resumeAvailable; resumeAction()'s download branch is covered in tests/unit/site.test.ts.
 test.fixme(
   "resume control serves a real 200 download once resumeAvailable flips true (TKT-08)",
   async () => {},
 );
 
 // ---------------------------------------------------------------------------
-// AC3 — CopyButton happy path (mirrors home.spec.ts's #cta CopyButton coverage, scoped to /contact).
+// TC-170.1 — copied: forest border, announced, reverts to idle after 2 s.
 // ---------------------------------------------------------------------------
-test("CopyButton copies the email and confirms", async ({ page }) => {
+test("CopyButton copies the email, shows 'Copied' with a forest border, then reverts", async ({ page }) => {
   test.skip(width(page) !== 1440, "clipboard behaviour checked once at w1440");
-
-  await page.addInitScript(() => {
-    (window as unknown as { __copied: string[] }).__copied = [];
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: (v: string) => {
-          (window as unknown as { __copied: string[] }).__copied.push(v);
-          return Promise.resolve();
-        },
-      },
-    });
-  });
+  await stubClipboard(page, "resolve");
   await page.goto("/contact", { waitUntil: "load" });
 
   const button = page.locator("main [data-copy-button]");
   await expect(button).toHaveAttribute("data-state", "idle");
+  await expect(button).toHaveText("Copy");
   await button.click();
   await expect(button).toHaveAttribute("data-state", "copied");
-  await expect(page.locator("main [role='status']")).toContainText("Copied");
+  await expect(button).toHaveText("Copied");
+  await expect(page.locator("main span[role='status']")).toHaveText(`Copied ${site.email}`);
+
+  const forest = await tokenColor(page, "--color-forest");
+  // Poll: the border colour eases over 180 ms, so an immediate read lands mid-transition.
+  await expect.poll(() => button.evaluate((el) => getComputedStyle(el).borderTopColor)).toBe(forest);
 
   const copied = await page.evaluate(() => (window as unknown as { __copied: string[] }).__copied);
-  expect(copied).toContain(site.email);
+  expect(copied).toEqual([site.email]);
+
+  // 2 s confirmation, then idle (not before ~1.5 s, not after ~3 s).
+  await page.waitForTimeout(1500);
+  await expect(button).toHaveAttribute("data-state", "copied");
+  await expect(button).toHaveAttribute("data-state", "idle", { timeout: 1500 });
 });
 
 // ---------------------------------------------------------------------------
-// AC3 — CopyButton failure path: a blocked clipboard falls back to selectable text (A12).
+// TC-170.2 — error: rust border + selectable <output> fallback (A12: never a dead end).
 // ---------------------------------------------------------------------------
-test("CopyButton falls back to selectable text when the clipboard is blocked", async ({ page }) => {
+test("CopyButton shows 'Copy failed' and a selectable fallback when the clipboard is blocked", async ({
+  page,
+}) => {
   test.skip(width(page) !== 1440, "fallback behaviour checked once at w1440");
-
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: () => Promise.reject(new Error("blocked")) },
-    });
-  });
+  await stubClipboard(page, "reject");
 
   const warnings: string[] = [];
   page.on("console", (msg) => {
@@ -175,52 +206,38 @@ test("CopyButton falls back to selectable text when the clipboard is blocked", a
   const button = page.locator("main [data-copy-button]");
   await button.click();
   await expect(button).toHaveAttribute("data-state", "error");
+  await expect(button).toHaveText("Copy failed");
+
+  const rust = await tokenColor(page, "--color-rust");
+  // Poll: the border colour eases over 180 ms, so an immediate read lands mid-transition.
+  await expect.poll(() => button.evaluate((el) => getComputedStyle(el).borderTopColor)).toBe(rust);
 
   const fallback = page.locator("main [data-copy-fallback]");
   await expect(fallback).toBeVisible();
-  await expect(fallback.locator("output")).toHaveText(site.email);
+  const output = fallback.locator("output");
+  await expect(output).toHaveText(site.email);
+  expect(await output.evaluate((el) => getComputedStyle(el).userSelect)).toBe("all");
   await expect(fallback).toContainText("Select to copy");
+  await expect(page.locator("main span[role='status']")).toContainText("Copy failed");
 
   expect(warnings.some((w) => w.includes("[copy]"))).toBe(true);
 });
 
 // ---------------------------------------------------------------------------
-// @EVAL-007 — CopyButton is fully keyboard-operable: Tab reaches it, the shared 2px rust focus
-// ring is visible, and Enter/Space both activate it (TKT-48; closes the /contact CopyButton
-// keyboard-e2e follow-up flagged in M-006).
+// @EVAL-007 — CopyButton keyboard path: Tab focus ring, Enter and Space both copy.
 // ---------------------------------------------------------------------------
 test("@EVAL-007 CopyButton: Tab focuses it with a visible ring, Enter and Space both copy", {
   tag: "@EVAL-007",
 }, async ({ page }) => {
   test.skip(width(page) !== 1440, "keyboard sweep runs once at a desktop width");
-
-  await page.addInitScript(() => {
-    (window as unknown as { __copied: string[] }).__copied = [];
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: (v: string) => {
-          (window as unknown as { __copied: string[] }).__copied.push(v);
-          return Promise.resolve();
-        },
-      },
-    });
-  });
+  await stubClipboard(page, "resolve");
   await page.goto("/contact", { waitUntil: "load" });
 
   const button = page.locator("main [data-copy-button]");
   await button.focus();
   await expect(button).toBeFocused();
 
-  // The focused button wears the shared 2px solid rust ring (EVAL-007).
-  const accent = await page.evaluate(() => {
-    const probe = document.createElement("span");
-    probe.style.color = "var(--color-rust)";
-    document.body.appendChild(probe);
-    const c = getComputedStyle(probe).color;
-    probe.remove();
-    return c;
-  });
+  const accent = await tokenColor(page, "--color-rust");
   const ring = await button.evaluate((el) => {
     const s = getComputedStyle(el);
     return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
@@ -229,11 +246,8 @@ test("@EVAL-007 CopyButton: Tab focuses it with a visible ring, Enter and Space 
   expect(ring.style).toBe("solid");
   expect(ring.color).toBe(accent);
 
-  // Enter activates the native button.
   await page.keyboard.press("Enter");
   await expect(button).toHaveAttribute("data-state", "copied");
-
-  // Wait out the 2s copied→idle revert, then Space activates it too.
   await expect(button).toHaveAttribute("data-state", "idle", { timeout: 3000 });
   await button.focus();
   await page.keyboard.press("Space");
@@ -244,12 +258,61 @@ test("@EVAL-007 CopyButton: Tab focuses it with a visible ring, Enter and Space 
 });
 
 // ---------------------------------------------------------------------------
-// Screenshot pack (TDD gate item 7).
+// TC-170.5 — postcard: stamp chrome, valid labels, Inter values, email + LinkedIn rows.
+// ---------------------------------------------------------------------------
+test("postcard: labels are data-hand='label' ≤ 3 words, values are Inter, stamp is chrome", async ({ page }) => {
+  test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
+  await page.goto("/contact", { waitUntil: "load" });
+
+  const card = page.locator('main [data-paper="postcard"]');
+  await expect(card).toHaveCount(1);
+  await expect(card.locator(".paper-stamp")).toHaveAttribute("aria-hidden", "true");
+
+  const labels = card.locator('[data-hand="label"]');
+  const texts = await labels.allInnerTexts();
+  expect(texts.slice(0, 2)).toEqual(["email", "linkedin"]);
+  for (const t of texts) {
+    expect(t.trim().split(/\s+/).length, `label "${t}" must be ≤ 3 words`).toBeLessThanOrEqual(3);
+  }
+  for (const label of await labels.all()) {
+    expect(await label.evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/Caveat/i);
+  }
+  for (const value of await card.locator(".contact-postcard-value").all()) {
+    expect(await value.evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/Inter/i);
+  }
+  await expect(card.locator(`a[href="mailto:${site.email}"]`)).toHaveText(site.email);
+  if (!site.showLocation) await expect(card).not.toContainText("Bengaluru");
+});
+
+// ---------------------------------------------------------------------------
+// TC-170.6 — unit counts (§3.3) at both measured widths + no overflow at 390.
+// ---------------------------------------------------------------------------
+test("decoration counts: opener 3 · details 3; no horizontal overflow at 390", async ({ page, noOverflow }) => {
+  const w = width(page);
+  test.skip(w !== 390 && w !== 1440, "EVAL-018 widths are 390 and 1440");
+  await page.goto("/contact", { waitUntil: "load" });
+
+  const own = (selector: string) =>
+    page.locator(selector).evaluate((section) =>
+      Array.from(section.querySelectorAll("[data-decor]"))
+        .filter((el) => el.closest("section") === section)
+        .map((el) => el.getAttribute("data-decor")),
+    );
+
+  expect((await own("section#contact")).sort()).toEqual(["annotation", "annotation", "sticky"]);
+  expect((await own("section.contact-details")).sort()).toEqual(["annotation", "sketch", "torn"]);
+
+  if (w === 390) await noOverflow(page);
+});
+
+// ---------------------------------------------------------------------------
+// Screenshot pack.
 // ---------------------------------------------------------------------------
 test("screenshot pack", async ({ page }) => {
   const w = width(page);
   test.skip(![390, 768, 1024, 1440].includes(w), "one screenshot per configured viewport project");
   await page.goto("/contact", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: `docs/screenshots/contact/${w}.png`,
     fullPage: true,
