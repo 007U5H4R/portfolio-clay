@@ -19,6 +19,12 @@ import { test, expect } from "./fixtures";
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 const isEdge = (page: import("@playwright/test").Page) => width(page) === 390 || width(page) === 1440;
+// ChapterNav exists only at ≥ 1024 (Dev-09 / TP14 `MediaGate`): removed from the DOM below, visible above.
+const expectChapterNav = async (page: import("@playwright/test").Page) => {
+  const nav = page.locator('nav[aria-label="Chapters"]');
+  if (width(page) < 1024) await expect(nav).toHaveCount(0);
+  else await expect(nav).toBeVisible();
+};
 
 // Personal slugs in /work grid order → display name (data/projects.ts). Hard-coded rather than
 // imported so the spec never pulls the zod/next data module into the Playwright runtime.
@@ -117,7 +123,7 @@ test("case-study · teachspark deep dive: metrics (TC-075), OverviewToggle (TC-0
   await page.getByRole("radio", { name: "Deep dive" }).click();
 
   // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
-  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  await expectChapterNav(page);
   // Attribute selector, not `#id`: the anchor ids start with a digit (invalid CSS id selector).
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
@@ -154,7 +160,7 @@ test("case-study · railcite deep dive: metrics (TC-075), OverviewToggle (TC-076
   await page.getByRole("radio", { name: "Deep dive" }).click();
 
   // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
-  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  await expectChapterNav(page);
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
   }
@@ -191,7 +197,7 @@ test("case-study · velora deep dive: metrics (TC-075), OverviewToggle (TC-076),
   await page.getByRole("radio", { name: "Deep dive" }).click();
 
   // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
-  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  await expectChapterNav(page);
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
   }
@@ -227,7 +233,7 @@ test("case-study · nuptis deep dive: no fabricated metrics, OverviewToggle (TC-
   await page.getByRole("radio", { name: "Deep dive" }).click();
 
   // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
-  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  await expectChapterNav(page);
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
   }
@@ -270,7 +276,7 @@ test("case-study · cubicle deep dive: built-not-launched honesty, build-quality
   await page.getByRole("radio", { name: "Deep dive" }).click();
 
   // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
-  await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+  await expectChapterNav(page);
   for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
     await expect(page.locator(`[id="${id}"]`)).toBeAttached();
   }
