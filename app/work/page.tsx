@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Container } from "@/components/layout/Container";
+import { Annotation, TornEdge } from "@/components/paper";
 import { SceneOpener } from "@/components/paper/SceneOpener";
-import { EditorialGrid } from "@/components/projects/EditorialGrid";
 import { ExperienceStrip, ExperienceStripFallback } from "@/components/projects/ExperienceStrip";
 import { FilterTabs, FilterTabsFallback } from "@/components/projects/FilterTabs";
 import { WorkGrid } from "@/components/projects/WorkGrid";
 import { WorkHero } from "@/components/projects/WorkHero";
+import { WorkIndex } from "@/components/projects/WorkIndex";
 import { projects } from "@/data/projects";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -20,10 +21,10 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /**
- * `/work` (TKT-16/17, M-004): the full editorial project index. `WorkHero` (flat intro) →
- * `FilterTabs` (URL-synced `?filter=`) → `WorkGrid` (client-filtered editorial grid of the PERSONAL
- * builds only) → `ExperienceStrip` (the professional-experience entries, TKT-17: a flat, non-clay,
- * clearly-separated strip below the grid — never mixed into the filterable product grid).
+ * `/work` (TKT-16/17 → TKT-80, Design.md §7.2): `SceneOpener` (TKT-95) → `WorkHero` (opener copy) →
+ * the index section (`FilterTabs`, URL-synced `?filter=`, + `WorkGrid` → the numbered `WorkIndex` of
+ * the PERSONAL builds, or `EmptyState` only when a filter is empty) → `ExperienceStrip` (the
+ * professional entries as employment, never mixed into the filterable product index).
  *
  * The route MUST stay statically prerendered (TP1). `FilterTabs`, `WorkGrid` and `ExperienceStrip`
  * all read the filter with `useSearchParams` (client) rather than a server `searchParams` prop —
@@ -42,33 +43,39 @@ export default function WorkPage() {
       {/* TKT-95 scene opener (EXE-18): the character's face + reaching arm sit ≈ 38 % down the scene. */}
       <SceneOpener id="scene-work" focalX={0.6} focalY={0.38} priority />
       <WorkHero />
-      <Container as="section" aria-labelledby="work-personal-heading" className="pb-[var(--section-gap-desktop)]">
-        {/* QA-004 (TKT-48 follow-up): the page h1 ("Work") was followed directly by the ProjectCard
-            h3s — an h1→h3 heading-outline skip for screen-reader users navigating by heading (caught
-            by the CF-3 heading-order guard, invisible to axe's WCAG2AA tags). A real (sr-only) h2
-            names the personal-builds region so the outline reads h1 → h2 → h3; the visible framing
-            already lives in WorkHero's lead + FilterTabs, so no visual change. */}
-        <h2 id="work-personal-heading" className="sr-only">
-          Personal builds
-        </h2>
-        <Suspense fallback={<FilterTabsFallback />}>
-          <FilterTabs />
-        </Suspense>
-        <Suspense
-          fallback={
-            <div className="mt-[var(--space-8)]">
-              <EditorialGrid projects={personalProjects} />
-            </div>
-          }
-        >
-          <WorkGrid projects={personalProjects} />
-        </Suspense>
-      </Container>
-      <Container as="section" aria-label="Professional experience" className="pb-[var(--section-gap-desktop)]">
-        <Suspense fallback={<ExperienceStripFallback projects={professionalProjects} />}>
-          <ExperienceStrip projects={professionalProjects} />
-        </Suspense>
-      </Container>
+      {/* TKT-80 index (Design.md §7.2): paper-2, torn top, sr-only h2 (QA-004 heading outline h1 → h2 →
+          h3), the serif filter tabs + "start here ↓" annotation, then the numbered index / EmptyState.
+          EVAL-018 unit = torn · annotation · (RailCite) sticky = 3. */}
+      <section aria-labelledby="work-personal-heading" className="work-index-sec">
+        <TornEdge fill="paper-2" />
+        <Container className="work-index-wrap">
+          <h2 id="work-personal-heading" className="sr-only">
+            Personal builds
+          </h2>
+          <div className="work-tabs-row">
+            <Suspense fallback={<FilterTabsFallback />}>
+              <FilterTabs />
+            </Suspense>
+            <Annotation arrow="down" rotate={-1.5} className="work-tabs-note">
+              start here ↓
+            </Annotation>
+          </div>
+          <Suspense
+            fallback={
+              <div className="work-panel">
+                <WorkIndex projects={personalProjects} />
+              </div>
+            }
+          >
+            <WorkGrid projects={personalProjects} />
+          </Suspense>
+        </Container>
+      </section>
+      {/* The strip renders its own <section aria-label="Professional experience"> (torn) so it leaves
+          no empty landmark behind when a filter ("Experiments") matches no professional entry. */}
+      <Suspense fallback={<ExperienceStripFallback projects={professionalProjects} />}>
+        <ExperienceStrip projects={professionalProjects} />
+      </Suspense>
     </>
   );
 }

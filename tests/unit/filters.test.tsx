@@ -57,11 +57,21 @@ describe("lib/filters", () => {
   });
 });
 
-describe("EmptyState (four-states empty case, TKT-16 AC5)", () => {
+describe("EmptyState (four-states empty case, TKT-16 AC5 → TKT-80 Dev-05)", () => {
   it("renders honest copy and a live 'Show all' link to /work", () => {
     render(<EmptyState />);
     expect(screen.getByText("No projects match this filter")).toBeTruthy();
     const showAll = screen.getByRole("link", { name: /Show all/ });
     expect(showAll.getAttribute("href")).toBe("/work");
+  });
+
+  it("is the pinned index card (content paper, not a decoration) with a Caveat cta label", () => {
+    const { container } = render(<EmptyState />);
+    const card = container.querySelector('[data-paper="index"]');
+    expect(card).not.toBeNull();
+    expect(card!.querySelector('[data-fastener="pin"]')).not.toBeNull();
+    expect(container.querySelectorAll("[data-decor]")).toHaveLength(0);
+    const cta = screen.getByRole("link", { name: /Show all/ }).querySelector('[data-hand="cta"]');
+    expect(cta?.textContent).toBe("Show all →");
   });
 });

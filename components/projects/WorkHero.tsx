@@ -1,35 +1,31 @@
 import { Container } from "@/components/layout/Container";
+import { Annotation, Sketch } from "@/components/paper";
 
 /**
- * `/work` page intro (TKT-16, Design.md §3 "Work page → WorkHero"; light M-008 Stage B / TASK-57
- * touch to `docs/redesign-mockups/mockups-8panel-2026-09-23.png` panel 6, whose opening reads
- * "WORK" eyebrow → statement headline → subline). Stays a flat, no-clay zone — text-leading pages
- * open flat, establishing credibility before any clay appears below the fold (unchanged decision);
- * only an eyebrow label was added, reusing `AboutHero`'s own eyebrow-chip idiom verbatim (utility
- * shadow only, no clay gradient, so the "no clay above the fold" contract holds). The h1 ("Work")
- * and lead line are UNCHANGED, verbatim CONTENT_INVENTORY §2.1 copy (DRAFT) — the panel's own
- * "Products I've bet on." headline is mockup illustrative copy, not sourced content, so it is not
- * reproduced here (no new fact/phrasing invented), and the existing h1 text is load-bearing for
- * `tests/e2e/work.spec.ts`'s exact-text assertion.
+ * `/work` opener copy (TKT-80 · TSK-39, Design.md §7.2 "Opener"). The scene itself is already on the
+ * page as the full-bleed `SceneOpener` above this section (TKT-95, EXE-18 / Dev-24 — one `<img>`,
+ * manifest alt), so this section carries only the copy: eyebrow, the oversized Fraunces h1 "Work"
+ * with the rust underline `Sketch`, the lead, and the scene's caption annotation.
+ *
+ * EVAL-018 (§3.3 `/work` opener = 2): the h1 underline sketch + the caption annotation. The h1 and
+ * lead are unchanged verbatim copy (CONTENT_INVENTORY §2.1).
  */
 export function WorkHero() {
   return (
-    <Container
-      as="section"
-      className="pt-[var(--space-12)] pb-[var(--space-8)] md:pt-[var(--space-13)]"
-    >
-      <div className="flex max-w-[44ch] flex-col gap-[var(--space-3)]">
-        <span className="inline-flex w-fit items-center gap-[var(--space-2)] rounded-[var(--radius-pill)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
-          <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-rust" />
+    <Container as="section" className="work-hero" aria-labelledby="work-h">
+      <div className="work-hero-copy">
+        <p className="work-hero-eyebrow">Work</p>
+        <h1 id="work-h" className="work-hero-h1">
           Work
-        </span>
-        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
-          Work
+          <Sketch variant="underline" />
         </h1>
-        <p className="text-[length:var(--text-lead)] text-navy-2">
+        <p className="work-hero-lead">
           Personal builds first. Corporate work is listed as experience, not product.
         </p>
       </div>
+      <Annotation size="md" rotate={-1.2} className="work-hero-caption">
+        the pinboard — every build gets a sketch first
+      </Annotation>
     </Container>
   );
 }
