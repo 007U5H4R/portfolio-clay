@@ -1,168 +1,169 @@
 /**
- * how-i-think.spec.ts (technical-plan.md §B S13.04, `@EVAL-007 @EVAL-010 @EVAL-011 @EVAL-013`) —
- * the home How-I-Think module: 6 disclosure tiles, one shared expand region below the row.
+ * how-i-think.spec.ts (TKT-76 · TC-148; Design.md §7.1, §3.3, §3.4; `@EVAL-003 @EVAL-007 @EVAL-010
+ * @EVAL-011 @EVAL-013 @EVAL-018`) — the home "How I think" section as six static pinned stage cards
+ * over the journey-curve sketch. Rewritten for M-009: the M-008 expand / arrow-key disclosure tests
+ * are gone with the behaviour (the quote is always visible; the link pills are the only controls).
  *
- *   @EVAL-007 — keyboard path: Tab reaches the roving tile group, Arrow keys move the roving
- *               tabindex, Enter/Space opens the expand card, Escape closes without losing focus.
- *   @EVAL-010 — reduced motion collapses the expand transition to instant (no measurable duration).
- *   @EVAL-011 — every trigger tile is a live control (opens/closes, no dead button) and the
- *               revealed example link resolves 200 (no dead link).
- *   @EVAL-013 — sourced content: all 6 stages render, each example link points at its declared
- *               project's case study anchor (no fabricated/dangling hrefs).
+ *   @EVAL-013 — six stages in order, each with its sourced quote + cite visible without interaction.
+ *   @EVAL-011 — every pill is a live link that resolves 200 to a case-study chapter anchor.
+ *   @EVAL-018 — section count 2 (torn + journey sketch) at w1440, 1 at w390 (sketch not in the DOM);
+ *               every Caveat element in the section carries a `data-hand` exemption.
+ *   @EVAL-007 — keyboard: Tab from the heading lands only on the six pills, in order, then leaves.
+ *   @EVAL-010 — cards reveal with a 70 ms stagger; reduced motion makes the reveal instant.
+ *   @EVAL-003 — layout: 6 columns at 1440, 1 column at 390; no overflow; axe clean.
  */
+import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 
-const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
+const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
 const STAGES = ["Problem", "Insight", "Bet", "Build", "Evaluate", "Impact"] as const;
 
-const triggers = (page: import("@playwright/test").Page) =>
-  page.locator("#how-i-think button[data-stage-trigger]");
+const section = (page: Page) => page.locator("section#how-i-think");
+const cards = (page: Page) => section(page).locator('article[data-paper="card"]');
+const pills = (page: Page) => section(page).locator("a[href]");
 
-// ---------------------------------------------------------------------------
-// @EVAL-013 — all 6 stages render, in CONTENT_INVENTORY §1.5 order.
-// ---------------------------------------------------------------------------
-test("@EVAL-013 renders all 6 stages in order", async ({ page }) => {
-  test.skip(width(page) !== 1440, "stage list checked once at w1440");
+/** Scroll each stage into view so every `Reveal` fires (cards stack tall at 390). */
+async function revealAll(page: Page) {
+  const reveals = section(page).locator(".reveal");
+  await expect(reveals).toHaveCount(6);
+  for (let i = 0; i < 6; i++) {
+    await reveals.nth(i).scrollIntoViewIfNeeded();
+    await expect(reveals.nth(i)).toHaveAttribute("data-revealed", "");
+  }
+  // Let the 500 ms fade (+ up to 350 ms stagger) settle, so axe never measures a half-blended colour.
+  await expect
+    .poll(() => reveals.evaluateAll((els) => els.every((el) => getComputedStyle(el).opacity === "1")))
+    .toBe(true);
+}
+
+test("@EVAL-013 six stage cards in order, each quote and cite visible without interaction", {
+  tag: "@EVAL-013",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440 && width(page) !== 390, "content checked at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
-  const buttons = triggers(page);
-  await expect(buttons).toHaveCount(6);
+  await revealAll(page);
+
+  await expect(cards(page)).toHaveCount(6);
   for (let i = 0; i < STAGES.length; i++) {
-    await expect(buttons.nth(i)).toContainText(STAGES[i]!);
+    const card = cards(page).nth(i);
+    await expect(card.locator("h3")).toHaveText(STAGES[i]!);
+    await expect(card.locator('[data-hand="label"]')).toHaveText(String(i + 1).padStart(2, "0"));
+    await expect(card.locator('blockquote[data-hand="quote"]')).toBeVisible();
+    await expect(card.locator("cite")).toBeVisible();
+    await expect(card.locator('[data-paper="tag"]')).toHaveCount(1);
+  }
+  await expect(section(page).locator("button, [aria-expanded]")).toHaveCount(0);
+});
+
+test("@EVAL-011 every pill links to a case-study chapter anchor that resolves 200", {
+  tag: "@EVAL-011",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "link resolution checked once at w1440");
+  await page.goto("/", { waitUntil: "load" });
+
+  await expect(pills(page)).toHaveCount(6);
+  for (let i = 0; i < 6; i++) {
+    const pill = pills(page).nth(i);
+    await expect(pill).toContainText("See how I tested this in ");
+    const href = await pill.getAttribute("href");
+    expect(href, "pill must link to a /work/<slug>#NN-chapter anchor").toMatch(/^\/work\/[a-z0-9-]+#\d{2}-[a-z-]+$/);
+    const res = await page.request.get(href!);
+    expect(res.status(), `${href} must resolve 200`).toBe(200);
   }
 });
 
-// ---------------------------------------------------------------------------
-// @EVAL-011 / @EVAL-013 — opening a stage reveals its sourced example; the link href matches the
-// data and resolves 200. Opening a second stage closes the first (only one open at a time).
-// ---------------------------------------------------------------------------
-test("@EVAL-011 @EVAL-013 opening a stage reveals one sourced, resolving example; only one open at a time", {
-  tag: ["@EVAL-011", "@EVAL-013"],
+test("@EVAL-018 decoration count 2 at w1440 / 1 at w390; Caveat only under data-hand", {
+  tag: "@EVAL-018",
 }, async ({ page }) => {
-  test.skip(width(page) !== 1440, "expand/collapse behaviour checked once at w1440");
+  test.skip(width(page) !== 1440 && width(page) !== 390, "EVAL-018 measures w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
+  await revealAll(page);
 
-  const panel = page.locator("#how-i-think-panel");
-  const problemTrigger = triggers(page).nth(0);
-  const insightTrigger = triggers(page).nth(1);
+  const decor = section(page).locator("[data-decor]");
+  if (width(page) === 1440) {
+    // MediaGate mounts the sketch after hydration (TP14).
+    await expect(section(page).locator('svg[data-decor="sketch"][data-sketch="journey"]')).toHaveCount(1);
+    await expect(decor).toHaveCount(2);
+  } else {
+    await expect(section(page).locator('[data-decor="torn"]')).toHaveCount(1);
+    await expect(decor).toHaveCount(1);
+    await expect(section(page).locator("svg.sketch")).toHaveCount(0);
+  }
 
-  await expect(problemTrigger).toHaveAttribute("aria-expanded", "false");
-  await problemTrigger.click();
-  await expect(problemTrigger).toHaveAttribute("aria-expanded", "true");
-
-  const link = panel.getByRole("link");
-  await expect(link).toBeVisible();
-  const href = await link.getAttribute("href");
-  expect(href, "example link must carry an href").toBeTruthy();
-  const res = await page.request.get(href!);
-  expect(res.status(), `${href} must resolve 200`).toBe(200);
-
-  // Opening a second stage closes the first.
-  await insightTrigger.click();
-  await expect(insightTrigger).toHaveAttribute("aria-expanded", "true");
-  await expect(problemTrigger).toHaveAttribute("aria-expanded", "false");
-  await expect(panel.getByRole("link")).toHaveCount(1);
+  const offenders = await section(page).evaluate((root) => {
+    const bad: string[] = [];
+    for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
+      if (!/caveat/i.test(getComputedStyle(el).fontFamily)) continue;
+      if (el.closest("[data-hand], [data-decor], [aria-hidden='true']")) continue;
+      if (!el.textContent?.trim()) continue;
+      bad.push(`${el.tagName.toLowerCase()}.${el.className}`);
+    }
+    return bad;
+  });
+  expect(offenders, "every Caveat element must sit under a data-hand exemption").toEqual([]);
 });
 
-// ---------------------------------------------------------------------------
-// S13.03 gate — expanding a stage pushes following content down. Measured via the document's
-// absolute scroll height (not a viewport-relative boundingBox), which stays correct regardless of
-// any scroll-into-view Playwright's .click() performs on the trigger.
-// ---------------------------------------------------------------------------
-test("expanding a stage pushes following content down", async ({ page }) => {
-  test.skip(width(page) !== 1440, "layout-shift geometry checked once at w1440");
-  await page.goto("/", { waitUntil: "load" });
-
-  const before = await page.evaluate(() => document.documentElement.scrollHeight);
-  await triggers(page).first().click();
-  await page.waitForTimeout(300);
-  const after = await page.evaluate(() => document.documentElement.scrollHeight);
-  expect(after, "expanding a stage must grow the document height (content shifts down)").toBeGreaterThan(
-    before,
-  );
-});
-
-// ---------------------------------------------------------------------------
-// @EVAL-007 — full keyboard path: Tab in, Arrow keys move the roving tabindex, Enter opens,
-// Escape closes without moving focus off the tile.
-// ---------------------------------------------------------------------------
-test("@EVAL-007 keyboard: arrow keys rove, Enter opens, Escape closes and keeps focus", {
+test("@EVAL-007 keyboard: Tab from the heading lands only on the six pills, then leaves the section", {
   tag: "@EVAL-007",
 }, async ({ page }) => {
-  test.skip(width(page) !== 1440, "keyboard script run once at w1440");
+  test.skip(width(page) !== 1440, "keyboard path run once at w1440");
   await page.goto("/", { waitUntil: "load" });
+  await revealAll(page);
 
-  const first = triggers(page).nth(0);
-  const second = triggers(page).nth(1);
-
-  await first.focus();
-  await expect(first).toBeFocused();
-
-  // Roving tabindex: only the active tile is a tab stop.
-  await expect(first).toHaveAttribute("tabindex", "0");
-  await expect(second).toHaveAttribute("tabindex", "-1");
-
-  await page.keyboard.press("ArrowRight");
-  await expect(second).toBeFocused();
-  await expect(second).toHaveAttribute("tabindex", "0");
-  await expect(first).toHaveAttribute("tabindex", "-1");
-
-  await page.keyboard.press("ArrowLeft");
-  await expect(first).toBeFocused();
-
-  // Enter opens; Escape closes without moving focus off the tile.
-  await page.keyboard.press("Enter");
-  await expect(first).toHaveAttribute("aria-expanded", "true");
-  await page.keyboard.press("Escape");
-  await expect(first).toHaveAttribute("aria-expanded", "false");
-  await expect(first).toBeFocused();
-});
-
-// ---------------------------------------------------------------------------
-// Outside click closes the expanded stage.
-// ---------------------------------------------------------------------------
-test("clicking outside the module closes the expanded stage", async ({ page }) => {
-  test.skip(width(page) !== 1440, "pointer behaviour checked once at w1440");
-  await page.goto("/", { waitUntil: "load" });
-
-  const first = triggers(page).first();
-  await first.click();
-  await expect(first).toHaveAttribute("aria-expanded", "true");
-
-  // The section heading sits inside #how-i-think but outside both the tile row and the expand
-  // panel, so it is a safe "outside the module" click target with no risk of hitting a link.
+  // Clicking the heading sets the sequential-focus starting point inside the section.
   await page.locator("#how-i-think-heading").click();
-  await expect(first).toHaveAttribute("aria-expanded", "false");
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press("Tab");
+    const href = await pills(page).nth(i).getAttribute("href");
+    await expect(page.locator(":focus")).toHaveAttribute("href", href!);
+    const inCard = await page.evaluate(() => Boolean(document.activeElement?.closest('#how-i-think [data-paper="card"]')));
+    expect(inCard, `Tab ${i + 1} must land on a stage-card pill`).toBe(true);
+  }
+  await page.keyboard.press("Tab");
+  const stillInside = await page.evaluate(() => Boolean(document.activeElement?.closest("#how-i-think")));
+  expect(stillInside, "the seventh Tab leaves the section (no other focus stops)").toBe(false);
 });
 
-// ---------------------------------------------------------------------------
-// @EVAL-010 — reduced motion collapses the expand transition (no measurable transition-duration).
-// ---------------------------------------------------------------------------
-test("@EVAL-010 reduced motion collapses the expand transition to instant", {
+test("@EVAL-010 cards reveal on a 70 ms stagger; reduced motion is instant", {
   tag: "@EVAL-010",
 }, async ({ page, withReducedMotion }) => {
-  test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
-  await withReducedMotion(page);
+  test.skip(width(page) !== 1440, "motion checked at w1440");
   await page.goto("/", { waitUntil: "load" });
+  const delays = await section(page)
+    .locator(".reveal")
+    .evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionDelay.split(",")[0]!.trim()));
+  expect(delays).toEqual(["0s", "0.07s", "0.14s", "0.21s", "0.28s", "0.35s"]);
 
-  const panel = page.locator("#how-i-think-panel");
-  const transitionProperty = await panel.evaluate((el) => getComputedStyle(el).transitionProperty);
-  expect(transitionProperty, "expand transition must collapse to none under reduced motion").toBe(
-    "none",
-  );
+  await withReducedMotion(page);
+  await page.reload({ waitUntil: "load" });
+  const timing = await section(page)
+    .locator(".reveal")
+    .evaluateAll((els) =>
+      els.map((el) => {
+        const cs = getComputedStyle(el);
+        return { property: cs.transitionProperty, delay: cs.transitionDelay, duration: cs.transitionDuration };
+      }),
+    );
+  for (const t of timing) {
+    expect(t.property).toBe("opacity");
+    expect(t.delay).toBe("0s");
+    expect(parseFloat(t.duration)).toBeLessThanOrEqual(0.001);
+  }
 });
 
-// ---------------------------------------------------------------------------
-// noOverflow + axe at 390.
-// ---------------------------------------------------------------------------
-test("no horizontal overflow and 0 critical/serious axe violations at 390", async ({
-  page,
-  noOverflow,
-  axe,
-}) => {
-  test.skip(width(page) !== 390, "overflow/axe checked once at w390");
+test("@EVAL-003 columns: 6 at w1440, 1 at w390; no overflow; axe clean", {
+  tag: "@EVAL-003",
+}, async ({ page, noOverflow, axe }) => {
+  test.skip(width(page) !== 1440 && width(page) !== 390, "layout checked at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
-  await triggers(page).first().click();
+  await revealAll(page);
+
+  const lefts = await cards(page).evaluateAll((els) =>
+    Array.from(new Set(els.map((el) => Math.round(el.closest("li")!.getBoundingClientRect().left)))),
+  );
+  expect(lefts).toHaveLength(width(page) === 1440 ? 6 : 1);
+
   await noOverflow(page);
   await axe(page, { include: "#how-i-think" });
 });
