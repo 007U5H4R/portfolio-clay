@@ -57,6 +57,7 @@ for (const study of CASE_STUDIES) {
     page,
     noOverflow,
     minTargets,
+    consoleErrors,
   }) => {
     test.skip(!isEdge(page), "case-study render pack runs at 390 and 1440");
     const res = await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
@@ -86,6 +87,7 @@ for (const study of CASE_STUDIES) {
 
     await noOverflow(page);
     await minTargets(page);
+    expect(consoleErrors, "no console errors on the case study (TC-155 step 1)").toEqual([]);
   });
 }
 
@@ -413,4 +415,135 @@ test("case-study · JS off: static HTML carries content and NextProject", { tag:
   } finally {
     await context.close();
   }
+});
+
+// ---------------------------------------------------------------------------
+// TKT-81 (TC-155 / TC-156) — the paper template: header, metric strip, overview folder tabs,
+// thin-project degradation and the next-project band. Decoration counts per unit follow Design.md
+// §3.3, except the header: the taped photo (and its caption annotation) is superseded by the page's
+// SceneOpener (TKT-95, Dev-24), so the header keeps only the media-tag sub-line annotation (1).
+// ---------------------------------------------------------------------------
+const decorCount = (page: import("@playwright/test").Page, unit: string) =>
+  page.locator(unit).first().evaluate((el) =>
+    Array.from(el.querySelectorAll("[data-decor]")).filter((d) => d.closest("section, header, footer") === el).length,
+  );
+
+test("case-study · TKT-81 rich project (teachspark): 3 pinned metric cards + annotation, Inter kind badges, unit counts", {
+  tag: ["@EVAL-018", "@EVAL-013"],
+}, async ({ page }) => {
+  test.skip(!isEdge(page), "runs at 390 and 1440");
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+
+  const strip = page.locator('section[aria-label="Headline metrics"]');
+  await expect(strip).toHaveCount(1);
+  await expect(strip.locator('[data-paper="index"]')).toHaveCount(3);
+  await expect(strip.locator('[data-fastener="pin"]')).toHaveCount(3);
+  await expect(strip.locator('[data-decor="annotation"]')).toHaveText(/the smaller, honest number/);
+  // Every card carries its kind badge, dated caption and Source line (EVAL-013 — never a naked number).
+  for (const card of await strip.locator('[data-paper="index"]').all()) {
+    await expect(card.getByText(/^as of \d/)).toHaveCount(1);
+    await expect(card.getByText(/^Source:/)).toHaveCount(1);
+    const badgeFont = await card.locator(".cs-kind").evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(badgeFont, "kind badge is Inter, never Caveat (Dev-04)").not.toMatch(/caveat/i);
+  }
+
+  // §3.3 counts (header 1 after Dev-24 · strip 2 · overview 2 · next 2).
+  expect(await decorCount(page, "section.cs-head")).toBe(1);
+  expect(await decorCount(page, 'section[aria-label="Headline metrics"]')).toBe(2);
+  expect(await decorCount(page, 'section[aria-labelledby="ov-h"]')).toBe(2);
+  expect(await decorCount(page, 'section[aria-label="Next project"]')).toBe(2);
+
+  // The overview notebook carries the 30-second paragraphs on the ruled sheet.
+  await expect(page.locator('section[aria-labelledby="ov-h"] [data-paper="notebook"] p').nth(1)).toBeVisible();
+});
+
+test("case-study · TKT-81 thin project (token-toli): no metric strip, no tabs, 'Deep dive coming' kraft tag with statusLabel", {
+  tag: ["@EVAL-018", "@EVAL-013"],
+}, async ({ page }) => {
+  test.skip(!isEdge(page), "runs at 390 and 1440");
+  await page.goto("/work/token-toli", { waitUntil: "load" });
+
+  await expect(page.locator('section[aria-label="Headline metrics"]')).toHaveCount(0);
+  await expect(page.getByRole("radiogroup", { name: "Case-study depth" })).toHaveCount(0);
+  await expect(page.locator("section#deep")).toHaveCount(0);
+  const tag = page.locator('section[aria-labelledby="ov-h"] [data-paper="tag"]');
+  await expect(tag).toContainText("Deep dive coming");
+  await expect(tag).toContainText("Discovery only");
+  expect(await decorCount(page, 'section[aria-labelledby="ov-h"]')).toBe(2);
+});
+
+test("case-study · TKT-81 'Hero media coming' tag is navy on kraft (≥ 4.5:1) and axe-clean", {
+  tag: ["@EVAL-006", "@EVAL-021"],
+}, async ({ page, axe }) => {
+  test.skip(!isEdge(page), "runs at 390 and 1440");
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+  const tag = page.locator('section.cs-head .cs-media-tag [data-paper="tag"]');
+  await expect(tag).toHaveText("Hero media coming");
+  const colours = await tag.evaluate((el) => {
+    const probe = (v: string) => {
+      const s = document.createElement("span");
+      s.style.color = v;
+      document.body.appendChild(s);
+      const c = getComputedStyle(s).color;
+      s.remove();
+      return c;
+    };
+    return {
+      text: getComputedStyle(el).color,
+      bg: getComputedStyle(el).backgroundColor,
+      navy: probe("var(--color-navy)"),
+      kraft: probe("var(--color-kraft)"),
+    };
+  });
+  expect(colours.text, "tag text is navy (Dev-13)").toBe(colours.navy);
+  expect(colours.bg, "tag paper is kraft").toBe(colours.kraft);
+  await axe(page, { include: "section.cs-head" });
+});
+
+test("case-study · TKT-81 folder tabs open section#deep; a chapter hash opens it on load (TP8)", {
+  tag: "@EVAL-007",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "runs once at desktop width");
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+  await expect(page.locator("section#deep")).toHaveCount(0);
+  await page.getByRole("radio", { name: "Deep dive" }).focus();
+  await page.keyboard.press("Space");
+  await expect(page.locator("section#deep")).toBeVisible();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.locator("section#deep")).toHaveCount(0);
+
+  await page.goto("/work/teachspark#01-context", { waitUntil: "load" });
+  await expect(page.getByRole("radio", { name: "Deep dive" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.locator('[id="01-context"]')).toBeAttached();
+  await page.goto("/work/teachspark#deep", { waitUntil: "load" });
+  await expect(page.locator("section#deep")).toBeVisible();
+});
+
+test("case-study · TKT-81 next band: the whole section is one link with a kraft focus ring", {
+  tag: "@EVAL-007",
+}, async ({ page }) => {
+  test.skip(width(page) !== 1440, "runs once at desktop width");
+  await page.goto("/work/teachspark", { waitUntil: "load" });
+  const band = page.locator('section[aria-label="Next project"]');
+  await expect(band.locator("a")).toHaveCount(1);
+  const link = band.locator("a");
+  await expect(link).toHaveAttribute("href", "/work/railcite");
+  await expect(link.locator("h2")).toContainText("RailCite");
+  // Keyboard focus (not a click) so :focus-visible applies.
+  await link.focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  await expect(link).toBeFocused();
+  const ring = await link.evaluate((el) => {
+    const s = getComputedStyle(el);
+    const probe = document.createElement("span");
+    probe.style.color = "var(--color-kraft)";
+    document.body.appendChild(probe);
+    const kraft = getComputedStyle(probe).color;
+    probe.remove();
+    return { w: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor, kraft };
+  });
+  expect(ring.w).toBe("2px");
+  expect(ring.style).toBe("solid");
+  expect(ring.color).toBe(ring.kraft);
 });
