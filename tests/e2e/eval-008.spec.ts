@@ -64,7 +64,10 @@ for (const route of DEEP_DIVE_ROUTES) {
   }) => {
     await page.goto(route, { waitUntil: "load" });
     await page.getByRole("radio", { name: "Deep dive" }).click();
-    await page.locator('nav[aria-label="Chapters"]').first().waitFor();
+    // Readiness = the chapter column is rendered. The ChapterNav exists only at ≥ 1024 (Dev-09 / TP14
+    // MediaGate), so below that it cannot be the wait target; above it, also wait for the rail.
+    await page.locator("section#deep section.chapter").first().waitFor();
+    if ((page.viewportSize()?.width ?? 0) >= 1024) await page.locator('nav[aria-label="Chapters"]').first().waitFor();
     await noOverflow(page);
   });
 }
