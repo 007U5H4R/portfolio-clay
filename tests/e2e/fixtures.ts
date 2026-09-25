@@ -60,9 +60,35 @@ interface TracerFixtures {
   saveData: void;
 }
 
+/**
+ * TKT-90d (A11Y-1): `Reveal` content is always in the accessibility tree but sits at opacity 0 until
+ * it scrolls into view, and axe's color-contrast rule then measures a near-invisible blend. Audit
+ * the page as a reader sees it: scroll every not-yet-revealed `.reveal` into view, wait until each
+ * is revealed and fully opaque, then restore the scroll position. Nothing is excluded from axe.
+ */
+async function revealForAudit(page: Page): Promise<void> {
+  // `.reveal` is only added after hydration — let the client settle first, or the class can land
+  // mid-scan (seen at w390 on /about).
+  await page.waitForLoadState("networkidle").catch(() => {});
+  const scrollY = await page.evaluate(() => window.scrollY);
+  // Element handles, not `.all()` locators: `:not([data-revealed])` re-resolves as items fire.
+  const pending = await page.locator(".reveal:not([data-revealed])").elementHandles();
+  for (const el of pending) await el.scrollIntoViewIfNeeded();
+  await page.waitForFunction(
+    () =>
+      Array.from(document.querySelectorAll(".reveal")).every(
+        (el) => el.hasAttribute("data-revealed") && getComputedStyle(el).opacity === "1",
+      ),
+    null,
+    { timeout: 10_000 },
+  );
+  await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+}
+
 export const test = base.extend<TracerFixtures>({
   axe: async ({}, provide) => {
     await provide(async (page, opts) => {
+      await revealForAudit(page);
       let builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]);
       if (opts?.include) builder = builder.include(opts.include);
       const results = await builder.analyze();
