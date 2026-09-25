@@ -4034,3 +4034,520 @@ html.lenis body {
   }
 }
 /* end TKT-83 */
+
+/* TKT-86 · about part 1 — `/about` hero copy + hero-under row, product journey, capability notebooks,
+   impact index cards (Design.md §7.4; values lifted from docs/redesign-mockups/m-009/about.html
+   `.ahero`, `.hero-under`, `.journey-s`, `.skills-s`, `.impact-s`). The scene is TKT-95's opener
+   above (Dev-24). Torn sections overlap the previous section by their edge height (transparent strip
+   above their own fill), the TKT-76 pattern. Paper tokens / derived vars only (EVAL-020). */
+@layer components {
+  /* shared section head (journey · capabilities · impact) */
+  .about-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px 32px;
+    align-items: end;
+    margin-bottom: clamp(36px, 5vw, 64px);
+  }
+  .about-eyebrow,
+  .ahero-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .about-h2 {
+    margin-top: 10px;
+    font-size: clamp(40px, 4.6vw, 64px);
+    color: var(--color-navy);
+  }
+  .about-lead {
+    justify-self: end;
+    max-width: 48ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-navy-2);
+  }
+
+  /* hero (section.ahero — copy + hero-under) */
+  .ahero {
+    position: relative;
+    z-index: 1;
+    padding-top: clamp(24px, 3vw, 44px);
+    padding-bottom: clamp(56px, 6vw, 88px);
+  }
+  .ahero-copy {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    max-width: 760px;
+  }
+  .ahero-dot {
+    margin-inline: 8px;
+    color: var(--color-rust);
+  }
+  .ahero-h1 {
+    font-size: clamp(40px, 3.9vw, 58px);
+    color: var(--color-navy);
+  }
+  .ahero-now {
+    color: var(--color-rust);
+  }
+  .ahero-sub {
+    margin-left: 4px;
+  }
+  .ahero-under {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 32px 48px;
+    align-items: start;
+    margin-top: clamp(32px, 4vw, 56px);
+  }
+  .ahero-stats.paper-sheet {
+    padding: 26px 30px 22px;
+  }
+  .ahero-stat-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ahero-stat {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+  }
+  .ahero-stat b {
+    font-family: var(--font-display);
+    font-size: clamp(38px, 3.4vw, 48px);
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-navy);
+  }
+  .ahero-stat:nth-child(1) b {
+    color: var(--color-rust);
+  }
+  .ahero-stat:nth-child(3) b {
+    color: var(--color-forest);
+  }
+  .ahero-stat span {
+    max-width: 20ch;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--color-ink-soft);
+  }
+  .ahero-how {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: 14px; /* §7.4 says Inter 13; the EXE-7 14 px content floor wins (EVAL-008) */
+    line-height: 1.4;
+    color: var(--color-ink-soft);
+  }
+  .ahero-cap {
+    margin: 14px 0 0 12px;
+    color: var(--color-ink-soft);
+  }
+  .ahero-quote.paper-sheet {
+    justify-self: end;
+    width: min(340px, 100%);
+    margin: 12px 0 0;
+    padding: 26px 22px 18px;
+    background-color: var(--color-note);
+  }
+  .ahero-quote blockquote {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.15;
+    color: var(--color-navy);
+  }
+  .ahero-quote-draft {
+    justify-self: start;
+    margin-top: 8px;
+  }
+
+  /* product journey (section#journey — paper-2, torn) */
+  .aj,
+  .aimp {
+    position: relative;
+    z-index: 2;
+    margin-top: -44px;
+    background: linear-gradient(180deg, transparent 44px, var(--color-paper-2) 44px);
+  }
+  .acap {
+    position: relative;
+    z-index: 2;
+    margin-top: -44px;
+    background: linear-gradient(180deg, transparent 44px, var(--color-paper) 44px);
+  }
+  .aj-wrap,
+  .acap-wrap,
+  .aimp-wrap {
+    padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
+  }
+  .aj-grid {
+    position: relative;
+    padding-top: 44px;
+  }
+  .aj-path {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    pointer-events: none;
+  }
+  .aj-start {
+    position: absolute;
+    top: -6px;
+    left: 2%;
+    color: var(--color-ink-soft);
+  }
+  .aj-list {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .aj-item {
+    display: grid;
+  }
+  .aj-item:nth-child(1) {
+    margin-top: 36px;
+  }
+  .aj-item:nth-child(3) {
+    margin-top: 48px;
+  }
+  .aj-item:nth-child(4) {
+    margin-top: 12px;
+  }
+  .aj-reveal {
+    display: grid;
+  }
+  .aj-card.paper-sheet {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    padding: 22px 18px;
+  }
+  .aj-year {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 4vw, 60px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-navy);
+  }
+  .aj-item:nth-child(4) .aj-year {
+    color: var(--color-rust);
+  }
+  .aj-h3 {
+    font-size: 24px;
+    color: var(--color-navy);
+  }
+  .aj-range {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-forest);
+  }
+  .aj-desc {
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .aj-close {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: clamp(36px, 5vw, 56px);
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.2vw, 28px);
+    line-height: 1.3;
+    color: var(--color-navy);
+  }
+
+  /* capabilities (section#capability-clusters — paper, torn) */
+  .acap-sheets {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 30px 28px;
+  }
+  .acap-sheet:nth-child(1) {
+    grid-column: span 5;
+  }
+  .acap-sheet:nth-child(2) {
+    grid-column: span 7;
+    margin-top: 18px;
+  }
+  .acap-sheet:nth-child(3) {
+    grid-column: span 7;
+  }
+  .acap-sheet:nth-child(4) {
+    grid-column: span 5;
+    margin-top: 22px;
+  }
+  .acap-h3 {
+    font-size: 28px;
+    line-height: 32px;
+    color: var(--color-navy);
+  }
+  .acap-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .acap-list li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 15px;
+    line-height: 32px;
+    color: var(--color-navy);
+  }
+  /* hand-drawn tick — list chrome, not a counted decoration */
+  .acap-list li::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 0;
+    width: 9px;
+    height: 5px;
+    border-bottom: 1.5px solid var(--color-rust);
+    border-left: 1.5px solid var(--color-rust);
+    rotate: -50deg;
+  }
+  .acap-list[data-tick="forest"] li::before {
+    border-color: var(--color-forest);
+  }
+
+  /* impact (section#impact — paper-2, torn) */
+  .aimp-evidence {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 30px 22px;
+    margin: 0;
+    padding: 12px 0 0;
+    list-style: none;
+  }
+  .aimp-item {
+    display: grid;
+  }
+  .aimp-item:nth-child(4n + 2) {
+    margin-top: 18px;
+  }
+  .aimp-item:nth-child(4n + 3) {
+    margin-top: 6px;
+  }
+  .aimp-item:nth-child(4n + 4) {
+    margin-top: 26px;
+  }
+  .aimp-value {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 3vw, 44px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-navy);
+  }
+  .aimp-value small {
+    font-size: 18px;
+    letter-spacing: 0;
+  }
+  .aimp-card--hot .aimp-value {
+    color: var(--color-rust);
+  }
+  .aimp-card--zero .aimp-value {
+    color: var(--color-forest);
+  }
+  .aimp-label {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-navy);
+  }
+  .aimp-ctx {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-ink-soft);
+  }
+  .aimp-meta,
+  .aimp-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    align-items: baseline;
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+  .aimp-meta {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+  }
+  /* kind badge — Inter, never Caveat (Dev-04); 12 px because it is content, not an aria-hidden tag */
+  .aimp-kind {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .aimp-kind::before {
+    content: "●";
+    margin-right: 6px;
+    font-size: 8px;
+    vertical-align: 2px;
+  }
+  .aimp-kind[data-kind="measured"] {
+    color: var(--color-forest);
+  }
+  .aimp-kind[data-kind="self-reported"] {
+    color: var(--color-terracotta);
+  }
+  /* structural: steel dot, navy-2 text (steel text is 4.2:1 on ivory — below AA at 12 px) */
+  .aimp-kind[data-kind="structural"] {
+    color: var(--color-navy-2);
+  }
+  .aimp-kind[data-kind="structural"]::before {
+    color: var(--color-steel);
+  }
+  .aimp-note {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: end;
+    margin-top: 44px;
+  }
+  .aimp-resume {
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+  .aimp-resume-h3 {
+    font-size: 26px;
+    color: var(--color-navy);
+  }
+  .aimp-resume-body {
+    max-width: 60ch;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-navy-2);
+  }
+  .aimp-rgroup {
+    margin-top: 22px;
+  }
+  .aimp-rgroup-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-forest);
+  }
+  .aimp-rgroup ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 26px;
+    align-items: baseline;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .aimp-rgroup li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .aimp-rgroup li b {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-navy);
+  }
+  .aimp-rgroup li span {
+    font-size: 14px;
+    color: var(--color-navy-2);
+  }
+  .aimp-foot {
+    margin-top: 18px;
+  }
+  .aimp-sticky {
+    width: 200px;
+  }
+
+  @media (max-width: 1100px) {
+    .aimp-evidence {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .aimp-item:nth-child(n) {
+      margin-top: 0;
+    }
+    .aimp-item:nth-child(2n) {
+      margin-top: 14px;
+    }
+  }
+  @media (max-width: 900px) {
+    .about-head,
+    .ahero-under,
+    .aimp-note {
+      grid-template-columns: 1fr;
+    }
+    .about-lead,
+    .ahero-quote.paper-sheet {
+      justify-self: start;
+    }
+    .aimp-sticky {
+      justify-self: start;
+    }
+    .aj-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .aj-grid {
+      padding-top: 28px;
+    }
+    .aj-item:nth-child(n) {
+      margin-top: 0;
+    }
+    .acap-sheet:nth-child(n) {
+      grid-column: 1 / -1;
+      margin-top: 0;
+    }
+  }
+  @media (max-width: 640px) {
+    .ahero-stat-list {
+      grid-template-columns: 1fr 1fr;
+    }
+    .ahero-stat:nth-child(3) {
+      grid-column: 1 / -1;
+    }
+    .ahero-stats.paper-sheet {
+      padding: 22px 20px 18px;
+    }
+    .aj-list,
+    .aimp-evidence {
+      grid-template-columns: 1fr;
+    }
+    .aimp-item:nth-child(n) {
+      margin-top: 0;
+    }
+    .acap-sheet.paper-sheet {
+      padding-left: 46px;
+      padding-right: 20px;
+    }
+  }
+}
+/* end TKT-86 */
