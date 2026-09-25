@@ -3,9 +3,10 @@ id: TASK-74
 title: >-
   TKT-79: Home assembly + Phase A gate — section order, Reveal, 5-second-test
   pack, pnpm eval on /
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 12:33'
 labels:
   - P0
   - 'sp:2'

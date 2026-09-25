@@ -3,9 +3,10 @@ id: TASK-84
 title: >-
   TKT-89: Dead-code removal (S11) — clay primitives + tiers, aurora/glow, avatar
   system + assets + scripts, Manrope, Footer, codemod script
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 12:34'
 labels:
   - P0
   - 'sp:3'

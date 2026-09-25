@@ -3,9 +3,10 @@ id: TASK-80
 title: >-
   TKT-85: Phase B gate — 11 slugs + 5 essays at 390/1440, pnpm eval, one rich +
   one thin mockup pair
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 12:33'
 labels:
   - P0
   - 'sp:2'
