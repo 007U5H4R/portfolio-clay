@@ -9,6 +9,6 @@ export default async function Image() {
     eyebrow: "Product Thinking",
     title: "Thinking",
     subtitle: "An honest editorial list — five DRAFT essays, each backed by a real quoted passage.",
-    tone: "lavender",
+    caption: "notes first. essays later.",
   });
 }
