@@ -9,6 +9,6 @@ export default async function Image() {
     eyebrow: "Contact",
     title: "Still curious?",
     subtitle: "Email, LinkedIn, or a resume — the fastest ways to reach Tushar Pathak.",
-    tone: "lavender",
+    caption: "waving from the window seat",
   });
 }
