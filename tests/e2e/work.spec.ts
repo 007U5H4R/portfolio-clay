@@ -287,11 +287,18 @@ test("@EVAL-008 the filter row scrolls horizontally at 390 (peek, not a page-lev
 }, async ({ page }) => {
   test.skip(width(page) !== 390, "the peeking scroll row is the <768 layout");
   await page.goto("/work", { waitUntil: "load" });
-  const overflow = await page.getByRole("tablist").evaluate((el) => ({
-    scrollable: el.scrollWidth > el.clientWidth,
-    doc: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
-  }));
-  expect(overflow.scrollable, "the tab row itself scrolls (content wider than the row)").toBe(true);
+  // Right after "load" the static Suspense fallback row (FilterTabsFallback, TP7) can be swapped for the
+  // hydrated FilterTabs between locator resolution and evaluate — a detached node measures 0 × 0
+  // (integration-abc: reproduced 1/3 at 1 worker). Poll until the live row is measured.
+  const measure = () =>
+    page.getByRole("tablist").evaluate((el) => ({
+      scrollable: el.scrollWidth > el.clientWidth,
+      doc: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    }));
+  await expect
+    .poll(async () => (await measure()).scrollable, { message: "the tab row itself scrolls (content wider than the row)" })
+    .toBe(true);
+  const overflow = await measure();
   expect(overflow.doc, "the page must not scroll horizontally").toBe(true);
 });
 
