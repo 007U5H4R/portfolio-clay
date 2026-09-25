@@ -42,7 +42,21 @@ export const metadata: Metadata = buildMetadata({
 export default function Home() {
   return (
     <>
+      {/* Order per Design.md §7.1 (M-009, TKT-74 S74.01): hero → Featured → How I think → Ask → band. */}
       <Hero />
+
+      {/*
+        FeaturedWork (TKT-12): the three-card editorial row (TeachSpark large + RailCite/Velora
+        medium), replacing the M-001 tracer's single width-capped card. Full case-study content per
+        card lands in M-005.
+      */}
+      <FeaturedWork />
+
+      {/*
+        HowIThink (TKT-13): the six-stage process module, one real sourced example per stage.
+        Additive only — Hero/Ask/FeaturedWork above are unchanged.
+      */}
+      <HowIThink stages={HOW_I_THINK_STAGES} />
 
       {/*
         Ask my portfolio (home inline surface, TKT-10). The AskProvider is now hoisted to
@@ -59,19 +73,6 @@ export default function Home() {
         />
         <AskPortfolio prompts={HOME_PROMPTS} />
       </Section>
-
-      {/*
-        FeaturedWork (TKT-12): the three-card editorial row (TeachSpark large + RailCite/Velora
-        medium), replacing the M-001 tracer's single width-capped card. Full case-study content per
-        card lands in M-005.
-      */}
-      <FeaturedWork />
-
-      {/*
-        HowIThink (TKT-13): the six-stage process module, one real sourced example per stage.
-        Additive only — Hero/Ask/FeaturedWork above are unchanged.
-      */}
-      <HowIThink stages={HOW_I_THINK_STAGES} />
 
       {/* No closing CTA section here (S16, TKT-72): the band footer in app/layout.tsx is the one
           closing call-to-action on every route. */}

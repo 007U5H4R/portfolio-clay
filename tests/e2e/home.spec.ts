@@ -25,8 +25,9 @@ const width = (page: import("@playwright/test").Page) => page.viewportSize()?.wi
 const expectedSectionPadding = (w: number) => (w >= 1024 ? 128 : w >= 768 ? 96 : 72);
 
 // ---------------------------------------------------------------------------
-// S14.02 / S16 — DOM order of the four home sections (Hero → Ask → Featured → How-I-Think); the band
-// footer (outside <main>) is the closing CTA, so there is no `#cta` section any more (TKT-72).
+// S14.02 / S16 — DOM order of the four home sections (M-009 Design.md §7.1, TKT-74 S74.01:
+// Hero → Featured → How-I-Think → Ask); the band footer (outside <main>) is the closing CTA, so there
+// is no `#cta` section any more (TKT-72).
 // ---------------------------------------------------------------------------
 test("@EVAL-017 home assembles its four sections in order, then the band footer", async ({ page }) => {
   test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
@@ -37,9 +38,9 @@ test("@EVAL-017 home assembles its four sections in order, then the band footer"
 
   // The hero is the first section (no id — it carries the h1); the remaining three are id'd.
   await expect(sections.nth(0).locator("h1")).toBeVisible();
-  await expect(sections.nth(1)).toHaveAttribute("id", "ask");
-  await expect(sections.nth(2)).toHaveAttribute("id", "work-featured");
-  await expect(sections.nth(3)).toHaveAttribute("id", "how-i-think");
+  await expect(sections.nth(1)).toHaveAttribute("id", "work-featured");
+  await expect(sections.nth(2)).toHaveAttribute("id", "how-i-think");
+  await expect(sections.nth(3)).toHaveAttribute("id", "ask");
   await expect(page.locator("#cta")).toHaveCount(0);
   await expect(page.locator("footer.band")).toHaveCount(1);
 });
@@ -60,8 +61,8 @@ test("home sections use the 72/96/128 vertical-rhythm ladder for the current vie
 });
 
 // ---------------------------------------------------------------------------
-// S14.02 — mobile reading order at 390: headline → CTAs → hero poster → Ask → projects →
-// How-I-Think → band headline. Since TSK-37 the illustrated hero (Design.md §5.1) puts the copy first
+// S14.02 — mobile reading order at 390: headline → CTAs → hero poster → projects → How-I-Think →
+// Ask → band headline (M-009 order, Design.md §7.1). Since TSK-37 the illustrated hero (Design.md §5.1) puts the copy first
 // and the scene second below 1024 so the copy is above the fold; the poster is the manifest
 // `hero-desk` illustration (its alt comes from the manifest, §6.1). boundingBox().y strictly
 // increasing.
@@ -74,9 +75,9 @@ test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({
     page.locator("h1"),
     page.getByRole("link", { name: "View my work →" }),
     page.getByAltText(HERO_POSTER_ALT),
-    page.locator("#ask-heading"),
     page.locator("#work-featured-heading"),
     page.locator("#how-i-think-heading"),
+    page.locator("#ask-heading"),
     page.locator("#band-h"),
   ];
 
