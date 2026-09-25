@@ -2,11 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { HeroClip } from "@/components/hero/HeroClip";
-import { Annotation, Hand, Sketch } from "@/components/paper";
+import { Postmark } from "@/components/hero/Postmark";
+import { clipSlotStyle } from "@/components/hero/registration";
+import { Annotation, Hand, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
+import { MediaGate } from "@/components/paper/MediaGate";
+import { SceneBanner } from "@/components/paper/SceneBanner";
 import { hero } from "@/data/hero";
-import { illustration } from "@/lib/illustrations";
+import { illustration, sceneImage, type SceneId } from "@/lib/illustrations";
 
-/** The h1 split so the rust underline `Sketch` sits under the last three words (Design.md §5.1). */
+/** The h1 split so the rust underline `Sketch` sits under the last three words (Design.md §5.1 / Dev-21). */
 const HEADLINE = `${hero.headline.before}${hero.headline.highlight}${hero.headline.after}`;
 const HEADLINE_WORDS = HEADLINE.trim().split(/\s+/);
 const UNDERLINED = HEADLINE_WORDS.slice(-3).join(" ");
@@ -17,73 +21,90 @@ const CLIP = illustration("hero-clip");
 /** The mp4 is the second rendition of the same clip (Design.md §5.2 source order webm → mp4). */
 const CLIP_MP4 = CLIP.publicSrc!.replace(/\.webm$/, ".mp4");
 
+/** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
+const BANNER_FOCAL_X = 0.49;
+
 /**
- * Home hero (Design.md §5; S14 / D10 / TP13; TSK-37). Server component: the §5.1 grid (copy 42fr /
- * scene 58fr ≥ 1024, single column below with the copy first), every string from `data/hero.ts`
- * (D7), and the §5.2 markup — the `next/image` poster is in the static HTML in every mode as the
- * LCP element; `HeroClip` mounts the once-and-hold `<video>` over it only in default mode, after
- * hydration. Three counted decorations (§3.3): the hand-sub annotation, the h1 underline sketch and
- * the scene caption. The poster's `src`/`alt` are `illustration("hero-desk")` — never inline (§6.1).
+ * Three taped polaroids down the banner's left edge (Dev-21): crops of existing scenes, decorative
+ * (`alt=""`, group `aria-hidden` — Dev-23), rotations inside the photo cap (±2.4°, Design.md §3.1).
+ * Their job is to cover the outpaint's garbled corkboard (the banner's top-left ~21 % × 45 %): the first
+ * two sit side by side across it (the first tucked under the header's edge, its tape on the right so
+ * the visible fastener is not under the header), the third crosses the torn edge at the bottom-left;
+ * positions live in app/globals.css `.hero-polaroid:nth-child(n)`. Mounted ≥ 768 only (`MediaGate`,
+ * TP14) — below that the 4:3 crop already removes the corkboard and they would cover the character.
+ */
+const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
+  { id: "scene-work", rotate: -2.4, tape: "r" },
+  { id: "scene-about", rotate: 1.8, tape: "c" },
+  { id: "scene-playground", rotate: -1.2, tape: "l" },
+];
+
+/**
+ * Home hero (Design.md §5 modes/lifecycle + §11 Dev-21/Dev-23; decisions S14 / D10 / TP13 / EXE-15;
+ * TKT-93). Server component. Order: the full-bleed `SceneBanner` (the 3168×1344 outpaint — the LCP
+ * `<img>` in the static HTML in every mode) with `HeroClip` mounting the once-and-hold `<video>` in
+ * default mode inside a slot registered on the banner's pixel grid (components/hero/registration.ts)
+ * and masked to the character; a paper `TornEdge` as the banner's bottom edge; the polaroids; the
+ * postmark; then the centred copy block — every string verbatim from `data/hero.ts` (D7), h1 in
+ * Fraunces (EXE-15). Four counted decorations (§3.2 budget ≤ 4 at both widths): torn edge, h1
+ * underline sketch, hand-sub annotation, postmark sketch — the TSK-37 figcaption is gone.
  */
 export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-h">
-      <Container className="hero-wrap">
-        <div className="hero-copy">
-          <p className="hero-eyebrow">{hero.eyebrow.text}</p>
-
-          <h1 id="hero-h" className="hero-h1">
-            {HEADLINE_HEAD}{" "}
-            <span className="underline-host">
-              {UNDERLINED}
-              <Sketch variant="underline" />
-            </span>
-          </h1>
-
-          <Annotation size="hero" rotate={-1.5} className="hero-hand-sub">
-            Same curiosity.
-            <br />
-            Bigger problems.
-          </Annotation>
-
-          {/* Hidden below md so the CTAs clear the 390 fold (5-second test, §5.1). */}
-          <p className="hero-support">{hero.support.text}</p>
-
-          <div className="hero-cta-row">
-            <Link href="/work" className="hero-btn hero-btn-primary focus-ring">
-              <Hand kind="cta">View my work →</Hand>
-            </Link>
-            <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">
-              <svg className="hero-btn-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                <circle cx="7" cy="7" r="5" />
-                <path d="M11 11 L 15 15" />
-              </svg>
-              Ask my portfolio
-            </a>
-          </div>
-        </div>
-
-        <figure className="hero-scene" data-illustration={POSTER.id}>
-          <div className="frame">
-            <Image
-              src={POSTER.publicSrc!}
-              alt={POSTER.alt}
-              width={POSTER.width}
-              height={POSTER.height}
-              sizes="(min-width: 1024px) 58vw, 100vw"
-              preload
-              // Next 16 does not derive fetchpriority from preload; the poster is the LCP image (§5.2).
-              fetchPriority="high"
-              loading="eager"
-              decoding="async"
-              className="hero-poster"
-            />
+      <div className="hero-banner">
+        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} sizes="100vw">
+          <div className="hero-clip-slot" style={clipSlotStyle()}>
             <HeroClip poster={POSTER.publicSrc!} webm={CLIP.publicSrc!} mp4={CLIP_MP4} />
           </div>
-          <Annotation as="figcaption" size="sm" className="hero-caption">
-            the desk where most of it happens
-          </Annotation>
-        </figure>
+        </SceneBanner>
+
+        <TornEdge fill="paper" className="hero-torn" />
+
+        <MediaGate min={768}>
+          <div className="hero-polaroids" aria-hidden="true">
+            {POLAROIDS.map((polaroid) => (
+              <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
+                <Tape side={polaroid.tape} />
+                <Image src={sceneImage(polaroid.id)} alt="" sizes="224px" className="hero-polaroid-img" />
+              </Sheet>
+            ))}
+          </div>
+        </MediaGate>
+
+        <Postmark className="hero-stamp" />
+      </div>
+
+      <Container className="hero-copy">
+        <p className="hero-eyebrow">{hero.eyebrow.text}</p>
+
+        <h1 id="hero-h" className="hero-h1">
+          {HEADLINE_HEAD}{" "}
+          <span className="underline-host">
+            {UNDERLINED}
+            <Sketch variant="underline" />
+          </span>
+        </h1>
+
+        <Annotation size="hero" rotate={-1.5} className="hero-hand-sub">
+          Same curiosity. Bigger problems.
+        </Annotation>
+
+        {/* Hidden below md so the CTAs clear the 390 fold (5-second test, §5.1). */}
+        <p className="hero-support">{hero.support.text}</p>
+
+        <div className="hero-cta-row">
+          <Link href="/work" className="hero-btn hero-btn-primary focus-ring">
+            <Hand kind="cta">View my work →</Hand>
+          </Link>
+          <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">
+            <svg className="hero-btn-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <circle cx="7" cy="7" r="5" />
+              <path d="M11 11 L 15 15" />
+            </svg>
+            Ask my portfolio
+          </a>
+        </div>
       </Container>
     </section>
   );

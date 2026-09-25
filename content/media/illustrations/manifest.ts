@@ -13,7 +13,7 @@
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference";
 export interface Illustration {
-  id: "hero-desk" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "character-sheet-b";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "character-sheet-b";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster only; scenes go through next/image)
@@ -31,6 +31,19 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1280,
     height: 684,
     alt: "Illustration of Tushar at a warm desk — laptop, notebook, books, a plant, a lamp, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
+    // TKT-93: no longer rendered as an <img>; ships as the clip's `poster` attribute on `/` (Design.md §5.2).
+    usedOn: ["/"],
+  },
+  {
+    // TKT-93 (Dev-23 / EXE-15): the 21:9 outpaint of `hero-desk` — the full-bleed home banner and the
+    // LCP image; the clip is registered on it (components/hero/registration.ts). Static import via
+    // lib/illustrations.ts (`sceneImage("hero-banner")`) so next/image emits AVIF/WebP + srcset.
+    id: "hero-banner",
+    kind: "scene",
+    file: "hero-banner.webp",
+    width: 3168,
+    height: 1344,
+    alt: "Illustration of Tushar at a warm desk — laptop, notebook, books, plants, a lamp, a sleeping golden retriever, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
     usedOn: ["/"],
   },
   {
@@ -50,7 +63,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below.",
-    usedOn: ["/work"],
+    usedOn: ["/work", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
     id: "scene-casestudy",
@@ -68,7 +81,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar from behind on a hillside path at dawn, coffee in one hand and a notebook under his arm, looking out over pine forest towards a snow-capped mountain horizon.",
-    usedOn: ["/about"],
+    usedOn: ["/about", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
     id: "scene-thinking",
@@ -86,7 +99,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar at a tinkering workbench, holding up a small cardboard prototype with wires; a breadboard, tape, scissors, paper planes and a tablet sketch sit on the desk under a green lamp.",
-    usedOn: ["/playground"],
+    usedOn: ["/playground", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
     id: "scene-contact",

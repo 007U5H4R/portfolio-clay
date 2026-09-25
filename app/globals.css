@@ -853,39 +853,185 @@ body::before {
   }
 }
 
-/* TSK-37 · hero — the `/` hero (Design.md §5.1 layout, §5.2 markup, §8 underline draw-in; values
-   from docs/redesign-mockups/m-009/home.html `.hero*` / `.btn*`). Copy 42fr / scene 58fr ≥ 1024,
-   single column below with the copy first. The poster `<img>` and the client-mounted `<video>` share
-   one box and one cream mask, so mounting the clip changes nothing until frame 1 decodes. Tokens /
-   derived values only (EVAL-020); the mask gradients use a token purely for its alpha. */
+/* TKT-93 · hero banner — the `/` hero rebuilt as a full-bleed illustrated banner (Design.md §11 Dev-21 /
+   Dev-23; decision EXE-15; supersedes the TSK-37 §5.1 two-column grid — §5.2–5.4 modes/lifecycle are
+   unchanged). Order: `SceneBanner` (the 3168×1344 outpaint, the LCP `<img>`) with the once-and-hold
+   clip in a slot registered on the banner's pixel grid and masked to the character → `TornEdge`
+   (paper) as the banner's bottom edge → three taped polaroids down the left (they cover the outpaint's
+   garbled corkboard) + a postmark top-right → the centred copy block (eyebrow, Fraunces h1 + rust
+   underline, Caveat hand line, support, CTAs). `.scene-banner*` is the reusable banner (TKT-95 uses it
+   on every page); `.hero-*` is home-only. Registration percentages arrive as `--clip-*` inline vars
+   from components/hero/registration.ts (one source); the mask is an alpha PNG (see
+   content/media/illustrations/README.md). Tokens / derived values only (EVAL-020). */
 @layer components {
   .hero {
     position: relative;
     z-index: 1;
   }
-  .hero-wrap {
-    display: grid;
-    gap: clamp(20px, 3vw, 44px);
-    padding-block: clamp(28px, 4vw, 56px) clamp(80px, 9vw, 130px);
+
+  /* --- SceneBanner: one full-bleed box crops one inner canvas (never the img and an overlay separately) --- */
+  .scene-banner {
+    /* Box height (≥ 768): 42 vw between 300 and 620 px; < 768: a taller 4:3 crop centred on the focal point. */
+    --banner-h: clamp(300px, 42vw, 620px);
+    /* Canvas width = cover: the box's width, or the box's height × the scene's aspect ratio, whichever is wider. */
+    --canvas-w: max(100%, calc(var(--banner-h) * var(--scene-ar, 3168 / 1344)));
+    position: relative;
+    margin: 0;
+    height: var(--banner-h);
+    overflow: hidden;
+    background: var(--color-paper-2);
   }
-  @media (min-width: 1024px) {
-    .hero-wrap {
-      grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
-      align-items: center;
+  @media (max-width: 767px) {
+    .scene-banner {
+      --banner-h: 75vw;
     }
+  }
+  .scene-banner-canvas {
+    position: absolute;
+    top: 50%;
+    /* Focal point (a 0–1 fraction of the canvas) at the box's centre, clamped so the canvas always covers the box. */
+    left: clamp(calc(100% - var(--canvas-w)), calc(50% - var(--focal, 0.5) * var(--canvas-w)), 0px);
+    width: var(--canvas-w);
+    aspect-ratio: var(--scene-ar, 3168 / 1344);
+    translate: 0 -50%;
+  }
+  .scene-banner-img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
+  /* --- The clip: registered on the canvas (`--clip-*`), masked to the character, over the banner --- */
+  .hero-clip-slot {
+    position: absolute;
+    top: var(--clip-top);
+    left: var(--clip-left);
+    width: var(--clip-width);
+    height: var(--clip-height);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero-clip {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Feathered alpha mask, stretched to the clip's box (1:1 with the 1280×684 frame). Unprefixed only —
+       Lightning CSS adds the -webkit- form itself and drops a hand-written pair (see the header block). */
+    mask-image: url("/media/illustrations/hero-clip-mask.png");
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+  }
+
+  /* --- Banner furniture: torn bottom edge, polaroids, postmark --- */
+  .hero-banner {
+    position: relative;
+    /* The first polaroid runs off the left edge (it covers the corkboard's corner): clip that axis only,
+       so the third polaroid's overhang below the torn edge stays visible and nothing widens the page. */
+    overflow-x: clip;
+  }
+  .hero-torn {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    z-index: 2;
+    margin: 0;
+  }
+
+  .hero-polaroids {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  /* The outpaint's corkboard is the banner's top-left ~21 % × 45 %: two polaroids side by side across
+     it (the first tucked under the header's edge, the second over its right column) and a third at the
+     bottom-left crossing the torn edge — the reference's overlap. */
+  .hero-polaroid {
+    position: absolute;
+    width: clamp(136px, 16.5vw, 270px);
+    padding: 12px 12px 30px;
+  }
+  .hero-polaroid:nth-child(1) {
+    top: -1.5%;
+    left: -1.5%;
+  }
+  .hero-polaroid:nth-child(2) {
+    top: 2%;
+    left: 10%;
+  }
+  .hero-polaroid:nth-child(3) {
+    bottom: -7%;
+    left: 2%;
+  }
+  /* Square instant-photo crops: tall enough that the two upper polaroids reach the corkboard's bottom
+     edge (≈ 45 % of the banner) at every width ≥ 768 — a 4:3 crop left its lower notes showing. */
+  .hero-polaroid-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 2px;
+  }
+
+  /* Top-right corner, clear of the outpaint's own pinned checklist (the circle sits at the far right,
+     the cancellation waves run left over the empty wall). */
+  .hero-stamp {
+    position: absolute;
+    top: clamp(10px, 1.6vw, 24px);
+    right: clamp(12px, 2.6vw, 40px);
+    z-index: 3;
+    width: clamp(120px, 11vw, 160px);
+    height: auto;
+    overflow: visible;
+    rotate: -7deg;
+    mix-blend-mode: multiply;
+    opacity: 0.88;
+    pointer-events: none;
+  }
+  .hero-stamp .postmark-ring {
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 2.6;
+  }
+  .hero-stamp .postmark-ring-inner {
+    stroke-width: 1.6;
+  }
+  /* The lettering ring as dashes — a postmark's ring words would be micro text (EVAL-008 14 px floor). */
+  .hero-stamp .postmark-ring-dashed {
+    stroke-width: 4;
+    stroke-dasharray: 3 4.5;
+    stroke-linecap: butt;
+  }
+  .hero-stamp .postmark-mono {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 600;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    fill: var(--color-rust);
+  }
+  .hero-stamp .postmark-wave {
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+
+  /* --- Copy block, centred under the banner --- */
   .hero-copy {
     display: grid;
-    gap: 22px;
-    min-width: 0;
-  }
-  @media (min-width: 1024px) {
-    .hero-copy {
-      max-width: 560px;
-    }
+    justify-items: center;
+    gap: 20px;
+    padding-block: clamp(52px, 6.5vw, 96px) clamp(64px, 8vw, 112px);
+    text-align: center;
   }
   .hero-eyebrow {
+    max-width: 60ch;
     font-size: var(--text-caption);
     font-weight: 600;
     letter-spacing: var(--tracking-eyebrow);
@@ -893,8 +1039,10 @@ body::before {
     color: var(--color-navy-2);
   }
   .hero-h1 {
-    font-size: clamp(42px, 5.2vw, 76px);
+    max-width: 19ch;
+    font-size: clamp(40px, 5vw, 74px);
     font-variation-settings: "opsz" 144, "SOFT" 30;
+    text-wrap: balance;
   }
   /* The underline sketch hangs under the last three words (mockup `.hero h1 .ul`). */
   .hero-h1 .underline-host {
@@ -910,11 +1058,12 @@ body::before {
     height: 0.32em;
   }
   .hero-hand-sub {
-    margin-left: 6px;
+    margin-top: -4px;
+    transform-origin: center;
   }
   .hero-support {
     display: none;
-    max-width: 46ch;
+    max-width: 52ch;
     font-size: 17px;
     color: var(--color-navy-2);
   }
@@ -924,12 +1073,14 @@ body::before {
     }
   }
 
-  /* CTAs (mockup `.btn`, `.btn-primary`, `.btn-secondary`) — ≥ 44 px tall */
+  /* CTAs (mockup `.btn`, `.btn-primary`, `.btn-secondary`) — ≥ 44 px tall, centred */
   .hero-cta-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 12px;
+    margin-top: 6px;
   }
   .hero-btn {
     display: inline-flex;
@@ -974,48 +1125,6 @@ body::before {
     stroke: currentColor;
     stroke-width: 1.7;
     stroke-linecap: round;
-  }
-
-  /* Scene: poster (LCP, static) + the clip overlaid in the same masked box (§5.2) */
-  .hero-scene {
-    position: relative;
-    min-width: 0;
-    margin: 0;
-  }
-  .hero-scene .frame {
-    position: relative;
-    aspect-ratio: 1280 / 684;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  .hero-poster,
-  .hero-clip {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 6px;
-    mask-image:
-      linear-gradient(90deg, transparent 0, transparent 5%, var(--color-navy) 15%, var(--color-navy) 100%),
-      linear-gradient(180deg, var(--color-navy) 88%, transparent 100%);
-    mask-composite: intersect;
-  }
-  .hero-clip {
-    z-index: 1;
-  }
-  .hero-caption {
-    margin-top: 10px;
-    color: var(--color-ink-soft);
-  }
-  @media (min-width: 1024px) {
-    .hero-caption {
-      position: absolute;
-      right: 4px;
-      bottom: -34px;
-      margin-top: 0;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
