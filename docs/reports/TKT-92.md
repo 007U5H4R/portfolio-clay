@@ -126,3 +126,80 @@ After-screenshots were taken at 390 and 1440, DPR 2, reduced motion (scratch `..
 - **Risk 2: CLS.** CLS on `/` rises to ~0.03 from the font swap. That is within the 0.05 gate but has less headroom than before.
 - **Risk 3: other routes.** `/work` and `/about` in the four-route `lhci` sweep were not measured by me after the no-more-local-Lighthouse instruction. The mechanism is global, so the same direction is expected.
 - **If the preview still fails:** read `observedFirstContentfulPaint` and `pagereveal` in the preview LHR/trace first. A late first frame with an idle main thread means the measuring environment, not the page.
+
+---
+
+## Round 2 (branch `m009/tkt-92r2`, from `86054cc`) · Opus 5.5 · TASK-88
+
+Commits: `c3f415e` (hero height cap, 5-second test), `ecad101` (mobile banner rendition). No threshold, budget, `next.config.ts`, font or `lighthouserc` change.
+
+### What the preview LCP breakdown showed
+
+The source was the committed preview LHRs (`preview-tkt92/mobile/`) plus 5 fresh `/` and 3 teachspark runs I took on the same preview with traces (scratch `92r2/lh/`).
+
+- **The image is not the bottleneck.** The LCP `<img>` is `hero-banner … w=768` AVIF, **20.6 kB**, and a CDN `HIT`. It is preloaded at byte 309 of the HTML, exactly like teachspark's opener.
+- **What decides the simulated LCP is *when* the observed paint lands.**
+  - Lantern charges every request that finished before the observed LCP to both of its graphs.
+  - Teachspark paints at 462–549 ms, before the fonts (~580 ms, 240 kB) and the JS (~680 ms, 170 kB) finish, so they are left out. Result: LCP 1548–2131.
+  - `/` paints at 593–813 ms, after they finish, so they are charged. Result: LCP 2369–3311, median 2712.
+- **Why `/` paints late: a render-delay collision.** The observed render delay on `/` is 52–185 ms (teachspark: 7–43 ms).
+  - The traces show the banner decoding at 499–752 ms. The paint then waits behind the hydration script evaluation (`EvaluateScript` 53–118 ms) and a relayout.
+  - On `/`, the image lands about 50–150 ms later than teachspark's and falls into that window. Server wait for the two images is identical (84–107 ms each over one H2 connection). The difference is run-to-run network timing, not the asset.
+- **What-if re-simulations of the gathered traces** (image or document bytes scaled, same trace):
+
+  | Change simulated | Effect on LCP |
+  |---|---|
+  | Image bytes ×0.55, ×0.3 or ×0.1 | −150 ms at most (the floor is reached at ×0.55) |
+  | Fonts ×0.5 | −0 to −220 ms |
+  | HTML ×0.6 | −150 ms |
+
+  No single asset lever in my files clears the 212 ms gap.
+- **Experiment `decoding="sync"` on the LCP img: rejected.** In the delay-proxy harness (the image delayed 350 ms so it collides with hydration, as on the preview) the median LCP was 4709 vs 4271 with `async`.
+
+### What changed
+
+1. **5-second test (orchestrator requirement, from TKT-79's EVAL-001 at 1440).**
+   - At ≥ 1024 the banner box is `clamp(240px, min(42vw, 100svh − 480px − 6vw), 620px)` and the copy's top padding is `clamp(28px, 2.5vw, 40px)`. This is in a new `/* TKT-92r2 */` block appended to `globals.css`.
+   - `focalY` 0.36 keeps the face in the wider crop.
+   - It is still one box cropping one canvas. The clip registration e2e is green at 1024, 1440 and 1920.
+   - 768–1023 and < 768 are unchanged.
+2. **Mobile art direction.**
+   - `SceneBanner` gained an optional `narrow` prop that renders `<picture><source media="(max-width: 767px)">` via `getImageProps`, with media-split `ReactDOM.preload`s.
+   - On `/` it serves `public/media/illustrations/hero-banner-mobile.webp`: a 1824×1344 crop of the same master (provenance row in the illustrations README), placed on the canvas at its own x, so the canvas grid is unchanged.
+   - Moto G (412 @ 1.75): one request, `hero-banner-mobile … w=390`, **11.2 kB** (was 20.6 kB), at the same effective density.
+   - 390 @ 3 takes the crop at `w=768`. 768 and 1440 take the unchanged full scene (verified: one banner request per viewport).
+   - Other routes' openers don't pass `narrow` and are unchanged.
+
+### 5-second test (EVAL-001 first-viewport geometry, `next start`)
+
+| Viewport | Before: h1 / hand / CTA bottom | After: h1 / hand / CTA bottom | Result |
+|---|---|---|---|
+| 1440×900 | 836–983 / 994–1041 / **1210** | 507–654 / 665–712 / **881** | 3/6 → **6/6** |
+| 1024×768 | 634–739 / 751–788 / **958** | 406–510 / 522–559 / **729** | fail → **pass** |
+| 390×844 | CTAs end 800 | unchanged, 800 | 6/6 → 6/6 |
+
+`tests/e2e/hero-fold.spec.ts` copies TKT-79's assertion (from `m009/tkt-79` `home.spec.ts`), adds w1024 and the hand line, and checks the banner *box* (the canvas overflows it by design). It passes at w390, w1024 and w1440. The orchestrator can dedupe it against TKT-79's copy at merge.
+
+### Gates (one locked run)
+
+- typecheck ✓, lint ✓, tokens 13/13 ✓, `pnpm test` ✓, build ✓.
+- Bundle `/`: **158.6 kB gz** ≤ 180, `ok: true`.
+- e2e: `hero-fold`, `eval-019`, `home`, `tracer`, `scene-opener`, `eval-018`, `eval-007`, `eval-010` on all four projects: **191 passed, 0 failed** (285 skipped by design).
+- Churned tracer screenshots were restored.
+
+### Expected preview effect (honest)
+
+- **Desktop / 5-second test:** fixed. Verified locally.
+- **Mobile LCP:** a small gain, not a guaranteed pass.
+  - The rendition removes about 9 kB from the LCP request. That is worth roughly −150 ms of simulated LCP on runs where the image lands in the hydration window.
+  - The local delay-proxy harness could not resolve a difference: median 4562 vs 4271 before. Its run-to-run spread (±600 ms) is larger than the effect, and its absolute values run high because the proxy adds 350 ms.
+  - The remaining cause is timing: whether the observed paint beats the fonts and JS. That is decided by fonts (`app/layout.tsx`) and the hydration JS, both outside my ownership.
+- **If the preview median stays above 2500, the levers with the largest simulated effect are outside my files:**
+  - Subset or trim the Fraunces axes (−220 ms simulated at ×0.5, rejected in round 1 under S13).
+  - Defer the non-critical client chunks so the hydration evaluation doesn't sit on the LCP frame.
+
+### Notes for merge / Stage 8
+
+- The shorter banner at ≥ 1024 leaves the TKT-93 polaroids (sized for a ~605 px banner) overhanging more: the third crosses well below the torn edge at 1440. It's the TKT-93 CSS block, so I didn't touch it. **Stage-8 input.**
+- In the 1440 screenshot taken at `load`, the polaroid images were still blank (lazy `next/image`, `sizes="224px"`). That behaviour predates this branch.
+- `hero-fold.spec.ts` duplicates TKT-79's EVAL-001 test. Keep one.
