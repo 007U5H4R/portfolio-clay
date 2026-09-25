@@ -1,9 +1,10 @@
 ---
 id: TASK-78.3
 title: 'TSK-44: ShowTheThinking + ThinkingNode chain on paper + /dev/thinking'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P0
   - 'sp:3'
@@ -20,5 +21,5 @@ ordinal: 137000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/interactions/{ShowTheThinking,ThinkingNode}.tsx, app/dev/thinking/page.tsx, thinking-motion.test.ts, eval-007/eval-010 specs.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

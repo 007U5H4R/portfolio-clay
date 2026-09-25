@@ -1,9 +1,10 @@
 ---
 id: TASK-78.1
 title: 'TSK-42: Chapter + ChapterNav + Prose flat + deep-dive grid'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P0
   - 'sp:2'
@@ -19,5 +20,5 @@ ordinal: 135000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/case-study/{Chapter,ChapterNav}.tsx, common/Prose.tsx, app/work/[slug]/page.tsx, anchors.test.ts, case-study.spec.ts.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

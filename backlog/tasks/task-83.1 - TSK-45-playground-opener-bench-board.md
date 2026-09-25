@@ -1,9 +1,10 @@
 ---
 id: TASK-83.1
 title: 'TSK-45: /playground opener + bench board'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P1
   - 'sp:2'
@@ -19,5 +20,5 @@ ordinal: 138000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/playground/{PlaygroundHero,PlaygroundGrid}.tsx, app/playground/page.tsx, playground.spec.ts.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

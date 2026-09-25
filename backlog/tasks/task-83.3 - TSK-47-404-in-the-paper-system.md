@@ -1,9 +1,10 @@
 ---
 id: TASK-83.3
 title: 'TSK-47: 404 in the paper system'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P2
   - 'sp:1'
@@ -20,5 +21,5 @@ ordinal: 140000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-app/not-found.tsx, not-found.spec.ts (reuses the tools sketch from TSK-45).
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

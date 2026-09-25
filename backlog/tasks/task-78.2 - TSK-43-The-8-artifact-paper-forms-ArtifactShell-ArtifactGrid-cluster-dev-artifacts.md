@@ -3,9 +3,10 @@ id: TASK-78.2
 title: >-
   TSK-43: The 8 artifact paper forms + ArtifactShell/ArtifactGrid cluster +
   /dev/artifacts
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P0
   - 'sp:3'
@@ -22,5 +23,5 @@ ordinal: 136000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/case-study/artifacts/*.tsx, app/dev/artifacts/page.tsx, artifacts.test.tsx, artifacts.spec.ts.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

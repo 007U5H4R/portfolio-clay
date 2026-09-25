@@ -1,9 +1,10 @@
 ---
 id: TASK-83.2
 title: 'TSK-46: /contact opener + actions list + postcard + CopyButton states'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P1
   - 'sp:2'
@@ -19,5 +20,5 @@ ordinal: 139000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/contact/ContactCard.tsx, common/CopyButton.tsx, app/contact/page.tsx, copy-button.test.tsx, contact.spec.ts.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

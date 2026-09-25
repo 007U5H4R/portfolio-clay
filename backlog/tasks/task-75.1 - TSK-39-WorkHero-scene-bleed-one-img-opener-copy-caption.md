@@ -1,9 +1,10 @@
 ---
 id: TASK-75.1
 title: 'TSK-39: WorkHero scene bleed (one <img>) + opener copy + caption'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P0
   - 'sp:1'
@@ -19,5 +20,5 @@ ordinal: 132000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/projects/WorkHero.tsx, paper/Illustration bleed variant, app/work/page.tsx, work.spec.ts.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->

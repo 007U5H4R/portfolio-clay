@@ -1,9 +1,10 @@
 ---
 id: TASK-75.3
 title: 'TSK-41: ExperienceStrip as <details name=job> rows'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 13:35'
 labels:
   - P1
   - 'sp:1'
@@ -20,5 +21,5 @@ ordinal: 134000
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-components/projects/ExperienceStrip.tsx, work.spec.ts, eval-007.spec.ts.
+Implemented on its fan-out branch and merged into m009/integration-ab (2026-09-25); Done after the integration full gate passes.
 <!-- SECTION:NOTES:END -->
