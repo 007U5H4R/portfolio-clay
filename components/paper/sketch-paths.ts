@@ -34,7 +34,7 @@ export const TORN_PATHS = {
   band: "M0 30 L 24 18 L 48 32 L 70 14 L 96 28 L 120 22 L 140 34 L 168 12 L 192 26 L 214 20 L 240 30 L 262 16 L 288 28 L 312 24 L 336 34 L 358 14 L 384 26 L 408 20 L 430 32 L 456 16 L 480 28 L 504 22 L 528 34 L 552 18 L 576 26 L 600 12 L 624 30 L 648 22 L 672 32 L 696 16 L 720 28 L 744 20 L 768 34 L 792 14 L 816 26 L 840 22 L 864 32 L 888 18 L 912 28 L 936 12 L 960 30 L 984 22 L 1008 34 L 1032 16 L 1056 26 L 1080 20 L 1104 32 L 1128 14 L 1152 28 L 1176 22 L 1200 34 L 1224 18 L 1248 26 L 1272 12 L 1296 30 L 1320 20 L 1344 32 L 1368 16 L 1392 28 L 1416 22 L 1440 30 L 1440 46 L 0 46 Z",
 } as const;
 
-export type SketchLineVariant = "underline" | "spark" | "path" | "chain" | "tools" | "arrow";
+export type SketchLineVariant = "underline" | "spark" | "path" | "journey" | "chain" | "tools" | "arrow";
 
 /** `Sketch` line-art variants (the seventh, `flow`, is HTML boxes — see `FLOW_DEFAULT_ROWS`). */
 export const SKETCHES: Record<SketchLineVariant, SvgDrawing> = {
@@ -58,6 +58,13 @@ export const SKETCHES: Record<SketchLineVariant, SvgDrawing> = {
         d: "M20 96 C 80 90, 110 71, 150 71 C 250 71, 350 35, 450 35 C 550 35, 650 83, 750 83 C 850 83, 950 47, 1050 47 C 1100 47, 1140 30, 1180 18",
       },
     ],
+  },
+  // home.html `.journey .path` (TKT-76: the home How-I-think curve behind the six stage cards; the
+  // `path` variant above is the About product-journey drawing, a different curve).
+  journey: {
+    viewBox: "0 0 1200 320",
+    stretch: true,
+    paths: [{ d: "M100 40 C 180 30, 240 80, 300 40 S 460 20, 520 44 S 700 90, 760 40 S 940 20, 1000 44 S 1060 60, 1100 44" }],
   },
   // case-study.html `.chain .path` (show-the-thinking vertical chain).
   chain: {
