@@ -3,9 +3,10 @@ id: TASK-85
 title: >-
   TKT-90: Redesign QA sweep — responsive · a11y · reduced motion ·
   EVAL-018/019/020/021 · contrast · mockup-pair screenshot pack for Stage 8
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
+updated_date: '2026-09-25 14:26'
 labels:
   - P0
   - 'sp:5'
@@ -35,3 +36,9 @@ Every route at 4 widths: overflow, ≥44 px targets, ≥12 px text, intrinsic si
 - [ ] #6 Defects fixed or QA-### logged
 - [ ] #7 VoiceOver notes for /, /work/teachspark, /about appended to docs/a11y-pass.md
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Fan-out E (2026-09-25): split into 90a residual clay removal, 90b sweep bug fixes (filter tabs 390, ChapterNav active item, chapter-link scroll), 90c QA evidence (reduced motion, contrast pairs, EVAL-021 checklist, a11y notes, docs/eval.md). Brief docs/briefs/FANOUT-E.md.
+<!-- SECTION:NOTES:END -->
