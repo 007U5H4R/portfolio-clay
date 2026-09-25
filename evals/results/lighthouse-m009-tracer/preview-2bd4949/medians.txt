@@ -1,0 +1,4 @@
+mobile  /                  runs 3 perf median 95 (min 74) LCP median 2338 ms CLS max 0.032 | <img alt="Illustration of Tushar at a warm desk — laptop, no
+mobile  /work/teachspark   runs 3 perf median 98 (min 89) LCP median 2274 ms CLS max 0.000 | <img alt="Illustration of Tushar reading in a green armchair
+desktop /                  runs 3 perf median 100 (min 100) LCP median 414 ms CLS max 0.054 | <img alt="Illustration of Tushar at a warm desk — laptop, no
+desktop /work/teachspark   runs 3 perf median 100 (min 100) LCP median 470 ms CLS max 0.001 | <img alt="Illustration of Tushar reading in a green armchair
