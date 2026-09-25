@@ -10,6 +10,6 @@ export default async function Image() {
     // SITEMAP.md §/work WorkHero copy — reused verbatim ahead of TKT-16's real WorkHero component.
     title: "Real problems. Thoughtful bets. Products that ship.",
     subtitle: "Personal AI builds and professional platform work — filterable by AI, Enterprise, Cloud and Experiments.",
-    tone: "lavender",
+    caption: "the pinboard",
   });
 }

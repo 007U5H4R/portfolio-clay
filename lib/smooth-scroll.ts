@@ -63,11 +63,15 @@ export function scrollToTarget(target: HTMLElement, { immediate = false } = {}):
   if (!lenis) return false;
   const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop);
   const offset = Number.isFinite(margin) && margin > 0 ? 0 : -headerHeight();
-  // Lenis measures an element target as `rect.top + its own animatedScroll`. After a native scroll it
-  // has not yet seen (keyboard, a focus/scrollIntoView in the same frame — e.g. Playwright scrolling
-  // the link into view before clicking) that internal value is stale and the jump falls short. Sync it
-  // to the real position first; an immediate scroll to where we already are moves nothing.
-  if (Math.abs(lenis.animatedScroll - window.scrollY) > 1) lenis.scrollTo(window.scrollY, { immediate: true });
+  // Re-measure before every jump (TKT-90b). Lenis clamps a scroll to its cached `limit`, which it only
+  // refreshes from a ResizeObserver debounced by 250 ms — a debounce that restarts on every resize, so
+  // it can lag indefinitely while content keeps growing (the case-study deep dive mounting its chapters,
+  // lazy images, fonts). A click in that window clamped the target to the old, shorter page and the jump
+  // went nowhere (TKT-83's intermittent w1024 "hash updated, no scroll"). `resize()` also resyncs
+  // Lenis's `animatedScroll` to the real `window.scrollY`: Lenis measures an element target as
+  // `rect.top + animatedScroll`, which goes stale after a native scroll it has not yet seen (keyboard,
+  // a focus/scrollIntoView in the same frame) and would make the jump fall short.
+  lenis.resize();
   lenis.scrollTo(target, { offset, immediate });
   if (!target.matches("a[href], button, input, select, textarea, [tabindex]")) {
     target.setAttribute("tabindex", "-1");

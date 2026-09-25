@@ -3,7 +3,7 @@
  * `Sketch` on `/dev/primitives` draws in once (stroke-dashoffset 400 → 0 over 1.1 s after 0.5 s) and
  * renders complete, with no animation, under `prefers-reduced-motion: reduce`.
  *
- * Untagged (like `primitives.spec.ts`): the board is a QA-only route that 404s on a plain build, so
+ * Untagged (like `paper-board.spec.ts`): the board is a QA-only route that 404s on a plain build, so
  * these tests SKIP there and run under `ALLOW_DEV_ROUTES=1 pnpm build`. `data-drawin` is set on the
  * `underline` variant only (TSK-33 finding, Design.md §8), so that is the element measured. Measured
  * once at w1440. TC-128 steps 3–4 (`Reveal`) belong to TKT-79.

@@ -30,8 +30,17 @@ const EXPECTED_SITEMAP_COUNT =
   projects.filter((project) => project.category === "personal").length +
   collections.writing.length;
 
-// "/about" added by TKT-42, which owns `app/about/opengraph-image.tsx` (no earlier ticket did).
-const ROUTES = ["/", "/work", "/work/teachspark", "/about", "/contact"] as const;
+// "/about" added by TKT-42; "/thinking" + "/playground" added by TKT-78 (M-009) so all seven
+// `opengraph-image.tsx` families are covered by the tag + image checks (TC-150).
+const ROUTES = [
+  "/",
+  "/work",
+  "/work/teachspark",
+  "/about",
+  "/thinking",
+  "/playground",
+  "/contact",
+] as const;
 
 const ABSOLUTE_HTTPS = /^https:\/\//;
 
@@ -141,12 +150,13 @@ test("sitemap.xml lists every built static route + personal project slug, no /de
   expect(locs.some((l) => l?.endsWith("/work/teachspark"))).toBe(true);
 });
 
-// Sanity: the local OFL licence file for the OG card's Manrope fonts is present and unmodified
-// (S06.02) — cheap regression guard against the asset silently disappearing.
-test("Manrope OFL licence ships alongside the OG font assets", { tag: "@EVAL-017" }, async ({
+// Sanity: the local OFL licence file for the OG card's fonts (Fraunces, Inter, Caveat — TKT-78) is
+// present — cheap regression guard against the asset silently disappearing.
+test("OFL licence ships alongside the OG font assets", { tag: "@EVAL-017" }, async ({
   page,
 }) => {
   test.skip((page.viewportSize()?.width ?? 0) !== 1440, "filesystem check; runs once at w1440");
   const licence = readFileSync("assets/fonts/OFL.txt", "utf8");
   expect(licence).toContain("SIL OPEN FONT LICENSE");
+  for (const family of ["Fraunces", "Inter", "Caveat"]) expect(licence).toContain(family);
 });

@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import type { SourceRef } from "@/data/schema";
 import type { EvaluationArtifact } from "./types";
+import { Hand } from "@/components/paper";
 import { ArtifactShell } from "./ArtifactShell";
 
 export interface EvaluationCardProps {
@@ -8,9 +10,10 @@ export interface EvaluationCardProps {
 }
 
 /**
- * EvaluationCard (Design.md §3): three stacked labelled rows — Method → Result → Limitation — so
- * a claim is always shown next to how it was measured AND what that measurement cannot say
- * (Solution-PRD §7 truth rules: every result carries its limitation).
+ * EvaluationCard (Design.md §7.3 `evaluation`): a paper-2 bordered card whose `dl` pairs a Caveat
+ * `dt` (`Hand label`: Method / Result / Limitation) with an Inter `dd` — so a claim is always shown
+ * next to how it was measured AND what that measurement cannot say (Solution-PRD §7 truth rules).
+ * The `dt`s are forest, not the mockup's steel: steel on paper-2 is 3.6:1 (TKT-83 CSS header note).
  */
 export function EvaluationCard({ artifact, source }: EvaluationCardProps) {
   const rows: { label: string; value: string }[] = [
@@ -19,15 +22,15 @@ export function EvaluationCard({ artifact, source }: EvaluationCardProps) {
     { label: "Limitation", value: artifact.limitation },
   ];
   return (
-    <ArtifactShell source={source} label="Evaluation" caption={artifact.caption}>
-      <dl className="flex flex-col gap-[var(--space-3)]">
+    <ArtifactShell form="eval" label="Evaluation" source={source} caption={artifact.caption}>
+      <dl>
         {rows.map((row) => (
-          <div key={row.label} className="flex flex-col gap-[var(--space-1)]">
-            <dt className="text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
+          <Fragment key={row.label}>
+            <Hand kind="label" as="dt">
               {row.label}
-            </dt>
-            <dd className="text-[length:var(--text-body)] text-navy">{row.value}</dd>
-          </div>
+            </Hand>
+            <dd>{row.value}</dd>
+          </Fragment>
         ))}
       </dl>
     </ArtifactShell>

@@ -1,26 +1,27 @@
 "use client";
 
 /**
- * AskPortfolio (technical-plan.md §B S10.04, Design.md §3) — the home inline Ask surface: a single
- * `ClayCard` holding the input field and, beneath it, the shared idle → loading → answer | empty |
- * error body (`AnswerView`). On submit the field NEVER navigates (brief §13, hard requirement): the
- * same card expands in place (tone shifts neutral → lavender so it reads as "the same object, now
- * open" — Law of Continuity) and focus moves to the answer heading, without trapping focus (the page
- * stays scrollable — unlike the panel, TKT-11).
+ * AskPortfolio (technical-plan.md §B S10.04 → §F TKT-77 S77.01, Design.md §7.1 Ask, decision S21) —
+ * the home inline Ask surface, restyled in M-009 as a ruled **notebook** page (`Sheet
+ * variant="notebook"`, +0.5°): the prompt `Annotation` ("What would you like to know?" — the one
+ * counted decoration inside the sheet), the sr-only label, an Inter 18 px underline input, the navy
+ * "Ask →" pill (`data-hand="cta"`), and beneath it the shared idle → loading → answer | empty | error
+ * body (`AnswerView`). On submit the field NEVER navigates (brief §13, hard requirement): the same
+ * sheet grows in place and focus moves to the answer heading, without trapping focus (the page stays
+ * scrollable — unlike the panel, TKT-11).
  *
- * Motion (A6 / Design.md §4): the answer body reveals with a fade-up (opacity + y) and the card
- * height eases to its expanded min-height. TKT-49 perf lever: both are now pure CSS — the height via
- * a `min-height` transition (as before), and the content fade-up via the `ask-reveal` keyframe
- * (globals.css), replayed on each state change through React's `key={status}` remount. This drops
- * AskPortfolio as a consumer of the `motion` `domAnimation` feature bundle, keeping it off `/`
- * first-load JS (EVAL-005) — a one-shot mount entrance never needed a JS spring. (The plan named
- * `m.div layout`, but `layout` lives only in `domMax`; that was already avoided.) Everything
- * collapses to instant under `prefers-reduced-motion` via the global reduced-motion rule.
+ * Motion (Design.md §8 "Ask inline expand"): the sheet height eases to its expanded min-height via a
+ * CSS `min-height` transition, and the body fades up through the `ask-reveal` keyframe, replayed on
+ * each state change through React's `key={status}` remount. Pure CSS keeps AskPortfolio off the
+ * `motion` feature bundle and `/` first-load JS (TKT-49, EVAL-005). Reduced motion: the height is
+ * instant and the body is a 150 ms opacity fade (the TKT-77 block in globals.css).
+ *
+ * Logic (`useAsk`, the provider, the synonym table) is untouched (TP3).
  */
-import { ArrowUp } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Icon } from "@/components/common/Icon";
-import { ClayCard } from "@/components/clay/ClayCard";
+import { Annotation } from "@/components/paper/Annotation";
+import { Hand } from "@/components/paper/Hand";
+import { Sheet } from "@/components/paper/Sheet";
 import { AnswerView } from "./AnswerView";
 import { useAsk } from "./AskProvider";
 
@@ -78,20 +79,12 @@ export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[720px]">
-      <ClayCard
-        tier="card"
-        tone={expanded ? "lavender" : "neutral"}
-        padding="card"
-        data-testid="ask-card"
-        className={[
-          "transition-[min-height] duration-[280ms] ease-[var(--ease-panel)] motion-reduce:transition-none",
-          expanded ? "min-h-[240px]" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        <form onSubmit={onSubmit} className="flex items-center gap-[var(--space-3)]">
+    <div data-testid="ask-card" data-expanded={expanded ? "" : undefined} className="ask-notebook-wrap">
+      <Sheet variant="notebook" rotate={0.5} className="ask-notebook">
+        <Annotation size="lg" className="ask-prompt">
+          What would you like to know?
+        </Annotation>
+        <form onSubmit={onSubmit} className="ask-form">
           <label htmlFor="ask-portfolio-input" className="sr-only">
             Ask about my work
           </label>
@@ -104,18 +97,14 @@ export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
             placeholder="Ask about my work…"
             autoComplete="off"
             aria-label="Ask about my work"
-            className="h-14 min-w-0 flex-1 rounded-[var(--radius-clay-sm)] border border-navy/10 bg-paper px-[var(--space-4)] text-[length:var(--text-body)] text-navy placeholder:text-ink-soft focus-ring"
+            className="ask-input focus-ring"
           />
-          <button
-            type="submit"
-            aria-label="Ask"
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-clay-sm)] bg-rust text-paper transition-transform duration-[180ms] ease-out hover:-translate-y-[3px] hover:bg-terracotta active:scale-[.98] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-ring"
-          >
-            <Icon icon={ArrowUp} size={24} />
+          <button type="submit" aria-label="Ask" className="ask-submit focus-ring">
+            <Hand kind="cta">Ask →</Hand>
           </button>
         </form>
 
-        <div key={status} className="ask-reveal mt-[var(--space-5)]">
+        <div key={status} className="ask-reveal ask-body">
           <AnswerView
             status={status}
             answer={answer}
@@ -126,7 +115,7 @@ export function AskPortfolio({ prompts, autoSubmit }: AskPortfolioProps) {
             headingRef={headingRef}
           />
         </div>
-      </ClayCard>
+      </Sheet>
     </div>
   );
 }

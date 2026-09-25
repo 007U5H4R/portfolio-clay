@@ -1,101 +1,141 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { TornEdge } from "@/components/paper/TornEdge";
+import { scrollToTarget } from "@/lib/smooth-scroll";
+import { Container } from "@/components/layout/Container";
 
 type View = "summary" | "deep";
 
 export interface OverviewToggleProps {
-  /** The 30-second summary view (rendered from `overview.thirtySecond`). Shown by default (AC 4). */
-  summary: ReactNode;
-  /** The deep-dive view (ChapterNav + chapters + ShowTheThinking). */
-  deep: ReactNode;
+  /** Left `depth` column content above the tabs: eyebrow, sr-only h2, the thirty-seconds annotation. */
+  intro: ReactNode;
+  /** Right column: the 30-sec notebook (and, on a thin project, the "Deep dive coming" tag). */
+  notebook: ReactNode;
+  /**
+   * The deep-dive section (`section#deep`, TKT-83) — rendered as the overview's next sibling only
+   * while "Deep dive" is selected. Omit it for a thin project: then no tabs render at all.
+   */
+  deep?: ReactNode | undefined;
+  /** Help line under the tabs (what the deep dive adds). */
+  help?: string | undefined;
+  /** Every in-page id that lives inside `deep` (`deep`, `01-context`, …) — a hash to one opens it. */
+  deepIds?: readonly string[] | undefined;
 }
+
+const NO_IDS: readonly string[] = [];
 
 const OPTIONS: { view: View; label: string }[] = [
   { view: "summary", label: "30-sec" },
   { view: "deep", label: "Deep dive" },
 ];
 
-const PANEL_ID = "overview-panel";
-
 /**
- * OverviewToggle (Design.md §3, TKT-19 AC 4): a 2-segment switch — "30-sec" (default) | "Deep dive"
- * — that swaps the 30-second summary for the full chapter list. The page renders this ONLY when a
- * project has a deep dive (`overview.deepDive` + ≥1 non-empty chapter); a thin project shows its
- * summary with no toggle, so an empty toggle never appears.
+ * The case-study overview section (TKT-81, Design.md §7.3 "Overview", §3.3 = torn + annotation → 2):
+ * `section aria-labelledby="ov-h"` on `paper` with a torn top; left the depth column (intro, the
+ * **folder tabs**, help), right the notebook.
  *
- * The segments are a WAI-ARIA `radiogroup`: roving tabindex (only the checked radio is in the tab
- * order), arrow keys move and select, Space/Enter selects the focused segment, and the group as a
- * whole is one Tab stop. The active view fades in via the `.overview-panel` crossfade (globals.css),
- * which the reduced-motion rule collapses to instant. Only the active view is mounted, so the
- * panel's height tracks its content (the "layout animation absorbing the height change" reads as a
- * clean resize rather than a stacked overlay).
+ * The tabs are a WAI-ARIA `radiogroup` (TC-156 step 1, EVAL-007): roving tabindex (only the checked
+ * radio is a Tab stop), arrow keys move AND select, Space/Enter select the focused tab. "Deep dive"
+ * mounts the `deep` section directly below this one; "30-sec" (the default) unmounts it, so the page
+ * stays a short read until the reader asks for depth. A URL hash that points inside the deep dive
+ * (`#deep`, `#01-context`, … — TP8 anchors) opens it on load / hashchange and scrolls to the target,
+ * so a shared chapter link never lands on a missing id. The tabs only render when `deep` is given.
  */
-export function OverviewToggle({ summary, deep }: OverviewToggleProps) {
+export function OverviewToggle({ intro, notebook, deep, help, deepIds = NO_IDS }: OverviewToggleProps) {
   const [view, setView] = useState<View>("summary");
+  // The hashed id waiting to be scrolled to once the deep section mounts; `hashTick` re-runs the
+  // scroll effect for a new hash even when the deep dive is already open.
+  const pendingHash = useRef<string | null>(null);
+  const [hashTick, setHashTick] = useState(0);
   const groupRef = useRef<HTMLDivElement>(null);
+  const hasDeep = deep !== undefined && deep !== null;
+
+  // Open the deep dive when the URL points inside it (initial load and later hash changes).
+  useEffect(() => {
+    if (!hasDeep) return;
+    const ids = new Set(deepIds);
+    const sync = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      if (id && ids.has(id)) {
+        pendingHash.current = id;
+        setView("deep");
+        setHashTick((tick) => tick + 1);
+      }
+    };
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, [hasDeep, deepIds]);
+
+  // Once the deep section is mounted, bring the hashed target into view (Lenis-aware, EXE-16).
+  useEffect(() => {
+    const id = pendingHash.current;
+    if (!id || view !== "deep") return;
+    pendingHash.current = null;
+    const target = document.getElementById(id);
+    if (target && !scrollToTarget(target, { immediate: true })) target.scrollIntoView();
+  }, [hashTick, view]);
 
   const focusOption = (next: View) => {
     setView(next);
-    const button = groupRef.current?.querySelector<HTMLButtonElement>(`button[data-view="${next}"]`);
-    button?.focus();
+    groupRef.current?.querySelector<HTMLButtonElement>(`button[data-view="${next}"]`)?.focus();
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    switch (event.key) {
-      case "ArrowRight":
-      case "ArrowDown":
-        event.preventDefault();
-        focusOption(view === "summary" ? "deep" : "summary");
-        break;
-      case "ArrowLeft":
-      case "ArrowUp":
-        event.preventDefault();
-        focusOption(view === "deep" ? "summary" : "deep");
-        break;
-      default:
-        break;
+    if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) {
+      event.preventDefault();
+      focusOption(view === "summary" ? "deep" : "summary");
     }
   };
 
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
-      <div
-        ref={groupRef}
-        role="radiogroup"
-        aria-label="Case-study depth"
-        onKeyDown={onKeyDown}
-        className="inline-flex w-fit items-center gap-[var(--space-1)] rounded-[var(--radius-pill)] bg-ivory p-[var(--space-1)] shadow-[var(--shadow-utility)]"
-      >
-        {OPTIONS.map((option) => {
-          const checked = option.view === view;
-          return (
-            <button
-              key={option.view}
-              type="button"
-              role="radio"
-              aria-checked={checked}
-              aria-controls={PANEL_ID}
-              data-view={option.view}
-              tabIndex={checked ? 0 : -1}
-              onClick={() => setView(option.view)}
-              className={[
-                "min-h-11 rounded-[var(--radius-pill)] px-[var(--space-5)] text-caption font-semibold transition-[color,background-color] duration-200 ease-[var(--ease-hover)] focus-ring motion-reduce:transition-none",
-                checked ? "bg-paper-2 text-navy shadow-[var(--shadow-utility)]" : "bg-transparent text-navy-2 hover:text-navy",
-              ].join(" ")}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div id={PANEL_ID}>
-        {/* `key` re-mounts the active view so the `.overview-panel` fade replays on every switch. */}
-        <div key={view} className="overview-panel">
-          {view === "summary" ? summary : deep}
+    <>
+      <section className="cs-overview cs-torn-fill" aria-labelledby="ov-h">
+        <TornEdge fill="paper" />
+        <Container className="cs-overview-grid">
+          <div className="cs-depth">
+            {intro}
+            {hasDeep ? (
+              <>
+                <div
+                  ref={groupRef}
+                  role="radiogroup"
+                  aria-label="Case-study depth"
+                  onKeyDown={onKeyDown}
+                  className="cs-tabs"
+                >
+                  {OPTIONS.map((option) => {
+                    const checked = option.view === view;
+                    return (
+                      <button
+                        key={option.view}
+                        type="button"
+                        role="radio"
+                        aria-checked={checked}
+                        data-view={option.view}
+                        tabIndex={checked ? 0 : -1}
+                        onClick={() => setView(option.view)}
+                        className="cs-tab focus-ring"
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {help ? <p className="cs-help">{help}</p> : null}
+              </>
+            ) : null}
+          </div>
+          {notebook}
+        </Container>
+      </section>
+      {hasDeep && view === "deep" ? (
+        // `key` replays the `.overview-panel` fade each time the deep dive opens (reduced motion: instant).
+        <div key="deep" className="overview-panel">
+          {deep}
         </div>
-      </div>
-    </div>
+      ) : null}
+    </>
   );
 }

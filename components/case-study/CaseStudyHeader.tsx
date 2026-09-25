@@ -1,119 +1,101 @@
 import Image from "next/image";
-import type { LucideIcon } from "lucide-react";
-import type { Project, SourceRef } from "@/data/schema";
-import { ClayFrame } from "@/components/clay/ClayFrame";
-import { ClayIcon } from "@/components/clay/ClayIcon";
+import Link from "next/link";
+import type { Project } from "@/data/schema";
+import { Annotation } from "@/components/paper/Annotation";
+import { Sheet } from "@/components/paper/Sheet";
+import { Tape } from "@/components/paper/Tape";
 import { StatusBadge } from "@/components/projects/StatusBadge";
-import { MetricCard } from "@/components/case-study/artifacts";
 import { DemoVideo } from "@/components/projects/DemoVideo";
+import { Container } from "@/components/layout/Container";
 
 export interface CaseStudyHeaderProps {
-  /** The full schema-validated project — the header reads name, lead, meta, metrics, hero media. */
+  /** The full schema-validated project — the header reads name, lead, meta and hero media. */
   project: Project;
-  /** Resolved lucide icon for `project.icon` (the page resolves the name → component). */
-  icon: LucideIcon;
 }
 
 /**
- * Flat 60/40 header for a case study (Design.md §3, TKT-19). Left: name (h1) → one-line lead →
- * role/duration/status meta chips → 2–3 inline `MetricCard`s (value/label/context/asOf/kind +
- * source; TKT-19 AC 2). Right: a 16:9 card-tier `ClayFrame` that is the View-Transition target — it
- * carries the same `project-{slug}` / `icon-{slug}` CSS names as the ProjectCard, so the browser
- * morphs the card into this media where native VT fires (EXE-5).
+ * Case-study header on paper (TKT-81, Design.md §7.3 "Header", §3.3 row `/work/[slug]` header).
  *
- * Hero media is one of three (technical-plan.md §B TKT-19): the project's `hero.image`, else its
- * `links.demoVideo` (rendered through the reused `DemoVideo`, TKT-18), else a labelled placeholder
- * ("Hero media coming") — never a broken `<img>` (A13). Every project ships thin today, so the
- * placeholder is the live path until M-005 supplies real media.
+ * The page scene already opens the route above this section as a full-bleed `SceneOpener`
+ * (TKT-95, EXE-18 / Dev-24), which supersedes §7.3's taped `scene-casestudy` photo. So by default
+ * this is a single copy column: crumb "Work / Case study", h1, lead ≤ 44ch, `Role:` / `Duration:`
+ * meta, the `StatusBadge` ivory pill, and the kraft **"Hero media coming"** tag (`data-paper="tag"`,
+ * navy Inter — Dev-13) with its sub-line annotation. When a project gains real media (`hero.image`
+ * or `links.demoVideo`) the header becomes the `56fr 44fr` grid with that media in a taped photo
+ * frame on the right (`DemoVideo` keeps its four states inside the frame) and the tag disappears.
+ *
+ * Decorations (EVAL-018): the media-tag sub-line annotation only → 1 (§3.3 planned 2; the photo
+ * caption annotation left with the photo, Dev-24). The h1 carries the `project-{slug}`
+ * view-transition name so the /work card still morphs into this page (EXE-5).
  */
-export function CaseStudyHeader({ project, icon }: CaseStudyHeaderProps) {
-  const { slug, name, tagline, role, duration, status, statusLabel, metrics, hero, links, sources } =
-    project;
-
-  const meta = [
-    role ? { label: "Role", value: role } : null,
-    duration ? { label: "Duration", value: duration } : null,
-  ].filter((entry): entry is { label: string; value: string } => entry !== null);
-
-  // Resolve a metric's source id → the declared SourceRef; fail loud if it is missing (the schema's
-  // superRefine already forbids this — this is the render-time backstop, EVAL-013).
-  const bySourceId = new Map<string, SourceRef>(sources.map((s) => [s.id, s]));
-  const headerMetrics = metrics.slice(0, 3).map((metric) => {
-    const source = bySourceId.get(metric.source);
-    if (!source) {
-      throw new Error(
-        `CaseStudyHeader: metric (label="${metric.label}") references source "${metric.source}" not declared in ${slug}.sources[] (EVAL-013).`,
-      );
-    }
-    return { metric, source };
-  });
+export function CaseStudyHeader({ project }: CaseStudyHeaderProps) {
+  const { slug, name, tagline, role, duration, status, statusLabel, hero, links } = project;
+  const hasMedia = Boolean(hero.image ?? links.demoVideo);
 
   return (
-    <header className="grid gap-[var(--space-8)] lg:grid-cols-[60fr_40fr] lg:items-start">
-      <div className="flex flex-col gap-[var(--space-5)]">
-        <h1 className="text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
-          {name}
-        </h1>
-        <p className="max-w-[44ch] text-[length:var(--text-lead)] text-navy-2">{tagline}</p>
-        <div className="flex flex-wrap items-center gap-[var(--space-3)]">
-          {meta.map((entry) => (
-            <span key={entry.label} className="text-[length:var(--text-caption)] text-ink-soft">
-              <span className="font-semibold text-navy-2">{entry.label}:</span> {entry.value}
+    <section className="cs-head" aria-labelledby="cs-h" data-has-media={hasMedia ? "" : undefined}>
+      <Container className="cs-head-grid">
+        <div className="cs-copy">
+          <p className="cs-crumb">
+            {/* Running-text crumb link: WCAG 2.5.8 inline exception, like ExternalLink. */}
+            <Link href="/work" className="focus-ring" data-inline-link="">
+              Work
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span>Case study</span>
+          </p>
+          <h1 id="cs-h" className="cs-h1" style={{ viewTransitionName: `project-${slug}` }}>
+            {name}
+          </h1>
+          <p className="cs-lead">{tagline}</p>
+          <div className="cs-meta">
+            <span>
+              Role: <b>{role}</b>
             </span>
-          ))}
-          <StatusBadge status={status} statusLabel={statusLabel} />
+            <span>
+              Duration: <b>{duration}</b>
+            </span>
+            <StatusBadge status={status} statusLabel={statusLabel} onPaper />
+            {hasMedia ? null : (
+              // Screen state "empty" for hero media (§7.9): an honest status tag, never a broken frame.
+              <div className="cs-media-tag">
+                <Sheet variant="tag" rotate={-2}>
+                  <span data-micro-label="">Hero media coming</span>
+                </Sheet>
+                <Annotation size="sm" rotate={-2}>
+                  the illustration stands in, for now
+                </Annotation>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* 2–3 inline mini-metrics — rendered only from real `Project.metrics` (empty until M-005,
-            so nothing shows today; no fabricated number ever appears). */}
-        {headerMetrics.length > 0 ? (
-          <div className="grid grid-cols-1 gap-[var(--space-5)] sm:grid-cols-2">
-            {headerMetrics.map(({ metric, source }) => (
-              <MetricCard key={metric.label} metric={metric} source={source} variant="inline" />
-            ))}
-          </div>
+        {hasMedia ? (
+          <Sheet variant="photo" rotate={-1.6} className="cs-photo">
+            <Tape side="l" />
+            <Tape side="r" />
+            <div className="cs-photo-media">
+              {hero.image ? (
+                <Image
+                  src={hero.image.src}
+                  alt={hero.image.alt}
+                  fill
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="object-cover"
+                />
+              ) : links.demoVideo ? (
+                <DemoVideo
+                  video={links.demoVideo}
+                  posterFallback={hero.image}
+                  liveUrl={links.live}
+                  name={name}
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                />
+              ) : null}
+            </div>
+          </Sheet>
         ) : null}
-      </div>
-
-      <ClayFrame
-        ratio="16/9"
-        tier="card"
-        tone="lavender"
-        style={{ viewTransitionName: `project-${slug}` }}
-      >
-        {/* Icon slot — same `icon-{slug}` name as the ProjectCard icon so it morphs (EXE-5). */}
-        <span
-          className="absolute left-[var(--space-5)] top-[var(--space-5)] z-10"
-          style={{ viewTransitionName: `icon-${slug}` }}
-        >
-          <ClayIcon icon={icon} size={56} tone="lavender" />
-        </span>
-
-        {hero.image ? (
-          <Image
-            src={hero.image.src}
-            alt={hero.image.alt}
-            fill
-            sizes="(min-width: 1024px) 40vw, 100vw"
-            priority
-            className="object-cover"
-          />
-        ) : links.demoVideo ? (
-          <DemoVideo
-            video={links.demoVideo}
-            posterFallback={hero.image}
-            liveUrl={links.live}
-            name={name}
-            priority
-            sizes="(min-width: 1024px) 40vw, 100vw"
-          />
-        ) : (
-          // Media.kind:'placeholder' — real hero media lands with the case-study content (M-005).
-          <div className="flex h-full w-full items-center justify-center p-[var(--space-6)] text-center text-[length:var(--text-body)] font-medium text-ink-soft">
-            Hero media coming
-          </div>
-        )}
-      </ClayFrame>
-    </header>
+      </Container>
+    </section>
   );
 }

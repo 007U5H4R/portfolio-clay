@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ContactCard } from "@/components/contact/ContactCard";
-import { Section } from "@/components/layout/Section";
+import { ContactDetails } from "@/components/contact/ContactDetails";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -13,10 +13,10 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /**
- * `/contact` (TKT-45, M-006): extends the M-002 tracer stub into the real `ContactCard` — no
- * second route, no change to the `buildMetadata`/OG family TKT-06 already wired (verified
- * unchanged above; `app/contact/opengraph-image.tsx` is untouched). Static — same discipline as
- * every other route (TP1), no client data-fetching.
+ * `/contact` (TSK-46, Design.md §7.8): TKT-95's scene opener (EXE-18) → `ContactCard` (the opener
+ * copy + actions list, `section#contact`) → `ContactDetails` (the postcard on `paper-2`, torn) →
+ * band (layout). Static — no client data-fetching (TP1); the only client island is `CopyButton`.
+ * `buildMetadata`/OG family unchanged (`app/contact/opengraph-image.tsx` untouched).
  */
 export default function ContactPage() {
   return (
@@ -25,9 +25,8 @@ export default function ContactPage() {
           ≥ 768 — focalY 0.2 keeps the full head, the face and the waving fingers; the mug and most of
           the palm fall below the crop (< 768 the taller 3:2 box shows ≈ 53 %: face + whole wave). */}
       <SceneOpener id="scene-contact" focalX={0.5} focalY={0.1} priority />
-      <Section id="contact" aria-label="Contact">
-        <ContactCard />
-      </Section>
+      <ContactCard />
+      <ContactDetails />
     </>
   );
 }

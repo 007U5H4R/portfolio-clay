@@ -36,9 +36,16 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import { AlertTriangle, Film, Loader2, Play } from "lucide-react";
 import type { Media, Project } from "@/data/schema";
-import { ClayButton } from "@/components/clay/ClayButton";
 import { Icon } from "@/components/common/Icon";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
+
+/**
+ * TKT-90a: the paper secondary control (same pill as `app/not-found.tsx`'s "See the work": ivory,
+ * hairline `--line` border, `--shadow-paper`) — replaces the retired clay secondary button.
+ * ≥ 44×44 target; the 1 px lift collapses under reduced motion.
+ */
+const PAPER_BUTTON =
+  "focus-ring inline-flex min-h-11 min-w-11 items-center justify-center gap-[var(--space-2)] rounded-[var(--radius-pill)] border border-[var(--line)] bg-ivory text-navy shadow-[var(--shadow-paper)] transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:hover:translate-y-0";
 
 export type DemoVideoData = NonNullable<Project["links"]["demoVideo"]>;
 
@@ -160,7 +167,7 @@ export function DemoVideo({
           </div>
         )}
         <div className="absolute inset-0 flex items-center justify-center bg-navy/30">
-          <span className="inline-flex items-center gap-[var(--space-2)] rounded-[var(--radius-utility)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-navy">
+          <span className="inline-flex items-center gap-[var(--space-2)] rounded-[var(--radius-paper)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-navy">
             <Icon icon={Film} size={20} />
             Demo coming
           </span>
@@ -197,15 +204,14 @@ export function DemoVideo({
 
       {!intent ? (
         <div className="absolute inset-0 flex items-center justify-center">
-          <ClayButton
-            variant="secondary"
-            iconOnly
+          <button
+            type="button"
             aria-label={`Play demo: ${name}`}
             onClick={handlePlayClick}
-            className="h-14 w-14"
+            className={`${PAPER_BUTTON} h-14 w-14`}
           >
             <Icon icon={Play} size={24} />
-          </ClayButton>
+          </button>
         </div>
       ) : null}
 
@@ -227,11 +233,17 @@ export function DemoVideo({
             Couldn&apos;t load the demo video.
           </p>
           {liveUrl ? (
-            <ClayButton href={liveUrl} external variant="secondary">
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${PAPER_BUTTON} px-[var(--space-5)] font-semibold`}
+            >
               View live
-            </ClayButton>
+              <VisuallyHidden>(opens in new tab)</VisuallyHidden>
+            </a>
           ) : (
-            <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-navy">
+            <span className="inline-flex items-center rounded-[var(--radius-paper)] bg-ivory px-[var(--space-4)] py-[var(--space-2)] text-caption font-semibold text-navy">
               Demo coming
             </span>
           )}
@@ -239,7 +251,7 @@ export function DemoVideo({
       ) : null}
 
       {phase !== "error" ? (
-        <span className="pointer-events-none absolute bottom-[var(--space-2)] right-[var(--space-2)] rounded-[var(--radius-utility)] bg-navy/60 px-[var(--space-2)] py-[2px] text-caption text-ivory">
+        <span className="pointer-events-none absolute bottom-[var(--space-2)] right-[var(--space-2)] rounded-[var(--radius-paper)] bg-navy/60 px-[var(--space-2)] py-[2px] text-caption text-ivory">
           {formatDuration(video.durationSec)}
         </span>
       ) : null}

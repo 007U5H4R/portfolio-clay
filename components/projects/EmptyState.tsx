@@ -1,29 +1,27 @@
-import { SearchX } from "lucide-react";
-import { ClayIcon } from "@/components/clay/ClayIcon";
-import { ClayPill } from "@/components/clay/ClayPill";
+import Link from "next/link";
+import { Hand, Pin, Sheet } from "@/components/paper";
 import { filterHref } from "@/lib/filters";
 
 /**
- * The "empty" screen state for the `/work` grid (TKT-16 AC5, the four-states discipline EVAL-014
- * names). Rendered by `WorkGrid` whenever the active filter matches zero projects — impossible with
- * the current dataset (every filter has ≥1 build), but honestly built and rendered so a filter that
- * ever narrows to nothing is a designed dead-end escape, not a blank void. Copy is honest ("No
- * projects match this filter") and the single control is a live "Show all" link back to `/work`
- * (never a dead control, EVAL-011).
+ * The "empty" screen state of the `/work` index (TKT-16 AC5 → TKT-80 · TSK-40, Design.md §7.2
+ * "States"; Dev-05). `WorkGrid` renders it INSTEAD of the list, and only when the active filter
+ * matches zero projects — it is a screen state, not a decoration, so it never sits in the DOM beside
+ * a populated index (the mockup's always-visible card is dropped). The paper form is the pinned,
+ * ruled index card (`Sheet variant="index"` + `Pin` — content paper and a fastener, neither
+ * counted). Copy unchanged; the single control is a live "Show all →" link back to `/work`
+ * (never a dead control, EVAL-011) in the Caveat cta exemption (§3.4).
  */
 export function EmptyState() {
   return (
-    <div className="flex flex-col items-center gap-[var(--space-4)] py-[var(--space-12)] text-center">
-      <ClayIcon icon={SearchX} size={56} tone="lavender" />
-      <p className="text-[length:var(--text-lead)] font-bold text-navy">
-        No projects match this filter
-      </p>
-      <p className="max-w-[44ch] text-[length:var(--text-body)] text-navy-2">
+    <Sheet variant="index" rotate={0.6} className="work-empty">
+      <Pin tone="steel" />
+      <h3 className="work-empty-h">No projects match this filter</h3>
+      <p className="work-empty-body">
         Nothing here yet under this lens. Clear the filter to see every build.
       </p>
-      <ClayPill variant="link" href={filterHref("all")}>
-        Show all
-      </ClayPill>
-    </div>
+      <Link href={filterHref("all")} className="work-empty-cta focus-ring" scroll={false}>
+        <Hand kind="cta">Show all →</Hand>
+      </Link>
+    </Sheet>
   );
 }

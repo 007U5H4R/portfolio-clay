@@ -1,85 +1,117 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import type { Essay } from "@/data/schema";
 import { getProject } from "@/data/projects";
-import { Prose } from "@/components/common/Prose";
 import { DraftTag } from "@/components/paper/DraftTag";
-import { Icon } from "@/components/common/Icon";
+import { FlatZone } from "@/components/paper/FlatZone";
+import { Hand } from "@/components/paper/Hand";
+import { EssayMargin } from "./EssayMargin";
+
+export interface EssayPagerLink {
+  slug: string;
+  title: string;
+}
 
 export interface EssayBodyProps {
   essay: Essay;
+  /** 1-based position in `data/writing.ts` — the header eyebrow "Essay · nn". */
+  number: number;
+  /** The next essay in `data/writing.ts` order, if any (pager). */
+  next?: EssayPagerLink | undefined;
 }
 
 /**
- * `/thinking/[slug]` essay body (TKT-43, Design.md §3 "Thinking → EssayBody"; §3 "Common
- * primitives" `Prose`): flat text zone, `Prose`-wrapped (≤600px / 60ch measure, same convention as
- * a case-study `Chapter`). Title → reading-time caption + a "Draft — pending sign-off" `DraftTag` in
- * place of a publish date (no essay has shipped, so none carries `publishedOn`) → body → a
- * related-project link at the end.
+ * `/thinking/[slug]` essay (TKT-84 S84.02, Design.md §7.6; decision S18, Dev-17): the `article` grid
+ * `minmax(0, 68ch) minmax(220px, 1fr)` — crumb "← Thinking" (`Hand cta`), header (eyebrow
+ * "Essay · nn", h1, dek, meta row with reading time · related link · **one** `DraftTag`), the margin
+ * column, the `.prose` flat zone and the pager.
  *
- * The body is deliberately NOT prose written for this ticket: it is the essay's sourced
- * `passages` (rendered as quote blocks, same `butter`-accent-bar treatment as a case study's
- * `InsightCard`, each captioned with its resolved `SourceRef.label` — never `.ref`, which is a
- * local inventory path) followed by exactly one clearly-labelled "Draft — pending sign-off"
- * framing paragraph. Nothing here claims the essay is finished (AC2/AC3).
+ * `.prose` is `data-flat` (0 decorations): each sourced passage is a `blockquote data-hand="quote"`
+ * with an Inter "Source: …" cite (never `.ref`, the local inventory path), then the framing paragraph
+ * in Inter, then "Related project: … →" (`Hand cta`).
+ *
+ * S18 / TC-164: the framing paragraph renders `essay.framing` **as is**. Every `framing` in
+ * `data/writing.ts` already begins with "Draft — pending sign-off:", so the component must never add
+ * that prefix again (it did until TKT-84 — the page showed it twice). The `DraftTag` in the meta row
+ * reads "Draft — pending sign-off" without the colon; the regression tests count the colon form.
  */
-export function EssayBody({ essay }: EssayBodyProps) {
+export function EssayBody({ essay, number, next }: EssayBodyProps) {
   const relatedProject = essay.relatedProject ? getProject(essay.relatedProject) : undefined;
   const sourceById = new Map(essay.sources.map((source) => [source.id, source]));
+  const numeral = String(number).padStart(2, "0");
 
   return (
-    <article className="flex flex-col gap-[var(--space-7)]">
-      <header className="flex flex-col gap-[var(--space-3)]">
-        <h1 className="max-w-[44ch] text-[length:var(--text-h2)] font-extrabold tracking-[var(--tracking-hero)] text-navy">
+    <article className="essay-article">
+      <Link href="/thinking" className="essay-crumb focus-ring">
+        <Hand kind="cta">← Thinking</Hand>
+      </Link>
+
+      <header className="essay-head">
+        <p className="essay-eyebrow">
+          Essay <span className="essay-eyebrow-dot" aria-hidden="true">·</span> {numeral}
+        </p>
+        <h1 id="essay-h" className="essay-h1">
           {essay.title}
         </h1>
-        <div className="flex flex-wrap items-center gap-[var(--space-3)]">
-          <span className="text-caption text-ink-soft">
-            {essay.readingMinutes} min read
-          </span>
+        <p className="essay-dek">{essay.dek}</p>
+        <p className="essay-meta">
+          <span>{essay.readingMinutes} min read</span>
+          {relatedProject ? (
+            <Link href={`/work/${relatedProject.slug}`} className="essay-meta-rel focus-ring">
+              Related project: {relatedProject.name} →
+            </Link>
+          ) : null}
           {essay.draft ? <DraftTag /> : null}
-        </div>
+        </p>
       </header>
 
-      {/* `!max-w-[600px]` overrides Prose's default 60ch cap, same fix AboutHero applies: in this
-          font 60ch renders ~676px, wider than the "≤600px measure" the brief/AC 3 asserts literally. */}
-      <Prose as="div" className="!max-w-[600px] flex flex-col gap-[var(--space-6)]">
+      <EssayMargin />
+
+      <FlatZone className="essay-prose">
         {essay.passages.map((passage, index) => {
           const source = sourceById.get(passage.source);
           return (
-            <figure key={index} className="flex flex-col gap-[var(--space-2)]">
-              <blockquote className="border-l-[4px] border-kraft pl-[var(--space-4)] text-[length:var(--text-lead)] font-medium text-navy">
+            <figure key={index} className="essay-pull" data-tone={index % 2 === 1 ? "forest" : "rust"}>
+              <Hand
+                kind="quote"
+                cite={
+                  source ? (
+                    <cite className="hand-cite essay-pull-cite">
+                      <b>Source:</b> {source.label}
+                    </cite>
+                  ) : undefined
+                }
+              >
                 “{passage.quote}”
-              </blockquote>
-              {source ? (
-                <figcaption className="text-caption text-ink-soft">
-                  <span className="font-semibold text-navy-2">Source: </span>
-                  {source.label}
-                </figcaption>
-              ) : null}
+              </Hand>
             </figure>
           );
         })}
 
-        <p>
-          <span className="font-semibold text-navy">Draft — pending sign-off: </span>
-          {essay.framing}
-        </p>
-      </Prose>
+        <p className="essay-framing">{essay.framing}</p>
 
-      {relatedProject ? (
-        <Link
-          href={`/work/${relatedProject.slug}`}
-          className="group flex min-h-11 w-fit items-center gap-[var(--space-2)] text-[length:var(--text-body)] font-semibold text-rust underline underline-offset-2 focus-ring rounded-[2px]"
-        >
-          Related project: {relatedProject.name}
-          <Icon
-            icon={ArrowRight}
-            size={20}
-            className="transition-transform duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none group-hover:translate-x-1"
-          />
+        {relatedProject ? (
+          <Link href={`/work/${relatedProject.slug}`} className="essay-related focus-ring">
+            <Hand kind="cta">Related project: {relatedProject.name} →</Hand>
+          </Link>
+        ) : null}
+      </FlatZone>
+
+      <nav className="essay-pager" aria-label="Essay navigation">
+        <Link href="/thinking" className="essay-pager-prev focus-ring">
+          <Hand kind="cta" className="essay-pager-lbl">
+            ← all notes
+          </Hand>
+          <span className="essay-pager-title">Thinking</span>
         </Link>
-      ) : null}
+        {next ? (
+          <Link href={`/thinking/${next.slug}`} className="essay-pager-next focus-ring">
+            <Hand kind="cta" className="essay-pager-lbl">
+              next note →
+            </Hand>
+            <span className="essay-pager-title">{next.title}</span>
+          </Link>
+        ) : null}
+      </nav>
     </article>
   );
 }

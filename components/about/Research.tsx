@@ -1,73 +1,71 @@
 import { papers, patent, researchDisclaimer } from "@/data/credentials";
-import { Section } from "@/components/layout/Section";
-import { SectionHeading } from "@/components/layout/SectionHeading";
-import { ClayCard } from "@/components/clay/ClayCard";
 import { ExternalLink } from "@/components/common/ExternalLink";
 import { Tag } from "@/components/common/Tag";
+import { Note, Sheet, Tape } from "@/components/paper";
 
 /**
- * `/about`'s "Research" section (TKT-42, CONTENT_INVENTORY §4.7): the granted patent (linking out
- * to the Pratyasa record) + the two papers + the rights/safety disclaimer.
+ * Research (TKT-42 → TKT-87, Design.md §7.4, CONTENT_INVENTORY §4.7) — the second `band` row of the
+ * `/about` proof section: the granted patent on a taped ivory `Sheet card` with the "TP" stamp
+ * (`Note stamp` — the proof section's one decoration besides its torn edge, §3.3), the two papers,
+ * and the rights/safety disclaimer.
  *
- * Truth is the entire point of this component (brief non-negotiables):
- *   - `patent.number` ("IN 429867") is the ONLY patent number ever rendered — the certificate wins
- *     over the résumé's SL No. misprint, which never appears here (data/credentials.ts owns that
- *     fact; this component never re-derives or reformats it).
- *   - A paper with `doi` renders a real `ExternalLink` to `doiHref`; a paper with no `doi` (Soft
- *     Matter — DOI + authors MISSING) renders the static `Tag` "DOI pending", never a link, never a
- *     guessed identifier.
+ * Truth rules (unchanged from TKT-42):
+ *   - `patent.number` ("IN 429867") is the only patent number rendered — never the résumé's SL No.
+ *   - A paper with `doi` renders a real DOI pill link; one without renders the Inter `Tag`
+ *     "DOI pending" (Dev-04: never Caveat), never a link, never a guessed identifier.
  *   - `researchDisclaimer` renders verbatim, unconditionally.
- *
- * The patent block uses `ClayCard tier="card" tone="lavender"` — the same card-tier/lavender
- * combination `StoryCard` uses for the Experience timeline's expanded cards (Design.md §3), since
- * this is the section's one "proof" artifact worth visually lifting above the plain papers list.
- *
- * Server component: no interactivity.
+ * Server component.
  */
 export function Research() {
   return (
-    <Section id="research" aria-labelledby="research-heading">
-      <SectionHeading
-        id="research-heading"
-        eyebrow="Before product management"
-        title="Research"
-        lead="A granted patent and two peer-reviewed papers from the M.Tech years."
-        className="mb-[var(--space-8)]"
-      />
+    <div id="research" role="region" aria-labelledby="research-heading" className="proof-band">
+      <div className="proof-head">
+        <p className="proof-eyebrow" data-micro-label="">Before product management</p>
+        <h2 id="research-heading">Research</h2>
+        <p className="proof-lead">A granted patent and two peer-reviewed papers from the M.Tech years.</p>
+      </div>
 
-      <div className="flex flex-col gap-[var(--space-6)]">
-        <ClayCard tier="card" tone="lavender" padding="card" className="flex flex-col gap-[var(--space-3)]">
-          <p className="text-[length:var(--text-body)] font-bold text-navy">{patent.title}</p>
-          <p className="text-caption text-navy-2">
+      <div>
+        <Sheet as="article" variant="card" rotate={-0.5} className="proof-patent">
+          <Tape side="r" />
+          <Note stamp rotate={5} className="proof-pstamp">
+            TP
+          </Note>
+          <h3>{patent.title}</h3>
+          <p className="proof-ids">
             Patent {patent.number} · Application {patent.application} · Filed {patent.filed} · Granted{" "}
             {patent.granted}
           </p>
-          <p className="text-caption text-navy-2">
+          <p className="proof-who">
             Patentee: {patent.patentee}. Inventors: {patent.inventors.join(", ")}.
           </p>
-          <ExternalLink href={patent.href}>View Pratyasa — the patent record</ExternalLink>
-        </ClayCard>
+          <ExternalLink href={patent.href} className="proof-patent-link">
+            View Pratyasa — the patent record
+          </ExternalLink>
+        </Sheet>
 
-        <ul className="flex flex-col gap-[var(--space-5)]">
+        <ul className="proof-papers">
           {papers.map((paper) => (
-            <li key={paper.id} className="flex flex-col gap-[var(--space-2)]">
-              <p className="text-[length:var(--text-body)] font-semibold text-navy">{paper.title}</p>
-              <p className="text-caption text-navy-2">
+            <li key={paper.id}>
+              <h3>{paper.title}</h3>
+              <p className="proof-cite">
                 {paper.authors ? `${paper.authors} ` : ""}
                 {paper.journal} {paper.year}
                 {paper.volumeIssue ? `, ${paper.volumeIssue}` : ""}
               </p>
               {paper.doi && paper.doiHref ? (
-                <ExternalLink href={paper.doiHref}>DOI {paper.doi}</ExternalLink>
+                <ExternalLink href={paper.doiHref} className="proof-doi">
+                  DOI {paper.doi}
+                </ExternalLink>
               ) : (
-                <Tag>DOI pending</Tag>
+                <Tag className="proof-pending">DOI pending</Tag>
               )}
             </li>
           ))}
         </ul>
 
-        <p className="max-w-[60ch] text-caption text-ink-soft">{researchDisclaimer}</p>
+        <p className="proof-disclaimer">{researchDisclaimer}</p>
       </div>
-    </Section>
+    </div>
   );
 }

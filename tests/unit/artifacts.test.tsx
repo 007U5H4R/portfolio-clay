@@ -2,11 +2,16 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { Artifact, Metric, SourceRef } from "@/data/schema";
 import { ArtifactRenderer } from "@/components/case-study/artifacts/ArtifactRenderer";
+import { ArtifactGrid } from "@/components/case-study/artifacts/ArtifactGrid";
 import { MetricCard, type MetricCardProps } from "@/components/case-study/artifacts/MetricCard";
 import { SourceCaption } from "@/components/case-study/artifacts/SourceCaption";
+import { HAND_LIMITS } from "@/components/paper/Hand";
 
 /**
- * artifacts.test.tsx (TKT-20) — the renderer-mapping + MetricCard sourcing guard suite.
+ * artifacts.test.tsx (TKT-20; extended TKT-83 / TC-160) — the renderer-mapping + MetricCard sourcing
+ * guard suite, plus the eight §7.3 paper forms: every artifact root is `data-paper`, Caveat appears
+ * only through `data-hand` exemptions, and hypothesis text / kind badges / status text are Inter
+ * (Dev-04 — asserted via the `font-body` class and the absence of `font-hand`).
  */
 
 const PLAIN_SOURCE: SourceRef = {
@@ -44,6 +49,16 @@ const ONE_OF_EACH: Artifact[] = [
   { id: "a-proto", type: "prototype", source: "TS-PILOT", media: { src: "/media/x.png", alt: "prototype capture pending", width: 1280, height: 720, kind: "placeholder" } },
   { id: "a-generic", type: "generic", source: "RC-API", title: "RailCite live stats", kind: "link", href: "https://railcite.vercel.app", note: "Live status." },
 ];
+
+const byType = (type: Artifact["type"]): Artifact => ONE_OF_EACH.find((a) => a.type === type)!;
+
+/** The single `data-paper` root the renderer produced. */
+function paperRoot(artifact: Artifact): HTMLElement {
+  const { container } = render(<ArtifactRenderer artifact={artifact} sources={SOURCES} />);
+  const roots = container.querySelectorAll("[data-paper]");
+  expect(roots.length, `${artifact.type} must render exactly one data-paper root`).toBe(1);
+  return roots[0] as HTMLElement;
+}
 
 describe("ArtifactRenderer — mapping", () => {
   it("renders every Artifact variant with its distinctive shape", () => {
@@ -92,6 +107,143 @@ describe("ArtifactRenderer — mapping", () => {
   });
 });
 
+// ---------------------------------------------------------------------------------------------------
+// TC-160 (TKT-83 AC 2) — the eight §7.3 paper forms. Design.md §3.1/§3.4: every artifact is content
+// paper (`data-paper`), never a decoration; Caveat only via `data-hand`; Inter for data (Dev-04).
+// ---------------------------------------------------------------------------------------------------
+describe("TC-160 · the eight artifact paper forms (Design.md §7.3, Dev-04)", () => {
+  it("every variant renders exactly one data-paper root, zero data-decor and a Source line", () => {
+    for (const artifact of ONE_OF_EACH) {
+      const root = paperRoot(artifact);
+      expect(root.querySelectorAll("[data-decor]"), `${artifact.type} carries no decoration`).toHaveLength(0);
+      expect(root.textContent, `${artifact.type} ends with its Source`).toMatch(/Source:/);
+      expect(root.className, `${artifact.type} carries its form class`).toMatch(/\bartifact-(insight|hyp|metric|dec|eval|exp|proto|doc)\b/);
+    }
+  });
+
+  it("insight → a bare figure with blockquote[data-hand=quote] in Caveat + cite + Source in the figcaption", () => {
+    const root = paperRoot(byType("insight"));
+    expect(root.tagName).toBe("FIGURE");
+    expect(root.getAttribute("data-paper")).toBe("card");
+    const quote = root.querySelector('blockquote[data-hand="quote"]');
+    expect(quote).not.toBeNull();
+    expect(quote).toHaveClass("font-hand");
+    expect(quote!.textContent).toBe("“If it isn't inside WhatsApp, I won't open it.”");
+    const figcaption = root.querySelector("figcaption")!;
+    expect(figcaption.querySelector("cite")!.textContent).toBe("— A teacher");
+    expect(figcaption.textContent).toMatch(/Source: TeachSpark pilot log/);
+  });
+
+  it("insight over the §3.4 240-char limit stays verbatim in Fraunces, without data-hand (D7 — never trimmed)", () => {
+    const long = "L".repeat(HAND_LIMITS.quoteChars + 20);
+    const root = paperRoot({ id: "a-long", type: "insight", source: "TS-PILOT", quote: long, attribution: "A very long source" });
+    expect(root.querySelector("[data-hand]")).toBeNull();
+    const quote = root.querySelector("blockquote")!;
+    expect(quote).toHaveClass("artifact-quote-long");
+    expect(quote).not.toHaveClass("font-hand");
+    expect(quote.textContent).toBe(`“${long}”`);
+    expect(root.querySelector("cite")).not.toBeNull();
+  });
+
+  it("hypothesis → note card: Caveat data-hand=label labels, Inter body text and Inter status pill (Dev-04)", () => {
+    const root = paperRoot(byType("hypothesis"));
+    const labels = root.querySelectorAll('[data-hand="label"]');
+    expect(Array.from(labels).map((l) => l.textContent)).toEqual(["We believe", "We'll know when"]);
+    for (const label of Array.from(labels)) expect(label).toHaveClass("font-hand");
+    const texts = root.querySelectorAll(".artifact-text");
+    expect(texts).toHaveLength(2);
+    for (const text of Array.from(texts)) {
+      expect(text).toHaveClass("font-body");
+      expect(text).not.toHaveClass("font-hand");
+    }
+    const status = root.querySelector(".artifact-status")!;
+    expect(status).toHaveClass("font-body");
+    expect(status).not.toHaveClass("font-hand");
+    expect(status.getAttribute("data-status")).toBe("partially-validated");
+    expect(status.querySelector("svg"), "status carries an icon as well as text").not.toBeNull();
+  });
+
+  it("metric → pinned ruled index card with the kind badge in Inter", () => {
+    const root = paperRoot(byType("metric"));
+    expect(root.getAttribute("data-paper")).toBe("index");
+    expect(root.querySelectorAll('[data-fastener="pin"]')).toHaveLength(1);
+    const kind = root.querySelector(".metric-kind")!;
+    expect(kind).toHaveClass("font-body");
+    expect(kind).not.toHaveClass("font-hand");
+    expect(kind.getAttribute("data-kind")).toBe("measured");
+    expect(kind.textContent).toBe("Measured");
+    expect(root.querySelector(".metric-val")!.textContent).toBe("17");
+    expect(root.querySelector("[data-hand]"), "a metric card has no Caveat at all").toBeNull();
+  });
+
+  it("decision → ivory card: h3, Chosen / Rejected / Why: hand labels, struck rejected list", () => {
+    const root = paperRoot(byType("decision"));
+    expect(root.getAttribute("data-paper")).toBe("card");
+    expect(root.querySelector("h3")!.textContent).toBe("Never invent a citation");
+    const labels = Array.from(root.querySelectorAll('[data-hand="label"]')).map((l) => l.textContent);
+    expect(labels).toEqual(["Chosen", "Rejected", "Why:"]);
+    expect(root.querySelectorAll(".dec-rej li")).toHaveLength(1);
+    expect(root.querySelector(".dec-chosen svg"), "Chosen carries the check icon, not colour alone").not.toBeNull();
+  });
+
+  it("evaluation → dl with dt[data-hand=label] for Method / Result / Limitation", () => {
+    const root = paperRoot(byType("evaluation"));
+    const dl = root.querySelector("dl")!;
+    const dts = Array.from(dl.querySelectorAll('dt[data-hand="label"]')).map((dt) => dt.textContent);
+    expect(dts).toEqual(["Method", "Result", "Limitation"]);
+    expect(dl.querySelectorAll("dd")).toHaveLength(3);
+    for (const dt of Array.from(dl.querySelectorAll("dt"))) expect(dt).toHaveClass("font-hand");
+  });
+
+  it("experiment → three ordered steps with hand step labels", () => {
+    const root = paperRoot(byType("experiment"));
+    const steps = root.querySelectorAll("ol > li");
+    expect(steps).toHaveLength(3);
+    const labels = Array.from(root.querySelectorAll('b[data-hand="label"]')).map((b) => b.textContent);
+    expect(labels).toEqual(["Setup", "Result", "Learning"]);
+  });
+
+  it("prototype → taped photo frame (2 tape fasteners) with the alt as the placeholder caption", () => {
+    const root = paperRoot(byType("prototype"));
+    expect(root.tagName).toBe("FIGURE");
+    expect(root.getAttribute("data-paper")).toBe("photo");
+    expect(root.querySelectorAll('[data-fastener="tape"]')).toHaveLength(2);
+    expect(root.querySelector(".proto-frame img")).toBeNull();
+    expect(root.querySelector(".proto-placeholder")!.textContent).toContain("prototype capture pending");
+  });
+
+  it("prototype → an image media renders an <img> with the alt; a video renders <video> with the aria-label", () => {
+    const image = paperRoot({ id: "a-img", type: "prototype", source: "TS-PILOT", media: { src: "/media/x.png", alt: "WhatsApp flow", width: 1280, height: 720, kind: "image" } });
+    expect(image.querySelector(".proto-frame img")!.getAttribute("alt")).toBe("WhatsApp flow");
+    const video = paperRoot({ id: "a-vid", type: "prototype", source: "TS-PILOT", media: { src: "/media/x.mp4", alt: "Bot demo clip", width: 1280, height: 720, kind: "video" } });
+    expect(video.querySelector(".proto-frame video")!.getAttribute("aria-label")).toBe("Bot demo clip");
+  });
+
+  it("generic → kraft doc tag with the kind eyebrow, a title link and the note", () => {
+    const root = paperRoot(byType("generic"));
+    expect(root.getAttribute("data-paper")).toBe("tag");
+    expect(root).toHaveClass("artifact-doc");
+    expect(root.querySelector(".artifact-eyebrow")!.textContent).toBe("Link");
+    expect(root.querySelector("h3 a")!.getAttribute("href")).toBe("https://railcite.vercel.app");
+    expect(root.querySelector(".artifact-note")!.textContent).toBe("Live status.");
+    expect(root.querySelector("[data-hand]"), "a doc tag has no Caveat").toBeNull();
+  });
+
+  it("ArtifactGrid wraps each artifact in an .art slot inside the .artifacts cluster", () => {
+    const { container } = render(
+      <ArtifactGrid>
+        {ONE_OF_EACH.map((artifact) => (
+          <ArtifactRenderer key={artifact.id} artifact={artifact} sources={SOURCES} />
+        ))}
+      </ArtifactGrid>,
+    );
+    const cluster = container.firstElementChild!;
+    expect(cluster).toHaveClass("artifacts");
+    expect(cluster.querySelectorAll(":scope > .art")).toHaveLength(ONE_OF_EACH.length);
+    expect(cluster.querySelectorAll("[data-paper]")).toHaveLength(ONE_OF_EACH.length);
+  });
+});
+
 describe("SourceCaption — label only, never the path", () => {
   it("renders the human label, not source.ref, and links when a url is present", () => {
     const { rerender } = render(<SourceCaption source={PLAIN_SOURCE} />);
@@ -104,6 +256,11 @@ describe("SourceCaption — label only, never the path", () => {
     expect(link).toHaveAttribute("href", "https://railcite.vercel.app");
     expect(screen.queryByText(/secret path/)).not.toBeInTheDocument();
   });
+
+  it("renders as a <span> when asked (inside another <p>)", () => {
+    const { container } = render(<SourceCaption as="span" source={PLAIN_SOURCE} />);
+    expect(container.firstElementChild!.tagName).toBe("SPAN");
+  });
 });
 
 describe("MetricCard — sourcing guard (EVAL-013)", () => {
@@ -111,6 +268,12 @@ describe("MetricCard — sourcing guard (EVAL-013)", () => {
     render(<MetricCard metric={goodMetric} source={PLAIN_SOURCE} />);
     expect(screen.getByText("17")).toBeInTheDocument();
     expect(screen.getByText("as of 9 Sep 2026")).toBeInTheDocument();
+  });
+
+  it("inline variant carries the same sourced fields without a sheet", () => {
+    const { container } = render(<MetricCard metric={goodMetric} source={PLAIN_SOURCE} variant="inline" />);
+    expect(container.querySelector("[data-paper]")).toBeNull();
+    expect(container.textContent).toMatch(/17[\s\S]*teachers onboarded[\s\S]*Measured[\s\S]*as of 9 Sep 2026[\s\S]*Source: TeachSpark pilot log/);
   });
 
   it("throws rather than render a metric missing asOf", () => {

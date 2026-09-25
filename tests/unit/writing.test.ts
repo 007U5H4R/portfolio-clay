@@ -1,7 +1,12 @@
+import { createElement, type ReactElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { collections, validateAll } from "@/data/index";
 import { writing } from "@/data/writing";
 import { ALL_PROJECT_SLUGS } from "@/lib/anchors";
+import { EssayBody } from "@/components/thinking/EssayBody";
+import { ThinkingHero } from "@/components/thinking/ThinkingHero";
+import { ESSAYS_EMPTY_LINE, ThinkingList } from "@/components/thinking/ThinkingList";
 
 /**
  * TKT-43 — `data/writing.ts` (tickets.md TKT-43 AC 1–3, TDD gate item 3). Content correctness
@@ -65,5 +70,137 @@ describe("data/writing (TKT-43)", () => {
     expect(text).not.toMatch(/SAFe (Agilist|certif)/i);
     expect(text).not.toMatch(/\b(0?[1-9]|[12]\d|3[01])[/\-.](0?[1-9]|1[0-2])[/\-.](19|20)\d{2}\b/);
     expect(text).not.toMatch(/\+91[\s-]?\d{5}[\s-]?\d{5}/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// TKT-84 — the paper `/thinking` + essay components, rendered to static markup (the SSR HTML — so a
+// `MediaGate`-gated decoration is correctly absent, as it is below its width in the browser).
+// ---------------------------------------------------------------------------
+
+/** The prefix every `framing` in data/writing.ts starts with — read from the data, never typed (TC-164). */
+const DRAFT_PREFIX = (() => {
+  const match = /^[^:]+:/.exec(writing[0]!.framing);
+  if (!match) throw new Error("writing[0].framing has no 'label:' prefix");
+  return match[0];
+})();
+
+/** Rendered text of an element (tags stripped, the few entities React escapes decoded). */
+function textOf(element: ReactElement): string {
+  return renderToStaticMarkup(element)
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+/** Occurrences of `needle` in `haystack` — a count, not a substring test (S18: `toContain` missed the duplicate). */
+function occurrences(haystack: string, needle: string): number {
+  return haystack.split(needle).length - 1;
+}
+
+const decorCount = (html: string) => (html.match(/data-decor="/g) ?? []).length;
+
+function renderEssay(index: number): string {
+  const essay = writing[index]!;
+  const next = writing[index + 1];
+  return renderToStaticMarkup(
+    createElement(EssayBody, {
+      essay,
+      number: index + 1,
+      next: next ? { slug: next.slug, title: next.title } : undefined,
+    }),
+  );
+}
+
+describe("TKT-84 · EssayBody — S18 double-prefix regression (TC-164)", () => {
+  it("the prefix under test comes from the data and is the S18 string", () => {
+    expect(DRAFT_PREFIX).toBe("Draft — pending sign-off:");
+    for (const essay of writing) expect(essay.framing.startsWith(DRAFT_PREFIX), essay.slug).toBe(true);
+  });
+
+  it.each(writing.map((essay, index) => [essay.slug, index] as const))(
+    "%s: the DRAFT prefix renders exactly once and the DraftTag exactly once",
+    (_slug, index) => {
+      const essay = writing[index]!;
+      const html = renderEssay(index);
+      const text = textOf(
+        createElement(EssayBody, { essay, number: index + 1, next: undefined }),
+      );
+      expect(occurrences(text, DRAFT_PREFIX)).toBe(1);
+      expect(occurrences(html, 'data-paper="tag"')).toBe(1);
+      // The tag sits in the header's meta row, not in the prose.
+      expect(html).toMatch(/<p class="essay-meta">(?:(?!<\/p>).)*data-paper="tag"/);
+    },
+  );
+
+  it("negative control: a component that re-adds the prefix span is caught by the same count", () => {
+    const essay = writing[0]!;
+    const doubled = createElement(
+      "p",
+      null,
+      createElement("span", null, `${DRAFT_PREFIX} `),
+      essay.framing,
+    );
+    expect(occurrences(textOf(doubled), DRAFT_PREFIX)).toBe(2);
+  });
+
+  it.each(writing.map((essay, index) => [essay.slug, index] as const))(
+    "%s: flat prose (0 decorations), sourced pull quotes ≤ 240 chars with a Source cite, unit count 1",
+    (_slug, index) => {
+      const essay = writing[index]!;
+      const html = renderEssay(index);
+      const prose = /<div data-flat="" class="essay-prose">([\s\S]*)<\/div><nav/.exec(html)?.[1] ?? "";
+      expect(prose, "prose zone rendered").not.toBe("");
+      expect(decorCount(prose)).toBe(0);
+      expect(occurrences(prose, 'data-hand="quote"')).toBe(essay.passages.length);
+      expect(occurrences(prose, "<b>Source:</b>")).toBe(essay.passages.length);
+      for (const passage of essay.passages) expect(passage.quote.length + 2).toBeLessThanOrEqual(240);
+      // Essay section unit: the margin sticky only (the pinned photo is superseded by the opener).
+      expect(decorCount(html)).toBe(1);
+    },
+  );
+
+  it("pager: prev goes to /thinking, next follows data order, the last essay has no next", () => {
+    const first = renderEssay(0);
+    expect(first).toContain('href="/thinking"');
+    expect(first).toContain(`href="/thinking/${writing[1]!.slug}"`);
+    const last = renderEssay(writing.length - 1);
+    expect(last).not.toContain("next note");
+  });
+});
+
+describe("TKT-84 · ThinkingList + ThinkingHero (TC-163)", () => {
+  it("renders the 5 essays in data order, each h3 linking to its slug", () => {
+    const html = renderToStaticMarkup(createElement(ThinkingList, { essays: writing }));
+    const hrefs = [...html.matchAll(/<h3[^>]*><a[^>]*href="([^"]+)"/g)].map((m) => m[1]);
+    expect(hrefs).toEqual(writing.map((essay) => `/thinking/${essay.slug}`));
+  });
+
+  it("shows the empty-state line while no essay is published, and hides it once one is", () => {
+    const live = textOf(createElement(ThinkingList, { essays: writing }));
+    expect(occurrences(live, ESSAYS_EMPTY_LINE)).toBe(1);
+
+    const fixture = writing.map((essay, i) =>
+      i === 0 ? { ...essay, draft: false, publishedOn: "2026-10-01" } : essay,
+    );
+    const published = textOf(createElement(ThinkingList, { essays: fixture }));
+    expect(published).not.toContain(ESSAYS_EMPTY_LINE);
+  });
+
+  it("empty collection: the empty-state line alone, no sheet", () => {
+    const html = renderToStaticMarkup(createElement(ThinkingList, { essays: [] }));
+    expect(html).toContain(ESSAYS_EMPTY_LINE);
+    expect(html).not.toContain('data-paper="notebook"');
+  });
+
+  it("unit counts: essays 3 in the SSR HTML (margin annotation is width-gated ≥ 1320), opener 2", () => {
+    const list = renderToStaticMarkup(createElement(ThinkingList, { essays: writing }));
+    expect(decorCount(list)).toBe(3);
+    expect(list).not.toContain("the same lesson, told twice");
+    const hero = renderToStaticMarkup(createElement(ThinkingHero));
+    expect(decorCount(hero)).toBe(2);
   });
 });

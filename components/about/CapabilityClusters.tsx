@@ -1,54 +1,57 @@
 import { skills } from "@/data/skills";
-import { Section } from "@/components/layout/Section";
-import { SectionHeading } from "@/components/layout/SectionHeading";
-import { ClayTile } from "@/components/clay/ClayTile";
+import { Container } from "@/components/layout/Container";
+import { Sheet, TornEdge } from "@/components/paper";
+
+/** Mockup rotations (about.html `.sheet.s1…s4`), within the Sheet's ±0.9° cap. */
+const ROTATIONS = [-0.6, 0.5, 0.4, -0.8] as const;
+/** Tick ink per sheet (about.html: rust on 1 and 4, forest on 2 and 3). */
+const TICKS = ["rust", "forest", "forest", "rust"] as const;
 
 /**
- * `/about`'s "What I Bring" section (Design.md §3 Timeline section: "capability clusters are 4
- * `ClayTile`s in a 2×2/4×1 grid (utility tier)"; TSK-24, TKT-40 AC 6, TC-094).
+ * `/about` "What I Bring" (TKT-86 S86.02, Design.md §7.4 "Capabilities"; mockup about.html
+ * `.skills-s`). Server component.
  *
- * Renders the 4 `SkillCluster`s from `data/skills.ts` verbatim — every item is transcribed from
- * CONTENT_INVENTORY §4.3, never reworded into a new claim. "SAFe" appears only as a methodology
- * label inside the Execution cluster's item list (never a certification), exactly as `skills.ts`
- * already authors it.
+ * The four `data/skills.ts` clusters, verbatim (D7), as ruled notebook sheets on a 12-column grid
+ * (5 / 7 / 7 / 5, ±0.4–0.8°), full width below 900. Each item is an Inter 15 px `li` on the sheet's
+ * 32 px rules with a hand-drawn tick drawn by CSS (`.acap-list li::before` — list chrome, not a
+ * decoration). "SAFe" stays a bare methodology label, never a credential.
  *
- * `!h-auto !w-full` relaxes `ClayTile`'s fixed square default (same idiom `HowIThink.tsx` uses for
- * its 140px stage tiles) so each tile can grow to fit a heading + item list and stretch to its grid
- * cell, instead of a fixed icon-sized square. Utility tier only — no interactive press state
- * (Design.md §2 / D1: utility tiles never carry the card tier's press physics).
- *
- * Server component: no interactivity, so no client boundary is needed.
+ * Decorations (§3.3): torn only = 1. The notebooks are content paper (`data-paper="notebook"`).
  */
 export function CapabilityClusters() {
   return (
-    <Section id="capability-clusters" aria-labelledby="capability-clusters-heading">
-      <SectionHeading
-        id="capability-clusters-heading"
-        eyebrow="Skills"
-        title="What I Bring"
-        lead="Product, AI, technology, and execution — the range behind the roadmap."
-        className="mb-[var(--space-8)]"
-      />
+    <section id="capability-clusters" className="acap" aria-labelledby="capability-clusters-heading">
+      <TornEdge fill="paper" />
+      <Container className="acap-wrap">
+        <div className="about-head">
+          <div>
+            <p className="about-eyebrow" data-micro-label="">Skills</p>
+            <h2 id="capability-clusters-heading" className="about-h2">
+              What I Bring
+            </h2>
+          </div>
+          <p className="about-lead">Product, AI, technology, and execution — the range behind the roadmap.</p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-[var(--space-5)] sm:grid-cols-2">
-        {skills.map((cluster) => (
-          <ClayTile
-            key={cluster.id}
-            tier="utility"
-            tone={cluster.tone}
-            className="!h-auto !w-full flex-col items-start gap-[var(--space-3)] p-[var(--space-5)] text-left"
-          >
-            <span className="text-[length:var(--text-body)] font-bold text-navy">{cluster.name}</span>
-            <ul className="flex flex-col gap-[var(--space-2)]">
-              {cluster.items.map((item) => (
-                <li key={item} className="text-caption text-navy-2">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </ClayTile>
-        ))}
-      </div>
-    </Section>
+        <div className="acap-sheets">
+          {skills.map((cluster, index) => (
+            <Sheet
+              key={cluster.id}
+              as="article"
+              variant="notebook"
+              rotate={ROTATIONS[index % ROTATIONS.length]}
+              className="acap-sheet"
+            >
+              <h3 className="acap-h3">{cluster.name}</h3>
+              <ul className="acap-list" data-tick={TICKS[index % TICKS.length]}>
+                {cluster.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </Sheet>
+          ))}
+        </div>
+      </Container>
+    </section>
   );
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import { LazyMotion, domAnimation, m } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, type KeyboardEvent } from "react";
+import { InkUnderline } from "@/components/navigation/InkUnderline";
 import { FILTERS, filterHref, parseFilter, type FilterValue } from "@/lib/filters";
-import { springs, useReducedMotionSafe } from "@/lib/motion";
 
 /**
  * `/work` filter row (TKT-16, Design.md §3 FilterTabs, decision E-2/E-4/TP7).
@@ -20,31 +19,22 @@ import { springs, useReducedMotionSafe } from "@/lib/motion";
  *     false DEAD. `role="tab"` is a valid role for `a[href]` per ARIA-in-HTML, so axe stays clean.
  *
  * Selection lives entirely in the URL (`?filter=`, the single `lib/filters.ts` parser), so
- * back/forward restores state for free. The lavender active indicator is a shared-`layoutId`
- * `m.span` (Design.md §4 "Filter change", `springs.filter`), collapsed to an instant swap under
- * reduced motion (EVAL-010).
+ * back/forward restores state for free.
+ *
+ * TKT-80 (Design.md §7.2): restyled as ink-underlined serif tabs — Fraunces 20 px on a 1 px `--line`
+ * baseline, the rust hand-drawn underline (`InkUnderline`, link chrome — not a counted decoration)
+ * on `aria-selected`, .45 on hover. The M-004 sliding pill indicator is gone, so there is nothing
+ * to animate (reduced motion is trivially instant, EVAL-010). Styles: `.work-tabs` in the TKT-80
+ * block of app/globals.css. The row wraps at every width (TKT-90b — the < 768 scroll row clipped "Experiments").
  */
 
-const tabBase =
-  "relative isolate inline-flex min-h-11 shrink-0 snap-start items-center justify-center " +
-  "rounded-[var(--radius-pill)] px-[var(--space-4)] text-caption font-semibold " +
-  "transition-[color] duration-200 ease-[var(--ease-hover)] focus-ring";
-
-/** Row layout: scrolls horizontally with a peek < 768 (Deviation 3), wraps inline ≥ 768. */
-const tablistClass =
-  "flex snap-x gap-[var(--space-2)] overflow-x-auto py-[var(--space-1)] pr-[var(--space-6)] " +
-  "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden " +
-  "md:flex-wrap md:overflow-visible md:pr-0";
-
-function tabClass(active: boolean): string {
-  return `${tabBase} ${active ? "text-navy" : "text-navy-2 hover:text-navy"}`;
-}
+const tablistClass = "work-tabs";
+const tabClass = "work-tab focus-ring";
 
 export function FilterTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const active = parseFilter(searchParams.get("filter"));
-  const reduced = useReducedMotionSafe();
   const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   const activate = (value: FilterValue) => {
@@ -86,44 +76,33 @@ export function FilterTabs() {
   };
 
   return (
-    <LazyMotion features={domAnimation} strict>
-      <div role="tablist" aria-label="Filter projects" className={tablistClass}>
-        {FILTERS.map((filter, index) => {
-          const isActive = filter.value === active;
-          return (
-            <a
-              key={filter.value}
-              ref={(el) => {
-                tabRefs.current[index] = el;
-              }}
-              id={`filter-tab-${filter.value}`}
-              href={filterHref(filter.value)}
-              role="tab"
-              aria-selected={isActive}
-              tabIndex={isActive ? 0 : -1}
-              onClick={(event) => {
-                event.preventDefault();
-                activate(filter.value);
-              }}
-              onKeyDown={(event) => onKeyDown(event, index)}
-              className={tabClass(isActive)}
-            >
-              {isActive ? (
-                <m.span
-                  layoutId="filter-indicator"
-                  aria-hidden="true"
-                  {...(reduced
-                    ? { layout: false as const, transition: { duration: 0 } }
-                    : { layout: "position" as const, transition: springs.filter })}
-                  className="absolute inset-0 rounded-[var(--radius-pill)] bg-paper-2/30 shadow-[var(--shadow-utility)]"
-                />
-              ) : null}
-              <span className="relative z-10">{filter.label}</span>
-            </a>
-          );
-        })}
-      </div>
-    </LazyMotion>
+    <div role="tablist" aria-label="Filter projects" className={tablistClass}>
+      {FILTERS.map((filter, index) => {
+        const isActive = filter.value === active;
+        return (
+          <a
+            key={filter.value}
+            ref={(el) => {
+              tabRefs.current[index] = el;
+            }}
+            id={`filter-tab-${filter.value}`}
+            href={filterHref(filter.value)}
+            role="tab"
+            aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
+            onClick={(event) => {
+              event.preventDefault();
+              activate(filter.value);
+            }}
+            onKeyDown={(event) => onKeyDown(event, index)}
+            className={tabClass}
+          >
+            {filter.label}
+            <InkUnderline />
+          </a>
+        );
+      })}
+    </div>
   );
 }
 
@@ -145,15 +124,10 @@ export function FilterTabsFallback() {
             role="tab"
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
-            className={tabClass(isActive)}
+            className={tabClass}
           >
-            {isActive ? (
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 rounded-[var(--radius-pill)] bg-paper-2/30 shadow-[var(--shadow-utility)]"
-              />
-            ) : null}
-            <span className="relative z-10">{filter.label}</span>
+            {filter.label}
+            <InkUnderline />
           </a>
         );
       })}

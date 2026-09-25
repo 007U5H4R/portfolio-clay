@@ -27,9 +27,12 @@ export default defineConfig({
   // Cap workers even outside CI: running all 4 viewport projects fully parallel with no cap
   // causes host resource contention on this machine — `browserContext.close` trace-write races
   // that surface as spurious cross-project timeouts/`toBeTruthy()` failures (M-003 QA gate,
-  // docs/reports/M003-qa.md / TC-051-fix.md). workers:2 still reproduced failures on this host;
-  // only workers:1 was reliably green across repeated full runs. Never disables a test.
-  workers: 1,
+  // docs/reports/M003-qa.md / TC-051-fix.md). In M-003 workers:2 still reproduced failures on this
+  // host; only workers:1 was reliably green across repeated full runs. EXE-20 re-trialled 2 on the
+  // M-009 merged branch (docs/reports/INTEGRATION-ABC.md): run A failed the timing-sensitive
+  // CopyButton revert test (passes 3/3 at 1 worker), so the default stays 1. `PW_WORKERS=2` opts in
+  // for a faster local run. Never disables a test.
+  workers: Number(process.env.PW_WORKERS ?? 1),
   reporter: [
     ["list"],
     ["json", { outputFile: ".eval/playwright.json" }],

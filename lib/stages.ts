@@ -1,25 +1,20 @@
 import type { ThinkingStageDef } from "@/data/schema";
-import type { Tone } from "@/components/clay/tiers";
+
+/** The schema's stage `tone` enum (`data/schema.ts` `Tone`) — type-only, no zod runtime (TKT-90a). */
+type Tone = ThinkingStageDef["tone"];
 
 /**
  * The 6 How-I-Think stage ids, in their fixed display order (CONTENT_INVENTORY §1.5:
  * Problem · Insight · Bet · Build · Evaluate · Impact). Type-only import from `data/schema` — no
- * zod runtime crosses into this module, so it stays safe to import from a client component
- * (`components/home/HowIThink.tsx`).
+ * zod runtime crosses into this module, so it stays safe to import from any component.
  */
 export type StageId = ThinkingStageDef["id"];
 export const STAGE_ORDER: readonly StageId[] = ["problem", "insight", "bet", "build", "evaluate", "impact"];
 
 /**
- * Stage → tone map (technical-plan.md §B S13.01) — the single source of truth `data/thinking-
- * framework.ts` reads to fill each stage's `tone` field, and the mapping later artifact/badge
- * components (TKT-20/21) reuse so a stage always renders the same colour everywhere (Law of
- * Similarity, Design.md §3).
- *
- * Design.md §3 fixes 4 of the 6 outright (Insight→butter, Build→peach, Evaluate/Impact→mint);
- * technical-plan §B S13.01 resolves the two it leaves as "etc." with the remaining calm tones:
- * Problem→sky, Bet→lavender — leaving `blush` free (reserved for error surfaces elsewhere on the
- * site, Design.md §2).
+ * Stage → schema `tone` (technical-plan.md §B S13.01). `data/thinking-framework.ts` still fills each
+ * stage's schema-required `tone` field from this map; since M-009 (TKT-76) no component renders it —
+ * the paper home section colours a stage by its pin (`stagePin` below), never by a clay wash.
  */
 export const stageTone: Record<StageId, Tone> = {
   problem: "sky",
@@ -28,6 +23,23 @@ export const stageTone: Record<StageId, Tone> = {
   build: "peach",
   evaluate: "mint",
   impact: "mint",
+};
+
+/** The three paper pin heads (`Pin` `tone`). */
+export type StagePinTone = "rust" | "forest" | "steel";
+
+/**
+ * Stage → pin colour on the home "How I think" stage cards (TKT-76, S69.04's paper palette). Lifted
+ * from docs/redesign-mockups/m-009/home.html `.stage .pin`: rust by default, forest on stages 2 and 5,
+ * steel on stages 3 and 6 — so each colour repeats once, three columns apart.
+ */
+export const stagePin: Record<StageId, StagePinTone> = {
+  problem: "rust",
+  insight: "forest",
+  bet: "steel",
+  build: "rust",
+  evaluate: "forest",
+  impact: "steel",
 };
 
 /** Sort any subset/superset of stage-shaped items into the fixed CONTENT_INVENTORY §1.5 order. */
