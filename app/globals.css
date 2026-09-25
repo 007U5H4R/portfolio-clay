@@ -2735,3 +2735,132 @@ html.lenis body {
   }
 }
 /* end TKT-76 */
+
+/* TKT-82 · learned + sources — case-study "What I learned" (`learnings[]`, S18) and the derived
+   "Sources" index (Design.md §7.3; values from docs/redesign-mockups/m-009/case-study.html
+   `.learned` / `.sources`). Tokens / derived values only (EVAL-020). The mockup's sources list at
+   13.5 px sits at `--text-caption` (14 px) for the EVAL-008 content floor; its Caveat list counters
+   become Inter `::marker`s (no Caveat outside a `data-hand`); the mockup's sticky and hand aside are
+   not built (§3.3: learned 1 · sources 0). */
+@layer components {
+  .learned {
+    position: relative;
+    margin-top: clamp(48px, 6vw, 88px);
+  }
+  .learned-body,
+  .sources {
+    background-color: var(--color-paper-2);
+  }
+  .learned-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    gap: clamp(28px, 5vw, 88px);
+    align-items: start;
+    padding-block: clamp(28px, 4vw, 56px) clamp(56px, 6vw, 80px);
+  }
+  .learned-eyebrow,
+  .sources-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .learned-h {
+    margin-top: 8px;
+    font-family: var(--font-display);
+    font-size: clamp(38px, 4.4vw, 58px);
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+    line-height: 1.05;
+  }
+  .learned-help {
+    margin-top: 14px;
+    max-width: 34ch;
+    font-size: 15px;
+    color: var(--color-ink-soft);
+  }
+  .learned-notebook {
+    padding-top: 58px;
+  }
+  .learned-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .learned-list li {
+    position: relative;
+    padding-left: 34px;
+    font-size: 16px;
+    line-height: 32px;
+    color: var(--color-navy);
+  }
+  .learned-list li + li {
+    margin-top: 32px;
+  }
+  .learned-num {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--color-rust);
+  }
+  .sources-wrap {
+    padding-bottom: clamp(64px, 8vw, 110px);
+  }
+  .sources-inner {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 24px clamp(32px, 4vw, 64px);
+    align-items: start;
+    padding-top: 26px;
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .sources-h {
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-variation-settings: "opsz" 48, "SOFT" 20;
+    line-height: 1.2;
+  }
+  .sources-list {
+    margin: 0;
+    padding: 0 0 0 2.2em;
+    list-style: decimal-leading-zero;
+    columns: 2;
+    column-gap: 40px;
+    font-size: var(--text-caption);
+    color: var(--color-navy-2);
+  }
+  .sources-list li {
+    break-inside: avoid;
+    padding: 5px 0;
+    border-bottom: 1px dotted var(--line-strong);
+  }
+  .sources-list li::marker {
+    color: var(--color-ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 1024px) {
+    .sources-inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 900px) {
+    .learned-wrap {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .sources-list {
+      columns: 1;
+    }
+  }
+}
+/* Unlayered so it outranks ExternalLink's `text-rust` utility: rust on paper-2 is 4.3:1 (axe serious);
+   terracotta on paper-2 clears AA (the mockup's `.art-doc .src` link colour). */
+.sources-list a[data-inline-link] {
+  color: var(--color-terracotta);
+}
+/* end TKT-82 */

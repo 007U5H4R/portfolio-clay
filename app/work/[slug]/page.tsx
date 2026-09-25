@@ -11,6 +11,10 @@ import { OverviewToggle } from "@/components/case-study/OverviewToggle";
 import { Chapter } from "@/components/case-study/Chapter";
 import { ChapterNav, type ChapterNavItem } from "@/components/case-study/ChapterNav";
 import { NextProject } from "@/components/case-study/NextProject";
+// TKT-82 · What I learned + Sources (Design.md §7.3)
+import { Learnings } from "@/components/case-study/Learnings";
+import { Sources } from "@/components/case-study/Sources";
+import { projectSources } from "@/lib/sources";
 import { getProject, projects } from "@/data/projects";
 import { CHAPTER_ANCHORS } from "@/lib/anchors";
 import { buildMetadata } from "@/lib/seo";
@@ -170,9 +174,10 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
           </>
         )}
 
-        {/* ── What I learned — TKT-82 slot (section.learned, renders project.learnings; S18) ── */}
-
-        {/* ── Sources — TKT-82 slot (section.sources, derived from metrics + artifacts) ── */}
+        {/* TKT-82 · §7.3 order: … deep dive → What I learned → Sources → next project. Both return null when empty. */}
+        <Learnings learnings={project.learnings} />
+        <Sources sources={projectSources(project)} />
+        {/* end TKT-82 */}
       </article>
 
       <NextProject project={nextProject} />
