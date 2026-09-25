@@ -318,3 +318,14 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 - 2026-09-25 · Phase-0 build tickets TKT-69…73 all done. TKT-74 local part → independent QA-tester (Opus 5.5).
 - 2026-09-25 · TKT-74 local part (independent QA, Opus 5.5): `47f2338` home order fixed (was hero → Ask → Featured; §7.1 = hero → Featured → How I think → Ask) · `7e00192` /about parked for TKT-86 + 8 tracer PNGs · `7bb6c2b` **baseline-m009-tracer** (40-char commit, dirty=false, criticalFailures []) · `e917c7e` report. **Bundle `/` 158.2 kB gz (≤ 180 → no TKT-92)**. EVAL-018/019/020/021 PASS (018: 0 unparked, 2 parked, 0 stale). Phase-0 QA table: 23 PASS · 0 FAIL · 1 BLOCKED (TC-145 preview steps) · 1 NA (TC-146 human gate). Full e2e 781/0 (baseline now 0 failures). Findings: **QA-010** header pill overlaps Playground link by ~12 px at 1024 on every route → TKT-71 fix round 1 (with a bounding-box regression test); **QA-011** `pnpm eval` rewrites 35 tracked PNGs before its dirty check (tooling; baseline rebuilt with `--reuse` on the same commit) → carry to TKT-90; local mobile Lighthouse `/` 96 → 84, LCP element = hero poster, local LCP 3.9–4.7 s (informational under swiftshader; binding measure = preview, F5).
 - 2026-09-25 · QA-010 fixed (`7413d48`, TKT-71 fix round 1): lg-only nav gap clamp; Playground→pill gap 41.2 / 94.6 / 154.6 px at 1024 / 1280 / 1440; new bounding-box regression test failed 3/3 on the unfixed build, passes after. Full e2e **784 passed / 0 failed**. Phase-0 local work complete → awaiting Tushar's OK for the first branch push (F5).
+
+### Hero-gate change request (2026-09-25)
+- Preview `1941383` live; preview eval 16 pass / 0 fail; **Lighthouse mobile `/` perf 85–86, LCP 3.8–4.0 s (poster = LCP element) → FAIL** vs TC-145 → TKT-92 (EXE-17).
+- Tushar at the gate: restyle the hero like his reference + Lenis. Scoped via AskUserQuestion → EXE-15 (banner), EXE-16 (Lenis), Design §11 Dev-21/22/23. Outpaint attempt 1 spent **2 cr** (balance 67.15 expected; 1 attempt / 2 cr still approved, unused). Masked-clip prototype: register scale 1.912, x 362, y 6 on 3168×1344; mask = character polygon + dog-ear patch, feather 10 px at 1280 → composites clean; artefacts in `/Volumes/E Drive/Dev/.scratch/m009/` (`clip-mask-1280.png`, `c4-*.png`).
+- New tickets (Campfire-allocated): TKT-93 = `TASK-87`, TKT-92 = `TASK-88`, TKT-94 = `TASK-89`. Order: TKT-93 → TKT-94 → TKT-92 → re-preview → hero gate.
+
+| Ticket / task | TASK | Implementer model | Brief | Report | Status | Eval label |
+|---|---|---|---|---|---|---|
+| TKT-93 hero banner | TASK-87 | fable | docs/briefs/TKT-93.md | docs/reports/TKT-93.md | pending | — |
+| TKT-94 Lenis | TASK-89 | opus | docs/briefs/TKT-94.md | docs/reports/TKT-94.md | pending | — |
+| TKT-92 perf | TASK-88 | opus | docs/briefs/TKT-92.md | docs/reports/TKT-92.md | pending | — |

@@ -1432,3 +1432,11 @@ Phase D   {78, 87, 88} → 89 → 90 → 91
 **sp by phase:** Phase 0 = 26 (69:5 · 70:5 · 71:3 · 72:3 · 73:8 · 74:2) · Phase A = 14 (75:3 · 76:3 · 77:3 · 78:3 · 79:2) · Phase B = 28 (80:5 · 81:5 · 82:3 · 83:8 · 84:5 · 85:2) · Phase C = 15 (86:5 · 87:5 · 88:5) · Phase D = 11 (89:3 · 90:5 · 91:3) · **total 94**.
 
 **S18 regression tests (TC- rows at Stage 6):** `hero.tagline` in the band © bar (TKT-72) · `learnings[]` "What I learned" (TKT-82) · single "Draft — pending sign-off:" prefix (TKT-84) · About timeline lead wording + oldest → newest order (TKT-87).
+
+### Added in Stage 7 (2026-09-25) — hero-gate change request (EXE-15/16/17)
+| Ticket | Backlog | Type · Priority · sp | Depends on | Summary |
+|---|---|---|---|---|
+| TKT-93 | `TASK-87` | Feature · P0 · 5 | TKT-73 | Hero banner restyle — full-bleed 21:9 outpainted scene, torn edge, centred copy, taped polaroids, postmark stamp, masked clip (Design §11 Dev-21/23) |
+| TKT-94 | `TASK-89` | Feature · P2 · 2 | — | Lenis smooth scroll site-wide, guarded (Dev-22) |
+| TKT-92 | `TASK-88` | Bug · P0 · 3 | TKT-93, TKT-94 | Perf — preview mobile LCP ≤ 2.5 s, perf ≥ 90 on `/` and `/work/teachspark`; thresholds unchanged (EXE-17) |
+TKT-74 (`TASK-69`) now also depends on TKT-93 and TKT-92; the hero gate is re-presented after them. Related TC: TC-139…142 (hero, updated for the banner), TC-145 (perf); Lenis → TC-130/133 regression + EVAL-007/010/015.
