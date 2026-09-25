@@ -22,11 +22,16 @@ const PANEL_PROMPTS = knowledge
 // `font-src 'self'` stays untouched; S13). The CSS variables are mapped into @theme's --font-display /
 // --font-body / --font-hand in globals.css (Design.md §2.2). Fraunces is the variable font with the
 // `opsz` + `SOFT` axes (per-role `font-variation-settings`); Inter is body/UI; Caveat is the hand.
+// `preload: false` (TKT-92): the fonts are discovered from the inlined CSS (next.config.ts
+// `inlineCss`) at first layout instead of via <link rel=preload>, so they no longer compete with the
+// LCP image and hold the first frame. `display: swap` + next/font's metric-adjusted fallback keep the
+// swap shift small (CLS ≤ 0.03 measured, gate 0.05).
 const fraunces = Fraunces({
   subsets: ["latin"],
   weight: "variable",
   axes: ["opsz", "SOFT"],
   display: "swap",
+  preload: false,
   variable: "--font-fraunces",
 });
 
@@ -34,6 +39,7 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
+  preload: false,
   variable: "--font-inter",
 });
 
@@ -41,6 +47,7 @@ const caveat = Caveat({
   subsets: ["latin"],
   weight: ["400", "600"],
   display: "swap",
+  preload: false,
   variable: "--font-caveat",
 });
 
