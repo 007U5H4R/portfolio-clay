@@ -3,10 +3,10 @@ id: TASK-88
 title: >-
   TKT-92: Perf — mobile LCP <= 2.5 s and Lighthouse perf >= 90 on / and
   /work/teachspark (preview), budget untouched (EV6)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-25 05:59'
-updated_date: '2026-09-25 06:01'
+updated_date: '2026-09-25 07:39'
 labels:
   - P0
   - 'sp:3'

@@ -328,7 +328,7 @@ Plan of record: `technical-plan.md` §F (Stage 6 approved by Tushar 2026-09-24, 
 |---|---|---|---|---|---|---|
 | TKT-93 hero banner | TASK-87 | fable | docs/briefs/TKT-93.md | docs/reports/TKT-93.md | ✅ `ac65a1d` `2478cb1` `0bf7711` | EVAL-018…021 PASS |
 | TKT-94 Lenis | TASK-89 | opus | docs/briefs/TKT-94.md | docs/reports/TKT-94.md | ✅ `759c079` | EVAL-007/010/015 PASS |
-| TKT-92 perf | TASK-88 | opus | docs/briefs/TKT-92.md | docs/reports/TKT-92.md | pending | — |
+| TKT-92 perf | TASK-88 | opus | docs/briefs/TKT-92.md | docs/reports/TKT-92.md | dispatched | — |
 | TKT-95 page scene openers | TASK-90 | opus | docs/briefs/TKT-95.md | docs/reports/TKT-95.md | ✅ `1cb16a7` `340ed5e` | EVAL-006/008/013/018/021 PASS |
 - 2026-09-25 · Tushar: page illustrations missing on the preview → EXE-18 / Dev-24 / TKT-95 (TASK-90). Order: TKT-93 → TKT-95 → TKT-94 → TKT-92 → re-preview → hero gate.
 - 2026-09-25 · TKT-93 accepted: banner webp 371 kB, mask 39 kB; registration Δ ≤ 0.01 px at 1024/1440/1920; `ended` 2.65 s; hero EVAL-018 4/4; bundle 158.6 kB; full e2e 785/0. Orchestrator reviewed 1440 screenshot (matches the reference style; corkboard fully covered). For the gate: top-left polaroid runs off the left edge (corkboard is top-left); postmark has no ring words (EVAL-008 14 px floor — correctly not gamed); ≥ 1920 crops ~12 % top/bottom. Design §3.3 hero count 3 → 4 is superseded by Dev-21.
