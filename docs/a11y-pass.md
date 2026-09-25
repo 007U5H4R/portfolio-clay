@@ -1,116 +1,79 @@
-# Accessibility pass — semantic-structure evidence (TKT-48)
+# Accessibility pass: reading order (M-009, TKT-90c · S90.03 · TC-175 step 5)
 
-Automated substitute for a full manual screen-reader pass, dumped straight from the rendered DOM
-of the production build (`pnpm build && pnpm start`) via a throwaway Playwright script (not
-committed — the evidence below is its captured output). Covers the three routes the brief asked
-for: `/`, `/work/teachspark` (both the default 30-sec view and with "Deep dive" expanded, since the
-`OverviewToggle` swaps which subtree is mounted), and `/about`.
+> This supersedes the M-007 clay-era pass (TKT-48: semantic-structure evidence for the old avatar hero, the footer nav and the
+> "Still curious?" CTA sections, all now removed). That version is in git history: `git show ff806f5:docs/a11y-pass.md`.
 
-**Read this alongside `docs/reports/TKT-48.md`**, which has the full axe/keyboard/reduced-motion/
-contrast results. This file is scoped to what a screen reader actually exposes: landmarks, heading
-outline, `aria-current`/`aria-expanded`/`aria-controls`, live regions, and alt text.
+**Method.** I built production (`pnpm build && pnpm start`) on `ff806f5` + TKT-90c. Chromium 1440×900 with default motion.
+The accessibility tree is captured with Playwright `locator("body").ariaSnapshot()`. Playwright 1.63 has no
+`page.accessibility.snapshot()`, and the ARIA snapshot is its replacement. Each page was captured 500 ms after `load`,
+with no scrolling. I also captured the first 40 Tab stops. The raw captures are in
+`/Volumes/E Drive/Dev/.scratch/m009/tkt90c/{aria_*.yaml,tab_*.txt}`.
 
-A visibility filter (`Element.checkVisibility()`) was applied throughout — the raw DOM contains a
-few elements that only ever render inside the closed `<dialog>` (MobileMenu's copy of the primary
-nav, its own "Ask AI" row); those are correctly absent from a screen reader's tree while the dialog
-is closed, so they're excluded here too. An earlier, unfiltered pass over-reported a duplicate
-"Primary" nav landmark and a duplicate "Ask AI" control on every route — re-running with the
-visibility filter showed both were exactly one real, AT-exposed instance each. Recorded here so the
-false read isn't repeated.
+**What this is not.** It is not a VoiceOver session. Stage 8 still does the real VoiceOver pass (Safari + VO, rotor
+headings/landmarks). This file tells that pass what to expect and where to look. Findings are numbered
+`A11Y-n` so Stage 8 can promote them to `QA-###`. I fixed nothing (TKT-90c is test-and-document only).
 
-## / (home)
+## Shared chrome (every route)
+Order: skip link → `banner` (home link "Tushar Pathak — home", `navigation "Primary"` with 5 links, "Let's connect" pill,
+"Ask AI" button) → `main` → `contentinfo` (the band). The band is the only footer, and its name is the band h2
+"Let's build something people can use.". Tab order matches the visual order. The skip link is stop 1, and focus wraps
+to `body` after the last band link.
 
-**Heading outline:** `h1` "I turn ambiguity into AI-native products people can use." → `h2` "Ask my
-portfolio" → `h2` "Featured work" → `h3` × 3 (TeachSpark / RailCite / Nuptis → Velora) → `h2` "How I
-think" → `h2` "Building something AI-native? Let's talk." → `h2` "Still curious? Let's build what's
-next." No skipped level.
+## `/`
+1. **Hero** `region` named by the h1. Order: banner `img` (full `hero-banner` alt, Dev-23) → eyebrow → **h1** "I turn
+   ambiguity into AI-native products people can use." → support paragraph → "View my work →" → "Ask my portfolio". The
+   poster, clip, polaroids and postmark are absent from the tree, as intended (`aria-hidden`, `alt=""`).
+   Screen-reader users hear the long alt before the h1. This is acceptable because the h1 is the first heading, so rotor navigation lands on it directly.
+2. **Featured work** `region` "Real problems. Real products." has three `article`s. Each card is one link named by its
+   project ("TeachSpark", "RailCite", "Nuptis → Velora"), and the card copy is read inside the link. There is one Tab stop per card.
+3. **How I think**: `region` "A product journey, not a process." has the eyebrow, h2 and lead, then a `list` of 6 **empty
+   `listitem`s**. See **A11Y-1**.
+4. **Ask**: `region` "Ask my portfolio". Label + textbox → "Ask" submit → microcopy → `list "Suggested questions"` with
+   5 buttons. The Tab order is input → submit → 5 chips.
+5. **Band** (see chrome). The DraftTag "Draft — pending sign-off" is read inline after the hiring line, which is correct.
+   The tagline's `Source: Tushar Pathak` is sr-only (Dev-20).
 
-**Landmarks:** `header` (banner) → `nav[aria-label="Primary"]` → `main` → `footer` →
-`nav[aria-label="Footer"]`. One nav landmark visible at a time (desktop primary nav; the
-MobileMenu's nav only exists inside its closed dialog, see above) — no duplicate-landmark ambiguity
-for VoiceOver's rotor.
+## `/work/teachspark`
+1. Opener `figure` + `img` (the `scene-casestudy` alt) comes before the `article`. Inside the article: `region "TeachSpark"`
+   with the breadcrumb ("Work" link + "Case study") → **h1** "TeachSpark" → lead → meta ("Role: Solo build · Duration ·
+   status · Hero media coming").
+2. `region "Headline metrics"`: a list of 3. Each item is read as value → label → context → "Measured/Self-reported as of …
+   Source: …", so the metric kind is announced in words, not by colour alone.
+3. `region "Case-study overview"`: h2 → `radiogroup "Case-study depth"` (30-sec checked / Deep dive) → help line → the 30-sec
+   body. There is **one Tab stop for the group** (roving; arrow keys switch), which is correct.
+4. **Deep dive** (after picking "Deep dive"): a `region "Deep dive"` → `navigation "Chapters"` (8 links "01 Context" …
+   "08 What I learned") → 8 chapter `region`s, each named by its "0n Title" h2, in order. Artifacts are read in their
+   chapter: insight `figure` (named by its cite) + `blockquote`, hypothesis, decision (h3), doc (h3), metric, experiment
+   (list), evaluation (`term`/`definition` pairs). See **A11Y-3** and **A11Y-4**.
+5. `region "What I learned"` → 4 list items with their "01…04" numerals; then `region "Where every line on this page comes
+   from"` → 10 sources.
+6. `region "Next project"` → one link "Next project: RailCite" that contains the h2 "RailCite". This region sits outside the
+   `article`, which is correct because it is navigation, not case-study content.
 
-**`aria-current`:** the header's "Home" link carries `aria-current="page"`.
+## `/about`
+1. Opener `figure` + `img` (the `scene-about` alt) → `region` named by the **h1** "I started with machines. Then systems. Then
+   people. Now, intelligent products." → DraftTag → `list "Three quick facts"` (3) → "counted from 2016…" note →
+   quote `figure` (`blockquote` + sr-visible "Source: Tushar Pathak" + DraftTag).
+2. `region "Different tools. Same curiosity."` (product journey): h2 → lead → a list of **4 empty `listitem`s** → closing
+   line. See **A11Y-1**.
+3. `region "What I Bring"`: 4 `article`s (Product, AI & GenAI, Technology, Execution), each an h3 + list.
+4. `region "Impact"`: `list "Shipped-product evidence"` with 8 `article`s. Each is read as value → label → context → "●
+   Measured/Self-reported/Structural as of …" → Source (a link for the live RailCite stats). Then h3 "From my résumé" →
+   3 grouped lists → "● Self-reported as of 15 Sep 2026". See **A11Y-2**.
+5. `region "Where I've built"`: 4 list items (company, dates, then an `article` with h3 + `term`/`definition` pairs, with
+   outcomes as nested lists) → awards / research / education → the page CTA "Let's talk →" → band.
+6. Tab order: chrome → the 2 RailCite source links → patent record → DOI → "Let's talk" → "Resume — updating" → band.
+   All 4 external links say "(opens in new tab)".
 
-**`aria-expanded`/`aria-controls`:** the header "Ask AI" trigger (`aria-expanded="false"`, opens the
-AskPanel dialog) and the six "How I think" node buttons (`aria-expanded="false"`,
-`aria-controls="how-i-think-panel"`).
+## Findings for Stage 8 (not fixed here; owner in brackets)
 
-**Live regions:** one `role="status" aria-live="polite"` region (AskPanel's status announcer) —
-empty at rest, populated only once an answer is announced; not an accessible-name gap, live regions
-are correctly nameless.
+| id | Severity | What | Where | Suggested fix |
+|---|---|---|---|---|
+| A11Y-1 | **Medium** | `Reveal` hides content with `visibility: hidden` until it scrolls into view. The **How I think** stages (6) on `/` and the **product journey** (4) on `/about` are **absent from the accessibility tree on load**: their `listitem`s are empty, and their h3s are missing from the VoiceOver rotor / heading list until the user has scrolled past them. A screen-reader user who jumps by heading from the top never reaches them. Reduced motion does not change this. The `.reveal` rule keeps `visibility: hidden` until `data-revealed`. | `app/globals.css` base `.reveal` (A6) · `components/interactions/Reveal.tsx` · used by `components/home/HowIThink.tsx`, `components/timeline/ProductJourney.tsx` | Keep the content in the tree. Either drop `visibility: hidden` and hide only visually (opacity + `pointer-events: none`), accepting the axe false-positive note in the rule comment, or reveal immediately under reduced motion and when focus or a virtual cursor enters (`focusin`). Re-run EVAL-006 axe after the change. [integration / Stage 8] |
+| A11Y-2 | Low | The kind-badge dot "●" is plain text, so VoiceOver reads "black circle, Measured as of …". | `/about` Impact cards + résumé footnote (`components/about/Impact.tsx`) | `aria-hidden` on the dot span; the word already carries the meaning. [TKT-86 owner] |
+| A11Y-3 | Low | The insight `figure` starts with a bare "“" text node (the decorative opening quote), so it is read aloud as "left double quotation mark". | every insight artifact (`components/case-study/artifacts/*Insight*`) | Make the glyph `aria-hidden` or a CSS `::before`. [TKT-83 owner] |
+| A11Y-4 | Low | The decision artifact's "Why:" label runs into its sentence ("Why:The white space…"), with no space in the text, so it is read as one word. | `/work/*` decision artifacts | Add a space (or `margin` + a real space) after the label. [TKT-83 owner] |
+| A11Y-5 | Info | The `/about` "Where I've built" lead says "open any node for the context…", but every story card is always open (Dev-11). The copy is verbatim from `data/*.ts` (D7). | `/about` experience lead | Content call for Tushar: update the data string or accept it. [content] |
 
-**Images:** one `<img>` (hero avatar), `alt="Clay illustration of Tushar Pathak at a laptop"` —
-descriptive, not filename/decorative-empty.
-
-## /work/teachspark
-
-**Default view (30-sec):** `h1` "TeachSpark" → `h2` "Still curious? Let's build what's next." (the
-deep-dive chapters are unmounted, not just hidden, while "30-sec" is selected — `OverviewToggle`
-swaps subtrees). Landmarks add `div[role=progressbar][aria-label="Reading progress"]`, a second
-`header` (the case-study hero), and `div[role=radiogroup][aria-label="Case-study depth"]` with two
-`role=radio` buttons ("30-sec" / "Deep dive").
-
-**"Deep dive" expanded — heading outline (fixed by this ticket, see `QA-003` below):**
-`h1` "TeachSpark" → `h2` "01 Context" → `h2` "02 Problem" → `h2` "03 Discovery" → `h2` "04 Product
-bet" → `h3` "Capability, not dependency" → `h3` "WhatsApp as the distribution wedge" → `h2` "05 What
-I built" → `h2` "06 Evaluation" → `h2` "07 Outcome" → `h2` "08 What I learned" → `h3` "Wave 1: trust
-& clarity" → `h2` "Still curious? Let's build what's next." No skipped level in either direction.
-
-Landmarks add `nav[aria-label="Chapters"]` (the ChapterNav) and three `svg[role=img]` pairs labelled
-"Chosen"/"Rejected" (the DecisionCard icons).
-
-**`aria-expanded`/`aria-controls`:** header "Ask AI", and — once expanded — "Show the thinking ↓"
-(`aria-controls="show-the-thinking-panel"`, carries a `VisuallyHidden` "8-step reasoning chain,
-expand to read" summary so the chain is discoverable before it's opened).
-
-## /about
-
-**Heading outline:** `h1` "Senior Product Manager. Product Thinker · AI Builder · Problem Solver." →
-`h2` × 8 ("The product journey", "What I Bring", "Impact", "Where I've built", "Awards", "Research",
-"Education", "Let's build what's next.") → `h2` "Still curious? Let's build what's next." No skipped
-level.
-
-**Landmarks:** same header/nav/main/footer/footer-nav shape as `/`.
-
-**`aria-current`:** header's "About" link, `aria-current="page"`.
-
-**`aria-expanded`/`aria-controls`:** header "Ask AI", plus four `ExperienceTimeline` role buttons
-(Godrej / Quantiphi / Shellkode / American Express), each `aria-controls="experience-<company>"`.
-
-**Images:** avatar `alt="Clay illustration of Tushar Pathak at a laptop"` (same as home).
-
-## Finding fixed during this pass
-
-**QA-003 — heading-outline skip on every deep-dive case study (h1 → h3, no h2).** `Chapter.tsx`
-rendered each chapter's numbered heading as `<h3>` directly under the page's `<h1>`, with nothing at
-`h2` — a genuine outline skip for a screen-reader user navigating by heading, present on all 11
-personal case studies whenever "Deep dive" is selected. `DecisionCard.tsx`'s artifact title was
-`<h4>` immediately under that `<h3>`. Fixed by promoting `Chapter` to `<h2>` and `DecisionCard` to
-`<h3>` (both are sized by a CSS class bound to a design token, not by the tag, so there is no visual
-change) — outline is now `h1 → h2 → h3` with no skip. Axe's default WCAG 2.1 AA ruleset does not
-include the `heading-order` rule (it's a best-practice/moderate check, not a wcag2a/wcag2aa
-conformance criterion), so this did not show up as an axe critical/serious failure before or after —
-it was only visible from a real accessibility-tree read, which is exactly why this manual-substitute
-pass exists. Commit: see `docs/reports/TKT-48.md`.
-
-## What this pass does NOT verify — human VoiceOver spot-check needed
-
-This is a DOM/accessibility-tree read, not a real screen reader. It confirms the tree a screen
-reader *would* build from (roles, names, landmarks, heading order, state attributes, live regions,
-alt text) is structurally correct, but it cannot confirm:
-- What VoiceOver actually *announces* out loud for each of the above (wording, punctuation reading,
-  rotor behaviour, landmark navigation feel).
-- Real gesture/rotor navigation on macOS VoiceOver (Ctrl+Opt+arrows, rotor by heading/landmark/link,
-  form-control announcements).
-- Real focus-order *feel* during the AskPanel/MobileMenu focus traps (automated only proves focus
-  never escapes to the page — a human ear should confirm the trap doesn't feel confusing).
-- Whether "Show the thinking ↓" plus its visually-hidden summary reads naturally as one control.
-
-**Turnkey action for Tushar:** run a real VoiceOver pass (Cmd+F5) on `/`, `/work/teachspark` (both
-the 30-sec and Deep-dive states), and `/about` — walk the rotor by heading and by landmark, Tab
-through the header nav → MobileMenu → AskPanel → ExperienceTimeline → OverviewToggle →
-ShowTheThinking → CopyButton (`/contact`) flows listed in `docs/reports/TKT-48.md`'s keyboard-flow
-matrix, and confirm announcements sound right. Nothing above is expected to fail — the automated
-substitute found the tree is clean — but only a human ear can confirm the experience, not just the
-structure.
+The empty tree also explains why EVAL-006 axe stays green on these sections: hidden content is never audited until it is
+revealed. The axe runs in `about.spec.ts` / `how-i-think.spec.ts` scroll first, so they do audit the revealed state.
