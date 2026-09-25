@@ -21,7 +21,6 @@ const HOW_I_THINK_STAGES: HowIThinkStage[] = orderStages(thinkingFramework).map(
   id: stage.id,
   label: stage.label,
   principle: stage.principle,
-  tone: stage.tone,
   example: {
     quote: stage.example.quote,
     attribution: stage.example.attribution,
@@ -44,9 +43,8 @@ export default function Home() {
       <Hero />
 
       {/*
-        FeaturedWork (TKT-12): the three-card editorial row (TeachSpark large + RailCite/Velora
-        medium), replacing the M-001 tracer's single width-capped card. Full case-study content per
-        card lands in M-005.
+        FeaturedWork (TKT-75, Design.md §7.1): section#work-featured on paper-2 — three taped work
+        cards (TeachSpark large + RailCite/Velora), metrics picked per §7.1.
       */}
       <FeaturedWork />
 
