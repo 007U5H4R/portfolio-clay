@@ -1083,7 +1083,8 @@ body::before {
   .header-wordmark {
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    /* No `min-width: 0` (QA-010): the grid's `auto` brand column was shrinking below the nowrap
+       subline and letting it spill under the nav; the column must size to its content. */
   }
   .header-name {
     display: block;
@@ -1223,6 +1224,18 @@ body::before {
     }
     .header-menu-btn {
       display: none;
+    }
+  }
+  /* lg only (QA-010): at 1024 the five Fraunces-18 items (350 px) + pill (152) + Ask (44) + brand
+     (182) + gaps had ~0 px slack in a scrollbar-less browser and overlapped by ~12 px in a real
+     window. Same items, same order, same 44 px hit areas — only the spacing scale tightens for
+     1024–1279 (nav gap 18.7 → 26.4 px; row gap 16). From xl the §4.1 values above apply unchanged. */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .header-nav {
+      gap: clamp(18px, 3vw - 12px, 36px);
+    }
+    .site-header-row {
+      gap: 16px;
     }
   }
 

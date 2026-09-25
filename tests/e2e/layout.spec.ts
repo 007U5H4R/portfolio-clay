@@ -144,6 +144,94 @@ test("every visible header control is at least 44×44", async ({ page }) => {
 });
 
 // ---------------------------------------------------------------------------
+// QA-010 regression (TKT-71 fix round 1) — at the lg collapse point five Fraunces-18 nav items + the
+// pill + the Ask ghost must fit: at 1024 (w1024 project), 1280 (w1440 project resized) and 1440
+// (w1440 project) no two header controls' boxes intersect, none leaves the header row, no control
+// overflows its own box (the grid was squeezing the brand's nowrap subline), and adjacent controls
+// keep ≥ 16 px between them — headless Chromium has no scrollbar, so the 16 px margin stands in for
+// the ~15 px a real Chrome window loses at 1024 (that is where the ~12 px pill ∩ Playground overlap
+// was seen). Before the fix this failed at 1024 on every route.
+// ---------------------------------------------------------------------------
+const HEADER_MIN_GAP_PX = 16;
+for (const target of [1024, 1280, 1440]) {
+  test(`header controls never overlap or overflow at ${target} (QA-010)`, async ({ page }) => {
+    const w = width(page);
+    if (target === 1024) test.skip(w !== 1024, "1024 runs in the w1024 project");
+    else test.skip(w !== 1440, `${target} runs in the w1440 project`);
+    if (target === 1280) await page.setViewportSize({ width: 1280, height: 900 });
+
+    for (const route of ["/", "/work", "/about"]) {
+      await page.goto(route, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+      const report = await page.evaluate(() => {
+        const header = document.querySelector("header[data-site-header]")!;
+        const hb = header.getBoundingClientRect();
+        const controls = Array.from(header.querySelectorAll<HTMLElement>("a[href], button")).filter((el) => {
+          const s = getComputedStyle(el);
+          const r = el.getBoundingClientRect();
+          return s.display !== "none" && s.visibility !== "hidden" && r.width > 0 && r.height > 0 && !el.closest("dialog");
+        });
+        // Text-only inner overflow: the union of the control's text-node rects vs its own box. Uses
+        // text ranges, not scrollWidth, so the decorative ink-underline SVG (which bleeds 2 px past
+        // each nav link by design) does not register — only squeezed copy does.
+        const textOverflow = (el: HTMLElement) => {
+          const r = el.getBoundingClientRect();
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          let left = Infinity;
+          let right = -Infinity;
+          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+            if (!n.textContent?.trim()) continue;
+            const range = document.createRange();
+            range.selectNodeContents(n);
+            for (const rect of Array.from(range.getClientRects())) {
+              if (rect.width === 0) continue;
+              left = Math.min(left, rect.left);
+              right = Math.max(right, rect.right);
+            }
+          }
+          if (left === Infinity) return 0;
+          return Math.max(0, r.left - left, right - r.right);
+        };
+        const boxes = controls.map((el) => ({
+          name: (el.getAttribute("aria-label") ?? el.textContent ?? "").trim().slice(0, 24),
+          r: el.getBoundingClientRect(),
+          innerOverflow: textOverflow(el),
+          // The pill and the Ask ghost are one designed cluster (`.header-actions`, 10 px apart) —
+          // the min-gap rule is about the nav's neighbours, not the spacing inside that cluster.
+          cluster: !!el.closest(".header-actions"),
+        }));
+        const overlaps: string[] = [];
+        for (let i = 0; i < boxes.length; i++) {
+          for (let j = i + 1; j < boxes.length; j++) {
+            const a = boxes[i]!.r;
+            const b = boxes[j]!.r;
+            const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+            const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+            if (x > 0.5 && y > 0.5) overlaps.push(`${boxes[i]!.name} ∩ ${boxes[j]!.name} = ${x.toFixed(1)}px`);
+          }
+        }
+        const outside = boxes
+          .filter(({ r }) => r.left < hb.left - 0.5 || r.right > hb.right + 0.5 || r.top < hb.top - 0.5 || r.bottom > hb.bottom + 0.5)
+          .map(({ name }) => name);
+        const squeezed = boxes.filter((b) => b.innerOverflow > 1).map((b) => `${b.name}: text overflows its box by ${b.innerOverflow.toFixed(1)}px`);
+        const sorted = [...boxes].sort((a, b) => a.r.left - b.r.left);
+        const minGap = Math.min(
+          ...sorted.slice(1).map((b, i) => (b.cluster && sorted[i]!.cluster ? Infinity : b.r.left - sorted[i]!.r.right)),
+        );
+        return { count: boxes.length, overlaps, outside, squeezed, minGap };
+      });
+      const where = `${route} @ ${target}`;
+      expect(report.count, `${where}: brand + 5 nav + pill + Ask visible`).toBe(8);
+      expect(report.overlaps, `${where}: overlapping header controls`).toEqual([]);
+      expect(report.outside, `${where}: controls outside the header`).toEqual([]);
+      expect(report.squeezed, `${where}: a control squeezed below its content`).toEqual([]);
+      expect(report.minGap, `${where}: min gap between adjacent controls`).toBeGreaterThanOrEqual(HEADER_MIN_GAP_PX);
+      test.info().annotations.push({ type: `min-gap-${target}`, description: `${route}: ${report.minGap.toFixed(1)}px` });
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // TC-133 (TKT-71 AC 6) — the reading-progress bar exists only on case studies, is aria-hidden, and
 // its scaleX tracks the scroll fraction (also under reduced motion — position, not motion).
 // ---------------------------------------------------------------------------
