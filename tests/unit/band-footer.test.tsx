@@ -99,7 +99,10 @@ describe("TC-135 · S18 regression — hero.tagline rendered exactly once, as a 
     const sibling = quote.nextElementSibling;
     expect(sibling).not.toBeNull();
     expect(sibling).toHaveClass("sr-only");
-    expect(sibling!.textContent).toBe(`Source: ${hero.tagline.source}`);
+    // The attribution names the author, never the internal provenance string (`hero.tagline.source`
+    // is a PORT reference that would read the quote twice to screen readers — Design.md §11 Dev-20).
+    expect(sibling!.textContent).toBe("Source: Tushar Pathak");
+    expect(sibling!.textContent).not.toContain(hero.tagline.text);
   });
 
   it("negative control: a blanked tagline fails the count", async () => {

@@ -94,7 +94,7 @@ export function BandFooter() {
           <div className="band-bar">
             <span>© 2026 Tushar Pathak. Built with curiosity, chai &amp; Claude Code.</span>
             <span className="band-tagline">
-              <Hand kind="quote" as="span" cite={<span className="sr-only">Source: {hero.tagline.source}</span>}>
+              <Hand kind="quote" as="span" cite={<span className="sr-only">Source: {site.name}</span>}>
                 {hero.tagline.text}
               </Hand>
             </span>
