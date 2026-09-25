@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { Prose } from "@/components/common/Prose";
 import { ProgressBar } from "@/components/interactions/ProgressBar";
 import { ShowTheThinking } from "@/components/interactions/ShowTheThinking";
@@ -117,6 +118,8 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
   return (
     <>
+      {/* TKT-95 scene opener (EXE-18): one scene for every case study; the crop keeps face + open book. */}
+      <SceneOpener id="scene-casestudy" focalX={0.5} focalY={0.32} priority />
       <ProgressBar />
       <Container as="article" className="flex flex-col gap-[var(--section-gap-mobile)] py-[var(--section-gap-mobile)] md:gap-[var(--section-gap-tablet)] md:py-[var(--section-gap-tablet)] lg:py-[var(--section-gap-desktop)]">
         <CaseStudyHeader project={project} icon={icon} />

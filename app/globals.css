@@ -903,6 +903,39 @@ body::before {
     height: 100%;
   }
 
+  /* --- Vertical focal point (TKT-95, opt-in via `focalY`): the box is an inline-size container so the
+     canvas height (cover width ÷ ratio) is a length usable in `top`; the focal row sits at the box's
+     centre, clamped so the canvas never exposes a gap. The home hero omits `focalY` and keeps `top: 50%`. --- */
+  .scene-banner--focal-y {
+    container-type: inline-size;
+  }
+  .scene-banner--focal-y .scene-banner-canvas {
+    --canvas-h: calc(max(100cqw, var(--banner-h) * var(--scene-ar)) / (var(--scene-ar)));
+    top: clamp(calc(var(--banner-h) - var(--canvas-h)), calc(var(--banner-h) / 2 - var(--focal-y, 0.5) * var(--canvas-h)), 0px);
+    translate: none;
+  }
+
+  /* --- Page scene openers (TKT-95, EXE-18 / Dev-24): the home banner, a little shorter; a taller 3:2 crop < 768 --- */
+  .scene-opener {
+    position: relative;
+  }
+  .scene-opener .scene-banner {
+    --banner-h: clamp(220px, 32vw, 460px);
+  }
+  @media (max-width: 767px) {
+    .scene-opener .scene-banner {
+      --banner-h: 66vw;
+    }
+  }
+  .scene-opener-torn {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    z-index: 1;
+    margin: 0;
+  }
+
   /* --- The clip: registered on the canvas (`--clip-*`), masked to the character, over the banner --- */
   .hero-clip-slot {
     position: absolute;

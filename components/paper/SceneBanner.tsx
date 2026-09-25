@@ -13,6 +13,13 @@ export type SceneBannerProps = {
    * focal point sits at the box's centre — clamped so the canvas always covers the box.
    */
   focalX?: number | undefined;
+  /**
+   * Vertical focal point (0–1, TKT-95). Omitted → the canvas is centred vertically (the home hero's
+   * behaviour, unchanged). Given → the box becomes an inline-size container and the canvas is placed so
+   * this point sits at the box's centre, clamped so the canvas always covers the box (the page openers
+   * are wider than their scenes, so they crop top/bottom and need the face kept in).
+   */
+  focalY?: number | undefined;
   /** `next/image` `sizes` (default `100vw` — the banner is full-bleed). */
   sizes?: string | undefined;
   className?: string | undefined;
@@ -34,12 +41,18 @@ export type SceneBannerProps = {
  * export under jsdom, where a static image import is a bare URL `next/image` rejects — import it from
  * this module directly. The torn bottom edge is the page's `TornEdge`, placed by the caller.
  */
-export function SceneBanner({ id, priority = false, focalX = 0.5, sizes = "100vw", className, children }: SceneBannerProps) {
+const unit = (value: number) => (Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0.5);
+
+export function SceneBanner({ id, priority = false, focalX = 0.5, focalY, sizes = "100vw", className, children }: SceneBannerProps) {
   const entry = illustration(id);
-  const focal = Number.isFinite(focalX) ? Math.min(1, Math.max(0, focalX)) : 0.5;
-  const style = { "--focal": String(focal), "--scene-ar": `${entry.width} / ${entry.height}` } as CSSProperties;
+  const style = {
+    "--focal": String(unit(focalX)),
+    "--scene-ar": `${entry.width} / ${entry.height}`,
+    ...(focalY === undefined ? {} : { "--focal-y": String(unit(focalY)) }),
+  } as CSSProperties;
+  const classes = ["scene-banner", focalY === undefined ? null : "scene-banner--focal-y", className];
   return (
-    <figure data-illustration={id} className={["scene-banner", className].filter(Boolean).join(" ")} style={style}>
+    <figure data-illustration={id} className={classes.filter(Boolean).join(" ")} style={style}>
       <div className="scene-banner-canvas">
         <Image
           src={sceneImage(id)}

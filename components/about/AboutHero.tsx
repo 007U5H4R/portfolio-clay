@@ -1,6 +1,5 @@
 import { Quote } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { Illustration } from "@/components/paper";
 import { ClayCard } from "@/components/clay/ClayCard";
 import { Icon } from "@/components/common/Icon";
 import { experience } from "@/data/experience";
@@ -12,10 +11,10 @@ import { experience } from "@/data/experience";
  * headline + 3-stat row + pull-quote, per the brief: "an editorial opening (NOT a résumé)".
  *
  * TSK-38: the M-008 avatar scene (same asset, corner tiles, cursor-parallax hero treatment) is
- * deleted with the rest of the hero motion system. The illustration column now renders a temporary
- * `Illustration id="scene-about" placement="photo"` stand-in (paper primitives, no motion) until
- * TKT-86 rebuilds this page with the §6.4 scene-bleed treatment; only the CONTENT column below is
- * restyled by this ticket's own scope.
+ * deleted with the rest of the hero motion system. TKT-95 (EXE-18 / Dev-24): the temporary
+ * `Illustration id="scene-about" placement="photo"` stand-in column is gone too — `scene-about` now
+ * renders once, as the page's full-bleed `SceneOpener` above this section (app/about/page.tsx), so this
+ * section is the content column alone until TKT-86 rebuilds the page under that opener.
  *
  * Content truth:
  *   - Headline ("I started with machines. Then systems. Then people. Now, intelligent products.")
@@ -62,16 +61,9 @@ export function AboutHero() {
     <Container
       as="section"
       aria-labelledby="about-hero-heading"
-      className="flex flex-col items-center gap-8 pt-8 pb-16 text-left lg:grid lg:grid-cols-[42fr_58fr] lg:items-center lg:gap-16 lg:pt-32 lg:pb-20 2xl:gap-24"
+      className="flex flex-col items-center gap-8 pt-8 pb-16 text-left lg:pt-32 lg:pb-20"
     >
-      <div className="flex w-full justify-center lg:justify-start">
-        {/* Temporary stand-in (TSK-38) — TKT-86 rebuilds this page with the §6.4 scene-bleed
-            treatment; `photo` placement keeps a single-image, alt-from-manifest illustration in
-            the same column slot the deleted M-008 avatar scene occupied. */}
-        <Illustration id="scene-about" placement="photo" sizes="(min-width: 1024px) 42vw, 100vw" />
-      </div>
-
-      <div className="flex min-w-0 flex-col items-start gap-6 text-left md:gap-7">
+      <div className="flex min-w-0 w-full flex-col items-start gap-6 text-left md:gap-7">
         <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-ivory px-4 py-2 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-navy-2 shadow-[var(--shadow-utility)]">
           <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-rust" />
           About

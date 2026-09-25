@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { EssayBody } from "@/components/thinking/EssayBody";
 import { writing } from "@/data/writing";
 import { buildMetadata } from "@/lib/seo";
@@ -48,11 +49,15 @@ export default async function EssayPage({ params }: EssayPageProps) {
   if (!essay) notFound();
 
   return (
-    <Container
-      as="section"
-      className="py-[var(--section-gap-mobile)] md:py-[var(--section-gap-tablet)] lg:py-[var(--section-gap-desktop)]"
-    >
-      <EssayBody essay={essay} />
-    </Container>
+    <>
+      {/* TKT-95 scene opener (EXE-18): the /thinking scene opens every essay too. */}
+      <SceneOpener id="scene-thinking" focalX={0.5} focalY={0.29} priority />
+      <Container
+        as="section"
+        className="py-[var(--section-gap-mobile)] md:py-[var(--section-gap-tablet)] lg:py-[var(--section-gap-desktop)]"
+      >
+        <EssayBody essay={essay} />
+      </Container>
+    </>
   );
 }

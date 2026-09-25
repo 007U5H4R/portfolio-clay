@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { PlaygroundGrid } from "@/components/playground/PlaygroundGrid";
 import { PlaygroundHero } from "@/components/playground/PlaygroundHero";
 import { buildMetadata } from "@/lib/seo";
@@ -25,6 +26,8 @@ export const metadata: Metadata = buildMetadata({
 export default function PlaygroundPage() {
   return (
     <>
+      {/* TKT-95 scene opener (EXE-18): the crop keeps the face and the cardboard prototype. */}
+      <SceneOpener id="scene-playground" focalX={0.45} focalY={0.3} priority />
       <PlaygroundHero />
       <Container
         as="section"

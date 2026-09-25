@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { ThinkingHero } from "@/components/thinking/ThinkingHero";
 import { ThinkingList } from "@/components/thinking/ThinkingList";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
@@ -32,6 +33,8 @@ export const metadata: Metadata = buildMetadata({
 export default function ThinkingPage() {
   return (
     <>
+      {/* TKT-95 scene opener (EXE-18): the crop keeps the face and the writing hand. */}
+      <SceneOpener id="scene-thinking" focalX={0.5} focalY={0.29} priority />
       <ThinkingHero />
       <Container as="section" aria-label="Essays" className="pb-[var(--section-gap-desktop)]">
         <VisuallyHidden as="h2">Essays</VisuallyHidden>

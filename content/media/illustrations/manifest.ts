@@ -90,7 +90,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 2048,
     height: 1529,
     alt: "Illustration of Tushar writing in an open notebook at a wooden desk by a window — a green lamp, a cup of tea, stacked books, a plant, and a sketched flow diagram on loose paper.",
-    usedOn: ["/thinking"],
+    usedOn: ["/thinking", "/thinking/[slug]"], // TKT-95: the scene opener on the index and every essay
   },
   {
     id: "scene-playground",

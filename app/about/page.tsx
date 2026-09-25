@@ -8,6 +8,7 @@ import { Research } from "@/components/about/Research";
 import { ExperienceTimeline } from "@/components/timeline/ExperienceTimeline";
 import { ProductJourney } from "@/components/timeline/ProductJourney";
 import { ClayButton } from "@/components/clay/ClayButton";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { Section } from "@/components/layout/Section";
 import { buildMetadata } from "@/lib/seo";
 import { resumeAction, site } from "@/lib/site";
@@ -43,6 +44,8 @@ export default function AboutPage() {
 
   return (
     <>
+      {/* TKT-95 scene opener (EXE-18): replaces AboutHero's TSK-38 photo stand-in; the figure stands left of centre. */}
+      <SceneOpener id="scene-about" focalX={0.3} focalY={0.44} priority />
       <AboutHero />
       <ProductJourney />
       <CapabilityClusters />

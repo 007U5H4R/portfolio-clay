@@ -51,10 +51,10 @@ test("AboutHero renders the editorial headline, stat row, pull-quote, and illust
     "I build at the intersection of people, products and intelligent systems.",
   );
 
-  // Illustration stand-in (TSK-38) — `scene-about` has no `publicSrc` (Design.md §6.1: scenes go
-  // through `next/image`, not this component's `publicSrc` path yet), so `IllustrationImg` renders
-  // its documented fallback: the manifest alt as visible caption text (never a broken `<img>`).
-  await expect(heroSection.getByText(SCENE_ABOUT_ALT)).toBeVisible();
+  // TKT-95 (EXE-18): the TSK-38 photo stand-in is gone from the hero section — `scene-about` renders
+  // once, as the page's scene opener above it (an `<img>` with the manifest alt, never a caption).
+  await expect(heroSection.getByText(SCENE_ABOUT_ALT)).toHaveCount(0);
+  await expect(page.locator('[data-opener="scene-about"] img')).toHaveAttribute("alt", SCENE_ABOUT_ALT);
 
   // No proof-tile stack (home Hero's former "AI Products / People / Progress" tiles, removed at
   // TSK-38) on /about — the flat variant never rendered it.

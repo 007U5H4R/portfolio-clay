@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Container } from "@/components/layout/Container";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { EditorialGrid } from "@/components/projects/EditorialGrid";
 import { ExperienceStrip, ExperienceStripFallback } from "@/components/projects/ExperienceStrip";
 import { FilterTabs, FilterTabsFallback } from "@/components/projects/FilterTabs";
@@ -38,6 +39,8 @@ const professionalProjects = projects.filter((project) => project.category === "
 export default function WorkPage() {
   return (
     <>
+      {/* TKT-95 scene opener (EXE-18): the character's face + reaching arm sit ≈ 38 % down the scene. */}
+      <SceneOpener id="scene-work" focalX={0.6} focalY={0.38} priority />
       <WorkHero />
       <Container as="section" aria-labelledby="work-personal-heading" className="pb-[var(--section-gap-desktop)]">
         {/* QA-004 (TKT-48 follow-up): the page h1 ("Work") was followed directly by the ProjectCard
