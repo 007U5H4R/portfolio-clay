@@ -25,7 +25,7 @@ import { FILTERS, filterHref, parseFilter, type FilterValue } from "@/lib/filter
  * baseline, the rust hand-drawn underline (`InkUnderline`, link chrome — not a counted decoration)
  * on `aria-selected`, .45 on hover. The M-004 sliding pill indicator is gone, so there is nothing
  * to animate (reduced motion is trivially instant, EVAL-010). Styles: `.work-tabs` in the TKT-80
- * block of app/globals.css. The row scrolls horizontally with a peek < 768 (Deviation 3).
+ * block of app/globals.css. The row wraps at every width (TKT-90b — the < 768 scroll row clipped "Experiments").
  */
 
 const tablistClass = "work-tabs";
