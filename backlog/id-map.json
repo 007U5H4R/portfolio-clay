@@ -92,7 +92,11 @@
     "TKT-88": "TASK-83",
     "TKT-89": "TASK-84",
     "TKT-90": "TASK-85",
-    "TKT-91": "TASK-86"
+    "TKT-91": "TASK-86",
+    "TKT-93": "TASK-87",
+    "TKT-92": "TASK-88",
+    "TKT-94": "TASK-89",
+    "TKT-95": "TASK-90"
   },
   "tasks": {
     "TSK-01": "TASK-1.1",
