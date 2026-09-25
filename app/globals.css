@@ -836,7 +836,7 @@ body::before {
     display: block;
     margin-top: 6px;
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 content floor (integration-abc) */
     font-style: normal;
     color: var(--color-ink-soft);
   }
@@ -3174,7 +3174,7 @@ html.lenis body {
   }
   .essay-pull .essay-pull-cite {
     margin-top: 12px;
-    font-size: 14px; /* EVAL-008 content floor (the shared .hand-cite is 13 px) */
+    font-size: 14px; /* EVAL-008 content floor (now matches the shared .hand-cite; kept as a guard) */
   }
   .essay-pull-cite b {
     font-weight: 600;
