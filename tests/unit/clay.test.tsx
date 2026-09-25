@@ -5,6 +5,7 @@ import { CopyButton } from "@/components/common/CopyButton";
 import { ExternalLink } from "@/components/common/ExternalLink";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
 import { Prose } from "@/components/common/Prose";
+
 describe("ClayButton — S04.03 full", () => {
   it("loading sets aria-busy, disables the button and renders a spinner", () => {
     const { container } = render(<ClayButton loading>Save</ClayButton>);

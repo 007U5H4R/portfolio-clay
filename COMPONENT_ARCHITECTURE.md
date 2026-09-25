@@ -1,4 +1,4 @@
-# COMPONENT_ARCHITECTURE — Clay Portfolio
+# COMPONENT_ARCHITECTURE — Paper Portfolio (M-009; formerly Clay)
 
 Status: approved 2026-09-15 (with Solution-PRD). Stack: Next.js 16 (App Router, static generation) · TypeScript · Tailwind 4 (CSS-first tokens) · `motion` 13 · lucide-react · pnpm.
 
@@ -6,7 +6,7 @@ Status: approved 2026-09-15 (with Solution-PRD). Stack: Next.js 16 (App Router, 
 ```
 Portfolio-clay/
   app/
-    layout.tsx                 fonts, metadata defaults, Header, Footer, AskPanel provider, skip link
+    layout.tsx                 fonts, metadata defaults, Header, BandFooter, AskPanel provider, skip link
     page.tsx                   Home
     work/page.tsx              Selected Work
     work/[slug]/page.tsx       Case study (generateStaticParams from data/projects)
@@ -18,18 +18,25 @@ Portfolio-clay/
     opengraph-image.tsx        + per-route opengraph-image.tsx (1200×630, ImageResponse)
     sitemap.ts · robots.ts · not-found.tsx
   components/
-    layout/      Container, Section, SectionHeading, Footer, SkipLink
-    navigation/  Header, NavPill, MobileMenu, AskAIButton
-    hero/        Hero, AvatarStage, FloatingTiles, Annotation
-    clay/        ClayCard, ClayButton, ClayPill, ClayTile, ClayFrame, ClayIcon   ← the material primitives
-    projects/    FeaturedWork, ProjectCard, EditorialGrid, FilterTabs, StatusBadge, DemoVideo, ExperienceStrip
-    case-study/  CaseStudyHeader, OverviewToggle, Chapter, ChapterNav, NextProject,
-                 artifacts/ ArtifactCard InsightCard HypothesisCard MetricCard DecisionCard
-                            EvaluationCard ExperimentCard PrototypeFrame
-    timeline/    ExperienceTimeline, TimelineNode, StoryCard, ProductJourney
-    interactions/ ShowTheThinking, ThinkingNode, Reveal, Parallax, ViewTransitionLink, ProgressBar
-    ai/          AskPortfolio (home search field), AskPanel (right drawer), AnswerView, SuggestedPrompts, EvidenceLinks
-    thinking/    ThinkingList, EssayBody
+    paper/       TornEdge, Sticky, Annotation, Sketch, Note, Tape, Pin, Sheet, Illustration(+Img),
+                 FlatZone, Hand, DraftTag, SceneBanner, SceneOpener, MediaGate   ← the paper primitives (M-009)
+    layout/      Container, Section, SectionHeading, BandFooter, SkipLink
+    navigation/  Header, HeaderScroll, PrimaryNav, InkUnderline, Monogram, MobileMenu, AskAIButton
+    hero/        Hero, HeroClip, Postmark
+    home/        HowIThink
+    clay/        ClayButton, tiers (Tone/toneClass) — last clay remnants, still consumed (TKT-89 report)
+    projects/    FeaturedWork, ProjectCard, WorkHero, WorkIndex, WorkGrid, FilterTabs, EmptyState,
+                 StatusBadge, DemoVideo, ExperienceStrip
+    case-study/  CaseStudyHeader, MetricStrip, OverviewToggle, Chapter, ChapterNav, Learnings, Sources,
+                 NextProject, artifacts/ (ArtifactCard/Grid/Renderer/Shell, Insight, Hypothesis, Metric,
+                 Decision, Evaluation, Experiment cards, PrototypeFrame, SourceCaption)
+    timeline/    ExperienceTimeline, ProductJourney, StoryCard
+    interactions/ ShowTheThinking, ThinkingNode, Reveal, SmoothScroll, ViewTransitionLink, ProgressBar
+    ai/          AskSection, AskPortfolio, AskPanel(+Lazy), AskProvider, AnswerView, SuggestedPrompts, EvidenceLinks
+    thinking/    ThinkingHero, ThinkingList, EssayBody, EssayMargin
+    about/       AboutHero, CapabilityClusters, Impact, Awards, Research, Education, AboutCta
+    playground/  PlaygroundHero, PlaygroundGrid
+    contact/     ContactCard, ContactDetails
     common/      Icon, Tag, ExternalLink, CopyButton, VisuallyHidden, Prose
   data/
     schema.ts        zod schemas + TS types (Project, Experience, Skill cluster, Essay, KnowledgeEntry)
@@ -46,11 +53,12 @@ Portfolio-clay/
     motion.ts             shared variants, reduced-motion hook
     format.ts             dates, numbers
     seo.ts                metadata builders
-  content/media/<slug>/  screenshots, posters (source); public/ holds optimised output
-  public/video/<slug>.mp4 · public/avatar/*.webp · public/resume.pdf
+  content/media/<slug>/  screenshots, posters (source); content/media/illustrations/ scene art + manifest
+  public/media/illustrations/ hero clip + poster · public/video/<slug>.mp4 · public/resume.pdf
+  (public/avatar/avatar.webp survives only as the /dev/video QA-board poster fixture)
   evals/ (Stage 3)  ·  tests/ (Vitest + Playwright)  ·  docs/ (screenshots for visual QA)
 ```
-Server components by default; `"use client"` only on interactive leaves (Header scroll state, FilterTabs, ShowTheThinking, AskPanel, DemoVideo, Parallax, Timeline).
+Server components by default; `"use client"` only on interactive leaves (HeaderScroll, HeroClip, FilterTabs, ShowTheThinking, AskPanel, DemoVideo, SmoothScroll, Timeline).
 
 ## 2. Content model (data/schema.ts — abridged)
 ```ts
@@ -73,13 +81,8 @@ Artifact = Insight | Hypothesis | Metric | Decision | Evaluation | Experiment | 
 ```
 Zod validates all data at build time; a failing claim (missing `source`, metric without `asOf`) fails the build — the "no invented numbers" rule becomes mechanical.
 
-## 3. Clay primitives (components/clay)
-- `ClayCard` — `tone` (neutral | lavender | sky | mint | blush | peach | butter), `tier` (hero | card | utility | flat), `interactive` (adds lift/press physics), `as` polymorphic.
-- `ClayButton` — `variant` (primary | secondary | ghost), 44 px min height, press physics, focus ring, optional trailing icon.
-- `ClayPill` — filters, nav active state, tags.
-- `ClayTile` — square icon tile (floating tiles, How-I-Think stage icon).
-- `ClayFrame` — avatar / prototype bezel.
-All read tokens from CSS custom properties defined in `app/globals.css` (`@theme`), so `Design.md` values are the single source.
+## 3. Paper primitives (components/paper)
+Superseded the clay primitives (decision S11; TKT-70 built them, TKT-89 deleted the clay tree). `Design.md` §3 is the spec: decorations (`TornEdge`, `Tape`, `Pin`, `Sketch`, `Annotation`, `Sticky`, `Hand`, `DraftTag`) count toward the ≤ 4-per-section budget (EVAL-018); `Sheet`/`Note` are the paper surfaces; `Illustration`/`SceneBanner`/`SceneOpener` render manifest art (EVAL-021). All read tokens from `app/globals.css` (`@theme`, 13 colour tokens — EVAL-020). Remaining clay remnants (`ClayButton`, `tiers` `Tone`/`toneClass`) still have live consumers — see `docs/reports/TKT-89.md`.
 
 ## 4. Key interaction contracts
 - **Header**: `useScrollY` > 24 → `compact` class; nav pill moves with layout animation; mobile menu is a dialog with focus trap.

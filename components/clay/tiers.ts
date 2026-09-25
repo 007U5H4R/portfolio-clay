@@ -1,14 +1,8 @@
 /**
- * Clay tier map + tone map + the discriminated `ClayProps` guard (TSK-03 / S03.01).
- *
- * Every clay primitive (`ClayCard`, `ClayTile`, `ClayFrame`, `ClayIcon`, `StatusBadge`) reads
- * its rest-state visual language from here, never inventing its own radius/shadow/gradient
- * literals — Design.md §2's clay-tier table is the single source of truth for which token set
- * a tier may use.
- *
- * D1: `tier:'flat'` structurally forbids a tone other than `'neutral'` (and forbids
- * `interactive`), so `{ tier:'flat', tone:'lavender' }` is a compile-time type error, not a
- * runtime check.
+ * Clay tone map — the last surviving piece of the M-008 clay tier system (TSK-03 / S03.01).
+ * The tier map, `ClayProps` guard and the clay primitives that read them were deleted in TKT-89
+ * (S11). `Tone`/`toneClass` stay only because `components/layout/Section.tsx` (`tone` prop) and
+ * `lib/stages.ts` (`stageTone`, schema-required) still consume them — see docs/reports/TKT-89.md.
  */
 
 /** Design.md §2's seven clay tones (`neutral` = the untinted/utility default). */
