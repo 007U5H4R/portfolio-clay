@@ -107,3 +107,73 @@ for (const { route, paper, image, animated } of LAYERS) {
     expect(Math.abs(before - after), "the layers scroll together").toBeLessThanOrEqual(1);
   });
 }
+
+/**
+ * TKT-92r3 (TASK-88) · font-swap CLS scar. Lighthouse desktop `/` CLS was 0.054 (gate 0.05) because the
+ * h1 wrapped to 3 lines under next/font's `Fraunces Fallback` and 2 under Fraunces (and the eyebrow to
+ * 3 vs 2 lines at 412). The eyebrow's and h1's boxes must be the same whether the woff2 files never
+ * arrive (the fallback frame) or have loaded (the swapped frame) — every project width. The loaded run
+ * also proves the h1 still renders in Fraunces, guarding the literal family name in the TKT-92r3 CSS.
+ */
+test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async ({ browser, page }) => {
+  const viewport = page.viewportSize()!;
+  const boxes = async (blockFonts: boolean) => {
+    const { baseURL, isMobile, hasTouch, deviceScaleFactor, userAgent } = test.info().project.use;
+    const device = Object.fromEntries(
+      Object.entries({ baseURL, isMobile, hasTouch, deviceScaleFactor, userAgent }).filter(([, v]) => v !== undefined),
+    );
+    const context = await browser.newContext({ ...device, viewport });
+    const p = await context.newPage();
+    if (blockFonts) await p.route(/\.woff2(\?|$)/, (route) => route.abort());
+    await p.goto("/", { waitUntil: "load" });
+    await p.evaluate(() => document.fonts.ready);
+    const out = await p.evaluate(() => {
+      const box = (sel: string) => {
+        const r = document.querySelector(sel)!.getBoundingClientRect();
+        return { x: r.x, y: r.y, w: r.width, h: r.height };
+      };
+      const h1 = document.querySelector("#hero-h")!;
+      const size = getComputedStyle(h1).fontSize;
+      return { eyebrow: box(".hero-eyebrow"), h1: box("#hero-h"), fraunces: document.fonts.check(`500 ${size} Fraunces`) };
+    });
+    await context.close();
+    return out;
+  };
+  const fallback = await boxes(true);
+  const loaded = await boxes(false);
+  expect(loaded.fraunces, "loaded h1 font is Fraunces").toBe(true);
+  for (const key of ["eyebrow", "h1"] as const) {
+    for (const dim of ["x", "y", "w", "h"] as const) {
+      expect(Math.abs(fallback[key][dim] - loaded[key][dim]), `${key}.${dim} fallback ${fallback[key][dim]} vs loaded ${loaded[key][dim]}`).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
+/**
+ * Polaroid placement scar (Tushar 2026-09-26: "the polaroid image is overlapping the journey flow"). The
+ * upper polaroids must cover the outpaint's corkboard (its garbled notes, EVAL-021 flag; frame ends at
+ * ≈ 21.5 % of the scene width, notes to ≈ 39.5 % of its height) without reaching the "Problem → … → Impact"
+ * note, which starts at ≈ 24 %. Measured at rest (scroll 0) on the unrotated layout boxes' rendered rects.
+ */
+test("hero polaroids cover the corkboard and stay clear of the journey note", async ({ page }) => {
+  test.skip(width(page) < 768, "the polaroids are the ≥ 768 banner layout");
+  const widths = width(page) === 1440 ? [1024, 1440, 1920] : [width(page)];
+  for (const w of widths) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.goto("/", { waitUntil: "load" });
+    await scrollToY(page, 0);
+    const m = await page.evaluate(() => {
+      const banner = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
+      const [p1, p2] = [...document.querySelectorAll(".hero-polaroid")].map((el) => el.getBoundingClientRect());
+      return {
+        right: (Math.max(p1!.right, p2!.right) - banner.left) / banner.width,
+        bottom: (Math.min(p1!.bottom, p2!.bottom) - banner.top) / banner.height,
+      };
+    });
+    expect(m.right, `w${w}: upper polaroids end at ${(m.right * 100).toFixed(1)} % (journey note starts ≈ 24 %)`).toBeLessThanOrEqual(0.235);
+    expect(m.right, `w${w}: upper polaroids reach the corkboard's right-hand notes (≈ 20.4 %)`).toBeGreaterThanOrEqual(0.2);
+    // The lowest notes ("Team projects", "Croamg-probro") end at ≈ 39.5 % of the scene height; below is
+    // bare cork, then the frame (≈ 45 %) — neither carries text.
+    expect(m.bottom, `w${w}: upper polaroids cover the corkboard's lowest notes (≈ 39.5 %)`).toBeGreaterThanOrEqual(0.4);
+  }
+});

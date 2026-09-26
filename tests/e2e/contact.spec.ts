@@ -169,6 +169,20 @@ test("CopyButton copies the email, shows 'Copied' with a forest border, then rev
   const button = page.locator("main [data-copy-button]");
   await expect(button).toHaveAttribute("data-state", "idle");
   await expect(button).toHaveText("Copy");
+
+  // TKT-97: timestamp every `data-state` flip IN THE PAGE (performance.now at click and at each
+  // mutation), so the 2 s window is measured on the page's own clock. The old version slept a fixed
+  // 1500 ms on the TEST side after several slow polls; under 2-worker CPU contention those polls ate
+  // > 500 ms, the sleep overran the component's 2 s timer, and the "still copied" check read `idle`.
+  await button.evaluate((el) => {
+    const log: { state: string | null; t: number }[] = [];
+    (window as unknown as { __copyLog: typeof log }).__copyLog = log;
+    el.addEventListener("click", () => log.push({ state: "click", t: performance.now() }), { capture: true });
+    new MutationObserver(() => log.push({ state: el.getAttribute("data-state"), t: performance.now() })).observe(
+      el,
+      { attributes: true, attributeFilter: ["data-state"] },
+    );
+  });
   await button.click();
   await expect(button).toHaveAttribute("data-state", "copied");
   await expect(button).toHaveText("Copied");
@@ -181,10 +195,18 @@ test("CopyButton copies the email, shows 'Copied' with a forest border, then rev
   const copied = await page.evaluate(() => (window as unknown as { __copied: string[] }).__copied);
   expect(copied).toEqual([site.email]);
 
-  // 2 s confirmation, then idle (not before ~1.5 s, not after ~3 s).
-  await page.waitForTimeout(1500);
-  await expect(button).toHaveAttribute("data-state", "copied");
-  await expect(button).toHaveAttribute("data-state", "idle", { timeout: 1500 });
+  // 2 s confirmation, then idle (not before ~1.5 s, not after ~3 s) — asserted on the in-page
+  // timestamps, so test-side latency can no longer shift the window.
+  await expect(button).toHaveAttribute("data-state", "idle", { timeout: 5000 });
+  const log = await page.evaluate(
+    () => (window as unknown as { __copyLog: { state: string | null; t: number }[] }).__copyLog,
+  );
+  expect(log.map((e) => e.state)).toEqual(["click", "copied", "idle"]);
+  const [click, copiedAt, idleAt] = log.map((e) => e.t) as [number, number, number];
+  expect(copiedAt - click, "copied should show promptly after the click").toBeLessThan(1500);
+  const shown = idleAt - copiedAt;
+  expect(shown, `'Copied' showed for ${Math.round(shown)} ms`).toBeGreaterThanOrEqual(1500);
+  expect(shown, `'Copied' showed for ${Math.round(shown)} ms`).toBeLessThanOrEqual(3000);
 });
 
 // ---------------------------------------------------------------------------

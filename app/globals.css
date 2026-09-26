@@ -944,10 +944,13 @@ body::before {
      it (the first tucked under the header's edge, the second over its right column) and a smaller third
      at the bottom-left tucked under the paper's torn edge, clear of the desk's books. Widths scale with
      the banner (TKT-96: the box is the whole scene, 42.4 vw tall, no cap), so the upper two keep
-     reaching the corkboard's bottom (≈ 19.1 vw) at every width ≥ 768. */
+     covering the corkboard's lowest notes (≈ 39.5 % of the scene height) at every width ≥ 768. */
+  /* Horizontal limit (Tushar 2026-09-26): the corkboard's frame ends at ≈ 21.5 % of the scene width and
+     the "Problem → … → Impact" note starts at ≈ 24 %, so the second polaroid ends by ≈ 21.7 % (4 % +
+     17.5 vw, or 136 px at 768) and never overlaps the journey note. */
   .hero-polaroid {
     position: absolute;
-    width: max(136px, 18vw);
+    width: max(136px, 17.5vw);
     padding: 12px 12px 30px;
   }
   .hero-polaroid:nth-child(1) {
@@ -956,7 +959,7 @@ body::before {
   }
   .hero-polaroid:nth-child(2) {
     top: 2%;
-    left: 10%;
+    left: 4%;
   }
   .hero-polaroid:nth-child(3) {
     bottom: 0;
@@ -6163,3 +6166,71 @@ html.lenis body {
   transition: opacity 150ms var(--ease-reveal);
 }
 /* end TKT-90d */
+/* TKT-92r3 · hero h1 font-swap CLS (desktop / 0.054 → gate 0.05). Measured (Playwright, 1350×940, woff2
+   blocked vs loaded): the h1 was 3 lines × 740 px under `Fraunces Fallback` and 2 lines × 771 px under
+   Fraunces, so on swap it lost a line and its centred box moved sideways (LH layout-shifts → h1#hero-h).
+   Two font-dependent causes, both fixed here for the hero h1 only:
+   1. next/font's `Fraunces Fallback` (Times New Roman, size-adjust 115.45 %) is fitted to Fraunces'
+      default instance; at the hero's `opsz 144` Fraunces is ≈ 17 % narrower, so the fallback line ran
+      1690 px vs 1386 px. `Fraunces Hero Fallback` is the same local face re-fitted to the headline:
+      glyph advance ratio 1442/1746 (letter-spacing excluded) → size-adjust 95.34 %; the ascent/descent
+      overrides are next/font's values × 115.45/95.34 so the vertical metrics are unchanged.
+      Liberation Serif is Times New Roman's metric twin (Linux / Lighthouse CI).
+   2. `max-width: 19ch` resolves against the *current* font's "0" (0.5630em fallback, 0.6015em Fraunces),
+      so the wrap box itself changed on swap. 11.43em = 19 × 0.6015em — the same 771 px under Fraunces at
+      every clamp size, and identical under the fallback.
+   The literal `Fraunces` is next/font's family name (app/layout.tsx; `--font-fraunces` = "Fraunces",
+   "Fraunces Fallback"); tests/e2e/hero-fold.spec.ts asserts the swap keeps the h1's box and that the
+   loaded h1 renders in Fraunces, so a rename fails loudly. */
+@font-face {
+  font-family: "Fraunces Hero Fallback";
+  src: local("Times New Roman"), local("TimesNewRomanPSMT"), local("Liberation Serif");
+  ascent-override: 102.58%;
+  descent-override: 26.75%;
+  line-gap-override: 0%;
+  size-adjust: 95.34%;
+}
+/* 3. The eyebrow (above the h1) has the same two causes: its `max-width: 60ch` box was 554 px under
+      Inter and 500 px under `Inter Fallback`, and its uppercase Inter 600 line runs narrower than the
+      fallback's (glyph advances 570.1 vs 618.6 px, 0.12em tracking excluded) — a 27 px sideways move at
+      desktop and 3 lines vs 2 at 412 px, which pushed the h1 down 22 px on mobile. Re-fitted on the
+      eyebrow string → size-adjust 107.12 × 570.1/618.6 = 98.72 %; ascent/descent = next/font's ×
+      107.12/98.72; and 60ch → 39.58em (60 × Inter's 0.66em "0"; 554 px, unchanged under Inter). */
+@font-face {
+  font-family: "Inter Eyebrow Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  ascent-override: 98.14%;
+  descent-override: 24.44%;
+  line-gap-override: 0%;
+  size-adjust: 98.72%;
+}
+@layer components {
+  .hero-eyebrow {
+    max-width: 39.58em;
+    font-family: "Inter", "Inter Eyebrow Fallback", "Inter Fallback", system-ui, sans-serif;
+  }
+  .hero-h1 {
+    max-width: 11.43em;
+    font-family: "Fraunces", "Fraunces Hero Fallback", "Fraunces Fallback", "Iowan Old Style", Georgia, serif;
+  }
+}
+/* end TKT-92r3 */
+/* TKT-103 · page scene openers show the whole scene (Tushar 2026-09-26: "in all the tabs, I want the full
+   image, dont crop it out or zoom out"; Design.md §11 Dev-40). Every `SceneOpener` banner is the scene at
+   full width — box height = the box's own width ÷ the scene's ratio (`--scene-ar`, set per scene by
+   SceneBanner), at every width, so the canvas equals the box and nothing is cropped or letterboxed. The
+   opener is an inline-size container so `100cqw` is its width (a classic scrollbar never makes the box
+   taller than the canvas) — the same mechanism as the TKT-96 home banner. The 3:2 / 4:3 scenes are
+   ≈ 800–1075 px tall at 1440 (the page copy starts below the fold; the TKT-96 parallax slides the paper
+   over them) and ≈ 260–290 px at 390. The home banner keeps its < 768 4:3 crop (a whole 21:9 scene at
+   390 would be ≈ 165 px tall). */
+@layer components {
+  .scene-opener {
+    container-type: inline-size;
+  }
+  .scene-opener .scene-banner,
+  .scene-opener .scene-banner--focal-y {
+    --banner-h: calc(100cqw / (var(--scene-ar, 3 / 2)));
+  }
+}
+/* end TKT-103 */

@@ -17,13 +17,8 @@ export interface MetricCardProps {
   /** Resolved SourceRef for `metric.source` — provenance is mandatory (EVAL-013). */
   source: SourceRef;
   caption?: string | undefined;
-  /**
-   * `card` (default) = the pinned ruled index card (Design.md §7.3 `metric`) used inside chapter
-   * clusters, `Impact` and the `/dev/artifacts` board. `inline` = the flat mini-metric the legacy
-   * `CaseStudyHeader` places beside the lead (TKT-81 replaces it with `MetricStrip`). Both carry the
-   * SAME sourced fields (value + label + context + asOf + kind badge + source, TKT-19 AC 2).
-   */
-  variant?: "card" | "inline" | undefined;
+  // No `variant`: the legacy `inline` header mini-metric was removed in TKT-97 once `MetricStrip`
+  // (TKT-81) replaced it in the case-study header; the pinned index card is the only form (§7.3).
 }
 
 type Kind = Metric["kind"];
@@ -42,7 +37,7 @@ const kindMap: Record<Kind, { icon: LucideIcon; label: string; pin: "rust" | "fo
  * that arrives without `asOf` or `source` throws rather than rendering a bare number (no fabricated /
  * floating metric ever reaches the page — EVAL-013).
  */
-export function MetricCard({ metric, source, caption, variant = "card" }: MetricCardProps) {
+export function MetricCard({ metric, source, caption }: MetricCardProps) {
   // Runtime sourcing guard (the type already forbids this at compile time; this catches data that
   // reached render around the type, e.g. `as any` or a loosened cast — fail loud, never render).
   if (!metric.asOf || !metric.source) {
@@ -53,9 +48,8 @@ export function MetricCard({ metric, source, caption, variant = "card" }: Metric
 
   const { icon, label, pin } = kindMap[metric.kind];
 
-  // The body is identical in both variants — only the surrounding material differs.
-  const body = (
-    <>
+  return (
+    <ArtifactShell form="metric" variant="index" label="Metric" caption={caption} fasteners={<Pin tone={pin} />}>
       <p className="metric-val">{metric.value}</p>
       <p className="metric-lbl font-body">{metric.label}</p>
       <p className="metric-ctx font-body">{metric.context}</p>
@@ -67,23 +61,6 @@ export function MetricCard({ metric, source, caption, variant = "card" }: Metric
         <span>{formatAsOf(metric.asOf)}</span>
         <SourceCaption as="span" source={source} className="artifact-src" />
       </p>
-    </>
-  );
-
-  if (variant === "inline") {
-    // Flat header mini-metric: no sheet (a row of these is header meta, not stacked cards), but it
-    // still carries the mandatory source line so no metric ever renders without provenance.
-    return (
-      <div className="metric-inline grid gap-[var(--space-1)]">
-        {body}
-        {caption ? <p className="artifact-caption">{caption}</p> : null}
-      </div>
-    );
-  }
-
-  return (
-    <ArtifactShell form="metric" variant="index" label="Metric" caption={caption} fasteners={<Pin tone={pin} />}>
-      {body}
     </ArtifactShell>
   );
 }
