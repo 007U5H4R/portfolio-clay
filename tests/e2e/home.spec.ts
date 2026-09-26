@@ -214,13 +214,14 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
   const counts = Object.fromEntries(result.units.map((r) => [r.unit, r.count]));
   // At 390 two objects are removed from the DOM by design: the header subline annotation
   // (`MediaGate min={640}`, components/navigation/Header.tsx) and How-I-think's journey path
-  // sketch (desktop-only). Measured counts, both inside the ≤ 4 budget.
+  // sketch (desktop-only). Measured counts, both inside the ≤ 4 budget. TKT-99 (Design.md §11 Dev-41)
+  // added How-I-think's one collage backdrop object: 3 at w1440, 2 at w390.
   const mobile = width(page) === 390;
   expect(counts).toEqual({
     header: mobile ? 0 : 1,
     'section[aria-labelledby="hero-h"]': 4,
     "section#work-featured": 4,
-    "section#how-i-think": mobile ? 1 : 2,
+    "section#how-i-think": mobile ? 2 : 3,
     "section#ask": 2,
     footer: 1,
   });

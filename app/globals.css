@@ -2525,182 +2525,6 @@ html.lenis body {
 }
 /* end TKT-81 */
 
-/* TKT-76 · how I think — home `section#how-i-think` (Design.md §7.1; values lifted from
-   docs/redesign-mockups/m-009/home.html `.think`, `.journey`, `.stage`). The torn edge overlaps the
-   previous section's bottom by its own height (transparent strip above the paper fill), so the tear
-   reads against Featured's paper-2. Paper tokens / derived vars only (EVAL-020). */
-@layer components {
-  .hit {
-    position: relative;
-    z-index: 3;
-    margin-top: -44px;
-    background: linear-gradient(180deg, transparent 44px, var(--color-paper) 44px);
-  }
-  .hit-wrap {
-    padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
-  }
-  .hit-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 32px;
-    align-items: end;
-    margin-bottom: clamp(36px, 5vw, 64px);
-  }
-  .hit-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .hit-h2 {
-    margin-top: 10px;
-    font-size: clamp(40px, 4.6vw, 64px);
-    color: var(--color-navy);
-  }
-  .hit-lead {
-    justify-self: end;
-    max-width: 48ch;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--color-navy-2);
-  }
-
-  .hit-journey {
-    position: relative;
-    padding-top: 34px;
-  }
-  .hit-path {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  .sketch[data-sketch="journey"] {
-    stroke-width: 1.8;
-    stroke-dasharray: 6 7;
-    opacity: 0.7;
-  }
-  .hit-stages {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 18px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .hit-stage {
-    display: grid;
-  }
-  .hit-stage:nth-child(odd) {
-    margin-top: 28px;
-  }
-  .hit-reveal {
-    display: grid;
-  }
-  .hit-card.paper-sheet {
-    display: grid;
-    gap: 10px;
-    align-content: start;
-    padding: 18px 16px 20px;
-  }
-  .hit-num {
-    font-size: 18px;
-    line-height: 1;
-    color: var(--color-ink-soft);
-  }
-  .hit-h3 {
-    font-size: 26px;
-    font-variation-settings: "opsz" 72, "SOFT" 20;
-    color: var(--color-navy);
-  }
-  .hit-draft {
-    justify-self: start;
-  }
-  .hit-principle {
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
-  .hit-quote {
-    margin-top: 4px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--line-sketch);
-  }
-  .hit-quote blockquote {
-    margin: 0;
-    font-size: 17px;
-    line-height: 1.2;
-    font-weight: 400;
-    color: var(--color-navy);
-  }
-  .hit-pill {
-    justify-self: start;
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    margin-top: 4px;
-    padding: 8px 14px;
-    border: 1.5px solid var(--line-sketch);
-    border-radius: 14px;
-    background: var(--color-paper);
-    font-family: var(--font-body);
-    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--color-navy);
-    text-decoration: none;
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease;
-  }
-  .hit-pill:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-paper);
-  }
-
-  @media (max-width: 1024px) {
-    .hit-stages {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .hit-stage:nth-child(odd) {
-      margin-top: 0;
-    }
-  }
-  @media (max-width: 900px) {
-    .hit-head {
-      grid-template-columns: 1fr;
-    }
-    .hit-lead {
-      justify-self: start;
-    }
-  }
-  @media (max-width: 640px) {
-    .hit-stages {
-      grid-template-columns: 1fr 1fr;
-    }
-    .hit-h3 {
-      font-size: 22px;
-    }
-  }
-  @media (max-width: 440px) {
-    .hit-stages {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hit-pill {
-      transition: none;
-    }
-    .hit-pill:hover {
-      transform: none;
-    }
-  }
-}
-/* end TKT-76 */
-
 /* TKT-82 · learned + sources — case-study "What I learned" (`learnings[]`, S18) and the derived
    "Sources" index (Design.md §7.3; values from docs/redesign-mockups/m-009/case-study.html
    `.learned` / `.sources`). Tokens / derived values only (EVAL-020). The mockup's sources list at
@@ -6234,3 +6058,462 @@ html.lenis body {
   }
 }
 /* end TKT-103 */
+
+/* TKT-99 · how I think, collage restyle — home `section#how-i-think` rebuilt to Tushar's direction
+   (2026-09-26, docs/redesign-mockups/m-009/tushar-2026-09-26/how-i-think-target.png; Design.md §7.1,
+   §11 Dev-41). Replaces the TKT-76 rules (moved here). Deckled torn-edge cards (two seeded clip-path
+   layers behind the content, `components/home/deckle.ts`), ONE collage backdrop object behind them
+   (`HowIThinkCollage`, `data-decor="collage"`), quotes on tinted torn slips with a washi-tape strip,
+   a compact two-line DraftTag, terracotta italic numerals and a paper CTA button with an arrow.
+   Paper tokens / `color-mix` only (EVAL-020); no new motion. */
+@layer components {
+  .hit {
+    position: relative;
+    z-index: 3;
+    margin-top: -44px;
+    overflow-x: clip; /* the collage bleeds past the container; never a horizontal scroll */
+    background: linear-gradient(180deg, transparent 44px, var(--color-paper) 44px);
+  }
+  .hit-wrap {
+    padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
+  }
+  .hit-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: end;
+    margin-bottom: clamp(36px, 5vw, 64px);
+  }
+  .hit-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .hit-h2 {
+    margin-top: 10px;
+    font-size: clamp(40px, 4.6vw, 64px);
+    color: var(--color-navy);
+  }
+  .hit-lead {
+    justify-self: end;
+    max-width: 48ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-navy-2);
+  }
+
+  .hit-journey {
+    position: relative;
+    padding-top: 34px;
+  }
+  .hit-path {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .sketch[data-sketch="journey"] {
+    stroke: var(--color-navy-2);
+    stroke-width: 2.2;
+    stroke-dasharray: 7 7;
+    opacity: 0.75;
+  }
+  .hit-stages {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hit-stage {
+    display: grid;
+  }
+  .hit-stage:nth-child(odd) {
+    margin-top: 28px;
+  }
+  .hit-reveal {
+    display: grid;
+    align-self: start; /* each torn card is as tall as its content, like the reference */
+  }
+  @media (min-width: 1280px) {
+    .hit-journey {
+      margin-inline: -48px; /* the reference runs the cards nearly edge to edge */
+    }
+  }
+
+  /* ---- the deckled card: transparent Sheet over two torn layers (rim + cream face) ---- */
+  .hit-card.paper-sheet {
+    isolation: isolate;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 26px 18px 30px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .hit-paper {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* No CSS filter here: a drop-shadow over clip-pathed layers stalled the 1920 page load in
+       headless Chromium (5 s+, EVAL-019 timeout). The shade is the rim outline itself, offset. */
+  }
+  .hit-paper-shade,
+  .hit-paper-rim,
+  .hit-paper-face {
+    position: absolute;
+    inset: 0;
+  }
+  .hit-paper-shade {
+    translate: 2px 5px;
+    background: color-mix(in oklab, var(--color-navy) 11%, transparent);
+  }
+  .hit-paper-rim {
+    background: var(--color-ivory);
+  }
+  .hit-paper-face {
+    background:
+      radial-gradient(circle at 20% 30%, color-mix(in oklab, var(--color-kraft) 12%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
+      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--color-navy) 3%, transparent) 0 1px, transparent 1.5px) 0 0 / 13px 7px,
+      linear-gradient(170deg, color-mix(in oklab, var(--color-ivory) 85%, var(--color-kraft)), color-mix(in oklab, var(--color-ivory) 74%, var(--color-kraft)));
+  }
+  .hit-card .paper-pin {
+    top: -11px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .hit-num {
+    font-size: 20px;
+    line-height: 1;
+    font-style: italic;
+    color: var(--color-terracotta);
+  }
+  .hit-h3 {
+    font-size: clamp(24px, 2.25vw, 34px);
+    line-height: 1.05;
+    font-variation-settings: "opsz" 72, "SOFT" 20;
+    color: var(--color-navy);
+  }
+  .hit-draft.draft-tag {
+    justify-self: start;
+    padding: 3px 8px;
+    line-height: 1.35;
+    border-color: color-mix(in oklab, var(--color-terracotta) 72%, transparent);
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--color-ivory) 70%, transparent);
+  }
+  .hit-draft-line {
+    display: block;
+    white-space: nowrap;
+  }
+  .hit-principle {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+
+  /* ---- the quote slip: a tinted torn note, washi tape on top, the cite plain below ---- */
+  .hit-quote {
+    margin-top: 12px;
+  }
+  .hit-stage {
+    --slip: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory));
+    --slip-tape: color-mix(in oklab, var(--color-kraft) 75%, transparent);
+    --slip-rot: -1.5deg;
+  }
+  .hit-stage:nth-child(2) {
+    --slip: color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
+    --slip-tape: color-mix(in oklab, var(--color-green-2) 45%, transparent);
+    --slip-rot: 1.2deg;
+  }
+  .hit-stage:nth-child(3) {
+    --slip-rot: -0.8deg;
+  }
+  .hit-stage:nth-child(4) {
+    --slip: color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
+    --slip-tape: color-mix(in oklab, var(--color-steel) 55%, transparent);
+    --slip-rot: 1.6deg;
+  }
+  .hit-stage:nth-child(5) {
+    --slip: color-mix(in oklab, var(--color-rust) 15%, var(--color-ivory));
+    --slip-tape: color-mix(in oklab, var(--color-rust) 55%, transparent);
+    --slip-rot: -1.8deg;
+  }
+  .hit-stage:nth-child(6) {
+    --slip: color-mix(in oklab, var(--color-green-2) 22%, var(--color-ivory));
+    --slip-tape: color-mix(in oklab, var(--color-rust) 50%, transparent);
+    --slip-rot: 1deg;
+  }
+  .hit-slip {
+    position: relative;
+    isolation: isolate;
+    margin: 0 -4px;
+    padding: 20px 14px 14px;
+    rotate: var(--slip-rot);
+    font-size: 18px;
+    line-height: 1.22;
+    font-weight: 400;
+    color: var(--color-navy);
+  }
+  .hit-slip::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--color-navy) 4%, transparent) 0 1px, transparent 1.5px) 0 0 / 8px 10px,
+      var(--slip);
+    clip-path: var(--slip-edge);
+  }
+  .hit-slip::after {
+    content: "";
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 56px;
+    height: 18px;
+    translate: -50% 0;
+    rotate: -3deg;
+    background: var(--slip-tape);
+    clip-path: polygon(0 12%, 5% 0, 30% 6%, 60% 0, 96% 4%, 100% 22%, 97% 50%, 100% 82%, 95% 100%, 55% 94%, 22% 100%, 3% 96%, 0 74%, 3% 44%);
+  }
+  .hit-quote .hand-cite {
+    margin-top: 12px;
+  }
+
+  /* ---- the CTA: a rounded paper button with an arrow glyph ---- */
+  .hit-pill {
+    justify-self: start;
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin-top: 8px;
+    padding: 10px 12px 10px 14px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 16%, transparent);
+    border-radius: 16px;
+    background: var(--color-ivory);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-navy) 6%, transparent),
+      0 8px 14px -10px color-mix(in oklab, var(--color-navy) 30%, transparent);
+    font-family: var(--font-body);
+    font-size: 15px; /* EVAL-008 floor 14 px */
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-navy);
+    text-decoration: none;
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .hit-pill-arrow {
+    flex: none;
+  }
+  .hit-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-paper-hover);
+  }
+
+  /* ---- the collage backdrop: ONE decoration object, pieces positioned in its box ---- */
+  .hit-collage {
+    position: absolute;
+    inset: -36px -72px -56px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hit-scrap {
+    position: absolute;
+    display: block;
+    background: var(--color-kraft);
+  }
+  .hit-scrap[data-tone="sage"] {
+    background: color-mix(in oklab, var(--color-green-2) 55%, var(--color-paper-2));
+  }
+  .hit-scrap[data-tone="sage-dark"] {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--color-navy) 6%, transparent) 0 1px, transparent 1.5px) 0 0 / 7px 9px,
+      color-mix(in oklab, var(--color-green-2) 75%, var(--color-paper-2));
+  }
+  .hit-scrap[data-tone="rust"] {
+    background:
+      radial-gradient(circle at 40% 40%, color-mix(in oklab, var(--color-navy) 7%, transparent) 0 1px, transparent 1.5px) 0 0 / 6px 9px,
+      repeating-linear-gradient(64deg, transparent 0 34px, color-mix(in oklab, var(--color-note) 10%, transparent) 34px 35px),
+      color-mix(in oklab, var(--color-rust) 72%, var(--color-kraft));
+  }
+  .hit-scrap[data-tone="kraft"] {
+    background:
+      radial-gradient(circle at 40% 40%, color-mix(in oklab, var(--color-terracotta) 8%, transparent) 0 1px, transparent 1.5px) 0 0 / 6px 8px,
+      color-mix(in oklab, var(--color-kraft) 80%, var(--color-paper-2));
+  }
+  .hit-scrap[data-tone="grid"] {
+    background:
+      linear-gradient(90deg, var(--rule-blue) 1px, transparent 1px) 0 0 / 12px 12px,
+      linear-gradient(180deg, var(--rule-blue) 1px, transparent 1px) 0 0 / 12px 12px,
+      var(--color-paper-2);
+  }
+  .hit-scrap[data-tone="ledger"] {
+    background:
+      linear-gradient(180deg, transparent 0 15px, var(--rule-blue) 15px 16px) 0 0 / 100% 16px,
+      color-mix(in oklab, var(--color-note) 55%, var(--color-paper-2));
+  }
+  .hit-scrap[data-tone="holes"] {
+    background:
+      radial-gradient(circle at 45% 50%, var(--color-paper) 0 5px, color-mix(in oklab, var(--color-terracotta) 25%, transparent) 5.5px, transparent 6.5px) 0 4px / 100% 26px repeat-y,
+      color-mix(in oklab, var(--color-kraft) 85%, var(--color-paper-2));
+  }
+  .hit-scrap[data-k="kraft-tl"] { left: 0; top: 8%; width: 9%; height: 34%; }
+  .hit-scrap[data-k="sage-l"] { left: 0.5%; top: 26%; width: 8%; height: 58%; }
+  .hit-scrap[data-k="grid-bl"] { left: 0; top: 62%; width: 12%; height: 30%; }
+  .hit-scrap[data-k="sage-12"] { left: 17.4%; top: 16%; width: 4%; height: 58%; }
+  .hit-scrap[data-k="ledger-23"] { left: 32.7%; top: 58%; width: 4%; height: 36%; }
+  .hit-scrap[data-k="rust-34"] { left: 46.5%; top: 0; width: 7%; height: 30%; }
+  .hit-scrap[data-k="rust-b"] { left: 45%; top: 58%; width: 14%; height: 17%; }
+  .hit-scrap[data-k="holes-45"] { left: 63.9%; top: 12%; width: 2.8%; height: 36%; }
+  .hit-scrap[data-k="sage-56"] { left: 78.9%; top: 18%; width: 3.4%; height: 52%; }
+  .hit-scrap[data-k="grid-tr"] { left: 91%; top: 0; width: 9%; height: 32%; }
+  .hit-scrap[data-k="sage-r"] { left: 95.5%; top: 30%; width: 4.5%; height: 30%; }
+  .hit-scrap[data-k="kraft-br"] { left: 94%; top: 48%; width: 6%; height: 36%; }
+
+  .hit-sprig {
+    position: absolute;
+    width: 58px;
+    height: 136px;
+    overflow: visible;
+  }
+  .hit-sprig-stem {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-green-2) 80%, var(--color-kraft));
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .hit-sprig-leaf {
+    fill: color-mix(in oklab, var(--color-green-2) 78%, var(--color-kraft));
+  }
+  .hit-sprig[data-k="tl"] { left: 2.5%; top: -40px; rotate: -16deg; }
+  .hit-sprig[data-k="b34"] { left: 50%; top: 62%; rotate: 16deg; }
+  .hit-sprig[data-k="b5"] { left: 80.5%; top: 66%; rotate: -12deg; }
+  .hit-sprig[data-k="r6"] { left: 96%; top: 30%; rotate: 10deg; }
+  .hit-sprig[data-flip] {
+    scale: -1 1;
+  }
+
+  .hit-stamp {
+    position: absolute;
+    left: 89%;
+    top: 0;
+    width: 132px;
+    height: 88px;
+    rotate: 4deg;
+    overflow: visible;
+  }
+  .hit-ink {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy-2) 45%, transparent);
+    stroke-width: 1.3;
+  }
+  .hit-ink-dash {
+    stroke-dasharray: 3 3;
+  }
+  .hit-stamp-paper {
+    fill: color-mix(in oklab, var(--color-steel) 18%, var(--color-ivory));
+  }
+  .hit-stamp-hole {
+    fill: var(--color-paper);
+  }
+  .hit-stamp-frame {
+    fill: color-mix(in oklab, var(--color-steel) 30%, var(--color-ivory));
+    stroke: color-mix(in oklab, var(--color-steel) 70%, transparent);
+    stroke-width: 1;
+  }
+  .hit-stamp-art {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy-2) 70%, transparent);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+  }
+  .hit-postmark {
+    position: absolute;
+    left: 93%;
+    top: 74%;
+    width: 96px;
+    height: 96px;
+    rotate: -12deg;
+  }
+
+  @media (max-width: 1024px) {
+    .hit-stages {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      row-gap: 40px;
+    }
+    .hit-stage:nth-child(odd) {
+      margin-top: 0;
+    }
+    /* fewer scraps; the rest get fixed heights so a tall stacked column never stretches them */
+    .hit-collage [data-wide] {
+      display: none;
+    }
+    .hit-collage {
+      inset: -24px -40px -40px;
+    }
+    .hit-scrap[data-k="sage-l"] { top: 4%; height: 380px; }
+    .hit-scrap[data-k="grid-bl"] { top: auto; bottom: 0; height: 220px; }
+    .hit-scrap[data-k="grid-tr"] { height: 200px; }
+    .hit-scrap[data-k="kraft-br"] { top: 48%; height: 300px; }
+    .hit-sprig[data-k="tl"] { top: 4px; }
+    .hit-sprig[data-k="r6"] { left: auto; right: 0; top: 30%; }
+    .hit-stamp { left: auto; right: 2px; top: 0; }
+    .hit-postmark { left: auto; right: 0; top: auto; bottom: 0; }
+  }
+  @media (max-width: 900px) {
+    .hit-head {
+      grid-template-columns: 1fr;
+    }
+    .hit-lead {
+      justify-self: start;
+    }
+  }
+  @media (max-width: 640px) {
+    .hit-stages {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 16px;
+    }
+    .hit-h3 {
+      font-size: 24px;
+    }
+  }
+  @media (max-width: 440px) {
+    .hit-stages {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hit-pill {
+      transition: none;
+    }
+    .hit-pill:hover {
+      transform: none;
+    }
+  }
+}
+/* Utility-layer overrides: the DraftTag's `tracking-[.12em]` and the numeral's `font-hand` are
+   Tailwind utilities, which outrank @layer components — the compact tag and the serif italic
+   numeral have to win at the same layer. */
+@layer utilities {
+  .hit-draft.draft-tag {
+    letter-spacing: 0.06em;
+  }
+  .hit-num.font-hand {
+    font-family: var(--font-display);
+  }
+}
+/* end TKT-99 */
