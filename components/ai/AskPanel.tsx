@@ -18,7 +18,7 @@
  * Geometry (spec §2 / §22): fixed top/right/0, 100dvh, `clamp(400px, 32vw, 460px)` wide (460 at 1440),
  * and full-screen 100vw below 768. Motion (spec §3 / §24) is CSS keyed off `data-open`, which is
  * flipped one frame after `showModal()`. Opening is a 420 ms keyframe slide with a 4 px paper settle.
- * Closing is a 280 ms slide back to the right with no bounce, and the dialog closes after it ends.
+ * Closing sets `data-closing`: a 280 ms keyframe slide back to the right with no bounce, and the dialog closes after it ends.
  * Reduced motion appears and disappears in place.
  *
  * Body (spec §14 / §16): the header (flex-shrink 0), one independently scrolling region
@@ -63,6 +63,7 @@ export function AskPanel() {
     if (!dialog) return;
 
     if (panelOpen) {
+      dialog.removeAttribute("data-closing");
       if (!dialog.open) dialog.showModal();
       const frame = requestAnimationFrame(() => {
         dialog.setAttribute("data-open", "");
@@ -77,8 +78,17 @@ export function AskPanel() {
       dialog.close();
       return;
     }
-    const timer = setTimeout(() => dialog.close(), CLOSE_MS + 40); // + a frame or two so the slide completes
-    return () => clearTimeout(timer);
+    // Slide out to the right on its own keyframe (`data-closing`), then close once it has run.
+    dialog.setAttribute("data-closing", "");
+    const done = () => {
+      dialog.removeAttribute("data-closing");
+      if (dialog.open) dialog.close();
+    };
+    const timer = setTimeout(done, CLOSE_MS + 40); // + a frame or two so the slide completes
+    return () => {
+      clearTimeout(timer);
+      dialog.removeAttribute("data-closing");
+    };
   }, [panelOpen, reduced]);
 
   useEffect(() => {
