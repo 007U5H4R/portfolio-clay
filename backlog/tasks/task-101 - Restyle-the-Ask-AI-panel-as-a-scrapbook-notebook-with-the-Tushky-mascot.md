@@ -1,10 +1,10 @@
 ---
 id: TASK-101
 title: Restyle the Ask AI panel as a scrapbook notebook with the Tushky mascot
-status: Done
+status: In Progress
 assignee: []
 created_date: '2026-09-26 05:38'
-updated_date: '2026-09-26 08:17'
+updated_date: '2026-09-26 08:53'
 labels:
   - P1
   - M-009
@@ -26,4 +26,6 @@ Tushar 2026-09-26 supplied a target: torn notebook panel, 'Ask AI — Meet Tushk
 Tushar 2026-09-26: Tushky = the hero banner's golden retriever (generated badge job 6932218c…).
 
 TKT-104 merged (6e93630) + pushed (c352abd); ask-panel 16/16; unit 586 passed. Chip 'Compare experiences' relabelled 'Show my impact' (Dev-49) — pending Tushar's wording call.
+
+2026-09-26 round 2 (Tushar): redesign as a right-side 'Ask Tushky' drawer — full spec + reference in docs/redesign-mockups/m-009/tushar-2026-09-26/ask-tushky-drawer-{spec.md,target.png} on m009/tkt-104r2.
 <!-- SECTION:NOTES:END -->
