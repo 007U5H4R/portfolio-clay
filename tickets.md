@@ -1011,7 +1011,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 ### Phase 0 · Tracer — tokens · fonts · primitives · header · band · hero on `/` → baseline → Tushar's hero gate
 
 ### TKT-69 · Paper tokens + fonts: 13-token swap with a repo-wide codemod, Fraunces/Inter/Caveat via `next/font`, EVAL-020 test
-- **Backlog ID:** `TASK-64` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-64` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Parent / related:** — (tasks TSK-30…32 below) · **Dependencies:** none (Stage 6 `technical-plan.md` must exist before dispatch)
 - **Description:** Swap the 13 clay tokens for the 13 paper tokens **in one commit** (S12): `app/globals.css` `@theme` gets exactly the Design.md §2.1 names/OKLCH, the `color-mix` derived custom properties and the `body::before` grain; `scripts/tokens-check.ts` `AUTHORITATIVE` gets the 13 paper hexes; a codemod renames every retired token reference in `app/**`, `components/**`, `lib/**`, `tests/**` (`bg→paper`, `surface→ivory`, `lavender→paper-2`, `ink→navy`, `ink-2→navy-2`, `ink-3→ink-soft`, `accent→rust`, `accent-deep→terracotta`, `mint→forest`, `sky→green-2`, `blush→steel`, `peach→note`, `butter→kraft`, incl. Tailwind utilities like `bg-lavender/30`, `text-ink-3`, `tone-*`) so every legacy page keeps rendering and the gate stays 13/13 from the first commit. Fonts: `next/font/google` Fraunces (variable, `axes: ["opsz","SOFT"]`, 400–700), Inter 400/500/600, Caveat 400/600; `--font-display/--font-body/--font-hand` per §2.2; Manrope and `--font-manrope` removed. `tests/unit/eval-020.test.ts` wraps `tokens-check` + the greps (0 literals outside `globals.css` + `lib/og.tsx`, 0 retired names).
 - **Objective:** Make the palette and type system mechanical on day one so every later ticket inherits the gate instead of re-negotiating it; measure the font cost in the tracer.
@@ -1044,7 +1044,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Files likely affected:** `tests/unit/eval-020.test.ts`, `scripts/eval.ts` (only if the generic mapping needs a fix), `docs/eval.md`.
 
 ### TKT-70 · Paper primitives + the decoration contract (`data-decor` / `data-paper` / `data-fastener` / `data-flat` / `data-hand`) + EVAL-018 spec
-- **Backlog ID:** `TASK-65` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-65` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Parent / related:** — (tasks TSK-33…35 below) · **Dependencies:** TKT-69
 - **Description:** Build `components/paper/*` exactly as Design.md §3.1: `TornEdge` (44–46 px SVG, `data-decor="torn"`, first child of its section), `Sticky` (note/kraft, `data-decor="sticky"`, `aria-hidden`), `Annotation` (Caveat caption with optional arrow SVG, `data-decor="annotation"`, `aria-hidden`), `Sketch` (variants: `underline`, `spark`, `path`, `chain`, `flow`, `tools`, `arrow`; `data-decor="sketch"`; draw-in via `stroke-dashoffset`, complete under reduced motion), `Note` (`data-decor="note"`), `Tape`/`Pin` (`data-fastener`, ≤ 2 per host, rendered inside the host), free-standing `Tape` (`data-decor="tape"`), `Sheet` (`data-paper="card|index|postcard|notebook|photo|tag"`, rotation caps, `--shadow-paper`), `Illustration` (`data-illustration="<id>"`, renders `illustration(id).alt`, alt-as-caption on load error), `FlatZone` (`data-flat`), `Hand` (`data-hand="quote|cta|label"` with the §3.4 limits enforced at render in dev), `DraftTag`/`StatusBadge` on paper (`data-paper="tag"`, Inter). `Prose` wraps its children in `data-flat`. `/dev/primitives` re-boarded with every primitive + a count readout. `tests/e2e/eval-018.spec.ts` implements §3.2 (per-section counts at 390/1440, Caveat computed-font check, flat zones, `aria-hidden`) over every route in `tests/e2e/routes.json` + all slugs + 404; `EVAL-018` removed from `DEFERRED_SPECS`.
 - **Objective:** Make the anti-scrapbook guard (S15/EV5/D6) a component contract every page ticket inherits, and make it measurable before any page is built.
@@ -1077,7 +1077,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Files likely affected:** `tests/e2e/eval-018.spec.ts`, `tests/e2e/fixtures.ts`, `app/dev/primitives/page.tsx`, `scripts/eval-cases.ts` (`DEFERRED_SPECS`), `docs/eval.md`.
 
 ### TKT-71 · Header (no compaction, D12) + `MobileMenu` paper sheet + nav (D8 variant) + reading progress + `AskAIButton` ghost
-- **Backlog ID:** `TASK-66` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-66` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-69, TKT-70
 - **Description:** Restyle `Header` per Design.md §4.1: sticky one-height bar (`--header-bg` + 10 px blur, `data-scrolled` hairline after 8 px, `env(safe-area-inset-top)`), brand = 40×40 hand-drawn "TP" monogram SVG + two-line wordmark with the Caveat subline "Build · Learn · Solve · Grow" as the header's single `Annotation` (removed from the DOM < 640), serif nav (Fraunces 18, ink-stroke SVG underline on `aria-current`/hover, ≥ 44 px hit areas, hidden < 1024), "Let's connect →" navy pill (`data-hand="cta"`, hidden < 1024), 44 px menu button (`aria-expanded`/`aria-controls`) opening `MobileMenu` as the native `<dialog>` restyled to a full-width paper sheet (rows 56 px, then pill + résumé row, focus trap, `Esc`/backdrop, focus return); `AskAIButton` as a 44 px icon-only ghost after the nav / a row in the sheet (S21 default); reading-progress 3 px rust bar on `/work/[slug]`; `SkipLink` unchanged. **Delete** the rest→compact logic (`useScrollY` hysteresis, height animation, `NavPill` layout spring) with its tests. **D8 variant:** implement the nav from `lib/nav.ts`; ship with `Playground` added as the fifth item (proposed default) behind a single edit of `navItems` + the file's doc comment; if Tushar keeps four items, revert that one edit and TKT-72 adds a "Playground" band link instead so EVAL-011 reachability holds.
 - **Objective:** Global chrome that every route shares, with the F6-scar compaction code gone for good.
@@ -1089,7 +1089,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** D8 confirmation (non-blocking; default applied) · **Target sequence:** Phase 0 · **Owner:** Claude
 
 ### TKT-72 · `BandFooter` on every route (S16) + `hero.tagline` rendered (S18 regression test) + home `FinalCTA` removed
-- **Backlog ID:** `TASK-67` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-67` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-69, TKT-70
 - **Description:** Replace `components/layout/Footer.tsx` with `BandFooter` per Design.md §4.2 markup: `<footer class="band" aria-labelledby="band-h">` → `TornEdge` (terracotta) → body on terracotta + `--band-hatch`: eyebrow "Let's connect", h2 "Let's *build* / something people can use." (`em` in `note`, second line in **kraft** — Dev-13), hiring line Inter 18 `--on-band-muted` + the site `DraftTag` (copy DRAFT until Tushar signs it), Email row (`Tushar_Pathak@outlook.com` → `/contact`), Social row = LinkedIn · GitHub (only while `links.github` public — S5) · résumé (`resumeAction()`; placeholder state PB5), © bar "© 2026 Tushar Pathak. Built with curiosity, chai & Claude Code." · `hero.tagline` in Caveat 17 `note` as `data-hand="quote"` · "Bengaluru, India" behind a `site.showLocation` flag (default **false** until Tushar confirms — HANDOFF §6; flipping is one edit). `env(safe-area-inset-bottom)` padding; margin-top `clamp(48px, 6vw, 88px)`. Delete `components/home/FinalCTA.tsx` and its section on `/` (S16). **Regression test (S18):** `tests/unit/band-footer.test.tsx` asserts `hero.tagline.text` renders once, in the © bar, with `data-hand="quote"`; `tests/e2e/layout.spec.ts` asserts exactly one `<footer>` per route and its landmark/links.
 - **Objective:** One closing CTA on every page, with the previously unrendered tagline finally shown where the mockup places it.
@@ -1101,7 +1101,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** Tushar — "Bengaluru, India" confirmation (non-blocking, flag) · **Target sequence:** Phase 0 · **Owner:** Claude
 
 ### TKT-73 · Hero: illustration manifest + provenance + shipped assets, hero section + `HeroClip` (D10), EVAL-019/021 tests, hero motion system removed
-- **Backlog ID:** `TASK-68` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:8
+- **Backlog ID:** `TASK-68` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:8
 - **Parent / related:** — (tasks TSK-36…38 below) · **Dependencies:** TKT-69, TKT-70
 - **Description:** (a) Copy the shipped renditions from disk (`docs/redesign-mockups/m-009/README.md` paths) into `content/media/illustrations/` (six `scene-*.jpg`, `hero-desk` poster source, `reference/character-sheet-b.jpg`) and `public/media/illustrations/` (`hero-animation.webm` 176 kB, `hero-animation.mp4` 312 kB, `hero-poster.webp` 87 kB); author `content/media/illustrations/manifest.ts` with the nine entries and the **exact** alt strings of Design.md §6.3, and `README.md` with the §6.2 provenance columns; `tests/unit/eval-021.test.ts` (both-ways provenance, alt prefix, forbidden-strings over filenames + alts). (b) Rebuild the `/` hero per §5: copy column from `data/hero.ts` (eyebrow, h1 with the rust underline `Sketch` on "people can use.", hand-sub `Annotation`, support, CTAs "View my work →" / "Ask my portfolio" → `#ask`), `<figure data-illustration="hero-desk">` with the `next/image` poster (`priority`, `sizes`, alt from the manifest) and the `figcaption` annotation; `HeroClip` client component implementing §5.3 exactly (mode detection once, video mounted only in default mode, `play()` rejection/`error` → unmount, `ended` untouched, no `loop`); `tests/e2e/eval-019.spec.ts` (4 modes × 2 widths, attributes, `ended` ≤ 4 s, `currentTime` monotonic, asset caps) and `EVAL-019` removed from `DEFERRED_SPECS`. (c) Delete the hero motion system: `components/hero/{AvatarScene,AvatarStage,FloatingTiles,HeroActivationContext}.tsx`, `components/interactions/Parallax.tsx`, `hooks/usePointerParallax.ts`, `lib/heroMotion.ts`, `components/projects/ProductScene.tsx` (M-008), their tests (`Parallax.test.tsx`, `motion.test.tsx` hero cases, `avatar-edge.spec.ts`), and `site.avatarAlt`. `public/avatar/*`, `content/media/avatar/`, `scripts/avatar*.ts` stay until TKT-89 (the OG route still reads the avatar poster until TKT-78).
 - **Objective:** The tracer's riskiest slice: an illustrated hero + one-shot clip that is the LCP element, honest in every fallback mode, with the M-008 motion system's JS gone so EVAL-005 can be re-measured.
@@ -1135,7 +1135,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Files likely affected:** `components/hero/{AvatarScene,AvatarStage,FloatingTiles,HeroActivationContext}.tsx`, `components/interactions/Parallax.tsx`, `components/projects/ProductScene.tsx`, `hooks/usePointerParallax.ts`, `lib/heroMotion.ts`, `lib/site.ts` (`avatarAlt`), `tests/unit/{Parallax,motion}.test.tsx`, `tests/e2e/avatar-edge.spec.ts`, `tests/unit/site.test.ts`.
 
 ### TKT-74 · Phase-0 tracer: assembly on `/`, `pnpm eval --label baseline-m009-tracer`, Vercel preview, Tushar's hero gate (EVAL-022 sub-gate)
-- **Backlog ID:** `TASK-69` · **Type:** Task · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:2
+- **Backlog ID:** `TASK-69` · **Type:** Task · **Priority:** P0 · **Status:** In Progress (awaiting Tushar sign-off) · **Milestone:** M-009 · **Effort:** sp:2
 - **Dependencies:** TKT-71, TKT-72, TKT-73 (TKT-69/70 transitively)
 - **Description:** Assemble `/` as hero → (legacy Featured/How-I-think/Ask in paper colours) → band; screenshots at 390/768/1024/1440 → `docs/screenshots/m-009/tracer/`; run the full `pnpm eval --label baseline-m009-tracer` (EVAL-018/019/020/021 now real, EVAL-005 from `bundle-budget --json`) and persist `evals/results/baseline-m009-tracer.json` (EV6); deploy a Vercel **preview** of the branch; Lighthouse mobile + desktop on the preview (LCP element must be the hero poster, LCP ≤ 2.5 s); Fraunces-axes result recorded; present the hero to Tushar on the preview and record his written approval (or change list) as `decisions.md` EXE-n. Legacy-page EVAL-018 hits are parked with reasons and mapped to their Phase A–C tickets.
 - **Objective:** The human gate Solution-PRD §12.6.7 requires before any other page is built, on evidence from a real deployment.
@@ -1149,7 +1149,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 ### Phase A · Home complete + OG
 
 ### TKT-75 · Featured Work: three taped project cards (TeachSpark flow sketch, RailCite quote card, Nuptis → Velora) from data
-- **Backlog ID:** `TASK-70` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-70` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-74
 - **Description:** Rebuild `FeaturedWork` + `ProjectCard` (featured mode) per Design.md §7.1: `section#work-featured` on `paper-2` with `TornEdge`, head grid (h2 "Real problems. / Real products." + lead; the RailCite quote-card `Annotation` with dashed arrow), grid `1.35fr 1fr`: TeachSpark large card (`Sheet card`, tape left, kicker, h3, tagline, the flow `Sketch`, VERIFIED metrics row with `asOf`, "Read the case study →" `data-hand="cta"`, sticky "Capability, not dependency."), RailCite card (tape centre, metrics 5,760 / 0 invented citations in forest), Nuptis → Velora card (tape right; metrics only if VERIFIED rows exist — the mockup's "10/10 unit tests" is dropped, Dev-01); whole card = link with `aria-label`; hover lift preserving rotation. Decoration count = 4 (Dev-03: no h2 spark, no Velora sticky).
 - **Objective:** The three proof cards carry the VERIFIED numbers that left the hero tiles, in the approved paper form.
@@ -1161,7 +1161,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase A · **Owner:** Claude
 
 ### TKT-76 · How I think: six pinned stage cards over the journey path sketch (static, quotes always visible)
-- **Backlog ID:** `TASK-71` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-71` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-74
 - **Description:** Rebuild `HowIThink` per Design.md §7.1: `section#how-i-think` (`paper`, torn), head with eyebrow + h2 "A product journey, not a process." `[data]` + right-aligned lead; six `Sheet card`s pinned (alternating rotation, odd offset 28 px) over the dashed `path` `Sketch` (absolute, removed from the DOM ≤ 1024); card = Caveat numeral (`data-hand="label"`), h3 stage, principle (Inter, `DraftTag` when DRAFT), the VERIFIED example as `<blockquote data-hand="quote">` + `cite`, link pill "See how I tested this in {project}". No expand/roving-tabindex (deleted with tests). 3-up ≤ 1024, 2-up ≤ 640, 1-up ≤ 440.
 - **Objective:** The framework section in the approved journey form with every quote sourced and visible.
@@ -1172,7 +1172,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase A · **Owner:** Claude
 
 ### TKT-77 · Ask my portfolio as the notebook (inline) + `AskPanel` as a notebook drawer / bottom sheet (S21) — five states restyled, EVAL-012 unchanged
-- **Backlog ID:** `TASK-72` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-72` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-74
 - **Description:** Restyle `AskPortfolio`, `AnswerView`, `SuggestedPrompts`, `EvidenceLinks` per Design.md §7.1 (Ask): `section#ask` (`paper-2`, torn), left eyebrow/h2/lead from data, right the `Sheet notebook` (+0.5°) with the prompt `Annotation`, sr-only label, Inter 18 underline input, navy "Ask →" pill (`data-hand="cta"`), five data chips, and the five states on ruled paper: idle microcopy · **loading** two shimmer lines + sr-only status · **answer** h3 "Answer" + `DraftBadge` + text + evidence pills + "Ask another" · **empty** FALLBACK line + 3 fresh chips · **error** rust-bordered ivory panel + glyph + "Try again". `AskPanel` (kept, S21 default): same body as a notebook sheet in the existing drawer (≥ 768, 400/480 px) / 90 vh bottom sheet (< 768, D3) with a 20 % navy scrim; `AskPanelLazy` unchanged. Logic, adapter, provider, synonym table untouched (TP3).
 - **Objective:** Keep the deterministic Ask feature and its Critical evals intact while the surface becomes paper.
@@ -1183,7 +1183,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** S21 keep/drop (non-blocking; default keep) · **Target sequence:** Phase A · **Owner:** Claude
 
 ### TKT-78 · OG images re-skinned in the paper style (D11) — `lib/og.tsx`, static Fraunces/Inter/Caveat TTFs, hero poster PNG, EVAL-017 re-run
-- **Backlog ID:** `TASK-73` · **Type:** Feature · **Priority:** P1 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-73` · **Type:** Feature · **Priority:** P1 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-69, TKT-73 (poster asset) — does **not** wait for the TKT-74 gate
 - **Description:** Change only the template skin in `lib/og.tsx` per Design.md §9: paper canvas, terracotta torn strip, tape scrap, Inter 600 eyebrow with rust dot, Fraunces title (72 → 56 → 44 step-down kept), Inter subtitle, ivory/steel badge, "Tushar Pathak" footer, per-family Caveat caption; home + case-study families embed the hero poster (WebP → PNG via sharp, 520 px, ivory frame, −1.5°); other families text-only. Fonts: `assets/fonts/{Fraunces_144pt-Medium,Inter-Regular,Inter-SemiBold,Caveat-Regular}.ttf` (OFL, licence file kept), Manrope TTFs deleted. Hex copies of the palette live only here (EVAL-020 allow-list). Routes, sizes, copy (`content-brief.md` OG table), `buildMetadata()` untouched. `tests/unit/seo.test.ts` + `tests/e2e/eval-017.spec.ts` re-run; the manual inspector pass is TKT-91's.
 - **Objective:** No og:image carries the superseded identity (EVAL-017 M-009 failure condition).
@@ -1195,7 +1195,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase A (parallel with TKT-75–77) · **Owner:** Claude
 
 ### TKT-79 · Home assembly + Phase A gate: section order, `Reveal`, 5-second-test pack, `pnpm eval` on `/`
-- **Backlog ID:** `TASK-74` · **Type:** Task · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:2
+- **Backlog ID:** `TASK-74` · **Type:** Task · **Priority:** P0 · **Status:** In Progress (awaiting Tushar sign-off) · **Milestone:** M-009 · **Effort:** sp:2
 - **Dependencies:** TKT-75, TKT-76, TKT-77, TKT-78
 - **Description:** `app/page.tsx` = hero → Featured → How I think → Ask → band with the alternating `paper`/`paper-2` fills and torn edges; `Reveal` on sections; screenshots at four widths → `docs/screenshots/m-009/home/`; EVAL-001 5-second checklist scored at 390 and 1440 (Claude + Tushar, informational until Stage 8); `pnpm eval` full run diffed against `baseline-m009-tracer.json`; home mockup side-by-side pair captured for Stage 8; Tushar's Phase-A approval recorded; `HANDOFF.md` updated.
 - **Acceptance criteria:** (1) EVAL-018 on `/`: hero 3 · featured 4 · how-I-think 2 · ask 2 · header 1 · band 1; (2) EVAL-005 ≤ 180 kB gz still; (3) EVAL-001 6/6 elements present in the first viewport at both widths; (4) no Critical regression vs the tracer baseline; (5) approval recorded (EXE-n or a HANDOFF line quoting Tushar).
@@ -1206,7 +1206,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 ### Phase B · Work + case-study template (11 slugs) + Thinking/essay
 
 ### TKT-80 · `/work`: scene-bleed opener, serif filter tabs, numbered editorial index (`<ol>`), conditional `EmptyState` card (Dev-05), `<details>` experience strip
-- **Backlog ID:** `TASK-75` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-75` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Parent / related:** — (tasks TSK-39…41 below) · **Dependencies:** TKT-79
 - **Description:** Rebuild `/work` per Design.md §7.2: `WorkHero` = scene bleed `scene-work` (one `<img>` restyled per breakpoint — Dev-06; 4:3 masked photo < 1024) with eyebrow, oversized h1 "Work" + underline `Sketch`, lead from data, caption `Annotation`; index section (`paper-2`, torn, sr-only h2) with `FilterTabs` as ink-underlined Fraunces tabs (`role="tablist"`, `?filter=` sync unchanged — TP7), "start here ↓" annotation, `EditorialGrid` → numbered `<ol>` index (rank 1 flagship opener card cols 1–7 with giant rust numeral + tape, rank 2 opener cols 8–12 with the "trust is the product." sticky, ranks 3–11 slim rows `64px 1fr 240px 260px`; numerals re-sequence on filter change; status dot + text + `asOf`), `EmptyState` as the pinned index card rendered **only** when 0 rows (Dev-05); `ExperienceStrip` as three `<details name="job">` rows with the hand-drawn chevron, hidden when no row matches. Responsive rules per §7.2.
 - **Objective:** The project index in the approved editorial form with filters, URL sync and the corporate/product separation preserved.
@@ -1230,7 +1230,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Files likely affected:** `components/projects/ExperienceStrip.tsx`, `tests/e2e/work.spec.ts`, `tests/e2e/eval-007.spec.ts`.
 
 ### TKT-81 · Case-study template part 1: paper header (taped photo + "Hero media coming" tag), metric strip, overview folder tabs + notebook, thin-project degradation, next-project navy band — all 11 slugs
-- **Backlog ID:** `TASK-76` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-76` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Dependencies:** TKT-79
 - **Description:** Rebuild `CaseStudyHeader`, the metric strip, `OverviewToggle`, `NextProject` per Design.md §7.3: header grid `56fr 44fr` (crumb, h1, lead ≤ 44ch, Role/Duration + `StatusBadge` ivory pill), taped `Sheet photo` with `scene-casestudy` + the kraft "Hero media coming" `data-paper="tag"` (Inter 11 **navy** — Dev-13) + sub-line annotation + caption; when `hero.image`/`demoVideo` exists the frame shows it and the tag disappears (`DemoVideo` states inside the frame); metric strip (`paper-2`, torn-fill) with 3 pinned `Sheet index` metric cards (value Fraunces, kind badge **Inter**, `asOf`, `Source:`) + the "smaller, honest number" annotation only for ≥ 2 metrics, section omitted for 0–1; overview: eyebrow, annotation, `OverviewToggle` as folder tabs (`role="radiogroup"`), notebook with `thirtySecond` on ruled lines; thin projects: no toggle, "Deep dive coming" kraft tag with the status label; `NextProject` navy band (torn, kraft eyebrow, h2 `{name} →`, "next up" annotation, whole band a link, kraft focus ring). `generateStaticParams`/OG untouched.
 - **Objective:** A template that renders every one of the 11 projects honestly — rich or thin — in the paper form.
@@ -1241,7 +1241,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase B · **Owner:** Claude
 
 ### TKT-82 · Case-study template part 2: "What I learned" renders `learnings[]` (S18, regression test) + derived "Sources" section
-- **Backlog ID:** `TASK-77` · **Type:** Feature · **Priority:** P1 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-77` · **Type:** Feature · **Priority:** P1 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-81
 - **Description:** Two new sections per Design.md §7.3: `Learnings` (`section.learned`, `paper-2`, torn; grid `1fr 1.35fr`; notebook with a numbered list — Caveat numerals `data-hand="label"`, Inter 16 on 32 px lines; omitted when `learnings` is empty) and `Sources` (`section.sources`, dashed rule, h2 "Where every line on this page comes from", 2-column `<ol>` of the project's **unique** source labels derived from `metrics[].source` + artifact sources — public URL where one exists; no new content). **Regression test (S18):** `tests/unit/case-study-learnings.test.tsx` asserts every `learnings[]` string of a fixture renders once and the section is absent for `[]`; `tests/unit/case-study-sources.test.ts` asserts de-duplication and that every rendered label exists in the data.
 - **Objective:** Previously defined-but-unrendered data becomes visible, and provenance gets a page-level index, without adding a single new fact.
@@ -1252,7 +1252,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase B · **Owner:** Claude
 
 ### TKT-83 · Case-study deep dive: chapters with `data-flat` prose, `ChapterNav` (hidden < 1024, Dev-09), the 8 artifact paper forms (Dev-04), `ShowTheThinking` chain
-- **Backlog ID:** `TASK-78` · **Type:** Feature · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:8
+- **Backlog ID:** `TASK-78` · **Type:** Feature · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:8
 - **Parent / related:** — (tasks TSK-42…44 below) · **Dependencies:** TKT-81
 - **Description:** Per Design.md §7.3 (Deep dive): `section#deep` grid `200px 1fr`, sticky `ChapterNav` (Fraunces 16, Caveat numerals `data-hand="label"`, ink underline on `aria-current`; **not rendered < 1024**); chapters as nested `<section class="chapter">` (h2 with Caveat numeral label, `Prose` **`data-flat`** ≤ 68ch, artifact cluster ±0.6°); artifact forms, all `data-paper`: `insight` hand pull-quote (`blockquote data-hand="quote"` + cite + Source), `hypothesis` note card with Caveat labels and **Inter** text + status pill, `metric` pinned ruled index card, `decision` ivory card with Chosen/Rejected labels, `evaluation` paper-2 `dl` with Caveat `dt`, `experiment` Setup/Result/Learning, `prototype` taped 16:9 frame (image/video/alt-as-caption), `generic` kraft doc tag; `ShowTheThinking` nested section: sr-only h2, "Show the thinking ↓" button (`aria-expanded`), annotation "the chain, start to finish", dashed chain `Sketch`, 42 px medallions with Caveat numerals, pinned Inter label tags, text ≤ 60ch, source links; nodes in the DOM collapsed, 120 ms stagger reveal, never auto-plays, all-at-once under reduced motion. `/dev/artifacts` and `/dev/thinking` boards restyled.
 - **Objective:** The evidence layer in paper, with the flat reading zones that keep a case study from reading as a scrapbook.
@@ -1275,7 +1275,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Files likely affected:** `components/interactions/{ShowTheThinking,ThinkingNode}.tsx`, `app/dev/thinking/page.tsx`, `tests/unit/thinking-motion.test.ts`, `tests/e2e/eval-007.spec.ts`, `tests/e2e/eval-010.spec.ts`.
 
 ### TKT-84 · `/thinking` opener + essays ruled sheet (Dev-02 empty-state line) and `/thinking/[slug]` essay page — double "Draft — pending sign-off:" prefix fixed (S18, regression test); quiet-close dropped (D9)
-- **Backlog ID:** `TASK-79` · **Type:** Feature · **Priority:** P1 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-79` · **Type:** Feature · **Priority:** P1 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Dependencies:** TKT-79
 - **Description:** Per Design.md §7.5–7.6: `ThinkingHero` grid `52fr 48fr` (eyebrow, oversized h1 "Thinking" + underline sketch, hand-sub annotation, taped `scene-thinking` photo with caption); essays section (`paper-2`, torn): visible h2 **"Essays"** with the underline sketch, the Inter empty-state line "Essays in progress — five drafts, none published yet." while 0 essays are published (Dev-02), sticky "start here ↓", margin annotation rendered **only ≥ 1320** (removed from the DOM below), the `Sheet notebook` with 5 entry rows (Caveat numeral label, h3 link, dek, meta with reading time · related project · `DraftTag`). Essay page: `article` grid `minmax(0,68ch) minmax(220px,1fr)`, crumb "← Thinking" (`data-hand="cta"`), header (eyebrow "Essay · nn", h1, dek, meta with **one** `DraftTag`), `.prose` **`data-flat`** with each passage as `blockquote.pull data-hand="quote"` + Inter cite and the framing paragraph in Inter — **`EssayBody` stops prefixing "Draft — pending sign-off: "** so the data's own prefix renders once; pager; margin aside (`aria-label="Pinned to the margin"`) with the pinned 5:4 photo + one generic sticky. The mockup's "quiet close" section is **not built** (D9 default; if Tushar keeps it, a follow-up ticket adds it with 2 decorations). **Regression test (S18):** `tests/unit/writing.test.ts` + `tests/e2e/thinking.spec.ts` assert the string "Draft — pending sign-off:" occurs exactly once per essay page.
 - **Objective:** The editorial voice in paper with the DRAFT status stated once, honestly.
@@ -1286,7 +1286,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** D9 confirmation (non-blocking; default drop) · **Target sequence:** Phase B · **Owner:** Claude
 
 ### TKT-85 · Phase B gate: 11 slugs + 5 essays at 390/1440, `pnpm eval`, one rich + one thin mockup pair
-- **Backlog ID:** `TASK-80` · **Type:** Task · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:2
+- **Backlog ID:** `TASK-80` · **Type:** Task · **Priority:** P0 · **Status:** In Progress (awaiting Tushar sign-off) · **Milestone:** M-009 · **Effort:** sp:2
 - **Dependencies:** TKT-80, TKT-82, TKT-83, TKT-84
 - **Description:** Playwright screenshot sweep of `/work`, all 11 `/work/[slug]`, `/thinking`, all 5 essays at the four widths → `docs/screenshots/m-009/phase-b/`; full `pnpm eval` diffed against the tracer baseline (EVAL-018 must be green on every Phase 0–B route; remaining parked hits only on `/about`, `/playground`, `/contact`, 404); side-by-side pairs for `work.html`, `case-study.html` (teachspark + one thin slug), `thinking.html`, `essay.html` captured for Stage 8; Tushar's Phase-B approval recorded; `HANDOFF.md` updated.
 - **Acceptance criteria:** (1) 0 overflow, 0 sub-44 px controls, axe 0 critical/serious across the sweep; (2) EVAL-018 green on every Phase B route; (3) no Critical regression vs baseline; (4) EVAL-005 on `/work/teachspark` recorded; (5) approval recorded.
@@ -1297,7 +1297,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 ### Phase C · About · Playground · Contact · 404
 
 ### TKT-86 · `/about` part 1: scene-bleed hero + stats card + pull-quote note (Dev-10), product journey path, capability notebooks, impact index cards
-- **Backlog ID:** `TASK-81` · **Type:** Feature · **Priority:** P1 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-81` · **Type:** Feature · **Priority:** P1 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Dependencies:** TKT-85
 - **Description:** Per Design.md §7.4: `AboutHero` = `scene-about` bleed (`clamp(520px, 62vw, 860px)`, masks) with the copy in the sky (eyebrow, three-line h1 + `DraftTag`, hand-sub annotation `aria-hidden` — Dev-10), the taped stats card (10+ / 3 / ∞, explanatory line in Inter 13), caption annotation, pull-quote on a pinned `Sheet index` (`blockquote data-hand="quote"` + `DraftTag`); `ProductJourney` = 4 pinned year cards over the path sketch + "start here ↘" annotation (both removed from the DOM < 900), closing line as Fraunces lead + `DraftTag`; `CapabilityClusters` = 4 `Sheet notebook`s on a 12-col grid with hand-drawn ticks; `Impact` = tier 1 eight pinned ruled index cards (kind badge **Inter** + asOf + Source), tier 2 résumé groups with Inter labels, sticky "dated, labelled, never rounded up." (DC2 tiers preserved).
 - **Objective:** The person and the proof of level, in paper, with every number still dated and labelled.
@@ -1308,7 +1308,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase C · **Owner:** Claude
 
 ### TKT-87 · `/about` part 2: experience timeline always-open (Dev-11) with the lead fixed (S18, regression test), awards · research · education, page-foot CTA, assembly
-- **Backlog ID:** `TASK-82` · **Type:** Feature · **Priority:** P1 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-82` · **Type:** Feature · **Priority:** P1 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Dependencies:** TKT-86
 - **Description:** Per Design.md §7.4: `ExperienceTimeline` = vertical dashed rail (`220px 1fr`), sticky company node (Fraunces 24, Inter tabular dates), `StoryCard` as `Sheet card` with the `dl` in **`data-flat`** (Context/Role/Scale/What changed/Outcomes with kind badges, "not recorded" Inter italic, Source), **all four roles rendered open** with `id="experience-{id}"` anchors preserved (Dev-11; the click-to-open + URL-hash logic and its tests are removed); lead **fixed** to "Four roles, oldest to newest — open any node for the context, scale, and what changed." (S18); `Awards` as 3 kraft-eyelet tags, `Research` patent card with the "TP" stamp note + papers list ("DOI pending" as an Inter `Tag`), `Education` on a kraft rule + Inter languages line; `section#about-cta` (h2 "Let's build what's next.", "Let's talk", `resumeAction()`, colophon TP10 wording); `/about` assembled hero → journey → capabilities → impact → experience → proof → CTA → band. **Regression test (S18):** `tests/unit/experience-skills.test.ts` asserts the lead string and that the rendered order is oldest → newest matching the data.
 - **Objective:** Close the About page with the timeline honest about its order and keyboard-trivial.
@@ -1319,7 +1319,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase C · **Owner:** Claude
 
 ### TKT-88 · `/playground` bench (Dev-07) · `/contact` opener + postcard + `CopyButton` states · 404 with the tools sketch
-- **Backlog ID:** `TASK-83` · **Type:** Feature · **Priority:** P1 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-83` · **Type:** Feature · **Priority:** P1 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Parent / related:** — (tasks TSK-45…47 below) · **Dependencies:** TKT-85
 - **Description:** Three small pages per Design.md §7.7, §7.8, §4.3. **Playground:** opener (eyebrow, h1 + underline sketch, "go poke at it" annotation with arrow, wide masked `scene-playground` with the caption chip), bench board (`paper-2`, torn; h2 eyebrow + annotation; four cards on the 12-col board — lined index card / kraft label / pinned card / wide taped card — Caveat numeral label, h3, tagline, live link with external icon + sr-only "(opens in new tab)" + `rel="noopener"`; **no tone line, no Caveat notebook sheet** — Dev-07; tools `Sketch` bottom-right). The mockup's quiet close is not built (D9). **Contact:** opener grid `44fr 56fr` with the taped `scene-contact` portrait + caption + the sticky "No form here…", copy column (eyebrow, h1 "Still curious?", annotation, actions `<ul>` with Caveat numerals: address + `CopyButton` idle/copied/error states with the selectable `<output>` fallback and sr-only live region · "Email me →" mailto · "LinkedIn ↗" · `#resume` row with `resumeAction()` + visible note), location line "Bengaluru, India" (already on this page today — unchanged); details section (`paper-2`, torn; annotation + arrow sketch; `Sheet postcard` with the stamp chrome, rows email/linkedin/github/from, Caveat labels `data-hand="label"`, Inter values). **404:** one `paper` section — eyebrow "Lost?", h1 "This page wandered off.", lead, "Back home" / "See the work" / "Get in touch", the tools sketch reused; band follows.
 - **Objective:** Close the funnel's remaining routes in paper with their screen states and PII rules intact.
@@ -1344,7 +1344,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 ### Phase D · Dead-code removal · redesign QA · record run · deviations · PWA sync · hand-off
 
 ### TKT-89 · Dead-code removal (S11): clay primitives + tiers, aurora/glow, avatar system + assets + scripts, Manrope, `Footer`, codemod script
-- **Backlog ID:** `TASK-84` · **Type:** Chore · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-84` · **Type:** Chore · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-78, TKT-87, TKT-88 (every consumer migrated)
 - **Description:** Delete-only diff: `components/clay/*` + `tiers.ts` + `tests/unit/{clay,ClayButton,ClayCard,ClayPrimitives,tiers}.test.tsx` + `tests/e2e/primitives.spec.ts` (replaced by the paper board tests); the M-008 aurora/glow layer (CSS + any `Aurora` component); `public/avatar/*`, `content/media/avatar/`, `scripts/{avatar,avatar-poses}.ts` + `media:avatar`/`media:poses` package scripts + `public/avatar/avatar-blur.txt`; `components/layout/Footer.tsx`, `components/navigation/NavPill.tsx`, `components/hero/{Annotation}.tsx` (replaced by `paper/Annotation`), `scripts/codemod-tokens.ts`; `DESIGN_DIRECTION.md` replaced by a one-paragraph "superseded by Design.md (S11)" stub; `COMPONENT_ARCHITECTURE.md` §1 updated to the paper tree; `docs/eval.md` current. Then `pnpm typecheck && pnpm lint && pnpm test && pnpm build`, `pnpm tokens:check`, `bundle-budget --json`, `pnpm audit`.
 - **Objective:** Nothing of the clay or M-008 visual layer survives in the tree, so EVAL-020's "0 retired names" and EVAL-005 hold on the real code, not on tree-shaking luck.
@@ -1355,7 +1355,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase D · **Owner:** Claude
 
 ### TKT-90 · Redesign QA sweep: responsive · a11y · reduced motion · EVAL-018/019/020/021 · contrast · mockup-pair screenshot pack for Stage 8
-- **Backlog ID:** `TASK-85` · **Type:** Task · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:5
+- **Backlog ID:** `TASK-85` · **Type:** Task · **Priority:** P0 · **Status:** Done · **Milestone:** M-009 · **Effort:** sp:5
 - **Dependencies:** TKT-89
 - **Description:** Every route (sitemap + 11 slugs + 5 essays + 404) at 390/768/1024/1440: overflow, ≥ 44 px targets, ≥ 12 px text (EXE-7 micro-label rule), intrinsic image sizes, axe at 390 & 1440, keyboard scripts (nav + sheet, tabs, `details`, folder tabs, Ask inline + panel, Show the thinking, `CopyButton`, band links), reduced-motion run (every §8 row collapses; hero poster only), token-pair contrast check of every pair actually used (§2.1 table), EVAL-018 full sweep 0/0/0/0, EVAL-019 4/4, EVAL-020, EVAL-021 automated + the **manual per-asset checklist** drafted (`evals/results/eval-021-<sha>.md`: depicts no metric/logo/UI/claim) for Stage 8 to confirm; the Stage-8 screenshot pack `docs/screenshots/m-009/<route>/<width>.png` **plus** mockup pairs (`docs/redesign-mockups/m-009/*.html` rendered at 1440/390 beside the built route) for EVAL-022; fixes as small commits or `QA-###` rows with reasons.
 - **Acceptance criteria:** (1) 0 overflow, 0 sub-44 px controls, 0 sub-12 px text across routes × widths; (2) axe 0 critical/serious everywhere incl. 404; (3) 100 % of the keyboard flows completable with visible focus (2 px rust, 3 px offset); (4) EVAL-018/019/020/021 green in one `pnpm eval` run; (5) screenshot + mockup-pair packs committed; (6) defects fixed or `QA-###` logged; (7) VoiceOver notes for `/`, `/work/teachspark`, `/about` appended to `docs/a11y-pass.md`.
@@ -1364,7 +1364,7 @@ Conventions as §0, plus: **Paper DoD** = Base DoD + `[ ] Decoration counts matc
 - **Blockers:** none · **Target sequence:** Phase D · **Owner:** Claude (QA-tester subagent, separate from implementers)
 
 ### TKT-91 · Hand-off to Stages 8–10: preview record run (`eval-run-m009-rc-<sha>.json`), OG inspector pass, `Design.md` §11 current, PWA sync, HANDOFF
-- **Backlog ID:** `TASK-86` · **Type:** Task · **Priority:** P0 · **Status:** Planned · **Milestone:** M-009 · **Effort:** sp:3
+- **Backlog ID:** `TASK-86` · **Type:** Task · **Priority:** P0 · **Status:** In Progress · **Milestone:** M-009 · **Effort:** sp:3
 - **Dependencies:** TKT-90
 - **Description:** Deploy the branch preview; run the complete `pnpm eval` against the preview URL and persist `evals/results/eval-run-m009-rc-<sha>.json` with provenance (commit, branch, environment = preview, dataset v1.1.0, `bundle-budget --json` number, Lighthouse LCP element); repeat the manual EVAL-017 pass (LinkedIn Post Inspector + opengraph.xyz, 7 families, screenshots → `docs/og/m-009/`); reconcile `Design.md` §11 with every deviation found in Phases 0–D (dispositions recorded; Tushar's pending rows resolved or still marked pending); update `tickets.md` statuses, `milestones.md` M-009 status, Campfire (milestone, tickets, tasks, `sp:`), `HANDOFF.md` (Stage 8 inputs: pack paths, open `QA-###`, parked EVAL hits, the eval-021 checklist), Obsidian + auto-memory mirrors; present the Session-Clearing block.
 - **Acceptance criteria:** (1) every Critical EVAL PASS and no High unaddressed or explicitly parked with a reason (evaluation-plan §6 + §8.4); (2) EVAL-005 ≤ 180 kB gz from `bundle-budget --json` on the record run; LCP element = hero poster on the preview; (3) 7/7 OG families render on both inspectors in the paper skin; (4) `Design.md` §11 has a row for every deviation the packs show; (5) `git diff main..HEAD --stat` reviewed — only intended files; (6) PWA synchronized (statuses, `sp:`, dependencies); (7) HANDOFF names exactly what Stage 8 must open.
@@ -1434,11 +1434,18 @@ Phase D   {78, 87, 88} → 89 → 90 → 91
 **S18 regression tests (TC- rows at Stage 6):** `hero.tagline` in the band © bar (TKT-72) · `learnings[]` "What I learned" (TKT-82) · single "Draft — pending sign-off:" prefix (TKT-84) · About timeline lead wording + oldest → newest order (TKT-87).
 
 ### Added in Stage 7 (2026-09-25) — hero-gate change request (EXE-15/16/17)
-| Ticket | Backlog | Type · Priority · sp | Depends on | Summary |
-|---|---|---|---|---|
-| TKT-93 | `TASK-87` | Feature · P0 · 5 | TKT-73 | Hero banner restyle — full-bleed 21:9 outpainted scene, torn edge, centred copy, taped polaroids, postmark stamp, masked clip (Design §11 Dev-21/23) |
-| TKT-94 | `TASK-89` | Feature · P2 · 2 | — | Lenis smooth scroll site-wide, guarded (Dev-22) |
-| TKT-92 | `TASK-88` | Bug · P0 · 3 | TKT-93, TKT-94 | Perf — preview mobile LCP ≤ 2.5 s, perf ≥ 90 on `/` and `/work/teachspark`; thresholds unchanged (EXE-17) |
+| Ticket | Backlog | Type · Priority · sp | Depends on | Status | Summary |
+|---|---|---|---|---|---|
+| TKT-93 | `TASK-87` | Feature · P0 · 5 | TKT-73 | Done | Hero banner restyle — full-bleed 21:9 outpainted scene, torn edge, centred copy, taped polaroids, postmark stamp, masked clip (Design §11 Dev-21/23) |
+| TKT-94 | `TASK-89` | Feature · P2 · 2 | — | Done | Lenis smooth scroll site-wide, guarded (Dev-22) |
+| TKT-92 | `TASK-88` | Bug · P0 · 3 | TKT-93, TKT-94 | In Progress (round 3: desktop `/` CLS 0.054 > 0.05, font-swap shift of h1) | Perf — preview mobile LCP ≤ 2.5 s, perf ≥ 90 on `/` and `/work/teachspark`; thresholds unchanged (EXE-17) |
 TKT-74 (`TASK-69`) now also depends on TKT-93 and TKT-92; the hero gate is re-presented after them. Related TC: TC-139…142 (hero, updated for the banner), TC-145 (perf); Lenis → TC-130/133 regression + EVAL-007/010/015.
-| TKT-95 | `TASK-90` | Feature · P1 · 3 | TKT-93 | Page scene openers pulled forward — six scenes as full-bleed banners + torn edge on /work, /work/[slug], /thinking(+essays), /about, /playground, /contact (EXE-18, Dev-24); TKT-92 now also depends on it |
+| TKT-95 | `TASK-90` | Feature · P1 · 3 | TKT-93 | Done | Page scene openers pulled forward — six scenes as full-bleed banners + torn edge on /work, /work/[slug], /thinking(+essays), /about, /playground, /contact (EXE-18, Dev-24); TKT-92 now also depends on it |
+
+### Added in Stage 7 (2026-09-26) — Tushar direction + hardening (post-RC `809e326`)
+| Ticket | Backlog | Type · Priority · sp | Depends on | Status | Summary |
+|---|---|---|---|---|---|
+| TKT-96 | `TASK-91` | Feature · P1 · — | TKT-93, TKT-95 | In Progress | Full home banner scene + paper-over-image parallax (Tushar direction, 2026-09-26) |
+| TKT-97 | `TASK-92` | Chore · P1 · — | TKT-88 | In Progress | `CopyButton` test hardening + legacy leftovers cleanup |
+| TKT-98 | `TASK-93` | Task · P1 · — | TKT-91 | In Progress | OG preview verification (LinkedIn Post Inspector + opengraph.xyz) |
 
