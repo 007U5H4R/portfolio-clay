@@ -65,3 +65,29 @@ Same pixels, same alt (the `<img>` element is unchanged); no new picture content
 
 Filed separately at `evals/results/eval-021-<sha>.md` once Stage 8 runs: confirms per asset that it
 depicts no metric, logo, product UI or claim (S20).
+
+## Shared collage pieces — `/about` product journey (public, decorative — TKT-100)
+
+Cropped (PIL, alpha kept, near-transparent noise < 16 zeroed) from the two transparent Higgsfield
+sprite sheets generated 2026-09-26 (Tushar approved the spend: "use higgsfield to generate the
+image, I will topup if required"; `gpt_image_2_5`, medium, 1k, 0.5 credits each, style reference
+media `09b0c111-e66d-4ddf-a1bb-f0375f907d2c` = `hero-desk`; no new spend by this ticket). Shipped from
+`public/media/illustrations/` as WebP (alpha, q82 unless noted); decorative only (`alt=""` inside the
+`aria-hidden` `data-decor="collage"` layer of `components/timeline/JourneyCollage.tsx`), so no manifest
+entry. Names follow the shared `collage-<piece>.webp` rule; the four files marked *TKT-102* are
+byte-identical copies of that branch's exports so they collapse at merge (if TKT-102 merges first,
+drop the duplicate rows here).
+
+| file | sprite sheet · job id | piece | size | used on |
+|---|---|---|---|---|
+| `collage-scrap-sage.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn sage scrap (*TKT-102*) | 280×290 | `/about` |
+| `collage-scrap-kraft.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn kraft scrap (*TKT-102*) | 280×327 | `/about` |
+| `collage-scrap-rust.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn rust scrap | 280×282 | `/about` |
+| `collage-scrap-grid.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn grid-paper scrap | 280×313 | `/about` |
+| `collage-stamp.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | leaf postage stamp (no text) | 180×224 | `/about` |
+| `collage-postmark.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | round postmark + wavy cancellation (no text) | 220×142 | `/about` |
+| `collage-leaf-1.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | leaf sprig (*TKT-102*) | 120×366 | `/about` |
+| `collage-leaf-2.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | second leaf sprig | 150×390 | `/about` |
+| `collage-fern.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | fern (*TKT-102*) | 120×303 | `/about` |
+| `collage-babys-breath-1.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | baby's-breath sprig (q44 to stay ≈ 26 kB) | 170×416 | `/about` |
+| `collage-wildflower.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | golden wildflower | 120×420 | `/about` |
