@@ -90,15 +90,18 @@ test("hero banner illustration is visible, alt-sourced from the manifest, and re
 // S14/D10 (TSK-37) — the paper hero's two CTAs are present with the correct targets. Replaces the
 // old M-008 proof-tile offset-ladder assertion (the tile stack was deleted at TSK-38).
 // ---------------------------------------------------------------------------
-test("hero CTAs are present and target /work and #ask", async ({ page }) => {
+// TKT-108 (Tushar 2026-09-26): the primary targets `/projects` (TKT-101's route) and the secondary is
+// "Ask Tushky", still `#ask`, described by its "My AI portfolio assistant" caption.
+test("hero CTAs are present and target /projects and #ask", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   const primary = page.getByRole("link", { name: "View my work →" });
   await expect(primary).toBeVisible();
-  await expect(primary).toHaveAttribute("href", "/work");
+  await expect(primary).toHaveAttribute("href", "/projects");
 
-  const secondary = page.getByRole("link", { name: "Ask my portfolio" });
+  const secondary = page.getByRole("link", { name: "Ask Tushky" });
   await expect(secondary).toBeVisible();
   await expect(secondary).toHaveAttribute("href", "#ask");
+  await expect(secondary).toHaveAccessibleDescription("My AI portfolio assistant");
 });
 
 // ---------------------------------------------------------------------------

@@ -6517,3 +6517,318 @@ html.lenis body {
   }
 }
 /* end TKT-99 */
+/* TKT-108 · home hero copy block rebuilt to Tushar's reference (2026-09-26, "change the hero section to
+   this" — docs/redesign-mockups/m-009/tushar-2026-09-26/hero-copy-target.png; Design.md §7.1, §11
+   Dev-50). The banner above is unchanged. Overrides the TKT-93 `.hero-*` copy rules and the TKT-92r3
+   eyebrow / h1 box rules (both earlier in this file, same layer — this block wins by order):
+   - Font-swap CLS scar (TKT-92r3): the eyebrow and h1 boxes now stretch to the container (width no
+     longer depends on the font), and ≥ 768 the h1 breaks at the reference's three lines (each
+     `.hero-h1-line` is a block), so neither the line count nor the box moves on swap. Below 768 the h1
+     wraps naturally inside the full-width box; the re-fitted `Fraunces Hero Fallback` keeps the wraps.
+   - `.hero-margin` is ONE counted `collage` object (marginalia + faint backdrop). Its pieces are
+     absolutely positioned against the sheet (no layout effect); patches / leaf / grid / loop ≥ 768,
+     the two Caveat notes ≥ 1024. Very low contrast: colour-mix on paper tokens only (EVAL-020).
+   - CTAs: Fraunces pills (rust primary, ivory secondary) ≥ 44 px; the secondary keeps `#ask`. */
+@layer components {
+  .hero-sheet {
+    isolation: isolate;
+  }
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    gap: 0;
+    padding-block: clamp(36px, 5.4vw, 80px) clamp(72px, 8.4vw, 124px);
+  }
+  .hero-eyebrow {
+    justify-self: stretch;
+    max-width: none;
+    font-size: var(--text-caption);
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    color: var(--color-navy);
+    text-wrap: balance;
+  }
+  @media (max-width: 639px) {
+    .hero-eyebrow {
+      letter-spacing: 0.16em;
+    }
+  }
+  .hero-h1 {
+    justify-self: stretch;
+    max-width: none;
+    margin-top: clamp(20px, 3vw, 44px);
+    font-size: clamp(34px, 5.6vw, 80px);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  /* ≥ 768 each reference line is a shrink-to-fit centred block (so the underline host is the last
+     line's own width); below 768 they stay inline and wrap. */
+  @media (min-width: 768px) {
+    .hero-h1-line {
+      display: block;
+      width: fit-content;
+      margin-inline: auto;
+    }
+  }
+  /* The rust underline runs a touch past the last line (reference); the two accent strokes up to its
+     right are CSS on the same host — part of the one h1 underline sketch object (§3.2). */
+  .hero-h1 .underline-host .sketch {
+    left: -1%;
+    right: auto;
+    bottom: -0.16em;
+    width: 102%;
+    height: 0.3em;
+  }
+  .hero-h1 .underline-host::after {
+    content: none;
+    position: absolute;
+    top: -0.4em;
+    right: -1.25em;
+    width: 0.62em;
+    height: 0.62em;
+    background: var(--color-rust);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cg fill='none' stroke='black' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M24 4 C 20 14, 14 24, 6 32'/%3E%3Cpath d='M46 22 C 38 28, 30 34, 18 42'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cg fill='none' stroke='black' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M24 4 C 20 14, 14 24, 6 32'/%3E%3Cpath d='M46 22 C 38 28, 30 34, 18 42'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  @media (min-width: 768px) {
+    .hero-h1 .underline-host::after {
+      content: "";
+    }
+  }
+  .hero-hand-sub {
+    margin-top: clamp(22px, 3vw, 44px);
+    text-wrap: balance;
+    color: var(--color-navy);
+    transform-origin: center;
+  }
+  .hero-hand-sub[data-size="hero"] {
+    font-size: clamp(24px, 2.4vw, 34px);
+  }
+  .hero-hand-mark {
+    position: relative;
+    display: inline-block;
+  }
+  .hero-hand-mark::after {
+    content: "";
+    position: absolute;
+    left: -2%;
+    bottom: -0.2em;
+    width: 150%;
+    height: 0.22em;
+    background: color-mix(in oklab, var(--color-navy) 38%, transparent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 50 3, 120 2, 198 5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 50 3, 120 2, 198 5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  }
+  .hero-support {
+    max-width: 40em;
+    margin-top: clamp(18px, 2.4vw, 34px);
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.65;
+    color: var(--color-navy-2);
+  }
+
+  /* CTAs */
+  .hero-cta-row {
+    align-items: flex-start;
+    gap: clamp(14px, 2.4vw, 36px);
+    margin-top: clamp(22px, 2.8vw, 40px);
+  }
+  .hero-copy .hero-btn {
+    justify-content: center;
+    min-height: 52px;
+    padding: 14px 30px;
+    font-family: var(--font-display);
+    font-size: clamp(19px, 1.7vw, 24px);
+    font-weight: 500;
+    font-variation-settings: "opsz" 36;
+  }
+  @media (min-width: 1024px) {
+    .hero-copy .hero-btn {
+      min-height: 64px;
+      padding: 16px 40px;
+    }
+  }
+  .hero-copy .hero-btn-primary {
+    box-shadow: 0 14px 24px -14px color-mix(in oklab, var(--color-rust) 85%, transparent);
+  }
+  .hero-copy .hero-btn-secondary {
+    background: var(--color-ivory);
+    border: 1.5px solid var(--line-strong);
+    box-shadow: var(--shadow-paper);
+  }
+  .hero-btn-spark {
+    font-size: 0.8em;
+    line-height: 1;
+  }
+  .hero-ask {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+  .hero-ask-cap {
+    font-size: 13px;
+    line-height: 1.2;
+    color: var(--color-navy-2);
+  }
+  .hero-tushky {
+    display: none;
+    position: absolute;
+    top: -6px;
+    left: calc(100% + 12px);
+    width: 64px;
+    pointer-events: none;
+  }
+  .hero-tushky-img {
+    display: block;
+    width: 64px;
+    height: 64px;
+    rotate: 6deg;
+  }
+  .hero-tushky-arrow {
+    position: absolute;
+    top: 58px;
+    left: -26px;
+    width: 34px;
+    height: 23px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-navy-2);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media (min-width: 640px) {
+    .hero-tushky {
+      display: block;
+    }
+  }
+
+  /* --- the one collage: marginalia + faint backdrop --- */
+  .hero-margin {
+    position: absolute;
+    inset: 44px 0 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-margin > * {
+    position: absolute;
+    display: none;
+  }
+  .hero-margin-patch {
+    background: color-mix(in oklab, var(--color-paper-2) 70%, var(--color-paper));
+  }
+  .hero-margin-patch[data-patch="tl"] {
+    top: -10px;
+    left: -30px;
+    width: clamp(180px, 18vw, 290px);
+    height: 190px;
+    rotate: -4deg;
+    clip-path: polygon(0 0, 100% 0, 96% 12%, 99% 28%, 92% 44%, 95% 58%, 84% 72%, 70% 78%, 52% 88%, 34% 86%, 18% 96%, 0 100%);
+  }
+  .hero-margin-patch[data-patch="h1"] {
+    top: clamp(90px, 10vw, 150px);
+    left: calc(50% - clamp(300px, 34vw, 500px));
+    width: clamp(200px, 20vw, 300px);
+    height: clamp(180px, 18vw, 270px);
+    rotate: 3deg;
+    background: color-mix(in oklab, var(--color-paper-2) 45%, var(--color-paper));
+    clip-path: polygon(4% 8%, 22% 0, 40% 6%, 62% 2%, 80% 10%, 100% 6%, 96% 30%, 100% 52%, 92% 74%, 96% 94%, 72% 100%, 50% 94%, 28% 100%, 8% 92%, 0 70%, 6% 48%, 0 26%);
+  }
+  .hero-margin-grid[data-patch="br"] {
+    right: -20px;
+    bottom: -20px;
+    width: clamp(200px, 20vw, 300px);
+    height: clamp(220px, 22vw, 320px);
+    rotate: -6deg;
+    background:
+      linear-gradient(var(--rule-blue-card) 1px, transparent 1px) 0 0 / 16px 16px,
+      linear-gradient(90deg, var(--rule-blue-card) 1px, transparent 1px) 0 0 / 16px 16px,
+      color-mix(in oklab, var(--color-paper-2) 60%, var(--color-paper));
+    clip-path: polygon(10% 4%, 30% 0, 52% 6%, 74% 0, 100% 4%, 100% 100%, 0 100%, 4% 80%, 0 58%, 6% 36%, 2% 18%);
+  }
+  .hero-margin-leaf {
+    left: -24px;
+    bottom: -30px;
+    width: clamp(140px, 15vw, 220px);
+    rotate: 24deg;
+    fill: color-mix(in oklab, var(--color-navy) 5%, transparent);
+    stroke: none;
+  }
+  .hero-margin-leaf path:first-child {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy) 6%, transparent);
+    stroke-width: 4;
+  }
+  .hero-margin-loop {
+    top: -6px;
+    right: clamp(30px, 5vw, 90px);
+    width: clamp(90px, 9vw, 130px);
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy) 22%, transparent);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+  }
+  @media (min-width: 768px) {
+    .hero-margin-patch,
+    .hero-margin-leaf,
+    .hero-margin-loop {
+      display: block;
+    }
+  }
+  .hero-margin-note {
+    margin: 0;
+    font-size: clamp(19px, 1.6vw, 23px);
+    line-height: 1.05;
+    color: var(--color-ink-soft);
+  }
+  .hero-margin-note[data-note="why"] {
+    top: clamp(170px, 18vw, 260px);
+    right: calc(50% + clamp(330px, 32vw, 470px));
+    rotate: -12deg;
+    text-align: left;
+  }
+  .hero-margin-arrow {
+    position: absolute;
+    top: 0.2em;
+    left: calc(100% - 0.6em);
+    width: 62px;
+    height: 31px;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hero-margin-note[data-note="flow"] {
+    left: 50%;
+    bottom: clamp(20px, 2.6vw, 40px);
+    translate: -50% 0;
+    rotate: -1.5deg;
+    padding-bottom: 6px;
+    white-space: nowrap;
+    background: linear-gradient(color-mix(in oklab, var(--color-navy) 22%, transparent), color-mix(in oklab, var(--color-navy) 22%, transparent)) 50% 100% / 118% 1px no-repeat;
+  }
+  @media (min-width: 1024px) {
+    .hero-margin-note {
+      display: block;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .hero-cta-row {
+      gap: 12px;
+    }
+    .hero-copy .hero-btn {
+      padding-inline: 20px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-copy .hero-btn {
+      transition: none;
+    }
+  }
+}
+/* end TKT-108 */

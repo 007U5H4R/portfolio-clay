@@ -65,3 +65,17 @@ Same pixels, same alt (the `<img>` element is unchanged); no new picture content
 
 Filed separately at `evals/results/eval-021-<sha>.md` once Stage 8 runs: confirms per asset that it
 depicts no metric, logo, product UI or claim (S20).
+
+### TKT-108 · Tushky head sticker (hero "Ask Tushky" CTA)
+
+A decorative sticker, not a manifest illustration (it carries no scene and no alt text — `alt=""`,
+`aria-hidden`, lazy, 64 px CSS next to the hero's secondary CTA). Provenance, same columns as the table
+above:
+
+| id | file | kind | model | reference media ids | prompt summary | generated | credits spent | used on | sha256 |
+|---|---|---|---|---|---|---|---|---|---|
+| `tushky-head` (sticker, no manifest entry) | `public/media/illustrations/tushky-head.webp` | sticker | `gpt_image_2_5` (Higgsfield, medium, 1k, transparent) | reference `902a0281-2459-45a7-9cea-09eaab3e7581` (= crop of `hero-banner.webp`, the sleeping golden retriever); job `36837247-25de-4830-8f58-c069b00d2188` | Tushky — the banner's golden retriever — as a small die-cut head sticker (cream border, no text) | 2026-09-26 | 0.5 (Tushar-approved Higgsfield spend, 2026-09-26) | `/` | `0fbc24a2a26b5f873f68342fd8b2473c1febc4c4227706e0ee3a50289a4625a8` |
+
+Encoded with PIL from the 1024×1024 RGBA master (`/Volumes/E Drive/Dev/.scratch/m009/hf/tushky-dog-head.png`):
+alpha < 48 → 0 (drops the faint generation halo), cropped to the alpha bbox, centred on a square
+transparent canvas, Lanczos → 128×128 (2× the 64 px display), `WEBP quality 85, method 6`, **7,932 bytes**.
