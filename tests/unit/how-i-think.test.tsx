@@ -11,7 +11,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
@@ -165,6 +165,16 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     expect((el.textContent ?? "").trim()).toBe("");
     // it sits behind the cards, inside the journey, never inside a card
     expect(el.closest('[data-paper]')).toBeNull();
+    // round 2: every piece is a lazy, alt="" crop from public/media/illustrations/collage-*.webp
+    const imgs = Array.from(el.querySelectorAll("img"));
+    expect(imgs.length).toBeGreaterThan(0);
+    for (const img of imgs) {
+      expect(img.getAttribute("alt")).toBe("");
+      expect(img.getAttribute("loading")).toBe("lazy");
+      const src = img.getAttribute("src") ?? "";
+      expect(src).toMatch(/^\/media\/illustrations\/collage-[a-z0-9-]+\.webp$/);
+      expect(existsSync(join(process.cwd(), "public", src)), src).toBe(true);
+    }
   });
 
   it("gives each card its own torn edge, a compact two-line DraftTag and an arrow CTA (TKT-99)", () => {
@@ -175,6 +185,9 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     expect(new Set(rims).size).toBe(6);
     for (const card of cards) {
       expect(card.querySelector(".hit-paper")?.getAttribute("aria-hidden")).toBe("true");
+      // round 2: the navy ink outline follows the same torn outline as the rim
+      const ink = card.querySelector(".hit-paper-ink") as HTMLElement | null;
+      expect(ink?.style.clipPath).toBe((card.querySelector(".hit-paper-rim") as HTMLElement).style.clipPath);
       const tag = card.querySelector('[data-paper="tag"]');
       expect(tag?.textContent).toBe("Draft — pending sign-off");
       expect(tag?.hasAttribute("data-micro-label")).toBe(true);
