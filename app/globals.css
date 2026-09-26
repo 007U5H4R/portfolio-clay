@@ -6215,3 +6215,22 @@ html.lenis body {
   }
 }
 /* end TKT-92r3 */
+/* TKT-103 · page scene openers show the whole scene (Tushar 2026-09-26: "in all the tabs, I want the full
+   image, dont crop it out or zoom out"; Design.md §11 Dev-40). Every `SceneOpener` banner is the scene at
+   full width — box height = the box's own width ÷ the scene's ratio (`--scene-ar`, set per scene by
+   SceneBanner), at every width, so the canvas equals the box and nothing is cropped or letterboxed. The
+   opener is an inline-size container so `100cqw` is its width (a classic scrollbar never makes the box
+   taller than the canvas) — the same mechanism as the TKT-96 home banner. The 3:2 / 4:3 scenes are
+   ≈ 800–1075 px tall at 1440 (the page copy starts below the fold; the TKT-96 parallax slides the paper
+   over them) and ≈ 260–290 px at 390. The home banner keeps its < 768 4:3 crop (a whole 21:9 scene at
+   390 would be ≈ 165 px tall). */
+@layer components {
+  .scene-opener {
+    container-type: inline-size;
+  }
+  .scene-opener .scene-banner,
+  .scene-opener .scene-banner--focal-y {
+    --banner-h: calc(100cqw / (var(--scene-ar, 3 / 2)));
+  }
+}
+/* end TKT-103 */
