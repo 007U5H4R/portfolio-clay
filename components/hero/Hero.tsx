@@ -43,19 +43,19 @@ const BANNER_NARROW = {
 } as const;
 
 /**
- * Three taped polaroids down the banner's left edge (Dev-21): crops of existing scenes, decorative
- * (`alt=""`, group `aria-hidden` — Dev-23), rotations inside the photo cap (±2.4°, Design.md §3.1).
- * Their job is to cover the outpaint's garbled corkboard (the banner's top-left ~21 % × 45 %): the first
- * two sit side by side across it (the first tucked under the header's edge, its tape on the right so
- * the visible fastener is not under the header), the third tucks under the paper's torn edge at the
- * bottom-left. They belong to the image layer, so the paper sheet scrolls over them (TKT-96);
- * positions live in app/globals.css `.hero-polaroid:nth-child(n)`. Mounted ≥ 768 only (`MediaGate`,
- * TP14) — below that the 4:3 crop already removes the corkboard and they would cover the character.
+ * Three taped polaroids pinned onto the banner's blank papers (Dev-21, Dev-80 — Tushar 2026-09-26,
+ * TKT-111): crops of existing scenes, decorative (`alt=""`, group `aria-hidden` — Dev-23), rotations
+ * inside the photo cap (±2.4°, Design.md §3.1). One per blank paper, in this order: the tall cream
+ * sheet left of the character, the square yellow note top-right, the large cream sheet right; the
+ * mountain photo and the (now clean, TKT-105) corkboard stay bare. They belong to the image layer, so
+ * the paper sheet scrolls over them (TKT-96); positions live in app/globals.css
+ * `.hero-polaroid:nth-child(n)` in banner-canvas units. Mounted ≥ 768 only (`MediaGate`, TP14) — below
+ * that the 4:3 crop cuts the right-hand papers and they would crowd the character.
  */
 const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
-  { id: "scene-work", rotate: -2.4, tape: "r" },
-  { id: "scene-about", rotate: 1.8, tape: "c" },
-  { id: "scene-playground", rotate: -1.2, tape: "l" },
+  { id: "scene-about", rotate: -1.6, tape: "c" },
+  { id: "scene-playground", rotate: 2, tape: "c" },
+  { id: "scene-work", rotate: -1.2, tape: "c" },
 ];
 
 /**
@@ -86,7 +86,7 @@ export function Hero() {
             {POLAROIDS.map((polaroid) => (
               <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
                 <Tape side={polaroid.tape} />
-                <Image src={sceneImage(polaroid.id)} alt="" sizes="18vw" className="hero-polaroid-img" />
+                <Image src={sceneImage(polaroid.id)} alt="" sizes="11vw" className="hero-polaroid-img" />
               </Sheet>
             ))}
           </div>

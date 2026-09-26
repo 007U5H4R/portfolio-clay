@@ -150,30 +150,56 @@ test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async (
 });
 
 /**
- * Polaroid placement scar (Tushar 2026-09-26: "the polaroid image is overlapping the journey flow"). The
- * upper polaroids must cover the outpaint's corkboard (its garbled notes, EVAL-021 flag; frame ends at
- * ≈ 21.5 % of the scene width, notes to ≈ 39.5 % of its height) without reaching the "Problem → … → Impact"
- * note, which starts at ≈ 24 %. Measured at rest (scroll 0) on the unrotated layout boxes' rendered rects.
+ * Polaroid placement (TKT-111, Dev-80 — Tushar 2026-09-26: "move polaroids to blank canvases behind").
+ * Replaces the TKT-98 corkboard guard: the corkboard is clean since TKT-105, so the rule is now that each
+ * polaroid lies inside its blank paper's box (measured on hero-banner.webp, in 3168×1344 canvas px, ± a
+ * small margin for the tilt), and none overlaps the character's face or the book titles. Measured at
+ * rest (scroll 0) on the rendered (rotated) rects, as fractions of the banner box.
  */
-test("hero polaroids cover the corkboard and stay clear of the journey note", async ({ page }) => {
+test("hero polaroids sit on the banner's blank papers, clear of the face and the book titles", async ({ page }) => {
   test.skip(width(page) < 768, "the polaroids are the ≥ 768 banner layout");
+  const W = 3168;
+  const H = 1344;
+  const box = (x0: number, x1: number, y0: number, y1: number) => ({ l: x0 / W, r: x1 / W, t: y0 / H, b: y1 / H });
+  const papers = [
+    { name: "tall cream sheet", ...box(765, 1165, 60, 665) },
+    { name: "yellow note", ...box(2058, 2368, 58, 335) },
+    { name: "large cream sheet", ...box(2382, 2745, 100, 495) },
+  ];
+  const keepClear = [
+    { name: "character's face", ...box(1400, 1730, 170, 610) },
+    { name: "book titles", ...box(430, 910, 940, 1260) },
+  ];
+  const tol = { x: 4 / W, y: 8 / H };
   const widths = width(page) === 1440 ? [1024, 1440, 1920] : [width(page)];
   for (const w of widths) {
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto("/", { waitUntil: "load" });
     await scrollToY(page, 0);
-    const m = await page.evaluate(() => {
+    const rects = await page.evaluate(() => {
       const banner = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
-      const [p1, p2] = [...document.querySelectorAll(".hero-polaroid")].map((el) => el.getBoundingClientRect());
-      return {
-        right: (Math.max(p1!.right, p2!.right) - banner.left) / banner.width,
-        bottom: (Math.min(p1!.bottom, p2!.bottom) - banner.top) / banner.height,
-      };
+      return [...document.querySelectorAll(".hero-polaroid")].map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          l: (r.left - banner.left) / banner.width,
+          r: (r.right - banner.left) / banner.width,
+          t: (r.top - banner.top) / banner.height,
+          b: (r.bottom - banner.top) / banner.height,
+        };
+      });
     });
-    expect(m.right, `w${w}: upper polaroids end at ${(m.right * 100).toFixed(1)} % (journey note starts ≈ 24 %)`).toBeLessThanOrEqual(0.235);
-    expect(m.right, `w${w}: upper polaroids reach the corkboard's right-hand notes (≈ 20.4 %)`).toBeGreaterThanOrEqual(0.2);
-    // The lowest notes ("Team projects", "Croamg-probro") end at ≈ 39.5 % of the scene height; below is
-    // bare cork, then the frame (≈ 45 %) — neither carries text.
-    expect(m.bottom, `w${w}: upper polaroids cover the corkboard's lowest notes (≈ 39.5 %)`).toBeGreaterThanOrEqual(0.4);
+    expect(rects, `w${w}: one polaroid per blank paper`).toHaveLength(papers.length);
+    rects.forEach((p, i) => {
+      const paper = papers[i]!;
+      const at = `w${w}: polaroid ${i + 1} [${(p.l * 100).toFixed(1)}–${(p.r * 100).toFixed(1)} % × ${(p.t * 100).toFixed(1)}–${(p.b * 100).toFixed(1)} %]`;
+      expect(p.l, `${at} starts inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.l - tol.x);
+      expect(p.r, `${at} ends inside the ${paper.name}`).toBeLessThanOrEqual(paper.r + tol.x);
+      expect(p.t, `${at} tops inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.t - tol.y);
+      expect(p.b, `${at} bottoms inside the ${paper.name}`).toBeLessThanOrEqual(paper.b + tol.y);
+      for (const zone of keepClear) {
+        const overlaps = p.l < zone.r && p.r > zone.l && p.t < zone.b && p.b > zone.t;
+        expect(overlaps, `${at} overlaps the ${zone.name}`).toBe(false);
+      }
+    });
   }
 });

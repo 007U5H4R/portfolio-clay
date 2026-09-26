@@ -819,8 +819,8 @@ body::before {
    Dev-23; decision EXE-15; supersedes the TSK-37 §5.1 two-column grid — §5.2–5.4 modes/lifecycle are
    unchanged). Order: `SceneBanner` (the 3168×1344 outpaint, the LCP `<img>`) with the once-and-hold
    clip in a slot registered on the banner's pixel grid and masked to the character → `TornEdge`
-   (paper) as the banner's bottom edge → three taped polaroids down the left (they cover the outpaint's
-   garbled corkboard) + a postmark top-right → the centred copy block (eyebrow, Fraunces h1 + rust
+   (paper) as the banner's bottom edge → three taped polaroids pinned onto the scene's blank papers
+   (TKT-111) + a postmark top-right → the centred copy block (eyebrow, Fraunces h1 + rust
    underline, Caveat hand line, support, CTAs). `.scene-banner*` is the reusable banner (TKT-95 uses it
    on every page); `.hero-*` is home-only. Registration percentages arrive as `--clip-*` inline vars
    from components/hero/registration.ts (one source); the mask is an alpha PNG (see
@@ -924,8 +924,7 @@ body::before {
   /* --- Banner furniture: torn bottom edge, polaroids, postmark --- */
   .hero-banner {
     position: relative;
-    /* The first polaroid runs off the left edge (it covers the corkboard's corner): clip that axis only,
-       so the third polaroid's overhang below the torn edge stays visible and nothing widens the page. */
+    /* Clip the horizontal axis only, so nothing in the image layer ever widens the page. */
     overflow-x: clip;
   }
   /* The torn edge is the paper sheet's top edge (TKT-96): the sheet overlaps the banner's bottom by the
@@ -940,34 +939,43 @@ body::before {
     z-index: 3;
     pointer-events: none;
   }
-  /* The outpaint's corkboard is the banner's top-left ~21 % × 45 %: two polaroids side by side across
-     it (the first tucked under the header's edge, the second over its right column) and a smaller third
-     at the bottom-left tucked under the paper's torn edge, clear of the desk's books. Widths scale with
-     the banner (TKT-96: the box is the whole scene, 42.4 vw tall, no cap), so the upper two keep
-     covering the corkboard's lowest notes (≈ 39.5 % of the scene height) at every width ≥ 768. */
-  /* Horizontal limit (Tushar 2026-09-26): the corkboard's frame ends at ≈ 21.5 % of the scene width and
-     the "Problem → … → Impact" note starts at ≈ 24 %, so the second polaroid ends by ≈ 21.7 % (4 % +
-     17.5 vw, or 136 px at 768) and never overlaps the journey note. */
+  /* TKT-111 (Dev-80, Tushar 2026-09-26): each polaroid is pinned onto one of the banner's blank papers,
+     inside it with a margin. Everything is in banner-canvas pixels (`--cpx` = one of the 3168 px of the
+     scene; ≥ 768 the box IS the whole canvas and `.hero-banner` is an inline-size container — TKT-96),
+     so the photos track their papers at every width. Measured paper boxes on hero-banner.webp
+     (x0–x1 × y0–y1): tall cream 765–1165 × 60–665, yellow note 2058–2368 × 58–335, large cream
+     2382–2745 × 100–495. A polaroid is W wide and W + 12 tall (12 / 12 / 36 padding, square photo). */
   .hero-polaroid {
+    --cpx: calc(100cqw / 3168);
     position: absolute;
-    width: max(136px, 17.5vw);
-    padding: 12px 12px 30px;
+    top: calc(var(--y) * var(--cpx));
+    left: calc(var(--x) * var(--cpx));
+    width: calc(var(--w) * var(--cpx));
+    padding: calc(12 * var(--cpx)) calc(12 * var(--cpx)) calc(36 * var(--cpx));
   }
+  .hero-polaroid .paper-tape {
+    top: calc(-14 * var(--cpx));
+    width: calc(var(--w) * 0.34 * var(--cpx));
+    height: calc(30 * var(--cpx));
+  }
+  /* tall cream sheet: 340 wide, x 795–1135, y 145–497 (below the sheet's own tape) */
   .hero-polaroid:nth-child(1) {
-    top: -1.5%;
-    left: -1.5%;
+    --x: 795;
+    --y: 145;
+    --w: 340;
   }
+  /* yellow note: 210 wide, x 2103–2313, y 92–314 */
   .hero-polaroid:nth-child(2) {
-    top: 2%;
-    left: 4%;
+    --x: 2103;
+    --y: 92;
+    --w: 210;
   }
+  /* large cream sheet: 290 wide, x 2418–2708, y 150–452 */
   .hero-polaroid:nth-child(3) {
-    bottom: 0;
-    left: 2%;
-    width: max(120px, 11vw);
+    --x: 2418;
+    --y: 150;
+    --w: 290;
   }
-  /* Square instant-photo crops: tall enough that the two upper polaroids reach the corkboard's bottom
-     edge (≈ 45 % of the banner) at every width ≥ 768 — a 4:3 crop left its lower notes showing. */
   .hero-polaroid-img {
     display: block;
     width: 100%;
