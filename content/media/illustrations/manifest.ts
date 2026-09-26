@@ -14,7 +14,7 @@
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "character-sheet-b" | "tushky" | "tushky-avatar";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -146,5 +146,20 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 64,
     alt: "Tushky, the golden retriever portfolio assistant (chat avatar)",
     usedOn: ["Ask panel (every route)"],
+  },
+  {
+    // TKT-113 (Design.md §11 Dev-67): the Home "Ask Tushky" launcher's mascot — the same bandana
+    // retriever, chest up, both front paws resting on the lower edge (spec §5). The drawer's 231×280
+    // head-and-shoulders crop has no paws and is too small for ~280 px on 2x screens, so this is a new
+    // Higgsfield `gpt_image_2_5` generation (job cb694791-…, reference = the `tushky` source job
+    // 20288256-…, 0.5 cr, Tushar-approved spend). 403×560 WebP with alpha (280 px tall at 2x).
+    id: "tushky-paws",
+    kind: "mascot",
+    file: "",
+    publicSrc: "/media/illustrations/tushky-paws.webp",
+    width: 403,
+    height: 560,
+    alt: "Tushky, the golden retriever portfolio assistant, resting his paws on the page in a navy bandana lettered Tushky",
+    usedOn: ["/"],
   },
 ];

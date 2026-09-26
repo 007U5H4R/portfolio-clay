@@ -156,9 +156,10 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "scene-work",
         "tushky",
         "tushky-avatar",
+        "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(12);
+    expect(ILLUSTRATIONS.length).toBe(13);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -186,6 +187,19 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(bytes.length).toBeLessThanOrEqual(5_000);
     expect(createHash("sha256").update(bytes).digest("hex")).toBe(
       "a68ded28f7f0053349fea16be1ee775df2bee627db83941c624dbcf39a2cf167",
+    );
+  });
+
+  it("tushky-paws is the 403×560 Home launcher mascot, ≤ 60 kB, used on / (TKT-113, Dev-67)", () => {
+    const paws = ILLUSTRATIONS.find((e) => e.id === "tushky-paws")!;
+    expect(paws.kind).toBe("mascot");
+    expect(paws.publicSrc).toBe("/media/illustrations/tushky-paws.webp");
+    expect([paws.width, paws.height]).toEqual([403, 560]);
+    expect(paws.usedOn).toEqual(["/"]);
+    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "tushky-paws.webp"));
+    expect(bytes.length).toBeLessThanOrEqual(60_000);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      "c53acabcff5beb5ce52a390b579138a8ceadd5fa3f03e6e2f058f0bca9f23dc4",
     );
   });
 

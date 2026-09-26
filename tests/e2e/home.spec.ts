@@ -226,7 +226,8 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
     "section#hero-copy": 4,
     "section#work-featured": 4,
     "section#how-i-think": mobile ? 2 : 3,
-    "section#ask": 2,
+    // TKT-113 (Dev-69): torn · collage backdrop · "That's Tushky!" annotation · sticky.
+    "section#ask": 4,
     footer: 1,
   });
   expect(result.violations).toEqual([]);
