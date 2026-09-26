@@ -78,7 +78,8 @@ test("header keeps one height across scroll; data-scrolled only toggles the hair
 
 // ---------------------------------------------------------------------------
 // TC-131 (TKT-71 AC 3, AC 4, D8) — the subline annotation is gated by width (TP14 MediaGate), the
-// nav is hidden < 1024 with five items and an aria-current underline ≥ 1024, every control ≥ 44 px.
+// nav is hidden < 1024 with six items (TKT-101: Work → Experience + Projects) and an aria-current
+// underline ≥ 1024, every control ≥ 44 px.
 // ---------------------------------------------------------------------------
 test("header subline annotation is absent from the DOM < 640 and present + aria-hidden ≥ 640", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
@@ -101,12 +102,15 @@ test("header subline annotation is absent from the DOM < 640 and present + aria-
   }
 });
 
-test("primary nav: five items (D8), hidden < 1024, aria-current draws the underline on /work", async ({ page }) => {
+test("primary nav: six items (D8 + TKT-101), hidden < 1024, aria-current draws the underline on /work", async ({ page }) => {
   await page.goto("/work", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const links = nav.locator("a");
-  await expect(links).toHaveCount(5);
-  await expect(links.nth(4)).toHaveAttribute("href", "/playground");
+  await expect(links).toHaveCount(6);
+  await expect(links).toHaveText(["Home", "Experience", "Projects", "Thinking", "About", "Playground"]);
+  await expect(links.nth(1)).toHaveAttribute("href", "/work");
+  await expect(links.nth(2)).toHaveAttribute("href", "/projects");
+  await expect(links.nth(5)).toHaveAttribute("href", "/playground");
   if (width(page) < 1024) {
     await expect(nav).toBeHidden();
     await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
@@ -116,7 +120,7 @@ test("primary nav: five items (D8), hidden < 1024, aria-current draws the underl
   await expect(nav).toBeVisible();
   await expect(page.getByRole("button", { name: "Open menu" })).toBeHidden();
   const active = nav.locator('a[aria-current="page"]');
-  await expect(active).toHaveText("Work");
+  await expect(active).toHaveText("Experience");
   await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
   await expect(nav.locator('a[href="/"] svg.ink-underline')).toHaveCSS("opacity", "0");
   const font = await active.evaluate((el) => getComputedStyle(el).fontFamily);
@@ -144,7 +148,7 @@ test("every visible header control is at least 44×44", async ({ page }) => {
 });
 
 // ---------------------------------------------------------------------------
-// QA-010 regression (TKT-71 fix round 1) — at the lg collapse point five Fraunces-18 nav items + the
+// QA-010 regression (TKT-71 fix round 1) — at the lg collapse point six (TKT-101) Fraunces-18 nav items + the
 // pill + the Ask ghost must fit: at 1024 (w1024 project), 1280 (w1440 project resized) and 1440
 // (w1440 project) no two header controls' boxes intersect, none leaves the header row, no control
 // overflows its own box (the grid was squeezing the brand's nowrap subline), and adjacent controls
@@ -160,7 +164,7 @@ for (const target of [1024, 1280, 1440]) {
     else test.skip(w !== 1440, `${target} runs in the w1440 project`);
     if (target === 1280) await page.setViewportSize({ width: 1280, height: 900 });
 
-    for (const route of ["/", "/work", "/about"]) {
+    for (const route of ["/", "/work", "/projects", "/about"]) {
       await page.goto(route, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready);
       const report = await page.evaluate(() => {
@@ -221,7 +225,7 @@ for (const target of [1024, 1280, 1440]) {
         return { count: boxes.length, overlaps, outside, squeezed, minGap };
       });
       const where = `${route} @ ${target}`;
-      expect(report.count, `${where}: brand + 5 nav + pill + Ask visible`).toBe(8);
+      expect(report.count, `${where}: brand + 6 nav (TKT-101) + pill + Ask visible`).toBe(9);
       expect(report.overlaps, `${where}: overlapping header controls`).toEqual([]);
       expect(report.outside, `${where}: controls outside the header`).toEqual([]);
       expect(report.squeezed, `${where}: a control squeezed below its content`).toEqual([]);

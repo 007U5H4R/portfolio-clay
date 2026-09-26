@@ -35,6 +35,7 @@ const EXPECTED_SITEMAP_COUNT =
 const ROUTES = [
   "/",
   "/work",
+  "/projects", // TKT-101: the project index (the "Selected Work" card); /work is now Experience
   "/work/teachspark",
   "/about",
   "/thinking",

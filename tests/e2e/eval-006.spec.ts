@@ -69,7 +69,7 @@ for (const route of PUBLIC_ROUTES) {
     test.skip(width(page) !== 1440, "heading-order is a document-structure check — run once per route");
     // QA-004 (TKT-48 follow-up): `/work` previously skipped h1→h3 (page h1 followed directly by the
     // ProjectCard h3s, no intervening h2). Fixed by adding an sr-only "Personal builds" h2 heading
-    // the personal-builds region in app/work/page.tsx, so this route is now enforced like every
+    // the personal-builds region in app/work/page.tsx (now app/projects/page.tsx, TKT-101), so this route is now enforced like every
     // other. (Was a tracked `test.fixme` from the CF-3 batch; see docs/reports/carry-forwards.md.)
     await page.goto(route, { waitUntil: "load" });
     const slug = route.startsWith("/work/") ? route.slice("/work/".length) : undefined;

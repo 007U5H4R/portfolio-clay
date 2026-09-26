@@ -10,7 +10,8 @@ import { writing } from "@/data/writing";
  * missing until the M-006 phase-gate sweep added it.) (`lib/anchors.ts`'s broader `STATIC_ROUTES`
  * is a *link-validation* set for authored copy, not a "page exists" set, so it isn't reused here.)
  */
-export const STATIC_ROUTES = ["/", "/work", "/about", "/thinking", "/playground", "/contact"] as const;
+// TKT-101: `/projects` (the project index, moved from `/work`); `/work` is now the Experience page.
+export const STATIC_ROUTES = ["/", "/work", "/projects", "/about", "/thinking", "/playground", "/contact"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();

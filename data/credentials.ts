@@ -122,9 +122,15 @@ export const researchDisclaimer =
 export interface EducationEntry {
   id: string;
   degree: string;
+  /** "<institution>, <city>" as the résumé prints it — `/work` splits the city off at the last comma. */
   institution: string;
   year: string;
   source: string;
+  /**
+   * Optional card bullets for the `/work` Education timeline (TKT-101). Empty until Tushar supplies
+   * sourced wording — the reference image's bullets are not in the résumé (docs/reports/TKT-101.md).
+   */
+  highlights?: string[];
 }
 
 // source: CONTENT_INVENTORY §4.8 (RESUME Education)

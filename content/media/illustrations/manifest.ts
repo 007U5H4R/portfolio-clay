@@ -63,7 +63,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 2048,
     height: 1360,
     alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below.",
-    usedOn: ["/work", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
+    usedOn: ["/projects", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
     id: "scene-casestudy",

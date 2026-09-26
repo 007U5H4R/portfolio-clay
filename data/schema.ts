@@ -110,6 +110,7 @@ export const Project = z.object({
 export const Outcome = z.object({ text: z.string().min(8), kind: z.enum(['measured','self-reported']), source: z.string().min(2) });
 export const Experience = z.object({
   id: Slug, company: z.string().min(2), companyNote: z.string().optional(),  // 'via IntraEdge'
+  location: z.string().min(2).optional(),                                     // city only (CONTENT_INVENTORY §4.5); rendered on /work (TKT-101)
   title: z.string().min(2), dates: z.object({ start: YearMonth, end: YearMonth.optional() }),
   context: z.string().min(20), responsibility: z.string().min(20),
   scale: z.union([z.string().min(10), z.literal('not recorded')]),           // MISSING renders 'Scale: not recorded' (TKT-41 AC 1)

@@ -39,6 +39,7 @@ const SHOT_ROOT = "docs/screenshots/m-009";
 
 export const SWEEP_ROUTES: readonly string[] = [
   "/work",
+  "/projects", // TKT-101: the project index moved here; /work is the Experience page
   ...ALL_PROJECT_SLUGS.map((slug) => `/work/${slug}`),
   "/thinking",
   ...writing.map((essay) => `/thinking/${essay.slug}`),

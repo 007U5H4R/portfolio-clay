@@ -161,7 +161,7 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   ["inkSoft", "ivory", "text", ".work-metric-asof", "card asOf, metric labels"],
   ["inkSoft", "note", "text", "src:components/case-study/artifacts/SourceCaption.tsx", "artifact source caption on the hypothesis sticky, 12 px (4.52 — thinnest margin on the site)"],
   ["green2", "paper", "text", ".job-tags", "experience-strip tags (12 px micro)"],
-  ["green2", "paper2", "text", ".work-tags", "/work index kickers/tags (12 px micro)"],
+  ["green2", "paper2", "text", ".work-tags", "/projects index kickers/tags (12 px micro; moved from /work, TKT-101)"],
   ["green2", "ivory", "text", ".work-kicker", "featured card kicker, story dl dt"],
   ["forest", "paper", "text", ".aj-range", "about journey ranges (12 px)"],
   ["forest", "paper2", "text", ".artifact-eval dt", "evaluation labels (Dev-29; steel failed at 3.59)"],
@@ -177,7 +177,7 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   ["rust", "paper", "text", ".node-src", "thinking-node source link, 13 px / 600 (TKT-83)"],
   ["rust", "ivory", "text", ".work-card-cta", "work-card CTA and kicker status on the card sheet"],
   // Rust on paper-2 only as LARGE text (4.3:1 fails 4.5)
-  ["rust", "paper2", "large", ".work-num", "/work row numerals at 24 px (TKT-80)"],
+  ["rust", "paper2", "large", ".work-num", "/projects row numerals at 24 px (TKT-80; moved from /work, TKT-101)"],
   ["rust", "paper2", "large", ".contact-hand-line", "contact hand line, 32–46 px"],
   // Terracotta on kraft only as LARGE text (4.16:1)
   ["terracotta", "kraft", "large", ".proof-award b", "award years, Fraunces 30 px on the kraft tag (Dev-35)"],

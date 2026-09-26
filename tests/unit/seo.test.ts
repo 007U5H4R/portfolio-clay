@@ -6,6 +6,7 @@ import sharp from "sharp";
 import { OG_FONT_FILES, OG_POSTER_PATH } from "@/lib/og";
 import HomeOg from "@/app/opengraph-image";
 import WorkOg from "@/app/work/opengraph-image";
+import ProjectsOg from "@/app/projects/opengraph-image";
 import CaseStudyOg from "@/app/work/[slug]/opengraph-image";
 import AboutOg from "@/app/about/opengraph-image";
 import ThinkingOg from "@/app/thinking/opengraph-image";
@@ -155,7 +156,8 @@ describe("buildMetadata()", () => {
 
 const OG_FAMILIES: [string, () => Promise<Response>][] = [
   ["home", () => HomeOg()],
-  ["work", () => WorkOg()],
+  ["work (Experience, TKT-101)", () => WorkOg()],
+  ["projects", () => ProjectsOg()],
   ["case-teachspark", () => CaseStudyOg({ params: Promise.resolve({ slug: "teachspark" }) })],
   ["about", () => AboutOg()],
   ["thinking", () => ThinkingOg()],

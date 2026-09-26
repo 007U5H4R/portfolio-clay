@@ -2,7 +2,7 @@
  * regressions-m009.spec.ts (TKT-90b, TASK-85) — one regression test per bug fixed from the TKT-85 sweep
  * and the TKT-83 open flake. Each test reproduced its bug on the pre-fix build (see docs/reports/TKT-90-90b.md).
  *
- *  1. `/work` filter tabs: at 390 the tab row was a hidden-scrollbar scroller that clipped "Experiments"
+ *  1. `/projects` (was `/work`, TKT-101) filter tabs: at 390 the tab row was a hidden-scrollbar scroller that clipped "Experiments"
  *     mid-word with no affordance. Now every tab is fully inside the row (it wraps), ≥ 44 px, no overflow.
  *  2. `ChapterNav` scroll-spy: an empty trigger band kept the last active chapter, so scrolling back to
  *     the top of the page left "08" current instead of "01".
@@ -16,10 +16,10 @@ const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const NAV = 'nav[aria-label="Chapters"]';
 
 // ---------------------------------------------------------------------------------------------------
-// 1 · /work filter tabs — no clipped label, ≥ 44 px targets, no overflow (every width)
+// 1 · /projects filter tabs — no clipped label, ≥ 44 px targets, no overflow (every width)
 // ---------------------------------------------------------------------------------------------------
-test("regression · /work filter tabs are never clipped (TKT-85 finding 14)", async ({ page, noOverflow }) => {
-  await page.goto("/work", { waitUntil: "load" });
+test("regression · /projects filter tabs are never clipped (TKT-85 finding 14)", async ({ page, noOverflow }) => {
+  await page.goto("/projects", { waitUntil: "load" }); // TKT-101: the index moved from /work
   await page.evaluate(() => document.fonts.ready);
   const list = page.getByRole("tablist", { name: "Filter projects" });
   await expect(list.getByRole("tab")).toHaveCount(5);

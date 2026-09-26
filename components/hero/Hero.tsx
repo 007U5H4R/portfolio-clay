@@ -117,7 +117,7 @@ export function Hero() {
           <p className="hero-support">{hero.support.text}</p>
 
           <div className="hero-cta-row">
-            <Link href="/work" className="hero-btn hero-btn-primary focus-ring">
+            <Link href="/projects" className="hero-btn hero-btn-primary focus-ring">
               <Hand kind="cta">View my work →</Hand>
             </Link>
             <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">

@@ -15,10 +15,15 @@ import type { Experience } from "./schema";
  *
  * This module imports the schema as a type only (never a value) so no client bundle pulls in zod;
  * validation runs at build time in `scripts/validate-content.ts` (prebuild) and in Vitest.
+ *
+ * `location` (TKT-101) is the city CONTENT_INVENTORY §4.5 records beside each role (RESUME), shown on
+ * the `/work` Experience timeline's city chip — Tushar's call (2026-09-26, Design.md §11 Dev-45). It
+ * is the employer's city, not a personal address; `site.showLocation` (his own location) stays false.
  */
 export const experience: Experience[] = [
   {
     id: "godrej",
+    location: "Mumbai", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "Godrej Infotech",
     title: "Assistant Product Manager",
     dates: { start: "2016-09", end: "2018-12" },
@@ -36,6 +41,7 @@ export const experience: Experience[] = [
   },
   {
     id: "quantiphi",
+    location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "Quantiphi Analytics",
     title: "Technical Project Manager, GCP Division",
     dates: { start: "2022-08", end: "2026-04" },
@@ -52,6 +58,7 @@ export const experience: Experience[] = [
   },
   {
     id: "shellkode",
+    location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "Shellkode",
     title: "Technical Project Manager, AWS Division",
     dates: { start: "2026-04", end: "2026-06" },
@@ -71,6 +78,7 @@ export const experience: Experience[] = [
   },
   {
     id: "amex",
+    location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "American Express",
     companyNote: "via IntraEdge",
     title: "Senior Product Manager (Accounts Receivable)",

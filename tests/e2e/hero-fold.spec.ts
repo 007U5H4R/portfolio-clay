@@ -73,7 +73,7 @@ async function paperOverImage(page: Page, paperSel: string, imageSel: string): P
 
 const LAYERS = [
   { route: "/", paper: ".hero-sheet", image: ".hero-banner .scene-banner", animated: ".hero-banner" },
-  { route: "/work", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
+  { route: "/projects", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
 ] as const;
 
 for (const { route, paper, image, animated } of LAYERS) {
