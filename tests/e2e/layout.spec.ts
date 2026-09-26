@@ -15,6 +15,7 @@
  */
 import { test, expect } from "./fixtures";
 import { STATIC_ROUTES as SITEMAP_STATIC_ROUTES } from "@/app/sitemap";
+import { navItems } from "@/lib/nav";
 import { hero } from "@/data/hero";
 import { projects } from "@/data/projects";
 import { writing } from "@/data/writing";
@@ -101,12 +102,14 @@ test("header subline annotation is absent from the DOM < 640 and present + aria-
   }
 });
 
-test("primary nav: five items (D8), hidden < 1024, aria-current draws the underline on /work", async ({ page }) => {
+test("primary nav: every navItems entry (D8 + TKT-102), hidden < 1024, aria-current draws the underline on /work", async ({ page }) => {
   await page.goto("/work", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const links = nav.locator("a");
-  await expect(links).toHaveCount(5);
-  await expect(links.nth(4)).toHaveAttribute("href", "/playground");
+  // Derived from lib/nav.ts (TKT-102 added Certifications; TKT-101 adds Projects) — never a literal.
+  await expect(links).toHaveCount(navItems.length);
+  await expect(nav.locator('a[href="/playground"]')).toHaveCount(1);
+  await expect(nav.locator('a[href="/certifications"]')).toHaveCount(1);
   if (width(page) < 1024) {
     await expect(nav).toBeHidden();
     await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
@@ -221,7 +224,7 @@ for (const target of [1024, 1280, 1440]) {
         return { count: boxes.length, overlaps, outside, squeezed, minGap };
       });
       const where = `${route} @ ${target}`;
-      expect(report.count, `${where}: brand + 5 nav + pill + Ask visible`).toBe(8);
+      expect(report.count, `${where}: brand + every nav item + pill + Ask visible`).toBe(3 + navItems.length);
       expect(report.overlaps, `${where}: overlapping header controls`).toEqual([]);
       expect(report.outside, `${where}: controls outside the header`).toEqual([]);
       expect(report.squeezed, `${where}: a control squeezed below its content`).toEqual([]);

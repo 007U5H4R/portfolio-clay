@@ -55,3 +55,21 @@ The site header is hidden in these shots so it doesn't cover the section.
 - The reference is a painted raster. The build's scraps are flat CSS and SVG shapes with light grain, so they have less fibre and depth.
 - The target's cards are proportionally wider, and its title type is larger relative to the card. The build keeps the six-column grid inside the site container, extended by 48 px on each side at ≥ 1280.
 - The target has a dried-flower sprig and a stamp with an engraved figure. The build uses simple leaf sprigs and a line-art sprig stamp instead.
+
+## Round 2 (2026-09-26, same branch; merged `m009/integration-ab` first — Design row is now Dev-41)
+Tushar approved Higgsfield spend and added three more requests (one, the cloth unroll, was later moved to TKT-110). Built:
+- **Real collage pieces.** The flat CSS/SVG scraps, sprigs, stamp and postmark are replaced by 11 crops from the two transparent sprite sheets: `collage-paper.png` (job `6eab8569-…`) and `collage-botanical.png` (job `8fddab59-…`).
+  - Pieces were separated with connected-component masks so no neighbour bleeds in, then exported as webp at 2× display size. Each is ≤ 25 kB; 250 kB total, all lazy-loaded.
+  - They live in `public/media/illustrations/collage-*.webp`, using the shared names so TKT-100/101/102 dedupe.
+  - Provenance is a new section in `content/media/illustrations/README.md`. They are not manifest entries: EVAL-021's manifest stays at 10 ids.
+  - They sit inside the same single `data-decor="collage"` object, `alt=""`, below the fold, so they are never an LCP candidate.
+- **Wider cards.** The journey extends 84 px each side at ≥ 1280, with a 22 px gap.
+- **Cloth unroll — descoped.** A prototype was built (`ClothUnroll`), then removed on the orchestrator's scope change: the animation moves to TKT-110. The section ships static, with the existing card `Reveal` fade, and TKT-99 adds no new motion.
+- **Visible journey path (Tushar request 2).** The old curve was stretched over the whole row height and ran behind the cards.
+  - It is redrawn as pin-to-pin arcs in a 150 px strip across the card tops.
+  - It sits above the collage and below the cards, in navy at 0.78 opacity with 2.75 px non-scaling dashes.
+  - It is still mounted only at ≥ 1025.
+- **Ink outline (Tushar request 3).** Each torn silhouette has a ~1.5 px navy outline: a navy copy of the rim outline, 1.5 px larger and behind the rim. It follows the deckle and uses no CSS filter.
+- **Tests.** Unit: collage pieces are lazy, `alt=""`, and exist under `public/`; the ink outline follows the rim.
+- **Screenshots.** `docs/screenshots/m-009/tkt-99/how-i-think-{1440,1024,768,390}.png` and `pair-1440.png`, refreshed.
+- **Pre-existing, not TKT-99.** `tests/unit/paper.test.tsx` fails on the TornEdge `fill=terracotta` snapshot. `43d5f73` (TASK-95, band tooth width) changed the band path without updating `__snapshots__/paper.test.tsx.snap`; it arrived through the integration merge and is left for its owner.

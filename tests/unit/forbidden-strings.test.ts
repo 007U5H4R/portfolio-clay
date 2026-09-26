@@ -36,6 +36,27 @@ describe("scripts/forbidden-strings", () => {
     expect(result.hits.some((h) => h.pattern === "PMP")).toBe(true);
   });
 
+  // TKT-102: PMP / SAFe are allowed ONLY on the Credly-backed certifications surfaces; the same
+  // string anywhere else (another data file, a component, an app route) is still a hit.
+  it("allows PMP / SAFe only on the certifications surfaces (TKT-102)", () => {
+    const dir = tmp();
+    for (const d of ["data", "components/certifications", "components/about", "app/certifications", "app/about"]) {
+      mkdirSync(join(dir, d), { recursive: true });
+    }
+    const claim = "export const c = 'PMP · SAFe Agilist';\n";
+    writeFileSync(join(dir, "data", "certifications.ts"), claim);
+    writeFileSync(join(dir, "components", "certifications", "Card.tsx"), claim);
+    writeFileSync(join(dir, "app", "certifications", "page.tsx"), claim);
+    writeFileSync(join(dir, "data", "credentials.ts"), claim);
+    writeFileSync(join(dir, "components", "about", "Awards.tsx"), claim);
+    writeFileSync(join(dir, "app", "about", "page.tsx"), claim);
+    const result = scan({ cwd: dir });
+    const files = [...new Set(result.hits.map((h) => h.file))].sort();
+    expect(files).toEqual(["app/about/page.tsx", "components/about/Awards.tsx", "data/credentials.ts"]);
+    expect(result.hits.filter((h) => h.pattern === "PMP")).toHaveLength(3);
+    expect(result.hits.filter((h) => h.pattern === "SAFe cert")).toHaveLength(3);
+  });
+
   it("catches a 10-digit phone only inside data/content, not app", () => {
     const dir = tmp();
     mkdirSync(join(dir, "data"), { recursive: true });

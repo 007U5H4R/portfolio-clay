@@ -40,6 +40,8 @@ const ROUTES = [
   "/thinking",
   "/playground",
   "/contact",
+  // TKT-102: the certifications page family.
+  "/certifications",
   // TKT-98: essays advertised a 404 og:image (no per-essay route) — one essay guards the family.
   "/thinking/green-tests-prove-it-runs",
 ] as const;

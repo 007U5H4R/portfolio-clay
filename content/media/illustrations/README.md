@@ -121,3 +121,45 @@ drop the duplicate rows here).
 | `collage-fern.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | fern (*TKT-102*) | 120×303 | `/about` |
 | `collage-babys-breath-1.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | baby's-breath sprig (q44 to stay ≈ 26 kB) | 170×416 | `/about` |
 | `collage-wildflower.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | golden wildflower | 120×420 | `/about` |
+
+## Shared collage pieces (public, decorative — TKT-102)
+
+Cropped (PIL, alpha kept) from the two transparent Higgsfield sprite sheets generated 2026-09-26
+(Tushar approved the spend: "use higgsfield to generate the image, I will topup if required";
+`gpt_image_2_5`, medium, 1k, 0.5 credits each, style reference media
+`09b0c111-e66d-4ddf-a1bb-f0375f907d2c` = `hero-desk`). Shipped from `public/media/illustrations/`
+as WebP (alpha); decorative only (`alt=""` inside an `aria-hidden` collage), so no manifest entry.
+File names follow the shared `collage-<piece>.webp` rule so sibling branches' copies dedupe at merge.
+
+| file | sprite sheet · job id | piece | used on |
+|---|---|---|---|
+| `collage-scrap-sage.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn sage scrap | `/certifications` |
+| `collage-scrap-kraft.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn kraft scrap | `/certifications` |
+| `collage-washi-blue.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | blue washi tape | `/certifications` (year labels) |
+| `collage-washi-yellow.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | yellow washi tape | `/certifications` (year labels) |
+| `collage-leaf-1.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | leaf sprig | `/certifications` |
+| `collage-fern.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | fern | `/certifications` |
+
+## Decorative collage pieces — home How I think (TKT-99; shipped as `public/media/illustrations/collage-hit-*.webp` so they don't collide with the TKT-100/102 crops of the same sheets)
+
+Not manifest entries (decorative, `alt=""`, `aria-hidden`, lazy; EVAL-021's manifest covers the ten
+content illustrations). Cropped with PIL from two transparent Higgsfield sprite sheets generated
+2026-09-26 with Tushar's approved spend (`gpt_image_2_5`, medium, 1k, transparent background,
+0.5 credits each; style reference media `09b0c111-e66d-4ddf-a1bb-f0375f907d2c`): alpha kept,
+connected-component masks so no neighbour bleeds in, exported webp at ×2 display size, ≤ 25 kB
+each. Shared names — TKT-100/101/102 reuse the same files. First shipped by TKT-99 (home
+"How I think" collage, Design.md §11 Dev-41).
+
+| piece | file | source sheet | job id | credits | used on |
+|---|---|---|---|---|---|
+| `collage-scrap-sage` | `collage-scrap-sage.webp` (291×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-scrap-rust` | `collage-scrap-rust.webp` (297×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-scrap-kraft` | `collage-scrap-kraft.webp` (254×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-scrap-grid` | `collage-scrap-grid.webp` (269×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-notebook-strip` | `collage-notebook-strip.webp` (560×158) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-stamp` | `collage-stamp.webp` (178×220) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-postmark` | `collage-postmark.webp` (260×168) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-leaf-1` | `collage-leaf-1.webp` (125×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+| `collage-leaf-2` | `collage-leaf-2.webp` (142×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+| `collage-fern` | `collage-fern.webp` (143×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+| `collage-wildflower` | `collage-wildflower.webp` (108×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
