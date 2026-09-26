@@ -6517,3 +6517,175 @@ html.lenis body {
   }
 }
 /* end TKT-99 */
+
+/* TKT-110 · How I think choreography (Tushar's spec 2026-09-26,
+   docs/redesign-mockups/m-009/tushar-2026-09-26/how-i-think-choreography-spec.md; Design.md §11
+   Dev-70…). The paper-unrolling sequence driven by `components/motion/journey/*`: the runner flips
+   `data-journey-state` / `data-journey-armed` on the board, `data-roll` on each stage and `data-draw`
+   on each path segment; everything visual is here. Durations come from `timeline.ts` as
+   `--jr-*-ms` custom properties (one source of truth). Only transform / opacity / clip-path /
+   stroke-dashoffset animate — no layout property, no filter (EVAL-019). Every pre-state is scoped
+   to `[data-journey-armed]` (set only after hydration, only when the board is below the fold) AND
+   to `prefers-reduced-motion: no-preference`, so SSR / no-JS / reduced motion render the final
+   composition. Nothing uses visibility / display (A11Y-1). */
+@layer components {
+  /* the journey line sits ABOVE the cards (spec §2: scraps z1 · cards z2 · path z4) */
+  .hit-journey .jr-path {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .jr-mask {
+    mask-type: alpha;
+  }
+  .jr-seg-mask {
+    fill: none;
+    stroke: var(--color-navy);
+    stroke-width: 14;
+    stroke-linecap: butt;
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 0;
+  }
+  /* the radial reveal layer: the collage backdrop's box = the board's box, centred on it */
+  .jr-radial {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* 1 · radial, centre-out reveal of the paper world (spec §1) */
+    [data-journey-armed] .jr-radial {
+      clip-path: circle(0% at var(--jr-ox, 50%) var(--jr-oy, 50%));
+      opacity: 0.85;
+    }
+    [data-journey-armed]:not([data-journey-state="idle"]) .jr-radial {
+      animation: jr-radial var(--jr-radial-ms, 1400ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* 3 · path segments draw in order (spec §3); not yet drawn = hidden through its mask */
+    [data-journey-armed] .jr-seg-mask:not([data-draw]) {
+      stroke-dashoffset: 1;
+    }
+    [data-journey-armed] .jr-seg-mask[data-draw="drawing"] {
+      animation: jr-draw var(--jr-draw-ms, 450ms) cubic-bezier(0.45, 0.05, 0.3, 1) both;
+    }
+
+    /* 10 · before its turn: only the torn top edge (~28 px) and the pin show, slightly lifted */
+    [data-journey-armed] .jr-roll[data-roll="rolled"] {
+      clip-path: inset(-24px -24px calc(100% - 28px) -24px);
+      transform: translateY(-10px) rotate(var(--jr-tilt, 0deg)) scaleX(0.98);
+      transform-origin: 50% 0;
+      opacity: 0.75;
+    }
+    /* 4 + 5 · unroll top → bottom, then a restrained recoil (~300 ms of the 750) */
+    [data-journey-armed] .jr-roll[data-roll="rolling"] {
+      transform-origin: 50% 0;
+      animation: jr-unroll var(--jr-roll-ms, 750ms) linear both;
+    }
+
+    /* 7 · the pin hovers, then lands at ~85 % of the rollout */
+    [data-journey-armed] .jr-roll[data-roll="rolled"] [data-fastener="pin"] {
+      transform: translateY(-8px) scale(1.3);
+      opacity: 0.55;
+    }
+    [data-journey-armed] .jr-roll[data-roll="rolling"] [data-fastener="pin"] {
+      animation: jr-pin 250ms cubic-bezier(0.3, 0, 0.3, 1) calc(var(--jr-roll-ms, 750ms) * 0.51) both;
+    }
+
+    /* 8 · the paper is the hero: its contents follow once ~55 % of it is out, 60 ms apart */
+    [data-journey-armed] .jr-roll[data-roll="rolled"] > * > :not([aria-hidden="true"]) {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    [data-journey-armed] .jr-roll[data-roll="rolling"] > * > :not([aria-hidden="true"]) {
+      animation: jr-content 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-delay: calc(var(--jr-roll-ms, 750ms) * 0.3 + var(--jr-k, 0) * 60ms);
+    }
+    .jr-roll > * > :nth-child(4) { --jr-k: 1; }
+    .jr-roll > * > :nth-child(5) { --jr-k: 2; }
+    .jr-roll > * > :nth-child(6) { --jr-k: 3; }
+    .jr-roll > * > :nth-child(7) { --jr-k: 4; }
+    .jr-roll > * > :nth-child(8) { --jr-k: 5; }
+    .jr-roll > * > :nth-child(n + 9) { --jr-k: 6; }
+  }
+
+  @keyframes jr-radial {
+    from {
+      clip-path: circle(0% at var(--jr-ox, 50%) var(--jr-oy, 50%));
+      opacity: 0.85;
+    }
+    to {
+      /* 100 % of the reference radius (diagonal / √2) clears every corner of the box and the
+         collage's bleed past it */
+      clip-path: circle(100% at var(--jr-ox, 50%) var(--jr-oy, 50%));
+      opacity: 1;
+    }
+  }
+  @keyframes jr-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes jr-unroll {
+    0% {
+      clip-path: inset(-24px -24px calc(100% - 28px) -24px);
+      transform: translateY(-10px) rotate(var(--jr-tilt, 0deg)) scaleX(0.98);
+      opacity: 0.75;
+      animation-timing-function: cubic-bezier(0.32, 0.02, 0.2, 1);
+    }
+    60% {
+      clip-path: inset(-24px -24px -24px -24px);
+      transform: translateY(0) rotate(0deg) scaleX(1);
+      opacity: 1;
+      animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1);
+    }
+    74% {
+      clip-path: inset(-24px -24px -24px -24px);
+      transform: translateY(4px) rotate(0.4deg) scaleX(1);
+      animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
+    }
+    88% {
+      clip-path: inset(-24px -24px -24px -24px);
+      transform: translateY(-2px) rotate(-0.2deg) scaleX(1);
+      animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+    }
+    100% {
+      clip-path: inset(-24px -24px -24px -24px);
+      transform: translateY(0) rotate(0deg) scaleX(1);
+      opacity: 1;
+    }
+  }
+  @keyframes jr-pin {
+    0% {
+      transform: translateY(-8px) scale(1.3);
+      opacity: 0.55;
+    }
+    60% {
+      transform: translateY(2px) scale(0.92);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes jr-content {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+/* end TKT-110 */
