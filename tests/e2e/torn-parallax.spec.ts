@@ -111,7 +111,7 @@ test("TKT-106 a keyboard-focused hero CTA is never hidden under the Featured Wor
   await page.keyboard.press("Tab"); // keyboard modality, so the programmatic focus below is :focus-visible
   // Tear at 35 % of the viewport: the hero is fully lagged (200 px) and its CTA row sits under the sheet.
   await scrollToY(page, sheetDocTop - vh * 0.35);
-  const cta = page.locator(".hero-cta-row").getByRole("link", { name: "Ask my portfolio" });
+  const cta = page.locator(".hero-cta-row").getByRole("link", { name: /Ask Tushky/ }); // TKT-108 renamed the secondary CTA
   expect(await page.locator(".hero").evaluate((el) => getComputedStyle(el).translate)).toBe("0px 200px");
   await cta.evaluate((el) => (el as HTMLElement).focus({ preventScroll: true }));
   await expect(cta).toBeFocused();
