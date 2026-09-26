@@ -36,11 +36,10 @@ describe("/work Experience page (TKT-101)", () => {
         role.companyNote ? `${role.company} (${role.companyNote})` : role.company,
       );
       expect(card.getByText(role.title)).toBeTruthy();
-      // bullets + outcomes are the data strings verbatim
-      for (const text of [role.context, role.responsibility, role.whatChanged, ...role.outcomes.map((o) => o.text)]) {
-        expect(card.getByText(text)).toBeTruthy();
-      }
-      if (role.scale !== "not recorded") expect(card.getByText(role.scale)).toBeTruthy();
+      // bullets are the data's `highlights` verbatim (TKT-101 r2, Tushar's wording); every figure keeps its label
+      expect(role.highlights, `${role.id} has highlights`).toBeDefined();
+      expect(Array.from(li.querySelectorAll(".ct-bullets li")).map((b) => b.textContent)).toEqual(role.highlights);
+      for (const h of role.highlights!) if (/\d+%|\d+ (?:high-impact )?features/.test(h)) expect(h).toMatch(/\(self-reported\)\.$/);
       // dates are machine-readable from the data
       expect(li.querySelector(`time[datetime="${role.dates.start}"]`)).not.toBeNull();
       if (role.dates.end) expect(li.querySelector(`time[datetime="${role.dates.end}"]`)).not.toBeNull();
@@ -63,6 +62,7 @@ describe("/work Experience page (TKT-101)", () => {
       expect(li.querySelector(".ct-city")?.textContent).toBe(`Location: ${entry.institution.slice(at + 2)}`);
       expect(card.getByText(entry.degree)).toBeTruthy();
       expect(li.querySelector(`time[datetime="${entry.year}"]`)?.textContent).toBe(entry.year);
+      expect(Array.from(li.querySelectorAll(".ct-bullets li")).map((b) => b.textContent)).toEqual(entry.highlights);
     });
   });
 
@@ -74,7 +74,7 @@ describe("/work Experience page (TKT-101)", () => {
       expect(img.getAttribute("src")).toMatch(/^\/media\/logos\/[a-z-]+\.svg$/);
     }
     const typed = Array.from(container.querySelectorAll(".ct-logo-type")).map((el) => el.getAttribute("aria-label"));
-    expect(typed).toEqual(["Shellkode", "Quantiphi Analytics", "Bhilai Institute of Technology"]);
+    expect(typed).toEqual(["Shellkode", "Quantiphi Analytics Solutions Pvt. Ltd.", "Bhilai Institute of Technology"]);
   });
 
   it("EVAL-018: Work = note · annotation · collage (3); Education = torn · note · annotation · collage (4)", () => {

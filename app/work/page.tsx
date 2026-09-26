@@ -58,11 +58,17 @@ const workEntries: TimelineEntry[] = [...experience]
       nameNote: role.companyNote,
       role: role.title,
       city: role.location,
-      bullets: [role.context, role.responsibility, ...(role.scale === "not recorded" ? [] : [role.scale]), role.whatChanged],
-      outcomes: {
-        label: kinds.size === 1 && kinds.has("self-reported") ? "Outcomes · self-reported" : "Outcomes",
-        items: role.outcomes.map((o) => o.text),
-      },
+      // TKT-101 r2: Tushar's card wording (`highlights`, "image wins") when present; otherwise the
+      // structured résumé fields + outcomes, as round 1 rendered them.
+      bullets:
+        role.highlights ??
+        [role.context, role.responsibility, ...(role.scale === "not recorded" ? [] : [role.scale]), role.whatChanged],
+      outcomes: role.highlights
+        ? undefined
+        : {
+            label: kinds.size === 1 && kinds.has("self-reported") ? "Outcomes · self-reported" : "Outcomes",
+            items: role.outcomes.map((o) => o.text),
+          },
       logo: ORG_LOGOS[role.id],
       labelText: role.company,
       tone: WORK_TONES[i % WORK_TONES.length]!,

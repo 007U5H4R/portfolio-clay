@@ -115,6 +115,7 @@ export const Experience = z.object({
   context: z.string().min(20), responsibility: z.string().min(20),
   scale: z.union([z.string().min(10), z.literal('not recorded')]),           // MISSING renders 'Scale: not recorded' (TKT-41 AC 1)
   whatChanged: z.string().min(20), outcomes: z.array(Outcome).min(1), sources: z.array(SourceRef).min(1),
+  highlights: z.array(z.string().min(12)).max(4).optional(),                  // /work card bullets — Tushar's wording (TKT-101 r2)
 });
 export const SkillCluster = z.object({ id: Slug, name: z.string().min(3), tone: Tone, items: z.array(z.string().min(2)).min(3).max(6), source: z.string().min(2) });
 

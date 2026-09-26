@@ -127,8 +127,10 @@ export interface EducationEntry {
   year: string;
   source: string;
   /**
-   * Optional card bullets for the `/work` Education timeline (TKT-101). Empty until Tushar supplies
-   * sourced wording — the reference image's bullets are not in the résumé (docs/reports/TKT-101.md).
+   * Card bullets for the `/work` Education timeline (TKT-101 round 2): transcribed verbatim from
+   * Tushar's reference `education-target.png` at his direction ("Generate the education bullets",
+   * 2026-09-26). The NIT research bullet is consistent with `papers` (Langmuir; Soft Matter, RSC) and
+   * `patent` (portable electrochemical biosensor, granted, patentee NIT–Calicut) below.
    */
   highlights?: string[];
 }
@@ -141,6 +143,11 @@ export const education: EducationEntry[] = [
     institution: "National Institute of Technology Calicut, Kozhikode",
     year: "2022",
     source: "RESUME Education",
+    highlights: [
+      "Built advanced expertise in nanotechnology, materials science, and applied research.",
+      "Worked on research involving biosensors, nanoparticle monolayers, and real-world scientific problem solving.",
+      "Published research in ‘Langmuir’ and ‘Soft Matter’, and contributed to a granted patent for a portable electrochemical biosensor.",
+    ],
   },
   {
     id: "be-bitd",
@@ -148,6 +155,11 @@ export const education: EducationEntry[] = [
     institution: "Bhilai Institute of Technology, Durg",
     year: "2016",
     source: "RESUME Education",
+    highlights: [
+      "Developed a strong foundation in core engineering, analytical thinking, and structured problem solving.",
+      "Built early systems-thinking and technical fundamentals that later supported the transition into product, cloud, and AI leadership.",
+      "Strengthened teamwork, execution discipline, and engineering-first decision making.",
+    ],
   },
 ];
 
