@@ -502,12 +502,15 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     const dev23 = /\| Dev-23 \| New manifest entry `hero-banner`[^|]*?with alt "([^"]+)"/.exec(md);
     if (!dev23) throw new Error("Design.md §11 Dev-23 must fix the `hero-banner` alt");
     alts.set("hero-banner", dev23[1]!);
+    const dev48 = /\| Dev-48 \| New manifest entry `tushky`[^|]*?with alt "([^"]+)"/.exec(md);
+    if (!dev48) throw new Error("Design.md §11 Dev-48 must fix the `tushky` alt (TKT-104)");
+    alts.set("tushky", dev48[1]!);
     return alts;
   };
 
-  it("the manifest has the ten design ids (§6.1 nine + Dev-23 `hero-banner`) with the exact Design.md alt strings", () => {
+  it("the manifest has the eleven design ids (§6.1 nine + Dev-23 `hero-banner` + Dev-48 `tushky`) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(10);
+    expect(alts.size).toBe(11);
     expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));
   });

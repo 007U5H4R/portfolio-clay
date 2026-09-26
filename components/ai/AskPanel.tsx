@@ -22,13 +22,20 @@
  * ivory chips / evidence pills). Geometry, the lazy chunk, focus trap, Lenis pause (via
  * `lockBackground`, TKT-94) and the `data-lenis-prevent` scroll region are unchanged.
  *
+ * TKT-104 (Tushar direction 2026-09-26, Design.md §11 Dev-47–49): restyled to Tushar's reference —
+ * torn notebook sheet + paperclip, "Ask AI" lettering / "Meet Tushky", an idle intro (honesty note,
+ * the Tushky mascot, greeting, tape label; `PanelIntro`), the prompts as tinted cards, a rounded input
+ * field with a torn "Ask →", quick-action chips and a footer doodle row. Presentation only: the
+ * dialog, state machine, focus/Esc/close paths and geometry below are unchanged.
+ *
  * Body reuses the shared `useAsk('panel')` state machine + `AnswerView` (idle → loading → answer →
  * empty → error) with the 6 `surface:'panel'` prompts (PB3, passed in as `panelPrompts`). The input
  * is pinned to the panel bottom. The user's query is never rendered as HTML — answers come from the
  * deterministic local provider only (S7).
  */
-import { X } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ChartNoAxesColumn, FolderOpen, Sparkle, X, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { durations, useReducedMotionSafe } from "@/lib/motion";
 import { lockBackground } from "@/lib/focus";
 import { Icon } from "@/components/common/Icon";
@@ -36,6 +43,19 @@ import { Hand } from "@/components/paper/Hand";
 import { Sheet } from "@/components/paper/Sheet";
 import { AnswerView } from "./AnswerView";
 import { useAsk, useAskContext } from "./AskProvider";
+import { LeafDoodle, MountainDoodle, PanelIntro, Paperclip, Sparkles, panelCardStyle } from "./AskPanelDecor";
+
+/**
+ * TKT-104 quick-action chips that ASK (Design.md §11 Dev-49). Each `query` is one the deterministic
+ * local index answers from sourced content (checked against `LocalKnowledgeProvider`; pinned by
+ * `tests/unit/ask-panel-quick.test.ts`): "Summarize my skills" → the `skills` entry; the reference's
+ * "Compare experiences" had no answer (empty fallback), so it is relabelled to what it returns — the
+ * `impact` entry. "Browse my projects" is a link, not a question.
+ */
+export const QUICK_QUESTIONS: readonly { label: string; query: string; icon: LucideIcon }[] = [
+  { label: "Show my impact", query: "What impact have you created?", icon: ChartNoAxesColumn },
+  { label: "Summarize my skills", query: "Summarize my skills", icon: Sparkle },
+];
 
 export interface AskPanelProps {
   /** The 6 `surface:'panel'` prompts, resolved server-side in app/layout.tsx (A1). */
@@ -52,6 +72,7 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const [value, setValue] = useState("");
+  const cardStyle = useMemo(() => panelCardStyle(panelPrompts), [panelPrompts]);
 
   // Open / close the native modal dialog in step with the context `panelOpen` flag. The `data-open`
   // attribute (which the CSS slide-in / scrim fade key off) is toggled IMPERATIVELY on the element —
@@ -146,14 +167,23 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
       }}
     >
       <Sheet variant="notebook" className="ask-panel-sheet">
+        <Paperclip className="ask-clip" />
         <div
-          className="flex h-full flex-col"
+          className="ask-panel-body"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <div className="ask-panel-head">
-            <h2 id="ask-panel-title" className="ask-panel-title">
-              Ask AI
-            </h2>
+            <div className="ask-panel-titles">
+              <h2 id="ask-panel-title" className="ask-panel-title">
+                <Hand kind="label" className="ask-panel-lettering">
+                  Ask AI
+                </Hand>
+              </h2>
+              <Hand kind="label" as="p" className="ask-panel-meet">
+                Meet Tushky
+              </Hand>
+            </div>
+            <Sparkles className="ask-sparkles" />
             <button type="button" aria-label="Close Ask panel" onClick={closePanel} className="ask-panel-close focus-ring">
               <Icon icon={X} size={24} />
             </button>
@@ -168,28 +198,58 @@ export function AskPanel({ panelPrompts }: AskPanelProps) {
               onAskAnother={onAskAnother}
               onRetry={retry}
               headingRef={headingRef}
+              idleIntro={<PanelIntro />}
+              cardStyle={cardStyle}
             />
           </div>
 
-          <form onSubmit={onSubmit} className="ask-form ask-panel-form">
-            <label htmlFor="ask-panel-input" className="sr-only">
-              Ask about my work
-            </label>
-            <input
-              id="ask-panel-input"
-              ref={inputRef}
-              type="text"
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-              placeholder="Ask about my work…"
-              autoComplete="off"
-              aria-label="Ask about my work"
-              className="ask-input focus-ring"
-            />
-            <button type="submit" aria-label="Ask" className="ask-submit focus-ring">
-              <Hand kind="cta">Ask →</Hand>
-            </button>
-          </form>
+          <div className="ask-panel-dock">
+            <form onSubmit={onSubmit} className="ask-form ask-panel-form">
+              <label htmlFor="ask-panel-input" className="sr-only">
+                Ask about my work
+              </label>
+              <div className="ask-field">
+                <Icon icon={Sparkle} size={20} className="ask-field-icon" />
+                <input
+                  id="ask-panel-input"
+                  ref={inputRef}
+                  type="text"
+                  value={value}
+                  onChange={(event) => setValue(event.target.value)}
+                  placeholder="Ask about my work…"
+                  autoComplete="off"
+                  aria-label="Ask about my work"
+                  className="ask-input focus-ring"
+                />
+                <button type="submit" aria-label="Ask" className="ask-submit focus-ring">
+                  <Hand kind="cta">Ask →</Hand>
+                </button>
+              </div>
+            </form>
+
+            <ul aria-label="Quick actions" className="ask-quick">
+              <li>
+                <Link href="/projects" prefetch={false} className="ask-quick-chip focus-ring" onClick={closePanel}>
+                  <Icon icon={FolderOpen} size={20} className="ask-quick-icon" />
+                  Browse my projects
+                </Link>
+              </li>
+              {QUICK_QUESTIONS.map(({ label, query, icon }) => (
+                <li key={label}>
+                  <button type="button" className="ask-quick-chip focus-ring" onClick={() => onSelectPrompt(query)}>
+                    <Icon icon={icon} size={20} className="ask-quick-icon" />
+                    {label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <div aria-hidden="true" className="ask-panel-foot">
+              <MountainDoodle className="ask-mountain" />
+              <span className="ask-foot-note font-hand">+ Turn curiosity into conversations.</span>
+              <LeafDoodle className="ask-leaf" />
+            </div>
+          </div>
         </div>
       </Sheet>
     </dialog>
