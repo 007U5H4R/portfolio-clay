@@ -6,7 +6,7 @@
  * Per route, at every viewport project: the opener is the first child of `<main>`; its `<img>` carries
  * the manifest alt byte-for-byte and is not hidden from assistive tech; it is the page's LCP-priority
  * image (`fetchpriority="high"`, eager); the cropped canvas covers the banner box on all four edges
- * (the `focalY` clamp never exposes a gap); the opener holds exactly one counted decoration (`torn`);
+ * (the focal clamp never exposes a gap); the opener holds exactly one counted decoration (`torn`);
  * and the page's h1 sits below the banner.
  */
 import { test, expect } from "./fixtures";

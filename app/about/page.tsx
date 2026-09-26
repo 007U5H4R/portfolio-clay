@@ -39,8 +39,8 @@ export const metadata: Metadata = buildMetadata({
 export default function AboutPage() {
   return (
     <>
-      {/* TKT-95 scene opener (EXE-18): the page scene as a full-bleed banner; the figure stands left of centre. */}
-      <SceneOpener id="scene-about" focalX={0.3} focalY={0.44} priority />
+      {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-48) — focal point per scene in components/paper/scene-opener-frames.ts. */}
+      <SceneOpener id="scene-about" priority />
 
       {/* ── TKT-86 slot · hero (section incl. the hero-under row) ── */}
       <AboutHero />
