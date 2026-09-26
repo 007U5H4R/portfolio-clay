@@ -3,48 +3,18 @@
  * data behind the drawer's suggestion list and follow-up chips. It is pure data and logic with no
  * React, so `tests/unit/ask-tushky-grounding.test.ts` can pin every entry against the retrieval index.
  *
- * Grounding (EVAL-012 unchanged): the drawer answers only from the deterministic local index. Each
- * suggestion shows Tushar's wording (`label`) and submits a `query` that the index answers from the
- * right entry. Four of his six questions resolve as worded. Two were checked and remapped because,
- * as worded, they matched the product list:
- *   - "Show me his product thinking process." → the `discovery` entry's prompt.
- *   - "Walk me through a specific project." → the `most-technical` entry's prompt (the RailCite walkthrough).
+ * Grounding (EVAL-012 unchanged): the drawer answers only from the deterministic local index. The
+ * six suggestions (Tushar's wording, shared with the Home launcher) live in `tushky-questions.ts`
+ * (TKT-113, Dev-66), including the two remapped queries.
  * Follow-up chips are derived from the answer's sources: other entries that cite the same pages rank
  * first. Each chip submits that entry's exact prompt, so it always resolves. The spec's example
  * "Compare his experience" gets the empty fallback, so it is never offered.
  */
 import { knowledge } from "@/data/knowledge";
 
-export type SuggestionCategory = "products" | "impact" | "thinking" | "ai" | "skills" | "project";
-
-export interface TushkySuggestion {
-  /** What the card shows and what the user bubble echoes: Tushar's wording, verbatim. */
-  label: string;
-  /** What is sent to the retrieval index. */
-  query: string;
-  category: SuggestionCategory;
-  /** The knowledge entry this card must resolve to (pinned by the grounding test). */
-  entry: string;
-}
-
-export const TUSHKY_SUGGESTIONS: readonly TushkySuggestion[] = [
-  { label: "What products has Tushar built?", query: "What products has Tushar built?", category: "products", entry: "built" },
-  { label: "What impact has he created?", query: "What impact has he created?", category: "impact", entry: "impact" },
-  {
-    label: "Show me his product thinking process.",
-    query: "How do you approach product discovery?",
-    category: "thinking",
-    entry: "discovery",
-  },
-  { label: "What is his AI / cloud experience?", query: "What is his AI / cloud experience?", category: "ai", entry: "ai-products" },
-  { label: "What are his strongest skills?", query: "What are his strongest skills?", category: "skills", entry: "skills" },
-  {
-    label: "Walk me through a specific project.",
-    query: "Show me your most technical project.",
-    category: "project",
-    entry: "most-technical",
-  },
-];
+// TKT-113 (Dev-66): the suggestion list and its icons moved to `tushky-questions.ts` so the Home
+// launcher can share them without importing the knowledge index. Re-exported here under the same names.
+export { CATEGORY_ICONS, TUSHKY_SUGGESTIONS, type SuggestionCategory, type TushkySuggestion } from "./tushky-questions";
 
 /** A short chip label per knowledge entry, written in third person (Tushky talks about Tushar). */
 export const FOLLOW_UP_LABELS: Readonly<Record<string, string>> = {

@@ -45,7 +45,7 @@ export interface AskPanelProps {
 const CLOSE_MS = Math.min(durations.panel, 280);
 
 export function AskPanel() {
-  const { panelOpen, closePanel, triggerRef } = useAskContext();
+  const { panelOpen, closePanel, triggerRef, pendingAsk, clearPendingAsk } = useAskContext();
   const { messages, isGenerating, ask, retry, reset } = useAskChat();
   const reduced = useReducedMotionSafe();
 
@@ -100,6 +100,16 @@ export function AskPanel() {
   useEffect(() => {
     if (!panelOpen) reset();
   }, [panelOpen, reset]);
+
+  // TKT-113: a question handed over by the Home launcher (typed text or a suggestion card) is asked
+  // as soon as the drawer is open. The id guard makes it run once, even under a dev double effect.
+  const consumedAsk = useRef(0);
+  useEffect(() => {
+    if (!panelOpen || !pendingAsk || consumedAsk.current === pendingAsk.id) return;
+    consumedAsk.current = pendingAsk.id;
+    ask(pendingAsk.label, pendingAsk.query);
+    clearPendingAsk(pendingAsk.id);
+  }, [panelOpen, pendingAsk, ask, clearPendingAsk]);
 
   // Keep the latest exchange in view: scroll so the newest question sits at the top of the region
   // (a long answer then reads from its start). Smooth unless reduced motion (spec §20 / §24).

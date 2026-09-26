@@ -41,9 +41,20 @@ test.describe("Lenis-mounted behaviour (w1440)", () => {
     test.skip(width(page) !== 1440, "Lenis is mounted at the desktop fine-pointer project");
   });
 
-  test('hero "Ask Tushky" lands #ask in view under the header, focus inside it', async ({ page }) => {
+  // TKT-113: the hero "Ask Tushky" CTA now opens the drawer (home-ask-tushky.spec.ts); its `#ask` href is
+  // the no-JS fallback. Same-document `#ask` hash navigation is still Lenis-owned, so it is exercised
+  // here through a plain in-page `#ask` link.
+  test('an in-page "#ask" link lands #ask in view under the header, focus inside it', async ({ page }) => {
     await gotoWithLenis(page);
-    await page.getByRole("link", { name: "Ask Tushky" }).first().click();
+    await page.evaluate(() => {
+      const a = document.createElement("a");
+      a.href = "#ask";
+      a.id = "probe-ask-link";
+      a.textContent = "to ask";
+      a.style.cssText = "position:fixed;left:8px;bottom:8px;z-index:9999;padding:12px;background:white";
+      document.body.append(a);
+    });
+    await page.locator("#probe-ask-link").click();
     await expect(page).toHaveURL(/#ask$/);
     const header = await page.locator("header[data-site-header]").boundingBox();
     await expect
