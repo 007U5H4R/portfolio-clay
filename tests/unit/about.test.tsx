@@ -101,11 +101,11 @@ describe("ProductJourney (S86.02)", () => {
     expect(close.closest(".font-hand, [data-decor]")).toBeNull(); // Fraunces lead, not Caveat
   });
 
-  it("counts 3 decorations at ≥ 900 (torn · path · start here) and 1 below", () => {
+  it("counts 4 decorations at ≥ 900 (torn · collage · path · start here) and 2 below (TKT-100)", () => {
     mockMatchMedia(true);
     const wide = render(<ProductJourney />);
     const wideSection = wide.container.querySelector("section")!;
-    expect(decorCount(wideSection)).toBe(3);
+    expect(decorCount(wideSection)).toBe(4);
     expect(wideSection.querySelector('[data-decor="sketch"][data-sketch="path"]')).not.toBeNull();
     expect(wideSection.querySelector('[data-decor="annotation"]')).toHaveTextContent("start here ↘");
     wide.unmount();
@@ -113,8 +113,33 @@ describe("ProductJourney (S86.02)", () => {
     mockMatchMedia(false);
     const narrow = render(<ProductJourney />);
     const narrowSection = narrow.container.querySelector("section")!;
-    expect(decorCount(narrowSection)).toBe(1);
+    expect(decorCount(narrowSection)).toBe(2);
     expect(narrowSection.querySelector('[data-decor="torn"]')).not.toBeNull();
+    expect(narrowSection.querySelector('[data-decor="collage"]')).not.toBeNull();
+  });
+
+  it("TKT-100: one aria-hidden collage carries every ornament; no brand names drawn; cards stay content", () => {
+    mockMatchMedia(true);
+    const { container } = render(<ProductJourney />);
+    const section = container.querySelector("section#journey")!;
+    const collage = section.querySelectorAll('[data-decor="collage"]');
+    expect(collage).toHaveLength(1);
+    expect(collage[0]).toHaveAttribute("aria-hidden", "true");
+    // the collage's pieces never count on their own
+    expect(collage[0]!.querySelectorAll("[data-decor]")).toHaveLength(0);
+    // doodle notes (Caveat) live only inside the hidden layer; EVAL-021 — no company names in the art
+    expect(collage[0]).toHaveTextContent("GenAI.");
+    expect(collage[0]).toHaveTextContent("TeachSpark");
+    expect(collage[0]!.textContent).not.toMatch(/godrej|american express|amex/i);
+    // the torn card layers are aria-hidden material, and the range kicker keeps its micro-label rule
+    section.querySelectorAll('ol > li [data-paper="card"]').forEach((card) => {
+      expect(card.querySelector(".aj-paper")).toHaveAttribute("aria-hidden", "true");
+      expect(card.querySelector(".aj-range")).toHaveAttribute("data-micro-label");
+    });
+    // head, lead and closing line sit on torn strips — their own boxes, still in the a11y tree
+    expect(section.querySelector("#journey-heading")!.closest(".aj-strip")).not.toBeNull();
+    expect(section.querySelector(".aj-close .aj-strip")).toHaveTextContent("The tools changed. The curiosity didn't.");
+    expect(section.querySelectorAll('.aj-strip[aria-hidden], .aj-strip [aria-hidden="true"]')).toHaveLength(0);
   });
 });
 
