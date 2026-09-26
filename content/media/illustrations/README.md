@@ -65,3 +65,21 @@ Same pixels, same alt (the `<img>` element is unchanged); no new picture content
 
 Filed separately at `evals/results/eval-021-<sha>.md` once Stage 8 runs: confirms per asset that it
 depicts no metric, logo, product UI or claim (S20).
+
+## Shared collage pieces (public, decorative — TKT-102)
+
+Cropped (PIL, alpha kept) from the two transparent Higgsfield sprite sheets generated 2026-09-26
+(Tushar approved the spend: "use higgsfield to generate the image, I will topup if required";
+`gpt_image_2_5`, medium, 1k, 0.5 credits each, style reference media
+`09b0c111-e66d-4ddf-a1bb-f0375f907d2c` = `hero-desk`). Shipped from `public/media/illustrations/`
+as WebP (alpha); decorative only (`alt=""` inside an `aria-hidden` collage), so no manifest entry.
+File names follow the shared `collage-<piece>.webp` rule so sibling branches' copies dedupe at merge.
+
+| file | sprite sheet · job id | piece | used on |
+|---|---|---|---|
+| `collage-scrap-sage.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn sage scrap | `/certifications` |
+| `collage-scrap-kraft.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | torn kraft scrap | `/certifications` |
+| `collage-washi-blue.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | blue washi tape | `/certifications` (year labels) |
+| `collage-washi-yellow.webp` | collage-paper · `6eab8569-c875-472c-ad3f-d217666fa120` | yellow washi tape | `/certifications` (year labels) |
+| `collage-leaf-1.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | leaf sprig | `/certifications` |
+| `collage-fern.webp` | collage-botanical · `8fddab59-5a19-4f49-8234-0190f4b40eb6` | fern | `/certifications` |

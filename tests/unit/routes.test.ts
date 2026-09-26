@@ -76,10 +76,10 @@ describe("loadRoutes fallback order (S09.03)", () => {
 // route the crawler (EVAL-011) can reach, and none needs the allow-list. If Tushar reverts D8 the
 // expected length becomes 4 and the band gains a Playground link (one documented edit each).
 describe("primary nav (lib/nav.ts, D8)", () => {
-  it("has five items ending in Playground, in the Design.md §4.1 order", () => {
-    expect(navItems).toHaveLength(5);
-    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/thinking", "/about", "/playground"]);
-    expect(navItems.map((item) => item.label)).toEqual(["Home", "Work", "Thinking", "About", "Playground"]);
+  it("has the Design.md §4.1 items in order, then Certifications (TKT-102, Dev-46)", () => {
+    expect(navItems).toHaveLength(6);
+    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/thinking", "/about", "/playground", "/certifications"]);
+    expect(navItems.map((item) => item.label)).toEqual(["Home", "Work", "Thinking", "About", "Playground", "Certifications"]);
   });
 
   it("never lists Contact — the pill, the band and page CTAs carry that path", () => {
