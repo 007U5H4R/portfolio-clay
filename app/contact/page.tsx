@@ -21,10 +21,8 @@ export const metadata: Metadata = buildMetadata({
 export default function ContactPage() {
   return (
     <>
-      {/* TKT-95 scene opener (EXE-18): a portrait (1638×2048) in a wide box shows ≈ 26 % of its height
-          ≥ 768 — focalY 0.2 keeps the full head, the face and the waving fingers; the mug and most of
-          the palm fall below the crop (< 768 the taller 3:2 box shows ≈ 53 %: face + whole wave). */}
-      <SceneOpener id="scene-contact" focalX={0.5} focalY={0.1} priority />
+      {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-48) — focal point per scene in components/paper/scene-opener-frames.ts. */}
+      <SceneOpener id="scene-contact" priority />
       <ContactCard />
       <ContactDetails />
     </>

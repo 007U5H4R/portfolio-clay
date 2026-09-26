@@ -9360,6 +9360,28 @@ html.lenis body {
   }
 }
 /* end TKT-110 */
+/* TKT-107 · page openers sized like the home banner (Tushar 2026-09-26: "make the images of all the tabs
+   same height and width similiar to Home tab"; Design.md §11 Dev-95). Every page scene is now a 3168×1344
+   (21:9) outpaint — the home banner's ratio — so the TKT-103 rule above (box height = width ÷ `--scene-ar`)
+   makes every opener exactly the home banner's height at ≥ 768 (≈ 611 px at 1440). < 768 the openers take
+   the home banner's 4:3 box (75vw) instead of a ≈ 165 px whole-21:9 strip: the canvas covers the box and is
+   centred on the scene's focal point (`--focal`, components/paper/scene-opener-frames.ts), and the <img>
+   is the pre-cropped narrow rendition (TKT-92r2 `.scene-banner-img--narrow-crop` placement). */
+@layer components {
+  @media (max-width: 767px) {
+    .scene-opener .scene-banner,
+    .scene-opener .scene-banner--focal-y {
+      --banner-h: 75vw;
+    }
+  }
+  /* Home's second polaroid is a square crop of `scene-about`, whose outpaint keeps the figure left of
+     centre (the original frame sits at x 336–2360 of 3168): aim the crop at the same region the 3:2
+     scene's centred square showed before (x ≈ 676–2020 → 37 %), so the figure stays in the polaroid. */
+  .hero-polaroid:nth-child(2) .hero-polaroid-img {
+    object-position: 37% 50%;
+  }
+}
+/* end TKT-107 */
 /* TKT-112 · seven-item nav fit (Tushar 2026-09-26: "Menu below 1440"; Design.md §11 Dev-94). With Home ·
    Experience · Projects · Thinking · About · Playground · Certifications the full nav needs ≥ 1440 px.
    1024–1439: the nav links hide and the header shows the MobileMenu button (the same paper drawer as

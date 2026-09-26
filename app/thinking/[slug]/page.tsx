@@ -52,8 +52,8 @@ export default async function EssayPage({ params }: EssayPageProps) {
 
   return (
     <>
-      {/* TKT-95 scene opener (EXE-18): the /thinking scene opens every essay too. */}
-      <SceneOpener id="scene-thinking" focalX={0.5} focalY={0.29} priority />
+      {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-48) — focal point per scene in components/paper/scene-opener-frames.ts. */}
+      <SceneOpener id="scene-thinking" priority />
       <section className="essay-section" aria-labelledby="essay-h">
         <Container>
           <EssayBody

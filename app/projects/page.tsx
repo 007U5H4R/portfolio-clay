@@ -42,7 +42,7 @@ export default function ProjectsPage() {
   return (
     <>
       {/* TKT-95 scene opener (EXE-18): the character's face + reaching arm sit ≈ 38 % down the scene. */}
-      <SceneOpener id="scene-work" focalX={0.6} focalY={0.38} priority />
+      <SceneOpener id="scene-work" priority />
       <WorkHero />
       {/* TKT-80 index (Design.md §7.2): paper-2, torn top, sr-only h2 (QA-004 heading outline h1 → h2 →
           h3), the serif filter tabs + "start here ↓" annotation, then the numbered index / EmptyState.
