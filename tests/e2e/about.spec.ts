@@ -381,6 +381,41 @@ test("@EVAL-006 /about axe WCAG2.1AA clean", { tag: "@EVAL-006" }, async ({ page
 });
 
 // ---------------------------------------------------------------------------
+// TKT-100 — the journey collage (Tushar direction 2026-09-26, Design.md §11 Dev-41): one aria-hidden
+// collage object, content stays in the a11y tree, the range kickers sit on solid highlighter strips,
+// no horizontal overflow at any width, doodles only where the 4-up grid gives them a card foot.
+// ---------------------------------------------------------------------------
+test("TKT-100 journey collage: one hidden decoration, content exposed, no overflow", async ({ page }) => {
+  await page.goto("/about", { waitUntil: "load" });
+  const section = page.locator("#journey");
+  const collage = section.locator('[data-decor="collage"]');
+  await expect(collage).toHaveCount(1);
+  await expect(collage).toHaveAttribute("aria-hidden", "true");
+  await expect(collage.locator("[data-decor]")).toHaveCount(0);
+  await expect(collage.locator("img:not([alt=''])")).toHaveCount(0);
+
+  // content paper, not decoration: heading, lead, the four cards and the closing line stay exposed
+  await expect(section.getByRole("heading", { level: 2 })).toHaveText("Different tools. Same curiosity.");
+  await expect(section.getByRole("heading", { level: 3 })).toHaveCount(4);
+  await expect(section.getByText("The tools changed. The curiosity didn't.")).toBeVisible();
+
+  // highlighter strips: a solid tinted background on the micro-label itself (EVAL-008 resolves against it)
+  const ranges = section.locator(".aj-range[data-micro-label]");
+  await expect(ranges).toHaveCount(4);
+  const bgs = await ranges.evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor));
+  for (const bg of bgs) expect(bg, "range strip must have an opaque tint").not.toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+
+  // doodles (and their Caveat notes) only at ≥ 1025, where the cards sit 4-up
+  const doodles = collage.locator(".ajc-doodle");
+  await expect(doodles).toHaveCount(4);
+  const shown = await doodles.evaluateAll((els) => els.filter((el) => getComputedStyle(el).display !== "none").length);
+  expect(shown).toBe(width(page) >= 1025 ? 4 : 0);
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow, "no horizontal page scroll").toBeLessThanOrEqual(0);
+});
+
+// ---------------------------------------------------------------------------
 // @EVAL-010 — reduced motion: ProductJourney's Reveal stages collapse to opacity-only.
 // ---------------------------------------------------------------------------
 test("@EVAL-010 reduced motion: ProductJourney stages collapse to opacity-only, no transform", {

@@ -1,7 +1,10 @@
+import type { CSSProperties } from "react";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Annotation, DraftTag, Pin, Sheet, Sketch, TornEdge, type PinProps } from "@/components/paper";
 import { MediaGate } from "@/components/paper/MediaGate";
+import { deckle } from "./deckle";
+import { JourneyCollage } from "./JourneyCollage";
 
 export interface ProductJourneyStage {
   id: string;
@@ -64,6 +67,16 @@ const PIN_TONES: readonly NonNullable<PinProps["tone"]>[] = ["rust", "steel", "f
 /** Mockup rotations (about.html `.jnote:nth-of-type(n)`), within the Sheet's ±0.9° cap. */
 const ROTATIONS = [-0.9, 0.7, -0.5, 0.9] as const;
 
+/** Torn outline pair per card: the pale rim, then the cream face inset inside it (TKT-100). */
+const edgesFor = (index: number) => ({
+  rim: deckle(401 + index * 7, { across: 14, down: 22, depthX: 3, depthY: 1 }),
+  face: deckle(503 + index * 7, { across: 14, down: 22, depthX: 3.2, depthY: 1, insetX: 2.4, insetY: 0.8 }),
+});
+
+/** Torn strips behind the head, the lead and the closing line (read by CSS as `--strip-edge`). */
+const strip = (seed: number) =>
+  ({ "--strip-edge": deckle(seed, { across: 18, down: 6, depthX: 1.2, depthY: 9 }) }) as CSSProperties;
+
 /**
  * `/about` product journey (TKT-86 S86.02, Design.md §7.4 "Product journey"; mockup
  * docs/redesign-mockups/m-009/about.html `.journey-s`). Server component (the `Reveal` leaves and the
@@ -73,8 +86,17 @@ const ROTATIONS = [-0.9, 0.7, -0.5, 0.9] as const;
  * path and the annotation go through `MediaGate min={900}` — absent from the DOM below 900, where the
  * cards reflow to 2 / 1 columns and the curve would no longer connect them.
  *
- * Decorations (§3.3): torn + path sketch + "start here" annotation = 3 at ≥ 900; torn only = 1 at 390.
- * The closing line is a Fraunces lead + `DraftTag` (DRAFT editorial framing), not Caveat.
+ * Decorations (§3.3): torn + collage + path sketch + "start here" annotation = 4 at ≥ 900; torn +
+ * collage = 2 at 390. The closing line is a Fraunces lead + `DraftTag` (DRAFT editorial framing), not
+ * Caveat.
+ *
+ * TKT-100 (Tushar direction 2026-09-26, about-journey-target.png; Design.md §11 Dev-41): the head,
+ * lead and closing line sit on torn paper strips (CSS on their own boxes — content paper, not
+ * decoration); each card is a deckled torn-edge sheet (two seeded `clip-path` layers behind the
+ * content, `aria-hidden`, the card's own material); the range line sits on a tinted highlighter strip;
+ * the DraftTag is a stamp-like outlined box; and every ornament — scraps, sprigs, flowers, stamp,
+ * postmarks, the line-art doodles at the card feet — lives in ONE `data-decor="collage"` layer
+ * (`JourneyCollage`).
  * Still no buttons, links or URL hash here — the per-role disclosure is ExperienceTimeline's job.
  */
 export function ProductJourney() {
@@ -82,17 +104,18 @@ export function ProductJourney() {
     <section id="journey" className="aj" aria-labelledby="journey-heading">
       <TornEdge fill="paper-2" />
       <Container className="aj-wrap">
-        <div className="about-head">
-          <div>
+        <div className="about-head aj-head">
+          <div className="aj-strip aj-head-strip" style={strip(601)}>
             <p className="about-eyebrow" data-micro-label="">My product journey</p>
             <h2 id="journey-heading" className="about-h2">
               Different tools. Same curiosity.
             </h2>
           </div>
-          <p className="about-lead">Four stages, from enterprise delivery to AI-native products.</p>
+          <p className="about-lead aj-strip aj-lead-strip" style={strip(602)}>Four stages, from enterprise delivery to AI-native products.</p>
         </div>
 
         <div className="aj-grid">
+          <JourneyCollage />
           <MediaGate min={900}>
             <Sketch variant="path" className="aj-path" />
             <Annotation rotate={-4} className="aj-start">
@@ -100,26 +123,36 @@ export function ProductJourney() {
             </Annotation>
           </MediaGate>
           <ol className="aj-list">
-            {JOURNEY_STAGES.map((stage, index) => (
-              <li key={stage.id} className="aj-item" data-stage={stage.id}>
-                <Reveal index={index} className="aj-reveal">
-                  <Sheet as="article" variant="card" rotate={ROTATIONS[index]} className="aj-card">
-                    <Pin tone={PIN_TONES[index]} />
-                    <span className="aj-year">{stage.year}</span>
-                    <h3 className="aj-h3">{stage.milestone}</h3>
-                    <p className="aj-range" data-micro-label="">
-                      {stage.range} · {stage.label}
-                    </p>
-                    <p className="aj-desc">{stage.description}</p>
-                  </Sheet>
-                </Reveal>
-              </li>
-            ))}
+            {JOURNEY_STAGES.map((stage, index) => {
+              const edges = edgesFor(index);
+              return (
+                <li key={stage.id} className="aj-item" data-stage={stage.id}>
+                  <Reveal index={index} className="aj-reveal">
+                    <Sheet as="article" variant="card" rotate={ROTATIONS[index]} className="aj-card">
+                      <Pin tone={PIN_TONES[index]} />
+                      <span className="aj-paper" aria-hidden="true">
+                        <span className="aj-paper-rim" style={{ clipPath: edges.rim }} />
+                        <span className="aj-paper-face" style={{ clipPath: edges.face }} />
+                      </span>
+                      <span className="aj-year">{stage.year}</span>
+                      <h3 className="aj-h3">{stage.milestone}</h3>
+                      <p className="aj-range" data-micro-label="">
+                        {stage.range} · {stage.label}
+                      </p>
+                      <p className="aj-desc">{stage.description}</p>
+                    </Sheet>
+                  </Reveal>
+                </li>
+              );
+            })}
           </ol>
         </div>
 
         <p className="aj-close">
-          The tools changed. The curiosity didn&apos;t. <DraftTag />
+          <span className="aj-strip aj-close-strip" style={strip(603)}>
+            The tools changed. The curiosity didn&apos;t.
+          </span>{" "}
+          <DraftTag className="aj-stamp" />
         </p>
       </Container>
     </section>

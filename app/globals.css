@@ -6212,3 +6212,303 @@ html.lenis body {
   }
 }
 /* end TKT-92r3 */
+
+/* TKT-100 · /about product journey, collage restyle — `section#journey` rebuilt to Tushar's direction
+   (2026-09-26, docs/redesign-mockups/m-009/tushar-2026-09-26/about-journey-target.png; Design.md §7.4,
+   §11 Dev-41). Same visual vocabulary as TKT-99's home "How I think" (`.hit-*`): torn strips behind
+   the head / lead / closing line, deckled torn-edge cards (two seeded clip-path layers,
+   `components/timeline/deckle.ts`), tinted highlighter strips on the range kickers, a stamp-like
+   DraftTag, and ONE collage object (`JourneyCollage`, `data-decor="collage"`) carrying every ornament.
+   Paper tokens / `color-mix` only (EVAL-020); no new motion. */
+@layer components {
+  .aj {
+    overflow-x: clip; /* the collage bleeds past the container; never a horizontal scroll */
+  }
+
+  /* ---- torn paper strips (head, lead, closing line): the box's own paper, not a decoration ---- */
+  .aj-head {
+    position: relative;
+    z-index: 2;
+  }
+  .aj-strip {
+    position: relative;
+    isolation: isolate;
+  }
+  .aj-strip::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--color-kraft) 14%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
+      linear-gradient(175deg, color-mix(in oklab, var(--color-ivory) 88%, var(--color-kraft)), color-mix(in oklab, var(--color-ivory) 72%, var(--color-kraft)));
+    clip-path: var(--strip-edge);
+  }
+  .aj-head-strip {
+    justify-self: start;
+    padding: 20px 40px 26px 30px;
+    rotate: -0.6deg;
+  }
+  .aj-head-strip .about-h2 {
+    margin-top: 6px;
+  }
+  .aj-lead-strip.about-lead {
+    max-width: 62ch;
+    padding: 18px 30px 20px;
+    rotate: 0.5deg;
+    color: var(--color-navy);
+  }
+  .aj-close-strip {
+    display: inline-block;
+    padding: 12px 34px 14px 26px;
+    rotate: -0.4deg;
+  }
+
+  /* ---- the deckled card: transparent Sheet over two torn layers (rim + cream face) ---- */
+  .aj-grid {
+    z-index: 1;
+  }
+  .aj-list {
+    z-index: 2;
+  }
+  .aj-card.paper-sheet {
+    isolation: isolate;
+    gap: 10px;
+    padding: 30px 24px 30px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .aj-paper {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 12%, transparent))
+      drop-shadow(0 10px 12px color-mix(in oklab, var(--color-navy) 14%, transparent));
+  }
+  .aj-paper-rim,
+  .aj-paper-face {
+    position: absolute;
+    inset: 0;
+  }
+  .aj-paper-rim {
+    background: var(--color-ivory);
+  }
+  .aj-paper-face {
+    background:
+      radial-gradient(circle at 20% 30%, color-mix(in oklab, var(--color-kraft) 12%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
+      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--color-navy) 3%, transparent) 0 1px, transparent 1.5px) 0 0 / 13px 7px,
+      linear-gradient(170deg, color-mix(in oklab, var(--color-ivory) 85%, var(--color-kraft)), color-mix(in oklab, var(--color-ivory) 74%, var(--color-kraft)));
+  }
+  .aj-card .paper-pin {
+    top: -11px;
+    width: 22px;
+    height: 22px;
+  }
+  .aj-h3 {
+    line-height: 1.1;
+  }
+
+  /* ---- the range kicker on a tinted highlighter strip (sage · blue-grey · sage · peach) ---- */
+  .aj-item {
+    --hl: color-mix(in oklab, var(--color-green-2) 24%, var(--color-ivory));
+    --hl-ink: var(--color-forest);
+    --hl-rot: -0.8deg;
+  }
+  .aj-item:nth-child(2) {
+    --hl: color-mix(in oklab, var(--color-steel) 26%, var(--color-ivory));
+    --hl-ink: var(--color-navy-2);
+    --hl-rot: 0.6deg;
+  }
+  .aj-item:nth-child(3) {
+    --hl-rot: -0.5deg;
+  }
+  .aj-item:nth-child(4) {
+    --hl: color-mix(in oklab, var(--color-rust) 18%, var(--color-ivory));
+    --hl-ink: var(--color-terracotta);
+    --hl-rot: 0.8deg;
+  }
+  .aj-range {
+    justify-self: start;
+    margin: 4px -6px 2px;
+    padding: 6px 12px 6px 10px;
+    background-color: var(--hl); /* solid: EVAL-008 resolves the micro-label's contrast against it */
+    color: var(--hl-ink);
+    rotate: var(--hl-rot);
+    clip-path: polygon(1% 8%, 22% 0, 48% 6%, 76% 1%, 99% 5%, 100% 38%, 98% 70%, 100% 96%, 70% 100%, 40% 95%, 12% 100%, 0 92%, 2% 60%, 0 30%);
+  }
+  .aj-desc {
+    margin-top: 6px;
+    padding-top: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ---- the closing line's DraftTag as an outlined stamp ---- */
+  .aj-stamp.draft-tag {
+    padding: 6px 14px;
+    border: 1.5px solid var(--color-terracotta);
+    border-radius: 2px;
+    background: var(--color-ivory);
+    outline: 1px solid color-mix(in oklab, var(--color-terracotta) 55%, transparent);
+    outline-offset: 2px;
+    rotate: -1.5deg;
+  }
+
+  /* ---- the collage: ONE decoration object; no z-index, so its pieces join the section's stack ---- */
+  .ajc {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ajc-scrap {
+    position: absolute;
+    z-index: 0;
+    display: block;
+    background: var(--color-kraft);
+  }
+  .ajc-scrap[data-tone="sage"] {
+    background: color-mix(in oklab, var(--color-green-2) 45%, var(--color-paper-2));
+  }
+  .ajc-scrap[data-tone="sage-dark"] {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--color-navy) 6%, transparent) 0 1px, transparent 1.5px) 0 0 / 7px 9px,
+      color-mix(in oklab, var(--color-green-2) 72%, var(--color-paper-2));
+  }
+  .ajc-scrap[data-tone="rust"] {
+    background:
+      radial-gradient(circle at 40% 40%, color-mix(in oklab, var(--color-navy) 7%, transparent) 0 1px, transparent 1.5px) 0 0 / 6px 9px,
+      repeating-linear-gradient(64deg, transparent 0 34px, color-mix(in oklab, var(--color-note) 10%, transparent) 34px 35px),
+      color-mix(in oklab, var(--color-rust) 72%, var(--color-kraft));
+  }
+  .ajc-scrap[data-tone="kraft"] {
+    background:
+      radial-gradient(circle at 40% 40%, color-mix(in oklab, var(--color-terracotta) 8%, transparent) 0 1px, transparent 1.5px) 0 0 / 6px 8px,
+      color-mix(in oklab, var(--color-kraft) 80%, var(--color-paper-2));
+  }
+  .ajc-scrap[data-tone="grid"] {
+    background:
+      linear-gradient(90deg, var(--rule-blue) 1px, transparent 1px) 0 0 / 12px 12px,
+      linear-gradient(180deg, var(--rule-blue) 1px, transparent 1px) 0 0 / 12px 12px,
+      var(--color-paper);
+  }
+  .ajc-scrap[data-tone="ledger"] {
+    background:
+      linear-gradient(180deg, transparent 0 15px, var(--rule-blue) 15px 16px) 0 0 / 100% 16px,
+      color-mix(in oklab, var(--color-note) 45%, var(--color-paper-2));
+  }
+  /* positions: the layer is the card grid's box; negative offsets bleed up behind the head */
+  .ajc-scrap[data-k="grid-12"] { left: 22%; top: 18%; width: 4%; height: 50%; }
+  .ajc-scrap[data-k="kraft-23"] { left: 47%; top: 6%; width: 6%; height: 64%; rotate: 2deg; }
+  .ajc-scrap[data-k="sage-23"] { left: 30%; top: -30px; width: 20%; height: 70px; rotate: 3deg; }
+  .ajc-scrap[data-k="grid-34"] { left: 72%; top: 14%; width: 4%; height: 48%; }
+  .ajc-scrap[data-k="ledger-b"] { left: -4%; top: calc(100% - 30px); width: 44%; height: 90px; rotate: 1deg; }
+  .ajc-scrap[data-k="rust-tape"] { left: 80%; top: calc(100% - 40px); width: 10%; height: 50px; rotate: -3deg; }
+
+  /* generated collage pieces (shared `collage-<piece>.webp`, decorative) */
+  .ajc-piece {
+    position: absolute;
+    z-index: 0;
+    display: block;
+    max-width: none;
+    height: auto;
+  }
+  .ajc-piece[data-k="kraft-tl"] { left: -7%; top: -300px; width: 340px; height: 190px; rotate: -3deg; }
+  .ajc-piece[data-k="flowers-tl"] { left: -6%; top: -330px; width: 104px; rotate: -14deg; z-index: 1; }
+  .ajc-piece[data-k="sage-l"] { left: -9%; top: 90px; width: 170px; height: 440px; }
+  .ajc-piece[data-k="leaf-l"] { left: -6%; top: 46%; width: 72px; rotate: 10deg; z-index: 1; }
+  .ajc-piece[data-k="rust-23"] { left: 44%; top: 62%; width: 190px; height: 170px; rotate: 6deg; }
+  .ajc-piece[data-k="sage-tr"] { left: 84%; top: -300px; width: 300px; height: 360px; rotate: 2deg; }
+  .ajc-piece[data-k="kraft-r"] { left: 89%; top: -20px; width: 180px; height: 150px; rotate: -5deg; }
+  .ajc-piece[data-k="grid-r"] { left: 96%; top: 24%; width: 120px; height: 200px; }
+  .ajc-piece[data-k="rust-r"] { left: 97%; top: 52%; width: 90px; height: 240px; rotate: 3deg; }
+  .ajc-piece[data-k="postmark-tr"] { left: 83%; top: -262px; width: 130px; rotate: -4deg; z-index: 1; opacity: 0.8; }
+  .ajc-piece[data-k="stamp"] { left: 94%; top: -300px; width: 100px; rotate: 5deg; z-index: 1; }
+  .ajc-piece[data-k="leaf-2"] { left: 25%; top: 66%; width: 62px; rotate: -16deg; z-index: 3; }
+  .ajc-piece[data-k="leaf-3"] { left: 73.5%; top: 62%; width: 58px; rotate: 14deg; z-index: 3; }
+  .ajc-piece[data-k="flowers-r"] { left: 96%; top: 56%; width: 66px; rotate: 12deg; z-index: 3; }
+  .ajc-piece[data-k="fern-bl"] { left: -5%; top: calc(100% + 20px); width: 54px; rotate: -58deg; z-index: 1; }
+  .ajc-piece[data-k="postmark-b"] { left: 76%; top: calc(100% + 56px); width: 120px; opacity: 0.7; }
+
+  /* doodles at the card feet (grid: 4 columns, 24 px gaps; the cards reserve room below) */
+  .ajc-doodle {
+    --col: calc((100% - 72px) / 4);
+    position: absolute;
+    z-index: 3;
+    bottom: 18px;
+    left: calc(var(--col) * var(--i) + 24px * var(--i) + 20px);
+    width: calc(var(--col) - 40px);
+    height: auto;
+    aspect-ratio: 240 / 110;
+    overflow: visible;
+  }
+  .ajc-doodle[data-k="b-1"] { --i: 0; }
+  .ajc-doodle[data-k="cloud"] { --i: 1; rotate: 0.7deg; }
+  .ajc-doodle[data-k="b-3"] { --i: 2; }
+  .ajc-doodle[data-k="bulb"] { --i: 3; rotate: 0.9deg; }
+  .ajc-line {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy-2) 70%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ajc-thin {
+    stroke-width: 1;
+  }
+  .ajc-tree {
+    fill: color-mix(in oklab, var(--color-green-2) 35%, transparent);
+    stroke: color-mix(in oklab, var(--color-forest) 60%, transparent);
+    stroke-width: 1;
+  }
+  .ajc-bulb path {
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ajc-note {
+    font-family: var(--font-hand);
+    font-size: 24px;
+    fill: var(--color-navy-2);
+  }
+
+  @media (min-width: 1025px) {
+    .aj-card.paper-sheet {
+      padding-bottom: clamp(110px, 9vw, 140px); /* room for the foot doodle */
+    }
+  }
+  @media (max-width: 1024px) {
+    /* fewer scraps; no doodles (the cards reflow) */
+    .ajc [data-wide] {
+      display: none;
+    }
+    .ajc-piece[data-k="sage-l"] { left: -60px; top: 0; width: 80px; height: 360px; }
+    .ajc-piece[data-k="sage-tr"] { left: auto; right: -50px; top: -170px; width: 120px; height: 200px; }
+    .ajc-piece[data-k="grid-r"] { left: auto; right: -40px; top: 40%; width: 64px; height: 180px; }
+    .ajc-piece[data-k="rust-r"] { left: auto; right: -40px; top: auto; bottom: 0; width: 56px; height: 200px; }
+    .ajc-piece[data-k="flowers-r"] { left: auto; right: -14px; top: auto; bottom: -70px; width: 48px; }
+    .ajc-piece[data-k="stamp"] { left: auto; right: -10px; top: -170px; width: 70px; }
+  }
+  @media (min-width: 901px) and (max-width: 1024px) {
+    .ajc-piece[data-k="stamp"] { top: -64px; right: 40px; }
+  }
+  @media (max-width: 900px) {
+    .aj-head-strip {
+      padding: 16px 26px 20px 20px;
+    }
+    .aj-lead-strip.about-lead {
+      padding: 14px 20px 16px;
+    }
+  }
+  @media (max-width: 640px) {
+    .aj-close-strip {
+      padding: 10px 20px 12px 16px;
+    }
+    .ajc-piece[data-k="stamp"] {
+      display: none;
+    }
+  }
+}
+/* end TKT-100 */
