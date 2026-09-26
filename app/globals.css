@@ -947,9 +947,10 @@ body::before {
      2382–2745 × 100–495. A polaroid is W wide and W + 12 tall (12 / 12 / 36 padding, square photo). */
   .hero-polaroid {
     --cpx: calc(100cqw / 3168);
+    --ox: 0px;
     position: absolute;
     top: calc(var(--y) * var(--cpx));
-    left: calc(var(--x) * var(--cpx));
+    left: calc(var(--ox) + var(--x) * var(--cpx));
     width: calc(var(--w) * var(--cpx));
     padding: calc(12 * var(--cpx)) calc(12 * var(--cpx)) calc(36 * var(--cpx));
   }
@@ -983,6 +984,28 @@ body::before {
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 2px;
+  }
+  /* < 768 (Tushar 2026-09-26: "yes show polaroids there too"): the same canvas units on the 4:3
+     art-directed crop — the canvas is the box's height tall (75vw) and 3168/1344 × that wide, its left
+     edge at 50 % − 0.49 × its width (`.scene-banner-canvas`, focal 0.49; TKT-92r2). The crop shows
+     canvas x ≈ 656–2448: the tall cream sheet and the yellow note are wholly inside, the large cream
+     sheet only ≈ 18 % (x 2382–2448 of 2382–2745), under the 80 % rule — its polaroid is hidden. */
+  @media (max-width: 767px) {
+    .hero-polaroid {
+      --cpx: calc(75vw / 1344);
+      --ox: calc(50% - 0.49 * 3168 * var(--cpx));
+    }
+    .hero-polaroid:nth-child(3) {
+      display: none;
+    }
+    /* The postmark shrinks to 88 px and drops just below the yellow note's polaroid (paper bottom ≈ canvas
+       y 335 → 75vw × 340/1344 ≈ 19vw), still top-right and right of the character's face (TKT-111 r3).
+       Scoped under `.hero-banner` so it outranks the base `.hero-stamp` rule further down. */
+    .hero-banner .hero-stamp {
+      top: 19vw;
+      right: 8px;
+      width: 88px;
+    }
   }
 
   /* Top-right corner, clear of the outpaint's own pinned checklist (the circle sits at the far right,
