@@ -4,7 +4,7 @@ One row per manifest id in `manifest.ts`. `sha256` is recorded for the two files
 byte-identical to their disk source (`hero-desk` / the shipped hero poster, E-18); it is left as
 "—" for entries where byte-exactness isn't a contract (the re-encoded scenes and the reference
 sheet are derived renditions, not byte-exact copies). Spend after Stage 4 was approved by Tushar at the hero gate: 4 credits for two outpaints (`hero-banner`,
-`scene-contact`; EXE-15, EXE-19). TKT-105 (2026-09-26): Tushar approved up to 8 more credits to clean the banner's text; 4.25 were spent.
+`scene-contact`; EXE-15, EXE-19). TKT-105 (2026-09-26): Tushar approved up to 8 more credits to clean the banner's text; 4.25 were spent. No further spend is approved beyond what Tushar approves per ask — on 2026-09-26 he approved Higgsfield spend for the M-009 follow-ups (`tushky`, TKT-104).
 
 | id | file | kind | model | reference media ids | prompt summary | generated | credits spent | used on | sha256 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -18,6 +18,7 @@ sheet are derived renditions, not byte-exact copies). Spend after Stage 4 was ap
 | `scene-playground` | `scene-playground.jpg` | scene | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Tushar at a tinkering workbench holding a small cardboard prototype with wires — breadboard, tape, scissors, paper planes, tablet sketch | 2026-09-23 | 1 | `/playground`, `/` (decorative polaroid crop) | — |
 | `scene-contact` | `scene-contact.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 16:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `e3cf1013-0cde-4db5-9d83-ea7c77c63779` (= `scene-contact.png`), job `9a13a67b-cc70-436e-bbad-9be192327f3b` | Tushar standing by a window next to a tall leafy plant, terracotta coffee mug, other hand raised in a friendly wave | 2026-09-23 (scene) · 2026-09-25 (outpaint) | 1 + 2 | `/contact` | — |
 | `character-sheet-b` | `reference/character-sheet-b.jpg` | reference | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Locked character reference sheet (Variant B) — front, three-quarter and profile views | 2026-09-23 | 1 | (never rendered — Stage-8 drift check only) | — |
+| `tushky` | `tushky.webp` (public only) | mascot | `gpt_image_2_5` (Higgsfield; quality medium, 1k, transparent background) | reference media `902a0281-2459-45a7-9cea-09eaab3e7581` (= crop of `hero-banner.webp`, the sleeping golden retriever); job `6932218c-ea37-4685-bfbb-ce4b34065a76` (`tushky-dog-a.png`, chosen over alternate `7312a2c0-…`; supersedes the robot draft `ee4c8f06-…`, not shipped) | Tushky, the Ask panel mascot — the hero banner's golden retriever awake and waving a paw on a round deckled blue badge; 1024×1024 transparent PNG cropped to the badge (949 px square) with `sharp` → lanczos3 256 px → `webp({ quality: 80, alphaQuality: 85, effort: 6 })`, 22,362 bytes | 2026-09-26 (TKT-104) | 0.5 (+ 0.5 robot draft, 0.5 alternate — not shipped; Tushar approved the spend 2026-09-26) | the Ask panel (every route; lazy chunk only) | `4a22c79cec8c42af2584e110162fbb54932d7ed0f91bf8d94f92723ae6dc27e1` |
 
 ## Re-encoding record (S73.01)
 
