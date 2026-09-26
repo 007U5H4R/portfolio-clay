@@ -4,8 +4,9 @@
  *
  *   1. six cards, label / principle / quote / attribution verbatim from data/thinking-framework.ts
  *      (D7); every quote ≤ 240 chars with its `cite` sibling; pills link to lib/anchors.ts anchors.
- *   3. decoration count per §3.3: torn + journey sketch = 2 when ≥ 1025 matches, torn only = 1 below
- *      (the sketch is absent from the DOM, not hidden) — and absent from the SSR HTML.
+ *   3. decoration count per §3.3: torn + collage backdrop + journey sketch = 3 when ≥ 1025 matches,
+ *      torn + collage = 2 below (the sketch is absent from the DOM, not hidden) — and absent from the
+ *      SSR HTML. TKT-99 (Dev-40): the collage is ONE aria-hidden object whose pieces carry no data-decor.
  *   4/5. only the six pills are focusable; no roving tabindex / disclosure buttons remain.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -128,10 +129,10 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     });
   });
 
-  it("counts 2 decorations (torn + journey sketch) when ≥ 1025 matches", () => {
+  it("counts 3 decorations (torn + collage + journey sketch) when ≥ 1025 matches", () => {
     const section = renderSection(true);
     const decor = Array.from(section.querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"));
-    expect(decor).toEqual(["torn", "sketch"]);
+    expect(decor).toEqual(["torn", "collage", "sketch"]);
     expect(section.firstElementChild?.getAttribute("data-decor")).toBe("torn");
     const sketch = section.querySelector('[data-decor="sketch"]');
     expect(sketch?.getAttribute("data-sketch")).toBe("journey");
@@ -139,10 +140,11 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     expect(sketch?.querySelector("path")?.getAttribute("d")).toBe(SKETCHES.journey.paths[0]!.d);
   });
 
-  it("counts 1 decoration below 1025 — the sketch is removed from the DOM, not hidden", () => {
+  it("counts 2 decorations below 1025 — the sketch is removed from the DOM, not hidden", () => {
     const section = renderSection(false);
     expect(Array.from(section.querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"))).toEqual([
       "torn",
+      "collage",
     ]);
     expect(section.querySelector("svg.sketch")).toBeNull();
   });
@@ -151,6 +153,39 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     const html = renderToStaticMarkup(<HowIThink stages={STAGES} />);
     expect(html).not.toContain('data-decor="sketch"');
     expect(html).toContain('data-decor="torn"');
+  });
+
+  it("renders the collage backdrop as one aria-hidden, text-free decoration (TKT-99, Dev-40)", () => {
+    const section = renderSection(true);
+    const collage = section.querySelectorAll('[data-decor="collage"]');
+    expect(collage).toHaveLength(1);
+    const el = collage[0]!;
+    expect(el.getAttribute("aria-hidden")).toBe("true");
+    expect(el.querySelectorAll("[data-decor]")).toHaveLength(0);
+    expect((el.textContent ?? "").trim()).toBe("");
+    // it sits behind the cards, inside the journey, never inside a card
+    expect(el.closest('[data-paper]')).toBeNull();
+  });
+
+  it("gives each card its own torn edge, a compact two-line DraftTag and an arrow CTA (TKT-99)", () => {
+    const section = renderSection(true);
+    const cards = Array.from(section.querySelectorAll('article[data-paper="card"]'));
+    const rims = cards.map((c) => (c.querySelector(".hit-paper-rim") as HTMLElement | null)?.style.clipPath ?? "");
+    expect(rims.every((r) => r.startsWith("polygon("))).toBe(true);
+    expect(new Set(rims).size).toBe(6);
+    for (const card of cards) {
+      expect(card.querySelector(".hit-paper")?.getAttribute("aria-hidden")).toBe("true");
+      const tag = card.querySelector('[data-paper="tag"]');
+      expect(tag?.textContent).toBe("Draft — pending sign-off");
+      expect(tag?.hasAttribute("data-micro-label")).toBe(true);
+      expect(tag?.querySelector(".hit-draft-line")?.textContent).toBe("pending sign-off");
+      const arrow = card.querySelector("a svg");
+      expect(arrow?.getAttribute("aria-hidden")).toBe("true");
+    }
+    const edges = Array.from(section.querySelectorAll("li[data-stage]")).map((li) =>
+      (li as HTMLElement).style.getPropertyValue("--slip-edge"),
+    );
+    expect(edges.every((e) => e.startsWith("polygon("))).toBe(true);
   });
 
   it("has only the six link pills as focus stops (no disclosure buttons, no roving tabindex)", () => {
