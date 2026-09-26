@@ -5,7 +5,6 @@ import { HeroClip } from "@/components/hero/HeroClip";
 import { Postmark } from "@/components/hero/Postmark";
 import { clipSlotStyle } from "@/components/hero/registration";
 import { Annotation, Hand, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
-import { MediaGate } from "@/components/paper/MediaGate";
 import { SceneBanner } from "@/components/paper/SceneBanner";
 import { hero } from "@/data/hero";
 import { illustration, sceneImage, type SceneId } from "@/lib/illustrations";
@@ -49,8 +48,9 @@ const BANNER_NARROW = {
  * sheet left of the character, the square yellow note top-right, the large cream sheet right; the
  * mountain photo and the (now clean, TKT-105) corkboard stay bare. They belong to the image layer, so
  * the paper sheet scrolls over them (TKT-96); positions live in app/globals.css
- * `.hero-polaroid:nth-child(n)` in banner-canvas units. Mounted ≥ 768 only (`MediaGate`, TP14) — below
- * that the 4:3 crop cuts the right-hand papers and they would crowd the character.
+ * `.hero-polaroid:nth-child(n)` in banner-canvas units. Rendered at every width (Tushar 2026-09-26: "yes
+ * show polaroids there too"): < 768 they ride the 4:3 crop on the same canvas units; the large cream
+ * sheet is only ≈ 18 % inside that crop, so its polaroid is hidden there (CSS). Lazy, never the LCP.
  */
 const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
   { id: "scene-about", rotate: -1.6, tape: "c" },
@@ -81,16 +81,14 @@ export function Hero() {
           </div>
         </SceneBanner>
 
-        <MediaGate min={768}>
-          <div className="hero-polaroids" aria-hidden="true">
-            {POLAROIDS.map((polaroid) => (
-              <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
-                <Tape side={polaroid.tape} />
-                <Image src={sceneImage(polaroid.id)} alt="" sizes="11vw" className="hero-polaroid-img" />
-              </Sheet>
-            ))}
-          </div>
-        </MediaGate>
+        <div className="hero-polaroids" aria-hidden="true">
+          {POLAROIDS.map((polaroid) => (
+            <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
+              <Tape side={polaroid.tape} />
+              <Image src={sceneImage(polaroid.id)} alt="" sizes="(max-width: 767px) 20vw, 11vw" className="hero-polaroid-img" />
+            </Sheet>
+          ))}
+        </div>
 
         <Postmark className="hero-stamp" />
       </div>

@@ -154,10 +154,12 @@ test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async (
  * Replaces the TKT-98 corkboard guard: the corkboard is clean since TKT-105, so the rule is now that each
  * polaroid lies inside its blank paper's box (measured on hero-banner.webp, in 3168×1344 canvas px, ± a
  * small margin for the tilt), and none overlaps the character's face or the book titles. Measured at
- * rest (scroll 0) on the rendered (rotated) rects, as fractions of the banner box.
+ * rest (scroll 0) on the rendered (rotated) rects, as fractions of the banner canvas (`.scene-banner-canvas`
+ * — the box itself ≥ 768, the 4:3 crop's full-scene canvas < 768). < 768 (Tushar 2026-09-26: "yes show
+ * polaroids there too") only the papers ≥ 80 % inside the crop carry one: the large cream sheet is ≈ 18 %
+ * inside, so its polaroid must be hidden, and every visible polaroid must also lie inside the crop box.
  */
 test("hero polaroids sit on the banner's blank papers, clear of the face and the book titles", async ({ page }) => {
-  test.skip(width(page) < 768, "the polaroids are the ≥ 768 banner layout");
   const W = 3168;
   const H = 1344;
   const box = (x0: number, x1: number, y0: number, y1: number) => ({ l: x0 / W, r: x1 / W, t: y0 / H, b: y1 / H });
@@ -171,31 +173,42 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
     { name: "book titles", ...box(430, 910, 940, 1260) },
   ];
   const tol = { x: 4 / W, y: 8 / H };
-  const widths = width(page) === 1440 ? [1024, 1440, 1920] : [width(page)];
+  const widths = width(page) === 1440 ? [1024, 1440, 1920] : width(page) === 390 ? [390, 414] : [width(page)];
   for (const w of widths) {
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto("/", { waitUntil: "load" });
     await scrollToY(page, 0);
-    const rects = await page.evaluate(() => {
-      const banner = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
-      return [...document.querySelectorAll(".hero-polaroid")].map((el) => {
-        const r = el.getBoundingClientRect();
-        return {
-          l: (r.left - banner.left) / banner.width,
-          r: (r.right - banner.left) / banner.width,
-          t: (r.top - banner.top) / banner.height,
-          b: (r.bottom - banner.top) / banner.height,
-        };
+    const { all, crop } = await page.evaluate(() => {
+      const canvas = document.querySelector(".hero-banner .scene-banner-canvas")!.getBoundingClientRect();
+      const box = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
+      const frac = (r: DOMRect) => ({
+        l: (r.left - canvas.left) / canvas.width,
+        r: (r.right - canvas.left) / canvas.width,
+        t: (r.top - canvas.top) / canvas.height,
+        b: (r.bottom - canvas.top) / canvas.height,
       });
+      return {
+        crop: frac(box),
+        all: [...document.querySelectorAll(".hero-polaroid")].map((el) => ({
+          shown: getComputedStyle(el).display !== "none",
+          ...frac(el.getBoundingClientRect()),
+        })),
+      };
     });
-    expect(rects, `w${w}: one polaroid per blank paper`).toHaveLength(papers.length);
-    rects.forEach((p, i) => {
+    expect(all, `w${w}: one polaroid per blank paper`).toHaveLength(papers.length);
+    // A paper carries a visible polaroid iff ≥ 80 % of its width is inside the crop (always, ≥ 768).
+    const expectedShown = papers.map((pp) => (Math.min(pp.r, crop.r) - Math.max(pp.l, crop.l)) / (pp.r - pp.l) >= 0.8);
+    expect(all.map((p) => p.shown), `w${w}: visible polaroids (crop ${(crop.l * 100).toFixed(1)}–${(crop.r * 100).toFixed(1)} %)`).toEqual(expectedShown);
+    if (w < 768) expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 4:3 crop`).toEqual([true, true, false]);
+    all.forEach((p, i) => {
+      if (!p.shown) return;
       const paper = papers[i]!;
       const at = `w${w}: polaroid ${i + 1} [${(p.l * 100).toFixed(1)}–${(p.r * 100).toFixed(1)} % × ${(p.t * 100).toFixed(1)}–${(p.b * 100).toFixed(1)} %]`;
       expect(p.l, `${at} starts inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.l - tol.x);
       expect(p.r, `${at} ends inside the ${paper.name}`).toBeLessThanOrEqual(paper.r + tol.x);
       expect(p.t, `${at} tops inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.t - tol.y);
       expect(p.b, `${at} bottoms inside the ${paper.name}`).toBeLessThanOrEqual(paper.b + tol.y);
+      expect(p.l >= crop.l - tol.x && p.r <= crop.r + tol.x, `${at} stays inside the crop`).toBe(true);
       for (const zone of keepClear) {
         const overlaps = p.l < zone.r && p.r > zone.l && p.t < zone.b && p.b > zone.t;
         expect(overlaps, `${at} overlaps the ${zone.name}`).toBe(false);
