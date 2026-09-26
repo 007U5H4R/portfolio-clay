@@ -74,6 +74,7 @@ const ALT_PREFIXES: Record<string, string[]> = {
   poster: ["Illustration of "],
   clip: ["Animated illustration of "],
   reference: ["Illustration reference sheet"],
+  mascot: ["Tushky, "], // TKT-104 / Dev-48 — a named character, not a scene
 };
 
 /**
@@ -140,7 +141,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the ten ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93)", () => {
+  it("every manifest id matches the eleven ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -153,9 +154,24 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "scene-playground",
         "scene-thinking",
         "scene-work",
+        "tushky",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(10);
+    expect(ILLUSTRATIONS.length).toBe(11);
+  });
+
+  it("tushky is the 256 px public mascot, ≤ 25 kB, with the Dev-48 alt (TKT-104)", () => {
+    const tushky = ILLUSTRATIONS.find((e) => e.id === "tushky")!;
+    expect(tushky.kind).toBe("mascot");
+    expect(tushky.file).toBe(""); // public-only, like the clip — no content/ source rendition
+    expect(tushky.publicSrc).toBe("/media/illustrations/tushky.webp");
+    expect([tushky.width, tushky.height]).toEqual([256, 256]);
+    expect(tushky.alt).toBe("Tushky, the golden retriever portfolio assistant");
+    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "tushky.webp"));
+    expect(bytes.length).toBeLessThanOrEqual(25_000);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      "4a22c79cec8c42af2584e110162fbb54932d7ed0f91bf8d94f92723ae6dc27e1",
+    );
   });
 
   it("hero-banner is the 3168×1344 outpaint with the Dev-23 alt, used on / (TKT-93)", () => {
