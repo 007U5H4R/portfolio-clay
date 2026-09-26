@@ -6,7 +6,8 @@
  *
  *   @EVAL-013 — six stages in order, each with its sourced quote + cite visible without interaction.
  *   @EVAL-011 — every pill is a live link that resolves 200 to a case-study chapter anchor.
- *   @EVAL-018 — section count 2 (torn + journey sketch) at w1440, 1 at w390 (sketch not in the DOM);
+ *   @EVAL-018 — section count 3 (torn + collage + journey sketch) at w1440, 2 at w390 (sketch not in the
+ *               DOM; TKT-99 / Design.md §11 Dev-41 added the one collage backdrop object);
  *               every Caveat element in the section carries a `data-hand` exemption.
  *   @EVAL-007 — keyboard: Tab from the heading lands only on the six pills, in order, then leaves.
  *   @EVAL-010 — cards reveal with a 70 ms stagger; reduced motion makes the reveal instant.
@@ -73,7 +74,7 @@ test("@EVAL-011 every pill links to a case-study chapter anchor that resolves 20
   }
 });
 
-test("@EVAL-018 decoration count 2 at w1440 / 1 at w390; Caveat only under data-hand", {
+test("@EVAL-018 decoration count 3 at w1440 / 2 at w390; Caveat only under data-hand", {
   tag: "@EVAL-018",
 }, async ({ page }) => {
   test.skip(width(page) !== 1440 && width(page) !== 390, "EVAL-018 measures w390 and w1440");
@@ -81,13 +82,17 @@ test("@EVAL-018 decoration count 2 at w1440 / 1 at w390; Caveat only under data-
   await revealAll(page);
 
   const decor = section(page).locator("[data-decor]");
+  const collage = section(page).locator('[data-decor="collage"]');
+  await expect(collage).toHaveCount(1);
+  await expect(collage).toHaveAttribute("aria-hidden", "true");
+  expect(await collage.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
   if (width(page) === 1440) {
     // MediaGate mounts the sketch after hydration (TP14).
     await expect(section(page).locator('svg[data-decor="sketch"][data-sketch="journey"]')).toHaveCount(1);
-    await expect(decor).toHaveCount(2);
+    await expect(decor).toHaveCount(3);
   } else {
     await expect(section(page).locator('[data-decor="torn"]')).toHaveCount(1);
-    await expect(decor).toHaveCount(1);
+    await expect(decor).toHaveCount(2);
     await expect(section(page).locator("svg.sketch")).toHaveCount(0);
   }
 
