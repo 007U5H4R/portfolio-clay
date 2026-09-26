@@ -4,12 +4,12 @@ One row per manifest id in `manifest.ts`. `sha256` is recorded for the two files
 byte-identical to their disk source (`hero-desk` / the shipped hero poster, E-18); it is left as
 "—" for entries where byte-exactness isn't a contract (the re-encoded scenes and the reference
 sheet are derived renditions, not byte-exact copies). Spend after Stage 4 was approved by Tushar at the hero gate: 4 credits for two outpaints (`hero-banner`,
-`scene-contact`; EXE-15, EXE-19). No further spend is approved.
+`scene-contact`; EXE-15, EXE-19). TKT-105 (2026-09-26): Tushar approved up to 8 more credits to clean the banner's text; 4.25 were spent.
 
 | id | file | kind | model | reference media ids | prompt summary | generated | credits spent | used on | sha256 |
 |---|---|---|---|---|---|---|---|---|---|
 | `hero-desk` | `hero-desk.webp` | poster | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Tushar at a warm desk — laptop, notebook, books, plant, lamp, pinned notes reading the six-stage process | 2026-09-23 | 1 | `/` (the clip's `poster` attribute only since TKT-93) | `f1eb1605d725eba8db2bff344af78d1d0eddabfce976d5f809c4767a4c777b14` |
-| `hero-banner` | `hero-banner.webp` | scene | `outpaint` (Higgsfield) | input media `fc45d649-4038-4558-bd41-b659db56a9d3` (= `hero-poster.png`); job `6d94caf5-1a14-4151-9864-050b6a193615` | 21:9 outpaint of `hero-desk` to 3168×1344 for the full-bleed home banner (EXE-15, Dev-21/Dev-23); the clip registers on it at scale 1.912, x 362, y 6 | 2026-09-25 | 2 | `/` | — |
+| `hero-banner` | `hero-banner.webp` | scene | `outpaint` (Higgsfield) | input media `fc45d649-4038-4558-bd41-b659db56a9d3` (= `hero-poster.png`); job `6d94caf5-1a14-4151-9864-050b6a193615` | 21:9 outpaint of `hero-desk` to 3168×1344 for the full-bleed home banner (EXE-15, Dev-21/Dev-23); the clip registers on it at scale 1.912, x 362, y 6. **TKT-105:** all painted text removed except the book titles ("Systems" → "System Thinking"). `gpt_image_2_5` edit job `f32bd259-63f4-499f-bfd2-5f38698e0389` (input media `aa87a509-8281-41cd-b2eb-d8a2ecf90be8`) was composited only inside the text regions; no other pixel changed | 2026-09-25 · 2026-09-26 (TKT-105) | 2 + 4.25 | `/` | — |
 | `hero-clip` | `hero-animation.webm`/`.mp4` (public) | clip | `Seedance 2.5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Single `generate_video`, 16:9 source, clip A trimmed to 2.5 s — Tushar thinking at his desk and turning a pen, plays once | 2026-09-24 | 1 | `/` | — |
 | `scene-work` | `scene-work.jpg` | scene | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Tushar pinning a product sketch to a corkboard covered in wireframes, flow diagrams, sticky notes and small landscape photos | 2026-09-23 | 1 | `/work`, `/` (decorative polaroid crop) | — |
 | `scene-casestudy` | `scene-casestudy.jpg` | scene | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug, a mug and a stack of books | 2026-09-23 | 1 | `/work/[slug]` | — |
@@ -60,6 +60,35 @@ master (`hero-banner-outpaint-a1.png`), `removeAlpha().extract({ left: 640, top:
 banner box shows (x 0.2072–0.7728 of the scene) plus ≈ 0.5 % a side, so phones download the visible part
 only (`<picture>` art direction in `components/paper/SceneBanner.tsx`; placement in `components/hero/Hero.tsx`).
 Same pixels, same alt (the `<img>` element is unchanged); no new picture content.
+
+### TKT-105 · text-free banner
+
+Tushar (2026-09-26): *"only leave the book titles … instead of Systems write System Thinking. Remove all other texts."*
+The outpaint master was **edited in place, not regenerated**. That keeps the clip registration (scale 1.912, x 362, y 6)
+pixel-exact.
+
+1. One `gpt_image_2_5` edit (high quality, 4k, 21:9, **4.25 credits**, job `f32bd259-63f4-499f-bfd2-5f38698e0389`) of the whole
+   master, prompted to remove every piece of lettering and retitle the third spine. The output is 3840×1648 and the edit is not pixel-aligned,
+   so it is used only as a source of patches.
+2. For each text region, the edit was resized to 3168×1344 and aligned on that region's surrounding ring (integer shift, dx ≤ 3,
+   dy ≤ 23). It was tone-matched to the original's low frequencies, then composited through a feathered mask of the text strokes. The mask is a box for the spine.
+3. For the corkboard notes and papers, and for two small pseudo-lettering marks on the desk (an upside-down "ASI" on a book
+   cover and a scribble row on a sketch), the ink was painted out directly on the original. Each stroke was filled from its
+   own paper colour, so no generated pixels were used there.
+4. `pixels changed outside the edit mask = 0`. Master: `Portfolio-illustration/animation/export/banner/hero-banner-outpaint-a1-clean.png`
+   (sha256 `0dd6d623…6781d2`).
+
+The renditions were re-encoded with the same settings as before. `hero-banner.webp` (`webp q86 effort 6 smartSubsample`) is **304,540 bytes**,
+sha256 `6d757880d62bb309e5f1ae6cb6cec0fbd514724d33ecb3c0f34c33b116a98adf` (was 371,142). `hero-banner-mobile.webp` (same `extract`
+box `640,0,1824×1344`) is **170,202 bytes**, sha256 `814d0b9b26d17edde1f0c242a1caf863c81c4bdbd48f1f135c6a9d6507bf8fc1` (was 210,964).
+
+**Clip mask carve.** The clip (from `hero-desk`, which still carries its text) shows through the mask over parts of "The
+journey. I enjoy.", the "Bigger horizons" caption, the laptop lid and the white mug. With the old mask, the clip therefore
+painted fragments of the removed text back over the clean banner. `hero-clip-mask.png` now has feathered holes (alpha × (1 −
+dilated text mask)) at those spots. Pixels where the clip actually moves (face, hand, pen, dog; frame range > 45/255) are excluded from the holes.
+The video and poster files are unchanged. Result: 17,196 of 875,520 alpha values changed. The file was re-encoded exactly as before
+(`sharp png({ palette: true, compressionLevel: 9, effort: 10 })`, which reproduces the old file byte-for-byte from the old alpha) and is **44,202 bytes**, sha256
+`0af8d0ae0754b94956a91206bc0c7db756b82dc1a0388dbca2f7f887ab02b790` (was 38,998). The box and registration are unchanged.
 
 ## Manual per-asset checklist (Stage 8)
 

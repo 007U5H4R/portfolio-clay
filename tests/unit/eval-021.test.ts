@@ -163,7 +163,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(banner.file).toBe("hero-banner.webp");
     expect([banner.width, banner.height]).toEqual([3168, 1344]);
     expect(banner.alt).toBe(
-      "Illustration of Tushar at a warm desk — laptop, notebook, books, plants, a lamp, a sleeping golden retriever, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
+      "Illustration of Tushar at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, and books titled Product Thinking, AI & Society, System Thinking and A Better Tomorrow.",
     );
     expect(banner.usedOn).toEqual(["/"]);
     // The three polaroid scenes declare the home route too (they render there as decorative crops).
