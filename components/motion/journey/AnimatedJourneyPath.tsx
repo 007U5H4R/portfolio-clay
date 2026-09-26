@@ -62,6 +62,7 @@ export function AnimatedJourneyPath({ className }: AnimatedJourneyPathProps) {
       setGeo({ w: root.clientWidth, h: root.clientHeight, segments: journeyPathSegments(pins) });
     };
     measure();
+    if (typeof ResizeObserver !== "function") return undefined;
     const ro = new ResizeObserver(measure);
     ro.observe(root);
     return () => ro.disconnect();

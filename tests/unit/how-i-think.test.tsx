@@ -15,7 +15,6 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
-import { SKETCHES } from "@/components/paper/sketch-paths";
 import { thinkingFramework } from "@/data/thinking-framework";
 import { getProject } from "@/data/projects";
 import { ALL_PROJECT_SLUGS, routes } from "@/lib/anchors";
@@ -137,7 +136,12 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     const sketch = section.querySelector('[data-decor="sketch"]');
     expect(sketch?.getAttribute("data-sketch")).toBe("journey");
     expect(sketch?.getAttribute("aria-hidden")).toBe("true");
-    expect(sketch?.querySelector("path")?.getAttribute("d")).toBe(SKETCHES.journey.paths[0]!.d);
+    // TKT-110: the line is measured pin to pin and drawn in segments (lead-in, 5 joins, tail), each
+    // dashed path revealed through its own mask path.
+    expect(sketch?.querySelectorAll("path.jr-seg")).toHaveLength(7);
+    expect(Array.from(sketch?.querySelectorAll("mask [data-journey-segment]") ?? []).map((p) => p.getAttribute("data-journey-segment"))).toEqual(
+      ["0", "1", "2", "3", "4", "5", "6"],
+    );
   });
 
   it("counts 2 decorations below 1025 — the sketch is removed from the DOM, not hidden", () => {

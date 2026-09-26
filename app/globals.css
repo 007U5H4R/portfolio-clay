@@ -6469,7 +6469,8 @@ html.lenis body {
   .jr-mask {
     mask-type: alpha;
   }
-  .jr-seg-mask {
+  .sketch[data-sketch="journey"] .jr-seg-mask {
+    vector-effect: none;
     fill: none;
     stroke: var(--color-navy);
     stroke-width: 14;

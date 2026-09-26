@@ -72,10 +72,13 @@ export function ProductThinkingJourney({ stageIds, className, children }: Produc
 
     // One observer per stage: in view (≥ 30 %) or already scrolled past → eligible. On desktop the
     // six sit side by side, so they all qualify together and the timeline plays straight through.
+    // It watches each stage's PARENT box: Chromium measures a target after its own clip-path, and a
+    // rolled card is clipped to its top ~28 px, so it would never read as 30 % visible.
+    const targets = stages.map((el) => el.parentElement ?? el);
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
-          const i = stages.indexOf(e.target as HTMLElement);
+          const i = targets.indexOf(e.target as HTMLElement);
           const past = e.boundingClientRect.bottom < (e.rootBounds?.top ?? 0);
           if (i >= 0 && (e.intersectionRatio >= TRIGGER || past)) {
             if (root.dataset.journeyState === "idle") centreRadialOnViewport(root);
@@ -87,7 +90,7 @@ export function ProductThinkingJourney({ stageIds, className, children }: Produc
       },
       { threshold: [0, TRIGGER] },
     );
-    stages.forEach((el) => io.observe(el));
+    targets.forEach((el) => io.observe(el));
 
     return () => {
       io.disconnect();
