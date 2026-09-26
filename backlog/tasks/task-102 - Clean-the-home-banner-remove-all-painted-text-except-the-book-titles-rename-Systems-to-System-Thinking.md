@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-09-26 05:48'
-updated_date: '2026-09-26 05:50'
+updated_date: '2026-09-26 06:40'
 labels:
   - P1
   - M-009
@@ -21,3 +21,9 @@ ordinal: 152000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Tushar 2026-09-26: 'too many text clutter is there, only leave the book titles (instead of Systems write System Thinking). Remove all other texts. Make it clean.'
 <!-- SECTION:DESCRIPTION:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged (907666d): text removed, System Thinking, 0 px changed outside mask, clip mask holes over old text; 4.25 cr. Follow-up: OG card + clip poster still derive from the pre-clean hero-desk art.
+<!-- SECTION:NOTES:END -->
