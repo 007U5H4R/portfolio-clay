@@ -17,6 +17,7 @@ import { hero } from "@/data/hero";
 import { resumeAction, site } from "@/lib/site";
 // The manifest directly (not `lib/illustrations.ts`, whose static JPEG imports Playwright cannot load).
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
+import { expectCopyWithinOneScroll, expectWholeScene } from "./hero-scene";
 
 // TKT-93: the hero's SSR image is the full-bleed banner (`hero-banner`), above the copy at every width.
 const HERO_BANNER_ALT = ILLUSTRATIONS.find((e) => e.id === "hero-banner")!.alt;
@@ -228,14 +229,23 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
 
 // ---------------------------------------------------------------------------
 // TKT-79 AC 3 · TC-151 step 4 — EVAL-001 structural precondition: the six 5-second-test elements are
-// laid out inside the first viewport (no scroll) at 390 and 1440 — name (header wordmark), title
-// (eyebrow "Senior Product Manager · …"), value (h1 "AI-native products"), the illustrated desk
-// (hero banner — "actually builds"), and the two ways in ("View my work →", "Ask my portfolio").
+// laid out inside the first viewport (no scroll) — name (header wordmark), title (eyebrow "Senior
+// Product Manager · …"), value (h1 "AI-native products"), the illustrated desk (hero banner — "actually
+// builds"), and the two ways in ("View my work →", "Ask my portfolio"). TKT-96 (Tushar 2026-09-26,
+// Design.md §11 Dev-39): that first-viewport rule now holds at w390 only; at w1440 the banner shows the
+// whole scene and the h1 + CTAs are one scroll away (tests/e2e/hero-scene.ts, shared with hero-fold).
 // Scoring the comprehension itself is manual (evals/results/eval-001-m009-home.md).
 // ---------------------------------------------------------------------------
-test("@EVAL-001 the six 5-second-test elements sit in the first viewport", async ({ page }) => {
+test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) / the whole scene then the copy (w1440)", async ({ page }) => {
   test.skip(![390, 1440].includes(width(page)), "EVAL-001 is scored at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
+  if (width(page) === 1440) {
+    await expect(page.getByAltText(HERO_BANNER_ALT)).toBeVisible();
+    await expectWholeScene(page);
+    await expectCopyWithinOneScroll(page);
+    await expect(page.locator("h1#hero-h")).toContainText("AI-native products");
+    return;
+  }
   const vh = page.viewportSize()!.height;
   const elements = {
     name: page.locator("header .header-name"),
