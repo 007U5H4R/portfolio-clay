@@ -376,15 +376,16 @@ test("@EVAL-007 ShowTheThinking (case study): Enter opens the chain and focus st
 });
 
 // ---------------------------------------------------------------------------
-// View-Transition fallback: /work card → case study lands on the identical end state (EXE-5).
+// View-Transition fallback: /projects card → case study lands on the identical end state (EXE-5; the
+// index moved from /work to /projects in TKT-101 — the study itself stays at /work/<slug>).
 // ---------------------------------------------------------------------------
-test("case-study · VT off: /work card navigates to the study with identical end state", {
+test("case-study · VT off: /projects card navigates to the study with identical end state", {
   tag: "@EVAL-015",
 }, async ({ page, noViewTransitions, withReducedMotion }) => {
   test.skip(!isEdge(page), "VT fallback verified at 390 and 1440");
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/work", { waitUntil: "load" });
+  await page.goto("/projects", { waitUntil: "load" });
 
   const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback runs").toBeFalsy();

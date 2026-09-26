@@ -44,8 +44,12 @@ test("@EVAL-015 JS off: static HTML carries content and navigation links", { tag
   try {
     const p = await context.newPage();
     await p.goto("/", { waitUntil: "domcontentloaded" });
+    // TKT-101: the nav's "Work" tab is now "Experience" (/work) + "Projects" (/projects).
     await expect(
-      p.locator('nav[aria-label="Primary"] a', { hasText: "Work" }).first(),
+      p.locator('nav[aria-label="Primary"] a[href="/work"]', { hasText: "Experience" }).first(),
+    ).toHaveCount(1);
+    await expect(
+      p.locator('nav[aria-label="Primary"] a[href="/projects"]', { hasText: "Projects" }).first(),
     ).toHaveCount(1);
     await expect(p.getByRole("heading", { level: 1 })).toContainText("AI-native products");
 

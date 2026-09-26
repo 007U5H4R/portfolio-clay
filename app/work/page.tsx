@@ -1,81 +1,122 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { Container } from "@/components/layout/Container";
-import { Annotation, TornEdge } from "@/components/paper";
-import { SceneOpener } from "@/components/paper/SceneOpener";
-import { ExperienceStrip, ExperienceStripFallback } from "@/components/projects/ExperienceStrip";
-import { FilterTabs, FilterTabsFallback } from "@/components/projects/FilterTabs";
-import { WorkGrid } from "@/components/projects/WorkGrid";
-import { WorkHero } from "@/components/projects/WorkHero";
-import { WorkIndex } from "@/components/projects/WorkIndex";
-import { projects } from "@/data/projects";
+import { CollageTimeline, type TimelineEntry, type TimelineTone } from "@/components/experience/CollageTimeline";
+import { EDU_DOODLES, WORK_DOODLES } from "@/components/experience/Doodles";
+import { ORG_LOGOS } from "@/components/experience/logos";
+import { education } from "@/data/credentials";
+import { experience } from "@/data/experience";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
-  title: `Work · ${site.name}`,
+  title: `Experience · ${site.name}`,
   description:
-    "Every project — personal AI builds and professional platform work — filterable by AI, Enterprise, Cloud and Experiments.",
+    "Work experience — American Express (via IntraEdge), Shellkode, Quantiphi Analytics, Godrej Infotech — and education at NIT Calicut and Bhilai Institute of Technology.",
   path: "/work",
-  ogFamily: "Selected Work",
+  ogFamily: "Experience",
 });
 
 /**
- * `/work` (TKT-16/17 → TKT-80, Design.md §7.2): `SceneOpener` (TKT-95) → `WorkHero` (opener copy) →
- * the index section (`FilterTabs`, URL-synced `?filter=`, + `WorkGrid` → the numbered `WorkIndex` of
- * the PERSONAL builds, or `EmptyState` only when a filter is empty) → `ExperienceStrip` (the
- * professional entries as employment, never mixed into the filterable product index).
+ * `/work` — the Experience page (TKT-101, Tushar direction 2026-09-26; Design.md §7.2, §11 Dev-90/43).
+ * Replaces the project index (moved to `/projects`; case studies keep `/work/<slug>`). No scene opener:
+ * his reference starts at the "Work Experience" title, and the pinboard scene belongs to the project
+ * index it illustrates, so it moved with it (`scene-work` → `/projects`).
  *
- * The route MUST stay statically prerendered (TP1). `FilterTabs`, `WorkGrid` and `ExperienceStrip`
- * all read the filter with `useSearchParams` (client) rather than a server `searchParams` prop —
- * reading `searchParams` server-side would make `/work` dynamic (E-4). Each sits in its own
- * `<Suspense>` whose fallback prerenders the DEFAULT state (All tab active + the unfiltered grid/
- * strip), so the static HTML carries every card/row (SEO + the dead-control crawler) and a deep link
- * (`/work?filter=ai`) only flashes the full set for one frame before the client narrows it (TP7,
- * accepted). `assert-static` stays green.
+ * Work Experience (newest first) → the torn paper cut-out → Education on the `paper-2` tone. On scroll
+ * the Education sheet slides up over the Work section: while Education enters the viewport, the Work
+ * content drifts down at half speed (the TKT-96 mechanism — CSS scroll-driven, `@supports`-guarded,
+ * off under reduced motion; app/globals.css TKT-101 block).
+ *
+ * Every date, role, bullet and name comes verbatim from `data/experience.ts` / `data/credentials.ts`
+ * (the same records `/about` renders). Mismatches against the reference images are listed for Tushar
+ * in docs/reports/TKT-101.md — the data is never edited to match a picture.
  */
-const personalProjects = projects.filter((project) => project.category === "personal");
-const professionalProjects = projects.filter((project) => project.category === "professional");
 
-export default function WorkPage() {
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "2026-06" → "Jun 2026" (data/schema.ts YearMonth). */
+function monthLabel(ym: string): string {
+  const [year, month] = ym.split("-");
+  return `${MONTHS[Number(month) - 1]} ${year}`;
+}
+
+const WORK_TONES: TimelineTone[] = ["rust", "steel", "green", "rose"];
+const EDU_TONES: TimelineTone[] = ["sage", "blue"];
+
+/** Newest first, as the reference reads (data/experience.ts is stored oldest first for `/about`). */
+const workEntries: TimelineEntry[] = [...experience]
+  .sort((a, b) => b.dates.start.localeCompare(a.dates.start))
+  .map((role, i) => {
+    const kinds = new Set(role.outcomes.map((o) => o.kind));
+    return {
+      id: role.id,
+      when: {
+        start: role.dates.start,
+        end: role.dates.end,
+        startLabel: monthLabel(role.dates.start),
+        endLabel: role.dates.end ? monthLabel(role.dates.end) : "Present",
+      },
+      name: role.company,
+      nameNote: role.companyNote,
+      role: role.title,
+      city: role.location,
+      // TKT-101 r2: Tushar's card wording (`highlights`, "image wins") when present; otherwise the
+      // structured résumé fields + outcomes, as round 1 rendered them.
+      bullets:
+        role.highlights ??
+        [role.context, role.responsibility, ...(role.scale === "not recorded" ? [] : [role.scale]), role.whatChanged],
+      outcomes: role.highlights
+        ? undefined
+        : {
+            label: kinds.size === 1 && kinds.has("self-reported") ? "Outcomes · self-reported" : "Outcomes",
+            items: role.outcomes.map((o) => o.text),
+          },
+      logo: ORG_LOGOS[role.id],
+      labelText: role.company,
+      tone: WORK_TONES[i % WORK_TONES.length]!,
+    };
+  });
+
+/** "National Institute of Technology Calicut, Kozhikode" → name + city (the résumé's own comma). */
+function splitInstitution(institution: string): { name: string; city?: string } {
+  const at = institution.lastIndexOf(", ");
+  return at === -1 ? { name: institution } : { name: institution.slice(0, at), city: institution.slice(at + 2) };
+}
+
+const eduEntries: TimelineEntry[] = education.map((entry, i) => {
+  const { name, city } = splitInstitution(entry.institution);
+  return {
+    id: entry.id,
+    when: { start: entry.year, startLabel: entry.year },
+    name,
+    role: entry.degree,
+    city,
+    bullets: entry.highlights ?? [],
+    logo: ORG_LOGOS[entry.id],
+    labelText: name,
+    tone: EDU_TONES[i % EDU_TONES.length]!,
+  };
+});
+
+export default function ExperiencePage() {
   return (
-    <>
-      {/* TKT-95 scene opener (EXE-18): the character's face + reaching arm sit ≈ 38 % down the scene. */}
-      <SceneOpener id="scene-work" focalX={0.6} focalY={0.38} priority />
-      <WorkHero />
-      {/* TKT-80 index (Design.md §7.2): paper-2, torn top, sr-only h2 (QA-004 heading outline h1 → h2 →
-          h3), the serif filter tabs + "start here ↓" annotation, then the numbered index / EmptyState.
-          EVAL-018 unit = torn · annotation · (RailCite) sticky = 3. */}
-      <section aria-labelledby="work-personal-heading" className="work-index-sec">
-        <TornEdge fill="paper-2" />
-        <Container className="work-index-wrap">
-          <h2 id="work-personal-heading" className="sr-only">
-            Personal builds
-          </h2>
-          <div className="work-tabs-row">
-            <Suspense fallback={<FilterTabsFallback />}>
-              <FilterTabs />
-            </Suspense>
-            <Annotation arrow="down" rotate={-1.5} className="work-tabs-note">
-              start here ↓
-            </Annotation>
-          </div>
-          <Suspense
-            fallback={
-              <div className="work-panel">
-                <WorkIndex projects={personalProjects} />
-              </div>
-            }
-          >
-            <WorkGrid projects={personalProjects} />
-          </Suspense>
-        </Container>
-      </section>
-      {/* The strip renders its own <section aria-label="Professional experience"> (torn) so it leaves
-          no empty landmark behind when a filter ("Experiments") matches no professional entry. */}
-      <Suspense fallback={<ExperienceStripFallback projects={professionalProjects} />}>
-        <ExperienceStrip projects={professionalProjects} />
-      </Suspense>
-    </>
+    <div className="xp">
+      <h1 className="sr-only">Experience</h1>
+      <CollageTimeline
+        id="work-experience"
+        className="xp-work"
+        title="Work Experience"
+        aside="Different problems. Same curiosity. Bigger impact."
+        entries={workEntries}
+        doodles={WORK_DOODLES}
+      />
+      <CollageTimeline
+        id="education"
+        className="xp-edu"
+        title="Education"
+        aside="From engineering foundations to research-driven thinking."
+        entries={eduEntries}
+        doodles={EDU_DOODLES}
+        torn
+      />
+    </div>
   );
 }

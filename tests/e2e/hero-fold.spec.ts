@@ -35,7 +35,7 @@ test("@EVAL-001 w390: the 5-second-test elements and the hand line sit in the fi
     // The banner img is inside a cover-cropped canvas that may overflow its box; the visible desk is the box.
     desk: page.locator(".hero-banner figure.scene-banner").filter({ has: page.getByAltText(HERO_BANNER_ALT) }),
     work: page.getByRole("link", { name: "View my work →" }),
-    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask my portfolio" }),
+    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" }),
   };
   for (const [label, locator] of Object.entries(elements)) {
     await expect(locator, label).toBeVisible();
@@ -73,7 +73,7 @@ async function paperOverImage(page: Page, paperSel: string, imageSel: string): P
 
 const LAYERS = [
   { route: "/", paper: ".hero-sheet", image: ".hero-banner .scene-banner", animated: ".hero-banner" },
-  { route: "/work", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
+  { route: "/projects", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
 ] as const;
 
 for (const { route, paper, image, animated } of LAYERS) {
@@ -150,30 +150,111 @@ test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async (
 });
 
 /**
- * Polaroid placement scar (Tushar 2026-09-26: "the polaroid image is overlapping the journey flow"). The
- * upper polaroids must cover the outpaint's corkboard (its garbled notes, EVAL-021 flag; frame ends at
- * ≈ 21.5 % of the scene width, notes to ≈ 39.5 % of its height) without reaching the "Problem → … → Impact"
- * note, which starts at ≈ 24 %. Measured at rest (scroll 0) on the unrotated layout boxes' rendered rects.
+ * Polaroid placement (TKT-111, Dev-80 — Tushar 2026-09-26: "move polaroids to blank canvases behind").
+ * Replaces the TKT-98 corkboard guard: the corkboard is clean since TKT-105, so the rule is now that each
+ * polaroid lies inside its blank paper's box (measured on hero-banner.webp, in 3168×1344 canvas px, ± a
+ * small margin for the tilt), and none overlaps the character's face or the book titles. Measured at
+ * rest (scroll 0) on the rendered (rotated) rects, as fractions of the banner canvas (`.scene-banner-canvas`
+ * — the box itself ≥ 768, the 4:3 crop's full-scene canvas < 768). < 768 (Tushar 2026-09-26: "yes show
+ * polaroids there too") only the papers ≥ 80 % inside the crop carry one: the large cream sheet is ≈ 18 %
+ * inside, so its polaroid must be hidden, and every visible polaroid must also lie inside the crop box.
  */
-test("hero polaroids cover the corkboard and stay clear of the journey note", async ({ page }) => {
-  test.skip(width(page) < 768, "the polaroids are the ≥ 768 banner layout");
-  const widths = width(page) === 1440 ? [1024, 1440, 1920] : [width(page)];
+test("hero polaroids sit on the banner's blank papers, clear of the face and the book titles", async ({ page }) => {
+  const W = 3168;
+  const H = 1344;
+  const box = (x0: number, x1: number, y0: number, y1: number) => ({ l: x0 / W, r: x1 / W, t: y0 / H, b: y1 / H });
+  const papers = [
+    { name: "tall cream sheet", ...box(765, 1165, 60, 665) },
+    { name: "yellow note", ...box(2058, 2368, 58, 335) },
+    { name: "large cream sheet", ...box(2382, 2745, 100, 495) },
+  ];
+  const keepClear = [
+    { name: "character's face", ...box(1400, 1730, 170, 610) },
+    { name: "book titles", ...box(430, 910, 940, 1260) },
+  ];
+  const tol = { x: 4 / W, y: 8 / H };
+  const widths = width(page) === 1440 ? [1024, 1440, 1920] : width(page) === 390 ? [390, 414] : [width(page)];
   for (const w of widths) {
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto("/", { waitUntil: "load" });
     await scrollToY(page, 0);
-    const m = await page.evaluate(() => {
-      const banner = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
-      const [p1, p2] = [...document.querySelectorAll(".hero-polaroid")].map((el) => el.getBoundingClientRect());
+    const { all, crop, stamp } = await page.evaluate(() => {
+      const canvas = document.querySelector(".hero-banner .scene-banner-canvas")!.getBoundingClientRect();
+      const box = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
+      const frac = (r: DOMRect) => ({
+        l: (r.left - canvas.left) / canvas.width,
+        r: (r.right - canvas.left) / canvas.width,
+        t: (r.top - canvas.top) / canvas.height,
+        b: (r.bottom - canvas.top) / canvas.height,
+      });
       return {
-        right: (Math.max(p1!.right, p2!.right) - banner.left) / banner.width,
-        bottom: (Math.min(p1!.bottom, p2!.bottom) - banner.top) / banner.height,
+        crop: frac(box),
+        stamp: frac(document.querySelector(".hero-stamp")!.getBoundingClientRect()),
+        all: [...document.querySelectorAll(".hero-polaroid")].map((el) => ({
+          shown: getComputedStyle(el).display !== "none",
+          ...frac(el.getBoundingClientRect()),
+        })),
       };
     });
-    expect(m.right, `w${w}: upper polaroids end at ${(m.right * 100).toFixed(1)} % (journey note starts ≈ 24 %)`).toBeLessThanOrEqual(0.235);
-    expect(m.right, `w${w}: upper polaroids reach the corkboard's right-hand notes (≈ 20.4 %)`).toBeGreaterThanOrEqual(0.2);
-    // The lowest notes ("Team projects", "Croamg-probro") end at ≈ 39.5 % of the scene height; below is
-    // bare cork, then the frame (≈ 45 %) — neither carries text.
-    expect(m.bottom, `w${w}: upper polaroids cover the corkboard's lowest notes (≈ 39.5 %)`).toBeGreaterThanOrEqual(0.4);
+    expect(all, `w${w}: one polaroid per blank paper`).toHaveLength(papers.length);
+    // A paper carries a visible polaroid iff ≥ 80 % of its width is inside the crop (always, ≥ 768).
+    const expectedShown = papers.map((pp) => (Math.min(pp.r, crop.r) - Math.max(pp.l, crop.l)) / (pp.r - pp.l) >= 0.8);
+    expect(all.map((p) => p.shown), `w${w}: visible polaroids (crop ${(crop.l * 100).toFixed(1)}–${(crop.r * 100).toFixed(1)} %)`).toEqual(expectedShown);
+    if (w < 768) {
+      const face = keepClear[0]!;
+      const onFace = stamp.l < face.r && stamp.r > face.l && stamp.t < face.b && stamp.b > face.t;
+      expect(onFace, `w${w}: the postmark stays clear of the character's face`).toBe(false);
+    }
+    if (w < 768) expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 4:3 crop`).toEqual([true, true, false]);
+    all.forEach((p, i) => {
+      if (!p.shown) return;
+      const paper = papers[i]!;
+      const at = `w${w}: polaroid ${i + 1} [${(p.l * 100).toFixed(1)}–${(p.r * 100).toFixed(1)} % × ${(p.t * 100).toFixed(1)}–${(p.b * 100).toFixed(1)} %]`;
+      expect(p.l, `${at} starts inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.l - tol.x);
+      expect(p.r, `${at} ends inside the ${paper.name}`).toBeLessThanOrEqual(paper.r + tol.x);
+      expect(p.t, `${at} tops inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.t - tol.y);
+      expect(p.b, `${at} bottoms inside the ${paper.name}`).toBeLessThanOrEqual(paper.b + tol.y);
+      expect(p.l >= crop.l - tol.x && p.r <= crop.r + tol.x, `${at} stays inside the crop`).toBe(true);
+      for (const zone of keepClear) {
+        const overlaps = p.l < zone.r && p.r > zone.l && p.t < zone.b && p.b > zone.t;
+        expect(overlaps, `${at} overlaps the ${zone.name}`).toBe(false);
+      }
+      // < 768 the postmark is shrunk and moved clear of every visible polaroid (TKT-111 r3).
+      if (w < 768) {
+        const hit = p.l < stamp.r && p.r > stamp.l && p.t < stamp.b && p.b > stamp.t;
+        expect(hit, `${at} overlaps the postmark [${(stamp.l * 100).toFixed(1)}–${(stamp.r * 100).toFixed(1)} % × ${(stamp.t * 100).toFixed(1)}–${(stamp.b * 100).toFixed(1)} %]`).toBe(false);
+      }
+    });
   }
+});
+
+/**
+ * TKT-108 (Tushar 2026-09-26, Design.md §11 Dev-50) · the copy block matches his reference: the h1 reads
+ * the data sentence and breaks at the reference's three lines ≥ 768; the hand line, the "Ask Tushky"
+ * caption and the decorative Tushky sticker render; the Caveat margin notes show ≥ 1024 only; no
+ * horizontal overflow at any project width.
+ */
+test("TKT-108 hero copy block: three-line h1 ≥ 768, hand line, Ask Tushky caption + sticker, margin notes ≥ 1024", async ({ page }) => {
+  await page.goto("/", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  const h1 = page.locator("h1#hero-h");
+  await expect(h1).toHaveText(`${hero.headline.before}${hero.headline.highlight}${hero.headline.after}`.trim());
+  const lines = await h1.evaluate((el) => {
+    const lh = Number.parseFloat(getComputedStyle(el).lineHeight);
+    return Math.round(el.getBoundingClientRect().height / lh);
+  });
+  if (width(page) >= 768) expect(lines, "h1 lines ≥ 768").toBe(3);
+  await expect(page.locator(".hero-hand-sub")).toHaveText(hero.handLine.text);
+  await expect(page.getByText("My AI portfolio assistant", { exact: true })).toBeVisible();
+  const sticker = page.locator(".hero-tushky img");
+  await expect(sticker).toHaveAttribute("alt", "");
+  expect(await sticker.evaluate((el) => el.closest('[aria-hidden="true"]') !== null)).toBe(true);
+  const notes = page.locator(".hero-margin-note");
+  await expect(notes).toHaveCount(2);
+  for (const note of await notes.all()) {
+    if (width(page) >= 1024) await expect(note).toBeVisible();
+    else await expect(note).toBeHidden();
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow, "no horizontal page overflow").toBeLessThanOrEqual(0);
 });

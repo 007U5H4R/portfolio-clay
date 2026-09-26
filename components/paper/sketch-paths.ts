@@ -62,10 +62,18 @@ export const SKETCHES: Record<SketchLineVariant, SvgDrawing> = {
   },
   // home.html `.journey .path` (TKT-76: the home How-I-think curve behind the six stage cards; the
   // `path` variant above is the About product-journey drawing, a different curve).
+  // TKT-99 round 2 (Tushar: "the path connecting each stages is not that visible"): pin-to-pin
+  // arcs in a fixed-height strip across the card tops (x = the six column centres, y = the pin
+  // heads: 92 for cards 1/3/5, 64 for 2/4/6, strip top at −30 px), arcing above the cards so every
+  // segment reads between pins. Rendered 150 px tall, stretched horizontally only.
   journey: {
-    viewBox: "0 0 1200 320",
+    viewBox: "0 0 1200 150",
     stretch: true,
-    paths: [{ d: "M100 40 C 180 30, 240 80, 300 40 S 460 20, 520 44 S 700 90, 760 40 S 940 20, 1000 44 S 1060 60, 1100 44" }],
+    paths: [
+      {
+        d: "M100 92 C 140 26, 250 6, 300 64 C 350 16, 450 20, 500 92 C 540 26, 650 6, 700 64 C 750 16, 850 20, 900 92 C 940 26, 1050 6, 1100 64",
+      },
+    ],
   },
   // case-study.html `.chain .path` (show-the-thinking vertical chain).
   chain: {

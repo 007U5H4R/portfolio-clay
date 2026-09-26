@@ -4,7 +4,7 @@
  * Runs in all four viewport projects (w390/w768/w1024/w1440, playwright.config.ts).
  *   Step 1 — an unknown path (`/definitely-missing`) responds with a real HTTP 404 AND renders
  *            this page's own h1 (not a framework error page / blank body); the three ways-back
- *            links (`/`, `/work`, `/contact`) exist in the page content.
+ *            links (`/`, `/projects`, `/contact`) exist in the page content.
  *   Step 2 — the section's decoration count is exactly 1 (the reused `tools` sketch), and exactly
  *            one `<footer>` renders (the global `BandFooter`, inherited from the root layout).
  *   Step 3 — axe clean at 390 and 1440.
@@ -27,10 +27,10 @@ test("an unknown path responds 404 and renders the not-found page with its three
   test.skip(width(page) !== 1440, "link resolution is viewport-independent; checked once at w1440");
   const main = page.locator("main");
   await expect(main.locator('a[href="/"]')).toHaveCount(1);
-  await expect(main.locator('a[href="/work"]')).toHaveCount(1);
+  await expect(main.locator('a[href="/projects"]')).toHaveCount(1); // "See the work" → the index (TKT-101)
   await expect(main.locator('a[href="/contact"]')).toHaveCount(1);
 
-  for (const path of ["/", "/work", "/contact"]) {
+  for (const path of ["/", "/projects", "/contact"]) {
     const res = await page.request.get(path);
     expect(res.status(), `${path} must resolve 200`).toBe(200);
   }

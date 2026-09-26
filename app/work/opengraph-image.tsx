@@ -2,14 +2,19 @@ import { OG_SIZE, renderOgCard } from "@/lib/og";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "Selected Work — Tushar Pathak";
+export const alt = "Experience — Tushar Pathak";
 
+/**
+ * `/work` link preview (TKT-101): the route is now the Experience page (the project index and its
+ * "Selected Work" card moved to `/projects`). Copy = the page's own title + aside + the data's
+ * organisation names — nothing authored for the card alone.
+ */
 export default async function Image() {
   return renderOgCard({
-    eyebrow: "Selected Work",
-    // SITEMAP.md §/work WorkHero copy — reused verbatim ahead of TKT-16's real WorkHero component.
-    title: "Real problems. Thoughtful bets. Products that ship.",
-    subtitle: "Personal AI builds and professional platform work — filterable by AI, Enterprise, Cloud and Experiments.",
-    caption: "the pinboard",
+    eyebrow: "Experience",
+    title: "Different problems. Same curiosity. Bigger impact.",
+    subtitle:
+      "American Express (via IntraEdge) · Shellkode · Quantiphi Analytics · Godrej Infotech — and NIT Calicut, Bhilai Institute of Technology.",
+    caption: "work experience + education",
   });
 }

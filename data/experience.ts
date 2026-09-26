@@ -15,10 +15,26 @@ import type { Experience } from "./schema";
  *
  * This module imports the schema as a type only (never a value) so no client bundle pulls in zod;
  * validation runs at build time in `scripts/validate-content.ts` (prebuild) and in Vitest.
+ *
+ * `location` (TKT-101) is the city CONTENT_INVENTORY §4.5 records beside each role (RESUME), shown on
+ * the `/work` Experience timeline's city chip — Tushar's call (2026-09-26, Design.md §11 Dev-93). It
+ * is the employer's city, not a personal address; `site.showLocation` (his own location) stays false.
+ *
+ * `highlights` (TKT-101 round 2) are the `/work` card bullets, transcribed verbatim from Tushar's
+ * reference `docs/redesign-mockups/m-009/tushar-2026-09-26/work-experience-target.png` — his call
+ * ("image wins", 2026-09-26). Any bullet carrying a figure keeps the site's "(self-reported)" label,
+ * matching the `outcomes` below (résumé figures, never independently measured). The company / title
+ * edits for Quantiphi and the en dash in the two division titles come from the same image.
  */
 export const experience: Experience[] = [
   {
     id: "godrej",
+    highlights: [
+      "Directed the end-to-end product lifecycle of the Godrej Smartnet platform.",
+      "Delivered 12 high-impact features in 11 months (self-reported).",
+      "Improved service monitoring by 25% and team productivity by 30% (self-reported).",
+    ],
+    location: "Mumbai", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "Godrej Infotech",
     title: "Assistant Product Manager",
     dates: { start: "2016-09", end: "2018-12" },
@@ -36,8 +52,14 @@ export const experience: Experience[] = [
   },
   {
     id: "quantiphi",
-    company: "Quantiphi Analytics",
-    title: "Technical Project Manager, GCP Division",
+    highlights: [
+      "Led enterprise cloud-native programs across data engineering, API modernization, and Generative AI initiatives.",
+      "Spearheaded modernization initiatives such as DynamoDB-to-Spanner migration and other data platform programs.",
+      "Delivered HIPAA-compliant healthcare migration and GCP capability-building programs across strategic engagements.",
+    ],
+    location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
+    company: "Quantiphi Analytics Solutions Pvt. Ltd.",
+    title: "Technical Project Manager – GCP Division",
     dates: { start: "2022-08", end: "2026-04" },
     context: "Enterprise cloud-native programs spanning data engineering, API modernization, and GenAI initiatives.",
     responsibility: "Program governance, charters, risk management, and cross-team dependencies.",
@@ -52,8 +74,14 @@ export const experience: Experience[] = [
   },
   {
     id: "shellkode",
+    highlights: [
+      "Directed end-to-end program delivery from solution strategy to production deployment.",
+      "Established Agile delivery frameworks, DevOps, and CI/CD practices to improve execution efficiency.",
+      "Drove adoption of Shellkode’s internal project management platform, Pulse, with better reporting and governance.",
+    ],
+    location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "Shellkode",
-    title: "Technical Project Manager, AWS Division",
+    title: "Technical Project Manager – AWS Division",
     dates: { start: "2026-04", end: "2026-06" },
     context: "AWS delivery programs.",
     responsibility: "End-to-end program delivery; Agile/DevOps/CI-CD frameworks; executive and client engagement.",
@@ -71,6 +99,12 @@ export const experience: Experience[] = [
   },
   {
     id: "amex",
+    highlights: [
+      "Owned the roadmap for Accounts Receivable transaction capabilities and migration from Triumph to MARS microservices.",
+      "Prioritized 180+ user stories across four Agile teams, helping reduce delivery cycle time by 30% (self-reported).",
+      "Enabled Devin GenAI adoption to improve developer productivity and accelerate AR modernization.",
+    ],
+    location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "American Express",
     companyNote: "via IntraEdge",
     title: "Senior Product Manager (Accounts Receivable)",

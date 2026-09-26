@@ -9,6 +9,7 @@
  * mozjpeg: true })`, long edge 2048) — `width`/`height` are the re-encoded pixel sizes, not the
  * mockup renditions' (scene-thinking and scene-contact differ from the earlier stub because their
  * long edge, not width, is 2336/2240 in the master).
+ * TKT-107 (Dev-95): the six scenes are now 3168×1344 (21:9) Higgsfield outpaints — the home banner's size.
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
@@ -60,17 +61,17 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "scene-work",
     kind: "scene",
     file: "scene-work.jpg",
-    width: 2048,
-    height: 1360,
+    width: 3168,
+    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below.",
-    usedOn: ["/work", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
+    usedOn: ["/projects", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
     id: "scene-casestudy",
     kind: "scene",
     file: "scene-casestudy.jpg",
-    width: 2048,
-    height: 1360,
+    width: 3168,
+    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug beside him, a mug and a stack of books on the side table.",
     usedOn: ["/work/[slug]"],
   },
@@ -78,8 +79,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "scene-about",
     kind: "scene",
     file: "scene-about.jpg",
-    width: 2048,
-    height: 1360,
+    width: 3168,
+    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar from behind on a hillside path at dawn, coffee in one hand and a notebook under his arm, looking out over pine forest towards a snow-capped mountain horizon.",
     usedOn: ["/about", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
@@ -87,8 +88,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "scene-thinking",
     kind: "scene",
     file: "scene-thinking.jpg",
-    width: 2048,
-    height: 1529,
+    width: 3168,
+    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar writing in an open notebook at a wooden desk by a window — a green lamp, a cup of tea, stacked books, a plant, and a sketched flow diagram on loose paper.",
     usedOn: ["/thinking", "/thinking/[slug]"], // TKT-95: the scene opener on the index and every essay
   },
@@ -96,8 +97,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "scene-playground",
     kind: "scene",
     file: "scene-playground.jpg",
-    width: 2048,
-    height: 1360,
+    width: 3168,
+    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar at a tinkering workbench, holding up a small cardboard prototype with wires; a breadboard, tape, scissors, paper planes and a tablet sketch sit on the desk under a green lamp.",
     usedOn: ["/playground", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
@@ -105,8 +106,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "scene-contact",
     kind: "scene",
     file: "scene-contact.jpg",
-    width: 2048,
-    height: 1143, // 16:9 outpaint of the 1638×2048 portrait so the wave fits the page banner (EXE-19)
+    width: 3168,
+    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar standing by a window next to a tall leafy plant, a terracotta coffee mug in one hand, the other raised in a friendly wave.",
     usedOn: ["/contact"],
   },

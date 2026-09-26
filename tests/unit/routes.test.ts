@@ -72,14 +72,15 @@ describe("loadRoutes fallback order (S09.03)", () => {
   });
 });
 
-// TC-131 step 1 (TKT-71 AC 5, decision D8): five nav items with Playground; every href is a static
+// TC-131 step 1 (TKT-71 AC 5, decision D8; TKT-101 Dev-42): six nav items — "Work" became "Experience"
+// (/work) and "Projects" (/projects) joined after it — ending in Playground; every href is a static
 // route the crawler (EVAL-011) can reach, and none needs the allow-list. If Tushar reverts D8 the
 // expected length becomes 4 and the band gains a Playground link (one documented edit each).
 describe("primary nav (lib/nav.ts, D8)", () => {
-  it("has the Design.md §4.1 items in order, then Certifications (TKT-102, Dev-46)", () => {
-    expect(navItems).toHaveLength(6);
-    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/thinking", "/about", "/playground", "/certifications"]);
-    expect(navItems.map((item) => item.label)).toEqual(["Home", "Work", "Thinking", "About", "Playground", "Certifications"]);
+  it("has the seven items in order — Experience + Projects (TKT-101), Certifications (TKT-102)", () => {
+    expect(navItems).toHaveLength(7);
+    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/projects", "/thinking", "/about", "/playground", "/certifications"]);
+    expect(navItems.map((item) => item.label)).toEqual(["Home", "Experience", "Projects", "Thinking", "About", "Playground", "Certifications"]);
   });
 
   it("never lists Contact — the pill, the band and page CTAs carry that path", () => {

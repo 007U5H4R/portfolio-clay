@@ -2,9 +2,12 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { Reveal } from "@/components/interactions/Reveal";
-import { DraftTag, Hand, Pin, Sheet, Sketch, TornEdge } from "@/components/paper";
+import { DraftTag, Hand, Pin, Sheet, TornEdge } from "@/components/paper";
 import { MediaGate } from "@/components/paper/MediaGate";
+import { AnimatedJourneyPath } from "@/components/motion/journey/AnimatedJourneyPath";
+import { ProductThinkingJourney } from "@/components/motion/journey/ProductThinkingJourney";
+import { RadialReveal } from "@/components/motion/journey/RadialReveal";
+import { StageRoll } from "@/components/motion/journey/StageRoll";
 import { stagePin, type StageId } from "@/lib/stages";
 import { deckle } from "./deckle";
 import { HowIThinkCollage } from "./HowIThinkCollage";
@@ -32,6 +35,17 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
  * form, the numeral is terracotta italic, and the pill is a paper button with an arrow glyph. The
  * collage behind the cards is ONE `data-decor="collage"` object (`HowIThinkCollage`).
  *
+ * Round 2 (Tushar 2026-09-26): Higgsfield collage crops, wider cards, a bolder pin-to-pin path, and
+ * each card's torn silhouette carries a ~1.5 px navy ink outline (`.hit-paper-ink`: the rim outline
+ * on a box 1.5 px larger, behind the rim — no CSS filter), so it separates from the collage.
+ *
+ * TKT-110 (Tushar's choreography spec 2026-09-26; Design.md §11 Dev-70…Dev-72): the section plays
+ * once as a paper-unrolling sequence — the collage revealed centre-out (`RadialReveal`), then the
+ * journey line (`AnimatedJourneyPath`, now drawn ABOVE the cards, pin to pin) and the six banners
+ * (`StageRoll`) one after another, ~7.6 s, driven by `ProductThinkingJourney`
+ * (`components/motion/journey/*`). It replaces the generic `Reveal` stagger. SSR / no-JS / reduced
+ * motion render the final composition; see those files for the a11y and CLS rules.
+ *
  * Copy: stage label, principle, quote and attribution are rendered verbatim from
  * `data/thinking-framework.ts` (D7); the project name is resolved server-side in `app/page.tsx`.
  */
@@ -55,8 +69,19 @@ export interface HowIThinkProps {
   stages: HowIThinkStage[];
 }
 
-/** Mockup rotations: odd cards −0.8°, even +0.6° (within the Sheet's ±0.9° cap). */
-const rotationFor = (index: number) => (index % 2 === 0 ? -0.8 : 0.6);
+/**
+ * TKT-110 paper physics (Tushar's choreography spec §11, Design.md §11 Dev-70): each banner's final
+ * rotation, and the extra tilt it starts its roll from (spec §4: ±1–2°), interpolated to 0 as it
+ * unrolls. Slightly uneven on purpose — handmade, still sequential.
+ */
+const PAPER: Record<StageId, { rotate: number; tilt: number }> = {
+  problem: { rotate: -0.5, tilt: -1.6 },
+  insight: { rotate: 0.35, tilt: 1.3 },
+  bet: { rotate: -0.25, tilt: -1.2 },
+  build: { rotate: 0.4, tilt: 1.8 },
+  evaluate: { rotate: -0.35, tilt: -1.4 },
+  impact: { rotate: 0.3, tilt: 1.5 },
+};
 
 /** Torn outline pair per card: the pale rim, then the cream face inset inside it (TKT-99). */
 const edgesFor = (index: number) => ({
@@ -84,21 +109,24 @@ export function HowIThink({ stages }: HowIThinkProps) {
           </p>
         </div>
 
-        <div className="hit-journey">
-          <HowIThinkCollage />
+        <ProductThinkingJourney className="hit-journey" stageIds={stages.map((s) => s.id)}>
+          <RadialReveal>
+            <HowIThinkCollage />
+          </RadialReveal>
           <MediaGate min={1025}>
-            <Sketch variant="journey" className="hit-path" />
+            <AnimatedJourneyPath className="hit-path" />
           </MediaGate>
           <ol className="hit-stages">
             {stages.map((stage, index) => {
               const edges = edgesFor(index);
               return (
               <li key={stage.id} className="hit-stage" data-stage={stage.id} style={edges.slip}>
-                <Reveal index={index} className="hit-reveal">
-                  <Sheet as="article" variant="card" rotate={rotationFor(index)} className="hit-card">
+                <StageRoll index={index} startTilt={PAPER[stage.id].tilt} className="hit-reveal">
+                  <Sheet as="article" variant="card" rotate={PAPER[stage.id].rotate} className="hit-card">
                     <Pin tone={stagePin[stage.id]} />
                     <span className="hit-paper" aria-hidden="true">
                       <span className="hit-paper-shade" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-ink" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-rim" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-face" style={{ clipPath: edges.face }} />
                     </span>
@@ -121,12 +149,12 @@ export function HowIThink({ stages }: HowIThinkProps) {
                       <ArrowRight className="hit-pill-arrow" aria-hidden="true" focusable="false" size={18} strokeWidth={1.8} />
                     </Link>
                   </Sheet>
-                </Reveal>
+                </StageRoll>
               </li>
               );
             })}
           </ol>
-        </div>
+        </ProductThinkingJourney>
       </Container>
     </section>
   );

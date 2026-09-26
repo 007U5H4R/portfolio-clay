@@ -41,9 +41,9 @@ test.describe("Lenis-mounted behaviour (w1440)", () => {
     test.skip(width(page) !== 1440, "Lenis is mounted at the desktop fine-pointer project");
   });
 
-  test('hero "Ask my portfolio" lands #ask in view under the header, focus inside it', async ({ page }) => {
+  test('hero "Ask Tushky" lands #ask in view under the header, focus inside it', async ({ page }) => {
     await gotoWithLenis(page);
-    await page.getByRole("link", { name: "Ask my portfolio" }).first().click();
+    await page.getByRole("link", { name: "Ask Tushky" }).first().click();
     await expect(page).toHaveURL(/#ask$/);
     const header = await page.locator("header[data-site-header]").boundingBox();
     await expect

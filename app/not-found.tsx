@@ -44,7 +44,7 @@ export default function NotFound() {
             Back home
           </Link>
           <Link
-            href="/work"
+            href="/projects"
             data-hand="cta"
             className="focus-ring inline-flex min-h-[44px] items-center rounded-[var(--radius-pill)] border border-[var(--line)] bg-ivory px-[var(--space-5)] font-hand text-[22px] font-semibold text-navy transition-colors duration-150 ease-out hover:border-[var(--color-navy-2)]"
           >
