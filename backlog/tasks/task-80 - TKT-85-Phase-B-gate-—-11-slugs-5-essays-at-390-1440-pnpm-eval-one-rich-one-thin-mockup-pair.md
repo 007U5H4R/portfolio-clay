@@ -3,16 +3,15 @@ id: TASK-80
 title: >-
   TKT-85: Phase B gate — 11 slugs + 5 essays at 390/1440, pnpm eval, one rich +
   one thin mockup pair
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 17:46'
+updated_date: '2026-09-26 08:20'
 labels:
   - P0
   - 'sp:2'
   - m-009
   - phase-b
-  - awaiting-tushar
 milestone: m-8
 dependencies:
   - TASK-75
@@ -43,4 +42,6 @@ Screenshot sweep of /work, all 11 slugs, /thinking, 5 essays at 4 widths → doc
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-09-25 (EXE-21): evidence complete on RC 809e326 — full e2e 1050/0, eval 16 pass / 2 informational local-perf fail / 4 manual; preview 2bd4949 mobile / LCP 2338 ms, perf 95. Gate sign-off is Tushar's (not self-approved under EXE-20).
+
+2026-09-26: Tushar signed off — verbatim "signoff on hero Phase A and Phase B" (EXE-22). Gate closed.
 <!-- SECTION:NOTES:END -->

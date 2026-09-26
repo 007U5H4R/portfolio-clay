@@ -3,16 +3,15 @@ id: TASK-69
 title: >-
   TKT-74: Phase-0 tracer — assembly on /, pnpm eval --label
   baseline-m009-tracer, Vercel preview, Tushar's hero gate (EVAL-022 sub-gate)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 17:46'
+updated_date: '2026-09-26 08:20'
 labels:
   - P0
   - 'sp:2'
   - m-009
   - phase-0
-  - awaiting-tushar
 milestone: m-8
 dependencies:
   - TASK-66
@@ -46,4 +45,6 @@ Assemble / as hero → legacy sections in paper colours → band; tracer screens
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-09-25 (EXE-21): evidence complete on RC 809e326 — full e2e 1050/0, eval 16 pass / 2 informational local-perf fail / 4 manual; preview 2bd4949 mobile / LCP 2338 ms, perf 95. Gate sign-off is Tushar's (not self-approved under EXE-20).
+
+2026-09-26: Tushar signed off — verbatim "signoff on hero Phase A and Phase B" (EXE-22). Gate closed.
 <!-- SECTION:NOTES:END -->
