@@ -20,7 +20,9 @@ export type SceneOpenerProps = {
  * full-bleed `SceneBanner` (reused from the home hero, TKT-93 — not forked) with a paper `TornEdge`
  * along its bottom edge, in the home-banner style. It is its own `<section>` (an EVAL-018 unit) holding
  * exactly one counted decoration (`torn`); the page's existing title block renders directly below it.
- * The image is content: the manifest alt, never `aria-hidden` (§6.1). Server component; not in the
+ * The image is content: the manifest alt, never `aria-hidden` (§6.1). On scroll the banner moves at
+ * half speed and the opener clips its bottom at the torn edge, so the page's paper slides over the
+ * image (TKT-96 parallax, app/globals.css — CSS scroll-driven, off under reduced motion). Server component; not in the
  * `components/paper` barrel for the same reason `SceneBanner` is not (static image import under jsdom).
  */
 export function SceneOpener({ id, focalX, focalY, priority = false, tornFill = "paper" }: SceneOpenerProps) {

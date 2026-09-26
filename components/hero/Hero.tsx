@@ -24,14 +24,6 @@ const CLIP_MP4 = CLIP.publicSrc!.replace(/\.webm$/, ".mp4");
 /** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
 const BANNER_FOCAL_X = 0.49;
 /**
- * Vertical focal point (TKT-92r2): at ≥ 1024 the banner box is capped by the viewport height (the
- * 5-second-test fold, app/globals.css "TKT-92r2" block), so it is much wider than the scene's 21:9 and
- * crops top/bottom — 0.36 keeps his face and the pinned notes in (a centred crop cut the top of his
- * head at 1440×900). No effect < 768, where the 4:3 box crops sideways only.
- */
-const BANNER_FOCAL_Y = 0.36;
-
-/**
  * Narrow-screen rendition of the banner (TKT-92r2, mobile LCP): < 768 the 4:3 box shows only the scene's
  * x 0.2072–0.7728 (box 100vw × 75vw over a 176.8vw canvas at focal 0.49 — vw-proportional, so the same
  * at every narrow width; a classic scrollbar only narrows it). The crop is x 640–2464 of 3168 (that
@@ -55,7 +47,8 @@ const BANNER_NARROW = {
  * (`alt=""`, group `aria-hidden` — Dev-23), rotations inside the photo cap (±2.4°, Design.md §3.1).
  * Their job is to cover the outpaint's garbled corkboard (the banner's top-left ~21 % × 45 %): the first
  * two sit side by side across it (the first tucked under the header's edge, its tape on the right so
- * the visible fastener is not under the header), the third crosses the torn edge at the bottom-left;
+ * the visible fastener is not under the header), the third tucks under the paper's torn edge at the
+ * bottom-left. They belong to the image layer, so the paper sheet scrolls over them (TKT-96);
  * positions live in app/globals.css `.hero-polaroid:nth-child(n)`. Mounted ≥ 768 only (`MediaGate`,
  * TP14) — below that the 4:3 crop already removes the corkboard and they would cover the character.
  */
@@ -70,29 +63,30 @@ const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
  * TKT-93). Server component. Order: the full-bleed `SceneBanner` (the 3168×1344 outpaint — the LCP
  * `<img>` in the static HTML in every mode) with `HeroClip` mounting the once-and-hold `<video>` in
  * default mode inside a slot registered on the banner's pixel grid (components/hero/registration.ts)
- * and masked to the character; a paper `TornEdge` as the banner's bottom edge; the polaroids; the
- * postmark; then the centred copy block — every string verbatim from `data/hero.ts` (D7), h1 in
- * Fraunces (EXE-15). Four counted decorations (§3.2 budget ≤ 4 at both widths): torn edge, h1
- * underline sketch, hand-sub annotation, postmark sketch — the TSK-37 figcaption is gone.
+ * and masked to the character, the polaroids and the postmark — the image layer; then the paper sheet
+ * (TKT-96): a paper `TornEdge` as its top edge over the banner's bottom, and the centred copy block —
+ * every string verbatim from `data/hero.ts` (D7), h1 in Fraunces (EXE-15). At ≥ 768 the banner shows
+ * the whole 3168×1344 scene; as the page scrolls the image layer moves at half speed and the sheet
+ * slides over it, torn edge leading (app/globals.css "TKT-96" block — CSS scroll-driven, no JS). Four
+ * counted decorations (§3.2 budget ≤ 4 at both widths): torn edge, h1 underline sketch, hand-sub
+ * annotation, postmark sketch — the TSK-37 figcaption is gone.
  */
 export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-banner">
-        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} focalY={BANNER_FOCAL_Y} sizes="100vw" narrow={BANNER_NARROW}>
+        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} sizes="100vw" narrow={BANNER_NARROW}>
           <div className="hero-clip-slot" style={clipSlotStyle()}>
             <HeroClip poster={POSTER.publicSrc!} webm={CLIP.publicSrc!} mp4={CLIP_MP4} />
           </div>
         </SceneBanner>
-
-        <TornEdge fill="paper" className="hero-torn" />
 
         <MediaGate min={768}>
           <div className="hero-polaroids" aria-hidden="true">
             {POLAROIDS.map((polaroid) => (
               <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
                 <Tape side={polaroid.tape} />
-                <Image src={sceneImage(polaroid.id)} alt="" sizes="224px" className="hero-polaroid-img" />
+                <Image src={sceneImage(polaroid.id)} alt="" sizes="18vw" className="hero-polaroid-img" />
               </Sheet>
             ))}
           </div>
@@ -101,37 +95,41 @@ export function Hero() {
         <Postmark className="hero-stamp" />
       </div>
 
-      <Container className="hero-copy">
-        <p className="hero-eyebrow">{hero.eyebrow.text}</p>
+      <div className="hero-sheet">
+        <TornEdge fill="paper" className="hero-torn" />
 
-        <h1 id="hero-h" className="hero-h1">
-          {HEADLINE_HEAD}{" "}
-          <span className="underline-host">
-            {UNDERLINED}
-            <Sketch variant="underline" />
-          </span>
-        </h1>
+        <Container className="hero-copy">
+          <p className="hero-eyebrow">{hero.eyebrow.text}</p>
 
-        <Annotation size="hero" rotate={-1.5} className="hero-hand-sub">
-          Same curiosity. Bigger problems.
-        </Annotation>
+          <h1 id="hero-h" className="hero-h1">
+            {HEADLINE_HEAD}{" "}
+            <span className="underline-host">
+              {UNDERLINED}
+              <Sketch variant="underline" />
+            </span>
+          </h1>
 
-        {/* Hidden below md so the CTAs clear the 390 fold (5-second test, §5.1). */}
-        <p className="hero-support">{hero.support.text}</p>
+          <Annotation size="hero" rotate={-1.5} className="hero-hand-sub">
+            Same curiosity. Bigger problems.
+          </Annotation>
 
-        <div className="hero-cta-row">
-          <Link href="/work" className="hero-btn hero-btn-primary focus-ring">
-            <Hand kind="cta">View my work →</Hand>
-          </Link>
-          <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">
-            <svg className="hero-btn-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <circle cx="7" cy="7" r="5" />
-              <path d="M11 11 L 15 15" />
-            </svg>
-            Ask my portfolio
-          </a>
-        </div>
-      </Container>
+          {/* Hidden below md so the CTAs clear the 390 fold (5-second test, §5.1). */}
+          <p className="hero-support">{hero.support.text}</p>
+
+          <div className="hero-cta-row">
+            <Link href="/work" className="hero-btn hero-btn-primary focus-ring">
+              <Hand kind="cta">View my work →</Hand>
+            </Link>
+            <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">
+              <svg className="hero-btn-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <circle cx="7" cy="7" r="5" />
+                <path d="M11 11 L 15 15" />
+              </svg>
+              Ask my portfolio
+            </a>
+          </div>
+        </Container>
+      </div>
     </section>
   );
 }
