@@ -6116,3 +6116,52 @@ html.lenis body {
   transition: opacity 150ms var(--ease-reveal);
 }
 /* end TKT-90d */
+/* TKT-92r3 · hero h1 font-swap CLS (desktop / 0.054 → gate 0.05). Measured (Playwright, 1350×940, woff2
+   blocked vs loaded): the h1 was 3 lines × 740 px under `Fraunces Fallback` and 2 lines × 771 px under
+   Fraunces, so on swap it lost a line and its centred box moved sideways (LH layout-shifts → h1#hero-h).
+   Two font-dependent causes, both fixed here for the hero h1 only:
+   1. next/font's `Fraunces Fallback` (Times New Roman, size-adjust 115.45 %) is fitted to Fraunces'
+      default instance; at the hero's `opsz 144` Fraunces is ≈ 17 % narrower, so the fallback line ran
+      1690 px vs 1386 px. `Fraunces Hero Fallback` is the same local face re-fitted to the headline:
+      glyph advance ratio 1442/1746 (letter-spacing excluded) → size-adjust 95.34 %; the ascent/descent
+      overrides are next/font's values × 115.45/95.34 so the vertical metrics are unchanged.
+      Liberation Serif is Times New Roman's metric twin (Linux / Lighthouse CI).
+   2. `max-width: 19ch` resolves against the *current* font's "0" (0.5630em fallback, 0.6015em Fraunces),
+      so the wrap box itself changed on swap. 11.43em = 19 × 0.6015em — the same 771 px under Fraunces at
+      every clamp size, and identical under the fallback.
+   The literal `Fraunces` is next/font's family name (app/layout.tsx; `--font-fraunces` = "Fraunces",
+   "Fraunces Fallback"); tests/e2e/hero-fold.spec.ts asserts the swap keeps the h1's box and that the
+   loaded h1 renders in Fraunces, so a rename fails loudly. */
+@font-face {
+  font-family: "Fraunces Hero Fallback";
+  src: local("Times New Roman"), local("TimesNewRomanPSMT"), local("Liberation Serif");
+  ascent-override: 102.58%;
+  descent-override: 26.75%;
+  line-gap-override: 0%;
+  size-adjust: 95.34%;
+}
+/* 3. The eyebrow (above the h1) has the same two causes: its `max-width: 60ch` box was 554 px under
+      Inter and 500 px under `Inter Fallback`, and its uppercase Inter 600 line runs narrower than the
+      fallback's (glyph advances 570.1 vs 618.6 px, 0.12em tracking excluded) — a 27 px sideways move at
+      desktop and 3 lines vs 2 at 412 px, which pushed the h1 down 22 px on mobile. Re-fitted on the
+      eyebrow string → size-adjust 107.12 × 570.1/618.6 = 98.72 %; ascent/descent = next/font's ×
+      107.12/98.72; and 60ch → 39.58em (60 × Inter's 0.66em "0"; 554 px, unchanged under Inter). */
+@font-face {
+  font-family: "Inter Eyebrow Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  ascent-override: 98.14%;
+  descent-override: 24.44%;
+  line-gap-override: 0%;
+  size-adjust: 98.72%;
+}
+@layer components {
+  .hero-eyebrow {
+    max-width: 39.58em;
+    font-family: "Inter", "Inter Eyebrow Fallback", "Inter Fallback", system-ui, sans-serif;
+  }
+  .hero-h1 {
+    max-width: 11.43em;
+    font-family: "Fraunces", "Fraunces Hero Fallback", "Fraunces Fallback", "Iowan Old Style", Georgia, serif;
+  }
+}
+/* end TKT-92r3 */
