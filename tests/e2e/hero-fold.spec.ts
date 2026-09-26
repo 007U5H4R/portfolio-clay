@@ -35,7 +35,7 @@ test("@EVAL-001 w390: the 5-second-test elements and the hand line sit in the fi
     // The banner img is inside a cover-cropped canvas that may overflow its box; the visible desk is the box.
     desk: page.locator(".hero-banner figure.scene-banner").filter({ has: page.getByAltText(HERO_BANNER_ALT) }),
     work: page.getByRole("link", { name: "View my work →" }),
-    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask my portfolio" }),
+    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" }),
   };
   for (const [label, locator] of Object.entries(elements)) {
     await expect(locator, label).toBeVisible();
@@ -73,7 +73,7 @@ async function paperOverImage(page: Page, paperSel: string, imageSel: string): P
 
 const LAYERS = [
   { route: "/", paper: ".hero-sheet", image: ".hero-banner .scene-banner", animated: ".hero-banner" },
-  { route: "/work", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
+  { route: "/projects", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
 ] as const;
 
 for (const { route, paper, image, animated } of LAYERS) {
@@ -202,4 +202,35 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
       }
     });
   }
+});
+
+/**
+ * TKT-108 (Tushar 2026-09-26, Design.md §11 Dev-50) · the copy block matches his reference: the h1 reads
+ * the data sentence and breaks at the reference's three lines ≥ 768; the hand line, the "Ask Tushky"
+ * caption and the decorative Tushky sticker render; the Caveat margin notes show ≥ 1024 only; no
+ * horizontal overflow at any project width.
+ */
+test("TKT-108 hero copy block: three-line h1 ≥ 768, hand line, Ask Tushky caption + sticker, margin notes ≥ 1024", async ({ page }) => {
+  await page.goto("/", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  const h1 = page.locator("h1#hero-h");
+  await expect(h1).toHaveText(`${hero.headline.before}${hero.headline.highlight}${hero.headline.after}`.trim());
+  const lines = await h1.evaluate((el) => {
+    const lh = Number.parseFloat(getComputedStyle(el).lineHeight);
+    return Math.round(el.getBoundingClientRect().height / lh);
+  });
+  if (width(page) >= 768) expect(lines, "h1 lines ≥ 768").toBe(3);
+  await expect(page.locator(".hero-hand-sub")).toHaveText(hero.handLine.text);
+  await expect(page.getByText("My AI portfolio assistant", { exact: true })).toBeVisible();
+  const sticker = page.locator(".hero-tushky img");
+  await expect(sticker).toHaveAttribute("alt", "");
+  expect(await sticker.evaluate((el) => el.closest('[aria-hidden="true"]') !== null)).toBe(true);
+  const notes = page.locator(".hero-margin-note");
+  await expect(notes).toHaveCount(2);
+  for (const note of await notes.all()) {
+    if (width(page) >= 1024) await expect(note).toBeVisible();
+    else await expect(note).toBeHidden();
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow, "no horizontal page overflow").toBeLessThanOrEqual(0);
 });

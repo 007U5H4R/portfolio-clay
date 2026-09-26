@@ -34,7 +34,7 @@ describe("WorkGrid", () => {
   it("renders EmptyState (and no list) when an injected dataset yields no matches", () => {
     const { container } = render(<WorkGrid projects={[]} />);
     expect(screen.getByText("No projects match this filter")).toBeTruthy();
-    expect(screen.getByRole("link", { name: /Show all/ }).getAttribute("href")).toBe("/work");
+    expect(screen.getByRole("link", { name: /Show all/ }).getAttribute("href")).toBe("/projects");
     expect(container.querySelector("ol")).toBeNull();
     // The region is the tabpanel labelled by the (default) All tab.
     expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe("filter-tab-all");

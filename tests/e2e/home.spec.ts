@@ -217,9 +217,13 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
   // sketch (desktop-only). Measured counts, both inside the ≤ 4 budget. TKT-99 (Design.md §11 Dev-41)
   // added How-I-think's one collage backdrop object: 3 at w1440, 2 at w390.
   const mobile = width(page) === 390;
+  // TKT-108 (Design.md §11 Dev-50): the hero's paper sheet is its own nested section — the banner
+  // keeps the postmark (1); the sheet holds torn · h1 underline (+ its CSS accent strokes) · hand line ·
+  // the one marginalia `collage` (4, every width).
   expect(counts).toEqual({
     header: mobile ? 0 : 1,
-    'section[aria-labelledby="hero-h"]': 4,
+    'section[aria-labelledby="hero-h"]': 1,
+    "section#hero-copy": 4,
     "section#work-featured": 4,
     "section#how-i-think": mobile ? 2 : 3,
     "section#ask": 2,
@@ -232,7 +236,7 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
 // TKT-79 AC 3 · TC-151 step 4 — EVAL-001 structural precondition: the six 5-second-test elements are
 // laid out inside the first viewport (no scroll) — name (header wordmark), title (eyebrow "Senior
 // Product Manager · …"), value (h1 "AI-native products"), the illustrated desk (hero banner — "actually
-// builds"), and the two ways in ("View my work →", "Ask my portfolio"). TKT-96 (Tushar 2026-09-26,
+// builds"), and the two ways in ("View my work →", "Ask Tushky" — TKT-108; was "Ask my portfolio"). TKT-96 (Tushar 2026-09-26,
 // Design.md §11 Dev-39): that first-viewport rule now holds at w390 only; at w1440 the banner shows the
 // whole scene and the h1 + CTAs are one scroll away (tests/e2e/hero-scene.ts, shared with hero-fold).
 // Scoring the comprehension itself is manual (evals/results/eval-001-m009-home.md).
@@ -254,7 +258,7 @@ test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) 
     value: page.locator("h1#hero-h"),
     desk: page.getByAltText(HERO_BANNER_ALT),
     work: page.getByRole("link", { name: "View my work →" }),
-    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask my portfolio" }),
+    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" }),
   };
   for (const [label, locator] of Object.entries(elements)) {
     await expect(locator, label).toBeVisible();

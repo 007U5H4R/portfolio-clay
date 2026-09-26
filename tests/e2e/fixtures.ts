@@ -82,6 +82,12 @@ async function revealForAudit(page: Page): Promise<void> {
     null,
     { timeout: 10_000 },
   );
+  // TKT-110: the How I think choreography keeps its cards rolled / content faded until it plays.
+  // Same rule as `.reveal`: walk every stage into view and wait for the board to finish (≈ 7.6 s).
+  for (const el of await page.locator("[data-journey-armed] [data-journey-stage]").elementHandles()) {
+    await el.scrollIntoViewIfNeeded();
+  }
+  await page.waitForFunction(() => document.querySelector("[data-journey-armed]") === null, null, { timeout: 20_000 });
   await page.evaluate((y) => window.scrollTo(0, y), scrollY);
 }
 

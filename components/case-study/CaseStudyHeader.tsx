@@ -18,7 +18,7 @@ export interface CaseStudyHeaderProps {
  *
  * The page scene already opens the route above this section as a full-bleed `SceneOpener`
  * (TKT-95, EXE-18 / Dev-24), which supersedes §7.3's taped `scene-casestudy` photo. So by default
- * this is a single copy column: crumb "Work / Case study", h1, lead ≤ 44ch, `Role:` / `Duration:`
+ * this is a single copy column: crumb "Projects / Case study" (TKT-101: the index moved to `/projects`), h1, lead ≤ 44ch, `Role:` / `Duration:`
  * meta, the `StatusBadge` ivory pill, and the kraft **"Hero media coming"** tag (`data-paper="tag"`,
  * navy Inter — Dev-13) with its sub-line annotation. When a project gains real media (`hero.image`
  * or `links.demoVideo`) the header becomes the `56fr 44fr` grid with that media in a taped photo
@@ -38,8 +38,8 @@ export function CaseStudyHeader({ project }: CaseStudyHeaderProps) {
         <div className="cs-copy">
           <p className="cs-crumb">
             {/* Running-text crumb link: WCAG 2.5.8 inline exception, like ExternalLink. */}
-            <Link href="/work" className="focus-ring" data-inline-link="">
-              Work
+            <Link href="/projects" className="focus-ring" data-inline-link="">
+              Projects
             </Link>
             <span aria-hidden="true">/</span>
             <span>Case study</span>

@@ -24,10 +24,10 @@ describe("lib/filters", () => {
     expect(parseFilter("AI")).toBe("all"); // case-sensitive
   });
 
-  it("filterHref emits `/work` for all and `/work?filter=<f>` otherwise (E-2, never ?filter=all)", () => {
-    expect(filterHref("all")).toBe("/work");
-    expect(filterHref("ai")).toBe("/work?filter=ai");
-    expect(filterHref("experiments")).toBe("/work?filter=experiments");
+  it("filterHref emits `/projects` for all and `/projects?filter=<f>` otherwise (E-2, never ?filter=all; TKT-101)", () => {
+    expect(filterHref("all")).toBe("/projects");
+    expect(filterHref("ai")).toBe("/projects?filter=ai");
+    expect(filterHref("experiments")).toBe("/projects?filter=experiments");
   });
 
   it("applyFilter('all') returns the list unchanged", () => {
@@ -58,11 +58,11 @@ describe("lib/filters", () => {
 });
 
 describe("EmptyState (four-states empty case, TKT-16 AC5 → TKT-80 Dev-05)", () => {
-  it("renders honest copy and a live 'Show all' link to /work", () => {
+  it("renders honest copy and a live 'Show all' link to /projects", () => {
     render(<EmptyState />);
     expect(screen.getByText("No projects match this filter")).toBeTruthy();
     const showAll = screen.getByRole("link", { name: /Show all/ });
-    expect(showAll.getAttribute("href")).toBe("/work");
+    expect(showAll.getAttribute("href")).toBe("/projects");
   });
 
   it("is the pinned index card (content paper, not a decoration) with a Caveat cta label", () => {

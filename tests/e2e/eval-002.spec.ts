@@ -9,7 +9,7 @@ import { test, expect } from "./fixtures";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
-test("@EVAL-002 recruiter path: / → /work → /work/teachspark all resolve (200 + heading)", {
+test("@EVAL-002 recruiter path: / → /projects → /work/teachspark all resolve (200 + heading)", {
   tag: "@EVAL-002",
 }, async ({ page }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "journey verified at 390 and 1440");
@@ -21,9 +21,13 @@ test("@EVAL-002 recruiter path: / → /work → /work/teachspark all resolve (20
   // (the /work grid that also links to it is TKT-16 — asserted in the fixme below).
   await expect(page.locator('a[href="/work/teachspark"]').first()).toBeVisible();
 
-  const work = await page.goto("/work", { waitUntil: "load" });
-  expect(work?.status(), "/work must be 200").toBe(200);
+  // TKT-101: the project index is /projects (the hero's "View my work" CTA); /work is the Experience page.
+  const work = await page.goto("/projects", { waitUntil: "load" });
+  expect(work?.status(), "/projects must be 200").toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator('a[href="/work/teachspark"]').first()).toBeVisible();
+  const experience = await page.goto("/work", { waitUntil: "load" });
+  expect(experience?.status(), "/work (Experience) must be 200").toBe(200);
 
   const study = await page.goto("/work/teachspark", { waitUntil: "load" });
   expect(study?.status(), "/work/teachspark must be 200").toBe(200);

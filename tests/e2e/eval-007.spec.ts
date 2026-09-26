@@ -7,6 +7,7 @@
  * ShowTheThinking's keyboard flow is real now, in thinking.spec.ts (TKT-21).
  */
 import { test, expect } from "./fixtures";
+import { navItems } from "@/lib/nav";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
@@ -14,7 +15,7 @@ test("@EVAL-007 desktop nav: every tab stop shows the 2px rust focus ring", { ta
   page,
   keyboardOnly,
 }) => {
-  test.skip(width(page) < 1024, "primary nav is visible at lg+ (keyboard sweep at desktop widths)");
+  test.skip(width(page) < 1440, "primary nav is visible at ≥ 1440 (TKT-112: menu below; keyboard sweep at desktop widths)");
   await page.goto("/", { waitUntil: "load" });
   // Skip link → brand → 5 nav links (D8) → "Let's connect →" pill → Ask ghost: all opt into
   // .focus-ring (TKT-71).
@@ -24,7 +25,7 @@ test("@EVAL-007 desktop nav: every tab stop shows the 2px rust focus ring", { ta
 /**
  * TC-132 (TKT-71 AC 2, AC 8) — the MobileMenu paper sheet by keyboard alone: Tab from load reaches
  * the skip link then the menu button; Enter opens the native <dialog>; focus lands inside; Tab walks
- * the 5 nav rows (56 px), the pill, the résumé row and the Ask row without ever escaping to a page
+ * every nav row (56 px), the pill, the résumé row and the Ask row without ever escaping to a page
  * control; axe is clean with the sheet open; Escape closes it, restores focus to the button and
  * releases the <html> overflow lock.
  */
@@ -64,7 +65,7 @@ test("@EVAL-007 mobile menu: Tab → button → Enter opens the sheet, Tab cycle
 
   // Rows: 5 nav (56 px, Fraunces 18) + pill + résumé + Ask — every one ≥ 44 px tall.
   const rows = dialog.locator('nav[aria-label="Primary"] a');
-  await expect(rows).toHaveCount(5);
+  await expect(rows).toHaveCount(navItems.length); // 7 since TKT-101/102 (derived, never a literal)
   for (const row of await rows.all()) {
     const box = await row.boundingBox();
     expect(box!.height, "nav rows are 56 px").toBeGreaterThanOrEqual(55);

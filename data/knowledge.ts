@@ -167,7 +167,7 @@ export const knowledge: KnowledgeEntry[] = [
     evidence: [
       { label: "About", href: "/about" },
       { label: "Thinking notes", href: "/thinking" },
-      { label: "Work", href: "/work" },
+      { label: "Projects", href: "/projects" },
     ],
     sources: [
       { id: "RESUME", label: "Résumé (2016–present)", ref: "RESUME timeline 2016–present", inventory: "§9" },
@@ -190,7 +190,8 @@ export const knowledge: KnowledgeEntry[] = [
     evidence: [
       { label: "Experience", href: "/about#experience" },
       // §9 sanctioned edit 2: `?tab=enterprise` → `?filter=enterprise` (E-2).
-      { label: "Work — Enterprise", href: "/work?filter=enterprise" },
+      // TKT-101: the project index moved to /projects.
+      { label: "Projects — Enterprise", href: "/projects?filter=enterprise" },
     ],
     sources: [{ id: "RESUME", label: "Résumé", ref: "RESUME", inventory: "§9" }],
     draft: true,

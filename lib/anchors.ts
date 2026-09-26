@@ -4,7 +4,7 @@
  * Chapter ids are *schema values* (`data/schema.ts` CHAPTER_IDS); the `NN-slug` anchors are a
  * *presentation* concern that lives here once (and mirrored for humans in `docs/anchors.md`), so
  * no component or content file re-derives them. `routes()` produces the set of every valid internal
- * href — bare routes, `/work/<slug>#<chapterAnchor>`, page anchors, `/work?filter=<f>` (E-2: the
+ * href — bare routes, `/work/<slug>#<chapterAnchor>`, page anchors, `/projects?filter=<f>` (E-2: the
  * only permitted query key is `filter`), and essay routes — so `validateAll()` (data/index.ts) and
  * the anchors unit test resolve internal links against one source of truth. A dangling internal
  * link is a build failure (EVAL-013), never a later crawler finding.
@@ -31,11 +31,11 @@ export const PAGE_ANCHORS = {
   contact: ['resume'],
 } as const;
 
-/** The `?filter=` values `/work` accepts (mirrors the `Filter` enum in data/schema.ts). */
+/** The `?filter=` values `/projects` accepts (mirrors the `Filter` enum in data/schema.ts). */
 export const WORK_FILTERS = ['ai', 'enterprise', 'cloud', 'experiments'] as const;
 
 /** Top-level routes that always exist. */
-export const STATIC_ROUTES = ['/', '/work', '/about', '/thinking', '/contact', '/playground'] as const;
+export const STATIC_ROUTES = ['/', '/work', '/projects', '/about', '/thinking', '/contact', '/playground'] as const;
 
 /**
  * The full personal-build slug universe (CONTENT_INVENTORY §2.2) — the slugs that back `/work/<slug>`
@@ -75,7 +75,8 @@ export function routes({ projectSlugs, essaySlugs = [] }: RouteInputs): Set<stri
   const set = new Set<string>();
 
   for (const r of STATIC_ROUTES) set.add(r);
-  for (const f of WORK_FILTERS) set.add(`/work?filter=${f}`);
+  // TKT-101: the filterable project index lives at `/projects` (case studies stay at `/work/<slug>`).
+  for (const f of WORK_FILTERS) set.add(`/projects?filter=${f}`);
 
   const chapterAnchors = Object.values(CHAPTER_ANCHORS).map((c) => c.anchor);
   for (const slug of projectSlugs) {

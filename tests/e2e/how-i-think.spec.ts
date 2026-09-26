@@ -10,7 +10,8 @@
  *               DOM; TKT-99 / Design.md §11 Dev-41 added the one collage backdrop object);
  *               every Caveat element in the section carries a `data-hand` exemption.
  *   @EVAL-007 — keyboard: Tab from the heading lands only on the six pills, in order, then leaves.
- *   @EVAL-010 — cards reveal with a 70 ms stagger; reduced motion makes the reveal instant.
+ *   @EVAL-010 — cards unroll one at a time on the TKT-110 timeline (the full sequence is in
+ *               how-i-think-choreography.spec.ts); reduced motion makes it instant.
  *   @EVAL-003 — layout: 6 columns at 1440, 1 column at 390; no overflow; axe clean.
  */
 import type { Page } from "@playwright/test";
@@ -24,18 +25,16 @@ const section = (page: Page) => page.locator("section#how-i-think");
 const cards = (page: Page) => section(page).locator('article[data-paper="card"]');
 const pills = (page: Page) => section(page).locator("a[href]");
 
-/** Scroll each stage into view so every `Reveal` fires (cards stack tall at 390). */
+/**
+ * Play the TKT-110 choreography to its end: walk each stage into view (cards stack tall at 390 and
+ * unroll as they are reached) and wait for the board's `complete` state — cards unclipped, content opaque.
+ */
 async function revealAll(page: Page) {
-  const reveals = section(page).locator(".reveal");
-  await expect(reveals).toHaveCount(6);
-  for (let i = 0; i < 6; i++) {
-    await reveals.nth(i).scrollIntoViewIfNeeded();
-    await expect(reveals.nth(i)).toHaveAttribute("data-revealed", "");
-  }
-  // Let the 500 ms fade (+ up to 350 ms stagger) settle, so axe never measures a half-blended colour.
-  await expect
-    .poll(() => reveals.evaluateAll((els) => els.every((el) => getComputedStyle(el).opacity === "1")))
-    .toBe(true);
+  const board = section(page).locator("[data-journey]");
+  const stages = board.locator("[data-journey-stage]");
+  await expect(stages).toHaveCount(6);
+  for (let i = 0; i < 6; i++) await stages.nth(i).scrollIntoViewIfNeeded();
+  await expect(board).toHaveAttribute("data-journey-state", "complete", { timeout: 15_000 });
 }
 
 test("@EVAL-013 six stage cards in order, each quote and cite visible without interaction", {
@@ -130,31 +129,31 @@ test("@EVAL-007 keyboard: Tab from the heading lands only on the six pills, then
   expect(stillInside, "the seventh Tab leaves the section (no other focus stops)").toBe(false);
 });
 
-test("@EVAL-010 cards reveal on a 70 ms stagger; reduced motion is instant", {
+test("@EVAL-010 cards unroll one at a time (TKT-110 timeline); reduced motion is instant", {
   tag: "@EVAL-010",
 }, async ({ page, withReducedMotion }) => {
   test.skip(width(page) !== 1440, "motion checked at w1440");
   await page.goto("/", { waitUntil: "load" });
-  const delays = await section(page)
-    .locator(".reveal")
-    .evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionDelay.split(",")[0]!.trim()));
-  expect(delays).toEqual(["0s", "0.07s", "0.14s", "0.21s", "0.28s", "0.35s"]);
+  const board = section(page).locator("[data-journey]");
+  // The timing comes from components/motion/journey/timeline.ts as custom properties (one source).
+  await expect(board).toHaveAttribute("data-journey-armed", "");
+  const vars = await board.evaluate((el) => ["--jr-radial-ms", "--jr-draw-ms", "--jr-roll-ms"].map((v) => el.style.getPropertyValue(v)));
+  expect(vars).toEqual(["1400ms", "450ms", "750ms"]);
+  await board.scrollIntoViewIfNeeded();
+  await expect(board.locator('[data-roll="rolling"]')).toHaveCount(1, { timeout: 5_000 });
+  // Never two cards rolling at once, sampled across the sequence.
+  for (let t = 0; t < 12; t++) {
+    expect(await board.locator('[data-roll="rolling"]').count()).toBeLessThanOrEqual(1);
+    await page.waitForTimeout(250);
+  }
 
   await withReducedMotion(page);
   await page.reload({ waitUntil: "load" });
-  const timing = await section(page)
-    .locator(".reveal")
-    .evaluateAll((els) =>
-      els.map((el) => {
-        const cs = getComputedStyle(el);
-        return { property: cs.transitionProperty, delay: cs.transitionDelay, duration: cs.transitionDuration };
-      }),
-    );
-  for (const t of timing) {
-    expect(t.property).toBe("opacity");
-    expect(t.delay).toBe("0s");
-    expect(parseFloat(t.duration)).toBeLessThanOrEqual(0.001);
-  }
+  await expect(board).toHaveAttribute("data-journey-state", "complete");
+  const timing = await board
+    .locator("[data-journey-stage]")
+    .evaluateAll((els) => els.map((el) => ({ anim: getComputedStyle(el).animationName, clip: getComputedStyle(el).clipPath })));
+  for (const t of timing) expect(t).toEqual({ anim: "none", clip: "none" });
 });
 
 test("@EVAL-003 columns: 6 at w1440, 1 at w390; no overflow; axe clean", {
