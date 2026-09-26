@@ -65,3 +65,27 @@ Same pixels, same alt (the `<img>` element is unchanged); no new picture content
 
 Filed separately at `evals/results/eval-021-<sha>.md` once Stage 8 runs: confirms per asset that it
 depicts no metric, logo, product UI or claim (S20).
+
+## Decorative collage pieces (`public/media/illustrations/collage-*.webp`)
+
+Not manifest entries (decorative, `alt=""`, `aria-hidden`, lazy; EVAL-021's manifest covers the ten
+content illustrations). Cropped with PIL from two transparent Higgsfield sprite sheets generated
+2026-09-26 with Tushar's approved spend (`gpt_image_2_5`, medium, 1k, transparent background,
+0.5 credits each; style reference media `09b0c111-e66d-4ddf-a1bb-f0375f907d2c`): alpha kept,
+connected-component masks so no neighbour bleeds in, exported webp at ×2 display size, ≤ 25 kB
+each. Shared names — TKT-100/101/102 reuse the same files. First shipped by TKT-99 (home
+"How I think" collage, Design.md §11 Dev-41).
+
+| piece | file | source sheet | job id | credits | used on |
+|---|---|---|---|---|---|
+| `collage-scrap-sage` | `collage-scrap-sage.webp` (291×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-scrap-rust` | `collage-scrap-rust.webp` (297×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-scrap-kraft` | `collage-scrap-kraft.webp` (254×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-scrap-grid` | `collage-scrap-grid.webp` (269×300) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-notebook-strip` | `collage-notebook-strip.webp` (560×158) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-stamp` | `collage-stamp.webp` (178×220) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-postmark` | `collage-postmark.webp` (260×168) | `collage-paper.png` | `6eab8569-c875-472c-ad3f-d217666fa120` | shared 0.5 | `/` How I think |
+| `collage-leaf-1` | `collage-leaf-1.webp` (125×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+| `collage-leaf-2` | `collage-leaf-2.webp` (142×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+| `collage-fern` | `collage-fern.webp` (143×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+| `collage-wildflower` | `collage-wildflower.webp` (108×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
