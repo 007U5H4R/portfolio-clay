@@ -66,5 +66,5 @@ export async function expectCopyWithinOneScroll(page: Page): Promise<void> {
   expect(h1.y, "h1 top clears the sticky header after the scroll").toBeGreaterThanOrEqual(doc.header - 1);
   expect(cta.y + cta.height, "CTA row bottom inside the viewport after the scroll").toBeLessThanOrEqual(vh + 1);
   await expect(page.getByRole("link", { name: "View my work →" })).toBeInViewport({ ratio: 1 });
-  await expect(page.locator(".hero-cta-row").getByRole("link", { name: "Ask my portfolio" })).toBeInViewport({ ratio: 1 });
+  await expect(page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" })).toBeInViewport({ ratio: 1 });
 }

@@ -4,17 +4,22 @@ import { Container } from "@/components/layout/Container";
 import { HeroClip } from "@/components/hero/HeroClip";
 import { Postmark } from "@/components/hero/Postmark";
 import { clipSlotStyle } from "@/components/hero/registration";
-import { Annotation, Hand, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
+import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { MediaGate } from "@/components/paper/MediaGate";
 import { SceneBanner } from "@/components/paper/SceneBanner";
 import { hero } from "@/data/hero";
 import { illustration, sceneImage, type SceneId } from "@/lib/illustrations";
 
-/** The h1 split so the rust underline `Sketch` sits under the last three words (Design.md §5.1 / Dev-21). */
-const HEADLINE = `${hero.headline.before}${hero.headline.highlight}${hero.headline.after}`;
-const HEADLINE_WORDS = HEADLINE.trim().split(/\s+/);
-const UNDERLINED = HEADLINE_WORDS.slice(-3).join(" ");
-const HEADLINE_HEAD = HEADLINE_WORDS.slice(0, -3).join(" ");
+/**
+ * The h1 in its three reference lines (TKT-108): `data/hero.ts` splits the headline where Tushar's
+ * reference breaks it, and each part is a `.hero-h1-line` (block ≥ 768, inline below — the spaces
+ * between them are real text nodes, so the accessible name is the plain sentence). The rust underline
+ * `Sketch` sits under the last line, "people actually use." (Design.md §5.1 / Dev-21).
+ */
+const H1_LINES = [hero.headline.before.trim(), hero.headline.highlight.trim(), hero.headline.after.trim()] as const;
+/** The hand line's faint underline sits under "problems." (TKT-108 reference). */
+const HAND_MARK = "problems.";
+const [HAND_HEAD = "", HAND_TAIL = ""] = hero.handLine.text.split(HAND_MARK);
 
 const POSTER = illustration("hero-desk");
 const CLIP = illustration("hero-clip");
@@ -67,9 +72,13 @@ const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
  * (TKT-96): a paper `TornEdge` as its top edge over the banner's bottom, and the centred copy block —
  * every string verbatim from `data/hero.ts` (D7), h1 in Fraunces (EXE-15). At ≥ 768 the banner shows
  * the whole 3168×1344 scene; as the page scrolls the image layer moves at half speed and the sheet
- * slides over it, torn edge leading (app/globals.css "TKT-96" block — CSS scroll-driven, no JS). Four
- * counted decorations (§3.2 budget ≤ 4 at both widths): torn edge, h1 underline sketch, hand-sub
- * annotation, postmark sketch — the TSK-37 figcaption is gone.
+ * slides over it, torn edge leading (app/globals.css "TKT-96" block — CSS scroll-driven, no JS).
+ * TKT-108 (Tushar 2026-09-26, Design.md §11 Dev-50) rebuilt the copy block to his reference: letter-
+ * spaced eyebrow, a three-line h1 with the rust underline, the Caveat hand line, support, "View my
+ * work →" + "✦ Ask Tushky" (Tushky's head sticker beside it), and faint marginalia. The sheet is its
+ * own nested `<section>` (a §3.2 counting unit): the outer section counts 1 (postmark), the sheet 4 —
+ * torn edge, h1 underline sketch (its two accent strokes are CSS on the same host), hand-line
+ * annotation, and the one `collage` backdrop — at every width.
  */
 export function Hero() {
   return (
@@ -95,41 +104,94 @@ export function Hero() {
         <Postmark className="hero-stamp" />
       </div>
 
-      <div className="hero-sheet">
+      {/* TKT-108: the paper sheet is its own counting unit (nested section, Design.md §3.2 rule 1 / Dev-50). */}
+      <section className="hero-sheet" id="hero-copy">
         <TornEdge fill="paper" className="hero-torn" />
+
+        {/* TKT-108 marginalia + faint backdrop — ONE counted `collage` object (Design.md §3.1 / Dev-50):
+            its pieces carry no `data-decor`, the whole unit is `aria-hidden` and pointer-events none.
+            Server-rendered and absolutely positioned (no layout shift); pieces are shown by width in
+            app/globals.css, the Caveat notes ≥ 1024 only. */}
+        <div className="hero-margin" data-decor="collage" aria-hidden="true">
+          <span className="hero-margin-patch" data-patch="tl" />
+          <span className="hero-margin-patch" data-patch="h1" />
+          <span className="hero-margin-patch hero-margin-grid" data-patch="br" />
+          <svg className="hero-margin-leaf" viewBox="0 0 200 260" focusable="false">
+            <path d="M100 258 C 96 190, 84 120, 60 20" />
+            <path d="M92 200 C 60 190, 30 160, 22 128 C 52 132, 80 160, 92 200 Z" />
+            <path d="M88 160 C 118 146, 146 116, 150 84 C 120 90, 96 120, 88 160 Z" />
+            <path d="M78 116 C 48 104, 30 76, 30 46 C 56 56, 74 84, 78 116 Z" />
+            <path d="M70 76 C 92 60, 104 36, 102 8 C 80 20, 70 46, 70 76 Z" />
+          </svg>
+          <svg className="hero-margin-loop" viewBox="0 0 160 200" focusable="false">
+            <path d="M8 4 C 30 60, 60 96, 110 92 C 150 88, 150 44, 118 48 C 84 52, 90 110, 130 150 C 142 162, 150 178, 152 196" />
+          </svg>
+          <p className="hero-margin-note font-hand" data-note="why">
+            real
+            <br />
+            problems
+            <br />
+            real people
+            <br />
+            bigger impact
+            <svg className="hero-margin-arrow" viewBox="0 0 80 40" focusable="false">
+              <path d="M4 34 C 22 12, 44 6, 72 12" />
+              <path d="M62 4 L 74 12 L 62 20" />
+            </svg>
+          </p>
+          <p className="hero-margin-note font-hand" data-note="flow">
+            problem → insight → build → learn
+          </p>
+        </div>
 
         <Container className="hero-copy">
           <p className="hero-eyebrow">{hero.eyebrow.text}</p>
 
           <h1 id="hero-h" className="hero-h1">
-            {HEADLINE_HEAD}{" "}
-            <span className="underline-host">
-              {UNDERLINED}
+            <span className="hero-h1-line">{H1_LINES[0]}</span>{" "}
+            <span className="hero-h1-line">{H1_LINES[1]}</span>{" "}
+            <span className="hero-h1-line underline-host">
+              {H1_LINES[2]}
               <Sketch variant="underline" />
             </span>
           </h1>
 
-          <Annotation size="hero" rotate={-1.5} className="hero-hand-sub">
-            Same curiosity. Bigger problems.
+          {/* The faint stroke under "problems." is part of this one annotation object (CSS on the span). */}
+          <Annotation size="hero" rotate={-1} className="hero-hand-sub">
+            {HAND_HEAD}
+            <span className="hero-hand-mark">{HAND_MARK}</span>
+            {HAND_TAIL}
           </Annotation>
 
-          {/* Hidden below md so the CTAs clear the 390 fold (5-second test, §5.1). */}
           <p className="hero-support">{hero.support.text}</p>
 
           <div className="hero-cta-row">
             <Link href="/projects" className="hero-btn hero-btn-primary focus-ring">
-              <Hand kind="cta">View my work →</Hand>
+              View my work →
             </Link>
-            <a href="#ask" className="hero-btn hero-btn-secondary focus-ring">
-              <svg className="hero-btn-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                <circle cx="7" cy="7" r="5" />
-                <path d="M11 11 L 15 15" />
-              </svg>
-              Ask my portfolio
-            </a>
+            <div className="hero-ask">
+              <a href="#ask" className="hero-btn hero-btn-secondary focus-ring" aria-describedby="hero-ask-cap">
+                <span className="hero-btn-spark" aria-hidden="true">
+                  ✦
+                </span>
+                Ask Tushky
+              </a>
+              <p id="hero-ask-cap" className="hero-ask-cap" data-micro-label="">
+                My AI portfolio assistant
+              </p>
+              {/* Tushky (the banner's golden retriever) + its pointer: one decorative illustration,
+                  not a counted decoration (like the polaroid photos) — Design.md §11 Dev-50. */}
+              <span className="hero-tushky" aria-hidden="true">
+                <Image src="/media/illustrations/tushky-head.webp" alt="" width={64} height={64} className="hero-tushky-img" />
+                <svg className="hero-tushky-arrow" viewBox="0 0 48 32" focusable="false">
+                  <path d="M4 28 C 18 26, 30 18, 38 6" />
+                  <path d="M30 8 L 39 5 L 40 14" />
+                </svg>
+              </span>
+            </div>
           </div>
         </Container>
-      </div>
+      </section>
     </section>
   );
 }
