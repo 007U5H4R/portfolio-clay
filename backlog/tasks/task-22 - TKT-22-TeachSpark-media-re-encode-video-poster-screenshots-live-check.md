@@ -4,6 +4,7 @@ title: 'TKT-22: TeachSpark media: re-encode video + poster + screenshots + live 
 status: To Do
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P1
   - 'sp:2'
@@ -37,3 +38,9 @@ Source: tickets.md § TKT-22.
 - [ ] #3 Live status checked with date; result written to `content/media/teachspark/SOURCES.md` and reflected in `data/projects.ts` status copy (TKT-28 consumes).
 - [ ] #4 No sandbox join code visible in any frame or screenshot (manual frame check; note the manual step in SOURCES.md).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — TeachSpark has no real product video/screenshots yet (no content/media/teachspark directory). Dependency: Tushar (live product access/recording approval) or an agent recording session against the live sandbox. Status left as To Do.
+<!-- SECTION:NOTES:END -->

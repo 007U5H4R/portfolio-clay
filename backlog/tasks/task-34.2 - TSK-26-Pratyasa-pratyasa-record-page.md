@@ -1,9 +1,10 @@
 ---
 id: TASK-34.2
 title: 'TSK-26: Pratyasa (pratyasa) - record page'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P2
   - 'sp:1'
@@ -33,3 +34,9 @@ Short page: Context (co-inventor, 2nd of 5; hardware/firmware/Android/validation
 - [ ] #2 Patent IN 429867 + rights line "Patent owned by NIT-Calicut; research prototype, not an approved diagnostic".
 - [ ] #3 No product-metric language.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-54 (Done). The pratyasa project record exists in data/projects.ts and renders through the shared /work/[slug] case-study template; this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

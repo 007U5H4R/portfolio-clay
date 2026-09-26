@@ -3,10 +3,10 @@ id: TASK-45
 title: >-
   TKT-49: Performance pass - Lighthouse, JS budget, LCP/CLS, fonts, images,
   video
-status: In Review
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 09:25'
+updated_date: '2026-09-26 09:12'
 labels:
   - P0
   - 'sp:3'
@@ -54,3 +54,9 @@ Source: tickets.md § TKT-49.
 - [ ] #3 Before/after JSON persisted.
 - [ ] #4 No threshold lowered (EV2).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — obsolete. This performance pass targeted the pre-redesign clay design (clay shadow paint cost, /work and /about in the old visual system) which no longer exists (M-008/pre-M-009 code deleted in TKT-89). Performance work for the current illustrated site is now owned by M-009's own ticket TKT-92/TASK-88 (mobile LCP <= 2.5s, Lighthouse >= 90 on / and /work/teachspark, preview evidence recorded 2026-09-25), which is out of this triage's scope (M-009 milestone m-8).
+<!-- SECTION:NOTES:END -->

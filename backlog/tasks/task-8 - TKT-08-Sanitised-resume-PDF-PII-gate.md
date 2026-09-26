@@ -4,7 +4,7 @@ title: 'TKT-08: Sanitised resume PDF + PII gate'
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:22'
-updated_date: '2026-09-16 08:17'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:1'
@@ -39,3 +39,9 @@ Source: tickets.md § TKT-08.
 - [ ] #3 Title decision recorded in `decisions.md` (EXE-n) - updated PDF or accepted mismatch.
 - [ ] #4 `resumeAvailable: true`; every resume control on the site links to `/resume.pdf` (`download` attribute) and returns 200; the placeholder state no longer renders anywhere (Playwright asserts both).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — needs a sanitised resume PDF and the PII gate; public/resume.pdf does not exist and lib/site.ts still has resumeAvailable: false. Dependency: Tushar (must supply/approve the sanitised PDF). Status left as Blocked (already).
+<!-- SECTION:NOTES:END -->

@@ -1,9 +1,10 @@
 ---
 id: TASK-34.3
 title: 'TSK-27: Tegaki (tegaki)'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P2
   - 'sp:1'
@@ -34,3 +35,9 @@ Chapters: Context (productising a manual practice), Problem/pilot question, Insi
 - [ ] #3 Checkout "confirms without charging" disclosed.
 - [ ] #4 No pilot numbers.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-54 (Done). The tegaki project record exists in data/projects.ts and renders through the shared /work/[slug] case-study template; this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

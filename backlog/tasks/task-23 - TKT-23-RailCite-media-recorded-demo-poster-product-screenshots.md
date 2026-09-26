@@ -4,6 +4,7 @@ title: 'TKT-23: RailCite media: recorded demo + poster + product screenshots'
 status: To Do
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:14'
 labels:
   - P1
   - 'sp:2'
@@ -37,3 +38,9 @@ Source: tickets.md § TKT-23.
 - [ ] #3 No JWT/session token, email, or personal data visible in any frame.
 - [ ] #4 If auth blocks recording, document the exact blocker and ship poster-only ("Demo coming").
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — RailCite has no recorded demo/poster/screenshots yet (no content/media/railcite directory); only the mascot exists per the ticket's own note. Dependency: Tushar (live product access) or an agent recording session against railcite.vercel.app. Status left as To Do.
+<!-- SECTION:NOTES:END -->

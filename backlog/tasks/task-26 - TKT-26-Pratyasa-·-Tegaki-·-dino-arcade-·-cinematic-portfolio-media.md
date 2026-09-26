@@ -4,6 +4,7 @@ title: 'TKT-26: Pratyasa · Tegaki · dino-arcade · cinematic-portfolio media'
 status: To Do
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:14'
 labels:
   - P2
   - 'sp:3'
@@ -35,3 +36,9 @@ Source: tickets.md § TKT-26.
 - [ ] #3 `SOURCES.md` per slug.
 - [ ] #4 No ROM/BIOS content, no personal account, no payment step recorded.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — Pratyasa/Tegaki/dino-arcade/cinematic-portfolio media directories exist but only contain SOURCES.md placeholders; no actual video/poster/screenshot files have been captured yet. Dependency: Tushar (approve automated capture) or an agent recording session against the live URLs/device footage. Status left as To Do.
+<!-- SECTION:NOTES:END -->
