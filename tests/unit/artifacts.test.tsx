@@ -270,9 +270,11 @@ describe("MetricCard — sourcing guard (EVAL-013)", () => {
     expect(screen.getByText("as of 9 Sep 2026")).toBeInTheDocument();
   });
 
-  it("inline variant carries the same sourced fields without a sheet", () => {
+  it("renders only the pinned index card — the legacy inline header variant is gone (TKT-97)", () => {
+    // @ts-expect-error — `variant` was removed with the legacy CaseStudyHeader mini-metric; reintroducing it must be deliberate.
     const { container } = render(<MetricCard metric={goodMetric} source={PLAIN_SOURCE} variant="inline" />);
-    expect(container.querySelector("[data-paper]")).toBeNull();
+    expect(container.querySelector("[data-paper='index']")).not.toBeNull();
+    expect(container.querySelector(".metric-inline")).toBeNull();
     expect(container.textContent).toMatch(/17[\s\S]*teachers onboarded[\s\S]*Measured[\s\S]*as of 9 Sep 2026[\s\S]*Source: TeachSpark pilot log/);
   });
 
