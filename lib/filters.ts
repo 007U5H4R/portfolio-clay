@@ -42,9 +42,12 @@ export function parseFilter(param: string | null | undefined): FilterValue {
   return param && VALID_FILTERS.has(param) ? (param as FilterValue) : "all";
 }
 
-/** The canonical href for a filter value: `/work` for `all`, `/work?filter=<f>` otherwise (E-2). */
+/**
+ * The canonical href for a filter value: `/projects` for `all`, `/projects?filter=<f>` otherwise (E-2).
+ * TKT-101: the project index moved from `/work` to `/projects` (`/work` is now the Experience page).
+ */
 export function filterHref(value: FilterValue): string {
-  return value === "all" ? "/work" : `/work?filter=${value}`;
+  return value === "all" ? "/projects" : `/projects?filter=${value}`;
 }
 
 /** Filter a project list by a parsed filter value (`all` returns the list unchanged). */

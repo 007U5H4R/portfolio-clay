@@ -5,7 +5,7 @@ import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink
 import { Container } from "@/components/layout/Container";
 
 export interface NextProjectProps {
-  /** The next personal project in `/work` grid order (the page wraps around at the end). */
+  /** The next personal project in `/projects` index order (the page wraps around at the end). */
   project: Pick<Project, "slug" | "name">;
 }
 

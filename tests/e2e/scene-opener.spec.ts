@@ -14,7 +14,7 @@ import { test, expect } from "./fixtures";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const OPENERS: readonly { route: string; id: string }[] = [
-  { route: "/work", id: "scene-work" },
+  { route: "/projects", id: "scene-work" }, // TKT-101: the pinboard scene moved with the index; /work has no opener
   { route: "/work/teachspark", id: "scene-casestudy" },
   { route: "/thinking", id: "scene-thinking" },
   { route: "/thinking/green-tests-prove-it-runs", id: "scene-thinking" },

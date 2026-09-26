@@ -172,8 +172,8 @@ test.describe("TKT-83 · deep dive reduced motion", () => {
 // | Section reveal                           | opacity-only, ≈ instant       | route sweep (`.reveal` after a full scroll)    |
 // | Card / button / pill / band-social hover, next-project arrow, row arrow | no transform change | route hover sweep (rules read from the CSSOM) |
 // | Nav / tab underline, CopyButton, progress bar | instant / unaffected     | — (no motion to collapse)                      |
-// | Experience strip chevron                 | instant                       | `/work` strip test below                       |
-// | Filter change                            | opacity crossfade             | `/work` filter test below (+ work.spec.ts)     |
+// | Experience strip chevron                 | instant                       | `/projects` strip test below                   |
+// | Filter change                            | opacity crossfade             | `/projects` filter test below (+ projects.spec)|
 // | Ask inline expand                        | instant height, 150 ms opacity| ask-inline.spec.ts (TC-149)                    |
 // | Ask panel / mobile sheet                 | instant; scrim opacity        | Ask panel test below                           |
 // | Show-the-thinking nodes                  | all at once, opacity          | TKT-83 block above                             |
@@ -311,12 +311,12 @@ test.describe("TKT-90c · §8 reduced-motion row sweep", () => {
     expect(result.moved.length, "the sweep must see at least one hover lift when motion is allowed").toBeGreaterThan(0);
   });
 
-  test("@EVAL-010 reduced motion: experience-strip chevron flips instantly (/work)", {
+  test("@EVAL-010 reduced motion: experience-strip chevron flips instantly (/projects)", {
     tag: "@EVAL-010",
   }, async ({ page, withReducedMotion }) => {
     test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
     await withReducedMotion(page);
-    await page.goto("/work", { waitUntil: "load" });
+    await page.goto("/projects", { waitUntil: "load" });
     const summary = page.locator("details summary").filter({ has: page.locator(".job-chev") }).first();
     await summary.scrollIntoViewIfNeeded();
     const chev = summary.locator(".job-chev");
@@ -335,14 +335,14 @@ test.describe("TKT-90c · §8 reduced-motion row sweep", () => {
     expect(after.transform !== before.transform || after.rotate !== before.rotate, "the chevron still flips (state stays visible)").toBe(true);
   });
 
-  test("@EVAL-010 reduced motion: a filter change never writes a transform (/work)", {
+  test("@EVAL-010 reduced motion: a filter change never writes a transform (/projects)", {
     tag: "@EVAL-010",
   }, async ({ page, withReducedMotion }) => {
     test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
     await withReducedMotion(page);
-    await page.goto("/work", { waitUntil: "load" });
+    await page.goto("/projects", { waitUntil: "load" });
     const tabs = page.getByRole("tab");
-    expect(await tabs.count(), "/work has filter tabs").toBeGreaterThan(1);
+    expect(await tabs.count(), "/projects has filter tabs").toBeGreaterThan(1);
     await tabs.nth(1).scrollIntoViewIfNeeded();
     // Sample every element under the tab panel (inline transforms that `motion` writes) and every
     // running animation's keyframes for ~20 frames after the click.

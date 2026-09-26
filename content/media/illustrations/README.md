@@ -163,3 +163,32 @@ each. Shared names — TKT-100/101/102 reuse the same files. First shipped by TK
 | `collage-leaf-2` | `collage-leaf-2.webp` (142×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
 | `collage-fern` | `collage-fern.webp` (143×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
 | `collage-wildflower` | `collage-wildflower.webp` (108×380) | `collage-botanical.png` | `8fddab59-5a19-4f49-8234-0190f4b40eb6` | shared 0.5 | `/` How I think |
+
+### TKT-101 · `/work` Experience vignettes (decorative, `public/` only, no manifest entry)
+
+Tushar approved the Higgsfield spend on 2026-09-26 ("use higgsfield to generate the image, I will
+topup if required"). The orchestrator generated the art: `gpt_image_2_5`, medium quality, 1k,
+transparent background, 0.5 credits each. Style reference media: `09b0c111-e66d-4ddf-a1bb-f0375f907d2c`
+(= `hero-desk`). The masters are in `/Volumes/E Drive/Dev/.scratch/m009/hf/` (PROVENANCE.md). The
+art is unbranded and has no text or logos; the real logos are composited separately (see
+`content/media/logos/README.md`).
+
+Each file is a generic building or campus drawn behind a taped logo card on the `/work` timelines.
+They render inside the collage object, which is `aria-hidden`, with `alt=""`. They are lazy-loaded
+and hidden below 768 px. They are served from `public/media/illustrations/` as plain `<img>` and are
+not `content/` scenes, so they have no `manifest.ts` entry, like `hero-clip-mask.png`.
+
+Encoding: PIL crop to the alpha bounding box (alpha > 24), Lanczos resize to 480 px wide (about 2×
+display), then WebP with alpha (`method 6`, `alpha_quality 80`) at the first quality ≤ 40 kB.
+
+| file | job id | master | quality | bytes | size | sha256 (first 16) |
+|---|---|---|---|---|---|---|
+| `office-amex.webp` | `dfd9f20a-54bd-4023-b578-2b6f0da2b8fc` | `office-amex.png` 1168×880 | 64 | 39,498 | 480×384 | `bc13f2a8204b5b6d` |
+| `office-shellkode.webp` | `34def895-aa59-4f00-8ae4-5e51229170f5` | `office-shellkode.png` 1168×880 | 48 | 37,886 | 480×357 | `9eb346c3090f4423` |
+| `office-quantiphi.webp` | `6cbf78cc-2658-4753-8f7e-a2c6af875ba6` | `office-quantiphi.png` 1168×880 | 48 | 37,134 | 480×361 | `bd0465379e3c7038` |
+| `office-godrej.webp` | `73bed5ea-4def-4195-9316-1aa9e69df424` | `office-godrej.png` 1168×880 | 56 | 38,114 | 480×346 | `b1a7861a5fa6b517` |
+| `campus-nitc.webp` | `6243b593-3d37-4430-87e1-bef74efc1e76` | `campus-nitc.png` 1168×880 | 56 | 37,102 | 480×352 | `0e491e441b971785` |
+| `campus-bit.webp` | `7c4ee5e5-8452-49a5-8f70-0a91d9fc165c` | `campus-bit.png` 1168×880 | 56 | 38,146 | 480×353 | `f6b31d67cf1125dc` |
+
+The shared `collage-paper.png` and `collage-botanical.png` sprite sheets are **not** used on `/work`.
+Neither of Tushar's two references has scraps or botanicals.

@@ -110,10 +110,12 @@ export const Project = z.object({
 export const Outcome = z.object({ text: z.string().min(8), kind: z.enum(['measured','self-reported']), source: z.string().min(2) });
 export const Experience = z.object({
   id: Slug, company: z.string().min(2), companyNote: z.string().optional(),  // 'via IntraEdge'
+  location: z.string().min(2).optional(),                                     // city only (CONTENT_INVENTORY §4.5); rendered on /work (TKT-101)
   title: z.string().min(2), dates: z.object({ start: YearMonth, end: YearMonth.optional() }),
   context: z.string().min(20), responsibility: z.string().min(20),
   scale: z.union([z.string().min(10), z.literal('not recorded')]),           // MISSING renders 'Scale: not recorded' (TKT-41 AC 1)
   whatChanged: z.string().min(20), outcomes: z.array(Outcome).min(1), sources: z.array(SourceRef).min(1),
+  highlights: z.array(z.string().min(12)).max(4).optional(),                  // /work card bullets — Tushar's wording (TKT-101 r2)
 });
 export const SkillCluster = z.object({ id: Slug, name: z.string().min(3), tone: Tone, items: z.array(z.string().min(2)).min(3).max(6), source: z.string().min(2) });
 

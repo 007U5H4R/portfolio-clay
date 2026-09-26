@@ -90,11 +90,11 @@ test("hero banner illustration is visible, alt-sourced from the manifest, and re
 // S14/D10 (TSK-37) — the paper hero's two CTAs are present with the correct targets. Replaces the
 // old M-008 proof-tile offset-ladder assertion (the tile stack was deleted at TSK-38).
 // ---------------------------------------------------------------------------
-test("hero CTAs are present and target /work and #ask", async ({ page }) => {
+test("hero CTAs are present and target /projects and #ask (TKT-101)", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   const primary = page.getByRole("link", { name: "View my work →" });
   await expect(primary).toBeVisible();
-  await expect(primary).toHaveAttribute("href", "/work");
+  await expect(primary).toHaveAttribute("href", "/projects");
 
   const secondary = page.getByRole("link", { name: "Ask my portfolio" });
   await expect(secondary).toBeVisible();
@@ -210,8 +210,12 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
   try {
     const p = await context.newPage();
     await p.goto("/", { waitUntil: "domcontentloaded" });
+    // TKT-101: the nav's "Work" tab is now "Experience" (/work) + "Projects" (/projects).
     await expect(
-      p.locator('nav[aria-label="Primary"] a', { hasText: "Work" }).first(),
+      p.locator('nav[aria-label="Primary"] a[href="/work"]', { hasText: "Experience" }).first(),
+    ).toHaveCount(1);
+    await expect(
+      p.locator('nav[aria-label="Primary"] a[href="/projects"]', { hasText: "Projects" }).first(),
     ).toHaveCount(1);
     await expect(p.getByRole("heading", { level: 1 })).toContainText("AI-native products");
 
@@ -252,7 +256,7 @@ test("header keeps one height with a constant blur; scrolling only adds the hair
 // (the S04.04 active-link pill is deleted).
 // ---------------------------------------------------------------------------
 test("active nav link is marked current and shows the ink underline", async ({ page }) => {
-  test.skip(width(page) < 1024, "primary nav is visible at lg+ (measured at desktop widths)");
+  test.skip(width(page) < 1440, "primary nav is visible at ≥ 1440 (TKT-112: menu below)");
   await page.goto("/", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const active = nav.locator('a[aria-current="page"]');

@@ -9,7 +9,7 @@ import { writing } from "@/data/writing";
 
 const TOLERANCE_PX = 2;
 const ROUTES = [
-  "/work",
+  "/projects",
   "/work/teachspark",
   "/thinking",
   `/thinking/${writing[0]!.slug}`,

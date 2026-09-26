@@ -55,7 +55,8 @@ const S9_HREFS = [
   "/work/railcite#07-outcome",
   "/about",
   "/work",
-  "/work?filter=enterprise", // §9 `?tab=enterprise` reconciled to E-2 canonical `?filter=`
+  "/projects", // TKT-101: the project index moved from /work (the "Work" evidence link → "Projects")
+  "/projects?filter=enterprise", // §9 `?tab=enterprise` → E-2 `?filter=`; TKT-101 moved the index to /projects
   "/about#capabilities",
 ];
 
@@ -83,6 +84,12 @@ describe("lib/anchors routes()", () => {
     expect(resolves("/work/teachspark#99-nope", ROUTE_SET)).toBe(false);
     expect(resolves("/about#nonexistent", ROUTE_SET)).toBe(false);
     expect(resolves("/work/does-not-exist", ROUTE_SET)).toBe(false);
+  });
+
+  it("the filter hrefs live on /projects only — a stale /work?filter= link no longer resolves (TKT-101)", () => {
+    expect(resolves("/projects?filter=ai", ROUTE_SET)).toBe(true);
+    expect(resolves("/work?filter=ai", ROUTE_SET)).toBe(false);
+    expect(resolves("/work?filter=enterprise", ROUTE_SET)).toBe(false);
   });
 
   it("exposes the documented page anchors", () => {
