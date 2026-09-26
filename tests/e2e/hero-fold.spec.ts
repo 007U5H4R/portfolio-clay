@@ -178,7 +178,7 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto("/", { waitUntil: "load" });
     await scrollToY(page, 0);
-    const { all, crop } = await page.evaluate(() => {
+    const { all, crop, stamp } = await page.evaluate(() => {
       const canvas = document.querySelector(".hero-banner .scene-banner-canvas")!.getBoundingClientRect();
       const box = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
       const frac = (r: DOMRect) => ({
@@ -189,6 +189,7 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
       });
       return {
         crop: frac(box),
+        stamp: frac(document.querySelector(".hero-stamp")!.getBoundingClientRect()),
         all: [...document.querySelectorAll(".hero-polaroid")].map((el) => ({
           shown: getComputedStyle(el).display !== "none",
           ...frac(el.getBoundingClientRect()),
@@ -199,6 +200,11 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
     // A paper carries a visible polaroid iff ≥ 80 % of its width is inside the crop (always, ≥ 768).
     const expectedShown = papers.map((pp) => (Math.min(pp.r, crop.r) - Math.max(pp.l, crop.l)) / (pp.r - pp.l) >= 0.8);
     expect(all.map((p) => p.shown), `w${w}: visible polaroids (crop ${(crop.l * 100).toFixed(1)}–${(crop.r * 100).toFixed(1)} %)`).toEqual(expectedShown);
+    if (w < 768) {
+      const face = keepClear[0]!;
+      const onFace = stamp.l < face.r && stamp.r > face.l && stamp.t < face.b && stamp.b > face.t;
+      expect(onFace, `w${w}: the postmark stays clear of the character's face`).toBe(false);
+    }
     if (w < 768) expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 4:3 crop`).toEqual([true, true, false]);
     all.forEach((p, i) => {
       if (!p.shown) return;
@@ -212,6 +218,11 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
       for (const zone of keepClear) {
         const overlaps = p.l < zone.r && p.r > zone.l && p.t < zone.b && p.b > zone.t;
         expect(overlaps, `${at} overlaps the ${zone.name}`).toBe(false);
+      }
+      // < 768 the postmark is shrunk and moved clear of every visible polaroid (TKT-111 r3).
+      if (w < 768) {
+        const hit = p.l < stamp.r && p.r > stamp.l && p.t < stamp.b && p.b > stamp.t;
+        expect(hit, `${at} overlaps the postmark [${(stamp.l * 100).toFixed(1)}–${(stamp.r * 100).toFixed(1)} % × ${(stamp.t * 100).toFixed(1)}–${(stamp.b * 100).toFixed(1)} %]`).toBe(false);
       }
     });
   }

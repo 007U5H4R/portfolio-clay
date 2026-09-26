@@ -998,6 +998,14 @@ body::before {
     .hero-polaroid:nth-child(3) {
       display: none;
     }
+    /* The postmark shrinks to 88 px and drops just below the yellow note's polaroid (paper bottom ≈ canvas
+       y 335 → 75vw × 340/1344 ≈ 19vw), still top-right and right of the character's face (TKT-111 r3).
+       Scoped under `.hero-banner` so it outranks the base `.hero-stamp` rule further down. */
+    .hero-banner .hero-stamp {
+      top: 19vw;
+      right: 8px;
+      width: 88px;
+    }
   }
 
   /* Top-right corner, clear of the outpaint's own pinned checklist (the circle sits at the far right,
