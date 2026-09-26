@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-09-25 05:59'
-updated_date: '2026-09-25 17:46'
+updated_date: '2026-09-26 04:40'
 labels:
   - P0
   - 'sp:3'
@@ -33,4 +33,6 @@ ordinal: 105200
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-09-25: r2 merged (banner cap + mobile crop), preview mobile / LCP 2338 ms PASS; r3 in progress — desktop / CLS 0.054 > 0.05 (font-swap shift of h1#hero-h).
+
+r3 merged ddc545b: fallback font metrics re-fitted + em max-widths; local desktop / CLS 0.0019 x3, mobile 0.0003 x3.
 <!-- SECTION:NOTES:END -->
