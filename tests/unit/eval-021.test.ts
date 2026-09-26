@@ -141,7 +141,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the eleven ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -155,22 +155,37 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "scene-thinking",
         "scene-work",
         "tushky",
+        "tushky-avatar",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(11);
+    expect(ILLUSTRATIONS.length).toBe(12);
   });
 
-  it("tushky is the 256 px public mascot, ≤ 25 kB, with the Dev-48 alt (TKT-104)", () => {
+  it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
     const tushky = ILLUSTRATIONS.find((e) => e.id === "tushky")!;
     expect(tushky.kind).toBe("mascot");
     expect(tushky.file).toBe(""); // public-only, like the clip — no content/ source rendition
-    expect(tushky.publicSrc).toBe("/media/illustrations/tushky.webp");
-    expect([tushky.width, tushky.height]).toEqual([256, 256]);
-    expect(tushky.alt).toBe("Tushky, the golden retriever portfolio assistant");
-    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "tushky.webp"));
-    expect(bytes.length).toBeLessThanOrEqual(25_000);
+    expect(tushky.publicSrc).toBe("/media/illustrations/tushky-bandana.webp");
+    expect([tushky.width, tushky.height]).toEqual([231, 280]);
+    expect(tushky.alt).toBe("Tushky, the golden retriever portfolio assistant, wearing a navy bandana lettered Tushky");
+    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "tushky-bandana.webp"));
+    expect(bytes.length).toBeLessThanOrEqual(30_000);
     expect(createHash("sha256").update(bytes).digest("hex")).toBe(
-      "4a22c79cec8c42af2584e110162fbb54932d7ed0f91bf8d94f92723ae6dc27e1",
+      "ba71c8822ab65f172bec3adf883256cd039b4eeca7830d0e355634351ab88d33",
+    );
+    // v1 is retired, not left orphaned in public/.
+    expect(existsSync(join(PUBLIC_DIR, "media", "illustrations", "tushky.webp"))).toBe(false);
+  });
+
+  it("tushky-avatar is the 64 px chat avatar crop, ≤ 5 kB (TKT-104 r2, Dev-62)", () => {
+    const avatar = ILLUSTRATIONS.find((e) => e.id === "tushky-avatar")!;
+    expect(avatar.kind).toBe("mascot");
+    expect(avatar.publicSrc).toBe("/media/illustrations/tushky-avatar.webp");
+    expect([avatar.width, avatar.height]).toEqual([64, 64]);
+    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "tushky-avatar.webp"));
+    expect(bytes.length).toBeLessThanOrEqual(5_000);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      "a68ded28f7f0053349fea16be1ee775df2bee627db83941c624dbcf39a2cf167",
     );
   });
 

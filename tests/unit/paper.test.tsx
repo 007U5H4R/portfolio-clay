@@ -502,15 +502,17 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     const dev23 = /\| Dev-23 \| New manifest entry `hero-banner`[^|]*?with alt "([^"]+)"/.exec(md);
     if (!dev23) throw new Error("Design.md §11 Dev-23 must fix the `hero-banner` alt");
     alts.set("hero-banner", dev23[1]!);
-    const dev48 = /\| Dev-48 \| New manifest entry `tushky`[^|]*?with alt "([^"]+)"/.exec(md);
-    if (!dev48) throw new Error("Design.md §11 Dev-48 must fix the `tushky` alt (TKT-104)");
-    alts.set("tushky", dev48[1]!);
+    // Dev-62 (TKT-104 r2) supersedes Dev-48's `tushky` alt (mascot v2) and adds `tushky-avatar`.
+    const dev62 = /\| Dev-62 \| Manifest entry `tushky` v2[^|]*?with alt "([^"]+)"[^|]*?new manifest entry `tushky-avatar`[^|]*?with alt "([^"]+)"/.exec(md);
+    if (!dev62) throw new Error("Design.md §11 Dev-62 must fix the `tushky` v2 and `tushky-avatar` alts (TKT-104 r2)");
+    alts.set("tushky", dev62[1]!);
+    alts.set("tushky-avatar", dev62[2]!);
     return alts;
   };
 
-  it("the manifest has the eleven design ids (§6.1 nine + Dev-23 `hero-banner` + Dev-48 `tushky`) with the exact Design.md alt strings", () => {
+  it("the manifest has the twelve design ids (§6.1 nine + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar`) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(11);
+    expect(alts.size).toBe(12);
     expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));
   });
