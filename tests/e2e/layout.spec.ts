@@ -437,7 +437,7 @@ test("band footer: one <footer> per route, landmark → h2#band-h, torn unit 1, 
   }
 });
 
-test("band footer geometry: social circles 56 px with names, no overflow, safe-area padding declared", async ({
+test("band footer geometry: social circles 48 px with names, no overflow, safe-area padding declared", async ({
   page,
   noOverflow,
 }) => {
@@ -454,9 +454,14 @@ test("band footer geometry: social circles 56 px with names, no overflow, safe-a
     const circle = circles.nth(i);
     await expect(circle).toHaveAttribute("aria-label", /.+/);
     const box = await circle.boundingBox();
-    expect(box!.width).toBeGreaterThanOrEqual(56);
-    expect(box!.height).toBeGreaterThanOrEqual(56);
+    // 56 → 48 px with the compact band (TKT-109, Tushar 2026-09-26, Design.md §11 Dev-43); still ≥ 44 px targets.
+    expect(box!.width).toBeGreaterThanOrEqual(48);
+    expect(box!.height).toBeGreaterThanOrEqual(48);
   }
+  // TKT-109 (Tushar 2026-09-26: "compress and compact it and make the height shorter"): was 622 px at
+  // 1440 and 687 px at 390; compact band measures 347 / 528 px — guard against it growing back.
+  const bandBox = await band.boundingBox();
+  expect(bandBox!.height, "compact band height (Dev-43)").toBeLessThanOrEqual(width(page) === 1440 ? 400 : 580);
   const email = await band.locator(".band-email").boundingBox();
   expect(email!.height, "email link is a ≥ 44 px target").toBeGreaterThanOrEqual(44);
 

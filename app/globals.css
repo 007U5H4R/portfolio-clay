@@ -6817,3 +6817,77 @@ html.lenis body {
   }
 }
 /* end TKT-100 */
+/* TKT-109 · compact band footer (Tushar 2026-09-26: "compress and compact it and make the height shorter";
+   Design.md §11 Dev-43). Same markup and content; tighter rhythm everywhere, a smaller headline, 48 px
+   social circles (≥ 44 px targets), and at ≥ 1024 two columns — eyebrow · h2 · hiring line on the left,
+   Email + Social stacked bottom-right — so the band loses roughly half its height. */
+@layer components {
+  .band {
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .band-wrap {
+    padding-top: clamp(24px, 3vw, 36px);
+  }
+  .band-h {
+    margin-top: 6px;
+    font-size: clamp(30px, 3.4vw, 48px);
+    line-height: 1.02;
+  }
+  .band-hire {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  .band-row {
+    gap: 16px 32px;
+    margin-top: 20px;
+  }
+  .band-label {
+    margin-bottom: 2px;
+  }
+  .band-email {
+    font-size: clamp(17px, 1.6vw, 20px);
+  }
+  .band-social {
+    gap: 10px;
+  }
+  .band-social a {
+    width: 48px;
+    height: 48px;
+  }
+  .band-social svg {
+    width: 20px;
+    height: 20px;
+  }
+  .band-in {
+    font-size: 17px;
+  }
+  .band-bar {
+    margin-top: 22px;
+    padding-top: 12px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 1024px) {
+    .band-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 48px;
+    }
+    .band-eyebrow,
+    .band-h,
+    .band-hire {
+      grid-column: 1;
+    }
+    .band-row {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      align-self: end;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 0;
+    }
+    .band-bar {
+      grid-column: 1 / -1;
+    }
+  }
+}
+/* end TKT-109 */
