@@ -34,8 +34,8 @@ test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () =
     test.skip(width(page) !== 390 && width(page) !== 1440, "runs at the two boundary widths");
     await page.goto("/", { waitUntil: "load" });
     const section = page.locator("section#how-i-think");
-    // Prove this is the pre-reveal state: the last stage sits far below the fold on load.
-    await expect(section.locator(".reveal").last()).not.toHaveAttribute("data-revealed", "");
+    // Prove this is the pre-reveal state: the TKT-110 choreography is armed, every card still rolled.
+    await expect(section.locator("[data-journey-stage]").last()).toHaveAttribute("data-roll", "rolled");
     for (const stage of STAGES) {
       await expect(section.getByRole("heading", { level: 3, name: stage, exact: true })).toHaveCount(1);
     }
@@ -57,13 +57,15 @@ test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () =
     expect(tree.match(/heading "[^"]+" \[level=3\]/g)?.length ?? 0).toBe(4);
   });
 
-  test("focus entering a Reveal reveals it (/)", async ({ page }) => {
+  test("focus entering a rolled stage card reveals it (/, TKT-110)", async ({ page }) => {
     test.skip(width(page) !== 1440, "runs once at w1440");
     await page.goto("/", { waitUntil: "load" });
-    const reveal = page.locator("section#how-i-think .reveal").last();
-    await reveal.locator("a[href]").first().focus();
-    await expect(reveal).toHaveAttribute("data-revealed", "");
-    await expect(reveal).toHaveCSS("opacity", "1");
+    const stage = page.locator("section#how-i-think [data-journey-stage]").last();
+    await expect(stage).toHaveAttribute("data-roll", "rolled");
+    await stage.locator("a[href]").first().focus();
+    await expect(stage).toHaveAttribute("data-roll", "settled");
+    await expect(stage).toHaveCSS("opacity", "1");
+    await expect(stage).toHaveCSS("clip-path", "none");
   });
 });
 
