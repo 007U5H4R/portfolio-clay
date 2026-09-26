@@ -9382,6 +9382,78 @@ html.lenis body {
   }
 }
 /* end TKT-107 */
+/* TKT-106 · paper-over-paper parallax at every torn edge (Tushar 2026-09-26: "for all paper cutout create
+   a parallax effect in scrolling"). Generic, keyed on the TornEdge contract (Design.md §3.1: a torn
+   section renders `TornEdge` — `[data-decor="torn"]` — as its FIRST child), so any new torn section
+   inherits it without touching its component:
+   · the torn section (the "sheet") sits on a higher layer (`z-index: 1`, it already paints its own opaque
+     fill below the tear) — it keeps page speed;
+   · the content ABOVE the tear (the sheet's previous sibling, or `main`'s last child for the band
+     footer, whose previous sibling is `main`) lags: once its bottom — i.e. the tear — has risen 80 px
+     into the viewport (`entry-crossing 100%` + 80 px, for any section height) it translates down by
+     `--torn-lag`, so the sheet slides up over it, torn edge leading.
+   Motion (Tushar 2026-09-26, Design.md §11 Dev-96): a slow drift, not a pinned stack — over the next
+   400 px of scroll the section above moves at 0.5× page speed (lag 0 → 200 px) while the sheet keeps
+   1×, so the sheet ends up overlapping its lower ~200 px; phones (< 768) drift 0.5× over 240 px
+   (120 px). The lag then holds while the section scrolls off at page speed.
+   No gap opens above a drifting section: a tall one's top is already off-screen; a short one is itself
+   a sheet whose predecessor started drifting earlier at the same rate, so that predecessor's lagged
+   content fills behind it (after a scene opener the strip is the plain page paper the title block
+   already sits on). The 80 px start (≈ the sticky header) keeps in-page anchor landings exact: a
+   section parked under the header with the next tear < 80 px into view has not started to drift.
+   `translate` (not `transform`) composes with Reveal's `transform` transition; transforms never shift
+   layout (no CLS). The scene openers (torn edge is their LAST child) keep only their TKT-96 image
+   parallax. CSS scroll-driven animation (works under Lenis, which scrolls natively; no JS),
+   `@supports`-guarded; `prefers-reduced-motion: reduce` gets no animation at all. */
+@keyframes torn-lag {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 var(--torn-lag);
+  }
+}
+@layer components {
+  /* Zero specificity: a sheet's own z-index / position (hero-sheet 4, case-study strip 2 / overview 3,
+     band 1) wins; every other torn sheet is lifted to 1. */
+  :where(:has(> [data-decor="torn"]:first-child)) {
+    position: relative;
+    z-index: 1;
+  }
+  /* The case-study "What I learned" sheet follows the overview (z 3): keep the sheet above the lagging
+     overview so the tear leads over it. */
+  :where(.cs-article > .learned) {
+    z-index: 4;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      /* Not `main` itself (the band's previous sibling — its last child lags instead; translating all of
+         `main` would double the band overlap and shift in-page anchor landings), and not the home banner
+         (previous sibling of `.hero-sheet`), which keeps its own TKT-96 image parallax. */
+      :where(:has(+ * > [data-decor="torn"]:first-child):not(main, .hero-banner)),
+      :where(main:has(+ * > [data-decor="torn"]:first-child) > :last-child) {
+        --torn-lag: 200px;
+        animation: torn-lag linear both;
+        animation-timeline: view(block);
+        animation-range: entry-crossing calc(100% + 80px) entry-crossing calc(100% + 480px);
+      }
+      @media (max-width: 767px) {
+        :where(:has(+ * > [data-decor="torn"]:first-child):not(main, .hero-banner)),
+        :where(main:has(+ * > [data-decor="torn"]:first-child) > :last-child) {
+          --torn-lag: 120px;
+          animation-range: entry-crossing calc(100% + 80px) entry-crossing calc(100% + 320px);
+        }
+      }
+      /* Keyboard focus is never hidden under the next sheet (WCAG 2.4.11): while a lagging section holds
+         `:focus-visible` it drops the lag (pointer clicks keep it — `:focus-visible` is keyboard-led). */
+      :where(:has(+ * > [data-decor="torn"]:first-child):not(main, .hero-banner)):has(:focus-visible),
+      :where(main:has(+ * > [data-decor="torn"]:first-child) > :last-child):has(:focus-visible) {
+        animation: none;
+      }
+    }
+  }
+}
+/* end TKT-106 */
 /* TKT-112 · seven-item nav fit (Tushar 2026-09-26: "Menu below 1440"; Design.md §11 Dev-94). With Home ·
    Experience · Projects · Thinking · About · Playground · Certifications the full nav needs ≥ 1440 px.
    1024–1439: the nav links hide and the header shows the MobileMenu button (the same paper drawer as
