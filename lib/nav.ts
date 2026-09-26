@@ -19,4 +19,5 @@ export const navItems: NavItem[] = [
   { label: "Thinking", href: "/thinking" },
   { label: "About", href: "/about" },
   { label: "Playground", href: "/playground" }, // D8 — remove this line to return to four items
+  { label: "Certifications", href: "/certifications" }, // TKT-102 (Tushar 2026-09-26)
 ];
