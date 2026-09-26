@@ -203,3 +203,57 @@ The source was the committed preview LHRs (`preview-tkt92/mobile/`) plus 5 fresh
 - The shorter banner at ≥ 1024 leaves the TKT-93 polaroids (sized for a ~605 px banner) overhanging more: the third crosses well below the torn edge at 1440. It's the TKT-93 CSS block, so I didn't touch it. **Stage-8 input.**
 - In the 1440 screenshot taken at `load`, the polaroid images were still blank (lazy `next/image`, `sizes="224px"`). That behaviour predates this branch.
 - `hero-fold.spec.ts` duplicates TKT-79's EVAL-001 test. Keep one.
+
+## Round 3 — hero font-swap CLS (TASK-88)
+
+Desktop `/` CLS was **0.0543**, over the 0.05 gate. Lighthouse blamed `h1#hero-h` ("Web font loaded"). Round 2's banner cap didn't cause the shift. It moved the h1 into the first viewport, where the shift now counts.
+
+### What moved (measured)
+
+I used Playwright at six widths, once with the woff2 files blocked (the fallback frame) and once with them loaded:
+
+- **h1:** 3 lines × 740 px under `Fraunces Fallback`, 2 lines × 771 px under Fraunces, at 1350×940. On swap it lost a line (206 → 138 px tall), and its centred box moved 16 px sideways.
+- **Eyebrow:** 500 → 554 px wide (a 27 px sideways move) on desktop. At 412 px it wrapped to 3 lines vs 2, which pushed the h1 down 22 px on mobile.
+
+The copy block has no fixed heights, so nothing else above the h1 moves.
+
+### Root cause
+
+There are two font-dependent causes, each present on both elements:
+
+1. **The fallback doesn't match the real font's width.** next/font's fallbacks are fitted to each font's default instance. At the hero's `opsz 144`, Fraunces is about 17 % narrower, so the fallback headline ran 1690 px vs 1386 px. The uppercase, tracked Inter eyebrow runs about 8 % narrower than its Arial fallback.
+2. **The `ch` max-widths depend on the font.** `19ch` and `60ch` resolve against the current font's "0", so the wrap box itself changed width on swap.
+
+### Fix (`app/globals.css`, block `TKT-92r3`, hero only)
+
+- **Hero h1:** new `@font-face "Fraunces Hero Fallback"` (Times New Roman / Liberation Serif) with `size-adjust: 95.34%`. That's 115.45 % × 1442/1746 glyph advances, with letter-spacing excluded. The ascent/descent overrides are scaled to keep the vertical metrics. `max-width: 19ch` becomes `11.43em` (19 × Fraunces' 0.6015em "0"), so it's still 771 px under Fraunces.
+- **Hero eyebrow:** new `@font-face "Inter Eyebrow Fallback"` (Arial / Liberation Sans) with `size-adjust: 98.72%` (107.12 % × 570.1/618.6). `max-width: 60ch` becomes `39.58em`, still 554 px under Inter.
+- **What didn't change:** no `display: optional`, no change to the banner cap, the copy, the lhci assertions or `app/layout.tsx`.
+- **Why the literal family name:** the stacks name `"Fraunces"` / `"Inter"` directly (next/font's family names), because the next/font variable already has its own fallback in it.
+
+The loaded layout is pixel-identical to before (same boxes at every width). Under the fallback, the eyebrow and h1 boxes now match the loaded ones to 0.2 px at 1350, 1440, 1024, 768, 412 and 375. The Caveat hand line still differs by about 5 px in width (0.4 px in height); Lighthouse scores it 0.0002–0.0003 on mobile.
+
+### Lighthouse, `/` only, 3 runs each (local `lhci`, same machine and configs)
+
+| | before (`809e326`) | after |
+|---|---|---|
+| desktop CLS | 0.0477 · 0.0543 · 0.0477 (h1 0.0456–0.0539) | **0.0019 · 0.0019 · 0.0019** (header nav only) |
+| desktop perf / LCP | 0.98–0.99 / 822–1062 ms | 0.99 / 821–917 ms |
+| mobile CLS | 0.0284 · 0.0284 · 0.0317 (CTA row / h1) | **0.0003 · 0.0003 · 0.0003** |
+| mobile perf / LCP | 0.72–0.77 / 3980–4318 ms | 0.63–0.78 / 3814–4932 ms |
+
+- **Desktop:** the assertion passes (exit 0).
+- **Mobile:** the assertion still fails, on perf/LCP only. It failed the same way on `809e326`. CLS isn't the cause, and nothing in this round changes JS or requests.
+
+### Scar
+
+A new `tests/e2e/hero-fold.spec.ts` test checks the font swap. It renders `/` with the woff2 files blocked and again with them loaded, then asserts that the eyebrow and h1 boxes match within 1 px. It also asserts that `document.fonts.check(… Fraunces)` is true, which guards the literal family name. It **fails on all 4 projects at `809e326`** and passes after the fix.
+
+### Gates
+
+- typecheck ✓, lint ✓, tokens 13/13 ✓, build ✓.
+- `pnpm test`: 579 passed. `band-footer.test.tsx` hit a 5 s cold-import timeout once, then passed alone and in a full rerun.
+- Bundle `/`: **158.5 kB gz** ≤ 180, `ok: true`.
+- e2e: `hero-fold`, `home`, `eval-019`, `eval-008`, `eval-010`, `eval-020` on all 4 projects: **418 passed, 1 failed** (337 skipped by design).
+  - The failure is `@EVAL-019 … stays registered … 1024, 1440 and 1920` [w1440]. It's a `page.goto` load timeout at the 30 s test limit, not an assertion. It **fails the same way on the untouched `809e326` build**, so it predates this round (round 2 recorded it passing, so an integration merge probably broke it). **Orchestrator follow-up.**
+- The churned `docs/screenshots/**` were restored.

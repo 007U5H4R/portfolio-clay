@@ -107,3 +107,44 @@ for (const { route, paper, image, animated } of LAYERS) {
     expect(Math.abs(before - after), "the layers scroll together").toBeLessThanOrEqual(1);
   });
 }
+
+/**
+ * TKT-92r3 (TASK-88) · font-swap CLS scar. Lighthouse desktop `/` CLS was 0.054 (gate 0.05) because the
+ * h1 wrapped to 3 lines under next/font's `Fraunces Fallback` and 2 under Fraunces (and the eyebrow to
+ * 3 vs 2 lines at 412). The eyebrow's and h1's boxes must be the same whether the woff2 files never
+ * arrive (the fallback frame) or have loaded (the swapped frame) — every project width. The loaded run
+ * also proves the h1 still renders in Fraunces, guarding the literal family name in the TKT-92r3 CSS.
+ */
+test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async ({ browser, page }) => {
+  const viewport = page.viewportSize()!;
+  const boxes = async (blockFonts: boolean) => {
+    const { baseURL, isMobile, hasTouch, deviceScaleFactor, userAgent } = test.info().project.use;
+    const device = Object.fromEntries(
+      Object.entries({ baseURL, isMobile, hasTouch, deviceScaleFactor, userAgent }).filter(([, v]) => v !== undefined),
+    );
+    const context = await browser.newContext({ ...device, viewport });
+    const p = await context.newPage();
+    if (blockFonts) await p.route(/\.woff2(\?|$)/, (route) => route.abort());
+    await p.goto("/", { waitUntil: "load" });
+    await p.evaluate(() => document.fonts.ready);
+    const out = await p.evaluate(() => {
+      const box = (sel: string) => {
+        const r = document.querySelector(sel)!.getBoundingClientRect();
+        return { x: r.x, y: r.y, w: r.width, h: r.height };
+      };
+      const h1 = document.querySelector("#hero-h")!;
+      const size = getComputedStyle(h1).fontSize;
+      return { eyebrow: box(".hero-eyebrow"), h1: box("#hero-h"), fraunces: document.fonts.check(`500 ${size} Fraunces`) };
+    });
+    await context.close();
+    return out;
+  };
+  const fallback = await boxes(true);
+  const loaded = await boxes(false);
+  expect(loaded.fraunces, "loaded h1 font is Fraunces").toBe(true);
+  for (const key of ["eyebrow", "h1"] as const) {
+    for (const dim of ["x", "y", "w", "h"] as const) {
+      expect(Math.abs(fallback[key][dim] - loaded[key][dim]), `${key}.${dim} fallback ${fallback[key][dim]} vs loaded ${loaded[key][dim]}`).toBeLessThanOrEqual(1);
+    }
+  }
+});
