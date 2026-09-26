@@ -163,14 +163,21 @@ test("@EVAL-007 keyboard: AskPanel opens, traps focus, answers, Esc closes and r
   }
   expect(landedInside, "focus must cycle back inside the panel").toBeTruthy();
 
-  // Full keyboard answer path: type into the field, submit, land on the answer heading, Tab to evidence.
+  // Full keyboard answer path (TKT-104 r2 chat): type into the composer and submit. Focus stays in
+  // the composer (the answer is announced by the `role="log"` conversation), and Shift+Tab walks
+  // back through the follow-ups to the answer's source links.
   await panel.locator("#ask-panel-input").focus();
   await page.keyboard.type("What products have you built?");
   await page.keyboard.press("Enter");
-  const heading = panel.getByRole("heading", { level: 3, name: "Answer" });
-  await expect(heading).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(panel.getByRole("list", { name: "Sources" }).getByRole("link").first()).toBeFocused();
+  const sources = panel.getByRole("list", { name: "Sources" }).getByRole("link");
+  await expect(sources.first()).toBeVisible();
+  await expect(panel.locator("#ask-panel-input")).toBeFocused();
+  let reachedSource = false;
+  for (let i = 0; i < 8 && !reachedSource; i++) {
+    await page.keyboard.press("Shift+Tab");
+    reachedSource = await sources.evaluateAll((links) => links.includes(document.activeElement as HTMLAnchorElement));
+  }
+  expect(reachedSource, "a source link is reachable by keyboard from the composer").toBe(true);
 
   // Esc closes and returns focus to the trigger (EVAL-007 hard requirement).
   await page.keyboard.press("Escape");

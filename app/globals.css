@@ -294,38 +294,61 @@ body::before {
 }
 
 /*
-  AskPanel slide-over (S11.01–03 / Design.md §3–§4, E-8). The native <dialog> opens with
-  showModal() (focus trap + top layer); the slide and scrim fade are CSS off a `data-open`
-  attribute React flips one frame AFTER showModal(), so the transition runs from the shown state
-  (a transition from `display:none` would not animate). 320ms mirrors `durations.panel` in
-  lib/motion.ts. The scrim (::backdrop) dims the page behind 20% and fades 150ms. Reduced motion
-  collapses both to ~instant via the global rule below (no separate override needed).
+  AskPanel = the "Ask Tushky" right drawer (S11.01 → TKT-104 r2, Design.md §11 Dev-60; Tushar's spec
+  §2–§4 / §22 / §24). The native <dialog> opens with showModal(), which gives the focus trap and the
+  top layer: the ::backdrop sits above the page and the drawer above the backdrop. React flips
+  `data-open` one frame AFTER showModal(). Opening is a 420 ms keyframe slide in from the right with a
+  4 px paper settle. Closing (dropping `data-open`) is a 280 ms slide back to the right with no bounce,
+  and AskPanel closes the dialog when it ends. The drawer is fixed top/right, 100dvh,
+  clamp(400px, 32vw, 460px) wide: 400 on tablets, 460 at 1440. Below 768 it is full-screen.
+  Reduced motion appears in place (the global 1 ms rule, plus `animation: none` in the TKT-104 block).
 */
 .ask-panel {
-  transform: translateX(100%); /* off the right edge — right drawer >=768 (E-8) */
-  transition: transform 320ms var(--ease-panel);
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: clamp(400px, 32vw, 460px);
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  background: transparent;
+  transform: translateX(100%);
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.6, 1);
   will-change: transform;
 }
 .ask-panel[data-open] {
   transform: none;
+  animation: ask-drawer-in 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes ask-drawer-in {
+  0% {
+    transform: translateX(100%);
+  }
+  80% {
+    transform: translateX(-4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .ask-panel::backdrop {
-  background: color-mix(in oklch, var(--color-navy) 20%, transparent);
+  background: color-mix(in oklab, var(--color-navy) 38%, transparent);
+  backdrop-filter: blur(2px);
   opacity: 0;
-  transition: opacity 150ms var(--ease-panel);
+  transition: opacity 240ms var(--ease-panel);
 }
 .ask-panel[data-open]::backdrop {
   opacity: 1;
 }
 
-/* <768: bottom sheet sliding up from the bottom edge (Design.md Deviation §5) */
+/* <768: the drawer becomes a full-screen chat (spec §22) — still entering from the right. */
 @media (max-width: 767px) {
   .ask-panel {
-    transform: translateY(100%);
-  }
-  .ask-panel[data-open] {
-    transform: none;
+    width: 100%;
   }
 }
 
@@ -6852,485 +6875,626 @@ html.lenis body {
 }
 /* end TKT-109 */
 
-/* TKT-104 · Ask panel restyle — Tushar direction 2026-09-26 (Design.md §11 Dev-47/48/49; reference
-   docs/redesign-mockups/m-009/tushar-2026-09-26/ask-ai-target.png). The AskPanel drawer / bottom sheet
-   becomes a torn notebook sheet with the Tushky intro, tinted question cards, a rounded input with a
-   torn "Ask →" and quick-action chips. Everything is scoped under `.ask-panel` (or panel-only
-   classes), so the home inline notebook (TKT-77) is untouched. The old TKT-77 panel body rules
-   (`.ask-panel-sheet/-head/-title/-close/-scroll/-form`) moved here. Paper tokens + `color-mix()`
-   derivations only (EVAL-020); text ≥ 14 px (EVAL-008), 44 px targets, visible focus; hover lifts are
-   dropped under reduced motion and no animation is added. */
+/* TKT-104 · Ask Tushky drawer (round 2) — Tushar's spec 2026-09-26
+   (docs/redesign-mockups/m-009/tushar-2026-09-26/ask-tushky-drawer-spec.md, ask-tushky-drawer-target.png;
+   Design.md §11 Dev-60–63). Geometry and slide motion are in the base `.ask-panel` rules near the top
+   of this file. This block holds the paper (torn LEFT edge, soft left shadow, faint rules and margin),
+   the compact header, the empty state (mascot, one grounding note, intro, six single-column
+   suggestion rows), the chat (bubbles, source chips, follow-ups) and the pinned composer. Everything
+   is scoped to `tk-*` classes inside `.ask-panel`, so the home inline notebook is untouched. Colours
+   are paper tokens plus `color-mix()` only (EVAL-020); the six category pastels are mixes on ivory.
+   Text is ≥ 14 px (EVAL-008), targets are ≥ 44 px, and focus uses the rust ring. Reduced motion drops
+   every keyframe and hover lift. */
 @layer components {
-  /* --- the sheet: dotted notebook paper, torn top + bottom (clip on the sheet, shadow on the dialog) --- */
+  /* --- the paper --- */
   .ask-panel {
-    filter: drop-shadow(0 10px 22px color-mix(in oklab, var(--color-navy) 22%, transparent));
+    color: var(--color-navy);
+    filter: drop-shadow(-16px 0 40px color-mix(in oklab, var(--color-navy) 16%, transparent));
   }
-  .paper-sheet.ask-panel-sheet[data-paper="notebook"] {
-    height: 100%;
-    padding: 0 0 0 46px;
-    background-color: var(--color-paper);
-    background-image: radial-gradient(color-mix(in oklab, var(--color-steel) 26%, transparent) 1px, transparent 1.3px);
-    background-size: 18px 18px;
-    box-shadow: none;
-    clip-path: polygon(0.0% 0px, 2.5% 6px, 5.0% 6px, 7.5% 1px, 10.0% 5px, 12.5% 0px, 15.0% 4px, 17.5% 0px, 20.0% 4px, 22.5% 2px, 25.0% 4px, 27.5% 2px, 30.0% 2px, 32.5% 5px, 35.0% 5px, 37.5% 0px, 40.0% 6px, 42.5% 3px, 45.0% 1px, 47.5% 5px, 50.0% 4px, 52.5% 3px, 55.0% 1px, 57.5% 0px, 60.0% 7px, 62.5% 7px, 65.0% 6px, 67.5% 3px, 70.0% 4px, 72.5% 0px, 75.0% 2px, 77.5% 0px, 80.0% 2px, 82.5% 4px, 85.0% 3px, 87.5% 1px, 90.0% 5px, 92.5% 2px, 95.0% 5px, 97.5% 6px, 100.0% 2px, 100.0% 100%, 97.5% calc(100% - 7px), 95.0% calc(100% - 7px), 92.5% calc(100% - 4px), 90.0% calc(100% - 6px), 87.5% calc(100% - 4px), 85.0% calc(100% - 4px), 82.5% calc(100% - 4px), 80.0% 100%, 77.5% calc(100% - 1px), 75.0% 100%, 72.5% calc(100% - 4px), 70.0% calc(100% - 7px), 67.5% calc(100% - 4px), 65.0% calc(100% - 6px), 62.5% calc(100% - 7px), 60.0% calc(100% - 2px), 57.5% 100%, 55.0% calc(100% - 4px), 52.5% calc(100% - 2px), 50.0% 100%, 47.5% calc(100% - 4px), 45.0% calc(100% - 6px), 42.5% calc(100% - 2px), 40.0% calc(100% - 2px), 37.5% calc(100% - 7px), 35.0% calc(100% - 1px), 32.5% calc(100% - 7px), 30.0% calc(100% - 6px), 27.5% calc(100% - 1px), 25.0% calc(100% - 3px), 22.5% 100%, 20.0% 100%, 17.5% calc(100% - 7px), 15.0% 100%, 12.5% 100%, 10.0% calc(100% - 3px), 7.5% 100%, 5.0% calc(100% - 6px), 2.5% calc(100% - 7px), 0.0% calc(100% - 7px));
+  /* A strip of paper past the right edge, so the -4 px settle never shows a gap. */
+  .ask-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0 -12px 0 auto;
+    width: 12px;
+    background: var(--color-paper);
   }
-  .ask-panel-body {
+  .tk-paper {
+    --tk-pad-x: 20px;
+    --tk-pad-l: 28px;
     position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
-  }
-  .ask-clip {
-    position: absolute;
-    left: 4px;
-    bottom: 172px;
-    z-index: 2;
-    width: 22px;
-    height: 58px;
-    color: var(--color-steel);
-    rotate: 10deg;
-    pointer-events: none;
+    background-color: var(--color-paper);
+    /* faint notebook rules + an extremely subtle red margin (spec §6) */
+    background-image:
+      linear-gradient(to right, transparent 21px, color-mix(in oklab, var(--color-rust) 14%, transparent) 21px 22px, transparent 22px),
+      repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in oklab, var(--color-steel) 8%, transparent) 31px 32px);
+    /* torn LEFT edge (spec §6 / §27): a gentle irregular cut, ≤ 9 px deep, content padded clear of it */
+    clip-path: polygon(8.6px 0%, 100% 0%, 100% 100%, 7.6px 100%, 1.8px 97.22%, 8.9px 94.44%, 3.1px 91.67%, 8.3px 88.89%, 3.7px 86.11%, 2.3px 83.33%, 7.5px 80.56%, 7.2px 77.78%, 5.4px 75%, 0.9px 72.22%, 5.1px 69.44%, 1.6px 66.67%, 2.3px 63.89%, 4.8px 61.11%, 4.2px 58.33%, 3.7px 55.56%, 5.7px 52.78%, 5.6px 50%, 2.9px 47.22%, 3.5px 44.44%, 5.2px 41.67%, 7.8px 38.89%, 5.8px 36.11%, 3px 33.33%, 5.9px 30.56%, 1.1px 27.78%, 8.1px 25%, 1.5px 22.22%, 0.2px 19.44%, 7.3px 16.67%, 6.4px 13.89%, 3px 11.11%, 2px 8.33%, 6.6px 5.56%, 7.8px 2.78%);
   }
 
-  /* --- head: "Ask AI" lettering on a highlighter stroke, "Meet Tushky", sparkles, close --- */
-  .ask-panel-head {
+  /* --- header (spec §8) --- */
+  .tk-head {
+    flex-shrink: 0;
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    padding: 22px 16px 4px 8px;
+    gap: 12px;
+    padding: 20px var(--tk-pad-x) 6px var(--tk-pad-l);
   }
-  .ask-panel-titles {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  .tk-head-titles {
     min-width: 0;
   }
-  .ask-panel-title {
-    font-size: 1rem;
-    line-height: 1;
-  }
-  .ask-panel-lettering {
-    display: inline-block;
-    padding: 0 10px 2px 6px;
-    font-size: 54px;
+  .tk-title {
+    display: flex;
+    align-items: center;
+    gap: 0.22em;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 36px;
     font-weight: 600;
-    line-height: 1;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
     color: var(--color-navy);
-    background: linear-gradient(
-      176deg,
-      transparent 0 50%,
-      color-mix(in oklab, var(--color-note) 78%, var(--color-kraft)) 50% 86%,
-      transparent 86%
-    );
-    rotate: -2deg;
   }
-  .ask-panel-meet {
-    margin-left: 34px;
-    font-size: 28px;
+  .tk-title-accent {
+    color: var(--color-terracotta);
+  }
+  .tk-title-paw {
+    width: 0.72em;
+    height: 0.72em;
+    color: var(--color-terracotta);
+    transform: rotate(14deg);
+  }
+  .ask-panel .tk-subtitle {
+    margin: 2px 0 0 2px;
+    font-family: var(--font-hand);
+    font-size: 22px;
+    font-weight: 600;
     line-height: 1.1;
     color: var(--color-navy-2);
-    text-decoration: underline;
-    text-decoration-color: var(--color-steel);
-    text-decoration-thickness: 2.5px;
-    text-underline-offset: 7px;
-    rotate: -2deg;
   }
-  .ask-sparkles {
+  .tk-underline {
+    display: block;
+    width: 200px;
+    height: 10px;
+    margin-top: -1px;
+    color: var(--color-rust);
+  }
+  .tk-close {
     flex-shrink: 0;
-    width: 44px;
-    height: 40px;
-    margin-top: 2px;
-    color: var(--color-navy);
-  }
-  .ask-sparkles .ask-doodle-sun {
-    stroke: color-mix(in oklab, var(--color-note) 35%, var(--color-rust));
-  }
-  .ask-panel-close {
-    display: inline-grid;
-    flex-shrink: 0;
+    display: grid;
     place-items: center;
     width: 44px;
     height: 44px;
     margin-left: auto;
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius-paper);
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 16%, transparent);
     background: var(--color-ivory);
     color: var(--color-navy);
-    box-shadow: var(--shadow-paper);
-    rotate: 4deg;
-    cursor: pointer;
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    transition: box-shadow 180ms var(--ease-hover), transform 180ms var(--ease-hover);
   }
-  .ask-panel-close:hover {
-    border-color: var(--color-navy-2);
+  .tk-close:hover {
+    box-shadow: 0 4px 10px color-mix(in oklab, var(--color-navy) 18%, transparent);
+  }
+  /* chat mode: a small header with the avatar (spec §16) */
+  .tk-head[data-compact] {
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed color-mix(in oklab, var(--color-navy) 14%, transparent);
+  }
+  .tk-head[data-compact] .tk-title {
+    font-size: 28px;
+  }
+  .tk-head[data-compact] .tk-subtitle {
+    font-size: 19px;
+  }
+  .tk-head[data-compact] .tk-underline {
+    display: none;
   }
 
-  /* --- scroll region (a size container: the cards go 2-up only when there is room) --- */
-  .ask-panel-scroll {
-    flex: 1;
+  /* --- avatar --- */
+  .tk-avatar {
+    display: inline-block;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-note) 60%, var(--color-ivory));
+    box-shadow:
+      0 0 0 2px var(--color-ivory),
+      0 2px 6px color-mix(in oklab, var(--color-navy) 16%, transparent);
+  }
+  .tk-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* --- the one scrolling region (spec §14 / §20) --- */
+  .tk-scroll {
+    flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    padding: 6px 18px 16px 8px;
-    container-type: inline-size;
+    overscroll-behavior: contain;
+    padding: 2px var(--tk-pad-x) 12px var(--tk-pad-l);
   }
 
-  /* --- idle intro: honesty note, Tushky, greeting, tape label --- */
-  .ask-intro {
+  /* --- empty state (spec §9–§12) --- */
+  .tk-hero {
     display: grid;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-  .ask-intro-note {
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 26px;
-  }
-  .ask-panel .ask-note {
-    max-width: 240px;
-    padding: 12px 16px 14px;
-    font-size: 14px;
-    font-style: italic;
-    line-height: 1.45;
-    color: var(--color-navy);
-    background: color-mix(in oklab, var(--color-rust) 17%, var(--color-ivory));
-    clip-path: polygon(0% 2px, 10% 2px, 20% 2px, 30% 0px, 40% 2px, 50% 0px, 60% 4px, 70% 2px, 80% 2px, 90% 4px, 100% 2px, calc(100% - 3px) 20%, calc(100% - 2px) 40%, 100% 60%, 100% 80%, 100% calc(100% - 3px), 90% 100%, 80% calc(100% - 4px), 70% calc(100% - 2px), 60% 100%, 50% 100%, 40% calc(100% - 4px), 30% 100%, 20% calc(100% - 4px), 10% calc(100% - 2px), 0% calc(100% - 4px), 3px 80%, 3px 60%, 2px 40%, 2px 20%);
-    rotate: 2deg;
-  }
-  .ask-intro-arrow {
-    position: absolute;
-    right: 0;
-    bottom: -30px;
-    width: 26px;
-    height: 38px;
-    color: var(--color-navy-2);
-  }
-  .ask-intro-row {
-    display: grid;
-    grid-template-columns: 116px minmax(0, 1fr);
-    align-items: end;
-    gap: 10px;
-  }
-  .ask-mascot {
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    margin-bottom: 10px;
   }
-  .ask-mascot-hand {
-    font-size: 19px;
-    line-height: 1.05;
-    color: var(--color-navy-2);
-    text-align: center;
-    rotate: -6deg;
-  }
-  .ask-mascot-img {
-    width: 108px;
-    height: 108px;
-    border-radius: 50%;
-    filter: drop-shadow(0 4px 8px color-mix(in oklab, var(--color-navy) 20%, transparent));
-  }
-  .ask-speech {
-    padding: 14px 16px 16px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: var(--color-ivory);
-    box-shadow: var(--shadow-paper);
-  }
-  .ask-speech-title {
-    font-family: var(--font-display);
+  .tk-sniff {
+    margin: 0;
     font-size: 17px;
     font-weight: 600;
-    line-height: 1.25;
+    line-height: 1.15;
+    color: var(--color-navy-2);
+    text-align: center;
+    transform: rotate(-4deg);
+  }
+  .tk-mascot {
+    display: block;
+    width: auto;
+    height: 124px;
+    filter: drop-shadow(0 4px 6px color-mix(in oklab, var(--color-navy) 14%, transparent));
+  }
+  .ask-panel[data-open] .tk-mascot {
+    animation: tk-mascot-in 420ms 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes tk-mascot-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97) rotate(-1deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .tk-note {
+    position: relative;
+    padding: 14px 10px 10px;
+    background: color-mix(in oklab, var(--color-note) 78%, var(--color-ivory));
+    box-shadow: 0 3px 8px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    transform: rotate(1.5deg);
+  }
+  .tk-note-tape {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 56px;
+    height: 16px;
+    background: color-mix(in oklab, var(--color-kraft) 75%, transparent);
+    transform: translateX(-50%) rotate(-4deg);
+  }
+  .tk-note-text {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.15;
     color: var(--color-navy);
   }
-  .ask-speech-body {
-    margin-top: 6px;
-    font-size: 14px;
+  .tk-intro {
+    margin-bottom: 12px;
+    padding: 12px 16px 13px;
+    border-radius: 18px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 8%, transparent);
+    background: var(--color-ivory);
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--color-navy) 9%, transparent);
+  }
+  .tk-intro-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--color-navy);
+  }
+  .tk-intro-paw {
+    width: 20px;
+    height: 20px;
+    color: var(--color-terracotta);
+  }
+  .tk-intro-body {
+    margin: 4px 0 0;
+    font-size: 15px;
     line-height: 1.5;
     color: var(--color-navy-2);
   }
-  .ask-tape-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
+  .tk-intro-body strong {
+    font-weight: 500;
+    color: var(--color-navy-2);
   }
-  .ask-tape {
-    padding: 2px 16px 4px;
+  .ask-panel .tk-suggest-label {
+    margin: 0 0 6px 4px;
+    font-family: var(--font-hand);
     font-size: 24px;
+    font-weight: 600;
     line-height: 1.1;
-    color: var(--color-forest);
-    background: color-mix(in oklab, var(--color-green-2) 24%, var(--color-ivory));
-    clip-path: polygon(calc(100% - 5px) 0.0%, 100% 25.0%, 100% 50.0%, calc(100% - 3px) 75.0%, calc(100% - 3px) 100.0%, 5px 100.0%, 0px 75.0%, 0px 50.0%, 0px 25.0%, 0px 0.0%);
-    rotate: -2deg;
-  }
-  .ask-bulb {
-    width: 28px;
-    height: 32px;
     color: var(--color-navy);
   }
-
-  /* --- the six prompts as tinted question cards (1-up, 2-up from a 380 px body) --- */
-  .ask-cards {
+  .tk-cards {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-  @container (min-width: 380px) {
-    .ask-cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .ask-card {
-    --tone: var(--color-rust);
-    --tone-mix: 13%;
-    display: grid;
-    grid-template-columns: 36px minmax(0, 1fr) auto;
-    align-items: center;
     gap: 8px;
+  }
+  .tk-card {
+    --tk-bg: color-mix(in oklab, var(--color-rust) 16%, var(--color-ivory));
+    --tk-ink: var(--color-rust);
+    display: flex;
+    align-items: center;
+    gap: 12px;
     width: 100%;
-    height: 100%;
-    min-height: 64px;
-    padding: 10px 10px 10px 8px;
-    border: 1px solid color-mix(in oklab, var(--tone) 22%, transparent);
-    border-radius: 14px;
-    background: color-mix(in oklab, var(--tone) var(--tone-mix), var(--color-ivory));
-    box-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 6%, transparent);
-    font-family: var(--font-display);
+    min-height: 54px;
+    padding: 8px 14px 8px 10px;
+    border-radius: 15px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 10%, transparent);
+    background: var(--color-ivory);
+    box-shadow: 0 1px 3px color-mix(in oklab, var(--color-navy) 8%, transparent);
     font-size: 15px;
     line-height: 1.3;
     color: var(--color-navy);
     text-align: left;
-    cursor: pointer;
-    transition: translate 180ms var(--ease-hover), box-shadow 180ms var(--ease-hover);
+    transition:
+      transform 180ms var(--ease-hover),
+      box-shadow 180ms var(--ease-hover),
+      border-color 180ms var(--ease-hover);
   }
-  .ask-card[data-tone="1"] {
-    --tone: var(--color-steel);
-    --tone-mix: 15%;
+  .tk-card[data-category="impact"] {
+    --tk-bg: color-mix(in oklab, var(--color-steel) 20%, var(--color-ivory));
+    --tk-ink: var(--color-steel);
   }
-  .ask-card[data-tone="2"] {
-    --tone: var(--color-green-2);
-    --tone-mix: 14%;
+  .tk-card[data-category="thinking"] {
+    --tk-bg: color-mix(in oklab, var(--color-note) 80%, var(--color-ivory));
+    --tk-ink: var(--color-terracotta);
   }
-  .ask-card[data-tone="3"] {
-    --tone: color-mix(in oklab, var(--color-steel) 60%, var(--color-rust));
-    --tone-mix: 15%;
+  .tk-card[data-category="ai"] {
+    --tk-ink: color-mix(in oklab, var(--color-steel) 65%, var(--color-rust));
+    --tk-bg: color-mix(in oklab, var(--tk-ink) 18%, var(--color-ivory));
   }
-  .ask-card[data-tone="4"] {
-    --tone: color-mix(in oklab, var(--color-kraft) 60%, var(--color-note));
-    --tone-mix: 42%;
+  .tk-card[data-category="skills"] {
+    --tk-bg: color-mix(in oklab, var(--color-green-2) 20%, var(--color-ivory));
+    --tk-ink: var(--color-green-2);
   }
-  .ask-card[data-tone="5"] {
-    --tone: var(--color-terracotta);
-    --tone-mix: 11%;
+  .tk-card[data-category="project"] {
+    --tk-ink: color-mix(in oklab, var(--color-forest) 75%, var(--color-steel));
+    --tk-bg: color-mix(in oklab, var(--tk-ink) 16%, var(--color-ivory));
   }
-  .ask-card:hover {
-    translate: 0 -1px;
-    box-shadow: var(--shadow-paper);
-  }
-  .ask-card-icon {
+  .tk-card-icon {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: color-mix(in oklab, var(--tone) calc(var(--tone-mix) + 14%), var(--color-ivory));
-    color: var(--color-navy);
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--tk-bg);
+    color: var(--tk-ink);
   }
-  .ask-card-arrow {
-    font-family: var(--font-body);
+  .tk-card-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .tk-card-arrow {
+    flex-shrink: 0;
     font-size: 18px;
     color: var(--color-navy);
+    transition: transform 180ms var(--ease-hover);
+  }
+  @media (hover: hover) {
+    .tk-card:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+      box-shadow: 0 4px 10px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    }
+    .tk-card:hover .tk-card-arrow {
+      transform: translateX(3px);
+    }
   }
 
-  /* --- dock: rounded field + torn "Ask →", quick chips, footer doodles --- */
-  .ask-panel-dock {
-    padding: 12px 18px 10px 8px;
-    border-top: 1px solid var(--line);
-  }
-  .ask-panel .ask-panel-form {
-    display: block;
-    margin-top: 0;
-  }
-  .ask-field {
+  /* --- chat (spec §16–§19) --- */
+  .tk-log {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 56px;
-    padding: 4px 4px 4px 14px;
-    border: 1.5px solid color-mix(in oklab, var(--color-steel) 45%, transparent);
-    border-radius: 16px;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 12px 0 4px;
+    list-style: none;
+  }
+  .tk-turn[data-role="user"] {
+    align-self: flex-end;
+    max-width: 85%;
+  }
+  .tk-turn[data-role="user"] .tk-bubble {
+    padding: 10px 14px;
+    border-radius: 18px 18px 6px 18px;
+    border: 1px solid color-mix(in oklab, var(--color-rust) 20%, var(--color-ivory));
+    background: color-mix(in oklab, var(--color-rust) 9%, var(--color-ivory));
+    overflow-wrap: anywhere;
+  }
+  .tk-turn[data-role="tushky"] {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+  .tk-turn[data-role="tushky"] .tk-bubble {
+    padding: 12px 14px;
+    border-radius: 6px 18px 18px 18px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 9%, transparent);
     background: var(--color-ivory);
+    box-shadow: 0 2px 8px color-mix(in oklab, var(--color-navy) 8%, transparent);
   }
-  /* the whole field carries the focus ring (the input's own ring would box the text inside it) */
-  .ask-field:focus-within {
-    border-color: var(--color-navy-2);
+  .tk-bubble {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-navy);
   }
-  .ask-field:has(.ask-input:focus-visible) {
-    outline: 2px solid var(--color-rust);
-    outline-offset: 3px;
+  .tk-answer-text {
+    margin: 0;
   }
-  .ask-panel .ask-input:focus-visible {
-    outline: none;
-  }
-  .ask-field-icon {
-    flex-shrink: 0;
-    color: var(--color-steel);
-  }
-  .ask-panel .ask-input {
-    padding: 6px 4px;
-    border-bottom: 0;
-    border-left: 1.5px solid var(--line);
-    padding-left: 10px;
-    font-size: 16px;
-  }
-  .ask-panel .ask-submit {
-    position: relative;
-    isolation: isolate;
-    min-height: 48px;
-    padding: 6px 20px 8px;
-    border-radius: 2px;
-    background: transparent;
-    font-size: 24px;
-  }
-  .ask-panel .ask-submit::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--color-navy);
-    clip-path: polygon(100% 0.0%, 100% 12.5%, calc(100% - 3px) 25.0%, calc(100% - 6px) 37.5%, calc(100% - 3px) 50.0%, calc(100% - 6px) 62.5%, 100% 75.0%, calc(100% - 6px) 87.5%, calc(100% - 4px) 100.0%, 5px 100.0%, 0px 87.5%, 6px 75.0%, 3px 62.5%, 4px 50.0%, 0px 37.5%, 4px 25.0%, 0px 12.5%, 2px 0.0%);
-    transition: background-color 180ms ease;
-  }
-  .ask-panel .ask-submit:hover {
-    background: transparent;
-  }
-  .ask-panel .ask-submit:hover::before {
-    background: var(--color-navy-2);
-  }
-  .ask-quick {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .tk-sources {
     margin-top: 10px;
   }
-  .ask-quick-chip {
+  .tk-sources-label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+  }
+  .tk-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tk-source,
+  .tk-followup {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
     min-height: 44px;
-    padding: 6px 14px 6px 12px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-pill);
-    background: var(--color-ivory);
-    box-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 6%, transparent);
-    font-family: var(--font-body);
+    padding: 0 14px;
+    border-radius: 999px;
     font-size: 14px;
     line-height: 1.2;
     color: var(--color-navy);
     text-decoration: none;
-    cursor: pointer;
-    transition: border-color 180ms ease;
   }
-  .ask-quick-chip:hover {
-    border-color: var(--color-navy-2);
+  .tk-source {
+    border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+    background: var(--color-paper-2);
   }
-  .ask-quick-icon {
-    flex-shrink: 0;
-    color: var(--color-navy);
+  .tk-source:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
-  .ask-panel-foot {
+  .tk-followups {
+    margin-top: 12px;
+  }
+  .tk-followup {
+    border: 1.5px solid color-mix(in oklab, var(--color-steel) 40%, transparent);
+    background: color-mix(in oklab, var(--color-steel) 12%, var(--color-ivory));
+    font-weight: 500;
+  }
+  .tk-followup:hover {
+    border-color: var(--color-steel);
+  }
+  .tk-typing {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
+    gap: 5px;
+    align-items: center;
+    min-height: 24px;
+  }
+  .tk-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--color-ink-soft);
+    animation: tk-dot 900ms ease-in-out infinite;
+  }
+  .tk-dot:nth-child(3) {
+    animation-delay: 150ms;
+  }
+  .tk-dot:nth-child(4) {
+    animation-delay: 300ms;
+  }
+  @keyframes tk-dot {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  /* while generating, the avatar breathes a little (spec §21); it stops when the answer lands */
+  .tk-turn[data-msg="loading"] .tk-turn-avatar,
+  .tk-head[data-generating] .tk-head-avatar {
+    animation: tk-pulse 900ms ease-in-out infinite alternate;
+  }
+  @keyframes tk-pulse {
+    to {
+      transform: scale(1.06);
+    }
+  }
+  .tk-error p {
+    display: flex;
     gap: 8px;
-    margin-top: 4px;
-    pointer-events: none;
+    align-items: flex-start;
+    margin: 0 0 8px;
   }
-  .ask-mountain {
-    width: 84px;
-    height: 38px;
-    color: color-mix(in oklab, var(--color-navy) 45%, transparent);
-  }
-  .ask-foot-note {
-    margin-left: auto;
-    font-size: 20px;
-    line-height: 1.1;
-    color: var(--color-navy-2);
-    rotate: -3deg;
-  }
-  .ask-leaf {
-    width: 34px;
-    height: 46px;
-    color: var(--color-green-2);
+  .tk-error-glyph {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: var(--color-rust);
   }
 
-  /* --- the answer / empty / error states sit on an ivory card in the panel --- */
-  .ask-panel .ask-state:not([data-ask-state="idle"]) {
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
+  /* --- composer, pinned (spec §15) --- */
+  .tk-composer {
+    flex-shrink: 0;
+    padding: 12px var(--tk-pad-x) 14px var(--tk-pad-l);
+    border-top: 1px dashed color-mix(in oklab, var(--color-navy) 12%, transparent);
+    background: var(--color-paper);
+  }
+  .tk-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 5px 5px 5px 18px;
+    border-radius: 18px;
+    border: 1.5px solid color-mix(in oklab, var(--color-navy) 30%, transparent);
     background: var(--color-ivory);
-    box-shadow: var(--shadow-paper);
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--color-navy) 8%, transparent);
+  }
+  .tk-field:focus-within {
+    border-color: var(--color-navy);
+  }
+  .tk-field:has(.tk-input:focus-visible) {
+    outline: 3px solid var(--color-rust);
+    outline-offset: 3px;
+  }
+  .tk-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--color-navy);
+    outline: none;
+  }
+  .tk-input::placeholder {
+    color: var(--color-ink-soft);
+    opacity: 1;
+  }
+  .tk-send {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--color-navy);
+    color: var(--color-ivory);
+    transition: background-color 180ms var(--ease-hover);
+  }
+  .tk-send:hover {
+    background: var(--color-navy-2);
   }
 
-  /* --- phone bottom sheet (<768): smaller lettering + mascot, 1-up cards, no footer doodles --- */
+  /* --- short laptop screens (1366×768 and the like): keep the empty state in one view (spec §14) --- */
+  @media (min-width: 768px) and (max-height: 860px) {
+    .tk-head {
+      padding-top: 16px;
+    }
+    .tk-title {
+      font-size: 33px;
+    }
+    .tk-mascot {
+      height: 96px;
+    }
+    .tk-hero {
+      margin-bottom: 8px;
+    }
+    .tk-sniff,
+    .tk-note-text {
+      font-size: 16px;
+    }
+    .tk-intro {
+      margin-bottom: 8px;
+      padding: 10px 14px;
+    }
+    .tk-intro-title {
+      font-size: 18px;
+    }
+    .tk-intro-body {
+      font-size: 14.5px;
+      line-height: 1.45;
+    }
+    .ask-panel .tk-suggest-label {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .tk-cards {
+      gap: 6px;
+    }
+    .tk-card {
+      min-height: 48px;
+      padding-block: 6px;
+      font-size: 14.5px;
+    }
+    .tk-composer {
+      padding-block: 10px 12px;
+    }
+  }
+
+  /* --- phones: full-screen chat (spec §22) --- */
   @media (max-width: 767px) {
-    .paper-sheet.ask-panel-sheet[data-paper="notebook"] {
-      padding-left: 40px;
+    .ask-panel {
+      filter: none;
     }
-    .ask-panel-head {
-      padding-top: 18px;
-    }
-    .ask-panel-lettering {
-      font-size: 44px;
-    }
-    .ask-panel-meet {
-      margin-left: 24px;
-      font-size: 24px;
-    }
-    .ask-intro-row {
-      grid-template-columns: 84px minmax(0, 1fr);
-    }
-    .ask-mascot-hand {
-      font-size: 16px;
-    }
-    .ask-mascot-img {
-      width: 76px;
-      height: 76px;
-    }
-    .ask-speech {
-      padding: 12px 14px;
-    }
-    .ask-speech-title {
-      font-size: 16px;
-    }
-    .ask-panel-foot,
-    .ask-clip {
+    .ask-panel::after {
       display: none;
     }
-    /* one swipeable chip row so the dock stays short and the cards keep the room */
-    .ask-quick {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      margin-inline-end: -18px;
-      padding-inline-end: 18px;
-      padding-bottom: 2px;
-      scrollbar-width: none;
+    .tk-paper {
+      --tk-pad-x: 16px;
+      --tk-pad-l: 16px;
+      clip-path: none;
+      background-image: repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in oklab, var(--color-steel) 8%, transparent) 31px 32px);
     }
-    .ask-quick > li {
-      flex-shrink: 0;
+    .tk-head {
+      padding-top: 14px;
+    }
+    .tk-title {
+      font-size: 30px;
+    }
+    .ask-panel .tk-subtitle {
+      font-size: 20px;
+    }
+    .tk-underline {
+      width: 170px;
+    }
+    .tk-hero {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+    }
+    .tk-sniff {
+      display: none;
+    }
+    .tk-mascot {
+      height: 84px;
+    }
+    .tk-note {
+      padding: 10px 10px 8px;
+      transform: rotate(0.6deg);
+    }
+    .tk-note-text {
+      font-size: 16px;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ask-card,
-    .ask-quick-chip,
-    .ask-panel .ask-submit::before {
-      transition: none;
+    .ask-panel[data-open],
+    .ask-panel[data-open] .tk-mascot,
+    .tk-dot,
+    .tk-turn[data-msg="loading"] .tk-turn-avatar,
+    .tk-head[data-generating] .tk-head-avatar {
+      animation: none !important;
     }
-    .ask-card:hover {
-      translate: none;
+    .tk-card:hover,
+    .tk-card:hover .tk-card-arrow {
+      transform: none;
     }
   }
 }

@@ -153,3 +153,84 @@ export function useAsk(surface: AskSurface): UseAsk {
 
   return { ...state, submit, retry, reset };
 }
+
+/**
+ * TKT-104 r2 (Ask Tushky drawer, spec §16 / §25, Design.md §11 Dev-60): a multi-turn conversation
+ * over the SAME provider and rules as `useAsk`. The retrieval-only local index answers every turn.
+ * Answers are the provider's verbatim text, there is a ≥ 150 ms skeleton floor, a provider failure
+ * is logged and becomes an `error` turn with a retry, and `reset()` invalidates every in-flight
+ * turn. The user's words are kept as plain strings and render as React text nodes, never as HTML.
+ */
+export type ChatTurn =
+  | { id: number; role: "user"; text: string }
+  | { id: number; role: "tushky"; status: "loading" | "answer" | "empty" | "error"; query: string; answer: Answer | null };
+
+export interface UseAskChat {
+  messages: ChatTurn[];
+  isGenerating: boolean;
+  /** Ask `query` (defaults to `label`); the user bubble shows `label`. */
+  ask: (label: string, query?: string) => void;
+  /** Re-run a failed Tushky turn in place. */
+  retry: (turnId: number) => void;
+  reset: () => void;
+}
+
+export function useAskChat(): UseAskChat {
+  const { provider } = useAskContext();
+  const [messages, setMessages] = useState<ChatTurn[]>([]);
+  const nextId = useRef(0);
+  // Bumped by reset(): a turn started in an older conversation never writes into the new one.
+  const epoch = useRef(0);
+
+  const resolve = useCallback(
+    async (turnId: number, query: string) => {
+      const started = epoch.current;
+      const update = (patch: Partial<Extract<ChatTurn, { role: "tushky" }>>) => {
+        if (started !== epoch.current) return;
+        setMessages((all) => all.map((m) => (m.id === turnId && m.role === "tushky" ? { ...m, ...patch } : m)));
+      };
+      update({ status: "loading", answer: null });
+      try {
+        const [answer] = await Promise.all([provider.ask(query, { surface: "panel" }), delay(SKELETON_FLOOR_MS)]);
+        update({ status: answer.kind === "answer" ? "answer" : "empty", answer });
+      } catch (err) {
+        console.error("[ask] provider failed", err); // never silent (SF-6 / A12)
+        update({ status: "error", answer: null });
+      }
+    },
+    [provider],
+  );
+
+  const ask = useCallback(
+    (label: string, query?: string) => {
+      const text = label.trim();
+      const q = (query ?? label).trim();
+      if (!text || !q) return;
+      const userId = ++nextId.current;
+      const turnId = ++nextId.current;
+      setMessages((all) => [
+        ...all,
+        { id: userId, role: "user", text },
+        { id: turnId, role: "tushky", status: "loading", query: q, answer: null },
+      ]);
+      void resolve(turnId, q);
+    },
+    [resolve],
+  );
+
+  const retry = useCallback(
+    (turnId: number) => {
+      const turn = messages.find((m) => m.id === turnId);
+      if (turn?.role === "tushky") void resolve(turnId, turn.query);
+    },
+    [messages, resolve],
+  );
+
+  const reset = useCallback(() => {
+    epoch.current++;
+    setMessages([]);
+  }, []);
+
+  const isGenerating = messages.some((m) => m.role === "tushky" && m.status === "loading");
+  return { messages, isGenerating, ask, retry, reset };
+}

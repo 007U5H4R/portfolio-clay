@@ -19,13 +19,13 @@
  * from data only).
  */
 import { AlertTriangle } from "lucide-react";
-import type { ReactNode, RefObject } from "react";
+import type { RefObject } from "react";
 import type { Answer } from "@/lib/ask";
 import { knowledge } from "@/data/knowledge";
 import { Icon } from "@/components/common/Icon";
 import { DraftTag } from "@/components/paper/DraftTag";
 import { EvidenceLinks } from "./EvidenceLinks";
-import { SuggestedPrompts, type SuggestedPromptsProps } from "./SuggestedPrompts";
+import { SuggestedPrompts } from "./SuggestedPrompts";
 import type { AskStatus } from "./AskProvider";
 
 /** S7 honesty line — shown in idle + answer, never in error (S10.03 gate). */
@@ -45,18 +45,10 @@ export interface AnswerViewProps {
   onRetry: () => void;
   /** Attached to the answer heading so the parent can move focus there once an answer lands. */
   headingRef?: RefObject<HTMLHeadingElement | null> | undefined;
-  /**
-   * TKT-104 (AskPanel only): replaces the idle-state microcopy line with the panel's intro (the torn
-   * honesty note, Tushky and the greeting). The intro MUST render `<Microcopy />` itself — the S7
-   * honesty line is shown in idle on every surface.
-   */
-  idleIntro?: ReactNode | undefined;
-  /** TKT-104 (AskPanel only): render the idle / empty prompts as tinted question cards. */
-  cardStyle?: SuggestedPromptsProps["cardStyle"];
 }
 
-export function Microcopy({ className }: { className?: string | undefined }) {
-  return <p className={["ask-microcopy", className].filter(Boolean).join(" ")}>{ASK_MICROCOPY}</p>;
+function Microcopy() {
+  return <p className="ask-microcopy">{ASK_MICROCOPY}</p>;
 }
 
 export function AnswerView({
@@ -67,8 +59,6 @@ export function AnswerView({
   onAskAnother,
   onRetry,
   headingRef,
-  idleIntro,
-  cardStyle,
 }: AnswerViewProps) {
   if (status === "loading") {
     return (
@@ -107,7 +97,7 @@ export function AnswerView({
       <div className="ask-state" data-ask-state="empty">
         <p className="ask-answer-text">{answer.text}</p>
         {answer.suggestions.length > 0 ? (
-          <SuggestedPrompts prompts={answer.suggestions} onSelect={onSelectPrompt} cardStyle={cardStyle} />
+          <SuggestedPrompts prompts={answer.suggestions} onSelect={onSelectPrompt} />
         ) : null}
       </div>
     );
@@ -132,8 +122,8 @@ export function AnswerView({
   // idle
   return (
     <div className="ask-state" data-ask-state="idle">
-      {idleIntro ?? <Microcopy />}
-      <SuggestedPrompts prompts={prompts} onSelect={onSelectPrompt} cardStyle={cardStyle} />
+      <Microcopy />
+      <SuggestedPrompts prompts={prompts} onSelect={onSelectPrompt} />
     </div>
   );
 }
