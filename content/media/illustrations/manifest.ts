@@ -43,7 +43,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     file: "hero-banner.webp",
     width: 3168,
     height: 1344,
-    alt: "Illustration of Tushar at a warm desk — laptop, notebook, books, plants, a lamp, a sleeping golden retriever, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
+    alt: "Illustration of Tushar at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, and books titled Product Thinking, AI & Society, System Thinking and A Better Tomorrow.",
     usedOn: ["/"],
   },
   {
