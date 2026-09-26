@@ -1,6 +1,6 @@
 # TKT-97 (`TASK-92`) · CopyButton timing test + legacy header metric / about ids — report
 
-Implementer: Claude Opus 5.5 · branch `m009/tkt-97` from `f121e25` · logs: `/Volumes/E Drive/Dev/.scratch/m009/tkt97/`.
+Implementer: Claude Opus 5.5 · branch `m009/tkt-97` from `f121e25` · commit `986e77d` · logs: `/Volumes/E Drive/Dev/.scratch/m009/tkt97/`.
 
 ## 1 · CopyButton "copied then idle" test (`tests/e2e/contact.spec.ts`, TC-170.1)
 
