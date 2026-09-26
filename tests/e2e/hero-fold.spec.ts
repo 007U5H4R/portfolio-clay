@@ -148,3 +148,32 @@ test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async (
     }
   }
 });
+
+/**
+ * Polaroid placement scar (Tushar 2026-09-26: "the polaroid image is overlapping the journey flow"). The
+ * upper polaroids must cover the outpaint's corkboard (its garbled notes, EVAL-021 flag; frame ends at
+ * ≈ 21.5 % of the scene width, notes to ≈ 39.5 % of its height) without reaching the "Problem → … → Impact"
+ * note, which starts at ≈ 24 %. Measured at rest (scroll 0) on the unrotated layout boxes' rendered rects.
+ */
+test("hero polaroids cover the corkboard and stay clear of the journey note", async ({ page }) => {
+  test.skip(width(page) < 768, "the polaroids are the ≥ 768 banner layout");
+  const widths = width(page) === 1440 ? [1024, 1440, 1920] : [width(page)];
+  for (const w of widths) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.goto("/", { waitUntil: "load" });
+    await scrollToY(page, 0);
+    const m = await page.evaluate(() => {
+      const banner = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
+      const [p1, p2] = [...document.querySelectorAll(".hero-polaroid")].map((el) => el.getBoundingClientRect());
+      return {
+        right: (Math.max(p1!.right, p2!.right) - banner.left) / banner.width,
+        bottom: (Math.min(p1!.bottom, p2!.bottom) - banner.top) / banner.height,
+      };
+    });
+    expect(m.right, `w${w}: upper polaroids end at ${(m.right * 100).toFixed(1)} % (journey note starts ≈ 24 %)`).toBeLessThanOrEqual(0.235);
+    expect(m.right, `w${w}: upper polaroids reach the corkboard's right-hand notes (≈ 20.4 %)`).toBeGreaterThanOrEqual(0.2);
+    // The lowest notes ("Team projects", "Croamg-probro") end at ≈ 39.5 % of the scene height; below is
+    // bare cork, then the frame (≈ 45 %) — neither carries text.
+    expect(m.bottom, `w${w}: upper polaroids cover the corkboard's lowest notes (≈ 39.5 %)`).toBeGreaterThanOrEqual(0.4);
+  }
+});

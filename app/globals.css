@@ -944,10 +944,13 @@ body::before {
      it (the first tucked under the header's edge, the second over its right column) and a smaller third
      at the bottom-left tucked under the paper's torn edge, clear of the desk's books. Widths scale with
      the banner (TKT-96: the box is the whole scene, 42.4 vw tall, no cap), so the upper two keep
-     reaching the corkboard's bottom (≈ 19.1 vw) at every width ≥ 768. */
+     covering the corkboard's lowest notes (≈ 39.5 % of the scene height) at every width ≥ 768. */
+  /* Horizontal limit (Tushar 2026-09-26): the corkboard's frame ends at ≈ 21.5 % of the scene width and
+     the "Problem → … → Impact" note starts at ≈ 24 %, so the second polaroid ends by ≈ 21.7 % (4 % +
+     17.5 vw, or 136 px at 768) and never overlaps the journey note. */
   .hero-polaroid {
     position: absolute;
-    width: max(136px, 18vw);
+    width: max(136px, 17.5vw);
     padding: 12px 12px 30px;
   }
   .hero-polaroid:nth-child(1) {
@@ -956,7 +959,7 @@ body::before {
   }
   .hero-polaroid:nth-child(2) {
     top: 2%;
-    left: 10%;
+    left: 4%;
   }
   .hero-polaroid:nth-child(3) {
     bottom: 0;
