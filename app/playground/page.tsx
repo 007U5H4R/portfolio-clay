@@ -22,7 +22,7 @@ export const metadata: Metadata = buildMetadata({
 export default function PlaygroundPage() {
   return (
     <>
-      {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-48) — focal point per scene in components/paper/scene-opener-frames.ts. */}
+      {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-95) — focal point per scene in components/paper/scene-opener-frames.ts. */}
       <SceneOpener id="scene-playground" priority />
       <PlaygroundHero />
       <PlaygroundGrid />
