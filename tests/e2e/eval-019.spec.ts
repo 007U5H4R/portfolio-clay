@@ -302,7 +302,9 @@ test("@EVAL-019 static HTML carries the banner <img fetchpriority=high> and no <
   // Rendered once in the markup. (The inline RSC flight payload in <script> repeats every prop
   // string, so scripts are stripped before counting — that copy is data, not a second <img>.)
   const markupOnly = html.replace(/<script\b[\s\S]*?<\/script>/g, "");
-  expect(markupOnly.split(BANNER.alt).length - 1, "alt string once in the rendered markup").toBe(1);
+  // Count the HTML-escaped form: since TKT-105 the alt names the "AI & Society" book, which React emits as `&amp;`.
+  const escapedAlt = BANNER.alt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+  expect(markupOnly.split(escapedAlt).length - 1, "alt string once in the rendered markup").toBe(1);
 
   // Live DOM at w1440: the parsed attribute + the LCP-relevant IDL property.
   await page.goto("/", { waitUntil: "load" });
