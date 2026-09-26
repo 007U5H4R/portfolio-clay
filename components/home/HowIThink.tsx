@@ -2,8 +2,8 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { Reveal } from "@/components/interactions/Reveal";
 import { DraftTag, Hand, Pin, Sheet, Sketch, TornEdge } from "@/components/paper";
+import { Reveal } from "@/components/interactions/Reveal";
 import { MediaGate } from "@/components/paper/MediaGate";
 import { stagePin, type StageId } from "@/lib/stages";
 import { deckle } from "./deckle";
@@ -31,6 +31,10 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
  * strip (CSS on the blockquote; the cite stays plain below it), the DraftTag is the compact two-line
  * form, the numeral is terracotta italic, and the pill is a paper button with an arrow glyph. The
  * collage behind the cards is ONE `data-decor="collage"` object (`HowIThinkCollage`).
+ *
+ * Round 2 (Tushar 2026-09-26): Higgsfield collage crops, wider cards, a bolder pin-to-pin path, and
+ * each card's torn silhouette carries a ~1.5 px navy ink outline (`.hit-paper-ink`: the rim outline
+ * on a box 1.5 px larger, behind the rim — no CSS filter), so it separates from the collage.
  *
  * Copy: stage label, principle, quote and attribution are rendered verbatim from
  * `data/thinking-framework.ts` (D7); the project name is resolved server-side in `app/page.tsx`.
@@ -99,6 +103,7 @@ export function HowIThink({ stages }: HowIThinkProps) {
                     <Pin tone={stagePin[stage.id]} />
                     <span className="hit-paper" aria-hidden="true">
                       <span className="hit-paper-shade" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-ink" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-rim" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-face" style={{ clipPath: edges.face }} />
                     </span>
