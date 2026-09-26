@@ -43,7 +43,8 @@ export function DecisionCard({ artifact, source }: DecisionCardProps) {
         <p className="dec-why">
           <Hand kind="label" as="b" className="dec-why-lbl">
             Why:
-          </Hand>
+          </Hand>{" "}
+          {/* TKT-90d (A11Y-4): a real space, so "Why:" is not read as one word with the reason. */}
           {artifact.reason}
         </p>
       ) : null}

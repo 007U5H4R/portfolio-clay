@@ -222,24 +222,26 @@ body::before {
 */
 .reveal {
   --stagger-index: 0;
-  /* `visibility: hidden` (not opacity alone) keeps not-yet-revealed content out of the
-     accessibility tree and tab order — an opacity:0 element is still focusable/announceable and
-     axe's color-contrast rule still evaluates its (near-invisible) blended colour as a false
-     positive. `visibility` has no transition-duration of its own below, so it flips to `visible`
-     instantly the moment `data-revealed` is set, while opacity/transform animate in over it. */
-  visibility: hidden;
+  /* TKT-90d (A11Y-1): hidden VISUALLY only — opacity + a 12px drop, `pointer-events: none` — never
+     `visibility: hidden`, which removed not-yet-revealed content from the accessibility tree (a
+     screen-reader user jumping by heading never reached How I think / the product journey). The
+     content is always announced; `Reveal` also reveals on `focusin`, `:focus-within` shows it at
+     once for keyboard users, and reduced motion shows it immediately (below). axe skips opacity:0
+     content, so audits scroll the section into view (revealed) before scanning. */
   opacity: 0;
   transform: translateY(12px);
+  pointer-events: none;
   transition:
     opacity 500ms var(--ease-reveal),
     transform 500ms var(--ease-reveal);
   transition-delay: calc(var(--stagger-index) * 70ms);
 }
 
-.reveal[data-revealed] {
-  visibility: visible;
+.reveal[data-revealed],
+.reveal:focus-within {
   opacity: 1;
   transform: none;
+  pointer-events: auto;
 }
 
 /*
@@ -396,6 +398,10 @@ body::before {
   .reveal {
     transition-property: opacity;
     transition-delay: 0ms;
+    /* TKT-90d (A11Y-1): no scroll-triggered entrance at all under reduced motion — shown at once. */
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
   }
 
   /* Show-the-thinking (TKT-21, Design.md §4 reduced-motion mapping: "all 8 appear at once,
@@ -922,12 +928,9 @@ body::before {
        so the third polaroid's overhang below the torn edge stays visible and nothing widens the page. */
     overflow-x: clip;
   }
+  /* The torn edge is the paper sheet's top edge (TKT-96): the sheet overlaps the banner's bottom by the
+     edge's 44 px, so the tear reads over the scene and leads the paper up over it on scroll. */
   .hero-torn {
-    position: absolute;
-    right: 0;
-    bottom: -1px;
-    left: 0;
-    z-index: 2;
     margin: 0;
   }
 
@@ -938,11 +941,13 @@ body::before {
     pointer-events: none;
   }
   /* The outpaint's corkboard is the banner's top-left ~21 % × 45 %: two polaroids side by side across
-     it (the first tucked under the header's edge, the second over its right column) and a third at the
-     bottom-left crossing the torn edge — the reference's overlap. */
+     it (the first tucked under the header's edge, the second over its right column) and a smaller third
+     at the bottom-left tucked under the paper's torn edge, clear of the desk's books. Widths scale with
+     the banner (TKT-96: the box is the whole scene, 42.4 vw tall, no cap), so the upper two keep
+     reaching the corkboard's bottom (≈ 19.1 vw) at every width ≥ 768. */
   .hero-polaroid {
     position: absolute;
-    width: clamp(136px, 16.5vw, 270px);
+    width: max(136px, 18vw);
     padding: 12px 12px 30px;
   }
   .hero-polaroid:nth-child(1) {
@@ -954,8 +959,9 @@ body::before {
     left: 10%;
   }
   .hero-polaroid:nth-child(3) {
-    bottom: -7%;
+    bottom: 0;
     left: 2%;
+    width: max(120px, 11vw);
   }
   /* Square instant-photo crops: tall enough that the two upper polaroids reach the corkboard's bottom
      edge (≈ 45 % of the banner) at every width ≥ 768 — a 4:3 crop left its lower notes showing. */
@@ -6041,23 +6047,10 @@ html.lenis body {
 }
 /* end TSK-46 */
 
-/* TKT-92r2 · hero first viewport (TKT-79 EVAL-001 5-second test, orchestrator 2026-09-25): at ≥ 1024 the
-   full-bleed banner is capped by the viewport height so the eyebrow, h1, hand line, support and both CTAs
-   sit inside the first viewport (1440×900 and 1024×768). `100svh − 480px − 6vw` is the header (73 px) +
-   the copy block's measured height (≈ 390 px at 1024, ≈ 440 px at 1440, which grows with the h1 clamp)
-   + the reduced top padding + a ≥ 16 px margin; the 240 px floor keeps a short laptop from collapsing
-   the scene. Still one box cropping one canvas (the TKT-93 contract — the clip stays registered); the
-   face is kept in the crop by `focalY` on the hero's SceneBanner (components/hero/Hero.tsx). 768–1023
-   and < 768 are unchanged. */
+/* TKT-92r2 · hero narrow art direction (mobile LCP). Its ≥ 1024 viewport-height cap on the banner (the
+   EVAL-001 first-viewport fit) was removed by TKT-96 (Tushar, 2026-09-26, Design.md §11 Dev-39): at
+   ≥ 768 the home banner now shows the whole scene — see the "TKT-96" block below. */
 @layer components {
-  @media (min-width: 1024px) {
-    .hero-banner .scene-banner {
-      --banner-h: clamp(240px, min(42vw, 100svh - 480px - 6vw), 620px);
-    }
-    .hero-copy {
-      padding-block-start: clamp(28px, 2.5vw, 40px);
-    }
-  }
   /* Narrow art direction (mobile LCP): < 768 the banner's <picture> serves a pre-cropped rendition of just
      the region the 4:3 box shows; the <img> sits on the canvas at that crop's own position (fractions of
      the scene width from SceneBanner's `narrow` prop), so it stays on the canvas grid — the canvas is
@@ -6071,3 +6064,102 @@ html.lenis body {
   }
 }
 /* end TKT-92r2 */
+/* TKT-96 · whole scene + paper-over-image parallax (Tushar direction 2026-09-26, Design.md §11 Dev-39).
+   1. Home ≥ 768: the banner box is the whole 3168×1344 scene — height = the box's width ÷ the scene
+      ratio, no cap — so nothing is cropped (desk, laptop, mug, books, the sleeping dog). `.hero-banner`
+      is an inline-size container so `100cqw` is the box's own width (a classic scrollbar never makes
+      the box taller than the canvas). Still one box cropping one canvas (TKT-93): the canvas simply
+      equals the box. < 768 keeps the 4:3 art-directed crop (a whole 21:9 scene at 390 would be
+      ≈ 165 px tall).
+   2. Parallax: the image layer (home `.hero-banner` — banner, polaroids, postmark; openers'
+      `.scene-banner`) moves down at half the scroll speed over the first viewport of scroll while the
+      paper keeps page speed, so the paper slides over the image with the torn edge leading. On home the
+      paper is `.hero-sheet` (torn edge + copy, opaque paper, above the image layer); on the openers the
+      opener clips its own bottom at the torn edge, so the slower image disappears under it. CSS
+      scroll-driven animation on the root scroller (works under Lenis, which scrolls natively; no JS
+      listeners), progressive enhancement behind `@supports`; `prefers-reduced-motion: reduce` gets no
+      animation and no sticky layer — plain scroll, the paper still overlaps the banner at rest.
+   The copy's reduced ≥ 1024 top padding (a TKT-92r2 fold measure) is gone with the cap. */
+@keyframes scene-parallax {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 50vh;
+  }
+}
+@layer components {
+  .hero-banner {
+    z-index: 0;
+  }
+  @media (min-width: 768px) {
+    .hero-banner {
+      container-type: inline-size;
+    }
+    .hero-banner .scene-banner {
+      --banner-h: calc(100cqw / (var(--scene-ar, 3168 / 1344)));
+    }
+  }
+  /* Full-bleed opaque paper below the torn edge (the edge's own 44 px stay transparent above the tear). */
+  .hero-sheet {
+    position: relative;
+    z-index: 4;
+    margin-top: -44px;
+    background: linear-gradient(to bottom, transparent 43px, var(--color-paper) 43px);
+  }
+  /* The image layer never paints below its own section (the sheet / next page content covers the rest). */
+  .hero,
+  .scene-opener {
+    overflow-y: clip;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .hero-banner,
+      .scene-opener .scene-banner {
+        animation: scene-parallax linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 100vh;
+      }
+    }
+  }
+}
+/* end TKT-96 */
+/* TKT-90d · a11y + /work bundle follow-ups (docs/a11y-pass.md A11Y-2/3/4, INTEGRATION-ABC bundle) */
+/* A11Y-2 / A11Y-3: the "●" kind-badge dot and the insight's big opening-quote glyph are decorative
+   CSS generated content — give them empty alt text (`content: <glyph> / ""`) so they are not read
+   aloud ("black circle", "left double quotation mark"). The first declaration is the fallback for
+   engines without the alt-text syntax; the visual is unchanged. */
+.aimp-kind::before,
+.story-kind::before {
+  content: "●";
+  content: "●" / "";
+}
+.artifact-insight::before {
+  content: "“";
+  content: "“" / "";
+}
+/* A11Y-4: DecisionCard now renders a real space after "Why:"; trim the label margin so the gap
+   stays ≈ the old 6 px. */
+.dec-why-lbl {
+  margin-right: 2px;
+}
+/* /work filter crossfade in CSS (Design.md §4: fade-in 200 / fade-out 150, opacity only) — replaces
+   motion/react's AnimatePresence in components/projects/WorkIndex.tsx. The global A6 reduced-motion
+   rule forces both to ~1 ms. */
+@keyframes work-item-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.work-item[data-enter] {
+  animation: work-item-in 200ms var(--ease-reveal) both;
+}
+.work-item[data-exit] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--ease-reveal);
+}
+/* end TKT-90d */

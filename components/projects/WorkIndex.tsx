@@ -1,11 +1,10 @@
 "use client";
 
-import { AnimatePresence, m } from "motion/react";
+import { useEffect, useState } from "react";
 import type { Project } from "@/data/schema";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { Hand, Sheet, Sticky, Tape } from "@/components/paper";
 import { formatAsOf } from "@/lib/format";
-import { LazyMotionRoot, useReducedMotionSafe } from "@/lib/motion";
 
 /**
  * `/work` numbered project index (TKT-80 · TSK-40, Design.md §7.2 "Index"; replaces the M-008
@@ -23,12 +22,45 @@ import { LazyMotionRoot, useReducedMotionSafe } from "@/lib/motion";
  * the click target (TC-152 step 4). Status = coloured dot + the data's text, never colour alone.
  * Every string is verbatim from `data/projects.ts` (D7); dates through `lib/format`.
  *
- * Filter changes crossfade (Design.md §4: fade-out 150 / fade-in 200), `initial={false}` so the
- * prerendered first paint never animates; reduced motion collapses it to instant (EVAL-010).
+ * Filter changes crossfade (Design.md §4: fade-out 150 / fade-in 200) in plain CSS (TKT-90d — was
+ * `motion/react`'s `AnimatePresence`, which cost `/work` ~51 kB gz of first-load JS): items that
+ * join the list get `data-enter` (a 200 ms opacity keyframe), items that leave stay mounted for
+ * 150 ms with `data-exit` (opacity transition to 0, `inert`, `aria-hidden`) and are then dropped.
+ * The first paint never animates (nothing is "entering" on the initial list). Reduced motion: the
+ * global A6 rule forces the CSS to ~1 ms and the exit hold drops to 0 ms (EVAL-010). Opacity only —
+ * never a transform.
  */
 
-const ENTER_SEC = 0.2;
-const EXIT_SEC = 0.15;
+const EXIT_MS = 150;
+
+interface Entry {
+  project: Project;
+  /** Index in the list it was last rendered in (exiting entries keep their old numeral/rank). */
+  index: number;
+  entering: boolean;
+  exiting: boolean;
+}
+
+function toEntries(projects: Project[], previous: Entry[] | null): Entry[] {
+  const before = new Set(previous?.filter((e) => !e.exiting).map((e) => e.project.slug) ?? []);
+  const next: Entry[] = projects.map((project, index) => ({
+    project,
+    index,
+    entering: previous !== null && !before.has(project.slug),
+    exiting: false,
+  }));
+  if (!previous) return next;
+  const kept = new Set(projects.map((p) => p.slug));
+  previous.forEach((entry, position) => {
+    if (kept.has(entry.project.slug) || entry.exiting) return;
+    next.splice(Math.min(position, next.length), 0, { ...entry, entering: false, exiting: true });
+  });
+  return next;
+}
+
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 type Rank = "flagship" | "second" | "row";
 
@@ -154,36 +186,48 @@ export interface WorkIndexProps {
 }
 
 export function WorkIndex({ projects }: WorkIndexProps) {
-  const reduced = useReducedMotionSafe();
-  const enter = reduced ? { duration: 0 } : { duration: ENTER_SEC };
-  const exit = reduced ? { duration: 0 } : { duration: EXIT_SEC };
+  // "Adjust state when a prop changes" during render (React docs pattern) — no effect round-trip,
+  // so the new list and the exiting items appear in the same commit as the filter change.
+  const [source, setSource] = useState(projects);
+  const [entries, setEntries] = useState<Entry[]>(() => toEntries(projects, null));
+  if (source !== projects) {
+    setSource(projects);
+    setEntries(toEntries(projects, entries));
+  }
+
+  const hasExiting = entries.some((e) => e.exiting);
+  useEffect(() => {
+    if (!hasExiting) return undefined;
+    const timer = window.setTimeout(
+      () => setEntries((current) => current.filter((e) => !e.exiting)),
+      prefersReducedMotion() ? 0 : EXIT_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [hasExiting, entries]);
 
   return (
-    <LazyMotionRoot>
-      <ol className="work-index">
-        <AnimatePresence initial={false}>
-          {projects.map((project, index) => {
-            const rank = rankOf(index);
-            return (
-              <m.li
-                key={project.slug}
-                data-rank={rank}
-                data-slug={project.slug}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: enter }}
-                exit={{ opacity: 0, transition: exit }}
-                className={`work-item work-item-${rank}`}
-              >
-                {rank === "row" ? (
-                  <Row project={project} index={index} />
-                ) : (
-                  <Opener project={project} index={index} rank={rank} />
-                )}
-              </m.li>
-            );
-          })}
-        </AnimatePresence>
-      </ol>
-    </LazyMotionRoot>
+    <ol className="work-index">
+      {entries.map(({ project, index, entering, exiting }) => {
+        const rank = rankOf(index);
+        return (
+          <li
+            key={project.slug}
+            data-rank={rank}
+            data-slug={project.slug}
+            data-enter={entering ? "" : undefined}
+            data-exit={exiting ? "" : undefined}
+            aria-hidden={exiting ? true : undefined}
+            inert={exiting}
+            className={`work-item work-item-${rank}`}
+          >
+            {rank === "row" ? (
+              <Row project={project} index={index} />
+            ) : (
+              <Opener project={project} index={index} rank={rank} />
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }

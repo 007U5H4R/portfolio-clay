@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 /**
  * WorkGrid / WorkIndex / ExperienceStrip read the active filter from `useSearchParams`. Mock it so
@@ -141,5 +143,45 @@ describe("ExperienceStrip (TKT-80 · TSK-41 · TC-153)", () => {
     const { container } = render(<ExperienceStrip projects={professional} />);
     const decor = container.querySelectorAll("section [data-decor]");
     expect(Array.from(decor).map((d) => d.getAttribute("data-decor"))).toEqual(["torn"]);
+  });
+});
+
+describe("WorkIndex filter crossfade in CSS (TKT-90d — /work bundle ≤ 180 kB)", () => {
+  it("never imports motion (the AnimatePresence crossfade cost /work ~51 kB gz of first-load JS)", () => {
+    const src = readFileSync(resolve(process.cwd(), "components/projects/WorkIndex.tsx"), "utf8");
+    expect(src).not.toMatch(/from\s+["'](motion\/react|framer-motion|@\/lib\/motion)["']/);
+  });
+
+  it("first paint never animates: no item is entering or exiting", () => {
+    const { container } = render(<WorkIndex projects={personal} />);
+    expect(container.querySelectorAll("[data-enter], [data-exit]")).toHaveLength(0);
+  });
+
+  it("a filter change fades new items in and holds removed ones (inert, aria-hidden) for 150 ms", () => {
+    vi.useFakeTimers();
+    try {
+      const cloud = applyFilter(personal, "cloud");
+      const { container, rerender } = render(<WorkIndex projects={cloud} />);
+      rerender(<WorkIndex projects={personal} />);
+      const entering = container.querySelectorAll("li[data-enter]");
+      expect(entering).toHaveLength(personal.length - cloud.length);
+      expect(container.querySelector(`li[data-slug="${cloud[0]!.slug}"]`)?.hasAttribute("data-enter")).toBe(false);
+
+      rerender(<WorkIndex projects={cloud} />);
+      const exiting = container.querySelectorAll("li[data-exit]");
+      expect(exiting).toHaveLength(personal.length - cloud.length);
+      for (const li of exiting) {
+        expect(li.getAttribute("aria-hidden")).toBe("true");
+        expect(li.hasAttribute("inert")).toBe(true);
+      }
+      expect(screen.getAllByRole("listitem")).toHaveLength(cloud.length);
+      act(() => {
+        vi.advanceTimersByTime(150);
+      });
+      expect(container.querySelectorAll("ol > li")).toHaveLength(cloud.length);
+      expect(numerals(container)).toEqual(["01"]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
