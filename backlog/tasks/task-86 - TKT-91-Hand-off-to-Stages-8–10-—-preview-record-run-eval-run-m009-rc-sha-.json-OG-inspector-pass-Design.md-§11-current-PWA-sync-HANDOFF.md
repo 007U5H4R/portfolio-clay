@@ -7,7 +7,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 17:46'
+updated_date: '2026-09-26 08:16'
 labels:
   - P0
   - 'sp:3'
@@ -37,3 +37,9 @@ Deploy the branch preview; full pnpm eval against the preview URL persisted with
 - [ ] #6 PWA synchronized (statuses, sp:, dependencies)
 - [ ] #7 HANDOFF names exactly what Stage 8 must open
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26: Tushar: 'yes linkedin post inspector is good' — EVAL-017 LinkedIn Post Inspector pass recorded on preview build c352abd for the existing route families. Re-check needed before release for: / (TKT-108 hero copy changes the home card), new /projects (TKT-101) and /certifications (TKT-102).
+<!-- SECTION:NOTES:END -->

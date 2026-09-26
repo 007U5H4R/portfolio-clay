@@ -4,10 +4,10 @@ title: >-
   TKT-84: /thinking opener + essays ruled sheet (Dev-02) and /thinking/[slug]
   essay page — double 'Draft — pending sign-off:' prefix fixed (S18, regression
   test); quiet-close dropped (D9)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-25 09:50'
+updated_date: '2026-09-26 08:17'
 labels:
   - P1
   - 'sp:5'
@@ -36,3 +36,9 @@ Per Design.md §7.5–7.6: ThinkingHero with taped scene-thinking photo, essays 
 - [ ] #5 No overflow at 390; margin moves under the header <900
 - [ ] #6 Reduced motion: underline drawn complete
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged in the Phase B fan-out; verified by the RC gate 809e326 (full e2e 1050/0). Was omitted from the 2026-09-25 Done batch by mistake (orchestrator) — corrected 2026-09-26.
+<!-- SECTION:NOTES:END -->
