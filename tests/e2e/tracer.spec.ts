@@ -5,13 +5,13 @@
  * Covers the automated tracer eval cases and folds in every Playwright check deferred by
  * TSK-02/04/05/06:
  *   @EVAL-008 — responsive screenshot pack (8 files) + noOverflow + minTargets (both routes)
- *   @EVAL-006 — axe (wcag2.1 AA) at 390 & 1440 on both routes + on the open MobileMenu
+ *   @EVAL-006 — axe (wcag2.1 AA) at 390 & 1440 on both routes + on the 390 header tab strip
  *   @EVAL-010 — reduced-motion: card hover does not translate, header transition collapses
  *   @EVAL-015 — View-Transition fallback (EXE-5 plain navigation, identical end state) + no-JS
  *               static HTML content
  * plus hero frame ladder (S05.02), tile offsets (S05.03), the one-height header + ink underline
- * (TKT-71 / D12 — replacing the S04.03 compaction and S04.04 active-pill checks), MobileMenu
- * focus-trap/Esc (S04.05), SkipLink (S04.02), AskAIButton tab-order (S04.06), resume placeholder +
+ * (TKT-71 / D12 — replacing the S04.03 compaction and S04.04 active-pill checks), no menu button
+ * (S04.05, TASK-112), SkipLink (S04.02), AskAIButton tab-order (S04.06), resume placeholder +
  * /resume.pdf 404 (E-13).
  */
 import { test, expect } from "./fixtures";
@@ -259,7 +259,6 @@ test("header keeps one height with a constant blur; scrolling only adds the hair
 // (the S04.04 active-link pill is deleted).
 // ---------------------------------------------------------------------------
 test("active nav link is marked current and shows the ink underline", async ({ page }) => {
-  test.skip(width(page) < 1440, "primary nav is visible at ≥ 1440 (TKT-112: menu below)");
   await page.goto("/", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const active = nav.locator('a[aria-current="page"]');
@@ -269,35 +268,17 @@ test("active nav link is marked current and shows the ink underline", async ({ p
 });
 
 // ---------------------------------------------------------------------------
-// S04.05 — MobileMenu: opens, traps focus, Esc closes & restores focus, axe clean
+// S04.05 → TASK-112 — no MobileMenu any more: the header carries the tabs at 390, axe clean
 // ---------------------------------------------------------------------------
-test("mobile menu opens, traps focus, closes on Esc and restores focus (axe clean)", {
+test("no menu button at 390; the header tab strip is axe clean", {
   tag: "@EVAL-006",
 }, async ({ page, axe }) => {
-  test.skip(width(page) !== 390, "mobile menu is the w390 navigation");
+  test.skip(width(page) !== 390, "the phone-width header");
   await page.goto("/", { waitUntil: "load" });
-
-  const toggle = page.locator('button[aria-label="Open menu"]');
-  await expect(toggle).toBeVisible();
-
-  const dialog = page.locator('dialog[aria-label="Site navigation"]');
-  // Retry the click until it registers — the onClick handler only exists after hydration.
-  await expect(async () => {
-    await toggle.click();
-    await expect(dialog).toBeVisible({ timeout: 1000 });
-  }).toPass({ timeout: 6000 });
-
-  await axe(page);
-
-  const focusInside = await page.evaluate(() => {
-    const d = document.querySelector('dialog[aria-label="Site navigation"]');
-    return !!(d && document.activeElement && d.contains(document.activeElement));
-  });
-  expect(focusInside, "focus must move inside the modal dialog").toBeTruthy();
-
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
-  await expect(page.locator('button[aria-label="Open menu"]')).toBeFocused();
+  await expect(page.locator("header").getByRole("button", { name: /menu/i })).toHaveCount(0);
+  await expect(page.locator("dialog")).toHaveCount(0);
+  await expect(page.locator('header nav[aria-label="Primary"]')).toBeVisible();
+  await axe(page, { include: "header" });
 });
 
 // ---------------------------------------------------------------------------
@@ -318,10 +299,9 @@ test("skip link is the first tab stop and targets #main", async ({ page }) => {
 // the M-001 tracer's aria-disabled "coming in this build" state was removed here).
 // ---------------------------------------------------------------------------
 test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page }) => {
-  test.skip(width(page) !== 1440, "Ask AI button is desktop-only (hidden on mobile)");
+  test.skip(width(page) !== 1440, "checked once at w1440 (the 390 trigger is covered in eval-007)");
   await page.goto("/", { waitUntil: "load" });
-  // The visible desktop control is the 44 px icon-only ghost named by aria-label (TKT-71, S21);
-  // getByRole skips the closed MobileMenu <dialog>'s hidden Ask row.
+  // The 44 px icon-only ghost named by aria-label (TKT-71, S21).
   const ask = page.locator("header").getByRole("button", { name: "Ask AI" });
   await expect(ask).toBeVisible();
   await expect(ask).not.toHaveAttribute("aria-disabled", "true");
@@ -338,8 +318,8 @@ test("resume placeholder points at /contact#resume and /resume.pdf is 404", asyn
   test.skip(width(page) !== 1440, "runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
   // Since TKT-72 the home page's in-page résumé control is the band footer's résumé circle (the
-  // TKT-73 hero carries no résumé CTA and the old closing-CTA section is gone; the MobileMenu's closed
-  // <dialog> holds a hidden duplicate) — scope to the band. Its name comes from resumeAction().
+  // TKT-73 hero carries no résumé CTA and the old closing-CTA section is gone; since TASK-112 the
+  // band is the only résumé control on every page) — scope to the band. Its name comes from resumeAction().
   const resume = page.locator('footer.band a[href="/contact#resume"][aria-label="Resume — updating"]');
   await expect(resume).toBeVisible();
   const res = await page.request.get("/resume.pdf");

@@ -1,6 +1,6 @@
 /**
  * Primary nav copy (Design.md §4.1, decision D8 — TKT-71; TKT-101 Dev-90): `Home · Experience · Projects ·
- * Thinking · About · Playground`. Rendered by `Header` (≥ 1024) and by the `MobileMenu` sheet (< 1024). `Contact` is
+ * Thinking · About · Playground`. Rendered by `PrimaryNav` as header tabs at every width (TASK-112: no hamburger). `Contact` is
  * never a nav item — it is the "Let's connect →" pill, the band and the page CTAs.
  *
  * D8 (proposed default, Tushar to confirm): the band footer (S16) dropped the footer nav that was

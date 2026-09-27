@@ -108,7 +108,7 @@ export function SecondaryContactLinks() {
  * original image and put post card stamp border as my image border"): his real headshot
  * (`content/media/portrait/tushar-stamp.webp`, re-encoded from `portfolio/photo.jpg` with no metadata)
  * inside a perforated stamp margin, top-right, +5°. A real portrait, so it is content — a named
- * `<img>`, not `aria-hidden`, never an EVAL-018 decoration (Design.md §11 Dev-101). The wrapper
+ * `<img>`, not `aria-hidden`, never an EVAL-018 decoration (Design.md §11 Dev-102). The wrapper
  * carries the paper shadow (a `drop-shadow` on the masked stamp would be masked away).
  */
 export function PortraitStamp() {

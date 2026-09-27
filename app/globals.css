@@ -1209,8 +1209,9 @@ body::before {
   }
 }
 
-/* TKT-71 · header — the sticky paper header, primary nav, "Let's connect →" pill, Ask ghost, menu
-   button, the `MobileMenu` paper sheet and the reading-progress bar (Design.md §4.1, §8; decisions
+/* TKT-71 · header — the sticky paper header, primary nav, "Let's connect →" pill, Ask ghost and the
+   reading-progress bar (the menu button + `MobileMenu` sheet were removed by TASK-112; the two-row
+   < 1440 layout is the TASK-112 block at the end of this file) (Design.md §4.1, §8; decisions
    D12 / D8 / S21 / TP14; values from docs/redesign-mockups/m-009/home.html `.header*`, `.nav`,
    `.pill`, `.menu-btn`). One height: a 44 px control row + 14 px padding-block = `--header-h` 72 px;
    `[data-scrolled]` (HeaderScroll, after 8 px) only turns the `--line` border on. Tokens / derived
@@ -1325,7 +1326,7 @@ body::before {
     opacity: 1;
   }
 
-  /* Right cluster: pill + Ask ghost (≥ lg) | menu button (< lg) */
+  /* Right cluster: pill + Ask ghost (every width since TASK-112) */
   .header-actions {
     display: flex;
     align-items: center;
@@ -1333,7 +1334,7 @@ body::before {
     gap: 10px;
   }
   .header-pill {
-    display: none;
+    display: inline-flex;
     flex: none;
     align-items: center;
     gap: 8px;
@@ -1352,9 +1353,8 @@ body::before {
   .header-pill:hover {
     transform: translateY(-1px);
   }
-  .header-ask,
-  .header-menu-btn {
-    display: none;
+  .header-ask {
+    display: inline-grid;
     flex: none;
     place-items: center;
     width: 44px;
@@ -1372,17 +1372,6 @@ body::before {
     border-color: var(--line);
     background: var(--color-ivory);
   }
-  .header-menu-btn {
-    display: inline-grid;
-    border: 1.5px solid var(--line);
-    background: var(--color-ivory);
-  }
-  .header-menu-btn svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-  }
   .ask-glyph {
     width: 20px;
     height: 20px;
@@ -1397,15 +1386,6 @@ body::before {
       justify-content: center;
       gap: clamp(18px, 3vw, 36px);
     }
-    .header-pill {
-      display: inline-flex;
-    }
-    .header-ask {
-      display: inline-grid;
-    }
-    .header-menu-btn {
-      display: none;
-    }
   }
   /* lg only (QA-010): at 1024 the five Fraunces-18 items (350 px) + pill (152) + Ask (44) + brand
      (182) + gaps had ~0 px slack in a scrollbar-less browser and overlapped by ~12 px in a real
@@ -1418,81 +1398,6 @@ body::before {
     .site-header-row {
       gap: 16px;
     }
-  }
-
-  /* MobileMenu: the native <dialog> as a full-width paper sheet under the header */
-  .menu-sheet {
-    position: fixed;
-    inset: auto 0 auto 0;
-    top: calc(env(safe-area-inset-top, 0px) + var(--header-h));
-    width: 100%;
-    max-width: none;
-    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - var(--header-h));
-    margin: 0;
-    padding: 0;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0 0 6px 6px;
-    background: var(--color-paper);
-    color: var(--color-navy);
-    box-shadow: var(--shadow-paper);
-    overflow-y: auto;
-  }
-  .menu-sheet::backdrop {
-    background: color-mix(in oklab, var(--color-navy) 25%, transparent);
-  }
-  .menu-sheet-body {
-    display: flex;
-    flex-direction: column;
-    padding: 8px var(--gutter-mobile) 20px;
-  }
-  .sheet-nav {
-    display: flex;
-    flex-direction: column;
-  }
-  .sheet-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 56px;
-    padding: 0 4px;
-    border: 0;
-    background: transparent;
-    color: var(--color-navy);
-    text-align: left;
-    text-decoration: none;
-    border-radius: var(--radius-paper);
-    cursor: pointer;
-  }
-  .sheet-row-nav {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 500;
-  }
-  .sheet-row-nav[aria-current="page"] {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 6px;
-  }
-  .sheet-row-resume,
-  .sheet-row-ask {
-    font-family: var(--font-body);
-    font-size: 15px;
-    font-weight: 500;
-  }
-  .sheet-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 8px;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
-  }
-  .sheet-pill {
-    display: inline-flex;
-    align-self: flex-start;
-    margin-block: 6px 4px;
   }
 
   /* Reading progress (/work/[slug] only): 3 px rust at the header's bottom edge, scaleX(--p) */
@@ -5607,7 +5512,7 @@ html.lenis body {
 /* end TKT-88 */
 
 /* TASK-113 · contact — `/contact` Contact section, Tushar's contact spec 2026-09-27
-   (docs/redesign-mockups/m-009/tushar-2026-09-27/contact-spec.md; Design.md §7.8, §11 Dev-97–100):
+   (docs/redesign-mockups/m-009/tushar-2026-09-27/contact-spec.md; Design.md §7.8, §11 Dev-98–102):
    the last page of the scrapbook — visual story left (collage, sticky, closing line), head + one torn
    contact card right; < 1024 head → card → story. Replaces TSK-46's numbered actions list and the
    postcard details section. Keeps TSK-46's `CopyButton` behaviour (restyled as a compact paper pill).
@@ -10092,6 +9997,27 @@ html.lenis body {
   }
 }
 /* end TKT-106 */
+/* TASK-110 · the TKT-106 slide-over needs every torn sheet to paint ABOVE the section it slides over
+   (Tushar 2026-09-27: "the text are overlapping during parallax scrolling"). Three sheets sat below
+   their lagging predecessor, so the predecessor's text was drawn over the sheet: home Ask (z 1) under
+   How I think (z 3); /about Experience (z 1) under Impact (z 2); /playground bench (z 1) under the
+   opener copy (z 2). Raise each sheet to its predecessor's z-index (a tie is enough — the later
+   sibling paints on top) and keep the sheets after it at the same level. Guarded by
+   tests/e2e/parallax-stacking.spec.ts on every public route. */
+@layer components {
+  .ask-section {
+    z-index: 3;
+  }
+  .xp-s,
+  .proof-s,
+  .acta-s {
+    z-index: 2;
+  }
+  .pg-bench {
+    z-index: 2;
+  }
+}
+/* end TASK-110 */
 /* TKT-113 · Home Ask Tushky — Tushar's spec 2026-09-26
    (docs/redesign-mockups/m-009/tushar-2026-09-26/home-ask-tushky-spec.md, home-ask-tushky-target.png;
    Design.md §7.1 Ask, §11 Dev-64–69). The Home `section#ask` as the launcher for the right-side drawer:
@@ -10608,18 +10534,103 @@ html.lenis body {
 }
 /* end TKT-113 */
 
-/* TKT-112 · seven-item nav fit (Tushar 2026-09-26: "Menu below 1440"; Design.md §11 Dev-94). With Home ·
-   Experience · Projects · Thinking · About · Playground · Certifications the full nav needs ≥ 1440 px.
-   1024–1439: the nav links hide and the header shows the MobileMenu button (the same paper drawer as
-   phones) next to the "Let's connect" pill and the Ask ghost; ≥ 1440 the full nav as before; < 1024
-   unchanged. Unlayered and last so it outranks the TKT-101/TKT-102 lg spacing rules (now moot for
-   the links). */
-@media (min-width: 1024px) and (max-width: 1439px) {
+/* TASK-112 · tabs at every width, no hamburger (Tushar 2026-09-27: "I dont want hamburger menu, I want
+   tabs should be there in top nav bar."; Design.md §4.1, §11 Dev-97 — supersedes Dev-94's "Menu below
+   1440" and D12's hamburger < 1024). Seven Fraunces tabs do not fit on one row with the brand and the
+   actions below 1440 (TKT-101/102 measurements), so below 1440 the header has two rows:
+   row 1 = brand · "Let's connect" pill + Ask ghost; row 2 = the seven tabs as a full-width strip that
+   scrolls horizontally (hidden scrollbar, proximity snap, a paper fade at the right edge while more
+   tabs lie beyond — `PrimaryNav` sets `[data-more]` — and the active / focused tab scrolled into view
+   by `PrimaryNav`). The strip's 6 px padding is room for the 2 px rust focus ring (3 px offset) that
+   the scroll box would otherwise clip; the wrapper's −6 px margin keeps the first tab aligned with the
+   brand. Height: 8 px + 44 px row 1 + 56 px strip = 108 px (+ the 1 px hairline). ≥ 1440 is the
+   single TKT-71 row, unchanged (`.header-tabs` is `display: contents` there). Unlayered and last so
+   it outranks the TKT-71 / TKT-101 / Dev-46 lg spacing rules for the nav. */
+@media (max-width: 1439px) {
+  :root {
+    --header-h: 108px;
+  }
+  .site-header-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand actions"
+      "tabs tabs";
+    column-gap: 16px;
+    row-gap: 0;
+    padding-block: 8px 0;
+  }
+  .header-brand {
+    grid-area: brand;
+    justify-self: start;
+  }
+  .header-actions {
+    grid-area: actions;
+  }
+  .header-tabs {
+    grid-area: tabs;
+    position: relative;
+    min-width: 0;
+    margin-inline: -6px;
+  }
+  .header-tabs::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    width: 32px;
+    background: linear-gradient(to right, color-mix(in srgb, var(--color-paper) 0%, transparent), var(--color-paper));
+    pointer-events: none;
+    opacity: 0;
+  }
+  .header-tabs[data-more]::after {
+    opacity: 1;
+  }
   .header-nav {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    padding: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 6px 40px;
+    scrollbar-width: none;
+  }
+  .header-nav::-webkit-scrollbar {
     display: none;
   }
-  .header-menu-btn {
-    display: inline-grid;
+  .header-nav-link {
+    flex: none;
+    font-size: 18px;
+    scroll-snap-align: start;
+  }
+  /* The /work `#experience-<id>` deep links used a 96 px clearance sized for the 72 px header. */
+  .xp-role {
+    scroll-margin-top: calc(var(--header-h) + 24px);
+  }
+}
+/* 1024–1439: the strip fits, so it centres under the header like the ≥ 1440 nav (auto margins
+   collapse to 0 if it ever overflows, so no tab becomes unreachable). */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .header-nav > :first-child {
+    margin-inline-start: auto;
+  }
+  .header-nav > :last-child {
+    margin-inline-end: auto;
+  }
+}
+/* < 640: the pill reads "Connect →" so row 1 fits at 390 (brand 167 + pill + Ask in 342 px); the
+   "Let's" stays in the accessible name (visually hidden), so the name is unchanged at every width. */
+@media (max-width: 639px) {
+  .header-pill {
+    padding: 8px 14px;
+    font-size: 18px;
+  }
+}
+@media (min-width: 1440px) {
+  .header-tabs {
+    display: contents;
   }
 }
 /* 1440–1599 (the Container is 1200 px until 2xl): seven links at the §4.1 36 px gap overlapped the

@@ -44,8 +44,7 @@ test("header and footer chrome are present on the 404 page", async ({ page }) =>
   await page.goto(PATH, { waitUntil: "load" });
 
   await expect(page.locator("header")).toBeVisible();
-  // .first(): the desktop nav and the (closed, off-canvas) MobileMenu dialog nav share the same
-  // aria-label — this only asserts primary nav chrome exists, not which instance.
+  // One primary nav at every width since TASK-112 (no MobileMenu copy).
   await expect(page.locator("nav[aria-label='Primary']").first()).toBeVisible();
 });
 

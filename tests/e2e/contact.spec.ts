@@ -162,7 +162,7 @@ test("#resume asks by email while resumeAvailable is false — 'Resume — updat
   expect(await control.getAttribute("download")).toBeNull();
 
   // No unfinished-state copy on the page a reader sees (spec §13). The shared chrome's hidden
-  // résumé controls (band circle aria-label, closed mobile-menu dialog) still derive from
+  // résumé control (the band circle's aria-label) still derives from
   // resumeAction() — out of this section's scope, flagged to Tushar in docs/reports/TASK-113.md.
   expect(await page.locator("main").innerHTML()).not.toMatch(/updating/i);
   expect(await page.locator("body").innerText()).not.toMatch(/Resume — updating/);

@@ -26,17 +26,13 @@ const conversation = (page: Page) => panel(page).getByRole("log", { name: "Conve
 const lastAnswer = (page: Page) => panel(page).locator('.tk-turn[data-role="tushky"]').last();
 
 /**
- * The width-appropriate trigger: the header's Ask ghost wherever it is shown (its breakpoint moves
- * with the header — TKT-112), otherwise the MobileMenu sheet's Ask row.
+ * The header's Ask ghost — shown at every width since the hamburger went (TASK-112), so there is one
+ * trigger for every viewport project.
  */
 async function trigger(page: Page) {
   const ghost = page.locator("header").getByRole("button", { name: "Ask AI" });
-  if (await ghost.isVisible()) return ghost;
-  const menu = page.locator('dialog[aria-label="Site navigation"]');
-  // The menu stays open behind the drawer, so a re-open uses its Ask row directly.
-  if (!(await menu.isVisible())) await page.getByRole("button", { name: "Open menu" }).click();
-  await expect(menu).toBeVisible();
-  return menu.getByRole("button", { name: "Ask AI" });
+  await expect(ghost).toBeVisible();
+  return ghost;
 }
 
 async function openPanel(page: Page): Promise<void> {

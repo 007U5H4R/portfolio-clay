@@ -4,7 +4,7 @@ Tushar's direction (2026-09-27): "replace contact postcard stamp with my origina
 card stamp border as my image border." His own headshot, not a generated illustration (so outside the
 EVAL-021 illustration manifest); rendered on `/contact` as the contact card's postage stamp
 (`PortraitStamp` in `components/contact/ContactCard.tsx`, alt "Photo of Tushar Pathak"; Design.md §11
-Dev-101).
+Dev-102).
 
 | file | source | processing | bytes | sha256 (first 16) |
 |---|---|---|---|---|

@@ -8,7 +8,7 @@ import { ContactVisualStory } from "./ContactVisualStory";
  * `/contact` Contact section (TASK-113 — Tushar's contact spec 2026-09-27, the reference of record;
  * `docs/redesign-mockups/m-009/tushar-2026-09-27/contact-spec.md`). The last page of the scrapbook,
  * directly under TKT-95's `SceneOpener`, replacing TSK-46's numbered actions list and the separate
- * postcard "details" section (spec §27; Design.md §11 Dev-97).
+ * postcard "details" section (spec §27; Design.md §11 Dev-98).
  *
  *   ≥ 1024: two columns `42fr 58fr` — left the visual story (collage, sticky, closing line), right the
  *           head (eyebrow, h1, hand subline) over the functional card.
