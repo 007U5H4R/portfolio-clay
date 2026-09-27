@@ -21,6 +21,8 @@ outpaints — the six scenes to 21:9 plus one retry each for `scene-thinking` an
 | `scene-thinking` | `scene-thinking.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `2c430d2a-d5f2-48c6-aefa-96ab9d0aca7a` (= `scene-thinking.png` cropped to 3:2, 40 px off the top / 147 px off the bottom, resized to 2016×1344), job `30ccdf16-b23f-476e-9be2-f59dfb3780b1` (shipped); first job `d8f44314-d776-4a8d-8c87-afe88d00e2c4` (input `ceb84636-bfe5-4120-851f-cf15ee08de3b`, rejected — re-scaled the figure and redrew the desk) | Tushar writing in an open notebook at a wooden desk by a window — lamp, tea, stacked books, plant, sketched flow diagram | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 + 2 | `/thinking`, `/thinking/[slug]` | — |
 | `scene-playground` | `scene-playground.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `01e522b7-2ed7-482e-8367-37817767a453` (= `scene-playground.png`), job `9da3348f-6d25-4bd4-904e-af5291a48271` | Tushar at a tinkering workbench holding a small cardboard prototype with wires — breadboard, tape, scissors, paper planes, tablet sketch | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 | `/playground`, `/` (decorative polaroid crop) | — |
 | `scene-contact` | `scene-contact.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 16:9 → 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `e3cf1013-0cde-4db5-9d83-ea7c77c63779` (= `scene-contact.png`), job `9a13a67b-cc70-436e-bbad-9be192327f3b`; 21:9 outpaint input media `a2aab3d2-e5e1-41f1-9bf2-06ab8ffef3a9` (= `scene-contact-wide-a1.png`, the 16:9 master), job `d01b4abe-a6c7-4ef1-9731-79345be1ef6c` | Tushar standing by a window next to a tall leafy plant, terracotta coffee mug, other hand raised in a friendly wave | 2026-09-23 (scene) · 2026-09-25 (16:9 outpaint) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 + 2 | `/contact` | — |
+| `scene-experience` | `scene-experience.jpg` | scene | `gpt_image_2_5` (Higgsfield; high quality, 4k, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` (character refs, final job only); final job `3d9d5f96-2ea3-4e95-b439-164fd6640b06` = an edit of round-1 job `f441d05b-e535-438e-82e3-34f24890c398` (composition only — generated **without** the character refs by orchestrator error, not shipped) | Tushar at a whiteboard in a sunlit meeting room pointing at three columns of sticky notes above a timeline arrow; long wooden table with laptop, mug and notebook; plants; city skyline through tall windows | 2026-09-27 (TASK-114) | 4.25 + 4.25 | `/work` | — |
+| `scene-certifications` | `scene-certifications.jpg` | scene | `gpt_image_2_5` (Higgsfield; high quality, 4k, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` (final job only); final job `44d21ae6-1115-4601-b655-0edad834a08f` = an edit of round-1 job `afeb3b49-5b44-42d1-ba8c-99685b6c4d84` (no character refs, same orchestrator error, not shipped) | Tushar in a warm home study hanging a framed certificate on a gallery wall of framed certificates and a ribbon medal; the golden retriever sits and looks up at him; armchair, window, bookshelf, desk lamp | 2026-09-27 (TASK-114) | 4.25 + 4.25 | `/certifications` | — |
 | `character-sheet-b` | `reference/character-sheet-b.jpg` | reference | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Locked character reference sheet (Variant B) — front, three-quarter and profile views | 2026-09-23 | 1 | (never rendered — Stage-8 drift check only) | — |
 | `tushky` | `tushky-bandana.webp` (public only; v2, TKT-104 r2 — supersedes `tushky.webp`, removed) | mascot | `gpt_image_2_5` (Higgsfield; quality medium, 1k, transparent background) | reference media = job `7312a2c0-ea7f-4d7e-8048-14b96542e76c` (the round-1 navy-bandana retriever alternate); job `20288256-cee5-4dcb-aa02-73a6e8be3647` (`tushky-bandana-a.png`, accepted first attempt — "Tushky" spelled correctly on the bandana). v1 history: job `6932218c-ea37-4685-bfbb-ce4b34065a76` (reference `902a0281-…`, crop of `hero-banner.webp`), retired | Tushky v2 (Dev-62) — a friendly golden retriever, head and shoulders, in a navy bandana lettered "Tushky" with a cream paw print, warm realistic-illustrated, no badge; 1024×1024 transparent PNG trimmed to the dog (830×1008) with `sharp` → lanczos3 280 px tall (231×280) → `webp({ quality: 80, alphaQuality: 85, effort: 6 })`, 25,756 bytes | 2026-09-26 (TKT-104 r2) | 0.5 (v1: 0.5 + 1.0 drafts, TKT-104 r1; Tushar approved the spend 2026-09-26) | the Ask Tushky drawer empty state (every route; lazy chunk only) | `ba71c8822ab65f172bec3adf883256cd039b4eeca7830d0e355634351ab88d33` |
 | `tushky-avatar` | `tushky-avatar.webp` (public only) | mascot | `gpt_image_2_5` (Higgsfield; derived crop) | job `20288256-cee5-4dcb-aa02-73a6e8be3647` (same source as `tushky` v2) | Tushky's head, for the chat-bubble / chat-header avatar (Dev-62); `sharp` extract 640×640 at (190, 60) from the 1024 PNG → lanczos3 64 px → `webp({ quality: 82, alphaQuality: 90, effort: 6 })`, 2,606 bytes | 2026-09-26 (TKT-104 r2) | 0 (a crop of the `tushky` v2 generation) | Ask Tushky drawer chat bubbles + chat-mode header (lazy chunk only; rendered with alt="") | `a68ded28f7f0053349fea16be1ee775df2bee627db83941c624dbcf39a2cf167` |
@@ -137,6 +139,35 @@ height, `webp({ quality: 86, effort: 6, smartSubsample: true })`:
 | `scene-thinking-mobile.webp` | 672, 1824 | 441,878 | `1b1b38325ec5a2bf9b47e0de40c9c38181a695f52f46c1d5f9e6efc3c1b69ebf` |
 | `scene-playground-mobile.webp` | 672, 1824 | 310,752 | `9668fff25c5949ae641e304b862b774efed103b5423953d5982e0babbd707ef4` |
 | `scene-contact-mobile.webp` | 735, 1824 | 216,246 | `723764b444b2a5ae48d1b9fe280b589576c684d38619d4e187a6746d38e2856f` |
+
+### TASK-114 · `/work` + `/certifications` scenes (Design.md §11 Dev-97 / Dev-98)
+
+Tushar 2026-09-27: "include image scene in Experience and ceritfication tabs like the other tabs so that it looks
+consistent and uniform" … "Use existing ones. Just make sure its not repeated" … "if you need then you generate new
+images as well from Higgsfield." Every existing scene already opens another tab, so the orchestrator generated two new
+ones: `gpt_image_2_5`, high quality, 4k, 21:9, **17 credits in total** (4 jobs × 4.25). Round 1 of each scene omitted the
+two character references — an orchestrator error — so each final image is an edit of its round-1 composition **with**
+the references (`df5cca50-…`, `f49a95f5-…`); the round-1 images are not shipped. Both finals were checked visually:
+the character matches the reference, no readable text, no logos. Masters (3840×1648):
+`Portfolio-illustration/illustrations/scenes/scene-experience.png` (sha256
+`07dbad3071aee5f3d175fef34f161257ebd6fe7f912e03a582aec3ef6444c281`) and `…/scene-certifications.png` (sha256
+`5df25f119bd0b6f57f5801da23b01a0d2d05521c551a9e30080ce8c842356d8e`).
+
+3840×1648 is slightly taller than 21:9, so each master was cropped to 3840×1629 (10 px off the top, 9 off the bottom —
+wall/ceiling and floor only) and resized with `sharp` lanczos3 to 3168×1344, then encoded exactly as the TKT-107 scenes:
+`jpeg({ quality: 82, mozjpeg: true })` (under the 600 KB cap on the first pass, no step-down), and the < 768 narrow
+rendition at the scene's focal point (`scene-opener-frames.ts`) plus 16 px a side, full height,
+`webp({ quality: 86, effort: 6, smartSubsample: true })`.
+
+| file | quality | bytes | 3168×1344 master sha256 |
+|---|---|---|---|
+| `scene-experience.jpg` | 82 | 476,325 | `dc0a346dc2f189380ba989242a378eefd2b853a38217750d2ecc9000bbfc798d` |
+| `scene-certifications.jpg` | 82 | 482,860 | `da22c604b37860ef05c2734ccef9c627eb40c4969333c1fd120947e122339fd8` |
+
+| file | focal | crop (left, width) | bytes | sha256 |
+|---|---|---|---|---|
+| `scene-experience-mobile.webp` | 0.60 | 989, 1824 | 241,486 | `b14a185f2f338b7e0184dbca4042681a02a1c239aa5d3453355a0003e512ef4b` |
+| `scene-certifications-mobile.webp` | 0.55 | 830, 1824 | 208,354 | `4fd449751c8b076cec60066d4f5cfda8edf8048d1e3f7047a99769204bc1fe3a` |
 
 ## Manual per-asset checklist (Stage 8)
 

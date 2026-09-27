@@ -26,6 +26,8 @@ export const OPENER_FOCAL_X: Record<SceneId, number> = {
   "scene-about": 0.42, // Tushar on the path (left) looking towards the mountain
   "scene-playground": 0.5, // Tushar holding the cardboard prototype
   "scene-contact": 0.52, // Tushar waving
+  "scene-experience": 0.6, // TASK-114: Tushar (face ≈ 0.45) pointing at the whiteboard (≈ 0.51–0.84)
+  "scene-certifications": 0.55, // TASK-114: Tushar (face ≈ 0.44) hanging a frame, the dog below, the certificate wall (to ≈ 0.80)
 };
 
 /** The box's left edge on the scene (fraction), as the CSS clamp in `.scene-banner-canvas` computes it. */

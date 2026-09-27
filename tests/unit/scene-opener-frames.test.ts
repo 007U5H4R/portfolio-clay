@@ -25,8 +25,17 @@ function webpSize(buf: Buffer): { width: number; height: number } {
 describe("TKT-107 scene opener frames", () => {
   const ids = Object.keys(OPENER_FOCAL_X) as (keyof typeof OPENER_FOCAL_X)[];
 
-  it("covers the six scenes, each a 3168×1344 manifest entry (the home banner's size)", () => {
-    expect(ids.sort()).toEqual(["scene-about", "scene-casestudy", "scene-contact", "scene-playground", "scene-thinking", "scene-work"]);
+  it("covers the eight scenes (TASK-114 added experience + certifications), each a 3168×1344 manifest entry (the home banner's size)", () => {
+    expect(ids.sort()).toEqual([
+      "scene-about",
+      "scene-casestudy",
+      "scene-certifications",
+      "scene-contact",
+      "scene-experience",
+      "scene-playground",
+      "scene-thinking",
+      "scene-work",
+    ]);
     const banner = ILLUSTRATIONS.find((e) => e.id === "hero-banner")!;
     for (const id of ids) {
       const entry = ILLUSTRATIONS.find((e) => e.id === id)!;

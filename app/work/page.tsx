@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CollageTimeline, type TimelineEntry, type TimelineTone } from "@/components/experience/CollageTimeline";
 import { EDU_DOODLES, WORK_DOODLES } from "@/components/experience/Doodles";
 import { ORG_LOGOS } from "@/components/experience/logos";
+import { SceneOpener } from "@/components/paper/SceneOpener";
 import { education } from "@/data/credentials";
 import { experience } from "@/data/experience";
 import { buildMetadata } from "@/lib/seo";
@@ -17,11 +18,12 @@ export const metadata: Metadata = buildMetadata({
 
 /**
  * `/work` — the Experience page (TKT-101, Tushar direction 2026-09-26; Design.md §7.2, §11 Dev-90/43).
- * Replaces the project index (moved to `/projects`; case studies keep `/work/<slug>`). No scene opener:
- * his reference starts at the "Work Experience" title, and the pinboard scene belongs to the project
- * index it illustrates, so it moved with it (`scene-work` → `/projects`).
+ * Replaces the project index (moved to `/projects`; case studies keep `/work/<slug>`). The pinboard scene
+ * moved with the index (`scene-work` → `/projects`); since TASK-114 (Tushar 2026-09-27, Design.md §11 Dev-97,
+ * superseding Dev-90's "no scene opener") the page opens on its own scene, `scene-experience`, in the
+ * shared `SceneOpener` — sized, cropped and parallaxed exactly like every other tab's.
  *
- * Work Experience (newest first) → the torn paper cut-out → Education on the `paper-2` tone. On scroll
+ * Opener → Work Experience (newest first) → the torn paper cut-out → Education on the `paper-2` tone. On scroll
  * the Education sheet slides up over the Work section: while Education enters the viewport, the Work
  * content drifts down at half speed (the TKT-96 mechanism — CSS scroll-driven, `@supports`-guarded,
  * off under reduced motion; app/globals.css TKT-101 block).
@@ -98,25 +100,29 @@ const eduEntries: TimelineEntry[] = education.map((entry, i) => {
 
 export default function ExperiencePage() {
   return (
-    <div className="xp">
-      <h1 className="sr-only">Experience</h1>
-      <CollageTimeline
-        id="work-experience"
-        className="xp-work"
-        title="Work Experience"
-        aside="Different problems. Same curiosity. Bigger impact."
-        entries={workEntries}
-        doodles={WORK_DOODLES}
-      />
-      <CollageTimeline
-        id="education"
-        className="xp-edu"
-        title="Education"
-        aside="From engineering foundations to research-driven thinking."
-        entries={eduEntries}
-        doodles={EDU_DOODLES}
-        torn
-      />
-    </div>
+    <>
+      {/* TASK-114 scene opener (Dev-97): the first child of <main>, as on every other tab. */}
+      <SceneOpener id="scene-experience" priority />
+      <div className="xp">
+        <h1 className="sr-only">Experience</h1>
+        <CollageTimeline
+          id="work-experience"
+          className="xp-work"
+          title="Work Experience"
+          aside="Different problems. Same curiosity. Bigger impact."
+          entries={workEntries}
+          doodles={WORK_DOODLES}
+        />
+        <CollageTimeline
+          id="education"
+          className="xp-edu"
+          title="Education"
+          aside="From engineering foundations to research-driven thinking."
+          entries={eduEntries}
+          doodles={EDU_DOODLES}
+          torn
+        />
+      </div>
+    </>
   );
 }

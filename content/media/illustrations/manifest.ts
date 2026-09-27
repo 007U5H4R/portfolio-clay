@@ -10,11 +10,12 @@
  * mockup renditions' (scene-thinking and scene-contact differ from the earlier stub because their
  * long edge, not width, is 2336/2240 in the master).
  * TKT-107 (Dev-95): the six scenes are now 3168×1344 (21:9) Higgsfield outpaints — the home banner's size.
+ * TASK-114 (Dev-97/98): two new scenes for `/work` and `/certifications`, encoded the same way at the same size.
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -110,6 +111,29 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar standing by a window next to a tall leafy plant, a terracotta coffee mug in one hand, the other raised in a friendly wave.",
     usedOn: ["/contact"],
+  },
+  {
+    // TASK-114 (Design.md §11 Dev-97): the `/work` Experience opener — a new Higgsfield `gpt_image_2_5`
+    // 21:9 scene (every existing scene is already used on another page), 3840×1648 master cropped 19 px
+    // top/bottom to 21:9 and resized to the home banner's 3168×1344.
+    id: "scene-experience",
+    kind: "scene",
+    file: "scene-experience.jpg",
+    width: 3168,
+    height: 1344,
+    alt: "Illustration of Tushar in a sunlit meeting room pointing at a whiteboard of sticky notes in three columns above a timeline arrow — a laptop, a mug and a notebook on the long wooden table, plants, and a city skyline through tall windows.",
+    usedOn: ["/work"],
+  },
+  {
+    // TASK-114 (Design.md §11 Dev-98): the `/certifications` opener — a new Higgsfield `gpt_image_2_5`
+    // 21:9 scene, encoded as `scene-experience`.
+    id: "scene-certifications",
+    kind: "scene",
+    file: "scene-certifications.jpg",
+    width: 3168,
+    height: 1344,
+    alt: "Illustration of Tushar in a warm home study hanging a framed certificate on a wall of framed certificates and a ribbon medal, his golden retriever sitting and looking up at him — an armchair by the window, a bookshelf and a desk lamp.",
+    usedOn: ["/certifications"],
   },
   {
     id: "character-sheet-b",
