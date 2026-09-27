@@ -10228,3 +10228,12 @@ html.lenis body {
   }
 }
 /* end TKT-112 */
+/* TASK-114 · scene openers on /work and /certifications (Tushar 2026-09-27; Design.md §11 Dev-98/99). The
+   openers themselves need no new rules (SceneOpener + the TKT-96/103/107 blocks). `/work`'s sr-only h1 is the
+   first element after its opener, and `sr-only`'s −1 px margin would lift it 1 px into the banner; zero the
+   margin so the heading sits below the opener like every other tab's h1 (tests/e2e/scene-opener.spec.ts).
+   Unlayered on purpose: `sr-only` is a Tailwind utility, and the utilities layer outranks `components`. */
+.xp > h1.sr-only {
+  margin: 0;
+}
+/* end TASK-114 */
