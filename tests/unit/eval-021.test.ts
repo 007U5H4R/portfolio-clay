@@ -141,7 +141,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -150,7 +150,9 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "hero-desk",
         "scene-about",
         "scene-casestudy",
+        "scene-certifications",
         "scene-contact",
+        "scene-experience",
         "scene-playground",
         "scene-thinking",
         "scene-work",
@@ -159,7 +161,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(13);
+    expect(ILLUSTRATIONS.length).toBe(15);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, within } from "@testing-library/react";
 import ExperiencePage from "@/app/work/page";
 import { education } from "@/data/credentials";
@@ -10,6 +10,13 @@ import { experience } from "@/data/experience";
 
 afterEach(cleanup);
 
+// TASK-114 (Dev-103): the page opens on `SceneOpener`, whose static image import is a bare URL under jsdom
+// (next/image rejects it — the reason SceneBanner is not in the paper barrel). Stub it to its outer contract;
+// the real opener is covered by tests/e2e/scene-opener.spec.ts.
+vi.mock("@/components/paper/SceneOpener", () => ({
+  SceneOpener: ({ id, priority }: { id: string; priority?: boolean }) => <section data-opener={id} data-priority={String(Boolean(priority))} />,
+}));
+
 const section = (container: HTMLElement, id: string) => {
   const el = container.querySelector<HTMLElement>(`section#${id}`);
   if (!el) throw new Error(`section#${id} missing`);
@@ -17,6 +24,13 @@ const section = (container: HTMLElement, id: string) => {
 };
 
 describe("/work Experience page (TKT-101)", () => {
+  it("opens on its own scene, `scene-experience`, as the LCP-priority opener (TASK-114, Dev-103)", () => {
+    const { container } = render(<ExperiencePage />);
+    const first = container.firstElementChild as HTMLElement;
+    expect(first.getAttribute("data-opener")).toBe("scene-experience");
+    expect(first.getAttribute("data-priority")).toBe("true");
+  });
+
   it("has one sr-only h1 and the two section headings in order", () => {
     const { container } = render(<ExperiencePage />);
     const headings = Array.from(container.querySelectorAll("h1, h2")).map((h) => `${h.tagName}:${h.textContent}`);

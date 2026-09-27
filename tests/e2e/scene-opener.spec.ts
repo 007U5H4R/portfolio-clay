@@ -14,13 +14,15 @@ import { test, expect } from "./fixtures";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const OPENERS: readonly { route: string; id: string }[] = [
-  { route: "/projects", id: "scene-work" }, // TKT-101: the pinboard scene moved with the index; /work has no opener
+  { route: "/work", id: "scene-experience" }, // TASK-114 (Dev-103): its own scene; the pinboard moved to /projects (TKT-101)
+  { route: "/projects", id: "scene-work" },
   { route: "/work/teachspark", id: "scene-casestudy" },
   { route: "/thinking", id: "scene-thinking" },
   { route: "/thinking/green-tests-prove-it-runs", id: "scene-thinking" },
   { route: "/about", id: "scene-about" },
   { route: "/playground", id: "scene-playground" },
   { route: "/contact", id: "scene-contact" },
+  { route: "/certifications", id: "scene-certifications" }, // TASK-114 (Dev-104)
 ];
 
 for (const { route, id } of OPENERS) {
@@ -53,3 +55,11 @@ for (const { route, id } of OPENERS) {
     expect(h1.y).toBeGreaterThanOrEqual(box.y + box.height);
   });
 }
+
+// TASK-114 (Tushar 2026-09-27: "Just make sure its not repeated"): no two tabs open on the same scene.
+// The essay pages share `/thinking`'s scene by design (TKT-95), so only one route per section counts.
+test("no two tabs repeat an opener scene", () => {
+  const tabs = OPENERS.filter(({ route }) => !route.startsWith("/thinking/") && !route.startsWith("/work/"));
+  const ids = tabs.map(({ id }) => id);
+  expect(new Set(ids).size).toBe(ids.length);
+});
