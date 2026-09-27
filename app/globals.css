@@ -614,6 +614,11 @@ body::before {
   }
   .sketch-flow .flow-arr[data-indent] {
     margin-left: 24px;
+    /* TKT-92 r4: "↳" (U+21B3) is outside Caveat's latin subset, so the same whole-system fallback
+       search runs for it (≈ 20 ms of layout per pass). This is the --font-hand stack with the family
+       that supplies the glyph on macOS today (Lucida Grande) second. Caveat still sets the metrics, so
+       the pixels are unchanged, and elsewhere the stack continues as before. */
+    font-family: var(--font-caveat), "Lucida Grande", "Segoe Print", "Bradley Hand", cursive;
   }
 
   /* Draw-in (Design.md §8): stroke-dashoffset 400 → 0, 1.1 s ease-out after 0.5 s, once on load.
@@ -9223,6 +9228,14 @@ html.lenis body {
   .hero-btn-spark {
     font-size: 0.8em;
     line-height: 1;
+    /* TKT-92 r4: "✦" (U+2726) is in none of the web fonts' latin subsets, so without a named family
+       Chrome runs a whole-system fallback search for it at first layout, and again after the font
+       swap. That cost ≈ 36 ms of layout per pass locally, ×4 in Lighthouse's mobile CPU model. The
+       --font-display stack is spelled out with the family that already supplies the glyph on macOS/iOS
+       (Zapf Dingbats) second. That skips the search, and the pixels stay identical because Fraunces
+       stays the first available font and so still sets the line metrics. Elsewhere the family is
+       absent and the stack continues exactly as before. Guard: tests/e2e/fallback-glyphs.spec.ts. */
+    font-family: var(--font-fraunces), "Zapf Dingbats", "Iowan Old Style", Georgia, serif;
   }
   .hero-ask {
     position: relative;
