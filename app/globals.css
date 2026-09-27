@@ -9675,6 +9675,27 @@ html.lenis body {
   }
 }
 /* end TKT-106 */
+/* TASK-110 · the TKT-106 slide-over needs every torn sheet to paint ABOVE the section it slides over
+   (Tushar 2026-09-27: "the text are overlapping during parallax scrolling"). Three sheets sat below
+   their lagging predecessor, so the predecessor's text was drawn over the sheet: home Ask (z 1) under
+   How I think (z 3); /about Experience (z 1) under Impact (z 2); /playground bench (z 1) under the
+   opener copy (z 2). Raise each sheet to its predecessor's z-index (a tie is enough — the later
+   sibling paints on top) and keep the sheets after it at the same level. Guarded by
+   tests/e2e/parallax-stacking.spec.ts on every public route. */
+@layer components {
+  .ask-section {
+    z-index: 3;
+  }
+  .xp-s,
+  .proof-s,
+  .acta-s {
+    z-index: 2;
+  }
+  .pg-bench {
+    z-index: 2;
+  }
+}
+/* end TASK-110 */
 /* TKT-113 · Home Ask Tushky — Tushar's spec 2026-09-26
    (docs/redesign-mockups/m-009/tushar-2026-09-26/home-ask-tushky-spec.md, home-ask-tushky-target.png;
    Design.md §7.1 Ask, §11 Dev-64–69). The Home `section#ask` as the launcher for the right-side drawer:
