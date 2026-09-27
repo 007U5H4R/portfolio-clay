@@ -1,114 +1,156 @@
-import { ArrowUpRight, MapPin } from "lucide-react";
+import Image from "next/image";
+import { ArrowUpRight, Download, FileText, Mail, MapPin } from "lucide-react";
 import { CopyButton } from "@/components/common/CopyButton";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
-import { Container } from "@/components/layout/Container";
-import { Annotation } from "@/components/paper/Annotation";
+import { showGithub } from "@/components/layout/BandFooter";
+import { deckle } from "@/components/home/deckle";
 import { Hand } from "@/components/paper/Hand";
-import { Sticky } from "@/components/paper/Sticky";
-import { resumeAction, site } from "@/lib/site";
+import { Sheet } from "@/components/paper/Sheet";
+import { contactResumeLink, site } from "@/lib/site";
+import portrait from "@/content/media/portrait/tushar-stamp.webp";
+
+/** Seeded torn outlines (rim + face) for the card — stable across renders, like every deckled card. */
+const EDGES = {
+  rim: deckle(1131, { across: 22, down: 12, depthX: 0.9, depthY: 1.6 }),
+  face: deckle(1137, { across: 22, down: 12, depthX: 1, depthY: 1.8, insetX: 0.8, insetY: 1.4 }),
+};
 
 /**
- * `/contact` opener (TSK-46, Design.md §7.8; decisions S10 — no form, EXE-8 — email + LinkedIn only).
- *
- * Sits directly under TKT-95's `SceneOpener` (EXE-18 / Dev-24): the full-bleed banner already shows
- * `scene-contact`, so the §7.8 taped portrait is **not** rendered here (a second copy of the same
- * picture). Its caption annotation stays, as the banner's caption (same as the home hero's scene
- * caption, §3.3 `/` hero). The `44fr 56fr` grid keeps the mockup's rhythm: the caption + the sticky
- * "No form here…" in the narrow column, the copy in the wide one. < 900 it stacks copy-first.
- *
- * Unit count (EVAL-018, §3.3 `/contact` opener = 3): caption annotation · sticky · "whichever is
- * easiest for you ↓" annotation. All three are `aria-hidden`; none carries information the page
- * doesn't state elsewhere ("no form" is also true by construction — there is none).
- *
- * Actions (`<ul>`, dashed rules, Caveat numerals — `aria-hidden` spans, not `data-hand="label"`:
- * §3.4 labels live inside a `data-paper` object and this list is not one):
- *   01 address + `CopyButton` (idle → copied 2 s → error + selectable `<output>`; sr-only live region)
- *   02 primary "Email me →" `mailto:` (Caveat cta, `data-hand="cta"`)
- *   03 secondary "LinkedIn ↗" — `target=_blank rel="noopener noreferrer"` + sr-only "(opens in new tab)"
- *   04 `#resume` — `resumeAction()` (PB5 single source) + its visible note while no PDF exists.
- *
- * Location line "Bengaluru, India" renders only behind `site.showLocation` (default `false`, the
- * same flag the band reads — TKT-72 / HANDOFF §6). No phone, DOB or address anywhere (EXE-8).
+ * EMAIL block (spec §9–§10): the address from the single source (`site.email`, never hard-coded),
+ * in Fraunces, with the compact `CopyButton` on its right (idle "Copy" → "Copied" + check 2 s →
+ * idle; error → "Copy failed" + the selectable fallback; sr-only live region — unchanged machine).
  */
-export function ContactCard() {
-  const resume = resumeAction();
+export function EmailBlock() {
+  return (
+    <div className="cx-email">
+      <p className="cx-label">
+        <Mail size={16} strokeWidth={1.75} aria-hidden="true" />
+        Email
+      </p>
+      <div className="cx-email-row">
+        <span className="cx-addr">{site.email}</span>
+        <CopyButton value={site.email} name="email address" className="cx-copy" />
+      </div>
+    </div>
+  );
+}
+
+/** The primary action (spec §11): a real `mailto:` in the rust CTA pill, Caveat `data-hand="cta"`. */
+export function PrimaryContactCTA() {
+  return (
+    <a className="cx-btn cx-btn-primary focus-ring" href={`mailto:${site.email}`}>
+      <Hand kind="cta">
+        Email me <span className="cx-btn-arrow">→</span>
+      </Hand>
+    </a>
+  );
+}
+
+/**
+ * Secondary actions (spec §12–§13): LinkedIn (external, `target=_blank rel="noopener noreferrer"` +
+ * sr-only "(opens in new tab)") and the résumé from `contactResumeLink()` — "Resume ↓" once
+ * `site.resumeAvailable` flips, "Resume — available on request" (mailto with a subject) until then.
+ * GitHub joins only under the band's S5 rule (`showGithub()`). `#resume` stays the target the
+ * site-wide résumé placeholder (`resumeAction()` → `/contact#resume`) lands on.
+ */
+export function SecondaryContactLinks() {
+  const resume = contactResumeLink();
+  const github = showGithub();
 
   return (
-    <section id="contact" className="contact-opener" aria-labelledby="contact-h">
-      <Container className="contact-grid">
-        <div className="contact-aside">
-          <Annotation rotate={-1.2} className="contact-caption">
-            waving from the window seat — the coffee&apos;s usually on
-          </Annotation>
-          <Sticky rotate={3} className="contact-sticky">
-            No form here. A plain email is the whole process.
-          </Sticky>
-        </div>
+    <div className="cx-secondary" data-contact-secondary="">
+      <a
+        className="cx-btn cx-btn-secondary focus-ring"
+        data-link="linkedin"
+        href={site.linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span className="cx-in" aria-hidden="true">
+          in
+        </span>
+        <span className="cx-btn-text">LinkedIn ↗</span>
+        <VisuallyHidden>(opens in new tab)</VisuallyHidden>
+      </a>
+      <a
+        id="resume"
+        className="cx-btn cx-btn-secondary focus-ring"
+        data-link="resume"
+        href={resume.href}
+        download={resume.download || undefined}
+      >
+        {resume.download ? (
+          <Download className="cx-btn-down" size={18} strokeWidth={1.75} aria-hidden="true" />
+        ) : (
+          <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
+        )}
+        <span className="cx-btn-text">{resume.label}</span>
+      </a>
+      {github ? (
+        <a
+          className="cx-btn cx-btn-secondary focus-ring"
+          data-link="github"
+          href={site.github}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ArrowUpRight size={18} strokeWidth={1.75} aria-hidden="true" />
+          <span className="cx-btn-text">GitHub ↗</span>
+          <VisuallyHidden>(opens in new tab)</VisuallyHidden>
+        </a>
+      ) : null}
+    </div>
+  );
+}
 
-        <div className="contact-copy">
-          <p className="contact-eyebrow">Contact</p>
-          <h1 id="contact-h" className="contact-h1">
-            Still curious?
-          </h1>
-          <Annotation size="lg" rotate={-1.2} className="contact-hand-aside">
-            whichever is easiest for you ↓
-          </Annotation>
+/**
+ * The postage stamp on the card (TASK-111, Tushar 2026-09-27: "replace contact postcard stamp with my
+ * original image and put post card stamp border as my image border"): his real headshot
+ * (`content/media/portrait/tushar-stamp.webp`, re-encoded from `portfolio/photo.jpg` with no metadata)
+ * inside a perforated stamp margin, top-right, +5°. A real portrait, so it is content — a named
+ * `<img>`, not `aria-hidden`, never an EVAL-018 decoration (Design.md §11 Dev-101). The wrapper
+ * carries the paper shadow (a `drop-shadow` on the masked stamp would be masked away).
+ */
+export function PortraitStamp() {
+  return (
+    <span className="cx-stamp-wrap">
+      <span className="cx-stamp">
+        <Image src={portrait} alt="Photo of Tushar Pathak" sizes="(max-width: 559px) 52px, 72px" className="cx-stamp-img" />
+      </span>
+    </span>
+  );
+}
 
-          <ul className="contact-actions" data-contact-actions="">
-            <li className="contact-action">
-              <span className="contact-num font-hand" aria-hidden="true">
-                01
-              </span>
-              <span className="contact-addr">{site.email}</span>
-              <CopyButton value={site.email} className="contact-copy-control" />
-            </li>
-            <li className="contact-action">
-              <span className="contact-num font-hand" aria-hidden="true">
-                02
-              </span>
-              <a className="contact-btn contact-btn-primary focus-ring" href={`mailto:${site.email}`}>
-                <Hand kind="cta">Email me →</Hand>
-              </a>
-            </li>
-            <li className="contact-action">
-              <span className="contact-num font-hand" aria-hidden="true">
-                03
-              </span>
-              <a
-                className="contact-btn contact-btn-secondary focus-ring"
-                href={site.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                LinkedIn
-                <ArrowUpRight size={14} strokeWidth={1.75} aria-hidden="true" />
-                <VisuallyHidden>(opens in new tab)</VisuallyHidden>
-              </a>
-            </li>
-            <li id="resume" className="contact-action contact-action-resume">
-              <span className="contact-num font-hand" aria-hidden="true">
-                04
-              </span>
-              <a
-                className="contact-btn contact-btn-secondary focus-ring"
-                href={resume.href}
-                download={resume.download || undefined}
-                title={resume.note}
-              >
-                {resume.label}
-              </a>
-              {resume.note ? <p className="contact-note">{resume.note}</p> : null}
-            </li>
-          </ul>
+/**
+ * The functional contact card (spec §8): one torn, handmade ivory sheet (`data-paper="card"` —
+ * content paper, never counted; the deckled rim/face layers and the paperclip are its own material,
+ * `aria-hidden`), and Tushar's portrait postage stamp (content, TASK-111). Email block → primary CTA → divider → secondary links; the location line only
+ * behind `site.showLocation` (default `false`, TKT-72). No form (S10), no phone / DOB / address (EXE-8).
+ */
+export function ContactCard() {
+  return (
+    <Sheet variant="card" className="cx-card">
+      <span className="cx-card-paper" aria-hidden="true">
+        <span className="cx-card-shade" style={{ clipPath: EDGES.rim }} />
+        <span className="cx-card-rim" style={{ clipPath: EDGES.rim }} />
+        <span className="cx-card-face" style={{ clipPath: EDGES.face }} />
+      </span>
+      <svg className="cx-clip" viewBox="0 0 28 72" aria-hidden="true" focusable="false">
+        <path d="M9 60 V14 a6 6 0 0 1 12 0 V56 a9 9 0 0 1 -18 0 V20" />
+      </svg>
+      <PortraitStamp />
 
-          {site.showLocation ? (
-            <p className="contact-location">
-              <MapPin size={16} strokeWidth={1.75} aria-hidden="true" />
-              Bengaluru, India
-            </p>
-          ) : null}
-        </div>
-      </Container>
-    </section>
+      <EmailBlock />
+      <PrimaryContactCTA />
+      <hr className="cx-divider" />
+      <SecondaryContactLinks />
+
+      {site.showLocation ? (
+        <p className="contact-location">
+          <MapPin size={16} strokeWidth={1.75} aria-hidden="true" />
+          Bengaluru, India
+        </p>
+      ) : null}
+    </Sheet>
   );
 }

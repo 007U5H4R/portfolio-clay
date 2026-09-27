@@ -178,7 +178,6 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   ["rust", "ivory", "text", ".work-card-cta", "work-card CTA and kicker status on the card sheet"],
   // Rust on paper-2 only as LARGE text (4.3:1 fails 4.5)
   ["rust", "paper2", "large", ".work-num", "/projects row numerals at 24 px (TKT-80; moved from /work, TKT-101)"],
-  ["rust", "paper2", "large", ".contact-hand-line", "contact hand line, 32–46 px"],
   // Terracotta on kraft only as LARGE text (4.16:1)
   ["terracotta", "kraft", "large", ".proof-award b", "award years, Fraunces 30 px on the kraft tag (Dev-35)"],
   // Inverse surfaces
