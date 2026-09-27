@@ -78,15 +78,24 @@ export function AskPanel() {
       dialog.close();
       return;
     }
-    // Slide out to the right on its own keyframe (`data-closing`), then close once it has run.
+    // Slide out to the right on its own keyframe (`data-closing`), then close once it has run. Close
+    // on the keyframe's own `animationend`, not a fixed timer: when the first frame is slow to paint
+    // (a heavy page on a slow GPU) a CLOSE_MS timer fired before the slide had started and the
+    // drawer vanished in place. The timer stays only as a fallback if the event never arrives.
     dialog.setAttribute("data-closing", "");
     const done = () => {
+      dialog.removeEventListener("animationend", onEnd);
       dialog.removeAttribute("data-closing");
       if (dialog.open) dialog.close();
     };
-    const timer = setTimeout(done, CLOSE_MS + 40); // + a frame or two so the slide completes
+    const onEnd = (event: AnimationEvent) => {
+      if (event.target === dialog && event.animationName === "ask-drawer-out") done();
+    };
+    dialog.addEventListener("animationend", onEnd);
+    const timer = setTimeout(done, CLOSE_MS * 3);
     return () => {
       clearTimeout(timer);
+      dialog.removeEventListener("animationend", onEnd);
       dialog.removeAttribute("data-closing");
     };
   }, [panelOpen, reduced]);
