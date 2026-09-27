@@ -19,7 +19,7 @@ export const metadata: Metadata = buildMetadata({
 /**
  * `/work` — the Experience page (TKT-101, Tushar direction 2026-09-26; Design.md §7.2, §11 Dev-90/43).
  * Replaces the project index (moved to `/projects`; case studies keep `/work/<slug>`). The pinboard scene
- * moved with the index (`scene-work` → `/projects`); since TASK-114 (Tushar 2026-09-27, Design.md §11 Dev-98,
+ * moved with the index (`scene-work` → `/projects`); since TASK-114 (Tushar 2026-09-27, Design.md §11 Dev-103,
  * superseding Dev-90's "no scene opener") the page opens on its own scene, `scene-experience`, in the
  * shared `SceneOpener` — sized, cropped and parallaxed exactly like every other tab's.
  *
@@ -101,7 +101,7 @@ const eduEntries: TimelineEntry[] = education.map((entry, i) => {
 export default function ExperiencePage() {
   return (
     <>
-      {/* TASK-114 scene opener (Dev-98): the first child of <main>, as on every other tab. */}
+      {/* TASK-114 scene opener (Dev-103): the first child of <main>, as on every other tab. */}
       <SceneOpener id="scene-experience" priority />
       <div className="xp">
         <h1 className="sr-only">Experience</h1>

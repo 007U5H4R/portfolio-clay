@@ -16,7 +16,7 @@ export const metadata: Metadata = buildMetadata({
 
 /**
  * `/certifications` (TKT-102, Tushar direction 2026-09-26; Design.md §11 Dev-46/47). Since TASK-114
- * (Tushar 2026-09-27, Design.md §11 Dev-99, superseding the TKT-102 "no scene opener") the page opens on
+ * (Tushar 2026-09-27, Design.md §11 Dev-104, superseding the TKT-102 "no scene opener") the page opens on
  * its own scene, `scene-certifications`, in the shared `SceneOpener` — sized, cropped and parallaxed like
  * every other tab's — with the torn "Certifications" title strip directly below it.
  * Opener → timeline (the five annotated certifications) → "More on Credly" (every other badge).
@@ -27,7 +27,7 @@ export const metadata: Metadata = buildMetadata({
 export default function CertificationsPage() {
   return (
     <>
-      {/* TASK-114 scene opener (Dev-99): the first child of <main>, as on every other tab. */}
+      {/* TASK-114 scene opener (Dev-104): the first child of <main>, as on every other tab. */}
       <SceneOpener id="scene-certifications" priority />
       <div className="certs">
         <CertificationTimeline certifications={featuredCertifications} />

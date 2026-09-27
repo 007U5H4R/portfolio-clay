@@ -88,6 +88,20 @@ async function revealForAudit(page: Page): Promise<void> {
     await el.scrollIntoViewIfNeeded();
   }
   await page.waitForFunction(() => document.querySelector("[data-journey-armed]") === null, null, { timeout: 20_000 });
+  // TASK-113: arm-then-reveal entrances (`data-armed` → `data-in`: /contact, Home Ask Tushky) start at
+  // opacity 0 — same rule: walk each into view, wait for `data-in`, then for its CSS transitions to end.
+  for (const el of await page.locator("[data-armed]:not([data-in])").elementHandles()) {
+    await el.scrollIntoViewIfNeeded();
+  }
+  await page.waitForFunction(() => document.querySelector("[data-armed]:not([data-in])") === null, null, { timeout: 10_000 });
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a instanceof CSSTransition)
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
   await page.evaluate((y) => window.scrollTo(0, y), scrollY);
 }
 

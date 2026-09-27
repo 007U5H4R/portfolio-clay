@@ -149,4 +149,18 @@ describe("CopyButton — paper skin + state timing (TSK-46, TC-170)", () => {
     const fallback = container.querySelector("[data-copy-fallback]");
     expect(fallback?.querySelector("output")).toHaveTextContent(EMAIL);
   });
+  // TASK-113 (contact spec §23): `/contact` names the control "Copy email address"; the status
+  // region still announces the copied value itself, and every other caller keeps `Copy <value>`.
+  it("`name` sets the accessible name per state without changing what is copied or announced", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    setClipboard(writeText);
+    render(<CopyButton value={EMAIL} name="email address" />);
+    const button = screen.getByRole("button", { name: "Copy email address" });
+    expect(button).toHaveTextContent("Copy");
+    fireEvent.click(button);
+    await waitFor(() => expect(button).toHaveAttribute("data-state", "copied"));
+    expect(button).toHaveAccessibleName("Copied email address");
+    expect(writeText).toHaveBeenCalledWith(EMAIL);
+    expect(screen.getByRole("status")).toHaveTextContent(`Copied ${EMAIL}`);
+  });
 });

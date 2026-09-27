@@ -140,7 +140,7 @@ height, `webp({ quality: 86, effort: 6, smartSubsample: true })`:
 | `scene-playground-mobile.webp` | 672, 1824 | 310,752 | `9668fff25c5949ae641e304b862b774efed103b5423953d5982e0babbd707ef4` |
 | `scene-contact-mobile.webp` | 735, 1824 | 216,246 | `723764b444b2a5ae48d1b9fe280b589576c684d38619d4e187a6746d38e2856f` |
 
-### TASK-114 · `/work` + `/certifications` scenes (Design.md §11 Dev-98 / Dev-99)
+### TASK-114 · `/work` + `/certifications` scenes (Design.md §11 Dev-103 / Dev-104)
 
 Tushar 2026-09-27: "include image scene in Experience and ceritfication tabs like the other tabs so that it looks
 consistent and uniform" … "Use existing ones. Just make sure its not repeated" … "if you need then you generate new

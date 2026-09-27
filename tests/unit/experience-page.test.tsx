@@ -10,7 +10,7 @@ import { experience } from "@/data/experience";
 
 afterEach(cleanup);
 
-// TASK-114 (Dev-98): the page opens on `SceneOpener`, whose static image import is a bare URL under jsdom
+// TASK-114 (Dev-103): the page opens on `SceneOpener`, whose static image import is a bare URL under jsdom
 // (next/image rejects it — the reason SceneBanner is not in the paper barrel). Stub it to its outer contract;
 // the real opener is covered by tests/e2e/scene-opener.spec.ts.
 vi.mock("@/components/paper/SceneOpener", () => ({
@@ -24,7 +24,7 @@ const section = (container: HTMLElement, id: string) => {
 };
 
 describe("/work Experience page (TKT-101)", () => {
-  it("opens on its own scene, `scene-experience`, as the LCP-priority opener (TASK-114, Dev-98)", () => {
+  it("opens on its own scene, `scene-experience`, as the LCP-priority opener (TASK-114, Dev-103)", () => {
     const { container } = render(<ExperiencePage />);
     const first = container.firstElementChild as HTMLElement;
     expect(first.getAttribute("data-opener")).toBe("scene-experience");
