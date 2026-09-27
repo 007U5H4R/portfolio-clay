@@ -15,6 +15,11 @@ export interface CopyButtonProps {
    * idle→copied→error machine (the normal in-page behaviour).
    */
   state?: CopyButtonState | undefined;
+  /**
+   * What the button copies, for its accessible name ("Copy email address" — TASK-113 contact spec
+   * §23). Defaults to `value` itself, the name every other caller has today.
+   */
+  name?: string | undefined;
   className?: string | undefined;
 }
 
@@ -46,7 +51,7 @@ const COPIED_MS = 2000;
  * Controlled mode: pass an explicit `state` to pin a fixed visual (the `/dev/primitives` board and
  * `clay.test.tsx` render all three states this way); the click machine is inert in that mode.
  */
-export function CopyButton({ value, state: forcedState, className }: CopyButtonProps) {
+export function CopyButton({ value, state: forcedState, name, className }: CopyButtonProps) {
   const [liveState, setLiveState] = useState<CopyButtonState>("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const controlled = forcedState !== undefined;
@@ -91,7 +96,7 @@ export function CopyButton({ value, state: forcedState, className }: CopyButtonP
       <button
         type="button"
         className="copy-btn focus-ring"
-        aria-label={`${STATE_LABEL[state]} ${value}`}
+        aria-label={`${STATE_LABEL[state]} ${name ?? value}`}
         // Stable hook: `aria-label` and `data-state` both change with the state machine, so a
         // consumer/test that needs to target the control across a state flip keys off this instead.
         data-copy-button=""

@@ -19,6 +19,8 @@ const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const CASES = [
   { route: "/", sheet: "#work-featured", label: "home Featured Work tear" },
   { route: "/about", sheet: "footer.band", label: "/about band footer tear" },
+  // TASK-113: the rebuilt /contact section is `main`'s last child — it lags under the band's tear.
+  { route: "/contact", sheet: "footer.band", label: "/contact band footer tear" },
 ] as const;
 
 type Geometry = { gap: number; tearTop: number; lagAnimation: string; lagTranslate: string; sheetDocTop: number };

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { ContactCard } from "@/components/contact/ContactCard";
-import { ContactDetails } from "@/components/contact/ContactDetails";
+import { ContactSection } from "@/components/contact/ContactSection";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -13,18 +12,17 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /**
- * `/contact` (TSK-46, Design.md §7.8): TKT-95's scene opener (EXE-18) → `ContactCard` (the opener
- * copy + actions list, `section#contact`) → `ContactDetails` (the postcard on `paper-2`, torn) →
- * band (layout). Static — no client data-fetching (TP1); the only client island is `CopyButton`.
- * `buildMetadata`/OG family unchanged (`app/contact/opengraph-image.tsx` untouched).
+ * `/contact` (TSK-46 → TASK-113, Design.md §7.8): TKT-95's scene opener (EXE-18) → `ContactSection`
+ * (`section#contact` — Tushar's 2026-09-27 scrapbook last page: visual story + one contact card) →
+ * band (layout). Static — no client data-fetching (TP1); the client islands are `CopyButton` and the
+ * CSS entrance trigger `ContactEntrance`. `buildMetadata`/OG family unchanged.
  */
 export default function ContactPage() {
   return (
     <>
       {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-95) — focal point per scene in components/paper/scene-opener-frames.ts. */}
       <SceneOpener id="scene-contact" priority />
-      <ContactCard />
-      <ContactDetails />
+      <ContactSection />
     </>
   );
 }
