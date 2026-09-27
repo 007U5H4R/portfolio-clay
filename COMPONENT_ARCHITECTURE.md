@@ -21,7 +21,7 @@ Portfolio-clay/
     paper/       TornEdge, Sticky, Annotation, Sketch, Note, Tape, Pin, Sheet, Illustration(+Img),
                  FlatZone, Hand, DraftTag, SceneBanner, SceneOpener, MediaGate   ← the paper primitives (M-009)
     layout/      Container, Section, SectionHeading, BandFooter, SkipLink
-    navigation/  Header, HeaderScroll, PrimaryNav, InkUnderline, Monogram, MobileMenu, AskAIButton
+    navigation/  Header, HeaderScroll, PrimaryNav, InkUnderline, Monogram, AskAIButton
     hero/        Hero, HeroClip, Postmark
     home/        HowIThink
     clay/        ClayButton, tiers (Tone/toneClass) — last clay remnants, still consumed (TKT-89 report)

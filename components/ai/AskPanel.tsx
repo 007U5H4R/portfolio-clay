@@ -12,8 +12,8 @@
  * page and the drawer sits above the scrim. That is spec §4's 0 / 40 / 50 stack without z-index
  * values. The chunk is lazy (`AskPanelLazy`, mounted by `AskProvider` only after the first
  * `openPanel()`, EVAL-005). `lockBackground()` sets inert, overflow:hidden and pauses Lenis. Focus
- * returns to `triggerRef`, which is whichever trigger opened the drawer: the header ghost, the
- * MobileMenu row, or TKT-108's hero CTA through the same `triggerRef` + `openPanel()` pair.
+ * returns to `triggerRef`, which is whichever trigger opened the drawer: the header ghost (the
+ * MobileMenu row went with the hamburger, TASK-112), or TKT-108's hero CTA through the same `triggerRef` + `openPanel()` pair.
  *
  * Geometry (spec §2 / §22): fixed top/right/0, 100dvh, `clamp(400px, 32vw, 460px)` wide (460 at 1440),
  * and full-screen 100vw below 768. Motion (spec §3 / §24) is CSS keyed off `data-open`, which is

@@ -14,7 +14,7 @@ import { test, expect } from "./fixtures";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const OPENERS: readonly { route: string; id: string }[] = [
-  { route: "/work", id: "scene-experience" }, // TASK-114 (Dev-97): its own scene; the pinboard moved to /projects (TKT-101)
+  { route: "/work", id: "scene-experience" }, // TASK-114 (Dev-98): its own scene; the pinboard moved to /projects (TKT-101)
   { route: "/projects", id: "scene-work" },
   { route: "/work/teachspark", id: "scene-casestudy" },
   { route: "/thinking", id: "scene-thinking" },
@@ -22,7 +22,7 @@ const OPENERS: readonly { route: string; id: string }[] = [
   { route: "/about", id: "scene-about" },
   { route: "/playground", id: "scene-playground" },
   { route: "/contact", id: "scene-contact" },
-  { route: "/certifications", id: "scene-certifications" }, // TASK-114 (Dev-98)
+  { route: "/certifications", id: "scene-certifications" }, // TASK-114 (Dev-99)
 ];
 
 for (const { route, id } of OPENERS) {

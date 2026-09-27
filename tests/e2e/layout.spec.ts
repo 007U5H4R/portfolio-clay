@@ -79,8 +79,8 @@ test("header keeps one height across scroll; data-scrolled only toggles the hair
 
 // ---------------------------------------------------------------------------
 // TC-131 (TKT-71 AC 3, AC 4, D8) — the subline annotation is gated by width (TP14 MediaGate), the
-// nav is hidden < 1440 with seven items (TKT-101/102; TKT-112 menu below 1440) and an aria-current
-// underline ≥ 1440, every control ≥ 44 px.
+// nav shows every item at every width (TASK-112: tabs, no hamburger) with an aria-current underline,
+// every control ≥ 44 px.
 // ---------------------------------------------------------------------------
 test("header subline annotation is absent from the DOM < 640 and present + aria-hidden ≥ 640", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
@@ -103,7 +103,7 @@ test("header subline annotation is absent from the DOM < 640 and present + aria-
   }
 });
 
-test("primary nav: every navItems entry (TKT-101/102), hidden < 1440 behind the menu (TKT-112), aria-current draws the underline on /work", async ({ page }) => {
+test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every width, no menu (TASK-112), aria-current draws the underline on /work", async ({ page }) => {
   await page.goto("/work", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const links = nav.locator("a");
@@ -111,16 +111,9 @@ test("primary nav: every navItems entry (TKT-101/102), hidden < 1440 behind the 
   await expect(links).toHaveCount(navItems.length);
   await expect(nav.locator('a[href="/playground"]')).toHaveCount(1);
   await expect(nav.locator('a[href="/certifications"]')).toHaveCount(1);
-  // TKT-112 (Tushar 2026-09-26, "Menu below 1440"): seven items need ≥ 1440; below that the menu button.
-  if (width(page) < 1440) {
-    await expect(nav).toBeHidden();
-    await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
-    if (width(page) < 1024) await expect(page.locator('header a[href="/contact"]:visible')).toHaveCount(0);
-    else await expect(page.locator('header a[href="/contact"]:visible')).toHaveCount(1);
-    return;
-  }
+  // TASK-112 (Tushar 2026-09-27): the tabs at every width (a scrollable second row below 1440).
   await expect(nav).toBeVisible();
-  await expect(page.getByRole("button", { name: "Open menu" })).toBeHidden();
+  await expect(page.locator("header").getByRole("button", { name: /menu/i })).toHaveCount(0);
   const active = nav.locator('a[aria-current="page"]');
   await expect(active).toHaveText("Experience");
   await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
@@ -220,16 +213,20 @@ for (const target of [1024, 1280, 1440]) {
           .filter(({ r }) => r.left < hb.left - 0.5 || r.right > hb.right + 0.5 || r.top < hb.top - 0.5 || r.bottom > hb.bottom + 0.5)
           .map(({ name }) => name);
         const squeezed = boxes.filter((b) => b.innerOverflow > 1).map((b) => `${b.name}: text overflows its box by ${b.innerOverflow.toFixed(1)}px`);
+        // Adjacent = neighbours on the same header row (below 1440 the tabs are a second row, TASK-112).
+        const sameRow = (a: DOMRect, b: DOMRect) => Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5;
         const sorted = [...boxes].sort((a, b) => a.r.left - b.r.left);
-        const minGap = Math.min(
-          ...sorted.slice(1).map((b, i) => (b.cluster && sorted[i]!.cluster ? Infinity : b.r.left - sorted[i]!.r.right)),
-        );
+        const gaps: number[] = [];
+        sorted.forEach((b, i) => {
+          const prev = sorted.slice(0, i).reverse().find((p) => sameRow(p.r, b.r));
+          if (prev && !(b.cluster && prev.cluster)) gaps.push(b.r.left - prev.r.right);
+        });
+        const minGap = Math.min(...gaps);
         return { count: boxes.length, overlaps, outside, squeezed, minGap };
       });
       const where = `${route} @ ${target}`;
-      // TKT-112: < 1440 the nav collapses to the menu button (brand + pill + Ask + menu); ≥ 1440 the full nav.
-      const expected = target < 1440 ? 4 : 3 + navItems.length;
-      expect(report.count, `${where}: brand + ${target < 1440 ? "menu" : "every nav item"} + pill + Ask visible`).toBe(expected);
+      // TASK-112: brand + every nav tab + pill + Ask at every width (no menu button).
+      expect(report.count, `${where}: brand + every nav item + pill + Ask visible`).toBe(3 + navItems.length);
       expect(report.overlaps, `${where}: overlapping header controls`).toEqual([]);
       expect(report.outside, `${where}: controls outside the header`).toEqual([]);
       expect(report.squeezed, `${where}: a control squeezed below its content`).toEqual([]);

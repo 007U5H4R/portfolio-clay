@@ -10,7 +10,7 @@
  * mockup renditions' (scene-thinking and scene-contact differ from the earlier stub because their
  * long edge, not width, is 2336/2240 in the master).
  * TKT-107 (Dev-95): the six scenes are now 3168×1344 (21:9) Higgsfield outpaints — the home banner's size.
- * TASK-114 (Dev-97/98): two new scenes for `/work` and `/certifications`, encoded the same way at the same size.
+ * TASK-114 (Dev-98/99): two new scenes for `/work` and `/certifications`, encoded the same way at the same size.
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
@@ -113,7 +113,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     usedOn: ["/contact"],
   },
   {
-    // TASK-114 (Design.md §11 Dev-97): the `/work` Experience opener — a new Higgsfield `gpt_image_2_5`
+    // TASK-114 (Design.md §11 Dev-98): the `/work` Experience opener — a new Higgsfield `gpt_image_2_5`
     // 21:9 scene (every existing scene is already used on another page), 3840×1648 master cropped 19 px
     // top/bottom to 21:9 and resized to the home banner's 3168×1344.
     id: "scene-experience",
@@ -125,7 +125,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     usedOn: ["/work"],
   },
   {
-    // TASK-114 (Design.md §11 Dev-98): the `/certifications` opener — a new Higgsfield `gpt_image_2_5`
+    // TASK-114 (Design.md §11 Dev-99): the `/certifications` opener — a new Higgsfield `gpt_image_2_5`
     // 21:9 scene, encoded as `scene-experience`.
     id: "scene-certifications",
     kind: "scene",

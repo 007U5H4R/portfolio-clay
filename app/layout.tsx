@@ -70,7 +70,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/*
           AskProvider is hoisted here (from app/page.tsx, TKT-10) so the deterministic Ask provider
           and the global slide-over AskPanel are shared across every route: the header AskAIButton and
-          the MobileMenu Ask row (both inside <Header/>) open the same panel. AskPanel itself is a lazy
+          the Home launcher open the same panel. AskPanel itself is a lazy
           chunk mounted only after the first open (EVAL-005), so this hoist does not add it to first-load.
         */}
         {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
