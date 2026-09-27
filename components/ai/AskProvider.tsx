@@ -75,7 +75,7 @@ interface AskContextValue {
   /** Open the drawer; with `query`, it is submitted as soon as the drawer opens (TKT-113). */
   openPanel: (options?: OpenPanelOptions) => void;
   closePanel: () => void;
-  /** Whichever control opened the panel (header ghost, MobileMenu row, Home launcher), so focus can
+  /** Whichever control opened the panel (header ghost, Home launcher), so focus can
    *  return to it when the panel closes (EVAL-007). */
   triggerRef: RefObject<HTMLElement | null>;
   /** The question waiting for the drawer to ask it, or `null`. Read and cleared by `AskPanel`. */
