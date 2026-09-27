@@ -1,8 +1,8 @@
 /**
  * eval-007.spec.ts (technical-plan.md §B S09.02, `@EVAL-007`) — keyboard operability: every flow
  * completes with the keyboard alone, focus is always visible (2px rust ring), and focus returns
- * to the trigger after a dialog closes. Live now for the two navigation surfaces that exist — the
- * primary nav (desktop) and the MobileMenu (390). The Ask panel, FilterTabs, ExperienceTimeline,
+ * to the trigger after a dialog closes. Live for the primary nav at every width (a single row ≥ 1440,
+ * the scrollable tab strip below — TASK-112 removed the MobileMenu). The Ask panel, FilterTabs, ExperienceTimeline,
  * OverviewToggle and CopyButton flows are fixme'd until their tickets (TKT-10/16/17/45).
  * ShowTheThinking's keyboard flow is real now, in thinking.spec.ts (TKT-21).
  */
@@ -11,112 +11,58 @@ import { navItems } from "@/lib/nav";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
-test("@EVAL-007 desktop nav: every tab stop shows the 2px rust focus ring", { tag: "@EVAL-007" }, async ({
+test("@EVAL-007 header: every tab stop shows the 2px rust focus ring", { tag: "@EVAL-007" }, async ({
   page,
   keyboardOnly,
 }) => {
-  test.skip(width(page) < 1440, "primary nav is visible at ≥ 1440 (TKT-112: menu below; keyboard sweep at desktop widths)");
   await page.goto("/", { waitUntil: "load" });
-  // Skip link → brand → 5 nav links (D8) → "Let's connect →" pill → Ask ghost: all opt into
-  // .focus-ring (TKT-71).
-  await keyboardOnly(page, { tabs: 9 });
+  // Skip link → brand → every nav tab → "Let's connect →" pill → Ask ghost: all opt into
+  // .focus-ring (TKT-71). Every width since TASK-112 (tabs, no hamburger).
+  await keyboardOnly(page, { tabs: 2 + navItems.length + 2 });
 });
 
 /**
- * TC-132 (TKT-71 AC 2, AC 8) — the MobileMenu paper sheet by keyboard alone: Tab from load reaches
- * the skip link then the menu button; Enter opens the native <dialog>; focus lands inside; Tab walks
- * every nav row (56 px), the pill, the résumé row and the Ask row without ever escaping to a page
- * control; axe is clean with the sheet open; Escape closes it, restores focus to the button and
- * releases the <html> overflow lock.
+ * TASK-112 (Tushar 2026-09-27: tabs, no hamburger) — the < 1440 tab strip by keyboard alone: Tab from
+ * load reaches the skip link, the brand, then every tab in order; each one is fully inside the strip's
+ * visible box when focused (an off-screen tab scrolls into view) and wears the rust ring; the page
+ * never scrolls horizontally. There is no menu button to reach.
  */
-test("@EVAL-007 mobile menu: Tab → button → Enter opens the sheet, Tab cycles inside, axe clean, Esc restores focus", {
+test("@EVAL-007 tab strip: Tab reaches every tab in order and scrolls an off-screen tab into view", {
   tag: "@EVAL-007",
-}, async ({ page, axe }) => {
-  test.skip(width(page) !== 390, "mobile menu is the w390 navigation");
+}, async ({ page }) => {
+  test.skip(width(page) !== 390, "the strip overflows (and must scroll to focus) at 390");
   await page.goto("/", { waitUntil: "load" });
+  await expect(page.locator("header").getByRole("button", { name: /menu/i })).toHaveCount(0);
 
-  // By class, not name: the label flips "Open menu" ↔ "Close menu" with `aria-expanded`.
-  const toggle = page.locator("button.header-menu-btn");
-  await expect(toggle).toBeVisible();
-  await expect(toggle).toHaveAccessibleName("Open menu");
-
+  const strip = page.locator('header nav[aria-label="Primary"]');
   await page.keyboard.press("Tab");
   await expect(page.locator('a[href="#main"]')).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Tushar Pathak — home" })).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(toggle).toBeFocused();
-
-  const dialog = page.locator('dialog[aria-label="Site navigation"]');
-  await expect(async () => {
-    await page.keyboard.press("Enter");
-    await expect(dialog).toBeVisible({ timeout: 1000 });
-  }).toPass({ timeout: 6000 });
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
-  await expect(toggle).toHaveAccessibleName("Close menu");
-  await expect(toggle).toHaveAttribute("aria-controls", (await dialog.getAttribute("id")) ?? "");
-
-  const focusInside = () =>
-    page.evaluate(() => {
-      const d = document.querySelector('dialog[aria-label="Site navigation"]');
-      return !!(d && document.activeElement && d.contains(document.activeElement));
-    });
-  expect(await focusInside(), "focus must move inside the modal dialog").toBeTruthy();
-
-  // Rows: 5 nav (56 px, Fraunces 18) + pill + résumé + Ask — every one ≥ 44 px tall.
-  const rows = dialog.locator('nav[aria-label="Primary"] a');
-  await expect(rows).toHaveCount(navItems.length); // 7 since TKT-101/102 (derived, never a literal)
-  for (const row of await rows.all()) {
-    const box = await row.boundingBox();
-    expect(box!.height, "nav rows are 56 px").toBeGreaterThanOrEqual(55);
-    const font = await row.evaluate((el) => getComputedStyle(el).fontFamily);
-    expect(font).toContain("Fraunces");
-  }
-  await expect(dialog.getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
-  await expect(dialog.getByRole("link", { name: "Resume — updating" })).toHaveAttribute("href", "/contact#resume");
-  await expect(dialog.getByRole("button", { name: "Ask AI" })).toBeVisible();
-
-  // Tab cycles inside: 10 Tabs never reach a page control (native showModal + inert background).
-  const escaped = () =>
-    page.evaluate(() => {
-      const a = document.activeElement;
-      if (!a || a === document.body || a === document.documentElement) return false;
-      const d = document.querySelector('dialog[aria-label="Site navigation"]');
-      return !(d && d.contains(a));
-    });
-  let landedInside = false;
-  for (let i = 0; i < 10; i++) {
+  for (const item of navItems) {
     await page.keyboard.press("Tab");
-    expect(await escaped(), `Tab ${i + 1} reached a page control`).toBeFalsy();
-    if (await focusInside()) landedInside = true;
+    const tab = strip.locator(`a[href="${item.href}"]`);
+    await expect(tab).toBeFocused();
+    // Poll: the reveal is a smooth scroll unless reduced motion is on.
+    await expect
+      .poll(() =>
+        tab.evaluate((el) => {
+          const t = el.getBoundingClientRect();
+          const s = el.closest("nav")!.getBoundingClientRect();
+          return t.left >= s.left - 0.5 && t.right <= s.right + 0.5;
+        }),
+      )
+      .toBe(true);
+    const ring = await tab.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return `${cs.outlineStyle} ${cs.outlineWidth}`;
+    });
+    expect(ring, `${item.label} focus ring`).toBe("solid 2px");
   }
-  expect(landedInside, "focus must cycle back inside the sheet").toBeTruthy();
-
-  await axe(page);
-  expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("hidden");
-
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
-  await expect(toggle).toBeFocused();
-  await expect(toggle).toHaveAttribute("aria-expanded", "false");
-  await expect(toggle).toHaveAccessibleName("Open menu");
-  expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("");
-});
-
-test("@EVAL-007 mobile menu: a backdrop click closes the sheet", { tag: "@EVAL-007" }, async ({ page }) => {
-  test.skip(width(page) !== 390, "mobile menu is the w390 navigation");
-  await page.goto("/", { waitUntil: "load" });
-  const toggle = page.getByRole("button", { name: "Open menu" });
-  const dialog = page.locator('dialog[aria-label="Site navigation"]');
-  await expect(async () => {
-    await toggle.click();
-    await expect(dialog).toBeVisible({ timeout: 1000 });
-  }).toPass({ timeout: 6000 });
-  // The sheet hangs under the header; a tap well below it lands on the ::backdrop, whose click
-  // target is the <dialog> element itself.
-  const box = await dialog.boundingBox();
-  await page.mouse.click(195, box!.y + box!.height + 120);
-  await expect(dialog).toBeHidden();
+  expect(await strip.evaluate((el) => el.scrollLeft), "focusing the last tab scrolled the strip").toBeGreaterThan(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await page.keyboard.press("Tab");
+  await expect(page.locator("header").getByRole("link", { name: /Let's connect/ })).toBeFocused();
 });
 
 const focusInsidePanel = (page: import("@playwright/test").Page) =>
@@ -141,7 +87,7 @@ const focusEscapedToPage = (page: import("@playwright/test").Page) =>
 test("@EVAL-007 keyboard: AskPanel opens, traps focus, answers, Esc closes and restores focus (desktop)", {
   tag: "@EVAL-007",
 }, async ({ page }) => {
-  test.skip(width(page) < 1024, "the header Ask AI trigger is desktop-only (MobileMenu covers 390)");
+  test.skip(width(page) < 1024, "the full trap + answer sweep runs at desktop widths (the 390 focus return is below)");
   await page.goto("/", { waitUntil: "load" });
 
   // The 44 px icon-only ghost (TKT-71, S21) — named by its aria-label, not visible text.
@@ -186,17 +132,15 @@ test("@EVAL-007 keyboard: AskPanel opens, traps focus, answers, Esc closes and r
   await expect(trigger).toBeFocused();
 });
 
-test("@EVAL-007 keyboard: AskPanel Esc closes and restores focus to the MobileMenu trigger (390)", {
+test("@EVAL-007 keyboard: AskPanel Esc closes and restores focus to the header Ask trigger (390)", {
   tag: "@EVAL-007",
 }, async ({ page }) => {
-  test.skip(width(page) !== 390, "the MobileMenu Ask row is the w390 trigger");
+  test.skip(width(page) !== 390, "the phone-width check of the header Ask ghost (TASK-112: no MobileMenu row)");
   await page.goto("/", { waitUntil: "load" });
 
-  await page.getByRole("button", { name: "Open menu" }).click();
-  const menu = page.locator('dialog[aria-label="Site navigation"]');
-  await expect(menu).toBeVisible();
-  const askRow = menu.getByRole("button", { name: "Ask AI" });
-  await askRow.click();
+  const askRow = page.locator("header").getByRole("button", { name: "Ask AI" });
+  await askRow.focus();
+  await page.keyboard.press("Enter");
 
   const panel = page.locator("dialog.ask-panel");
   await expect(panel).toBeVisible();
@@ -204,7 +148,7 @@ test("@EVAL-007 keyboard: AskPanel Esc closes and restores focus to the MobileMe
 
   await page.keyboard.press("Escape");
   await expect(panel).toBeHidden();
-  // The menu is still open behind the sheet, so focus returns to the exact Ask row that opened it.
+  // Focus returns to the exact trigger that opened the panel.
   await expect(askRow).toBeFocused();
 });
 

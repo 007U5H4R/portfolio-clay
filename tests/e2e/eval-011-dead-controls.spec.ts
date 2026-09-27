@@ -4,7 +4,7 @@
  * The dead-control crawler gate. One worker (pinned to the w1440 project) drives its own 390 and
  * 1440 contexts so exactly one process writes the `.eval/dead-controls.json` report — the crawler
  * already sweeps both widths itself, so pinning avoids four parallel workers racing on one file.
- * For every public route it enumerates visible controls, opens the MobileMenu at 390, and asserts
+ * For every public route it enumerates visible controls (the header tabs included at 390), and asserts
  * ZERO dead controls (WARN — external bot-blocks, not-yet-built routes — is allowed and recorded).
  *
  * A second test is the crawler self-test the S10.01 gate requires: a fixture page with one live and
@@ -66,49 +66,8 @@ test("@EVAL-011 no dead controls on any public route (390 + 1440)", { tag: "@EVA
       };
 
       push(await crawlControls(page, { route, width, baseUrl: BASE_URL, allowlist }));
-
-      // Open the MobileMenu at 390 and crawl the controls inside the dialog once. Links + disabled
-      // controls are classified generically (buttonMode "skip"); the close button is verified
-      // explicitly last, because clicking it closes the dialog and would detach the other handles.
-      if (width === 390) {
-        const hamburger = page.getByRole("button", { name: "Open menu" });
-        if (await hamburger.isVisible().catch(() => false)) {
-          await hamburger.click();
-          await page.waitForSelector("dialog[open]", { timeout: 3000 }).catch(() => {});
-          push(
-            await crawlControls(page, {
-              route,
-              width,
-              baseUrl: BASE_URL,
-              allowlist,
-              scope: "dialog[open]",
-              buttonMode: "skip",
-            }),
-          );
-          // Verify the dialog's close button by clicking it (this also closes the menu).
-          const closeHandle = await page.$('dialog[open] button[aria-label="Close menu"]');
-          if (closeHandle) {
-            const eff = await observeButtonEffect(page, closeHandle);
-            push([
-              {
-                route,
-                width,
-                kind: "button",
-                name: "Close menu",
-                target: 'dialog button[aria-label="Close menu"]',
-                verdict: eff.changed ? "ok" : "dead",
-                detail: eff.how,
-              },
-            ]);
-            await closeHandle.dispose().catch(() => {});
-          }
-          // Ensure the menu is closed before the next route.
-          if (await page.$("dialog[open]")) {
-            await page.keyboard.press("Escape").catch(() => {});
-            await page.waitForTimeout(150);
-          }
-        }
-      }
+      // No menu pass since TASK-112: every nav tab is a header link at every width, so the page crawl
+      // above already covers them.
     }
     await context.close();
   }

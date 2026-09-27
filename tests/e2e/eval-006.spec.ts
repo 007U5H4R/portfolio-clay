@@ -1,8 +1,8 @@
 /**
  * eval-006.spec.ts (technical-plan.md §B S09.02, `@EVAL-006`) — axe-core WCAG 2.1 AA sweep over
  * every public route at 390 and 1440 (0 critical/serious); the QA-only `/dev/*` boards are added
- * when ALLOW_DEV_ROUTES is set (its own start command). Open MobileMenu / AskPanel axe states are
- * covered where those components exist (MobileMenu in tracer.spec; AskPanel arrives at TKT-10 and
+ * when ALLOW_DEV_ROUTES is set (its own start command). The 390 header tab strip / AskPanel axe states are
+ * covered where those components exist (the tab strip in tracer.spec; AskPanel arrives at TKT-10 and
  * is fixme'd below).
  *
  * TKT-48 (QA precedent: TKT-47's EVAL-008 fix): the route list is DERIVED from the same sources
