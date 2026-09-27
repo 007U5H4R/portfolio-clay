@@ -45,7 +45,7 @@ export interface AskPanelProps {
 const CLOSE_MS = Math.min(durations.panel, 280);
 
 export function AskPanel() {
-  const { panelOpen, closePanel, triggerRef } = useAskContext();
+  const { panelOpen, closePanel, triggerRef, pendingAsk, clearPendingAsk } = useAskContext();
   const { messages, isGenerating, ask, retry, reset } = useAskChat();
   const reduced = useReducedMotionSafe();
 
@@ -78,15 +78,24 @@ export function AskPanel() {
       dialog.close();
       return;
     }
-    // Slide out to the right on its own keyframe (`data-closing`), then close once it has run.
+    // Slide out to the right on its own keyframe (`data-closing`), then close once it has run. Close
+    // on the keyframe's own `animationend`, not a fixed timer: when the first frame is slow to paint
+    // (a heavy page on a slow GPU) a CLOSE_MS timer fired before the slide had started and the
+    // drawer vanished in place. The timer stays only as a fallback if the event never arrives.
     dialog.setAttribute("data-closing", "");
     const done = () => {
+      dialog.removeEventListener("animationend", onEnd);
       dialog.removeAttribute("data-closing");
       if (dialog.open) dialog.close();
     };
-    const timer = setTimeout(done, CLOSE_MS + 40); // + a frame or two so the slide completes
+    const onEnd = (event: AnimationEvent) => {
+      if (event.target === dialog && event.animationName === "ask-drawer-out") done();
+    };
+    dialog.addEventListener("animationend", onEnd);
+    const timer = setTimeout(done, CLOSE_MS * 3);
     return () => {
       clearTimeout(timer);
+      dialog.removeEventListener("animationend", onEnd);
       dialog.removeAttribute("data-closing");
     };
   }, [panelOpen, reduced]);
@@ -100,6 +109,16 @@ export function AskPanel() {
   useEffect(() => {
     if (!panelOpen) reset();
   }, [panelOpen, reset]);
+
+  // TKT-113: a question handed over by the Home launcher (typed text or a suggestion card) is asked
+  // as soon as the drawer is open. The id guard makes it run once, even under a dev double effect.
+  const consumedAsk = useRef(0);
+  useEffect(() => {
+    if (!panelOpen || !pendingAsk || consumedAsk.current === pendingAsk.id) return;
+    consumedAsk.current = pendingAsk.id;
+    ask(pendingAsk.label, pendingAsk.query);
+    clearPendingAsk(pendingAsk.id);
+  }, [panelOpen, pendingAsk, ask, clearPendingAsk]);
 
   // Keep the latest exchange in view: scroll so the newest question sits at the top of the region
   // (a long answer then reads from its start). Smooth unless reduced motion (spec §20 / §24).

@@ -81,12 +81,13 @@ test.describe("ask-panel", () => {
     ).toHaveCount(1);
     await expect(panel(page).getByText("Hi! I’m Tushky.")).toBeVisible();
     const cards = panel(page).getByRole("list", { name: "Suggested questions" }).locator(".tk-card-text");
+    // TKT-113 (Dev-66): the one shared list, in the Home spec's wording and order.
     await expect(cards).toHaveText([
       "What products has Tushar built?",
+      "What AI products has he worked on?",
       "What impact has he created?",
-      "Show me his product thinking process.",
-      "What is his AI / cloud experience?",
       "What are his strongest skills?",
+      "Show me his product thinking process.",
       "Walk me through a specific project.",
     ]);
     await expect(input(page)).toHaveAttribute("placeholder", "Ask Tushky anything about Tushar...");

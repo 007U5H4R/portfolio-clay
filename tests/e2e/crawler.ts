@@ -326,6 +326,7 @@ export async function observeButtonEffect(
   page: Page,
   handle: ElementHandle<Element>,
 ): Promise<{ changed: boolean; how: string }> {
+  await closeStrayDialogs(page, handle);
   const before = await handle.evaluate((el) => {
     (window as unknown as { __mut: number }).__mut = 0;
     const mo = new MutationObserver((muts) => {
@@ -617,7 +618,28 @@ export async function crawlControls(page: Page, opts: CrawlOptions): Promise<Con
     if (r) results.push(r);
     await handle.dispose().catch(() => {});
   }
+  if (!opts.scope) await closeStrayDialogs(page);
   return results;
+}
+
+/**
+ * Close every open dialog that does not contain `keep` (the control about to be tested). A lazily
+ * mounted dialog — the Ask Tushky drawer loads on first use and the Home launcher cards open it
+ * (TKT-113) — can open after observeButtonEffect's 500 ms window, so its Esc restore never runs
+ * and the drawer then intercepts every later click on the route.
+ */
+export async function closeStrayDialogs(page: Page, keep?: ElementHandle<Element>): Promise<void> {
+  for (let i = 0; i < 3; i++) {
+    const stray = await page
+      .evaluate(
+        (el) => [...document.querySelectorAll("dialog[open]")].some((d) => !el || !d.contains(el)),
+        keep ?? null,
+      )
+      .catch(() => false);
+    if (!stray) return;
+    await page.keyboard.press("Escape").catch(() => {});
+    await page.waitForTimeout(400);
+  }
 }
 
 /** Stable de-dupe key so the same link seen in header+footer or across passes counts once. */

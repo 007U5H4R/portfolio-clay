@@ -49,13 +49,38 @@ export interface UseAsk extends AskState {
   reset: () => void;
 }
 
+/**
+ * TKT-113 (Home "Ask Tushky" launcher, spec §11 / §24): a question handed to the drawer as it opens.
+ * The drawer asks it once as its first turn — `label` is the user bubble, `query` goes to the index.
+ * `id` is unique per open, so the drawer consumes each hand-off exactly once.
+ */
+export interface PendingAsk {
+  id: number;
+  label: string;
+  query: string;
+}
+
+export interface OpenPanelOptions {
+  /** Ask this as the drawer's first turn (the Home launcher's typed text or a suggestion card). */
+  query?: string | undefined;
+  /** What the user bubble shows; defaults to `query`. */
+  label?: string | undefined;
+  /** Where focus returns when the drawer closes. Omit to keep whatever `triggerRef` already holds. */
+  trigger?: HTMLElement | null | undefined;
+}
+
 interface AskContextValue {
   provider: AnswerProvider;
   panelOpen: boolean;
-  openPanel: () => void;
+  /** Open the drawer; with `query`, it is submitted as soon as the drawer opens (TKT-113). */
+  openPanel: (options?: OpenPanelOptions) => void;
   closePanel: () => void;
-  /** The header AskAIButton (TKT-11) so focus can return to it when the panel closes. */
-  triggerRef: RefObject<HTMLButtonElement | null>;
+  /** Whichever control opened the panel (header ghost, MobileMenu row, Home launcher), so focus can
+   *  return to it when the panel closes (EVAL-007). */
+  triggerRef: RefObject<HTMLElement | null>;
+  /** The question waiting for the drawer to ask it, or `null`. Read and cleared by `AskPanel`. */
+  pendingAsk: PendingAsk | null;
+  clearPendingAsk: (id: number) => void;
 }
 
 const AskContext = createContext<AskContextValue | null>(null);
@@ -77,17 +102,29 @@ export function AskProvider({ children, provider, panelPrompts = [] }: AskProvid
   // Once the panel has been opened, keep it mounted (state + a warm chunk) so re-opening is instant.
   // Gating the mount on this flag is what keeps the AskPanel chunk out of `/` first-load (EVAL-005).
   const [everOpened, setEverOpened] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const [pendingAsk, setPendingAsk] = useState<PendingAsk | null>(null);
+  const pendingId = useRef(0);
 
-  const openPanel = useCallback(() => {
+  const openPanel = useCallback((options?: OpenPanelOptions) => {
+    if (options?.trigger !== undefined) triggerRef.current = options.trigger;
+    const query = options?.query?.trim() ?? "";
+    if (query) {
+      const label = options?.label?.trim() || query;
+      setPendingAsk({ id: ++pendingId.current, label, query });
+    }
     setEverOpened(true);
     setPanelOpen(true);
   }, []);
   const closePanel = useCallback(() => setPanelOpen(false), []);
+  const clearPendingAsk = useCallback(
+    (id: number) => setPendingAsk((current) => (current?.id === id ? null : current)),
+    [],
+  );
 
   const value = useMemo<AskContextValue>(
-    () => ({ provider: resolvedProvider, panelOpen, openPanel, closePanel, triggerRef }),
-    [resolvedProvider, panelOpen, openPanel, closePanel],
+    () => ({ provider: resolvedProvider, panelOpen, openPanel, closePanel, triggerRef, pendingAsk, clearPendingAsk }),
+    [resolvedProvider, panelOpen, openPanel, closePanel, pendingAsk, clearPendingAsk],
   );
 
   return (

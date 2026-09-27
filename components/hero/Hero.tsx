@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { HeroAskLink } from "@/components/hero/HeroAskLink";
 import { HeroClip } from "@/components/hero/HeroClip";
 import { Postmark } from "@/components/hero/Postmark";
 import { clipSlotStyle } from "@/components/hero/registration";
@@ -168,12 +169,13 @@ export function Hero() {
               View my work →
             </Link>
             <div className="hero-ask">
-              <a href="#ask" className="hero-btn hero-btn-secondary focus-ring" aria-describedby="hero-ask-cap">
+              {/* TKT-113: opens the Ask Tushky drawer (spec §24); `#ask` stays the no-JS fallback. */}
+              <HeroAskLink className="hero-btn hero-btn-secondary focus-ring" describedBy="hero-ask-cap">
                 <span className="hero-btn-spark" aria-hidden="true">
                   ✦
                 </span>
                 Ask Tushky
-              </a>
+              </HeroAskLink>
               <p id="hero-ask-cap" className="hero-ask-cap" data-micro-label="">
                 My AI portfolio assistant
               </p>

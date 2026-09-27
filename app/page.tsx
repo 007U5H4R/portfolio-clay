@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/hero/Hero";
-import { AskSection } from "@/components/ai/AskSection";
+import { HomeAskTushky } from "@/components/ai/HomeAskTushky";
 import { FeaturedWork } from "@/components/projects/FeaturedWork";
 import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
-import { knowledge } from "@/data/knowledge";
 import { getProject } from "@/data/projects";
 import { thinkingFramework } from "@/data/thinking-framework";
 import { orderStages } from "@/lib/stages";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
-
-// The 5 home-surface prompts, resolved server-side and passed to the client leaf as a plain
-// string[] (A1: pages hand a leaf the exact props it needs, never the knowledge module).
-const HOME_PROMPTS = knowledge.filter((entry) => entry.surface.includes("home")).map((entry) => entry.prompt);
 
 // How-I-Think stages (TKT-13), resolved server-side into the exact client-leaf shape (A1: the
 // client component never imports data/schema.ts or data/projects.ts directly) — each stage's
@@ -55,11 +50,11 @@ export default function Home() {
       <HowIThink stages={HOW_I_THINK_STAGES} />
 
       {/*
-        Ask my portfolio (TKT-77, Design.md §7.1): section#ask on paper-2 with a torn edge and the
-        notebook AskPortfolio. The AskProvider is hoisted to app/layout.tsx (TKT-11) so the inline
-        surface and the global AskPanel share one provider/context.
+        Ask Tushky (TKT-113, Design.md §7.1, §11 Dev-64–69): section#ask on paper-2 with a torn edge —
+        the launcher for the right-side Ask Tushky drawer. It never answers inline; typed text or a
+        suggestion opens the drawer and is asked there. The AskProvider is hoisted to app/layout.tsx.
       */}
-      <AskSection prompts={HOME_PROMPTS} />
+      <HomeAskTushky />
 
       {/* No closing CTA section here (S16, TKT-72): the band footer in app/layout.tsx is the one
           closing call-to-action on every route. */}

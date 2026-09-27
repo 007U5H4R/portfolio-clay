@@ -11,18 +11,7 @@
  * the grounding note is still announced (EVAL-018 rule 5).
  */
 import Image from "next/image";
-import {
-  AlertTriangle,
-  Briefcase,
-  ChartNoAxesColumn,
-  Cpu,
-  FileText,
-  GraduationCap,
-  Lightbulb,
-  SendHorizontal,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { AlertTriangle, SendHorizontal, X } from "lucide-react";
 import type { FormEvent, Ref, RefObject } from "react";
 import type { Answer } from "@/lib/ask";
 import { isInternalHref } from "@/lib/anchors";
@@ -32,13 +21,8 @@ import { Icon } from "@/components/common/Icon";
 import { DraftTag } from "@/components/paper/DraftTag";
 import { Hand } from "@/components/paper/Hand";
 import type { ChatTurn } from "./AskProvider";
-import {
-  TUSHKY_SUGGESTIONS,
-  followUpsFor,
-  followUpsForPrompts,
-  type FollowUp,
-  type SuggestionCategory,
-} from "./ask-tushky-data";
+import { Paw } from "./Paw";
+import { CATEGORY_ICONS, TUSHKY_SUGGESTIONS, followUpsFor, followUpsForPrompts, type FollowUp } from "./ask-tushky-data";
 
 const MASCOT = illustration("tushky");
 const AVATAR = illustration("tushky-avatar");
@@ -47,30 +31,11 @@ export const GROUNDING_NOTE = "Ask anything about Tushar — answers are grounde
 export const COMPOSER_PLACEHOLDER = "Ask Tushky anything about Tushar...";
 const LOADING_LABEL = "Tushky is looking through the portfolio…";
 
-const CATEGORY_ICONS: Record<SuggestionCategory, LucideIcon> = {
-  products: Briefcase,
-  impact: ChartNoAxesColumn,
-  thinking: Lightbulb,
-  ai: Cpu,
-  skills: GraduationCap,
-  project: FileText,
-};
-
 /** Draft knowledge entries: answers from these carry a `DraftTag`, same as the home notebook. */
 const DRAFT_IDS = new Set(knowledge.filter((entry) => entry.draft).map((entry) => entry.id));
 
-/** A small paw print (spec: "Ask Tushky 🐾"), drawn so it takes a paper token, not emoji colour. */
-export function Paw({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={className} fill="currentColor">
-      <ellipse cx="6" cy="10" rx="2.3" ry="3" />
-      <ellipse cx="10.2" cy="5.6" rx="2.3" ry="3" />
-      <ellipse cx="15.4" cy="5.8" rx="2.3" ry="3" />
-      <ellipse cx="19.2" cy="10.4" rx="2.2" ry="2.9" />
-      <path d="M12.6 11.2c3.2 0 6.2 4.6 6.2 7 0 2-1.6 2.8-3.2 2.8-1.3 0-2-.8-3-.8s-1.8.8-3.2.8c-1.6 0-3-.9-3-2.8 0-2.5 3-7 6.2-7Z" />
-    </svg>
-  );
-}
+/** The paw print now lives in `./Paw` (TKT-113) so the Home launcher can share it; re-exported here. */
+export { Paw };
 
 /** The round Tushky avatar for chat bubbles and the chat-mode header (decorative: alt=""). */
 export function TushkyAvatar({ size, className }: { size: number; className?: string }) {
