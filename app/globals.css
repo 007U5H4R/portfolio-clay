@@ -12045,6 +12045,8 @@ html.lenis body {
     .pf-action:hover .pf-action-arrow,
     .pf-arrow,
     .pf-arrow:hover,
+    .pf-arrow[data-dir="prev"]:hover,
+    .pf-arrow[data-dir="next"]:hover,
     .pf-play,
     .pf-play:hover,
     .pf-case.paper-sheet,
