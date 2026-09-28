@@ -40,7 +40,9 @@ test("@EVAL-011 no dead controls on any public route (390 + 1440)", { tag: "@EVA
     testInfo.project.name !== "w1440",
     "the crawler drives its own 390/1440 contexts — pin to one project so one file is written",
   );
-  test.setTimeout(180_000);
+  // TASK-116: the Portfolio carousel adds 13 live controls per width on /projects (11 tabs + 2 arrows),
+  // each clicked and observed for 500 ms — ≈ 12 s more per width; the old 180 s budget ran out at w1440.
+  test.setTimeout(300_000);
   resetCache();
   const allowlist = loadAllowlist();
   const widths = [390, 1440] as const;

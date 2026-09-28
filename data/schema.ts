@@ -106,6 +106,43 @@ export const Project = z.object({
   if (p.featured && p.category !== 'personal') ctx.addIssue({ code: 'custom', path: ['featured'], message: 'only personal builds are featured' });
 });
 
+/* ── portfolio (TASK-116) ───────────────────────────────────── */
+/* One product video: a local MP4 under /video/, a YouTube id or a Vimeo id (spec §23). */
+export const VideoSource = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('file'), src: z.string().regex(/^\/video\/[a-z0-9-]+\.mp4$/), poster: z.string().regex(/^\/video\/[a-z0-9-]+-poster\.webp$/).optional() }),
+  z.object({ kind: z.literal('youtube'), id: z.string().regex(/^[A-Za-z0-9_-]{11}$/) }),
+  z.object({ kind: z.literal('vimeo'), id: z.string().regex(/^\d{6,12}$/) }),
+]);
+/* The accent a product's cover and selected state wear — paper token names only (EVAL-020). */
+export const PortfolioAccent = z.enum(['steel','rust','terracotta','forest','green-2','navy-2','kraft','note']);
+/* Per-product presentation for the /projects carousel. Every product FACT (name, proposition, live
+   link, repo, demo MP4) stays in `data/projects.ts`; this only adds what the portfolio needs on top. */
+export const PortfolioEntry = z.object({
+  slug: Slug,                                                                // a personal `Project.slug`
+  code: z.string().regex(/^[A-Z]{2}-\d{2}$/),                                // cover code, 'TS-01'
+  coverLine: z.string().min(8).max(32),                                      // short cover tagline
+  accent: PortfolioAccent,
+  pitchVideo: VideoSource.optional(),
+  demoVideo: VideoSource.optional(),                                         // only when `links.demoVideo` is absent
+  prdUrl: z.url().startsWith('https://').optional(),
+});
+
+/* Enterprise & client work (spec §27–§35). `sources` name the document and page — never a file path. */
+export const ENTERPRISE_DOCUMENTS = ['Project Manager portfolio V2.0', 'Résumé'] as const;
+const NoCommercialFigures = (s: string) => !/[$€£₹]|\bbudget\b|\bUSD\b|\bINR\b/i.test(s);
+const PublicText = (min: number, max: number) => z.string().min(min).max(max).refine(NoCommercialFigures, 'no budgets or commercial figures (spec §35)');
+export const EnterpriseCase = z.object({
+  id: Slug,
+  client: PublicText(3, 40),
+  program: PublicText(8, 60),
+  role: PublicText(4, 60),
+  period: z.object({ start: YearMonth, end: YearMonth }),
+  summary: PublicText(40, 240),
+  workstreams: z.array(z.object({ name: PublicText(4, 48), detail: PublicText(20, 180) })).max(4),
+  tags: z.array(Tag).min(4).max(6),
+  sources: z.array(z.object({ document: z.enum(ENTERPRISE_DOCUMENTS), page: z.number().int().min(1).max(4) })).min(1),
+}).refine(c => c.period.start <= c.period.end, { message: 'period.start must not be after period.end', path: ['period'] });
+
 /* ── about ──────────────────────────────────────────────────── */
 export const Outcome = z.object({ text: z.string().min(8), kind: z.enum(['measured','self-reported']), source: z.string().min(2) });
 export const Experience = z.object({
@@ -151,3 +188,5 @@ export type Media = z.infer<typeof Media>; // TKT-18: DemoVideo's posterFallback
 export type Experience = z.infer<typeof Experience>; export type Essay = z.infer<typeof Essay>; export type KnowledgeEntry = z.infer<typeof KnowledgeEntry>;
 export type ThinkingStageDef = z.infer<typeof ThinkingStageDef>; export type SkillCluster = z.infer<typeof SkillCluster>;
 export type ThinkingNode = z.infer<typeof ThinkingNode>; export type ThinkingChain = z.infer<typeof ThinkingChain>; // TKT-21: ShowTheThinking/ThinkingNode component props.
+export type VideoSource = z.infer<typeof VideoSource>; export type PortfolioAccent = z.infer<typeof PortfolioAccent>; // TASK-116
+export type PortfolioEntry = z.infer<typeof PortfolioEntry>; export type EnterpriseCase = z.infer<typeof EnterpriseCase>;

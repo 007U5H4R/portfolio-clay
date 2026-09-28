@@ -385,11 +385,13 @@ test("case-study · VT off: /projects card navigates to the study with identical
   test.skip(!isEdge(page), "VT fallback verified at 390 and 1440");
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/projects", { waitUntil: "load" });
+  // TASK-116: the Portfolio panel links only the selected product's study — deep-link RailCite first.
+  await page.goto("/projects?product=railcite", { waitUntil: "load" });
 
   const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback runs").toBeFalsy();
 
+  await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", "railcite");
   await page.locator('a[href="/work/railcite"]').first().click();
   await page.waitForURL("**/work/railcite");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("RailCite");

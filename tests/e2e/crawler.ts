@@ -339,6 +339,7 @@ export async function observeButtonEffect(
       characterData: true,
     });
     (window as unknown as { __mo: MutationObserver }).__mo = mo;
+    (window as unknown as { __crawlDoc: boolean }).__crawlDoc = true;
     return {
       url: location.href,
       historyLength: history.length,
@@ -367,6 +368,7 @@ export async function observeButtonEffect(
           historyLength: history.length,
           dialogs: document.querySelectorAll("dialog[open]").length,
           mut: (window as unknown as { __mut: number }).__mut ?? 0,
+          sameDocument: (window as unknown as { __crawlDoc?: boolean }).__crawlDoc === true,
           // aria-* re-read against the same element is not reliable after DOM churn, so we compare
           // the values we captured pre-click below using the element handle instead.
           _p: [prevExpanded, prevPressed, prevSelected],
@@ -374,7 +376,7 @@ export async function observeButtonEffect(
       },
       { prevExpanded: before.expanded, prevPressed: before.pressed, prevSelected: before.selected },
     )
-    .catch(() => ({ url: before.url, historyLength: before.historyLength, dialogs: before.dialogs, mut: 0, _p: [] }));
+    .catch(() => ({ url: before.url, historyLength: before.historyLength, dialogs: before.dialogs, mut: 0, sameDocument: false, _p: [] }));
 
   // Re-read the element's aria-* (handle may still be attached).
   const ariaAfter = await handle
@@ -392,7 +394,12 @@ export async function observeButtonEffect(
   // `urlChanged` above is still true, correctly counting it as an observable effect — but does
   // NOT navigate anywhere and must not trigger `goBack()`, which would instead pop the crawler's
   // own prior real navigation and corrupt the rest of the crawl.
-  const realNavigation = after.historyLength > before.historyLength || stripHash(after.url) !== stripHash(before.url);
+  // TASK-116: a same-document, same-path `history.replaceState` that only rewrites the query (the
+  // Portfolio carousel's `?product=` sync) is not a navigation either — going back would leave the route.
+  const samePathReplace =
+    after.sameDocument && after.historyLength === before.historyLength && new URL(after.url).pathname === new URL(before.url).pathname;
+  const realNavigation =
+    after.historyLength > before.historyLength || (stripHash(after.url) !== stripHash(before.url) && !samePathReplace);
   const dialogOpened = after.dialogs > before.dialogs;
   const ariaToggled =
     ariaAfter.expanded !== before.expanded ||

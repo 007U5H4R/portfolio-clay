@@ -1,5 +1,5 @@
 /**
- * Primary nav copy (Design.md §4.1, decision D8 — TKT-71; TKT-101 Dev-90): `Home · Experience · Projects ·
+ * Primary nav copy (Design.md §4.1, decision D8 — TKT-71; TKT-101 Dev-90): `Home · Experience · Portfolio ·
  * Thinking · About · Playground`. Rendered by `PrimaryNav` as header tabs at every width (TASK-112: no hamburger). `Contact` is
  * never a nav item — it is the "Let's connect →" pill, the band and the page CTAs.
  *
@@ -18,7 +18,8 @@ export const navItems: NavItem[] = [
   // TKT-101 (Tushar 2026-09-26): "Work" → "Experience" (the collage timeline at /work); the project
   // index moved to its own "Projects" tab at /projects — six items (Design.md §11 Dev-90).
   { label: "Experience", href: "/work" },
-  { label: "Projects", href: "/projects" },
+  // TASK-116 (Tushar 2026-09-28): the tab reads "Portfolio"; the route stays /projects (spec §1).
+  { label: "Portfolio", href: "/projects" },
   { label: "Thinking", href: "/thinking" },
   { label: "About", href: "/about" },
   { label: "Playground", href: "/playground" }, // D8 — remove this line to return to four items

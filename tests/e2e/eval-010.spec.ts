@@ -172,8 +172,7 @@ test.describe("TKT-83 · deep dive reduced motion", () => {
 // | Section reveal                           | opacity-only, ≈ instant       | route sweep (`.reveal` after a full scroll)    |
 // | Card / button / pill / band-social hover, next-project arrow, row arrow | no transform change | route hover sweep (rules read from the CSSOM) |
 // | Nav / tab underline, CopyButton, progress bar | instant / unaffected     | — (no motion to collapse)                      |
-// | Experience strip chevron                 | instant                       | `/projects` strip test below                   |
-// | Filter change                            | opacity crossfade             | `/projects` filter test below (+ projects.spec)|
+// | Portfolio product / media swap (TASK-116)| instant, no enter animation   | `/projects` product test below (+ projects.spec)|
 // | Ask inline expand                        | instant height, 150 ms opacity| ask-inline.spec.ts (TC-149)                    |
 // | Ask panel / mobile sheet                 | instant; scrim opacity        | Ask panel test below                           |
 // | Show-the-thinking nodes                  | all at once, opacity          | TKT-83 block above                             |
@@ -311,55 +310,29 @@ test.describe("TKT-90c · §8 reduced-motion row sweep", () => {
     expect(result.moved.length, "the sweep must see at least one hover lift when motion is allowed").toBeGreaterThan(0);
   });
 
-  test("@EVAL-010 reduced motion: experience-strip chevron flips instantly (/projects)", {
+  test("@EVAL-010 reduced motion: choosing a product swaps the stage instantly (/projects)", {
     tag: "@EVAL-010",
   }, async ({ page, withReducedMotion }) => {
     test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
     await withReducedMotion(page);
     await page.goto("/projects", { waitUntil: "load" });
-    const summary = page.locator("details summary").filter({ has: page.locator(".job-chev") }).first();
-    await summary.scrollIntoViewIfNeeded();
-    const chev = summary.locator(".job-chev");
-    const before = await chev.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { transform: s.transform, rotate: s.rotate, duration: s.transitionDuration, property: s.transitionProperty };
-    });
-    expect(before.duration.split(",").every((d) => parseFloat(d) * (d.trim().endsWith("ms") ? 1 : 1000) <= DURATION_FLOOR_MS),
-      `chevron transition must be instant (got ${before.duration} on ${before.property})`).toBe(true);
-    await summary.click();
-    const after = await chev.evaluate(async (el) => {
-      await new Promise((r) => requestAnimationFrame(() => r(null)));
-      const s = getComputedStyle(el);
-      return { transform: s.transform, rotate: s.rotate };
-    });
-    expect(after.transform !== before.transform || after.rotate !== before.rotate, "the chevron still flips (state stays visible)").toBe(true);
-  });
-
-  test("@EVAL-010 reduced motion: a filter change never writes a transform (/projects)", {
-    tag: "@EVAL-010",
-  }, async ({ page, withReducedMotion }) => {
-    test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
-    await withReducedMotion(page);
-    await page.goto("/projects", { waitUntil: "load" });
+    // TASK-116: the Portfolio carousel (spec §45) — no media cross-slide, no card spring, no lift.
     const tabs = page.getByRole("tab");
-    expect(await tabs.count(), "/projects has filter tabs").toBeGreaterThan(1);
+    expect(await tabs.count(), "/projects has the product carousel").toBeGreaterThan(1);
     await tabs.nth(1).scrollIntoViewIfNeeded();
-    // Sample every element under the tab panel (inline transforms that `motion` writes) and every
-    // running animation's keyframes for ~20 frames after the click.
     const sampled = page.evaluate(
       () =>
         new Promise<string[]>((resolve) => {
           const seen = new Set<string>();
           let frames = 0;
           const tick = () => {
-            document.querySelectorAll("[role=tabpanel] *").forEach((el) => {
-              const inline = (el as HTMLElement).style?.transform;
-              if (inline && inline !== "none") seen.add(`${el.tagName.toLowerCase()}:${inline}`);
-            });
             document.getAnimations().forEach((a) => {
               const kf = (a.effect as KeyframeEffect | null)?.getKeyframes?.() ?? [];
-              if (kf.some((k) => "transform" in k || "translate" in k || "height" in k)) seen.add(`animation:${JSON.stringify(kf).slice(0, 80)}`);
+              if (kf.some((k) => "transform" in k || "translate" in k || "opacity" in k)) seen.add(`animation:${JSON.stringify(kf).slice(0, 80)}`);
             });
+            const selected = document.querySelector('[role="tab"][aria-selected="true"]');
+            const t = selected ? getComputedStyle(selected).translate : "none";
+            if (t !== "none" && !/^0px( 0px)?$/.test(t)) seen.add(`selected-tab translate:${t}`);
             frames += 1;
             if (frames < 20) requestAnimationFrame(tick);
             else resolve([...seen]);
@@ -368,7 +341,7 @@ test.describe("TKT-90c · §8 reduced-motion row sweep", () => {
         }),
     );
     await tabs.nth(1).click();
-    expect(await sampled, "filter re-sequence is an opacity crossfade only").toEqual([]);
+    expect(await sampled, "the product swap runs no transform/opacity animation under reduced motion").toEqual([]);
     await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
   });
 
