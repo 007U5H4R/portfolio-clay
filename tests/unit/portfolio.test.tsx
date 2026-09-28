@@ -155,6 +155,17 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect((await screen.findByTitle("Beta — demo video")).getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
   });
 
+  it("re-choosing the current product returns it to the pitch poster and stops the player (spec §18)", async () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha — demo video" }));
+    await screen.findByTitle("Alpha — demo video");
+    fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
+    expect(panel()).toHaveAttribute("data-media-mode", "pitch");
+    expect(players(document.body)).toHaveLength(0);
+    expect(screen.getByRole("button", { name: "Play Alpha — pitch video" })).toBeInTheDocument();
+  });
+
   it("hides every unavailable action — no disabled dead buttons (spec §22)", () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("tab", { name: /Gamma/ }));

@@ -24,7 +24,8 @@ const tabId = (id: string) => `pf-tab-${id}`;
  *   activeProductId  the selected product; changing it ALWAYS resets `mediaMode` to "pitch",
  *   mediaMode        "pitch" | "demo", switched only by the panel's Pitch / Demo buttons,
  *   enter            which change produced the current stage (drives the §20 enter transition).
- * The stage is keyed by `product:mode`, so a change unmounts the old player (stopping it) and the new
+ * The stage is keyed by `product:mode:nonce` (the nonce bumps when the current product is chosen
+ * again), so a change unmounts the old player (stopping it) and the new
  * stage starts at its poster — two videos can never play at once (spec §10).
  *
  * Deep link (spec §50): `/projects?product=<id>` is read once on mount (the page stays statically
@@ -37,6 +38,7 @@ export function IndependentProductsShowcase({ products }: IndependentProductsSho
   const [activeProductId, setActiveProductId] = useState<string>(first?.id ?? "");
   const [mediaMode, setMediaMode] = useState<MediaMode>("pitch");
   const [enter, setEnter] = useState<"none" | "product" | "mode">("none");
+  const [stageNonce, setStageNonce] = useState(0);
   const readDeepLink = useRef(false);
 
   useEffect(() => {
@@ -50,7 +52,9 @@ export function IndependentProductsShowcase({ products }: IndependentProductsSho
 
   const selectProduct = useCallback(
     (id: string) => {
-      if (id === activeProductId) return;
+      // Re-choosing the current product still does what spec §18 asks of a thumbnail click: back to
+      // its pitch poster (a fresh stage — any playing video stops), never a silent no-op.
+      if (id === activeProductId) setStageNonce((n) => n + 1);
       setActiveProductId(id);
       setMediaMode("pitch");
       setEnter("product");
@@ -83,7 +87,7 @@ export function IndependentProductsShowcase({ products }: IndependentProductsSho
         data-media-mode={mediaMode}
         data-enter={enter}
       >
-        <MainMediaStage key={`${product.id}:${mediaMode}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} />
+        <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} />
         <ProductInfoPanel
           key={product.id}
           product={product}

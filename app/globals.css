@@ -10984,13 +10984,13 @@ html.lenis body {
   }
   .pf-cover-name {
     font-family: var(--font-display);
-    font-size: 19px;
+    font-size: clamp(15px, 0.55vw + 12px, 19px);
     font-weight: 800;
     line-height: 1.05;
     letter-spacing: -0.01em;
     text-transform: uppercase;
     text-shadow: 2px 2px 0 color-mix(in oklab, var(--pf-accent) 45%, var(--color-ivory));
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .pf-cover-line {
     width: 100%;
@@ -11040,7 +11040,7 @@ html.lenis body {
     align-self: end;
     justify-self: start;
     text-align: left;
-    font-size: clamp(22px, 3.6vw, 52px);
+    font-size: clamp(16px, 3.6vw, 52px);
     text-shadow: 3px 3px 0 color-mix(in oklab, var(--pf-accent) 45%, var(--color-ivory));
   }
   .pf-cover[data-size="stage"] .pf-cover-line {
@@ -11178,8 +11178,17 @@ html.lenis body {
   }
   .pf-carousel-head {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+    gap: 8px 12px;
+  }
+  .pf-count {
+    white-space: nowrap;
+  }
+  @media (max-width: 639px) {
+    .pf-select {
+      flex-basis: 100%;
+    }
   }
   .pf-select,
   .pf-count {
