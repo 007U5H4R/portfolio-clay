@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { formatHex, parse, wcagContrast, type Rgb } from "culori";
+import { converter, formatHex, parse, wcagContrast, type Rgb } from "culori";
 
 /**
  * TKT-72 S72.04 / TC-136 step 1 — the band footer's text pairs (Design.md §2.1) computed with culori
@@ -224,4 +224,36 @@ describe("used text/background pairs — Phase A/B/C (TC-174 step 3)", () => {
   ] as [Tok, Tok, number, string][])("control: %s on %s < %s:1 (%s)", (fg, bg, min) => {
     expect(wcagContrast(T[fg], T[bg])).toBeLessThan(min);
   });
+});
+
+/**
+ * TASK-121 · the Portfolio action strips (rectify spec §6). Each `--strip-*` is an opaque
+ * `color-mix(in oklab, <token> N%, ivory)` (lavender nests the Dev-112 steel/rust mix). The percentages
+ * are parsed from `app/globals.css` and mixed in OKLab here, so a tint change re-runs the math. The strip
+ * label is navy 16 px / 600 and the hint navy-2 14 px — normal text, so 4.5:1.
+ */
+describe("TASK-121 portfolio action strips: navy / navy-2 text on every --strip-* tint (≥ 4.5:1)", () => {
+  const mixOklab = (a: string, b: string, t: number): string => {
+    const A = oklabOf(a);
+    const B = oklabOf(b);
+    return formatHex({ mode: "oklab", l: A.l * t + B.l * (1 - t), a: A.a * t + B.a * (1 - t), b: A.b * t + B.b * (1 - t) });
+  };
+  const oklabOf = (hex: string) => converter("oklab")(hex) as { l: number; a: number; b: number };
+  const strip = (name: string): string => {
+    const nested = new RegExp(`--strip-${name}:\\s*color-mix\\(in oklab, color-mix\\(in oklab, var\\(--color-(\\S+)\\) ([\\d.]+)%, var\\(--color-(\\S+)\\)\\) ([\\d.]+)%, var\\(--color-ivory\\)\\)`).exec(CSS);
+    if (nested) {
+      const inner = mixOklab(authoritative(nested[1]!), authoritative(nested[3]!), Number(nested[2]) / 100);
+      return mixOklab(inner, IVORY, Number(nested[4]) / 100);
+    }
+    const m = new RegExp(`--strip-${name}:\\s*color-mix\\(in oklab, var\\(--color-(\\S+)\\) ([\\d.]+)%, var\\(--color-ivory\\)\\)`).exec(CSS);
+    if (!m) throw new Error(`--strip-${name} is not a color-mix of a paper token on ivory in app/globals.css`);
+    return mixOklab(authoritative(m[1]!), IVORY, Number(m[2]) / 100);
+  };
+  for (const name of ["coral", "blue", "sage", "lavender", "yellow"]) {
+    it(`--strip-${name}`, () => {
+      const bg = strip(name);
+      expect(wcagContrast(authoritative("navy"), bg), `navy on ${name} (${bg})`).toBeGreaterThanOrEqual(4.5);
+      expect(wcagContrast(authoritative("navy-2"), bg), `navy-2 on ${name} (${bg})`).toBeGreaterThanOrEqual(4.5);
+    });
+  }
 });

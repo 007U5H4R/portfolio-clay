@@ -8,6 +8,7 @@ import { PortfolioIntro } from "@/components/portfolio/PortfolioIntro";
 import { enterpriseCases } from "@/data/enterprise";
 import { portfolioEntries } from "@/data/portfolio";
 import { projects } from "@/data/projects";
+import { illustration, type IllustrationId } from "@/lib/illustrations";
 import { buildPortfolioProducts } from "@/lib/portfolio";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -34,7 +35,11 @@ export const metadata: Metadata = buildMetadata({
  * EVAL-018 (Design.md §3.3): products = underline sketch · "choose your build" annotation = 2 decorations;
  * enterprise = torn · "inside larger systems" annotation = 2.
  */
-const products = buildPortfolioProducts(projects, portfolioEntries);
+const products = buildPortfolioProducts(projects, portfolioEntries, (id) => {
+  const entry = illustration(id as IllustrationId);
+  if (!entry.publicSrc) throw new Error(`portfolio: cover art "${id}" has no publicSrc`);
+  return { src: entry.publicSrc, width: entry.width, height: entry.height, alt: entry.alt };
+});
 
 export default function ProjectsPage() {
   return (

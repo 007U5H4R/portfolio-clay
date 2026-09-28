@@ -141,7 +141,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -149,6 +149,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "hero-clip",
         "hero-desk",
         "polaroid-sunrise",
+        "cover-teachspark",
         "scene-about",
         "scene-casestudy",
         "scene-certifications",
@@ -162,7 +163,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(16);
+    expect(ILLUSTRATIONS.length).toBe(17);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -217,6 +218,19 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(bytes.length).toBeLessThanOrEqual(80_000);
     expect(createHash("sha256").update(bytes).digest("hex")).toBe(
       "227b44f94328b3583e0a767e4d61c61219702d3de57801d4af8d56814bac062c",
+    );
+  });
+
+  it("cover-teachspark is the 1120×840 painted cover, ≤ 110 kB, used on /projects (TASK-121)", () => {
+    const cover = ILLUSTRATIONS.find((e) => e.id === "cover-teachspark")!;
+    expect(cover.file).toBe(""); // public-only, served through next/image
+    expect(cover.publicSrc).toBe("/media/illustrations/covers/cover-teachspark.webp");
+    expect([cover.width, cover.height]).toEqual([1120, 840]);
+    expect(cover.usedOn).toEqual(["/projects"]);
+    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "covers", "cover-teachspark.webp"));
+    expect(bytes.length).toBeLessThanOrEqual(110_000);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      "5da86b19320c4895d35235332a1e1368576e1d5f7a26e2e2832f937d4a685cb9",
     );
   });
 
