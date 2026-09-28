@@ -3,10 +3,10 @@ id: TASK-116
 title: >-
   Rebuild Projects into Portfolio: 90s-game product showcase + enterprise case
   files
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-28 02:55'
-updated_date: '2026-09-28 03:10'
+updated_date: '2026-09-28 07:57'
 labels:
   - P1
 dependencies: []
@@ -25,4 +25,6 @@ Tushar 2026-09-28 spec (55 sections): rename Projects -> Portfolio (route kept),
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-09-28: agent assigned (Opus 5.5), worktree Portfolio-m009-task-116, branch m009/task-116, brief docs/briefs/TASK-116.md.
+
+2026-09-28: merged (b45796d…c155042). Full e2e on final tree 1300/0; unit 632; build; /projects JS 164.5 kB; eval 6/0; review fix: cover titles fit (regression test). Dev-109–114. CSP frame-src youtube-nocookie + player.vimeo. Open for Tushar: Vendor Passport, CSP hosts, GitHub-only-public, trim carousel, corporate records only on /work. Follow-up: legacy /projects CSS cleanup.
 <!-- SECTION:NOTES:END -->
