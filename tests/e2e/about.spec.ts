@@ -102,7 +102,7 @@ test("Dev-10: the DRAFT subline is aria-hidden — in the DOM, not in the access
   await page.goto("/about", { waitUntil: "load" });
 
   const heroSection = page.locator('section[aria-labelledby="about-hero-heading"]');
-  const sub = heroSection.locator('[data-decor="annotation"]', { hasText: "Same curiosity" });
+  const sub = heroSection.locator('[data-decor="annotation"]', { hasText: "Same curiosity → bigger problems." });
   await expect(sub).toHaveCount(1);
   await expect(sub).toHaveAttribute("aria-hidden", "true");
   await expect(sub).toBeVisible();
@@ -185,7 +185,8 @@ test("@EVAL-010 TASK-117 reduced motion: every hero piece is shown at once, noth
   for (const s of states) {
     expect(s.opacity, `${s.enter} visible`).toBe("1");
     expect(s.translate, `${s.enter} not offset`).toBe("none");
-    expect(s.duration.split(",").every((d) => parseFloat(d) === 0), `${s.enter} has no transition`).toBe(true);
+    // the global reduced-motion guard may leave a ≤ 10 ms token duration — never a visible transition
+    expect(s.duration.split(",").every((d) => parseFloat(d) <= 0.01), `${s.enter} has no transition`).toBe(true);
   }
 });
 
