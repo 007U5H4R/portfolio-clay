@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import { hero } from "@/data/hero";
 import { PII_PATTERNS } from "@/scripts/forbidden-strings";
 
@@ -66,7 +66,8 @@ describe("BandFooter — landmark + markup (§4.2)", () => {
     expect(footers).toHaveLength(1);
     const footer = footers[0]!;
     expect(footer.getAttribute("aria-labelledby")).toBe("band-h");
-    expect(footer.querySelector("h2#band-h")?.textContent).toMatch(/^Let's build\s*something people can use\.$/);
+    // TASK-118: the heading's accessible text stays one stable sentence (the cycling verbs are aria-hidden).
+    expect(screen.getByRole("heading", { level: 2 })).toHaveAccessibleName(/^Let's build\s*something people can use\.$/);
     const decor = footer.querySelectorAll("[data-decor]");
     expect(decor).toHaveLength(1);
     expect(decor[0]!.getAttribute("data-decor")).toBe("torn");
@@ -169,5 +170,65 @@ describe("TC-137 · the band adds the approved public contact and no PII", () =>
 
   it("positive control: the same rules catch a planted phone number", () => {
     expect(PII_PATTERNS.PHONE.test("call +91 98765 43210")).toBe(true);
+  });
+});
+
+describe("TASK-118 · the band headline's cycling italic verb", () => {
+  type IOCallback = (entries: Array<{ isIntersecting: boolean }>) => void;
+  let ioCallback: IOCallback | null = null;
+
+  function stubBrowser(reduce: boolean) {
+    ioCallback = null;
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn((query: string) => ({ matches: reduce && query.includes("reduce"), media: query })),
+    );
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(cb: IOCallback) {
+          ioCallback = cb;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("stacks the six verbs in order (build → ship → design → fix → create → rethink), all aria-hidden", async () => {
+    const { BAND_VERBS } = await import("@/components/layout/BandVerb");
+    expect(BAND_VERBS).toEqual(["build", "ship", "design", "fix", "create", "rethink"]);
+    const { container } = await renderBand();
+    const h2 = container.querySelector("h2#band-h")!;
+    const stack = h2.querySelector("em .band-verbs")!;
+    expect(stack.getAttribute("aria-hidden")).toBe("true");
+    expect(Array.from(stack.querySelectorAll(".band-verbs-word")).map((w) => w.textContent)).toEqual([...BAND_VERBS]);
+    expect(h2.querySelector("em > .sr-only")?.textContent).toBe("build");
+    expect(h2.querySelector("[aria-live]")).toBeNull();
+    expect(h2.querySelector(".dim")?.textContent).toBe("something people can use.");
+  });
+
+  it("starts cycling only once in view, and pauses when it leaves", async () => {
+    stubBrowser(false);
+    const { container } = await renderBand();
+    const stack = container.querySelector<HTMLElement>(".band-verbs")!;
+    expect(stack.dataset.cycle, "nothing runs before the band is in view").toBeUndefined();
+    act(() => ioCallback!([{ isIntersecting: true }]));
+    expect(stack.dataset.cycle).toBe("run");
+    act(() => ioCallback!([{ isIntersecting: false }]));
+    expect(stack.dataset.cycle).toBe("paused");
+  });
+
+  it("reduced motion: static 'build', never cycles, heading text unchanged", async () => {
+    stubBrowser(true);
+    const { container } = await renderBand();
+    const stack = container.querySelector<HTMLElement>(".band-verbs")!;
+    expect(ioCallback, "no observer is created under reduced motion").toBeNull();
+    expect(stack.dataset.cycle).toBeUndefined();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveAccessibleName(/^Let's build\s*something people can use\.$/);
   });
 });

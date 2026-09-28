@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, within } from "@testing-library/react";
 import { AboutHero, ABOUT_PULL_QUOTE, ABOUT_STATS } from "@/components/about/AboutHero";
 import { CapabilityClusters } from "@/components/about/CapabilityClusters";
@@ -43,39 +43,79 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("AboutHero (S86.01)", () => {
-  it("renders the h1 narrative, the derived stats, the pull-quote and 2 decorations", () => {
+describe("AboutHero (TASK-117 — Tushar's About hero spec 2026-09-28)", () => {
+  // The grid's entrance wrapper (`ContactEntrance`) observes on mount; jsdom has no IntersectionObserver.
+  beforeEach(() => mockMatchMedia(false));
+
+  it("renders the spec §30 copy: eyebrow, the three-line h1 (third line terracotta), quote, caption, Venn, checklist", () => {
     const { container } = render(<AboutHero />);
     const section = container.querySelector("section")!;
+    expect(section.querySelector(".ahero-eyebrow")).toHaveTextContent("About Senior Product Manager");
     const h1 = within(section).getByRole("heading", { level: 1 });
-    expect(h1).toHaveTextContent("I started with machines.Then systems. Then people.Now, intelligent products.");
-
-    const earliest = Math.min(...experience.map((r) => Number(r.dates.start.slice(0, 4))));
-    expect(ABOUT_STATS[0].value).toBe(`${2026 - earliest}+`);
-    for (const stat of ABOUT_STATS) {
-      expect(section).toHaveTextContent(stat.value);
-      expect(section).toHaveTextContent(stat.label);
-    }
-    expect(section).toHaveTextContent(`counted from ${earliest}`);
+    expect(h1).toHaveTextContent("I started with machines. Then systems. Then people. Now, intelligent products.");
+    expect(h1.querySelector(".ahero-now")).toHaveTextContent("Now, intelligent products.");
+    expect(within(section).getAllByRole("heading")).toHaveLength(1); // no duplicate headings (spec §31)
 
     const quote = section.querySelector('blockquote[data-hand="quote"]')!;
-    expect(quote).toHaveTextContent(ABOUT_PULL_QUOTE);
-    expect(quote.closest('[data-paper="index"]')).not.toBeNull();
+    expect(quote).toHaveTextContent(`“${ABOUT_PULL_QUOTE}”`);
     expect(quote.closest('[data-paper="index"]')!.textContent).toContain("Source: Tushar Pathak");
-    expect(section.querySelector('[data-paper="card"] [data-fastener="tape"]')).not.toBeNull();
     expect(section.querySelector('[data-paper="index"] [data-fastener="pin"]')).not.toBeNull();
 
-    expect(decorCount(section)).toBe(2);
-    expect(section.querySelectorAll("img")).toHaveLength(0); // the scene is the page's SceneOpener (Dev-24)
+    const polaroid = section.querySelector('figure[data-illustration="polaroid-sunrise"][data-paper="photo"]')!;
+    expect(polaroid.querySelector("figcaption")).toHaveTextContent("Bigger problems. Brighter mornings.");
+    expect(polaroid.querySelector("img")!.getAttribute("alt")).toMatch(/^Illustration of a watercolour sunrise/);
+    expect(polaroid.querySelector("img")).toHaveAttribute("loading", "lazy"); // never the LCP (the opener is)
+
+    const venn = section.querySelector('svg.ahero-venn[role="img"]')!;
+    expect(venn.querySelector("title")).toHaveTextContent("People, Products and Intelligent Systems");
+    for (const label of ["People", "Products", "Intelligent", "Systems"]) expect(venn).toHaveTextContent(label);
+    // Caveat checklist is aria-hidden; its sr-only twin carries the words (no info only in handwriting, spec §26).
+    const twin = section.querySelector("ul.sr-only")!;
+    expect(Array.from(twin.querySelectorAll("li")).map((li) => li.textContent)).toEqual([
+      "Better tools",
+      "More capable people",
+      "A more thoughtful future",
+    ]);
+    expect(section.querySelector("ul.ahero-checklist")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("keeps the DRAFT subline out of the accessibility tree (Dev-10)", () => {
+  it("derives the stats (10+ · 3 · ∞) and the footnote from data/experience.ts", () => {
     const { container } = render(<AboutHero />);
+    const section = container.querySelector("section")!;
+    const earliest = Math.min(...experience.map((r) => Number(r.dates.start.slice(0, 4))));
+    expect(earliest).toBe(2016);
+    expect(ABOUT_STATS.map((s) => s.value)).toEqual([`${2026 - earliest}+`, "3", "∞"]);
+    expect(ABOUT_STATS[0].value).toBe("10+");
+    const items = within(section).getByRole("list", { name: "Three quick facts" }).querySelectorAll("li");
+    expect(Array.from(items).map((li) => li.textContent)).toEqual([
+      "10+years building products",
+      "3industries — physical → cloud → AI",
+      "∞curiosity",
+    ]);
+    expect(section.querySelector(".ahero-how")).toHaveTextContent(
+      "counted from 2016 — the “+” is because the American Express role is still open",
+    );
+    expect(section.querySelector('[data-paper="card"] [data-fastener="tape"]')).not.toBeNull();
+  });
+
+  it("shows no draft label anywhere in the hero (spec §5)", () => {
+    const { container } = render(<AboutHero />);
+    const section = container.querySelector("section")!;
+    expect(section.querySelectorAll(".draft-tag")).toHaveLength(0);
+    expect(section.textContent).not.toMatch(/draft|pending sign-off/i);
+  });
+
+  it("counts 4 decorations (3 annotations + the sprig collage), all aria-hidden; the Dev-10 subline stays out of the a11y tree", () => {
+    const { container } = render(<AboutHero />);
+    const section = container.querySelector("section")!;
+    expect(decorCount(section)).toBe(4);
+    const decor = Array.from(section.querySelectorAll("[data-decor]"));
+    expect(decor.map((d) => d.getAttribute("data-decor"))).toEqual(["annotation", "annotation", "collage", "annotation"]);
+    for (const d of decor) expect(d).toHaveAttribute("aria-hidden", "true");
     const sub = Array.from(container.querySelectorAll("p")).find((p) => p.textContent?.includes("Same curiosity"))!;
     expect(sub).toHaveAttribute("aria-hidden", "true");
     expect(sub).toHaveAttribute("data-decor", "annotation");
-    // Two DraftTags: the h1 and the pull-quote.
-    expect(container.querySelectorAll(".draft-tag")).toHaveLength(2);
+    expect(section.querySelector('[data-decor="collage"] img')).toHaveAttribute("alt", "");
   });
 });
 

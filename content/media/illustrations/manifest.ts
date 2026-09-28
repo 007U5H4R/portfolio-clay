@@ -11,11 +11,12 @@
  * long edge, not width, is 2336/2240 in the master).
  * TKT-107 (Dev-95): the six scenes are now 3168×1344 (21:9) Higgsfield outpaints — the home banner's size.
  * TASK-114 (Dev-103/104): two new scenes for `/work` and `/certifications`, encoded the same way at the same size.
+ * TASK-117: `polaroid-sunrise`, the `/about` hero polaroid (a landscape without the character, public-only).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -185,5 +186,20 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 560,
     alt: "Tushky, the golden retriever portfolio assistant, resting his paws on the page in a navy bandana lettered Tushky",
     usedOn: ["/"],
+  },
+  {
+    // TASK-117 (Design.md §11, Tushar's About hero spec 2026-09-28 §13): the `/about` hero polaroid — a
+    // text-free watercolour mountain sunrise with no people, in the scenes' style (Higgsfield
+    // `gpt_image_2_5`, job 0d16b793-…, style reference = the `scene-about` outpaint input). Served from
+    // public/ (560×700 WebP, ≈ 2× its largest rendered width) through `Illustration placement="photo"`,
+    // lazy — never the LCP (the opener is). A meaningful image (spec §26), so it has a real alt.
+    id: "polaroid-sunrise",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/polaroid-sunrise.webp",
+    width: 560,
+    height: 700,
+    alt: "Illustration of a watercolour sunrise over snow-capped mountains, misty pine valleys and a hillside path.",
+    usedOn: ["/about"],
   },
 ];
