@@ -64,7 +64,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     file: "scene-work.jpg",
     width: 3168,
     height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
-    alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below.",
+    alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below — beside a quiet studio corner: a wooden bookshelf, trailing and potted plants, and sketches, swatches and landscapes taped to the wall.",
     usedOn: ["/projects", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
