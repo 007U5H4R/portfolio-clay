@@ -15,7 +15,7 @@ outpaints — the six scenes to 21:9 plus one retry each for `scene-thinking` an
 | `hero-desk` | `hero-desk.webp` | poster | `gpt_image_2_5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Tushar at a warm desk — laptop, notebook, books, plant, lamp, pinned notes reading the six-stage process | 2026-09-23 | 1 | `/` (the clip's `poster` attribute only since TKT-93) | `f1eb1605d725eba8db2bff344af78d1d0eddabfce976d5f809c4767a4c777b14` |
 | `hero-banner` | `hero-banner.webp` | scene | `outpaint` (Higgsfield) | input media `fc45d649-4038-4558-bd41-b659db56a9d3` (= `hero-poster.png`); job `6d94caf5-1a14-4151-9864-050b6a193615` | 21:9 outpaint of `hero-desk` to 3168×1344 for the full-bleed home banner (EXE-15, Dev-21/Dev-23); the clip registers on it at scale 1.912, x 362, y 6. **TKT-105:** all painted text removed except the book titles ("Systems" → "System Thinking"). `gpt_image_2_5` edit job `f32bd259-63f4-499f-bfd2-5f38698e0389` (input media `aa87a509-8281-41cd-b2eb-d8a2ecf90be8`) was composited only inside the text regions; no other pixel changed | 2026-09-25 · 2026-09-26 (TKT-105) | 2 + 4.25 | `/` | — |
 | `hero-clip` | `hero-animation.webm`/`.mp4` (public) | clip | `Seedance 2.5` | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1` | Single `generate_video`, 16:9 source, clip A trimmed to 2.5 s — Tushar thinking at his desk and turning a pen, plays once | 2026-09-24 | 1 | `/` | — |
-| `scene-work` | `scene-work.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `f0bd71db-95b3-4388-8ac0-f4138749b535` (= `scene-work.png`), job `1ca3b494-4789-4200-9c58-059aa89212f6` | Tushar pinning a product sketch to a corkboard covered in wireframes, flow diagrams, sticky notes and small landscape photos | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 | `/work`, `/` (decorative polaroid crop) | — |
+| `scene-work` | `scene-work.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `f0bd71db-95b3-4388-8ac0-f4138749b535` (= `scene-work.png`), job `1ca3b494-4789-4200-9c58-059aa89212f6` | Tushar pinning a product sketch to a corkboard covered in wireframes, flow diagrams, sticky notes and small landscape photos | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) · 2026-09-28 (left studio corner composited from Tushar's reference, TASK-119) | 1 + 2 + 0 | `/work`, `/` (decorative polaroid crop) | — |
 | `scene-casestudy` | `scene-casestudy.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `0b9c5e58-dfba-4d10-b7b4-7565b15c723e` (= `scene-casestudy.png`), job `f89e058d-c570-4fd7-a433-6297e7888de0` | Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug, a mug and a stack of books | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 | `/work/[slug]` | — |
 | `scene-about` | `scene-about.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `c0e1ecc2-5abd-4f52-9ec2-6d99d8b49927` (= `scene-about.png`), job `5b1a209f-e295-4bc7-a79e-bedd682918e0` (shipped); retry job `42bcf7df-9b6f-4894-83a7-85a5b659cd42` (input `82a6ba90-95f1-4549-9fda-79f54c954401`, rejected) | Tushar from behind on a hillside path at dawn, coffee and notebook, pine forest towards a snow-capped mountain horizon | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 + 2 | `/about`, `/` (decorative polaroid crop) | — |
 | `scene-thinking` | `scene-thinking.jpg` | scene | `gpt_image_2_5` + `outpaint` (Higgsfield, 21:9) | `df5cca50-08c2-4588-9c0a-33f5fbd1a859`, `f49a95f5-6069-4131-85b7-c0283d000ee1`; outpaint input media `2c430d2a-d5f2-48c6-aefa-96ab9d0aca7a` (= `scene-thinking.png` cropped to 3:2, 40 px off the top / 147 px off the bottom, resized to 2016×1344), job `30ccdf16-b23f-476e-9be2-f59dfb3780b1` (shipped); first job `d8f44314-d776-4a8d-8c87-afe88d00e2c4` (input `ceb84636-bfe5-4120-851f-cf15ee08de3b`, rejected — re-scaled the figure and redrew the desk) | Tushar writing in an open notebook at a wooden desk by a window — lamp, tea, stacked books, plant, sketched flow diagram | 2026-09-23 (scene) · 2026-09-26 (21:9 outpaint, TKT-107) | 1 + 2 + 2 | `/thinking`, `/thinking/[slug]` | — |
@@ -284,3 +284,32 @@ above:
 Encoded with PIL from the 1024×1024 RGBA master (`/Volumes/E Drive/Dev/.scratch/m009/hf/tushky-dog-head.png`):
 alpha < 48 → 0 (drops the faint generation halo), cropped to the alpha bbox, centred on a square
 transparent canvas, Lanczos → 128×128 (2× the 64 px display), `WEBP quality 85, method 6`, **7,932 bytes**.
+
+### TASK-119 · `scene-work` left studio corner (Tushar 2026-09-28)
+
+Tushar's spec and references: `docs/redesign-mockups/m-009/tushar-2026-09-28/` (`projects-scene-left-spec.md`,
+`projects-scene-left-target.png` — his own ChatGPT composition, 1672×941). The empty left wall of `scene-work` now
+carries his reference's left cluster (bookshelf, trailing pothos, taped vision wall, floor plant). **No Higgsfield
+credits were spent** — it is a composite, not a generation:
+
+1. The reference's rows 0–895 (above its torn-paper foot) were scaled ×1.5017 (Lanczos) to the scene's 1344 px height.
+2. An object mask (pixels > 28 away from the wall tone, holes filled, clipped to the cluster, x < 1093) was dilated
+   and feathered (≈ 14 px Gaussian), so only the objects and their shadows land on the scene's own wall
+   (the two walls measure within 1–3 levels per channel, so no colour shift was applied).
+3. §18 no text: the painted marks on eight book spines (bands, lines, label plates) were replaced by a vertical
+   box blur of the spine with a light grain; the paper pieces carry no letters.
+4. Only the left 1152 px (72 JPEG MCUs) of `scene-work.jpg` were replaced, with `jpegtran -drop +0+0 -trim`
+   (the left block encoded by `cjpeg -quality 82 -sample 2x2`): the DCT blocks from x = 1152 on are the original
+   ones, so decoded pixels are identical from x = 1153 to the right edge (max delta 0; column 1152 differs by
+   ≤ 2 from chroma upsampling). The person starts at x ≈ 1330.
+
+New lossless master: `Portfolio-illustration/illustrations/scenes/wide21/scene-work-21x9-task119.png` (the TKT-107
+master with its left 1152 px replaced; sha256 `36a165cc3261c5a45bda5c7beb8f148801ba22c1878d574cae8637e7f80bb735`).
+The narrow rendition was re-cut from it exactly as before (crop 830, 1824 at focal 0.55, full height,
+`webp({ quality: 86, effort: 6, smartSubsample: true })`). Scripts: `/Volumes/E Drive/Dev/.scratch/m009/task-119/`
+(`compose.py`, `paintout.py`).
+
+| file | bytes | sha256 |
+|---|---|---|
+| `scene-work.jpg` | 499,977 | `8fb709bed4310bee65a52428a97753c1cd1dd2cc518761c00668fd9831439b34` |
+| `scene-work-mobile.webp` | 282,638 | `327a5d00a587beaf0fe0be93431acbe3cb1655798707153b2ab826e26617027a` |
