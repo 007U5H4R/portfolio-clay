@@ -28,34 +28,57 @@ const width = (page: import("@playwright/test").Page) => page.viewportSize()?.wi
 const SCENE_ABOUT_ALT = ILLUSTRATIONS.find((entry) => entry.id === "scene-about")!.alt;
 
 // ---------------------------------------------------------------------------
-// AboutHero — TKT-86 (TC-166): h1 narrative + DraftTag, Dev-10 subline out of the a11y tree, taped
-// stats card, pinned pull-quote; the scene is TKT-95's opener above (Dev-24) — one scene <img>.
+// AboutHero — TASK-117 (Tushar's About hero spec 2026-09-28, which superseded the TKT-86 hero): h1
+// narrative, no draft labels, derived stats card, pinned philosophy note, polaroid, Venn notebook;
+// the scene is TKT-95's opener above (Dev-24) — one scene <img>, never inside the hero.
 // ---------------------------------------------------------------------------
-test("AboutHero renders the h1 narrative, stats card and pull-quote; the scene renders once, in the opener", async ({
+test("AboutHero renders the spec copy, the stats card, the quote note, the polaroid and the Venn; the scene renders once, in the opener", async ({
   page,
 }) => {
   await page.goto("/about", { waitUntil: "load" });
 
   const heroSection = page.locator('section[aria-labelledby="about-hero-heading"]');
+  await expect(heroSection.locator(".ahero-eyebrow")).toHaveText(/About\s+Senior Product Manager/);
   const h1 = page.getByRole("heading", { level: 1 });
   await expect(h1).toContainText("I started with machines.");
+  await expect(h1).toContainText("Then systems. Then people.");
   await expect(h1).toContainText("Now, intelligent products.");
-  await expect(heroSection.getByText("Draft — pending sign-off").first()).toBeVisible();
+  // Spec §4: the culminating line is terracotta (rust), the first two navy.
+  const [nowColour, lineColour] = await Promise.all([
+    h1.locator(".ahero-now").evaluate((el) => getComputedStyle(el).color),
+    h1.locator(".ahero-line").first().evaluate((el) => getComputedStyle(el).color),
+  ]);
+  expect(nowColour).not.toBe(lineColour);
 
-  // Stats card (derived from data/experience.ts + data/impact.ts — see AboutHero.tsx docstring).
+  // Stats card (derived from data/experience.ts + data/impact.ts — see about-hero-data.ts).
   const stats = heroSection.getByRole("list", { name: "Three quick facts" });
   await expect(stats.getByRole("listitem")).toHaveCount(3);
-  await expect(stats).toContainText("years building products");
-  await expect(stats).toContainText("industries");
-  await expect(heroSection).toContainText("counted from 2016");
+  await expect(stats.getByRole("listitem").nth(0)).toContainText("10+");
+  await expect(stats.getByRole("listitem").nth(0)).toContainText("years building products");
+  await expect(stats.getByRole("listitem").nth(1)).toContainText("3");
+  await expect(stats.getByRole("listitem").nth(1)).toContainText("industries — physical → cloud → AI");
+  await expect(stats.getByRole("listitem").nth(2)).toContainText("∞");
+  await expect(stats.getByRole("listitem").nth(2)).toContainText("curiosity");
+  await expect(heroSection).toContainText("counted from 2016 — the “+” is because the American Express role is still open");
 
-  // Pull-quote on the pinned index card, with its (sr-only) source.
+  // Pull-quote on the pinned note, with its (sr-only) source.
   const quote = heroSection.locator('[data-paper="index"] blockquote[data-hand="quote"]');
   await expect(quote).toContainText("I build at the intersection of people, products and intelligent systems.");
 
+  // Polaroid (manifest `polaroid-sunrise`) + its caption; the Venn is a labelled figure.
+  const polaroid = heroSection.locator('figure[data-illustration="polaroid-sunrise"]');
+  await expect(polaroid.locator("img")).toHaveAttribute("alt", /^Illustration of a watercolour sunrise/);
+  await expect(polaroid.locator("figcaption")).toHaveText("Bigger problems. Brighter mornings.");
+  await expect(heroSection.getByRole("img", { name: /Venn diagram: People, Products and Intelligent Systems/ })).toHaveCount(1);
+  for (const item of ["Better tools", "More capable people", "A more thoughtful future"]) {
+    await expect(heroSection.locator("ul.sr-only")).toContainText(item);
+  }
+
   // TKT-95 (EXE-18) + Dev-24: `scene-about` renders exactly once, as the opener's <img> with the
-  // manifest alt — never inside the hero section, never as caption text.
-  await expect(heroSection.locator("img")).toHaveCount(0);
+  // manifest alt — never inside the hero section, never as caption text. The hero holds exactly two
+  // images: the polaroid and the decorative sprig (alt="").
+  await expect(heroSection.locator("img")).toHaveCount(2);
+  await expect(heroSection.locator('[data-decor="collage"] img')).toHaveAttribute("alt", "");
   await expect(heroSection.getByText(SCENE_ABOUT_ALT)).toHaveCount(0);
   await expect(page.locator(`main img[alt="${SCENE_ABOUT_ALT}"]`)).toHaveCount(1);
   await expect(page.locator('[data-opener="scene-about"] img')).toHaveAttribute("alt", SCENE_ABOUT_ALT);
@@ -63,6 +86,15 @@ test("AboutHero renders the h1 narrative, stats card and pull-quote; the scene r
   // No proof-tile stack (home Hero's former "AI Products / People / Progress" tiles, removed at TSK-38).
   await expect(heroSection.getByText("AI Products", { exact: true })).toHaveCount(0);
   await expect(heroSection.getByText("Progress", { exact: true })).toHaveCount(0);
+});
+
+test("TASK-117: the hero shows no draft label (spec §5) — other sections keep theirs", async ({ page }) => {
+  test.skip(width(page) !== 390 && width(page) !== 1440, "markup is width-independent; checked at 390 and 1440");
+  await page.goto("/about", { waitUntil: "load" });
+  const heroSection = page.locator('section[aria-labelledby="about-hero-heading"]');
+  await expect(heroSection.locator(".draft-tag")).toHaveCount(0);
+  await expect(heroSection.getByText(/draft|pending sign-off/i)).toHaveCount(0);
+  await expect(page.locator("#journey .draft-tag")).toHaveCount(1); // untouched outside the hero
 });
 
 test("Dev-10: the DRAFT subline is aria-hidden — in the DOM, not in the accessibility tree", async ({ page }) => {
@@ -80,25 +112,92 @@ test("Dev-10: the DRAFT subline is aria-hidden — in the DOM, not in the access
   expect(snapshot).toContain("I started with machines.");
 });
 
-test("AboutHero stats go 2-up at ≤ 640 and the quote stacks under them at < 900", async ({ page }) => {
+test("AboutHero layout: stats 3-up at every width; ≥ 900 two columns (collage right), < 900 one column in spec §24 order", async ({
+  page,
+}) => {
   await page.goto("/about", { waitUntil: "load" });
   const items = page.getByRole("list", { name: "Three quick facts" }).getByRole("listitem");
   const [a, b, c] = await Promise.all([0, 1, 2].map((i) => items.nth(i).boundingBox()));
   expect(a && b && c).toBeTruthy();
-  if (width(page) <= 640) {
-    // The card is tilted (−0.7°), so "same row" allows half an item's height of drift.
-    expect(Math.abs(a!.y - b!.y), "stats 1 and 2 share a row").toBeLessThan(a!.height / 2);
-    expect(c!.y, "stat 3 wraps to its own row").toBeGreaterThan(a!.y + a!.height - 1);
-  } else {
-    expect(Math.abs(a!.y - c!.y), "three stats in one row").toBeLessThan(a!.height / 2);
-  }
-  const statsBox = await page.locator(".ahero-stats").boundingBox();
-  const quoteBox = await page.locator(".ahero-quote").boundingBox();
+  expect(Math.abs(a!.y - c!.y), "three stats in one row").toBeLessThan(a!.height / 2);
+
+  const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
+  const stats = await box(".ahero-stats");
+  const quote = await box(".ahero-quote");
+  const polaroid = await box(".ahero-polaroid");
+  const notebook = await box(".ahero-notebook");
+  const personal = await box(".ahero-personal");
+  const h1 = await box(".ahero-h1");
   if (width(page) < 900) {
-    expect(quoteBox!.y, "quote stacks below the stats card").toBeGreaterThan(statsBox!.y + statsBox!.height - 1);
+    // eyebrow → h1 → subline → stats → quote → polaroid → notebook → personal note
+    expect(stats.y, "stats under the h1").toBeGreaterThan(h1.y + h1.height - 1);
+    expect(quote.y, "quote stacks below the stats card").toBeGreaterThan(stats.y + stats.height - 1);
+    expect(polaroid.y, "polaroid below the quote").toBeGreaterThan(quote.y);
+    expect(notebook.y, "notebook not above the polaroid").toBeGreaterThanOrEqual(polaroid.y - 40);
+    expect(personal.y, "personal note last").toBeGreaterThan(Math.max(notebook.y + notebook.height, polaroid.y + polaroid.height) - 1);
   } else {
-    expect(quoteBox!.x, "quote sits beside the stats card").toBeGreaterThan(statsBox!.x + statsBox!.width - 1);
+    expect(quote.x, "quote sits beside the stats card").toBeGreaterThan(stats.x + stats.width - 1);
+    expect(personal.y, "personal note under the stats card").toBeGreaterThan(stats.y + stats.height - 1);
   }
+});
+
+test("TASK-117: no horizontal overflow and no overlapping text in the hero", async ({ page }) => {
+  await page.goto("/about", { waitUntil: "load" });
+  const hero = page.locator('section[aria-labelledby="about-hero-heading"]');
+  await hero.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1400); // entrance done
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow, "no horizontal page scroll").toBeLessThanOrEqual(0);
+
+  // Text blocks never intersect each other (rotated paper may overlap paper, never text over text).
+  const overlaps = await hero.evaluate((section) => {
+    const sel = ".ahero-eyebrow, .ahero-h1, .ahero-sub, .ahero-stat-list, .ahero-how, .ahero-personal, .ahero-quote blockquote, .ahero-polaroid-cap, .ahero-venn, .ahero-checklist, .ahero-still";
+    const els = Array.from(section.querySelectorAll(sel));
+    const rects = els.map((el) => ({ el: el.className.toString() || el.tagName, r: el.getBoundingClientRect() }));
+    const out: string[] = [];
+    for (let i = 0; i < rects.length; i++)
+      for (let j = i + 1; j < rects.length; j++) {
+        const p = rects[i]!.r;
+        const q = rects[j]!.r;
+        const ix = Math.min(p.right, q.right) - Math.max(p.left, q.left);
+        const iy = Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top);
+        if (ix > 2 && iy > 2) out.push(`${rects[i]!.el} × ${rects[j]!.el}`);
+      }
+    return out;
+  });
+  expect(overlaps).toEqual([]);
+});
+
+test("@EVAL-010 TASK-117 reduced motion: every hero piece is shown at once, nothing transitions", {
+  tag: "@EVAL-010",
+}, async ({ page, withReducedMotion }) => {
+  test.skip(width(page) !== 390 && width(page) !== 1440, "checked at 390 and 1440");
+  await withReducedMotion(page);
+  await page.goto("/about", { waitUntil: "load" });
+  const pieces = page.locator('section[aria-labelledby="about-hero-heading"] [data-enter]');
+  expect(await pieces.count()).toBeGreaterThanOrEqual(9);
+  const states = await pieces.evaluateAll((els) =>
+    els.map((el) => {
+      const cs = getComputedStyle(el);
+      return { enter: el.getAttribute("data-enter"), opacity: cs.opacity, translate: cs.translate, duration: cs.transitionDuration };
+    }),
+  );
+  for (const s of states) {
+    expect(s.opacity, `${s.enter} visible`).toBe("1");
+    expect(s.translate, `${s.enter} not offset`).toBe("none");
+    expect(s.duration.split(",").every((d) => parseFloat(d) === 0), `${s.enter} has no transition`).toBe(true);
+  }
+});
+
+test("TASK-117 entrance: with motion allowed the hero pieces settle visible once in view", async ({ page }) => {
+  test.skip(width(page) !== 1440, "entrance timing is width-independent; checked at 1440");
+  await page.goto("/about", { waitUntil: "load" });
+  const grid = page.locator(".ahero-grid");
+  await grid.scrollIntoViewIfNeeded();
+  await expect(grid).toHaveAttribute("data-in", "");
+  await page.waitForTimeout(1300);
+  const opacities = await grid.locator("[data-enter]").evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
+  expect(opacities.every((o) => o === "1")).toBe(true);
 });
 
 // ---------------------------------------------------------------------------

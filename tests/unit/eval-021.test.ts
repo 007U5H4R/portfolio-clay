@@ -141,13 +141,14 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
         "hero-banner",
         "hero-clip",
         "hero-desk",
+        "polaroid-sunrise",
         "scene-about",
         "scene-casestudy",
         "scene-certifications",
@@ -161,7 +162,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(15);
+    expect(ILLUSTRATIONS.length).toBe(16);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -202,6 +203,20 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(bytes.length).toBeLessThanOrEqual(60_000);
     expect(createHash("sha256").update(bytes).digest("hex")).toBe(
       "c53acabcff5beb5ce52a390b579138a8ceadd5fa3f03e6e2f058f0bca9f23dc4",
+    );
+  });
+
+  it("polaroid-sunrise is the 560×700 /about hero polaroid, ≤ 80 kB, with a real alt (TASK-117)", () => {
+    const polaroid = ILLUSTRATIONS.find((e) => e.id === "polaroid-sunrise")!;
+    expect(polaroid.file).toBe(""); // public-only; rendered through `Illustration placement="photo"`
+    expect(polaroid.publicSrc).toBe("/media/illustrations/polaroid-sunrise.webp");
+    expect([polaroid.width, polaroid.height]).toEqual([560, 700]);
+    expect(polaroid.usedOn).toEqual(["/about"]);
+    expect(polaroid.alt).toMatch(/^Illustration of a watercolour sunrise/);
+    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "polaroid-sunrise.webp"));
+    expect(bytes.length).toBeLessThanOrEqual(80_000);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      "227b44f94328b3583e0a767e4d61c61219702d3de57801d4af8d56814bac062c",
     );
   });
 
