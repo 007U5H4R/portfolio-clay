@@ -28,7 +28,8 @@ function sourceLine(sources: EnterpriseCase["sources"]): string {
  * Each card is content paper (`data-paper="card"`, not counted) clipped into a manila folder: the
  * folder's tab carries a neutral "Case file 0N" stamp (says nothing factual), then client (h3),
  * program, a 1–2 sentence summary, the grouped sub-projects (names only — the detail stays in
- * `data/enterprise.ts`), 4–6 tags, and a quiet file footer (role · dates, then the source line). The
+ * `data/enterprise.ts`), 4–6 tags, and a quiet file foot (role · dates, then the source line) — a plain
+ * `div`, not a `<footer>`: each route keeps exactly one footer, the band (layout.spec). The
  * folder, paperclip and tab are the card's own CSS material. No "Open case file →" CTA: no detail
  * page exists, so it would be a dead link (spec §34).
  *
@@ -72,12 +73,12 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
                     <li key={tag}>{tag}</li>
                   ))}
                 </ul>
-                <footer className="pf-case-foot">
+                <div className="pf-case-foot">
                   <p className="pf-case-role">
                     {item.role} · {formatRange(item.period)}
                   </p>
                   <p className="pf-case-source">Source: {sourceLine(item.sources)}</p>
-                </footer>
+                </div>
               </Sheet>
             </li>
           ))}
