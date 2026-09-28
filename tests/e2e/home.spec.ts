@@ -106,7 +106,8 @@ test("@EVAL-011 band footer renders its headline + live contact controls", async
   await page.goto("/", { waitUntil: "load" });
 
   const band = page.locator("footer.band");
-  await expect(band.locator("h2#band-h")).toHaveText(/^Let.s build\s*something people can use\.$/);
+  // TASK-118: the italic verb cycles visually; the heading's accessible text stays one stable sentence.
+  await expect(band.locator("h2#band-h")).toHaveAccessibleName(/^Let.s build\s*something people can use\.$/);
   await expect(band.getByRole("link", { name: site.email })).toHaveAttribute("href", "/contact");
   await expect(band.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", site.linkedin);
   await expect(band.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", site.github);

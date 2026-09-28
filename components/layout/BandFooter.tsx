@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BandVerb } from "@/components/layout/BandVerb";
 import { Container } from "@/components/layout/Container";
 import { DraftTag, Hand, TornEdge } from "@/components/paper";
 import { hero } from "@/data/hero";
@@ -23,6 +24,9 @@ export function showGithub(): boolean {
  * quote (S18 — previously defined but never rendered) and "Bengaluru, India" behind
  * `site.showLocation` (default false, HANDOFF §6).
  *
+ * The italic verb cycles build → ship → design → fix → create → rethink (`BandVerb`, TASK-118); the
+ * heading's accessible text stays "Let's build something people can use.".
+ *
  * Only the approved public contact (email → `/contact`, LinkedIn) appears — no phone/DOB/address
  * (EXE-8). The résumé circle derives from `resumeAction()` (PB5). The D8-fallback "Playground" band
  * link is deliberately not added (D8 default = five-item header nav; E-20: it would be one `<li>`).
@@ -38,7 +42,7 @@ export function BandFooter() {
         <Container className="band-wrap">
           <p className="band-eyebrow">Let&apos;s connect</p>
           <h2 id="band-h" className="band-h">
-            Let&apos;s <em>build</em>
+            Let&apos;s <BandVerb />
             <br />
             <span className="dim">something people can use.</span>
           </h2>
