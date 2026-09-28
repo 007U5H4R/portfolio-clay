@@ -49,8 +49,8 @@ export interface Collections {
   knowledge: KnowledgeEntryT[];
   thinkingFramework: ThinkingStageDefT[];
   /** TASK-116: the /projects carousel extras + the enterprise case files. Optional so older fixtures still type-check. */
-  portfolio?: PortfolioEntryT[];
-  enterprise?: EnterpriseCaseT[];
+  portfolio?: PortfolioEntryT[] | undefined;
+  enterprise?: EnterpriseCaseT[] | undefined;
 }
 
 /** Live collections. */

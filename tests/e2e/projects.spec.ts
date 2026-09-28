@@ -270,10 +270,14 @@ test("@EVAL-018 /projects: one scene img; decoration counts products 2 / enterpr
   expect(counts).toEqual({ products: 2, enterprise: 2 });
 });
 
-test("@EVAL-006 /projects is axe-clean (default and a selected non-default product)", { tag: "@EVAL-006" }, async ({ page, axe }) => {
+test("@EVAL-006 /projects is axe-clean", { tag: "@EVAL-006" }, async ({ page, axe }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "axe run at the two boundary widths");
   await page.goto("/projects", { waitUntil: "load" });
   await axe(page);
+});
+
+test("@EVAL-006 /projects is axe-clean with a non-default product selected", { tag: "@EVAL-006" }, async ({ page, axe }) => {
+  test.skip(width(page) !== 390 && width(page) !== 1440, "axe run at the two boundary widths");
   await page.goto("/projects?product=dino-arcade-pwa", { waitUntil: "load" });
   await expect(panel(page)).toHaveAttribute("data-active-product", "dino-arcade-pwa");
   await axe(page);

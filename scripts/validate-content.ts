@@ -15,7 +15,7 @@ import { invalidProject } from "@/tests/fixtures/invalid-project.fixture";
 const fixtureMode = process.env.CONTENT_FIXTURE === "invalid";
 
 const cols: Collections = fixtureMode
-  ? { ...collections, projects: [invalidProject as unknown as Project] }
+  ? { ...collections, projects: [invalidProject as unknown as Project], portfolio: undefined } // TASK-116: only the planted project issues
   : collections;
 
 const result = validateAll(cols);
