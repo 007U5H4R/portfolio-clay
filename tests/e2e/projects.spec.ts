@@ -168,6 +168,29 @@ test("@EVAL-011 actions: only what exists renders; external links open a new tab
   await expect(page.locator("video, iframe")).toHaveCount(0);
 });
 
+test("TASK-125 RailCite plays its real YouTube pitch, then its demo, in the same stage — one iframe at a time", async ({ page }) => {
+  test.skip(width(page) !== 1440, "real-embed flow checked once at w1440 (loads youtube-nocookie over the network)");
+  await page.goto("/projects?product=railcite", { waitUntil: "load" });
+  await hydrated(page);
+  await expect(panel(page)).toHaveAttribute("data-active-product", "railcite");
+  await expect(panel(page)).toHaveAttribute("data-media-mode", "pitch");
+  const actions = page.getByRole("list", { name: "RailCite actions" });
+  await expect(actions.getByRole("button", { name: "Pitch video" })).toBeVisible();
+  await expect(actions.getByRole("button", { name: "Demo video" })).toBeVisible();
+  await expect(page.locator("video, iframe")).toHaveCount(0); // poster until the viewer presses play
+  const stage = page.locator("#pf-stage-screen");
+  await stage.getByRole("button", { name: /^Play .+ pitch video$/ }).click();
+  await expect(stage.locator("iframe")).toHaveCount(1);
+  const pitchSrc = new URL((await stage.locator("iframe").getAttribute("src"))!);
+  expect(pitchSrc.origin).toBe("https://www.youtube-nocookie.com");
+  expect(pitchSrc.pathname).toBe("/embed/nI3EqDXd5Io");
+  await actions.getByRole("button", { name: "Demo video" }).click();
+  await expect(page.locator("iframe")).toHaveCount(0); // switching unmounts the pitch player
+  await stage.getByRole("button", { name: /^Play .+ product demonstration$/ }).click();
+  await expect(page.locator("iframe")).toHaveCount(1);
+  expect(new URL((await stage.locator("iframe").getAttribute("src"))!).pathname).toBe("/embed/B3x-I1J8JW8");
+});
+
 test("the selected cover is marked by shape (sketch outline + lift), not colour alone", async ({ page }) => {
   test.skip(width(page) !== 1440, "selection styling checked once at w1440");
   await page.goto("/projects", { waitUntil: "load" });
