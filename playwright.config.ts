@@ -5,6 +5,9 @@ import { defineConfig, devices } from "@playwright/test";
 // base URL keeps the production-build webServer so `pnpm test:e2e` and `pnpm eval` work offline.
 const baseURL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 const isLocalBaseURL = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(baseURL);
+// TASK-128: the local server listens on PW_BASE_URL's port (default 3000), so parallel runs can each
+// pick a free port (PW_BASE_URL=http://127.0.0.1:<port>) instead of sharing :3000.
+const localPort = isLocalBaseURL ? new URL(baseURL).port || "3000" : "3000";
 
 /**
  * Playwright config (technical-plan.md §A9 / §B S07.01).
@@ -67,9 +70,14 @@ export default defineConfig({
   ...(isLocalBaseURL
     ? {
         webServer: {
-          command: "pnpm start",
-          url: "http://127.0.0.1:3000",
-          reuseExistingServer: true,
+          // Always start THIS worktree's build, never reuse a server that is already listening.
+          // Several worktrees and sessions share this Mac, and `reuseExistingServer: true` silently
+          // tested another worktree's build on :3000 (2026-09-28: ~30 false failures and blank
+          // screenshots in a full gate). A taken port now fails loudly; choose a free one with
+          // PW_BASE_URL.
+          command: `pnpm exec next start -p ${localPort}`,
+          url: `http://127.0.0.1:${localPort}`,
+          reuseExistingServer: false,
           timeout: 120_000,
         },
       }
