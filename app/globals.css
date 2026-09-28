@@ -10654,3 +10654,74 @@ html.lenis body {
   margin: 0;
 }
 /* end TASK-114 */
+/* TASK-118 · band headline cycling verb (Tushar 2026-09-28; Design.md §8 row "Band headline verb", §11).
+   The six verbs from `BandVerb` stack in one inline-grid cell, so the box is as wide as the widest verb
+   and "Let's", the line break and line 2 never move (CLS 0). `overflow: clip` (not `hidden` — keeps the
+   grid's text baseline) confines the vertical slide to the word's own box; the padding / equal negative
+   margin gives italic overhang and descenders room without changing the line box. One 15 s timeline
+   (6 × 2.5 s): enter from below + fade in 280 ms → hold → exit upward + fade out 280 ms → 100 ms empty
+   beat → next verb. Delays are offset by −280 ms so "build" is already settled when cycling starts.
+   Nothing animates without `data-cycle` (set by the island only while the band is in view and the tab
+   is visible); reduced motion never gets it, and the media query below is the belt to that brace. */
+@layer components {
+  .band-verbs {
+    display: inline-grid;
+    overflow: clip;
+    padding: 0.14em 0.12em 0.2em 0;
+    margin: -0.14em -0.12em -0.2em 0;
+  }
+  .band-verbs-word {
+    grid-area: 1 / 1;
+  }
+  .band-verbs-word:not(:first-child) {
+    opacity: 0;
+  }
+  .band-verbs[data-cycle] .band-verbs-word {
+    animation: band-verb 15s infinite both;
+  }
+  .band-verbs[data-cycle="paused"] .band-verbs-word {
+    animation-play-state: paused;
+  }
+  .band-verbs-word:nth-child(1) {
+    animation-delay: -0.28s;
+  }
+  .band-verbs-word:nth-child(2) {
+    animation-delay: 2.22s;
+  }
+  .band-verbs-word:nth-child(3) {
+    animation-delay: 4.72s;
+  }
+  .band-verbs-word:nth-child(4) {
+    animation-delay: 7.22s;
+  }
+  .band-verbs-word:nth-child(5) {
+    animation-delay: 9.72s;
+  }
+  .band-verbs-word:nth-child(6) {
+    animation-delay: 12.22s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .band-verbs[data-cycle] .band-verbs-word {
+      animation: none;
+    }
+  }
+}
+@keyframes band-verb {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  1.867%,
+  14.133% {
+    opacity: 1;
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  16%,
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+/* end TASK-118 */
