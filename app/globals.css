@@ -10018,6 +10018,18 @@ html.lenis body {
   }
 }
 /* end TASK-110 */
+/* TASK-115 · the band footer is the last sheet on every page and must slide over main's last section
+   (Tushar 2026-09-28: "the bottom section should above during scrolling"). The band sat at z-index 1
+   while main's last sections are 2–5 (Ask 3, /about CTA 2, /playground bench 2 — raised by TASK-110 —
+   and the case-study next band 5), so its torn edge and "Let's connect" heading were drawn UNDER the
+   lagging section. `main` is not a stacking context, so the band competes with main's children
+   directly: lift it above every section on the page. Guarded by tests/e2e/parallax-stacking.spec.ts. */
+@layer components {
+  .band {
+    z-index: 6;
+  }
+}
+/* end TASK-115 */
 /* TKT-113 · Home Ask Tushky — Tushar's spec 2026-09-26
    (docs/redesign-mockups/m-009/tushar-2026-09-26/home-ask-tushky-spec.md, home-ask-tushky-target.png;
    Design.md §7.1 Ask, §11 Dev-64–69). The Home `section#ask` as the launcher for the right-side drawer:
