@@ -29,7 +29,7 @@ import {
  * a wooden stand throws a warm beam full of dust motes across the room onto a curtained screen showing
  * mountains at sunrise (no person), over a row of empty seats. A film strip curls through the
  * foreground like a scroll, its frames running the sunrise frame by frame; a blank clapperboard and a
- * director's chair frame the edges. Palette: deep navy, film amber, cream, rust, teal-grey.
+ * director's chair frame the edges. Palette: deep indigo navy, film amber, cream, rust, teal-grey.
  */
 
 const INK = "#161a2e";
