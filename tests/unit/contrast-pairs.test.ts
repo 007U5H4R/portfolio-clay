@@ -160,13 +160,11 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   ["inkSoft", "paper2", "text", ".learned-help", "help lines, essay numerals, asOf"],
   ["inkSoft", "ivory", "text", ".work-metric-asof", "card asOf, metric labels"],
   ["inkSoft", "note", "text", "src:components/case-study/artifacts/SourceCaption.tsx", "artifact source caption on the hypothesis sticky, 12 px (4.52 — thinnest margin on the site)"],
-  ["green2", "paper", "text", ".job-tags", "experience-strip tags (12 px micro)"],
-  ["green2", "paper2", "text", ".work-tags", "/projects index kickers/tags (12 px micro; moved from /work, TKT-101)"],
   ["green2", "ivory", "text", ".work-kicker", "featured card kicker, story dl dt"],
   ["forest", "paper", "text", ".aj-range", "about journey ranges (12 px)"],
   ["forest", "paper2", "text", ".artifact-eval dt", "evaluation labels (Dev-29; steel failed at 3.59)"],
   ["forest", "ivory", "text", ".aimp-kind[data-kind=\"measured\"]", "measured badges, zero metrics"],
-  ["terracotta", "paper2", "text", ".sources-list a[data-inline-link]", "Sources links (TKT-82), second-opener CTA (TKT-80)"],
+  ["terracotta", "paper2", "text", ".sources-list a[data-inline-link]", "Sources links (TKT-82)"],
   ["terracotta", "ivory", "text", ".aimp-kind[data-kind=\"self-reported\"]", "self-reported badges, band social glyphs"],
   ["terracotta", "note", "text", ".artifact-lbl", "hypothesis label on the sticky"],
   ["terracotta", "paper", "text", ".essay-related:hover", "hover deepening on paper"],
@@ -176,8 +174,6 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   // Rust as text: ≥ 4.5 only on paper/ivory (Design §2.1 reserves it for ≥ 17 px or bold anyway)
   ["rust", "paper", "text", ".node-src", "thinking-node source link, 13 px / 600 (TKT-83)"],
   ["rust", "ivory", "text", ".work-card-cta", "work-card CTA and kicker status on the card sheet"],
-  // Rust on paper-2 only as LARGE text (4.3:1 fails 4.5)
-  ["rust", "paper2", "large", ".work-num", "/projects row numerals at 24 px (TKT-80; moved from /work, TKT-101)"],
   // Terracotta on kraft only as LARGE text (4.16:1)
   ["terracotta", "kraft", "large", ".proof-award b", "award years, Fraunces 30 px on the kraft tag (Dev-35)"],
   // Inverse surfaces
