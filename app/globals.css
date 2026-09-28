@@ -11280,6 +11280,8 @@ html.lenis body {
   /* --- the 90s cover (thumb + stage poster) --- */
   .pf-cover {
     --pf-ink: var(--color-navy);
+    /* the name sizes against the cover itself (cqi), so it fits at every carousel/stage width */
+    container-type: inline-size;
     position: relative;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto auto;
@@ -11368,13 +11370,16 @@ html.lenis body {
   }
   .pf-cover-name {
     font-family: var(--font-display);
-    font-size: clamp(15px, 0.55vw + 12px, 19px);
+    /* ≈ 7.5 em for a 10-letter uppercase word ("TEACHSPARK") must fit the cover's content box
+       (100cqi − 28 px padding): 10.5cqi keeps it inside down to a 150 px cover; 14 px floor (EVAL-008). */
+    max-width: 100%;
+    font-size: clamp(14px, 10.5cqi, 19px);
     font-weight: 800;
     line-height: 1.05;
     letter-spacing: -0.01em;
     text-transform: uppercase;
     text-shadow: 2px 2px 0 color-mix(in oklab, var(--pf-accent) 45%, var(--color-ivory));
-    overflow-wrap: break-word;
+    text-wrap: balance;
   }
   .pf-cover-line {
     width: 100%;
@@ -11424,7 +11429,8 @@ html.lenis body {
     align-self: end;
     justify-self: start;
     text-align: left;
-    font-size: clamp(16px, 3.6vw, 52px);
+    /* the name column is ≈ 45 % of the cover: 5cqi keeps a 10-letter word inside it (≤ 2 balanced lines) */
+    font-size: clamp(14px, 5cqi, 52px);
     text-shadow: 3px 3px 0 color-mix(in oklab, var(--pf-accent) 45%, var(--color-ivory));
   }
   .pf-cover[data-size="stage"] .pf-cover-line {

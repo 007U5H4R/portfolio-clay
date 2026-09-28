@@ -282,3 +282,66 @@ test("@EVAL-006 /projects is axe-clean with a non-default product selected", { t
   await expect(panel(page)).toHaveAttribute("data-active-product", "dino-arcade-pwa");
   await axe(page);
 });
+
+// ---------------------------------------------------------------------------
+// Cover titles fit (orchestrator review of TASK-116: "TEACHSPARK" rendered "TEACHSPAR" on the stage
+// cover). The name is content, so no ellipsis: every glyph box must sit inside the cover, the title
+// never scrolls, and it wraps to at most two lines — stage cover for every product, and every thumb.
+// ---------------------------------------------------------------------------
+async function titleFit(page: import("@playwright/test").Page, scope: string) {
+  return page.$$eval(`${scope} .pf-cover`, (covers) =>
+    covers.map((cover) => {
+      const name = cover.querySelector(".pf-cover-name") as HTMLElement;
+      const range = document.createRange();
+      range.selectNodeContents(name);
+      const text = range.getBoundingClientRect();
+      const box = cover.getBoundingClientRect();
+      const lh = parseFloat(getComputedStyle(name).lineHeight) || parseFloat(getComputedStyle(name).fontSize) * 1.05;
+      // A word split across lines ("TEACHSPAR" / "K") reads as clipped too: each word must be one box.
+      const node = name.firstChild;
+      let splitWord = false;
+      if (node && node.nodeType === Node.TEXT_NODE) {
+        const txt = node.textContent ?? "";
+        const re = /\S+/g;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(txt))) {
+          const wr = document.createRange();
+          wr.setStart(node, m.index);
+          wr.setEnd(node, m.index + m[0].length);
+          const tops = new Set(Array.from(wr.getClientRects()).map((r) => Math.round(r.top)));
+          if (tops.size > 1) splitWord = true;
+        }
+      }
+      return {
+        name: name.textContent ?? "",
+        splitWord,
+        scrolls: name.scrollWidth > name.clientWidth + 0.5,
+        inside: text.left >= box.left - 0.5 && text.right <= box.right + 0.5 && text.top >= box.top - 0.5 && text.bottom <= box.bottom + 0.5,
+        lines: Math.round(range.getClientRects().length ? text.height / lh : 0),
+        fontPx: parseFloat(getComputedStyle(name).fontSize),
+      };
+    }),
+  );
+}
+
+test("@EVAL-008 every cover title fits its cover — stage (each product) and thumbnails, ≤ 2 lines, ≥ 14 px", { tag: "@EVAL-008" }, async ({ page }) => {
+  const w = width(page);
+  test.skip(w !== 390 && w !== 1440, "fit asserted at the two boundary widths");
+  await page.goto("/projects", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  await hydrated(page);
+  const bad: string[] = [];
+  const check = (where: string, rows: Awaited<ReturnType<typeof titleFit>>) => {
+    for (const r of rows) {
+      if (r.scrolls || r.splitWord || !r.inside || r.lines > 2 || r.fontPx < 13.5) bad.push(`${where} · ${r.name}: ${JSON.stringify(r)}`);
+    }
+  };
+  check("thumb", await titleFit(page, ".pf-track"));
+  for (const project of PERSONAL) {
+    await page.locator(`[role="tab"][data-product="${project.slug}"]`).click();
+    await expect(panel(page)).toHaveAttribute("data-active-product", project.slug);
+    await page.waitForTimeout(350); // let the 300 ms enter settle before measuring
+    check("stage", await titleFit(page, ".pf-stage"));
+  }
+  expect(bad, "cover titles must never be clipped").toEqual([]);
+});

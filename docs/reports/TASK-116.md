@@ -191,3 +191,24 @@ The full suite was not re-run end to end after these fixes. The targeted re-run 
 
 ## Screenshots (`docs/screenshots/m-009/task-116/`)
 `projects-{390,768,1024,1440}.png` (full page), `projects-1440-selected-dino-arcade.png` and `projects-390-selected-tegaki.png` (a non-default product selected via the deep link), and `midscroll-{390,1440}-{1..6}.png` (viewport frames across the products → enterprise and enterprise → band slide-overs). Overlap check: 0 hits in all 12 frames (a scripted check that no text of the lagging section is drawn below the sliding sheet's torn top); `parallax-stacking.spec` is green.
+
+## Review round 1: cover titles clipped at stage size (orchestrator, 2026-09-28)
+- **Defect:** the stage-size cover title ran off the cover ("TEACHSPARK" rendered as "TEACHSPAR" at 1440).
+- **Fix** (`/* TASK-116 */` block only):
+  - `.pf-cover` is now an inline-size query container.
+  - The name sizes against the cover itself: thumbnails use `clamp(14px, 10.5cqi, 19px)`; the stage uses `clamp(14px, 5cqi, 52px)`.
+  - `text-wrap: balance`. There is no ellipsis and no mid-word breaking.
+- **Scar:** `projects.spec` "@EVAL-008 every cover title fits its cover" runs at w390 and w1440. It covers every product's stage cover plus all the thumbnails, and checks each title:
+  - the text's glyph box stays inside the cover;
+  - the title never scrolls (`scrollWidth ≤ clientWidth`);
+  - no word is split across lines;
+  - it takes ≤ 2 lines;
+  - its font is ≥ 14 px.
+- **Proof the test catches the defect:** run against the pre-fix build, it **failed at w1440** (`stage · TeachSpark: inside:false, fontPx 51.84`). On the fixed build it passes at both widths.
+- **Full `pnpm test:e2e`, end to end on the final tree** (through heavy.sh, after a fresh build): **1300 passed, 0 failed, 1476 skipped** (27.7 min).
+- **Other gates on the final tree:**
+  - lint and build ✅;
+  - unit tests ✅ (632 passed, 2 skipped);
+  - `/projects` first-load JS 164.5 kB gz;
+  - mid-scroll overlap check: 0 hits in all 12 frames.
+- Screenshots in `docs/screenshots/m-009/task-116/` were re-captured.
