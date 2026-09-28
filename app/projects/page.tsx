@@ -32,6 +32,10 @@ export const metadata: Metadata = buildMetadata({
  * Static by construction (TP1): the showcase reads `?product=` on the client after mount, so the
  * prerendered HTML carries the default product and every carousel cover.
  *
+ * TASK-127 (fidelity spec §2): the intro is handed to the showcase so the top reads as ONE spread —
+ * the intro in the upper-left, the product sheet rising beside it, the stage below, the kraft band
+ * tucked under both.
+ *
  * EVAL-018 (Design.md §3.3): products = underline sketch · "choose your build" annotation = 2 decorations;
  * enterprise = torn · "inside larger systems" annotation = 2.
  */
@@ -47,11 +51,17 @@ export default function ProjectsPage() {
       <SceneOpener id="scene-work" priority />
       <section id="products" className="pf-products" aria-labelledby="portfolio-h">
         <Container className="pf-products-wrap">
-          <PortfolioIntro />
-          <Annotation arrow="down" rotate={-3} className="pf-select-note">
-            choose your build
-          </Annotation>
-          <IndependentProductsShowcase products={products} />
+          <IndependentProductsShowcase
+            products={products}
+            intro={
+              <>
+                <PortfolioIntro />
+                <Annotation arrow="right" rotate={-4} className="pf-select-note">
+                  choose your build
+                </Annotation>
+              </>
+            }
+          />
         </Container>
       </section>
       <EnterpriseClientWork cases={enterpriseCases} />

@@ -18,7 +18,7 @@ import type { VideoMedia } from "@/lib/video-providers";
  */
 export type MediaMode = "pitch" | "demo";
 
-/** A painted cover (TASK-121): one text-free image used as the carousel cover AND the stage poster. */
+/** A product cover (TASK-121/127): one text-free image used as the carousel cover AND the stage poster. */
 export interface CoverArt {
   src: string;
   width: number;
@@ -36,11 +36,10 @@ export interface PortfolioProduct {
   statusLabel: string;
   /** Tiny status metadata for the info sheet (TASK-121 §5.4) — a shortening of `statusLabel`. */
   meta: string;
-  /** The painted cover, when one exists; else the designed CSS cover (`scene` / `lettering`). */
-  art?: CoverArt | undefined;
-  scene: PortfolioEntry["scene"];
+  /** The product's cover art (TASK-127: a hand-authored SVG for every product). */
+  art: CoverArt;
   lettering: PortfolioEntry["lettering"];
-  /** Lucide name for the cover plate / CSS scene hero. */
+  /** Lucide name for the cover plate's emblem. */
   coverGlyph: string;
   /** Lucide icon name — the cover's symbolic hero glyph. */
   glyph: string;
@@ -79,8 +78,7 @@ export function buildPortfolioProducts(
         description: project.tagline,
         statusLabel: project.statusLabel,
         meta: entry.meta,
-        art: entry.coverArt ? resolveArtOrThrow(entry.coverArt, resolveArt) : undefined,
-        scene: entry.scene,
+        art: resolveArtOrThrow(entry.coverArt, resolveArt),
         lettering: entry.lettering,
         coverGlyph: entry.coverGlyph,
         glyph: project.icon,

@@ -28,10 +28,9 @@ const FIXTURE: PortfolioProduct[] = [
     description: "A fixture product with a YouTube pitch and a YouTube demo.",
     statusLabel: "Live",
     meta: "Live",
-    scene: "art",
     lettering: "rounded",
     coverGlyph: "Film",
-    art: { src: "/media/fixture-cover.webp", width: 1120, height: 840, alt: "Illustration of a fixture cover." },
+    art: { src: "/media/fixture-cover.svg", width: 1600, height: 900, alt: "Illustration of a fixture cover." },
     glyph: "Film",
     code: "AL-01",
     accent: "steel",
@@ -50,8 +49,8 @@ const FIXTURE: PortfolioProduct[] = [
     description: "A fixture product with only a Vimeo demo and nothing else.",
     statusLabel: "Prototype",
     meta: "Prototype",
-    scene: "grid",
     lettering: "block",
+    art: { src: "/media/fixture-cover-b.svg", width: 1600, height: 900, alt: "Illustration of a second fixture cover." },
     coverGlyph: "Monitor",
     glyph: "Users",
     code: "BE-01",
@@ -67,8 +66,8 @@ const FIXTURE: PortfolioProduct[] = [
     description: "A fixture product with no media and no links at all.",
     statusLabel: "Research",
     meta: "Research",
-    scene: "waves",
     lettering: "script",
+    art: { src: "/media/fixture-cover-c.svg", width: 1600, height: 900, alt: "Illustration of a third fixture cover." },
     coverGlyph: "Brush",
     glyph: "Search",
     code: "GA-01",
@@ -235,7 +234,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
 });
 
 /** Stand-in for the page's manifest lookup (app/projects/page.tsx). */
-const resolveArt = (id: string) => ({ src: `/media/illustrations/covers/${id}.webp`, width: 1120, height: 840, alt: `Illustration of ${id}.` });
+const resolveArt = (id: string) => ({ src: `/media/illustrations/covers/${id}.svg`, width: 1600, height: 900, alt: `Illustration of ${id}.` });
 
 describe("Portfolio data model (spec §5, §21)", () => {
   const products = buildPortfolioProducts(projects, portfolioEntries, resolveArt);
@@ -283,10 +282,12 @@ describe("Portfolio data model (spec §5, §21)", () => {
     expect(withPitch[0]?.pitchVideo).toEqual({ provider: "youtube", videoId: "abcdefghijk", title: `${first!.name} pitch video`, poster: undefined });
   });
 
-  it("TASK-121: every cover has its own identity; TeachSpark carries its painted art; a cover-art id without a resolver throws", () => {
-    const identities = products.map((p) => (p.art ? `art:${p.art.src}` : `${p.scene}|${p.coverGlyph}`));
-    expect(new Set(identities).size).toBe(products.length);
-    expect(products.find((p) => p.id === "teachspark")?.art?.src).toBe("/media/illustrations/covers/cover-teachspark.webp");
+  it("TASK-127: every product carries its own hand-authored SVG cover; a cover-art id without a resolver throws", () => {
+    // every personal build names a distinct `cover-<slug>` art (one artwork per product, spec §10: no repeated artwork)
+    expect(portfolioEntries.map((e) => e.coverArt)).toEqual(portfolioEntries.map((e) => `cover-${e.slug}`));
+    const sources = products.map((p) => p.art.src);
+    expect(new Set(sources).size).toBe(products.length);
+    for (const product of products) expect(product.art.src).toBe(`/media/illustrations/covers/cover-${product.id}.svg`);
     expect(() => buildPortfolioProducts(projects, portfolioEntries)).toThrow(/needs a resolver/);
   });
 

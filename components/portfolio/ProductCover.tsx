@@ -67,17 +67,16 @@ export interface ProductCoverProps {
 }
 
 /**
- * The collectible 90s game-box cover (TASK-121, Tushar's rectify spec 2026-09-28 §5.2, §7). One shared
- * packaging system — printed ivory border, halftone, a code tag, title lettering over the art, a
- * cover-line plate with a small emblem — and a distinct identity per product:
- *   art    a painted, text-free cover image (`product.art`, the illustration manifest) — the SAME
- *          image is the carousel cover (4:5 crop) and the enlarged stage poster (16:9 crop);
- *   scene  otherwise a designed CSS scene (`data-scene`: rails, sunset, grid, bunting, rays, hills,
- *          lab, waves, pixels, beam, campfire) with the product's own hero glyph, palette and lettering
- *          (`data-lettering`) — no raster, no real game's artwork or branding.
- * Title lettering is always HTML (editable, no AI-garbled text). The whole cover is presentational —
- * its text repeats what the tab / info sheet already expose — so it is `aria-hidden`; the stage
- * figure names the art through its own caption.
+ * The collectible 90s cover (TASK-121 rectify spec §5.2, §7; TASK-127 fidelity spec §10–§12). One
+ * shared packaging grammar — printed ivory keyline, a fine halftone, a code chip, title lettering over
+ * the art's calm top band, a cream cover-line plate with the product's emblem — and a distinct world
+ * per product: its hand-authored, text-free SVG scene (`product.art`, the illustration manifest;
+ * sources in scripts/portfolio-art/scenes/). The SAME image is the carousel cover (5:6 crop, framed on
+ * the subject) and the stage poster (the full 16:9 frame).
+ * Title lettering is always HTML (crisp, accessible, never baked into the art). The whole cover is
+ * presentational — its text repeats what the tab / info sheet already expose — so it is `aria-hidden`;
+ * the stage figure names the art through its own caption. The plate's cover line is a packaging
+ * micro-label (12.5 px; the same line is real content on the stage poster and the info sheet).
  */
 export function ProductCover({ product, size }: ProductCoverProps) {
   const Glyph = glyphFor(product.coverGlyph);
@@ -86,27 +85,19 @@ export function ProductCover({ product, size }: ProductCoverProps) {
       className="pf-cover"
       data-size={size}
       data-accent={product.accent}
-      data-scene={product.art ? "art" : product.scene}
       data-lettering={product.lettering}
-      data-product={size === "stage" ? product.id : undefined}
+      data-product={product.id}
       aria-hidden="true"
     >
       <span className="pf-cover-art">
-        {product.art ? (
-          <Image
-            src={product.art.src}
-            alt=""
-            fill
-            sizes={size === "stage" ? "(min-width: 1024px) 58vw, 100vw" : "(min-width: 1024px) 200px, 45vw"}
-            className="pf-cover-img"
-          />
-        ) : (
-          <span className="pf-cover-scene">
-            <span className="pf-scene-sun" />
-            <span className="pf-scene-ground" />
-            {createElement(Glyph, { className: "pf-scene-hero", strokeWidth: 1.4, "aria-hidden": true, focusable: false })}
-          </span>
-        )}
+        <Image
+          src={product.art.src}
+          alt=""
+          fill
+          sizes={size === "stage" ? "(min-width: 1024px) 58vw, 100vw" : "(min-width: 1024px) 200px, 45vw"}
+          unoptimized={product.art.src.endsWith(".svg")}
+          className="pf-cover-img"
+        />
       </span>
       <span className="pf-cover-code" data-micro-label="">{product.code}</span>
       <span className="pf-cover-title">
@@ -115,7 +106,9 @@ export function ProductCover({ product, size }: ProductCoverProps) {
       </span>
       {size === "thumb" ? (
         <span className="pf-cover-plate">
-          <span className="pf-cover-line">{product.tagline}</span>
+          <span className="pf-cover-line" data-micro-label="">
+            {product.tagline}
+          </span>
           {createElement(Glyph, { className: "pf-cover-emblem", strokeWidth: 1.75, "aria-hidden": true, focusable: false })}
         </span>
       ) : null}

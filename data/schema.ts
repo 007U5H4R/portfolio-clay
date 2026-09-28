@@ -129,10 +129,10 @@ export const PortfolioEntry = z.object({
   /* TASK-121 (rectify spec §5.4): the tiny status metadata on the info sheet — a shortening of the
      project's own `statusLabel` (the full sentence stays on the case study), never a new claim. */
   meta: z.string().min(4).max(40),
-  /* TASK-121 (§7.3): the cover's own identity — a painted art id from the illustration manifest when
-     one exists, else a designed CSS scene (`scene`) with its lettering style and hero glyph. */
-  coverArt: z.string().regex(/^cover-[a-z0-9-]+$/).optional(),
-  scene: z.enum(['art','rails','sunset','grid','bunting','rays','hills','lab','waves','pixels','beam','campfire']),
+  /* TASK-127 (fidelity spec §4, §10–§12): the cover's own identity — every product names its
+     hand-authored SVG cover in the illustration manifest (`cover-<slug>`); the lettering style and the
+     plate emblem are its packaging. */
+  coverArt: z.string().regex(/^cover-[a-z0-9-]+$/),
   lettering: z.enum(['rounded','slab','script','block','serif','mono']),
   coverGlyph: z.string().min(2),                                             // lucide name (ProductCover map)
   pitchVideo: VideoMediaEntry.optional(),

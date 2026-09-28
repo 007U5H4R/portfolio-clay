@@ -14,8 +14,9 @@ export interface ProductCarouselProps {
 }
 
 /**
- * The 90s product carousel (TASK-116, spec §14–§18, §44–§46; TASK-121 rectify spec §7: 4:5 collectible
- * covers on a torn kraft band, hand-cut arrow chips, a subtle "Player select · n / N"): a native horizontal scroller
+ * The 90s product carousel (TASK-116, spec §14–§18, §44–§46; TASK-121 rectify spec §7; TASK-127
+ * fidelity spec §10–§15: 5:6 collectible covers sitting on one torn kraft band, hand-cut paper arrow
+ * tabs at the band's two ends, a small "Select a product · n / N" paper tag): a native horizontal scroller
  * (scroll-snap — touch swipe and trackpad scrolling come free, no carousel library) holding one
  * `role="tab"` cover per product, plus previous / next buttons.
  *
@@ -81,25 +82,17 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
 
   return (
     <div className="pf-carousel">
-      <div className="pf-carousel-head">
+      <div className="pf-carousel-tag">
         <p id="pf-select" className="pf-select">
           Select a product
         </p>
-        <span className="pf-count-prefix" aria-hidden="true">
-          Player select ·
-        </span>
         <p className="pf-count" aria-live="polite">
           {activeIndex + 1} / {products.length}
         </p>
-        <div className="pf-arrows">
-          <button type="button" className="pf-arrow focus-ring" aria-label="Previous product" onClick={() => step(-1, "arrow")}>
-            <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={1.75} />
-          </button>
-          <button type="button" className="pf-arrow focus-ring" aria-label="Next product" onClick={() => step(1, "arrow")}>
-            <ChevronRight aria-hidden="true" focusable="false" strokeWidth={1.75} />
-          </button>
-        </div>
       </div>
+      <button type="button" className="pf-arrow focus-ring" data-dir="prev" aria-label="Previous product" onClick={() => step(-1, "arrow")}>
+        <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
+      </button>
       <div
         ref={trackRef}
         className="pf-track"
@@ -132,6 +125,9 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
           );
         })}
       </div>
+      <button type="button" className="pf-arrow focus-ring" data-dir="next" aria-label="Next product" onClick={() => step(1, "arrow")}>
+        <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />
+      </button>
     </div>
   );
 }

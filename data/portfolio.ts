@@ -25,9 +25,11 @@ import type { PortfolioEntry } from "./schema";
  *   - TASK-121 (rectify spec §5.4, §7.3): `meta` is the tiny status line on the info sheet — each is a
  *                 shortening of that project's own `statusLabel` (e.g. TeachSpark's "Live pilot (Twilio
  *                 sandbox) — uptime after 2026-09-09 unverified" → "Live pilot · Twilio sandbox"; the full
- *                 caveat stays on the case study); `coverArt` names a painted cover in the illustration
- *                 manifest (only TeachSpark today), else `scene` / `lettering` / `coverGlyph` pick the
- *                 designed CSS cover. Velora's cover shows apparel vendor onboarding (its record), not beauty.
+ *                 caveat stays on the case study).
+ *   - TASK-127 (fidelity spec §4, §10–§12): `coverArt` names each product's hand-authored SVG cover in
+ *                 the illustration manifest (`cover-<slug>`, sources in scripts/portfolio-art/scenes/);
+ *                 `lettering` and `coverGlyph` (the plate emblem) are its packaging. Velora's cover shows
+ *                 apparel sourcing (its record), not beauty.
  *
  * Every other product fact (name, proposition, live link, public repo, local demo MP4) is read from
  * `data/projects.ts` by `lib/portfolio.ts`; nothing is repeated here.
@@ -36,27 +38,27 @@ import type { PortfolioEntry } from "./schema";
  * documents, so it is not listed (never invent a product).
  */
 export const portfolioEntries: PortfolioEntry[] = [
-  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", scene: "art", lettering: "rounded", coverGlyph: "MessageSquareText" },
-  { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", scene: "rails", lettering: "slab", coverGlyph: "TrainFront",
+  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText" },
+  { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront",
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
     demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
-  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", scene: "sunset", lettering: "script", coverGlyph: "Shirt" },
-  { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", scene: "grid", lettering: "block", coverGlyph: "Monitor" },
-  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", scene: "bunting", lettering: "serif", coverGlyph: "Flower2" },
-  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", scene: "rays", lettering: "serif", coverGlyph: "Music" },
-  { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", scene: "hills", lettering: "rounded", coverGlyph: "HeartHandshake" },
-  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", scene: "lab", lettering: "mono", coverGlyph: "Microscope" },
-  { slug: "tegaki", code: "TG-01", coverLine: "Handwriting, read by hand", accent: "rust", meta: "Live pilot", scene: "waves", lettering: "script", coverGlyph: "Brush" },
-  { slug: "dino-arcade-pwa", code: "DA-01", coverLine: "Your phone, an arcade", accent: "steel", meta: "Live · BYO-ROM", scene: "pixels", lettering: "mono", coverGlyph: "Gamepad2" },
-  { slug: "cinematic-portfolio", code: "CP-01", coverLine: "A portfolio, on film", accent: "forest", meta: "Live", scene: "beam", lettering: "slab", coverGlyph: "Clapperboard" },
+  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt" },
+  { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
+  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2" },
+  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music" },
+  { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", coverArt: "cover-token-toli", lettering: "rounded", coverGlyph: "HeartHandshake" },
+  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope" },
+  { slug: "tegaki", code: "TG-01", coverLine: "Handwriting, read by hand", accent: "rust", meta: "Live pilot", coverArt: "cover-tegaki", lettering: "script", coverGlyph: "Brush" },
+  { slug: "dino-arcade-pwa", code: "DA-01", coverLine: "Your phone, an arcade", accent: "steel", meta: "Live · BYO-ROM", coverArt: "cover-dino-arcade-pwa", lettering: "mono", coverGlyph: "Gamepad2" },
+  { slug: "cinematic-portfolio", code: "CP-01", coverLine: "A portfolio, on film", accent: "forest", meta: "Live", coverArt: "cover-cinematic-portfolio", lettering: "slab", coverGlyph: "Clapperboard" },
   {
     slug: "campfire-board",
     code: "CF-01",
     coverLine: "One dashboard, every project",
     accent: "terracotta",
     meta: "Built · local tool",
-    scene: "campfire",
+    coverArt: "cover-campfire-board",
     lettering: "script",
     coverGlyph: "Flame",
     pitchVideo: { provider: "youtube", videoId: "K_-510L6e7g" },
