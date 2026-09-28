@@ -9,10 +9,12 @@ import type { PortfolioEntry } from "./schema";
  *   - `code`      the cover's product code ("TS-01"): the product's initials plus its edition,
  *   - `coverLine` the short cover tagline. TeachSpark, RailCite and Cubicle use Tushar's own example
  *                 lines from spec §15; the rest are shortened from each project's `tagline` and add
- *                 no fact the tagline does not state,
+ *                 no fact the tagline does not state (Campfire Board's is from its README: "renders
+ *                 them all through one dashboard … across every project at once"),
  *   - `accent`    a paper token name (EVAL-020),
- *   - `pitchVideo` / `demoVideo` / `prdUrl` when they exist. None exist yet: Tushar uploads the pitch
- *                 and demo videos to YouTube later (TASK-122). Adding one lights up the Pitch / Demo
+ *   - `pitchVideo` / `demoVideo` / `prdUrl` when they exist. Campfire Board carries the first real pair
+ *                 (TASK-124: "Campfire Board launch" / "Campfire Board demo" on YouTube, public and
+ *                 embeddable per Tushar 2026-09-28); the rest are uploaded later. Adding one lights up the Pitch / Demo
  *                 actions with no code change — a provider + video id, never embed HTML (video-embed
  *                 spec §2); `title` defaults to "<Name> pitch video" / "<Name> product demonstration":
  *                   pitchVideo: { provider: "youtube", videoId: "<11-char id>" },
@@ -45,4 +47,16 @@ export const portfolioEntries: PortfolioEntry[] = [
   { slug: "tegaki", code: "TG-01", coverLine: "Handwriting, read by hand", accent: "rust", meta: "Live pilot", scene: "waves", lettering: "script", coverGlyph: "Brush" },
   { slug: "dino-arcade-pwa", code: "DA-01", coverLine: "Your phone, an arcade", accent: "steel", meta: "Live · BYO-ROM", scene: "pixels", lettering: "mono", coverGlyph: "Gamepad2" },
   { slug: "cinematic-portfolio", code: "CP-01", coverLine: "A portfolio, on film", accent: "forest", meta: "Live", scene: "beam", lettering: "slab", coverGlyph: "Clapperboard" },
+  {
+    slug: "campfire-board",
+    code: "CF-01",
+    coverLine: "One dashboard, every project",
+    accent: "terracotta",
+    meta: "Built · local tool",
+    scene: "campfire",
+    lettering: "script",
+    coverGlyph: "Flame",
+    pitchVideo: { provider: "youtube", videoId: "K_-510L6e7g" },
+    demoVideo: { provider: "youtube", videoId: "DkxDQji3dz8" },
+  },
 ];

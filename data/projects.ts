@@ -12,6 +12,7 @@ import {
   PenLine,
   Search,
   ShieldCheck,
+  SquareKanban,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -43,6 +44,7 @@ const ICONS: Record<string, LucideIcon> = {
   Landmark,
   Cloud,
   Network,
+  SquareKanban,
 };
 
 /** Resolve a project's `icon` name to a lucide component (falls back to the message icon). */
@@ -2819,6 +2821,51 @@ export const cinematicPortfolio: Project = {
   ],
 };
 
+/**
+ * Campfire Board (TASK-124). A local-first dashboard — a personal fork of Backlog.md (MrLesk/Backlog.md,
+ * MIT) — so the credit to Backlog.md and its authors is part of the record, never implied away. It runs
+ * on the owner's machine only: no live URL. Its GitHub repo 007U5H4R/pm-dashboard was made public at
+ * Tushar's request (2026-09-28) → `github` + repoPublic:true, so the Portfolio shows the GitHub action.
+ * Every field traces to the Campfire README / docs (CONTENT_INVENTORY §8.12, `docs/trace/campfire-board.md`).
+ * No users, metrics or outcomes are recorded there, so none are claimed. Card depth, like the thin five.
+ */
+export const campfireBoard: Project = {
+  slug: "campfire-board",
+  name: "Campfire Board",
+  tagline:
+    "A local-first, multi-project management dashboard for the AI build workflow — a personal fork of Backlog.md.",
+  category: "personal",
+  tags: ["Kanban", "Gantt", "Local-first"],
+  filters: ["experiments"],
+  status: "prototype",
+  statusLabel: "Built · local tool",
+  gridSize: "small",
+  icon: "SquareKanban",
+  role: "Personal fork",
+  dates: { start: "2026-09" },
+  duration: "Sep 2026",
+  links: {
+    github: "https://github.com/007U5H4R/pm-dashboard",
+    repoPublic: true,
+  },
+  hero: {},
+  metrics: [],
+  overview: {
+    thirtySecond: [
+      "A personal fork of Backlog.md reshaped into a cross-project command centre: every project stays a self-contained folder of Markdown files, and one dashboard, launched locally in Chrome, renders them all — the operational home for a 10-stage build workflow, from Product Discovery through Deployment.",
+      "It adds a multi-project switcher, a Kanban board with an Execution / Workflow toggle, an hours-axis Execution Gantt with dependency arrows, a statistics view and an in-app artifacts viewer, all served from a single Bun-compiled local binary with the web UI embedded — nothing to deploy, so there is no hosted product link. Backlog.md is by Alex Gavrilescu and contributors (MIT licence); Campfire inherits its Markdown-native, agent-first philosophy.",
+    ],
+    deepDive: false,
+  },
+  chapters: EMPTY_CHAPTERS,
+  thinking: [],
+  learnings: [],
+  sources: [
+    { id: "CF-README", label: "Campfire Board README", ref: "CF/README.md (intro, Highlights, How it works, Credits & license)", inventory: "§8.12" },
+    { id: "CF-PILOT", label: "Campfire Board pilot checklist", ref: "CF/docs/pilot-checklist.md (2026-09-06)", inventory: "§8.12" },
+  ],
+};
+
 /* ── professional experience entries (TKT-15, §2.3) ────────────────────────────────
  * `category:'professional'`: the schema forbids `links.live`, `demoVideo` and `featured` on these,
  * so corporate work can never imply a public product (Solution-PRD §5). Status is neutral
@@ -2933,13 +2980,15 @@ export const godrejSmartnet: Project = {
 };
 
 /**
- * The full 14-record collection (TKT-15): 11 personal builds + 3 professional-experience entries.
+ * The full 15-record collection (TKT-15; Campfire Board added by TASK-124): 12 personal builds + 3
+ * professional-experience entries.
  * Featured trio (rank 1/2/3): TeachSpark (large) · RailCite · Nuptis → Velora. Exactly one
- * `gridSize:'large'` (teachspark). `generateStaticParams` builds a `/work/<slug>` page for the 11
+ * `gridSize:'large'` (teachspark). `generateStaticParams` builds a `/work/<slug>` page for the 12
  * personal builds only; professional entries render inline on `/work` (TKT-17), no case-study page.
  */
 export const projects: Project[] = [
-  // personal builds (11) — featured trio first, then the rest
+  // personal builds (12) — featured trio first, then the deep dives, then the card-depth builds
+  // (newest record last: Campfire Board, TASK-124)
   teachspark,
   railcite,
   velora,
@@ -2951,6 +3000,7 @@ export const projects: Project[] = [
   tegaki,
   dinoArcadePwa,
   cinematicPortfolio,
+  campfireBoard,
   // professional experience (3)
   marsArModernization,
   cloudModernizationPrograms,

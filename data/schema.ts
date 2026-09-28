@@ -132,7 +132,7 @@ export const PortfolioEntry = z.object({
   /* TASK-121 (§7.3): the cover's own identity — a painted art id from the illustration manifest when
      one exists, else a designed CSS scene (`scene`) with its lettering style and hero glyph. */
   coverArt: z.string().regex(/^cover-[a-z0-9-]+$/).optional(),
-  scene: z.enum(['art','rails','sunset','grid','bunting','rays','hills','lab','waves','pixels','beam']),
+  scene: z.enum(['art','rails','sunset','grid','bunting','rays','hills','lab','waves','pixels','beam','campfire']),
   lettering: z.enum(['rounded','slab','script','block','serif','mono']),
   coverGlyph: z.string().min(2),                                             // lucide name (ProductCover map)
   pitchVideo: VideoMediaEntry.optional(),

@@ -24,6 +24,7 @@ const PROJECT_SLUGS = [
   "tegaki",
   "dino-arcade-pwa",
   "cinematic-portfolio",
+  "campfire-board",
 ] as const;
 
 const ROUTE_SET = routes({ projectSlugs: PROJECT_SLUGS });

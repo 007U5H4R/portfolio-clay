@@ -11589,6 +11589,35 @@ html.lenis body {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
     background: repeating-linear-gradient(90deg, var(--color-terracotta) 0 14px, color-mix(in oklab, var(--color-terracotta) 75%, var(--color-navy)) 14px 16px);
   }
+  /* TASK-124 Campfire Board: a night camp — star-speckled navy sky, a low firelight glow, crossed logs
+     on a dark clearing, and the flame as the hero glyph (the board's "campfire" name, no raster). */
+  .pf-cover[data-scene="campfire"] {
+    --sky-a: color-mix(in oklab, var(--color-navy) 88%, var(--color-steel));
+    --sky-b: color-mix(in oklab, var(--color-navy) 60%, var(--color-terracotta));
+    --sun: color-mix(in oklab, var(--color-note) 70%, var(--color-terracotta));
+    --ground: color-mix(in oklab, var(--color-forest) 45%, var(--color-navy));
+    --hero: var(--color-note);
+    --extrude: var(--color-terracotta);
+  }
+  .pf-cover[data-scene="campfire"] .pf-cover-scene {
+    background:
+      radial-gradient(circle, color-mix(in oklab, var(--color-ivory) 75%, transparent) 0 1px, transparent 1.5px) 3px 5px / 23px 19px,
+      radial-gradient(circle, color-mix(in oklab, var(--color-note) 55%, transparent) 0 0.8px, transparent 1.3px) 12px 11px / 31px 27px,
+      linear-gradient(180deg, var(--sky-a) 0%, var(--sky-a) 45%, var(--sky-b) 82%);
+  }
+  .pf-cover[data-scene="campfire"] .pf-scene-sun {
+    top: 66%;
+    width: 78cqi;
+    background: radial-gradient(circle, color-mix(in oklab, var(--sun) 70%, transparent) 0 18%, color-mix(in oklab, var(--color-terracotta) 38%, transparent) 36%, transparent 68%);
+  }
+  .pf-cover[data-scene="campfire"] .pf-scene-ground {
+    height: 26%;
+    clip-path: ellipse(90% 100% at 50% 100%);
+    background:
+      linear-gradient(14deg, transparent 43%, var(--color-kraft) 43.5% 49%, transparent 49.5%) 50% 22% / 44% 36% no-repeat,
+      linear-gradient(-14deg, transparent 43%, color-mix(in oklab, var(--color-kraft) 80%, var(--color-navy)) 43.5% 49%, transparent 49.5%) 50% 22% / 44% 36% no-repeat,
+      var(--ground);
+  }
 
   /* code tag (top-left, printed label) */
   .pf-cover-code {

@@ -262,8 +262,14 @@ describe("Portfolio data model (spec §5, §21)", () => {
       resolveArt,
     );
     expect(withLocal[0]?.demoVideo).toBeUndefined();
-    // No real pitch/demo exists yet: every product shows the "coming" state.
-    expect(products.every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-124: Campfire Board carries the first real pitch + demo (YouTube, default titles); every
+    // other product still shows the "coming" state.
+    const campfire = products.find((p) => p.id === "campfire-board");
+    expect(campfire?.pitchVideo).toEqual({ provider: "youtube", videoId: "K_-510L6e7g", title: "Campfire Board pitch video", poster: undefined });
+    expect(campfire?.demoVideo).toEqual({ provider: "youtube", videoId: "DkxDQji3dz8", title: "Campfire Board product demonstration", poster: undefined });
+    expect(campfire?.productUrl).toBeUndefined(); // a local tool — no product link
+    expect(campfire?.githubUrl).toBe("https://github.com/007U5H4R/pm-dashboard"); // public repo (2026-09-28)
+    expect(products.filter((p) => p.id !== "campfire-board").every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],

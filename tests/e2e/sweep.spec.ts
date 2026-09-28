@@ -2,7 +2,7 @@
  * sweep.spec.ts (`@EVAL-006 @EVAL-008 @EVAL-018`, technical-plan.md §F3 "TKT-85" S85.01/S85.02, TC-165)
  * — the Phase B gate sweep.
  *
- * Routes: `/work`, all 11 `/work/<slug>` (`ALL_PROJECT_SLUGS`), `/thinking`, all 5
+ * Routes: `/work`, all 12 `/work/<slug>` (`ALL_PROJECT_SLUGS`), `/thinking`, all 5
  * `/thinking/<slug>` (`data/writing.ts`) = 18 routes, measured at w390 and w1440 (FANOUT-D row 85;
  * w768 / w1024 skip with the reason). Per route and width, one test asserts:
  *   - HTTP 200;
