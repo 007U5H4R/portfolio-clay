@@ -1,3 +1,83 @@
+# QA Report — Clay Portfolio
+
+This file holds two sections. **M-009** (current, below) is evidence only; its Stage 8–10 gate has not been assembled. **M-007** (further down) is kept unchanged as history.
+
+---
+
+# M-009 · `m-009-redesign` — test evidence to date (Stages 8–10 not yet run)
+
+Updated 2026-09-28 (TASK-86). Branch `m-009-redesign` @ `27d0004`. Preview: https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app. `main` and production are untouched (`origin/main` = `22d6f66`, the M-007 merge).
+
+**Status:** this is **not** a release gate. `decisions.md` EXE-24 says that "Stages 8–10 (design critique, code review, security review) have not run on M-009". The release waits on the PB4 videos and on Tushar. Every number below is copied from the cited file; where no record exists, it says "not recorded".
+
+## M9-1. Record runs (release-candidate level)
+
+| Run | Unit | E2E (4 widths) | `pnpm eval` | Source |
+|---|---|---|---|---|
+| RC `809e326` (integration) | not recorded (the entry says "unit" passed; no count given) | **1050 passed / 0 failed** (1 worker, 15.0 min) | **16 pass · 2 fail · 0 skip · 4 manual**. Both fails are informational local SwiftShader Lighthouse (EVAL-004/005). Regression vs baseline: EVAL-004 `/` mobile 96→85 | `decisions.md` EXE-21; `evals/results/m009-rc-809e326.json` |
+| RC `dbc047c` (integration `db8f782`) | **625 passed** | **1209 passed / 0 failed** (2 workers) | preview `--base-url`: **16 pass · 0 fail · 2 skip (EVAL-004/005, Lighthouse skipped under `--base-url`) · 4 manual**; `criticalFailures: []`, `regressions: []` | `docs/reports/RC-dbc047c.md`; `evals/results/m009-rc-dbc047c.json` |
+| After TKT-92 r4 (integration `80581e2`) | 625 | 1212 passed / 1 failed (lenis PageDown at w1440; 3/3 green alone, recorded as a load flake) | not recorded | `docs/reports/RC-dbc047c.md` |
+| TASK-116 final tree | 632 | **1300 / 0** (latest full e2e recorded) | `--only EVAL-006,008,011,013,018,021`: 6 pass · 0 fail | `backlog/tasks/task-116`; `docs/reports/TASK-116.md` |
+| Current tip `27d0004` (after TASK-117…122) | not recorded | **not recorded** (targeted runs only; see M9-3) | **not recorded** | — |
+
+**Manual EVAL cases** (EVAL-001, 003, 009, 022) are MANUAL in both RC runs. EVAL-022 and the hero/Phase A/Phase B sign-offs were given by Tushar (EXE-22). The EVAL-001 home record is `evals/results/eval-001-m009-home.md`. Stage-8 re-scoring on the current home: not recorded.
+
+## M9-2. Performance (preview Lighthouse, mobile, median of 3)
+
+| Build | `/` perf / LCP | `/work/teachspark` perf / LCP | Desktop | Source |
+|---|---|---|---|---|
+| Tracer `1941383` | 85–86 / 3824–3988 ms | 87–89 / 3234–3467 ms | — | EXE-17 |
+| `2bd4949` | 95 / 2338 ms | 98 / 2274 ms | 100 / 100; `/` CLS 0.054 (over the 0.05 gate) | EXE-21 |
+| TKT-92 r3 (CLS fix) | — | — | desktop `/` CLS 0.0543 → **0.0019** | `docs/reports/TKT-92.md` §Round 3 |
+| `dbc047c` | 83 / 2228 ms | 89 / **3471 ms** | 100 / 564 ms; 100 / 475 ms | `docs/reports/RC-dbc047c.md` |
+| `1de0ba6` (TKT-92 r4) | **93 / 2659 ms** | **88 / 3164 ms** | both 100, LCP ≈ 0.5 s | `docs/reports/RC-dbc047c.md`, `TKT-92-r4.md` |
+
+**Verdict recorded:** the TASK-88 bar (perf ≥ 90 and LCP ≤ 2.5 s on both pages) is **not met** at the median. Tushar accepted TKT-92 as measured (EXE-24). The thresholds are unchanged (EV2/EV6).
+
+**First-load JS, gz (budget 180 kB):**
+- `/` 160.1 · `/work` 153.4 · `/about` 153.9 · `/certifications` 154.2 kB (`RC-dbc047c.md`).
+- `/projects` 164.5 kB (TASK-116), 166.1 kB (`task-121`) and 167.0 kB (`task-122`).
+- Lighthouse on the current tip: not recorded.
+
+## M9-3. Per-ticket gate evidence after the RC (targeted unless marked full)
+
+| Ticket (report) | Unit | E2E | Eval / other |
+|---|---|---|---|
+| TKT-96 / TASK-91 (`TKT-96.md`) | 579 | **full 1055 / 0** | — |
+| TKT-97 / TASK-92 (`TKT-97.md`) | 579 | **full 1050 / 0**; CopyButton `--repeat-each=20` 300 / 0 | `eval-018-parked.json` = `[]` |
+| TKT-98 / TASK-93 (`TKT-98.md`) | — | — | OG: 6 of 7 families pass; the essay `og:image` 404 was fixed in `016c0ab` with an EVAL-017 guard (`task-93`). LinkedIn Inspector passed per Tushar on `c352abd`; re-check needed for `/`, `/projects` and `/certifications` (`task-86`) |
+| TKT-99 / TASK-94 (`TKT-99.md`) | 581 | **full 1060 / 0** | — |
+| TKT-100–102, 104–108, 110 (their `TKT-1xx.md` reports) | 578–591 with **1 failing snapshot** (`paper.test.tsx` TornEdge terracotta, stale since `43d5f73`, recorded as pre-existing) | targeted, 0 failed in final runs (e.g. TKT-107 627 / 0, TKT-110 525 / 0) | TKT-110 lhci desktop `/` CLS ≈ 0.001 |
+| TKT-104 r2 / TASK-101 (`TKT-104-r2.md`) | 623 | 551 passed, 36 failed at w1440 after a browser crash mid-run (recorded in the report) | merged at `801bd61` with full e2e 1201 / 0 (EXE-23) |
+| TKT-111 / TASK-108 (`TKT-111.md`) | 592 | 392 / 0 | bundle `/` 158.9 kB |
+| TKT-113 / TASK-109 (`TKT-113.md`) | 625 | 718 passed / 6 failed (3 test fixes, 3 load flakes: 60 / 60 on rerun); final 80 / 80 | — |
+| TASK-112 (`TASK-112.md`) | 625 | **full 1259 / 0** | — |
+| TASK-113 (`TASK-113.md`) | 631 | 592 / 0 | `eval-018-parked.json` = `[]` |
+| TASK-114 (`TASK-114.md`) | 632 | 542 / 0 | `--only EVAL-021,013`: 2 / 0 |
+| TASK-116 (`TASK-116.md`) | 632 | full 1275 / 7 (stale `/projects` tests + crawler) → fixed; targeted 325 / 0; final full 1300 / 0 (`task-116`) | 6 / 0 |
+| TASK-117 (`TASK-117.md`) | 635 post-merge (`task-117`) | 670 / 0; post-merge 413 / 0 | `--only EVAL-021,013`: 2 / 0 |
+| TASK-118 (`TASK-118.md`) | 638 | 633 / 0 | — |
+| TASK-119 (`task-119`) | 632 | 110 (w390/768/1440) | — |
+| TASK-121 (`task-121`; plan in `TASK-121-plan.md`) | 641 | 262 + 107 (7 load flakes cleared on rerun) | report: not recorded (plan only) |
+| TASK-122 (`task-122`) | 678 | video 16 / 16; prod e2e 98 passed | report: not recorded (ticket notes only); `tests/unit/csp.test.ts` pins the CSP |
+
+**Whether the TornEdge snapshot failure was fixed:** the fixing commit is not recorded. Later reports (TKT-104 r2, TKT-113, TASK-112 onward) show 0 unit failures.
+
+## M9-4. What is not yet evidenced (for Stages 8–10)
+
+- **Stage 8** (design critique vs `Design.md`): not run. The M-009 `DES-` findings are not recorded. `docs/reports/DES-findings.md` is M-007.
+- **Stage 9** (code review + `test-cases.md` execution): not run on M-009. `stage9-review.md` and `stage9-eval.md` are M-007.
+- **Stage 10** (security review): not run on M-009.
+  - Surface changes since M-007 include the CSP `frame-src` for youtube-nocookie (`lib/csp.ts`, Dev-119/113), a third-party iframe player (`lib/video-providers.ts`), a real headshot asset (Dev-102) and the PMP/SAFe scope in `scripts/forbidden-strings.ts` (`TKT-102.md`).
+- **Full e2e + `pnpm eval` + lhci on the current tip `27d0004`:** not recorded.
+- **Manual VoiceOver pass:** not recorded. `docs/a11y-pass.md` is an ARIA-snapshot proxy.
+- **Accepted and open items:** the mobile LCP miss (EXE-24), PB4 videos (EXE-24), the sanitised résumé (PB5 / TASK-8), and the open Tushar decisions listed in `HANDOFF.md` §2.
+
+---
+---
+
+# HISTORY — M-007 QA report (`m-007-quality` → `main`, 2026-09-22). Kept unchanged; superseded for M-009 by the section above.
+
 # QA Report — Clay Portfolio · `m-007-quality` → `main`
 
 **The single consolidated pre-deployment gate** (Stage 10). Branch `m-007-quality`, HEAD `420238e` (M-007 quality sweeps + Stage-8 design fixes + Stage-9 review fixes + Stage-10 security hardening), diff base `main` (M-001…M-006). Live public preview: `https://portfolio-clay-git-m-007-quality-tushar-49a6.vercel.app`. Date: 2026-09-22. Assembled in the main orchestrator context from the stage records below; every number is from real execution output.
