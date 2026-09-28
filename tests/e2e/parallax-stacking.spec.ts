@@ -7,6 +7,8 @@
  * "Big questions." was drawn over the sheet's "Experiments" heading. `/about`'s impact sheet (z 2)
  * sat above the experience sheet (z 1) the same way.
  *
+ * TASK-115: the band footer (previous sibling `main`, no stacking context) must beat every child of main.
+ *
  * Invariant checked on every public route: for each torn sheet (a section whose first child is the
  * `TornEdge`, `[data-decor="torn"]`), its z-index is ≥ its previous sibling's (auto = 0; a tie is fine
  * because the later sibling paints on top).
@@ -40,7 +42,16 @@ for (const route of ROUTES) {
         const sheet = torn.parentElement;
         const prev = sheet?.previousElementSibling;
         if (!sheet || !prev) continue;
-        if (z(sheet) < z(prev)) out.push(`${name(prev)} (z ${z(prev)}) above sheet ${name(sheet)} (z ${z(sheet)})`);
+        // TASK-115: the band footer's previous sibling is `main`, which is not a stacking context, so
+        // the band competes with main's children — it must sit above every one of them.
+        // Fixed overlays (the case-study reading-progress bar) are viewport chrome, not a section the
+        // band slides over, so they stay out of the comparison.
+        const rivals = (prev.tagName === "MAIN" && getComputedStyle(prev).zIndex === "auto" ? [...prev.children] : [prev]).filter(
+          (el) => getComputedStyle(el).position !== "fixed",
+        );
+        for (const rival of rivals) {
+          if (z(sheet) < z(rival)) out.push(`${name(rival)} (z ${z(rival)}) above sheet ${name(sheet)} (z ${z(sheet)})`);
+        }
       }
       return out;
     });
