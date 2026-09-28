@@ -15,6 +15,14 @@ import type { PortfolioAccent, PortfolioEntry, Project, VideoSource } from "@/da
  */
 export type MediaMode = "pitch" | "demo";
 
+/** A painted cover (TASK-121): one text-free image used as the carousel cover AND the stage poster. */
+export interface CoverArt {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
 export interface PortfolioProduct {
   id: string;
   name: string;
@@ -23,6 +31,14 @@ export interface PortfolioProduct {
   /** The one-sentence proposition (spec §11: 2–4 lines). */
   description: string;
   statusLabel: string;
+  /** Tiny status metadata for the info sheet (TASK-121 §5.4) — a shortening of `statusLabel`. */
+  meta: string;
+  /** The painted cover, when one exists; else the designed CSS cover (`scene` / `lettering`). */
+  art?: CoverArt | undefined;
+  scene: PortfolioEntry["scene"];
+  lettering: PortfolioEntry["lettering"];
+  /** Lucide name for the cover plate / CSS scene hero. */
+  coverGlyph: string;
   /** Lucide icon name — the cover's symbolic hero glyph. */
   glyph: string;
   code: string;
@@ -37,7 +53,16 @@ export interface PortfolioProduct {
   caseStudyHref: string;
 }
 
-export function buildPortfolioProducts(projects: readonly Project[], entries: readonly PortfolioEntry[]): PortfolioProduct[] {
+/**
+ * `resolveArt` maps an entry's `coverArt` manifest id to its served image (the page passes the
+ * illustration manifest lookup; kept as a parameter so the client bundle never imports the manifest).
+ * An id it cannot resolve throws — a missing painted cover fails the build, never ships blank.
+ */
+export function buildPortfolioProducts(
+  projects: readonly Project[],
+  entries: readonly PortfolioEntry[],
+  resolveArt?: (id: string) => CoverArt,
+): PortfolioProduct[] {
   const bySlug = new Map(entries.map((entry) => [entry.slug, entry]));
   return projects
     .filter((project) => project.category === "personal")
@@ -53,6 +78,11 @@ export function buildPortfolioProducts(projects: readonly Project[], entries: re
         tagline: entry.coverLine,
         description: project.tagline,
         statusLabel: project.statusLabel,
+        meta: entry.meta,
+        art: entry.coverArt ? resolveArtOrThrow(entry.coverArt, resolveArt) : undefined,
+        scene: entry.scene,
+        lettering: entry.lettering,
+        coverGlyph: entry.coverGlyph,
         glyph: project.icon,
         code: entry.code,
         accent: entry.accent,
@@ -65,6 +95,11 @@ export function buildPortfolioProducts(projects: readonly Project[], entries: re
         caseStudyHref: `/work/${project.slug}`,
       };
     });
+}
+
+function resolveArtOrThrow(id: string, resolveArt: ((id: string) => CoverArt) | undefined): CoverArt {
+  if (!resolveArt) throw new Error(`portfolio: cover art "${id}" needs a resolver`);
+  return resolveArt(id);
 }
 
 /** The media a product carries for a mode, if any. */
