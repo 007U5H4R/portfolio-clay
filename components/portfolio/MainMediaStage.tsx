@@ -4,7 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { AlertTriangle, Play } from "lucide-react";
-import { Sheet, Tape } from "@/components/paper";
+import { Pin, Sheet, Tape } from "@/components/paper";
 import { externalMediaUrl, mediaFor, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { ProductCover } from "./ProductCover";
 
@@ -27,15 +27,18 @@ export interface MainMediaStageProps {
 const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "demo video" };
 
 /**
- * The left media stage (TASK-116, spec §7–§10, §20, §49): a ripped-paper frame on a kraft backing,
- * taped at both top corners, holding one 16:9 screen.
+ * The left media stage (TASK-116, spec §7–§10, §20, §49; TASK-121 rectify spec §5.1–§5.2): the hero
+ * of the page, built as one physical stack — a kraft back sheet, a torn cream frame (`::before` /
+ * `::after`), the 16:9 screen on top, a tape strip + a push-pin, a small doodle burst and a warm
+ * paper shadow. A torn tab on the frame names the mode ("Pitch video" / "Demo video").
  *
  * The showcase renders it with `key={product:mode}`, so every product or Pitch ↔ Demo change is a
  * fresh mount: the old player (if any) unmounts — stopping it — and the new one starts at `poster`,
  * i.e. its start, never autoplaying. Phases (`data-stage-phase`):
- *   poster  → the source's own poster, else the product's 90s cover at stage size; a large central
- *             play button only when this mode has a video (spec §22: never a dead control), else a
- *             small "coming" tag so the empty stage reads as intended, not broken.
+ *   poster  → the source's own poster, else the product's cover at stage size (its painted art, or
+ *             its designed CSS cover) with the name lettered over it; a large central play button
+ *             only when this mode has a video (spec §22: never a dead control), else a small torn
+ *             "coming" tag so the stage reads as intended, not broken.
  *   playing → `ProductVideo` (lazy chunk) replaces the poster — the only player on the page.
  *   error   → the poster again + a short message and a link to open the video directly (spec §49).
  */
@@ -47,8 +50,12 @@ export function MainMediaStage({ product, mode, enter, id }: MainMediaStageProps
 
   return (
     <Sheet as="figure" variant="photo" className="pf-stage">
-      <Tape side="l" rotate={-8} />
-      <Tape side="r" rotate={6} />
+      <Tape side="l" rotate={-6} />
+      <Pin tone="rust" className="pf-stage-pin" />
+      <span className="pf-stage-label" aria-hidden="true">
+        {mode === "pitch" ? "Pitch video" : "Demo video"}
+      </span>
+      <span className="pf-doodle pf-doodle-burst" aria-hidden="true" />
       <div id={id} className="pf-stage-screen" data-enter={enter} data-stage-phase={phase} data-mode={mode}>
         {phase === "playing" && source ? (
           <ProductVideo source={source} title={label} onError={() => setPhase("error")} />
@@ -81,7 +88,10 @@ export function MainMediaStage({ product, mode, enter, id }: MainMediaStageProps
           </>
         )}
       </div>
-      <figcaption className="sr-only">{label}</figcaption>
+      <figcaption className="sr-only">
+        {label}
+        {!poster && product.art ? `. Poster: ${product.art.alt}` : ""}
+      </figcaption>
     </Sheet>
   );
 }

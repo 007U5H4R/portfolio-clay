@@ -514,10 +514,10 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     return alts;
   };
 
-  it("the manifest has the sixteen design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` in §6.3) with the exact Design.md alt strings", () => {
+  it("the manifest has the seventeen design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + TASK-121 `cover-teachspark` in §6.3) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(16);
-    for (const id of ["scene-experience", "scene-certifications", "polaroid-sunrise"]) expect(alts.has(id), `Design.md §6.3 must fix the ${id} alt`).toBe(true);
+    expect(alts.size).toBe(17);
+    for (const id of ["scene-experience", "scene-certifications", "polaroid-sunrise", "cover-teachspark"]) expect(alts.has(id), `Design.md §6.3 must fix the ${id} alt`).toBe(true);
     expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));
   });

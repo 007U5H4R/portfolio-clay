@@ -28,6 +28,11 @@ const FIXTURE: PortfolioProduct[] = [
     tagline: "First fixture cover",
     description: "A fixture product with a local pitch video and a YouTube demo.",
     statusLabel: "Live",
+    meta: "Live",
+    scene: "art",
+    lettering: "rounded",
+    coverGlyph: "Film",
+    art: { src: "/media/fixture-cover.webp", width: 1120, height: 840, alt: "Illustration of a fixture cover." },
     glyph: "Film",
     code: "AL-01",
     accent: "steel",
@@ -45,6 +50,10 @@ const FIXTURE: PortfolioProduct[] = [
     tagline: "Second fixture cover",
     description: "A fixture product with only a Vimeo demo and nothing else.",
     statusLabel: "Prototype",
+    meta: "Prototype",
+    scene: "grid",
+    lettering: "block",
+    coverGlyph: "Monitor",
     glyph: "Users",
     code: "BE-01",
     accent: "rust",
@@ -58,6 +67,10 @@ const FIXTURE: PortfolioProduct[] = [
     tagline: "Third fixture cover",
     description: "A fixture product with no media and no links at all.",
     statusLabel: "Research",
+    meta: "Research",
+    scene: "waves",
+    lettering: "script",
+    coverGlyph: "Brush",
     glyph: "Search",
     code: "GA-01",
     accent: "forest",
@@ -223,8 +236,11 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
   });
 });
 
+/** Stand-in for the page's manifest lookup (app/projects/page.tsx). */
+const resolveArt = (id: string) => ({ src: `/media/illustrations/covers/${id}.webp`, width: 1120, height: 840, alt: `Illustration of ${id}.` });
+
 describe("Portfolio data model (spec §5, §21)", () => {
-  const products = buildPortfolioProducts(projects, portfolioEntries);
+  const products = buildPortfolioProducts(projects, portfolioEntries, resolveArt);
   const personal = projects.filter((p) => p.category === "personal");
 
   it("lists every personal build once, in data order — never a professional entry", () => {
@@ -244,8 +260,33 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const withDemo = buildPortfolioProducts(
       [{ ...first!, links: { ...first!.links, demoVideo: { src: "/video/fixture-tiny.mp4", poster: "/video/fixture-tiny-poster.webp", durationSec: 10 } } }],
       portfolioEntries,
+      resolveArt,
     );
     expect(withDemo[0]?.demoVideo).toEqual({ kind: "file", src: "/video/fixture-tiny.mp4", poster: "/video/fixture-tiny-poster.webp" });
+  });
+
+  it("TASK-121: every cover has its own identity; TeachSpark carries its painted art; a cover-art id without a resolver throws", () => {
+    const identities = products.map((p) => (p.art ? `art:${p.art.src}` : `${p.scene}|${p.coverGlyph}`));
+    expect(new Set(identities).size).toBe(products.length);
+    expect(products.find((p) => p.id === "teachspark")?.art?.src).toBe("/media/illustrations/covers/cover-teachspark.webp");
+    expect(() => buildPortfolioProducts(projects, portfolioEntries)).toThrow(/needs a resolver/);
+  });
+
+  it("TASK-121: the info-sheet metadata is short and only shortens the project's own status label", () => {
+    for (const product of products) {
+      expect(product.meta.length, product.id).toBeLessThanOrEqual(40);
+      // every word of the short label already appears in the full status label (or the tagline for "team PRD" / "patent record")
+      const source = `${product.statusLabel} ${product.description}`.toLowerCase();
+      for (const word of product.meta.toLowerCase().split(/[\s·]+/).filter(Boolean)) {
+        expect(source, `${product.id}: "${word}"`).toContain(word);
+      }
+    }
+  });
+
+  it("TASK-121: the stage shows the short metadata, never the full operational sentence", () => {
+    render(<IndependentProductsShowcase products={products} />);
+    expect(screen.getByText("Live pilot · Twilio sandbox")).toBeInTheDocument();
+    expect(screen.queryByText(/uptime after/)).toBeNull();
   });
 
   it("the content gate rejects a missing entry and a demo set in two places", () => {

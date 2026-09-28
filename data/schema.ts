@@ -132,6 +132,15 @@ export const PortfolioEntry = z.object({
   code: z.string().regex(/^[A-Z]{2}-\d{2}$/),                                // cover code, 'TS-01'
   coverLine: z.string().min(8).max(32),                                      // short cover tagline
   accent: PortfolioAccent,
+  /* TASK-121 (rectify spec §5.4): the tiny status metadata on the info sheet — a shortening of the
+     project's own `statusLabel` (the full sentence stays on the case study), never a new claim. */
+  meta: z.string().min(4).max(40),
+  /* TASK-121 (§7.3): the cover's own identity — a painted art id from the illustration manifest when
+     one exists, else a designed CSS scene (`scene`) with its lettering style and hero glyph. */
+  coverArt: z.string().regex(/^cover-[a-z0-9-]+$/).optional(),
+  scene: z.enum(['art','rails','sunset','grid','bunting','rays','hills','lab','waves','pixels','beam']),
+  lettering: z.enum(['rounded','slab','script','block','serif','mono']),
+  coverGlyph: z.string().min(2),                                             // lucide name (ProductCover map)
   pitchVideo: VideoMediaEntry.optional(),
   demoVideo: VideoMediaEntry.optional(),                                     // only when `links.demoVideo` is absent
   prdUrl: z.url().startsWith('https://').optional(),

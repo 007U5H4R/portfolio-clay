@@ -25,8 +25,9 @@ function sourceLine(sources: EnterpriseCase["sources"]): string {
  * intro, one subtle "inside larger systems" annotation, and a 3 × 2 grid of case-file cards.
  *
  * Each card is content paper (`data-paper="card"`, not counted): a stamped case-file label, client
- * (h3), program, role + dates, a 1–2 sentence summary, 2–3 workstreams, 4–6 tags and its source
- * line. The paperclip and torn corner are the card's own CSS material. No "Open case file →" CTA:
+ * (h3), program, role + dates, a 1–2 sentence summary, the grouped sub-projects (TASK-121 rectify
+ * spec §11.3: names only — the per-workstream detail stays in `data/enterprise.ts`, so the cards read
+ * as compact case files, not résumés), 4–6 tags and its source line. The paperclip and torn corner are the card's own CSS material. No "Open case file →" CTA:
  * no detail page exists, so it would be a dead link (spec §34).
  *
  * EVAL-018 (Design.md §3.3 `/projects` enterprise): torn · annotation = 2.
@@ -60,11 +61,9 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
                 </p>
                 <p className="pf-case-summary">{item.summary}</p>
                 {item.workstreams.length > 0 ? (
-                  <ul className="pf-case-streams">
+                  <ul className="pf-case-streams" aria-label="Sub-projects">
                     {item.workstreams.map((stream) => (
-                      <li key={stream.name}>
-                        <strong>{stream.name}</strong> — {stream.detail}
-                      </li>
+                      <li key={stream.name}>{stream.name}</li>
                     ))}
                   </ul>
                 ) : null}

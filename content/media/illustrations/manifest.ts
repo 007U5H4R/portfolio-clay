@@ -12,11 +12,12 @@
  * TKT-107 (Dev-95): the six scenes are now 3168×1344 (21:9) Higgsfield outpaints — the home banner's size.
  * TASK-114 (Dev-103/104): two new scenes for `/work` and `/certifications`, encoded the same way at the same size.
  * TASK-117: `polaroid-sunrise`, the `/about` hero polaroid (a landscape without the character, public-only).
+ * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -201,5 +202,19 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 700,
     alt: "Illustration of a watercolour sunrise over snow-capped mountains, misty pine valleys and a hillside path.",
     usedOn: ["/about"],
+  },
+  {
+    // TASK-121 (Tushar's portfolio rectify spec 2026-09-28 §5.2, §7): TeachSpark's painted 90s game-box
+    // cover — one text-free image that is both its carousel cover (4:5 crop) and its enlarged stage
+    // poster (16:9 crop); the title lettering is HTML over it. Higgsfield `gpt_image_2_5` (low, 4:3),
+    // job 6f36b2b9-…, 0.25 cr. Served from public/ through next/image (1120×840 WebP source).
+    id: "cover-teachspark",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-teachspark.webp",
+    width: 1120,
+    height: 840,
+    alt: "Illustration of a friendly cream retro robot holding a stack of worksheets in a dusk-lit classroom — a plain green chat bubble beside it, a navy chalkboard of chalk stars, a globe, books and a glowing desk lamp.",
+    usedOn: ["/projects"],
   },
 ];
