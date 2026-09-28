@@ -10672,7 +10672,7 @@ html.lenis body {
    grid's text baseline) confines the vertical slide to the word's own box; the padding / equal negative
    margin gives italic overhang and descenders room without changing the line box. One 15 s timeline
    (6 × 2.5 s): enter from below + fade in 280 ms → hold → exit upward + fade out 280 ms → 100 ms empty
-   beat → next verb. Delays are offset by −280 ms so "build" is already settled when cycling starts.
+   beat → next verb. Delays (selectors out-rank the shorthand, or it resets them to 0) are offset by −280 ms so "build" is already settled when cycling starts.
    Nothing animates without `data-cycle` (set by the island only while the band is in view and the tab
    is visible); reduced motion never gets it, and the media query below is the belt to that brace. */
 @layer components {
@@ -10694,22 +10694,22 @@ html.lenis body {
   .band-verbs[data-cycle="paused"] .band-verbs-word {
     animation-play-state: paused;
   }
-  .band-verbs-word:nth-child(1) {
+  .band-verbs[data-cycle] .band-verbs-word:nth-child(1) {
     animation-delay: -0.28s;
   }
-  .band-verbs-word:nth-child(2) {
+  .band-verbs[data-cycle] .band-verbs-word:nth-child(2) {
     animation-delay: 2.22s;
   }
-  .band-verbs-word:nth-child(3) {
+  .band-verbs[data-cycle] .band-verbs-word:nth-child(3) {
     animation-delay: 4.72s;
   }
-  .band-verbs-word:nth-child(4) {
+  .band-verbs[data-cycle] .band-verbs-word:nth-child(4) {
     animation-delay: 7.22s;
   }
-  .band-verbs-word:nth-child(5) {
+  .band-verbs[data-cycle] .band-verbs-word:nth-child(5) {
     animation-delay: 9.72s;
   }
-  .band-verbs-word:nth-child(6) {
+  .band-verbs[data-cycle] .band-verbs-word:nth-child(6) {
     animation-delay: 12.22s;
   }
   @media (prefers-reduced-motion: reduce) {
