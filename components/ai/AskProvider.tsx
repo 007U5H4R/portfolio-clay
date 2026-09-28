@@ -94,9 +94,17 @@ export interface AskProviderProps {
    * the lazy `AskPanel`. Optional so the `/dev/ask` harness (which never opens the panel) can omit it.
    */
   panelPrompts?: string[] | undefined;
+  /**
+   * TASK-123: ids of the FAQ-cache entries whose answers still match the current data, computed at
+   * build time in app/layout.tsx (`lib/ask/faq-versions.ts`) and forwarded to the lazy drawer. Omitted
+   * (the `/dev/ask` harness) means no cached answer is served — the cache fails closed.
+   */
+  faqFreshIds?: readonly string[] | undefined;
 }
 
-export function AskProvider({ children, provider, panelPrompts = [] }: AskProviderProps) {
+const NO_FRESH_FAQ: readonly string[] = [];
+
+export function AskProvider({ children, provider, panelPrompts = [], faqFreshIds = NO_FRESH_FAQ }: AskProviderProps) {
   const resolvedProvider = useMemo(() => provider ?? createDefaultProvider(), [provider]);
   const [panelOpen, setPanelOpen] = useState(false);
   // Once the panel has been opened, keep it mounted (state + a warm chunk) so re-opening is instant.
@@ -130,7 +138,7 @@ export function AskProvider({ children, provider, panelPrompts = [] }: AskProvid
   return (
     <AskContext.Provider value={value}>
       {children}
-      {everOpened ? <AskPanelLazy panelPrompts={panelPrompts} /> : null}
+      {everOpened ? <AskPanelLazy panelPrompts={panelPrompts} faqFreshIds={faqFreshIds} /> : null}
     </AskContext.Provider>
   );
 }
@@ -212,15 +220,28 @@ export interface UseAskChat {
   reset: () => void;
 }
 
-export function useAskChat(): UseAskChat {
-  const { provider } = useAskContext();
+/**
+ * TASK-123 (FAQ-cache spec §57): a curated FAQ answer renders at once — no skeleton floor, no fake
+ * typing. Every other answer keeps the ≥ 150 ms floor so a fast local resolve never flashes.
+ */
+const isCacheHit = (answer: Answer): boolean => answer.kind === "answer" && answer.sourceType === "faq-cache";
+
+/**
+ * `provider` overrides the context's provider: the drawer passes the FAQ cache, which wraps it. Each
+ * turn is asked with the conversation's earlier questions (`history`, §55–56).
+ */
+export function useAskChat(providerOverride?: AnswerProvider): UseAskChat {
+  const { provider: contextProvider } = useAskContext();
+  const provider = providerOverride ?? contextProvider;
   const [messages, setMessages] = useState<ChatTurn[]>([]);
   const nextId = useRef(0);
   // Bumped by reset(): a turn started in an older conversation never writes into the new one.
   const epoch = useRef(0);
+  // Every question asked in this conversation, oldest first (the history each new turn is asked with).
+  const asked = useRef<string[]>([]);
 
   const resolve = useCallback(
-    async (turnId: number, query: string) => {
+    async (turnId: number, query: string, history: readonly string[]) => {
       const started = epoch.current;
       const update = (patch: Partial<Extract<ChatTurn, { role: "tushky" }>>) => {
         if (started !== epoch.current) return;
@@ -228,7 +249,9 @@ export function useAskChat(): UseAskChat {
       };
       update({ status: "loading", answer: null });
       try {
-        const [answer] = await Promise.all([provider.ask(query, { surface: "panel" }), delay(SKELETON_FLOOR_MS)]);
+        const floor = delay(SKELETON_FLOOR_MS);
+        const answer = await provider.ask(query, { surface: "panel", history });
+        if (!isCacheHit(answer)) await floor;
         update({ status: answer.kind === "answer" ? "answer" : "empty", answer });
       } catch (err) {
         console.error("[ask] provider failed", err); // never silent (SF-6 / A12)
@@ -245,12 +268,14 @@ export function useAskChat(): UseAskChat {
       if (!text || !q) return;
       const userId = ++nextId.current;
       const turnId = ++nextId.current;
+      const history = [...asked.current];
+      asked.current.push(q);
       setMessages((all) => [
         ...all,
         { id: userId, role: "user", text },
         { id: turnId, role: "tushky", status: "loading", query: q, answer: null },
       ]);
-      void resolve(turnId, q);
+      void resolve(turnId, q, history);
     },
     [resolve],
   );
@@ -258,13 +283,17 @@ export function useAskChat(): UseAskChat {
   const retry = useCallback(
     (turnId: number) => {
       const turn = messages.find((m) => m.id === turnId);
-      if (turn?.role === "tushky") void resolve(turnId, turn.query);
+      if (turn?.role !== "tushky") return;
+      // The questions asked before this turn, in order.
+      const history = messages.flatMap((m) => (m.role === "tushky" && m.id < turnId ? [m.query] : []));
+      void resolve(turnId, turn.query, history);
     },
     [messages, resolve],
   );
 
   const reset = useCallback(() => {
     epoch.current++;
+    asked.current = [];
     setMessages([]);
   }, []);
 

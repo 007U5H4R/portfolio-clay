@@ -232,6 +232,8 @@ test.describe("ask-panel", () => {
     await expect(panel(page).getByRole("img", { name: /^Tushky, the golden retriever/ })).toHaveCount(0);
     await expect(conversation(page).locator('[data-role="user"]')).toHaveText(/What products has Tushar built\?/);
     await expect(lastAnswer(page)).toHaveAttribute("data-msg", "answer");
+    // TASK-123: a suggested question is answered from the curated FAQ cache, not the index.
+    await expect(lastAnswer(page)).toHaveAttribute("data-source", "faq-cache");
     const sources = lastAnswer(page).getByRole("list", { name: "Sources" }).getByRole("link");
     await expect(sources).toHaveText(["TeachSpark", "RailCite", "Nuptis → Velora"]);
     for (const href of await sources.evaluateAll((els) => els.map((a) => a.getAttribute("href") ?? "")))

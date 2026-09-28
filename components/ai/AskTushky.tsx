@@ -224,12 +224,16 @@ function TushkyTurn({
     );
   } else if (answer?.kind === "answer") {
     const matched = answer.matched[0] ?? "";
+    // TASK-123: a cached FAQ answer brings its own follow-ups and draft flag (§49); an index answer
+    // derives them from the knowledge entry, as before. Both render identically.
+    const followUps = answer.suggestedFollowUps ?? followUpsFor(matched, answered);
+    const draft = answer.draft ?? answer.matched.some((id) => DRAFT_IDS.has(id));
     body = (
       <>
-        {answer.matched.some((id) => DRAFT_IDS.has(id)) ? <DraftTag /> : null}
+        {draft ? <DraftTag /> : null}
         <p className="tk-answer-text">{answer.text}</p>
         <Sources answer={answer} />
-        {isLast ? <FollowUps items={followUpsFor(matched, answered)} onAsk={onAsk} /> : null}
+        {isLast ? <FollowUps items={followUps} onAsk={onAsk} /> : null}
       </>
     );
   } else if (answer?.kind === "empty") {
@@ -241,7 +245,12 @@ function TushkyTurn({
     );
   }
   return (
-    <li className="tk-turn" data-role="tushky" data-msg={status}>
+    <li
+      className="tk-turn"
+      data-role="tushky"
+      data-msg={status}
+      data-source={answer?.kind === "answer" ? (answer.sourceType ?? "local-index") : undefined}
+    >
       <TushkyAvatar size={32} className="tk-turn-avatar" />
       <div className="tk-bubble">
         <span className="sr-only">Tushky: </span>

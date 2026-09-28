@@ -20,6 +20,10 @@ export const AnswerSchema: z.ZodType<Answer> = z.discriminatedUnion("kind", [
     evidence: z.array(EvidenceSchema).min(1),
     matched: z.array(z.string()),
     score: z.number(),
+    // TASK-123 (§49): the shared response contract. Optional, so older replies still parse.
+    sourceType: z.enum(["faq-cache", "local-index", "gemini"]).optional(),
+    suggestedFollowUps: z.array(z.object({ label: z.string().min(1), query: z.string().min(1) })).optional(),
+    draft: z.boolean().optional(),
   }),
   z.object({
     kind: z.literal("empty"),

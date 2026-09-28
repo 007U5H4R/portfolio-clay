@@ -6,6 +6,9 @@ import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
 import { knowledge } from "@/data/knowledge";
+import faqData from "@/data/tushky/faq.json";
+import type { FaqEntry } from "@/lib/ask/faq";
+import { freshFaqIds } from "@/lib/ask/faq-versions";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
 import { BandFooter } from "@/components/layout/BandFooter";
@@ -17,6 +20,11 @@ import { SmoothScroll } from "@/components/interactions/SmoothScroll";
 const PANEL_PROMPTS = knowledge
   .filter((entry) => entry.surface.includes("panel"))
   .map((entry) => entry.prompt);
+
+// TASK-123 (FAQ-cache spec §51): which curated Ask Tushky answers still match the canonical data,
+// decided here at build time by hashing that data on the server. Only these ids reach the client; a
+// stale entry is never served and falls through to the index (the prebuild gate prints it too).
+const FAQ_FRESH_IDS = freshFaqIds(faqData as FaqEntry[]);
 
 // Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com — the TP9 CSP
 // `font-src 'self'` stays untouched; S13). The CSS variables are mapped into @theme's --font-display /
@@ -75,7 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
         <SmoothScroll />
-        <AskProvider panelPrompts={PANEL_PROMPTS}>
+        <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
           <SkipLink />
           <Header />
           <main id="main">{children}</main>
