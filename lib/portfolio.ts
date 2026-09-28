@@ -1,4 +1,4 @@
-import type { PortfolioAccent, PortfolioEntry, Project, VideoMediaEntry, VideoSource } from "@/data/schema";
+import type { PortfolioAccent, PortfolioEntry, Project, VideoMediaEntry } from "@/data/schema";
 import type { VideoMedia } from "@/lib/video-providers";
 
 /**
@@ -11,7 +11,9 @@ import type { VideoMedia } from "@/lib/video-providers";
  *   name / description ← project.name / project.tagline
  *   productUrl         ← project.links.live
  *   githubUrl          ← project.links.github, only when `repoPublic` (a private repo is a dead link)
- *   demoVideo          ← entry.demoVideo, else project.links.demoVideo (local MP4)
+ *   pitchVideo / demoVideo ← entry.pitchVideo / entry.demoVideo (YouTube/Vimeo, TASK-122). A local
+ *                        `links.demoVideo` MP4 is NOT used here: the portfolio's videos live on the
+ *                        provider (video-embed spec, intro) — the /work case study still plays it.
  *   caseStudyHref      ← `/work/<slug>` (every personal build has a case-study page)
  */
 export type MediaMode = "pitch" | "demo";
@@ -46,8 +48,8 @@ export interface PortfolioProduct {
   accent: PortfolioAccent;
   /** 1-based position in the carousel ("No. 03"). */
   position: number;
-  pitchVideo?: VideoSource | undefined;
-  demoVideo?: VideoSource | undefined;
+  pitchVideo?: VideoMedia | undefined;
+  demoVideo?: VideoMedia | undefined;
   productUrl?: string | undefined;
   githubUrl?: string | undefined;
   prdUrl?: string | undefined;
@@ -70,11 +72,6 @@ export function buildPortfolioProducts(
     .map((project, index) => {
       const entry = bySlug.get(project.slug);
       if (!entry) throw new Error(`portfolio: personal build "${project.slug}" has no data/portfolio.ts entry`);
-      const localDemo = project.links.demoVideo;
-      const pitchMedia = entry.pitchVideo ? resolveVideoMedia(entry.pitchVideo, project.name, "pitch") : undefined;
-      const demoMedia = entry.demoVideo ? resolveVideoMedia(entry.demoVideo, project.name, "demo") : undefined;
-      const demoVideo: VideoSource | undefined =
-        (demoMedia && toVideoSource(demoMedia)) ?? (localDemo ? { kind: "file", src: localDemo.src, poster: localDemo.poster } : undefined);
       return {
         id: project.slug,
         name: project.name,
@@ -90,8 +87,8 @@ export function buildPortfolioProducts(
         code: entry.code,
         accent: entry.accent,
         position: index + 1,
-        pitchVideo: pitchMedia && toVideoSource(pitchMedia),
-        demoVideo,
+        pitchVideo: entry.pitchVideo ? resolveVideoMedia(entry.pitchVideo, project.name, "pitch") : undefined,
+        demoVideo: entry.demoVideo ? resolveVideoMedia(entry.demoVideo, project.name, "demo") : undefined,
         productUrl: project.links.live,
         githubUrl: project.links.repoPublic ? project.links.github : undefined,
         prdUrl: entry.prdUrl,
@@ -106,7 +103,7 @@ function resolveArtOrThrow(id: string, resolveArt: ((id: string) => CoverArt) | 
 }
 
 /** The media a product carries for a mode, if any. */
-export function mediaFor(product: PortfolioProduct, mode: MediaMode): VideoSource | undefined {
+export function mediaFor(product: PortfolioProduct, mode: MediaMode): VideoMedia | undefined {
   return mode === "pitch" ? product.pitchVideo : product.demoVideo;
 }
 
@@ -126,18 +123,6 @@ export function stepIndex(index: number, delta: number, length: number): number 
   return (((index + delta) % length) + length) % length;
 }
 
-/** The public URL a viewer can open when an embedded/local video fails (spec §49). */
-export function externalMediaUrl(source: VideoSource): string {
-  switch (source.kind) {
-    case "file":
-      return source.src;
-    case "youtube":
-      return `https://www.youtube.com/watch?v=${source.id}`;
-    case "vimeo":
-      return `https://vimeo.com/${source.id}`;
-  }
-}
-
 /** The default accessible titles (video-embed spec §15): "TeachSpark pitch video", "TeachSpark product demonstration". */
 export const DEFAULT_MEDIA_TITLE: Record<MediaMode, (name: string) => string> = {
   pitch: (name) => `${name} pitch video`,
@@ -152,12 +137,4 @@ export function resolveVideoMedia(entry: VideoMediaEntry, productName: string, m
     title: entry.title ?? DEFAULT_MEDIA_TITLE[mode](productName),
     poster: entry.poster,
   };
-}
-
-/**
- * TASK-122 phase 1 bridge: the TASK-116 stage still renders `VideoSource`. Phase 2 wires
- * `ProductMediaPlayer` (which takes `VideoMedia`) into the reworked stage and removes this.
- */
-function toVideoSource(media: VideoMedia): VideoSource {
-  return media.provider === "youtube" ? { kind: "youtube", id: media.videoId } : { kind: "vimeo", id: media.videoId };
 }

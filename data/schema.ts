@@ -108,12 +108,6 @@ export const Project = z.object({
 });
 
 /* ── portfolio (TASK-116) ───────────────────────────────────── */
-/* One product video: a local MP4 under /video/, a YouTube id or a Vimeo id (spec §23). */
-export const VideoSource = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('file'), src: z.string().regex(/^\/video\/[a-z0-9-]+\.mp4$/), poster: z.string().regex(/^\/video\/[a-z0-9-]+-poster\.webp$/).optional() }),
-  z.object({ kind: z.literal('youtube'), id: z.string().refine(id => isValidVideoId('youtube', id)) }),
-  z.object({ kind: z.literal('vimeo'), id: z.string().refine(id => isValidVideoId('vimeo', id)) }),
-]);
 /* TASK-122 (video-embed spec §2–§3, §19): a pitch/demo is a provider + video id — never embed HTML.
    The id shape per provider lives in `lib/video-providers.ts` (one place). `title` is optional here:
    `lib/portfolio.ts` defaults it to "<Name> pitch video" / "<Name> product demonstration" (§15). */
@@ -207,5 +201,5 @@ export type Media = z.infer<typeof Media>; // TKT-18: DemoVideo's posterFallback
 export type Experience = z.infer<typeof Experience>; export type Essay = z.infer<typeof Essay>; export type KnowledgeEntry = z.infer<typeof KnowledgeEntry>;
 export type ThinkingStageDef = z.infer<typeof ThinkingStageDef>; export type SkillCluster = z.infer<typeof SkillCluster>;
 export type ThinkingNode = z.infer<typeof ThinkingNode>; export type ThinkingChain = z.infer<typeof ThinkingChain>; // TKT-21: ShowTheThinking/ThinkingNode component props.
-export type VideoSource = z.infer<typeof VideoSource>; export type PortfolioAccent = z.infer<typeof PortfolioAccent>; // TASK-116
+export type PortfolioAccent = z.infer<typeof PortfolioAccent>; // TASK-116
 export type VideoMediaEntry = z.infer<typeof VideoMediaEntry>; export type PortfolioEntry = z.infer<typeof PortfolioEntry>; export type EnterpriseCase = z.infer<typeof EnterpriseCase>;

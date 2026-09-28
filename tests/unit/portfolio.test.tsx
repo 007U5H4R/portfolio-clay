@@ -15,8 +15,7 @@ import type { PortfolioEntry } from "@/data/schema";
  * TASK-116 — the Portfolio showcase + data model (Tushar's spec 2026-09-28 §8–§12, §17–§23, §27–§35, §50).
  *
  * The media fixture is the proof that videos "light up without code changes": two fixture products
- * carry a local MP4 (`/video/fixture-tiny.mp4`, the eval-014 tiny-clip name pattern — jsdom never
- * fetches it) and a YouTube / Vimeo id, and the SAME components that render the real (video-less)
+ * carry made-up YouTube / Vimeo ids (TASK-122 — jsdom never loads an embed), and the SAME components that render the real (video-less)
  * catalogue grow the Pitch / Demo actions, mount exactly one player on press, swap it on Pitch ↔ Demo
  * and drop it on a product change.
  */
@@ -26,7 +25,7 @@ const FIXTURE: PortfolioProduct[] = [
     id: "alpha",
     name: "Alpha",
     tagline: "First fixture cover",
-    description: "A fixture product with a local pitch video and a YouTube demo.",
+    description: "A fixture product with a YouTube pitch and a YouTube demo.",
     statusLabel: "Live",
     meta: "Live",
     scene: "art",
@@ -37,8 +36,8 @@ const FIXTURE: PortfolioProduct[] = [
     code: "AL-01",
     accent: "steel",
     position: 1,
-    pitchVideo: { kind: "file", src: "/video/fixture-tiny.mp4" },
-    demoVideo: { kind: "youtube", id: "abcdefghijk" },
+    pitchVideo: { provider: "youtube", videoId: "abcdefghijk", title: "Alpha pitch video" },
+    demoVideo: { provider: "youtube", videoId: "zyxwvutsrqp", title: "Alpha product demonstration" },
     productUrl: "https://alpha.example.com",
     githubUrl: "https://github.com/example/alpha",
     prdUrl: "https://docs.example.com/alpha-prd",
@@ -58,7 +57,7 @@ const FIXTURE: PortfolioProduct[] = [
     code: "BE-01",
     accent: "rust",
     position: 2,
-    demoVideo: { kind: "vimeo", id: "123456789" },
+    demoVideo: { provider: "vimeo", videoId: "123456789", title: "Beta product demonstration" },
     caseStudyHref: "/work/beta",
   },
   {
@@ -84,8 +83,6 @@ beforeEach(() => {
     "matchMedia",
     vi.fn().mockImplementation((query: string) => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
   );
-  // jsdom has no media playback; the player calls play() on mount (the press is the intent).
-  vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
   window.history.replaceState(null, "", "/projects");
 });
 
@@ -105,7 +102,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
     expect(screen.getByRole("tab", { name: /Alpha/ })).toHaveAttribute("aria-selected", "true");
     expect(players(document.body)).toHaveLength(0);
-    expect(screen.getByRole("button", { name: "Play Alpha — pitch video" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
   });
 
   it("renders all five actions when the data has them — Pitch/Demo switch the stage, links open a new tab", () => {
@@ -120,35 +117,34 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     }
   });
 
-  it("press play mounts exactly one local <video> (lazy chunk); Demo swaps it for the YouTube embed; Pitch restores the poster", async () => {
+  it("press play mounts exactly one privacy-enhanced iframe; Demo swaps it (poster first); Pitch restores the poster", () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
-    fireEvent.click(screen.getByRole("button", { name: "Play Alpha — pitch video" }));
-    const video = await screen.findByLabelText("Alpha — pitch video", { selector: "video" });
-    expect(video).toHaveAttribute("src", "/video/fixture-tiny.mp4");
-    expect(video).toHaveAttribute("controls");
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha pitch video" }));
+    const pitch = screen.getByTitle("Alpha pitch video");
+    expect(pitch.tagName).toBe("IFRAME");
+    expect(pitch.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/abcdefghijk\?/);
     expect(players(document.body)).toHaveLength(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
     expect(panel()).toHaveAttribute("data-media-mode", "demo");
     // Switching unmounts the pitch player; the demo starts at its poster (never autoplays).
     expect(players(document.body)).toHaveLength(0);
-    fireEvent.click(screen.getByRole("button", { name: "Play Alpha — demo video" }));
-    const frame = await screen.findByTitle("Alpha — demo video");
-    expect(frame.tagName).toBe("IFRAME");
-    expect(frame.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/abcdefghijk\?/);
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
+    const frame = screen.getByTitle("Alpha product demonstration");
+    expect(frame.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/zyxwvutsrqp\?/);
     expect(players(document.body)).toHaveLength(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Pitch video" }));
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
     expect(players(document.body)).toHaveLength(0);
-    expect(screen.getByRole("button", { name: "Play Alpha — pitch video" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
   });
 
   it("changing product stops the player, resets to pitch and updates the panel + URL (replace, no push)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
-    fireEvent.click(screen.getByRole("button", { name: "Play Alpha — demo video" }));
-    await screen.findByTitle("Alpha — demo video");
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
+    await screen.findByTitle("Alpha product demonstration");
     const before = window.history.length;
 
     fireEvent.click(screen.getByRole("tab", { name: /Beta/ }));
@@ -161,22 +157,22 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
 
     // Beta has no pitch: no Pitch action, no play control on the pitch stage — a "coming" tag instead.
     expect(screen.queryByRole("button", { name: "Pitch video" })).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Play Beta — pitch/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Play Beta pitch/ })).toBeNull();
     expect(screen.getByText("Pitch video coming")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
-    fireEvent.click(screen.getByRole("button", { name: "Play Beta — demo video" }));
-    expect((await screen.findByTitle("Beta — demo video")).getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
+    fireEvent.click(screen.getByRole("button", { name: "Play Beta product demonstration" }));
+    expect((await screen.findByTitle("Beta product demonstration")).getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
   });
 
   it("re-choosing the current product returns it to the pitch poster and stops the player (spec §18)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
-    fireEvent.click(screen.getByRole("button", { name: "Play Alpha — demo video" }));
-    await screen.findByTitle("Alpha — demo video");
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
+    await screen.findByTitle("Alpha product demonstration");
     fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
     expect(players(document.body)).toHaveLength(0);
-    expect(screen.getByRole("button", { name: "Play Alpha — pitch video" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
   });
 
   it("hides every unavailable action — no disabled dead buttons (spec §22)", () => {
@@ -188,16 +184,18 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(screen.getByRole("link", { name: /Read the case study/ })).toHaveAttribute("href", "/work/gamma");
   });
 
-  it("a failing local file shows the poster + a message + a direct link (spec §49)", async () => {
-    render(<IndependentProductsShowcase products={FIXTURE} />);
-    fireEvent.click(screen.getByRole("button", { name: "Play Alpha — pitch video" }));
-    const video = await screen.findByLabelText("Alpha — pitch video", { selector: "video" });
+  it("a blocked embed shows the cover + 'Video unavailable here.' + Watch on YouTube (video-embed spec §17)", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha pitch video" }));
+    const frame = screen.getByTitle("Alpha pitch video") as HTMLIFrameElement;
     act(() => {
-      video.dispatchEvent(new Event("error"));
+      window.dispatchEvent(
+        new MessageEvent("message", { data: JSON.stringify({ event: "onError", info: 150 }), origin: "https://www.youtube-nocookie.com", source: frame.contentWindow }),
+      );
     });
-    expect(screen.getByRole("alert")).toHaveTextContent("This video didn't load.");
-    expect(screen.getByRole("link", { name: "Open it in a new tab" })).toHaveAttribute("href", "/video/fixture-tiny.mp4");
+    expect(screen.getByRole("alert")).toHaveTextContent("Video unavailable here.");
+    expect(screen.getByRole("link", { name: /^Watch on YouTube/ })).toHaveAttribute("href", "https://www.youtube.com/watch?v=abcdefghijk");
     expect(players(document.body)).toHaveLength(0);
     expect(warn).toHaveBeenCalled();
   });
@@ -257,12 +255,22 @@ describe("Portfolio data model (spec §5, §21)", () => {
       expect(product.githubUrl).toBe(project.links.repoPublic ? project.links.github : undefined);
     }
     const [first] = personal;
-    const withDemo = buildPortfolioProducts(
+    // TASK-122: the portfolio plays provider videos only — a local MP4 stays on the /work case study.
+    const withLocal = buildPortfolioProducts(
       [{ ...first!, links: { ...first!.links, demoVideo: { src: "/video/fixture-tiny.mp4", poster: "/video/fixture-tiny-poster.webp", durationSec: 10 } } }],
       portfolioEntries,
       resolveArt,
     );
-    expect(withDemo[0]?.demoVideo).toEqual({ kind: "file", src: "/video/fixture-tiny.mp4", poster: "/video/fixture-tiny-poster.webp" });
+    expect(withLocal[0]?.demoVideo).toBeUndefined();
+    // No real pitch/demo exists yet: every product shows the "coming" state.
+    expect(products.every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
+    const withPitch = buildPortfolioProducts(
+      [first!],
+      portfolioEntries.map((e) => (e.slug === first!.slug ? { ...e, pitchVideo: { provider: "youtube" as const, videoId: "abcdefghijk" } } : e)),
+      resolveArt,
+    );
+    expect(withPitch[0]?.pitchVideo).toEqual({ provider: "youtube", videoId: "abcdefghijk", title: `${first!.name} pitch video`, poster: undefined });
   });
 
   it("TASK-121: every cover has its own identity; TeachSpark carries its painted art; a cover-art id without a resolver throws", () => {
