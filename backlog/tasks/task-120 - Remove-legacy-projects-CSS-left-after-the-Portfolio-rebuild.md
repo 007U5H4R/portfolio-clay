@@ -1,9 +1,11 @@
 ---
 id: TASK-120
 title: Remove legacy /projects CSS left after the Portfolio rebuild
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude-cloud'
 created_date: '2026-09-28 07:57'
+updated_date: '2026-09-28 11:41'
 labels:
   - P3
 dependencies: []

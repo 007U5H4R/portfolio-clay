@@ -5,9 +5,10 @@ title: >-
   (eval-run-m009-rc-<sha>.json), OG inspector pass, Design.md §11 current, PWA
   sync, HANDOFF
 status: In Progress
-assignee: []
+assignee:
+  - '@claude-cloud'
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-26 08:16'
+updated_date: '2026-09-28 11:42'
 labels:
   - P0
   - 'sp:3'
