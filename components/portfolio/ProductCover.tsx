@@ -104,7 +104,7 @@ export function ProductCover({ product, size }: ProductCoverProps) {
           </span>
         )}
       </span>
-      <span className="pf-cover-code">{product.code}</span>
+      <span className="pf-cover-code" data-micro-label="">{product.code}</span>
       <span className="pf-cover-title">
         <span className="pf-cover-name">{product.name}</span>
         {size === "stage" ? <span className="pf-cover-sub">{product.tagline}</span> : null}
