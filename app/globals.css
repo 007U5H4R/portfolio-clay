@@ -11003,7 +11003,7 @@ html.lenis body {
     font-family: var(--font-display);
     /* ≈ 7.5 em for a 10-letter word ("TEACHSPARK") must fit the cover's content box: 12cqi keeps it
        inside down to a 150 px cover; 14 px floor (EVAL-008). */
-    font-size: clamp(14px, 12cqi, 30px);
+    font-size: clamp(14px, 13cqi, 32px);
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.01em;
@@ -11015,20 +11015,20 @@ html.lenis body {
     font-variation-settings: "SOFT" 100, "WONK" 1;
   }
   .pf-cover[data-lettering="slab"] .pf-cover-name {
-    font-size: clamp(14px, 11cqi, 28px);
+    font-size: clamp(14px, 12cqi, 30px);
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.01em;
   }
   .pf-cover[data-lettering="script"] .pf-cover-name {
     font-family: var(--font-hand);
-    font-size: clamp(16px, 16cqi, 40px);
+    font-size: clamp(16px, 17cqi, 42px);
     font-weight: 700;
     rotate: -4deg;
   }
   .pf-cover[data-lettering="block"] .pf-cover-name {
     font-family: var(--font-body);
-    font-size: clamp(14px, 12cqi, 30px);
+    font-size: clamp(14px, 13cqi, 32px);
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: -0.02em;
@@ -11041,7 +11041,7 @@ html.lenis body {
   }
   .pf-cover[data-lettering="mono"] .pf-cover-name {
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: clamp(14px, 10cqi, 26px);
+    font-size: clamp(14px, 11cqi, 28px);
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -11446,23 +11446,29 @@ html.lenis body {
     gap: 10px 10px;
     padding-top: 4px;
   }
-  /* the band: a lighter fibre rim under the kraft, both torn; it runs up under the stage and sheet */
-  .pf-carousel::before,
-  .pf-carousel::after {
-    content: "";
+  /* the band: its own static layer (so its warm shadow never re-renders while the track scrolls) —
+     a lighter fibre rim under the kraft, both torn; it runs up under the stage and sheet */
+  .pf-band {
     position: absolute;
+    inset: -20px calc(50% - 50vw) -18px;
     z-index: -1;
     pointer-events: none;
     rotate: -0.35deg;
+    filter: var(--pf-contact) drop-shadow(0 10px 12px color-mix(in oklab, var(--color-terracotta) 16%, transparent));
   }
-  .pf-carousel::before {
-    inset: -24px calc(50% - 50vw) -22px;
+  .pf-band::before,
+  .pf-band::after {
+    content: "";
+    position: absolute;
+  }
+  .pf-band::before {
+    inset: -4px;
     background-color: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory));
     -webkit-mask: var(--pf-tear-band-b) 0 0 / 100% 100% no-repeat;
     mask: var(--pf-tear-band-b) 0 0 / 100% 100% no-repeat;
   }
-  .pf-carousel::after {
-    inset: -20px calc(50% - 50vw) -18px;
+  .pf-band::after {
+    inset: 0;
     background-color: color-mix(in oklab, var(--color-kraft) 88%, var(--color-terracotta));
     background-image: var(--pf-kraft-tex),
       linear-gradient(180deg, color-mix(in oklab, var(--color-terracotta) 12%, transparent), transparent 28%, transparent 72%, color-mix(in oklab, var(--color-terracotta) 14%, transparent));
@@ -11481,10 +11487,7 @@ html.lenis body {
       padding-top: 0;
     }
     /* visible torn ends, ~5 vw past the content edges; the top edge tucks under the stage + sheet */
-    .pf-carousel::before {
-      inset: -84px calc(-1 * clamp(20px, 5vw, 76px)) -26px;
-    }
-    .pf-carousel::after {
+    .pf-band {
       inset: -80px calc(-1 * clamp(16px, 4.7vw, 72px)) -22px;
     }
   }
@@ -11705,7 +11708,7 @@ html.lenis body {
     right: -3%;
     height: 60px;
     z-index: 0;
-    background-color: var(--color-ivory);
+    background-color: color-mix(in oklab, var(--color-kraft) 42%, var(--color-ivory));
     background-image: var(--pf-fibers);
     background-size: 420px 420px;
     rotate: -0.5deg;

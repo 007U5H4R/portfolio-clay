@@ -82,6 +82,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
 
   return (
     <div className="pf-carousel">
+      <span className="pf-band" aria-hidden="true" />
       <div className="pf-carousel-tag">
         <p id="pf-select" className="pf-select">
           Select a product
