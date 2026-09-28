@@ -4,11 +4,11 @@ title: >-
   TKT-91: Hand-off to Stages 8–10 — preview record run
   (eval-run-m009-rc-<sha>.json), OG inspector pass, Design.md §11 current, PWA
   sync, HANDOFF
-status: In Progress
+status: Done
 assignee:
   - '@claude-cloud'
 created_date: '2026-09-24 05:49'
-updated_date: '2026-09-28 11:42'
+updated_date: '2026-09-28 12:10'
 labels:
   - P0
   - 'sp:3'
@@ -42,5 +42,5 @@ Deploy the branch preview; full pnpm eval against the preview URL persisted with
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-2026-09-26: Tushar: 'yes linkedin post inspector is good' — EVAL-017 LinkedIn Post Inspector pass recorded on preview build c352abd for the existing route families. Re-check needed before release for: / (TKT-108 hero copy changes the home card), new /projects (TKT-101) and /certifications (TKT-102).
+HANDOFF.md rewritten and M-009 section added to QA-report.md (e03a018, ddfca84; merged 2026-09-28). The orchestrator added the TASK-123 rows. The session ran on a local clone, not in the cloud.
 <!-- SECTION:NOTES:END -->

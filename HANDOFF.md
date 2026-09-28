@@ -34,9 +34,10 @@ Updated 2026-09-28 (TASK-86, docs only). Branch `m-009-redesign` @ `27d0004`. **
 | `/projects` → Portfolio (products + enterprise case files) | TASK-116, 119 | Dev-109–114 |
 | Portfolio scrapbook rework | **TASK-121 In Progress** (merged `762ea58`; painted covers open) | Dev-115–118 |
 | Click-to-load YouTube/Vimeo player, CSP derived from data | TASK-122 (merged `15abb00`) | Dev-119/120 |
+| Ask Tushky curated FAQ cache (`data/tushky/faq.json`, versioned by data hash; offline Gemini refresh script, no live LLM) | TASK-123 (merged `d53f964`) | — |
 | Hardening: CopyButton test, OG verification | TASK-92 (TKT-97), TASK-93 (TKT-98; the essay `og:image` 404 was fixed in `016c0ab`) | — |
 
-**Still open in the backlog:** TASK-86 (this hand-off, In Progress), TASK-121 (In Progress) and TASK-120 (To Do: remove the legacy `/projects` CSS left by TASK-116). Also blocked: TASK-8 (sanitised résumé), TASK-46/49 (deploy and production) and TASK-22…26 (demo media, `on-hold`) (`docs/reports/CAMPFIRE-TRIAGE-2026-09-26.md`; EXE-24).
+**Still open in the backlog:** TASK-121 (In Progress) and TASK-120 (To Do: remove the legacy `/projects` CSS left by TASK-116). Also blocked: TASK-8 (sanitised résumé), TASK-46/49 (deploy and production) and TASK-22…26 (demo media, `on-hold`) (`docs/reports/CAMPFIRE-TRIAGE-2026-09-26.md`; EXE-24).
 
 ## 2. Open decisions for Tushar
 
@@ -45,7 +46,7 @@ Each one was checked against `backlog/tasks/` and `decisions.md`.
 1. **Release gate (PB4):** `scripts/predeploy-check.ts` fails a production build unless `public/video/{teachspark,railcite,velora}.mp4` exist (≤ 4 MB) (PB4; EXE-24). Videos will now be hosted on YouTube (`task-122`), so should PB4 require pitch-video IDs instead of MP4s, and for which products? *Recorded:* `task-122` says "PB4 proposal not applied", and EXE-24 records "Wait for videos" and the rejected option of relaxing PB4. *Not recorded:* the proposal's text and its product list. All video IDs are still empty (`task-122`).
 2. **Demo videos and media:** when will the TASK-22…26 media (TeachSpark, RailCite, Nuptis/Velora, Bhakti-Vilas, Pratyasa/Tegaki/dino-arcade/cinematic) be recorded or linked? All five are Blocked and `on-hold` (EXE-24).
 3. **Painted covers:** approve about 2.5 credits to paint the 10 remaining product covers? Only TeachSpark has painted art (Dev-115). The other 10 are CSS covers because Higgsfield's daily limit blocked them (`task-121`).
-4. **Live Gemini for Ask Tushky:** should Ask stay deterministic? The repo records only the deterministic local provider: "no live LLM" (S7, S21; `components/ai/AskProvider.tsx`; `data/knowledge.ts`), and Tushky "answers only from the portfolio index" (Dev-61). *Not recorded:* a Gemini request and any approval, and a "curated FAQ cache".
+4. **Live Gemini for Ask Tushky:** should Ask stay deterministic? The repo records only the deterministic local provider: "no live LLM" (S7, S21; `components/ai/AskProvider.tsx`; `data/knowledge.ts`), and Tushky "answers only from the portfolio index" (Dev-61). TASK-123 added a curated FAQ cache in front of the local provider, plus an offline, human-reviewed Gemini refresh script (`scripts/tushky-faq-refresh.ts`). A live Gemini path on the site has not been approved.
 5. **Vendor Passport and Velora:** can you supply the Vendor Passport data? It is in neither `data/projects.ts` nor the source documents, so it was left out (`docs/reports/TASK-116.md`, `TASK-121-plan.md`). Is Velora apparel sourcing / vendor onboarding (as in `data/projects.ts`) rather than the spec's "beauty / routine"? Also open in `task-121`: the status-label wording.
 6. **Résumé label and header:**
    - Should `resumeAction()`'s placeholder change site-wide from "Resume — updating" to "Resume — available on request"? The band footer, `/about` and home still read "updating"; only `/contact` changed (`docs/reports/TASK-113.md`, Dev-99).
