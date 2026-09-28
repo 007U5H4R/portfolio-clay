@@ -262,11 +262,18 @@ describe("Portfolio data model (spec §5, §21)", () => {
       resolveArt,
     );
     expect(withLocal[0]?.demoVideo).toBeUndefined();
-    // TASK-125: RailCite carries Tushar's YouTube pitch + demo; every other product shows the "coming" state.
+    // TASK-125: RailCite carries Tushar's YouTube pitch + demo.
     const railcite = products.find((p) => p.id === "railcite");
     expect(railcite?.pitchVideo).toMatchObject({ provider: "youtube", videoId: "nI3EqDXd5Io", title: "RailCite pitch video" });
     expect(railcite?.demoVideo).toMatchObject({ provider: "youtube", videoId: "B3x-I1J8JW8", title: "RailCite product demonstration" });
-    expect(products.filter((p) => p.id !== "railcite").every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-124: Campfire Board carries its pitch + demo (YouTube, default titles); every
+    // other product still shows the "coming" state.
+    const campfire = products.find((p) => p.id === "campfire-board");
+    expect(campfire?.pitchVideo).toEqual({ provider: "youtube", videoId: "K_-510L6e7g", title: "Campfire Board pitch video", poster: undefined });
+    expect(campfire?.demoVideo).toEqual({ provider: "youtube", videoId: "DkxDQji3dz8", title: "Campfire Board product demonstration", poster: undefined });
+    expect(campfire?.productUrl).toBeUndefined(); // a local tool — no product link
+    expect(campfire?.githubUrl).toBe("https://github.com/007U5H4R/pm-dashboard"); // public repo (2026-09-28)
+    expect(products.filter((p) => !["railcite", "campfire-board"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],

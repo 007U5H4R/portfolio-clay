@@ -14,7 +14,7 @@
  *   GENERAL           no page overflow + 44 px targets (EVAL-008), axe (EVAL-006), the EVAL-018 unit
  *                     counts (products 2, enterprise 2), the ~62/38 desktop split and the mobile order.
  * Reduced motion lives in eval-010.spec.ts; the media switching with real sources is proven by the
- * fixture suite in tests/unit/portfolio.test.tsx (no pitch/demo recordings exist yet — TKT-22…26).
+ * fixture suite in tests/unit/portfolio.test.tsx; the one real pair (Campfire Board, TASK-124) is in portfolio-video.spec.ts.
  *
  * Tags carried so the tests surface under the relevant eval ids (`pnpm eval --only …`).
  */

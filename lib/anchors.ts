@@ -55,6 +55,7 @@ export const ALL_PROJECT_SLUGS = [
   'tegaki',
   'dino-arcade-pwa',
   'cinematic-portfolio',
+  'campfire-board', // TASK-124
 ] as const;
 
 export interface RouteInputs {

@@ -2,7 +2,8 @@
  * portfolio-video.spec.ts (TASK-122, video-embed spec §5, §6, §11–§15, §20) — the video player wired
  * into the REAL Portfolio showcase (TASK-121 visuals), via `/dev/portfolio-video`: the real product
  * data with TEST-ONLY YouTube ids overlaid on product 1 (pitch + demo) and product 2 (pitch only).
- * `data/portfolio.ts` carries no ids, so `/projects` itself only shows "coming" tags (projects.spec).
+ * TASK-124: `data/portfolio.ts` now carries one REAL pair — Campfire Board's launch pitch + demo — so
+ * the last describe below proves them on the plain `/projects` page (no dev route needed).
  *
  * Only renders under `ALLOW_DEV_ROUTES=1`; every test SKIPs (never fails) on a plain build. Run:
  * `ALLOW_DEV_ROUTES=1 pnpm build && ALLOW_DEV_ROUTES=1 pnpm test:e2e portfolio-video`.
@@ -120,5 +121,55 @@ test.describe("Portfolio showcase video (TASK-122)", () => {
   test("poster state passes axe on the showcase", async ({ page, axe }) => {
     await gotoBoard(page);
     await axe(page, { include: ".pf-showcase" });
+  });
+});
+
+/* TASK-124 — the first REAL product videos (Campfire Board's launch pitch + demo) on the plain
+   `/projects` page: poster first (no iframe), one privacy-enhanced iframe after Play, Demo swaps it,
+   no CSP console error. Runs on every build (no ALLOW_DEV_ROUTES). */
+test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
+  const PITCH_ID = "K_-510L6e7g";
+  const DEMO_ID = "DkxDQji3dz8";
+
+  test.beforeEach(() => {
+    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+  });
+
+  test("select Campfire: Pitch + Demo strips; poster → one youtube-nocookie iframe; Demo swaps the id; no CSP error", async ({ page, noOverflow }) => {
+    const violations = cspWatch(page);
+    await page.goto("/projects?product=campfire-board", { waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const tab = document.querySelector('[role="tab"]');
+      return !!tab && Object.keys(tab).some((k) => k.startsWith("__reactProps"));
+    });
+    await expect(panel(page)).toHaveAttribute("data-active-product", "campfire-board");
+    await expect(page.getByRole("tab", { selected: true })).toHaveAttribute("data-product", "campfire-board");
+    const pitchBtn = actions(page).getByRole("button", { name: "Pitch video" });
+    const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
+    await expect(pitchBtn).toBeVisible();
+    await expect(demoBtn).toBeVisible();
+    // A local tool: no product link. Its repo is public (2026-09-28): one GitHub action, new tab.
+    await expect(actions(page).locator('[data-action="product"]')).toHaveCount(0);
+    const github = actions(page).locator('[data-action="github"]');
+    await expect(github).toHaveCount(1);
+    await expect(github).toHaveAttribute("href", "https://github.com/007U5H4R/pm-dashboard");
+    await expect(github).toHaveAttribute("target", "_blank");
+    await expect(frames(page)).toHaveCount(0);
+
+    await stage(page).getByRole("button", { name: /^Play Campfire Board pitch video$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    const src = new URL((await frames(page).getAttribute("src"))!);
+    expect(src.origin).toBe("https://www.youtube-nocookie.com");
+    expect(src.pathname).toBe(`/embed/${PITCH_ID}`);
+    await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
+    await noOverflow(page);
+
+    await demoBtn.click();
+    await expect(frames(page)).toHaveCount(0);
+    await stage(page).getByRole("button", { name: /^Play Campfire Board product demonstration$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    expect(await embedId(page)).toBe(DEMO_ID);
+    await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
+    expect(violations).toEqual([]);
   });
 });

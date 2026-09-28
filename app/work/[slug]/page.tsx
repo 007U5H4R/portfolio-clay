@@ -58,7 +58,7 @@ const PERSONAL = projects.filter((project) => project.category === "personal");
  *   SceneOpener (TKT-95) → header → metric strip → overview → deep dive (TKT-83) → what I learned
  *   (TKT-82) → sources (TKT-82) → next project → band (layout).
  *
- * One template renders every one of the 11 personal projects honestly (S18, PB4):
+ * One template renders every one of the 12 personal projects honestly (S18, PB4):
  *   - rich: ≥ 2 metrics → the metric strip; `overview.deepDive` + chapters → the folder tabs, and
  *     "Deep dive" mounts `section#deep` right below the overview (TC-156);
  *   - thin: no metric section (0–1 metrics), no tabs; with no chapter content the notebook carries

@@ -6,6 +6,7 @@ import {
   ClipboardList,
   Clapperboard,
   Film,
+  Flame,
   Flower2,
   Gamepad2,
   Handshake,
@@ -18,6 +19,7 @@ import {
   Search,
   ShieldCheck,
   Shirt,
+  SquareKanban,
   TrainFront,
   Users,
   type LucideIcon,
@@ -50,6 +52,8 @@ const GLYPHS: Readonly<Record<string, LucideIcon>> = {
   Microscope,
   Brush,
   Clapperboard,
+  SquareKanban,
+  Flame,
 };
 
 export function glyphFor(name: string): LucideIcon {
@@ -69,7 +73,7 @@ export interface ProductCoverProps {
  *   art    a painted, text-free cover image (`product.art`, the illustration manifest) — the SAME
  *          image is the carousel cover (4:5 crop) and the enlarged stage poster (16:9 crop);
  *   scene  otherwise a designed CSS scene (`data-scene`: rails, sunset, grid, bunting, rays, hills,
- *          lab, waves, pixels, beam) with the product's own hero glyph, palette and lettering
+ *          lab, waves, pixels, beam, campfire) with the product's own hero glyph, palette and lettering
  *          (`data-lettering`) — no raster, no real game's artwork or branding.
  * Title lettering is always HTML (editable, no AI-garbled text). The whole cover is presentational —
  * its text repeats what the tab / info sheet already expose — so it is `aria-hidden`; the stage
