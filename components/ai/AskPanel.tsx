@@ -26,9 +26,12 @@
  * empty state (mascot, grounding note, intro, six suggestions). After it, it holds the conversation
  * (`useAskChat`), and the header gains the small avatar. Closing resets the conversation, as before.
  */
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { track } from "@vercel/analytics";
 import { durations, useReducedMotionSafe } from "@/lib/motion";
 import { lockBackground } from "@/lib/focus";
+import { FaqCacheProvider, type FaqEntry, type FaqLookupEvent } from "@/lib/ask/faq";
+import faqData from "@/data/tushky/faq.json";
 import { useAskChat, useAskContext } from "./AskProvider";
 import { ChatComposer, ChatConversation, TushkyEmptyState, TushkyHeader } from "./AskTushky";
 
@@ -39,14 +42,40 @@ export interface AskPanelProps {
    * The prop stays so the provider/layout contract is unchanged.
    */
   panelPrompts: string[];
+  /** TASK-123: FAQ-cache entries still current with the data (build-time, `lib/ask/faq-versions.ts`). */
+  faqFreshIds: readonly string[];
 }
 
+/** The curated FAQ (TASK-123). Imported here, so it ships in the lazy drawer chunk only (EVAL-005). */
+const FAQ = faqData as FaqEntry[];
+
+/**
+ * §62: cache effectiveness through the site's existing Vercel Analytics custom events (the project has
+ * no Mixpanel). Only the FAQ id, its category and the miss reason are sent — never the question text.
+ * Misses go to the local index today; the event is named for that, not for a Gemini call that doesn't exist.
+ */
+function trackLookup({ lookup }: FaqLookupEvent): void {
+  try {
+    if (lookup.kind === "hit") {
+      track("Ask Tushky Cache Hit", { faq_id: lookup.entry.id, question_category: lookup.entry.category, match: lookup.matchType });
+    } else {
+      track("Ask Tushky Cache Miss", { reason: lookup.reason, question_category: lookup.entry?.category ?? "unmatched" });
+    }
+  } catch {
+    // Analytics must never block an answer.
+  }
+}
 /** Close slide duration — mirrors `.ask-panel` `transition` in globals.css (spec §3: 250–320 ms). */
 const CLOSE_MS = Math.min(durations.panel, 280);
 
-export function AskPanel() {
-  const { panelOpen, closePanel, triggerRef, pendingAsk, clearPendingAsk } = useAskContext();
-  const { messages, isGenerating, ask, retry, reset } = useAskChat();
+export function AskPanel({ faqFreshIds }: AskPanelProps) {
+  const { provider, panelOpen, closePanel, triggerRef, pendingAsk, clearPendingAsk } = useAskContext();
+  // TASK-123: the FAQ cache answers first; a miss falls through to the context's provider (the index).
+  const faqProvider = useMemo(
+    () => new FaqCacheProvider(FAQ, provider, { fresh: faqFreshIds, onLookup: trackLookup }),
+    [provider, faqFreshIds],
+  );
+  const { messages, isGenerating, ask, retry, reset } = useAskChat(faqProvider);
   const reduced = useReducedMotionSafe();
 
   const dialogRef = useRef<HTMLDialogElement>(null);

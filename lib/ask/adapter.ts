@@ -17,11 +17,42 @@ export type Evidence = { label: string; href: string };
  * invariant — Vitest asserts byte-equality against `KnowledgeEntry.answer`); `empty` is the graceful
  * fallback (no match / no canonical tokens) with fresh suggestions and never an invented answer.
  */
+/**
+ * Where an answer came from (TASK-123, Tushar's FAQ-cache spec §49). `faq-cache` = a curated answer from
+ * `data/tushky/faq.json`; `local-index` = the deterministic knowledge index; `gemini` is reserved for a
+ * future generated path. Absent on answers from providers that predate the field (the local index).
+ */
+export type SourceType = "faq-cache" | "local-index" | "gemini";
+
+/** A follow-up chip: `label` is shown, `query` is asked. */
+export type SuggestedFollowUp = { label: string; query: string };
+
 export type Answer =
-  | { kind: "answer"; text: string; evidence: Evidence[]; matched: string[]; score: number }
+  | {
+      kind: "answer";
+      text: string;
+      evidence: Evidence[];
+      matched: string[];
+      score: number;
+      /** §49 response contract. Optional so the local index's replies stay byte-identical. */
+      sourceType?: SourceType;
+      /** Follow-ups the provider chose; when absent the UI derives them from the knowledge index. */
+      suggestedFollowUps?: SuggestedFollowUp[];
+      /** True when the answer copy is not yet signed off by Tushar (the UI shows the DRAFT tag). */
+      draft?: boolean;
+    }
   | { kind: "empty"; text: string; evidence: Evidence[]; matched: []; suggestions: string[] };
 
-export type AskContext = { route?: string; surface?: "home" | "panel" };
+export type AskContext = {
+  route?: string;
+  surface?: "home" | "panel";
+  /**
+   * TASK-123 (§55–56): the questions already asked earlier in this conversation, oldest first. The FAQ
+   * cache uses it only to skip follow-up chips that were already answered; a future generated provider
+   * gets the conversation context it needs for follow-ups the cache refuses to serve.
+   */
+  history?: readonly string[];
+};
 
 export interface AnswerProvider {
   readonly name: string;
