@@ -35,7 +35,10 @@ import type { PortfolioEntry } from "./schema";
  */
 export const portfolioEntries: PortfolioEntry[] = [
   { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", scene: "art", lettering: "rounded", coverGlyph: "MessageSquareText" },
-  { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", scene: "rails", lettering: "slab", coverGlyph: "TrainFront" },
+  { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", scene: "rails", lettering: "slab", coverGlyph: "TrainFront",
+    // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
+    pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
+    demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
   { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", scene: "sunset", lettering: "script", coverGlyph: "Shirt" },
   { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", scene: "grid", lettering: "block", coverGlyph: "Monitor" },
   { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", scene: "bunting", lettering: "serif", coverGlyph: "Flower2" },

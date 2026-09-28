@@ -262,8 +262,11 @@ describe("Portfolio data model (spec §5, §21)", () => {
       resolveArt,
     );
     expect(withLocal[0]?.demoVideo).toBeUndefined();
-    // No real pitch/demo exists yet: every product shows the "coming" state.
-    expect(products.every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-125: RailCite carries Tushar's YouTube pitch + demo; every other product shows the "coming" state.
+    const railcite = products.find((p) => p.id === "railcite");
+    expect(railcite?.pitchVideo).toMatchObject({ provider: "youtube", videoId: "nI3EqDXd5Io", title: "RailCite pitch video" });
+    expect(railcite?.demoVideo).toMatchObject({ provider: "youtube", videoId: "B3x-I1J8JW8", title: "RailCite product demonstration" });
+    expect(products.filter((p) => p.id !== "railcite").every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],
