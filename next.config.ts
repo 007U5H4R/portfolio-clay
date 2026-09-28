@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { portfolioEntries } from "./data/portfolio";
+import { buildCsp, providersInUse } from "./lib/csp";
 
 // Security headers (decision TP9). This is a fully static site (TP1 — no SSR, no middleware,
 // no per-request rendering), so a script nonce is not available; the CSP below is the pragmatic
@@ -18,23 +20,12 @@ import type { NextConfig } from "next";
 // `*.vercel-insights.com` connect-src is needed. `va.vercel-scripts.com` is used only for the
 // local-dev debug script (`getMode() === "development"`, i.e. `next dev`) and is allowlisted on
 // `script-src` for that case even though it isn't exercised by the production build.
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "media-src 'self'",
-  // TASK-116: the Portfolio media stage embeds a product's pitch/demo from YouTube (privacy-enhanced
-  // host) or Vimeo — only after the viewer presses play, one player at a time. Nothing else may frame.
-  "frame-src https://www.youtube-nocookie.com https://player.vimeo.com",
-  "font-src 'self'",
-  "connect-src 'self'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
+//
+// The directive list itself lives in `lib/csp.ts` (unit-tested). TASK-122: `frame-src` is derived
+// from the video providers `data/portfolio.ts` actually uses — the privacy-enhanced YouTube host,
+// plus `player.vimeo.com` only while some product uses Vimeo. Only after the viewer presses play,
+// one player at a time; nothing else may frame.
+const CSP = buildCsp(providersInUse(portfolioEntries));
 
 const SECURITY_HEADERS = [
   { key: "Content-Security-Policy", value: CSP },

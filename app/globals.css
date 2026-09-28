@@ -11328,7 +11328,6 @@ html.lenis body {
     rotate: -1.5deg;
     clip-path: polygon(0 8%, 20% 0, 48% 6%, 76% 0, 100% 7%, 98% 52%, 100% 94%, 72% 100%, 44% 93%, 16% 100%, 1% 92%, 2% 48%);
   }
-  .pf-stage-loading,
   .pf-stage-error {
     z-index: 2;
     place-self: center;
@@ -11344,9 +11343,6 @@ html.lenis body {
     background: color-mix(in oklab, var(--color-rust) 14%, var(--color-ivory));
     border-radius: var(--radius-paper);
     box-shadow: var(--shadow-paper);
-  }
-  .pf-stage-loading {
-    background: var(--color-ivory);
   }
   .pf-stage-error svg {
     width: 20px;

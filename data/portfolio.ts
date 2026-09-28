@@ -11,9 +11,14 @@ import type { PortfolioEntry } from "./schema";
  *                 lines from spec §15; the rest are shortened from each project's `tagline` and add
  *                 no fact the tagline does not state,
  *   - `accent`    a paper token name (EVAL-020),
- *   - `pitchVideo` / `demoVideo` / `prdUrl` when they exist. None exist yet: TKT-22…26 (the demo
- *                 recordings) are on hold until Tushar records them. Adding one here — or a local MP4 in
- *                 the project's `links.demoVideo` — lights up the Pitch / Demo actions with no code change.
+ *   - `pitchVideo` / `demoVideo` / `prdUrl` when they exist. None exist yet: Tushar uploads the pitch
+ *                 and demo videos to YouTube later (TASK-122). Adding one lights up the Pitch / Demo
+ *                 actions with no code change — a provider + video id, never embed HTML (video-embed
+ *                 spec §2); `title` defaults to "<Name> pitch video" / "<Name> product demonstration":
+ *                   pitchVideo: { provider: "youtube", videoId: "<11-char id>" },
+ *                   demoVideo:  { provider: "vimeo", videoId: "<numeric id>", title: "…" },
+ *                 Using Vimeo for any product adds `player.vimeo.com` to the CSP frame-src at the next
+ *                 build (lib/csp.ts); nothing else changes.
  *
  *   - TASK-121 (rectify spec §5.4, §7.3): `meta` is the tiny status line on the info sheet — each is a
  *                 shortening of that project's own `statusLabel` (e.g. TeachSpark's "Live pilot (Twilio
