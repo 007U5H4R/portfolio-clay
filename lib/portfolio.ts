@@ -1,4 +1,5 @@
-import type { PortfolioAccent, PortfolioEntry, Project, VideoSource } from "@/data/schema";
+import type { PortfolioAccent, PortfolioEntry, Project, VideoMediaEntry, VideoSource } from "@/data/schema";
+import type { VideoMedia } from "@/lib/video-providers";
 
 /**
  * The Portfolio product model (TASK-116, spec §21) — the one shape the `/projects` showcase renders,
@@ -45,8 +46,10 @@ export function buildPortfolioProducts(projects: readonly Project[], entries: re
       const entry = bySlug.get(project.slug);
       if (!entry) throw new Error(`portfolio: personal build "${project.slug}" has no data/portfolio.ts entry`);
       const localDemo = project.links.demoVideo;
+      const pitchMedia = entry.pitchVideo ? resolveVideoMedia(entry.pitchVideo, project.name, "pitch") : undefined;
+      const demoMedia = entry.demoVideo ? resolveVideoMedia(entry.demoVideo, project.name, "demo") : undefined;
       const demoVideo: VideoSource | undefined =
-        entry.demoVideo ?? (localDemo ? { kind: "file", src: localDemo.src, poster: localDemo.poster } : undefined);
+        (demoMedia && toVideoSource(demoMedia)) ?? (localDemo ? { kind: "file", src: localDemo.src, poster: localDemo.poster } : undefined);
       return {
         id: project.slug,
         name: project.name,
@@ -57,7 +60,7 @@ export function buildPortfolioProducts(projects: readonly Project[], entries: re
         code: entry.code,
         accent: entry.accent,
         position: index + 1,
-        pitchVideo: entry.pitchVideo,
+        pitchVideo: pitchMedia && toVideoSource(pitchMedia),
         demoVideo,
         productUrl: project.links.live,
         githubUrl: project.links.repoPublic ? project.links.github : undefined,
@@ -98,4 +101,28 @@ export function externalMediaUrl(source: VideoSource): string {
     case "vimeo":
       return `https://vimeo.com/${source.id}`;
   }
+}
+
+/** The default accessible titles (video-embed spec §15): "TeachSpark pitch video", "TeachSpark product demonstration". */
+export const DEFAULT_MEDIA_TITLE: Record<MediaMode, (name: string) => string> = {
+  pitch: (name) => `${name} pitch video`,
+  demo: (name) => `${name} product demonstration`,
+};
+
+/** A data entry's pitch/demo as the player's `VideoMedia` — the title defaults per spec §15. */
+export function resolveVideoMedia(entry: VideoMediaEntry, productName: string, mode: MediaMode): VideoMedia {
+  return {
+    provider: entry.provider,
+    videoId: entry.videoId,
+    title: entry.title ?? DEFAULT_MEDIA_TITLE[mode](productName),
+    poster: entry.poster,
+  };
+}
+
+/**
+ * TASK-122 phase 1 bridge: the TASK-116 stage still renders `VideoSource`. Phase 2 wires
+ * `ProductMediaPlayer` (which takes `VideoMedia`) into the reworked stage and removes this.
+ */
+function toVideoSource(media: VideoMedia): VideoSource {
+  return media.provider === "youtube" ? { kind: "youtube", id: media.videoId } : { kind: "vimeo", id: media.videoId };
 }

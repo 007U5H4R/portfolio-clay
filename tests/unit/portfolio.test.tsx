@@ -252,7 +252,7 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const missing = validateAll({ ...collections, portfolio: portfolioEntries.slice(1) });
     expect(missing.ok).toBe(false);
     const [first, ...rest] = collections.projects;
-    const doubled: PortfolioEntry[] = portfolioEntries.map((e, i) => (i === 0 ? { ...e, demoVideo: { kind: "youtube", id: "abcdefghijk" } } : e));
+    const doubled: PortfolioEntry[] = portfolioEntries.map((e, i) => (i === 0 ? { ...e, demoVideo: { provider: "youtube", videoId: "abcdefghijk" } } : e));
     const twoSources = validateAll({
       ...collections,
       projects: [{ ...first!, links: { ...first!.links, demoVideo: { src: "/video/x.mp4", poster: "/video/x-poster.webp", durationSec: 10 } } }, ...rest],
