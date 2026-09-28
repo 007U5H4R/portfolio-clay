@@ -1,82 +1,128 @@
 # HANDOFF — Portfolio (M-009 · Illustrated editorial redesign)
 
-Updated 2026-09-26 · **Stage 7 build complete on branch → Stage 8 (Design Critique) pending.** Written by TKT-91 (`TASK-86`, Campfire `portfolio-clay` / milestone `m-8`) on branch `m009/tkt-91`, worktree `/Volumes/E Drive/Dev/Code/Claude/Portfolio-m009-tkt-91/`, from integration head `f121e25`. This is a docs-only hand-off commit — no product code changed here.
+Updated 2026-09-28 (TASK-86, docs only). Branch `m-009-redesign` @ `27d0004`. **Stage 7 (Execution) is complete. Stages 8–10 have not run on M-009** (`decisions.md` EXE-24). Every claim below cites a file in this repo. Where the repo has no record, it says so.
 
-**One paragraph.** Every Phase 0/A/B/C/D build ticket (TKT-69…91, TKT-93…95) is merged into `m009/integration-ab` → `m-009-redesign`. The RC gate at `809e326` is green (full e2e 1050/0, `pnpm eval` 16 pass/2 fail-informational/4 manual) and the preview Lighthouse at `2bd4949` clears the mobile perf/LCP gate but fails desktop CLS by a hair (0.054 > 0.05, a font-swap shift of `h1#hero-h`) — that's TKT-92 round 3, not yet started. Since that RC was cut, TKT-96 (Tushar's post-RC direction: full home banner scene + paper-over-image parallax) has already been coded and merged into `integration-ab` → `m-009-redesign` (`032932e` → `536571e`), so **the RC evidence below is stale relative to the current tip** and must be re-cut once TKT-92r3/96/97/98 land. Three phase gates (hero, Phase A, Phase B) are built and evidenced but **not yet approved by Tushar** — they are taste/sign-off gates that Stage 7's delegated authority (EXE-20) does not cover. Stage 8 (Design Critique, `impeccable`) is next, but it should not open until the gates are resolved and the RC is re-cut, or it will be critiquing a branch that keeps moving under it.
+## 0. State in five lines
 
----
+- **What M-009 is:** the illustrated editorial ("paper") redesign. It replaces the clay site in place on the existing codebase and supersedes M-008 (`decisions.md` S11). The spec is `Design.md`, and the plan is `milestones.md` M-009 (TKT-69–91). In Campfire it is milestone `m-8` (`decisions.md` TP11).
+- **Build:** every planned M-009 ticket is merged. Tushar signed off the hero gate, Phase A and Phase B (EXE-22). A second wave of Tushar-directed changes has also merged: TKT-96…113 and TASK-112…122 (`backlog/tasks/`).
+- **Release is blocked:** the PB4 rule in `scripts/predeploy-check.ts` needs local MP4s at `VERCEL_ENV=production`. Tushar chose "Wait for videos", and on skipping Stages 8–10 he said "hold on" (EXE-24).
+- **Preview:** https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app (branch `m-009-redesign`; `docs/reports/RC-dbc047c.md`).
+- **`main` and production are untouched.** `origin/main` is still `22d6f66` (the 2026-09-23 M-007 merge). `m-009-redesign` is 318 commits ahead and not merged. No production deploy exists (`backlog/tasks/task-49` is Blocked; EXE-24).
 
-## 1. What's built
+## 1. What shipped
 
-- **Phase 0** (tokens/fonts, paper primitives, header, band footer, hero + `HeroClip`, tracer, baseline) — TKT-69…74. Hero later restyled to a full-bleed banner per Tushar's hero-gate change request (EXE-15…19): TKT-93 (banner + polaroids + postmark + mask), TKT-94 (Lenis), TKT-95 (page-scene openers pulled forward), TKT-92 (perf, rounds 1–2 done, round 3 open).
-- **Phase A** (home: Featured Work, How I think, Ask notebook/panel, OG re-skin) — TKT-75…79. Whole-section `Reveal` on home was tried and reverted (Dev-38): it broke keyboard tab order and axe contrast; How I think keeps its own card reveal.
-- **Phase B** (`/work`, case-study template × 11 slugs incl. What I learned/Sources, `/thinking` + essays) — TKT-80…85.
-- **Phase C** (`/about`, `/playground`, `/contact`, 404) — TKT-86…88.
-- **Phase D** (dead-code removal, QA sweep, hand-off prep) — TKT-89, TKT-90 (sub-tickets 90a clay/avatar cleanup, 90b bug fixes, 90c QA sweep + a11y pass + EVAL-021 checklist, 90d A11Y-1…4 fixes + `/work` bundle −42.5 kB), TKT-91 (this ticket).
-- **Post-RC (2026-09-26, Tushar direction)** — TKT-96 (full home banner scene + paper-over-image parallax) coded, merged, **not yet reviewed**. TKT-97 (`CopyButton` test hardening + legacy leftovers) and TKT-98 (OG preview verification) not yet started (branch tips still at `f121e25`).
-- **Known-open defect carried from RC:** TKT-92 round 3 — desktop `/` CLS 0.054 (gate 0.05), a font-swap shift of `h1#hero-h`, exposed by the TKT-92r2 banner height cap. Branch `m009/tkt-92r3` exists, cut from `809e326`, no commits yet.
-- **QA-A** (from `docs/reports/TKT-90-90c.md`): `/playground` card hover still lifts 3 px under reduced motion — a one-line CSS fix in the TKT-88 `globals.css` block, not yet applied. Confirm it landed before Stage 8 closes.
+### Planned build (Phase 0 → D), all Done
+- **Phase 0:** tokens and fonts, paper primitives, header, band footer, hero plus `HeroClip`, and the tracer (TKT-69–74). The hero was then restyled on Tushar's change request (EXE-15…19): TKT-93 banner, TKT-94 Lenis, TKT-95 page scene openers, and TKT-92 perf.
+- **Phase A** (home) TKT-75–79 · **Phase B** (`/work`, 11 case studies, `/thinking`) TKT-80–85 · **Phase C** (`/about`, `/playground`, `/contact`, 404) TKT-86–88 · **Phase D** (dead code, QA sweep, a11y fixes) TKT-89–90. Summary in EXE-21.
+- **TKT-92 perf (TASK-88):** Done, and accepted by Tushar as measured (EXE-24). The mobile LCP target was **not** met; see §4.
 
-## 2. Branch / worktree map
+### Tushar-directed changes after the RC (all Done unless noted; statuses from `backlog/tasks/`)
 
-| Branch | Worktree | Tip | State |
-|---|---|---|---|
-| `m-009-redesign` (main line for this milestone) | `Portfolio-clay-redesign` | `536571e` | integration-ab merged through TKT-96 |
-| `m009/integration-ab` | `Portfolio-m009-integration` | `032932e` | RC (`809e326`) + TKT-96 merged |
-| `m009/tkt-91` (this hand-off) | `Portfolio-m009-tkt-91` | `f121e25` + this commit | docs-only |
-| `m009/tkt-92r2` (perf round 2, merged) | `Portfolio-m009-tkt-92r2` | `cec8f96` | merged into integration-ab |
-| `m009/tkt-92r3` (perf round 3, open) | `Portfolio-m009-tkt-92r3` | `809e326` | cut, not started |
-| `m009/tkt-96` (home banner scene, coded) | `Portfolio-m009-tkt-96` | `2f2c6d2` | merged into integration-ab/`m-009-redesign`, **not reviewed** |
-| `m009/tkt-97` (CopyButton hardening, open) | `Portfolio-m009-tkt-97` | `f121e25` | cut, not started |
-| `m009/tkt-98` (OG verification, open) | `Portfolio-m009-tkt-98` | `f121e25` | cut, not started |
+| Area | Tickets | Design.md §11 |
+|---|---|---|
+| Home banner: whole scene + parallax, text-free, polaroids, hero copy | TASK-91 (TKT-96), 98, 102, 105, 108 | Dev-39, Dev-50, Dev-80 |
+| Paper-over-paper parallax at every torn edge; overlap fixes | TASK-103, 110, 115 | Dev-96 |
+| How I think collage + choreography | TASK-94, 107 | Dev-41, Dev-70–72 |
+| `/about` journey collage; About hero rebuild | TASK-96, 117 | Dev-42, Dev-105–107, EXE-25 |
+| `/work` → Experience timeline; Certifications tab | TASK-97, 99 | Dev-46, Dev-56, Dev-90–93 |
+| Scene openers uncropped, 21:9, plus Experience and Certifications | TASK-100, 104, 114 | Dev-40, Dev-95, Dev-103/104 |
+| Ask Tushky drawer + Home launcher | TASK-101, 109 (TKT-104 r2, TKT-113) | Dev-47–49, Dev-60–69, EXE-23 |
+| Header tabs at every width (no hamburger) | TASK-112 | Dev-97 |
+| Contact scrapbook page + real-photo stamp | TASK-111, 113 | Dev-98–102 |
+| Band footer: narrower teeth, compact, cycling verb | TASK-95, 106, 118 | Dev-43, Dev-108 |
+| `/projects` → Portfolio (products + enterprise case files) | TASK-116, 119 | Dev-109–114 |
+| Portfolio scrapbook rework | **TASK-121 In Progress** (merged `762ea58`; painted covers open) | Dev-115–118 |
+| Click-to-load YouTube/Vimeo player, CSP derived from data | TASK-122 (merged `15abb00`) | Dev-119/120 |
+| Hardening: CopyButton test, OG verification | TASK-92 (TKT-97), TASK-93 (TKT-98; the essay `og:image` 404 was fixed in `016c0ab`) | — |
 
-Every Phase 0–D per-ticket worktree (TKT-75…90d) still exists under `/Volumes/E Drive/Dev/Code/Claude/Portfolio-m009-tkt-*/` and is merged; they are dead weight now except as history. **Nothing here has been pushed to `origin`, merged to `main`, deployed, or spent money.** Repo: `github.com/007U5H4R/portfolio-clay` (public).
+**Still open in the backlog:** TASK-86 (this hand-off, In Progress), TASK-121 (In Progress) and TASK-120 (To Do: remove the legacy `/projects` CSS left by TASK-116). Also blocked: TASK-8 (sanitised résumé), TASK-46/49 (deploy and production) and TASK-22…26 (demo media, `on-hold`) (`docs/reports/CAMPFIRE-TRIAGE-2026-09-26.md`; EXE-24).
 
-## 3. RC evidence (from `evals/results/m009-rc-809e326.json` + `docs/reports/TKT-92.md` round 2 + `evals/results/lighthouse-m009-tracer/preview-2bd4949/medians.txt`) — **stale as of TKT-96, re-cut before Stage 8 signs off**
+## 2. Open decisions for Tushar
 
-- **Full e2e (production server, 1 worker):** 1050 passed / 0 failed, 15.0 min.
-- **`pnpm eval --label m009-rc-809e326`:** 16 pass / 2 fail (both informational — local SwiftShader Lighthouse, EVAL-004/005; the bundle half of EVAL-005 passes) / 0 skip / 4 manual (EVAL-001, 003, 009, 022 — human/inspector review).
-- **Preview `2bd4949`, Lighthouse median of 3:**
-  - mobile `/`: perf **95**, LCP **2338 ms** (gate ≤ 2500), CLS max 0.032 — **pass**.
-  - mobile `/work/teachspark`: perf 98, LCP 2274 ms, CLS max 0.000 — pass.
-  - desktop `/`: perf 100, LCP 414 ms, **CLS max 0.054 (gate ≤ 0.05) — fail**, font-swap shift of `h1#hero-h`. → TKT-92 round 3.
-  - desktop `/work/teachspark`: perf 100, LCP 470 ms, CLS 0.001 — pass.
-- **Bundle (first-load JS, gz, budget 180 kB):** `/` **158.5 kB**, `/work` **160.7 kB** (was 203.2 before TKT-90d's CSS-crossfade rewrite of `WorkIndex`).
-- **Tokens:** 13/13. **Typecheck/lint/build:** all green, 13 static routes.
+Each one was checked against `backlog/tasks/` and `decisions.md`.
 
-<!-- ORCH: fill — the final RC sha (re-cut after TKT-92r3/96/97/98 land) and the eval-run label/file it produces -->
-<!-- ORCH: fill — the preview record-run file name and its mobile/desktop perf+LCP+CLS numbers, once re-measured on the post-TKT-96 preview -->
+1. **Release gate (PB4):** `scripts/predeploy-check.ts` fails a production build unless `public/video/{teachspark,railcite,velora}.mp4` exist (≤ 4 MB) (PB4; EXE-24). Videos will now be hosted on YouTube (`task-122`), so should PB4 require pitch-video IDs instead of MP4s, and for which products? *Recorded:* `task-122` says "PB4 proposal not applied", and EXE-24 records "Wait for videos" and the rejected option of relaxing PB4. *Not recorded:* the proposal's text and its product list. All video IDs are still empty (`task-122`).
+2. **Demo videos and media:** when will the TASK-22…26 media (TeachSpark, RailCite, Nuptis/Velora, Bhakti-Vilas, Pratyasa/Tegaki/dino-arcade/cinematic) be recorded or linked? All five are Blocked and `on-hold` (EXE-24).
+3. **Painted covers:** approve about 2.5 credits to paint the 10 remaining product covers? Only TeachSpark has painted art (Dev-115). The other 10 are CSS covers because Higgsfield's daily limit blocked them (`task-121`).
+4. **Live Gemini for Ask Tushky:** should Ask stay deterministic? The repo records only the deterministic local provider: "no live LLM" (S7, S21; `components/ai/AskProvider.tsx`; `data/knowledge.ts`), and Tushky "answers only from the portfolio index" (Dev-61). *Not recorded:* a Gemini request and any approval, and a "curated FAQ cache".
+5. **Vendor Passport and Velora:** can you supply the Vendor Passport data? It is in neither `data/projects.ts` nor the source documents, so it was left out (`docs/reports/TASK-116.md`, `TASK-121-plan.md`). Is Velora apparel sourcing / vendor onboarding (as in `data/projects.ts`) rather than the spec's "beauty / routine"? Also open in `task-121`: the status-label wording.
+6. **Résumé label and header:**
+   - Should `resumeAction()`'s placeholder change site-wide from "Resume — updating" to "Resume — available on request"? The band footer, `/about` and home still read "updating"; only `/contact` changed (`docs/reports/TASK-113.md`, Dev-99).
+   - Is the two-row header acceptable at 1024–1439 px too? "No hamburger" extended it below 1440 (`docs/reports/TASK-112.md`, `task-112`, Dev-97).
+7. **Video play and CSP:**
+   - One press or two to play? Today one press mounts the iframe with `autoplay=1`, and nothing plays on selection (Dev-120; `components/portfolio/ProductMediaPlayer.tsx`). *Not recorded:* a separate question about two presses.
+   - Keep `'self'` out of CSP `frame-src`? Spec §9 lists it, but it was left out because every route sends `frame-ancestors 'none'` (Dev-119, "awaits Tushar"). The other TASK-116 open items: CSP hosts, a GitHub action only for public repos, trimming the carousel, and corporate records only on `/work` (`task-116`).
+8. **PMP/SAFe in Ask:** may Ask answers name PMP and SAFe? Today `scripts/forbidden-strings.ts` allows them only on the certifications surfaces; the ban stands everywhere else, and the résumé omits them (`docs/reports/TKT-102.md`, `data/certifications.ts`).
 
-## 4. What Stage 8 (Design Critique, `impeccable`) must open
+**Smaller confirmations flagged in `Design.md` §11:**
+- Dev-50 hero-copy accounting.
+- Dev-64/65: the Home field doesn't open the drawer on focus, and there is no paperclip.
+- Dev-105: 640–899 is one column.
+- Dev-106: the `/about` decoration accounting.
+- `docs/reports/TKT-102.md`: how expired Credly credentials should display, and the PSPO year (2023 vs 2024).
+- LinkedIn Post Inspector: re-check `/`, `/projects` and `/certifications` before release (`task-86` notes).
 
-- `docs/screenshots/m-009/**` — the full mockup-vs-route pack: `home/`, `phase-b/<route>/{390,1440}.png` (+ `deep-{390,1440}.png` for the 6 rich slugs), `pairs/` (`home-{1440,390}.png`, `case-study-{teachspark,tegaki}-{1440,390}.png`), `tkt-90b/work-tabs-390.png`, `not-found/390.png`.
-- `docs/a11y-pass.md` — the M-009 reading-order pass (supersedes the M-007 clay-era file). A11Y-1…4 are marked fixed (TKT-90d, `42ae120`) — verify on the real VoiceOver pass (this file is a Playwright ARIA-snapshot proxy, not a VO session). **A11Y-5 is an open content call for Tushar** (see §5).
-- `evals/results/eval-021-ff806f5.md` — the per-asset manual checklist. 5 assets are clean, **5 carry a Stage-8 ⚠ with a recommended ✓** (hero slogan text is not a claim; `scene-work`'s growth doodle has no numbers; `scene-playground`'s tablet shows a sketch, not a product UI); the one real visual check is that the `hero-banner` corkboard's garbled pseudo-text stays covered by the polaroids at every width (390/768/1024/1440).
-- Merge notes with Stage-8 items, from `docs/reports/`:
-  - `TKT-85.md` findings 1–14 (mockup-vs-route deltas: no viewport meta on mockups, same opener scene reused across case studies, ChapterNav stale-marker repro needed, thin-slug (tegaki) sparseness judgment, metric-strip qualifier sizing, `/work` filter row at 390).
-  - `INTEGRATION-ABC.md` §4 "Remaining issues" Stage-8 row: TKT-76 torn edge overlapping Featured (z-index), TSK-45 plain-paper strip, TSK-46 arrow override < 900 + postcard email wrap at 390, TKT-84 vs TSK-46 caption alignment.
-- **TKT-92r2's polaroid-overhang note** (`docs/reports/TKT-92.md`, "Notes for merge / Stage 8"): the shorter ≥1024 banner (from the 5-second-test height cap) leaves the TKT-93 polaroids overhanging further — the third polaroid crosses well below the torn edge at 1440. Not fixed; TKT-93's CSS block, flagged for Stage 8.
-- **A11Y-5** (info, `docs/a11y-pass.md`): `/about`'s experience lead says "open any node", but every story card is always open (Dev-11). Copy is verbatim from `data/*.ts` (D7 — never trimmed/edited without Tushar). Needs Tushar's content call: update the string or accept it as-is.
+## 3. How to run the gates
 
-## 5. Tushar's pending decisions
+Scripts are in `package.json`. `.env.tooling` redirects Playwright, TMPDIR and LHCI to the E Drive.
 
-1. **Hero gate** (TKT-74, EVAL-022 sub-gate) — full-bleed banner, Fraunces h1 + Caveat line, polaroids, postmark, mask; evidence in TKT-79/TKT-92r2 reports.
-2. **Phase A gate** (TKT-79) — home assembly; EVAL-001 now 6/6 at both widths after TKT-92r2's height cap.
-3. **Phase B gate** (TKT-85) — 11 slugs + 5 essays at 390/1440, one rich + one thin pair.
-4. **TKT-96 review** — the post-RC home banner scene + paper-over-image parallax direction is coded and merged but has no implementer report yet and has not been shown to Tushar.
-5. **LinkedIn Post Inspector login** — needed for TKT-98's manual OG inspector pass (EVAL-017); Tushar's credentials, not delegable.
-6. **Production release** — go/no-go once Stage 8–10 close; domain, sanitised résumé, videos are M-007 hard stops that still stand.
-7. **`main` merge** — not proposed yet; nothing on this milestone has touched `main`.
+| Gate | Command |
+|---|---|
+| Types / lint / tokens | `pnpm typecheck` · `pnpm lint` · `pnpm tokens:check` (13/13) |
+| Unit | `pnpm test` (Vitest) |
+| Build | `pnpm build`. `prebuild` runs `predeploy-check.ts` + `validate-content.ts`; then `assert-static.ts` |
+| E2E | `pnpm test:e2e` runs the Playwright production build on `pnpm start`, Chromium, projects **w390 / w768 / w1024 / w1440** (`playwright.config.ts`). The default is 1 worker; `PW_WORKERS=2` opts in to 2. Filter one width with `--project=w390` |
+| Eval | `pnpm eval` (full), `--only EVAL-0xx,…`, `--skip-build`, `--label <name>`, `--base-url <preview>` (adds the header check; skips Lighthouse). Results go to `evals/results/<label>.json` (`docs/eval.md`) |
+| Lighthouse | `pnpm exec lhci autorun` with `lighthouserc.mobile.json` / `lighthouserc.desktop.json` (median of 3; perf ≥ 0.9, LCP ≤ 2500 ms, CLS ≤ 0.05) (`docs/eval.md`, `scripts/eval.ts`) |
+| Pre-deploy | `pnpm predeploy` |
 
-## 6. Hard stops (carried forward, unchanged)
+CI (`eval.yml`) runs only on pushes and PRs to `main`, so branch pushes don't trigger it (EXE-17).
 
-13-token gate (`pnpm tokens:check` 13/13) · thresholds never lowered without a `decisions.md` entry (EV2/EV6) · no PII · decoration budget ≤ 4/section (EVAL-018, parked list must stay `[]`) · reduced-motion/touch/Save-Data → poster-only hero (EVAL-019) · all routes static (TP1) · everything on `/Volumes/E Drive` · commit attribution per the session's own reminder · **never push, merge to `main`, deploy, or spend** without asking first · stable IDs (`M-`, `TKT-`, `TSK-`, `TC-`, `EVAL-`, `TASK-`) never regenerated.
+## 4. Latest evidence (full summary in `QA-report.md` §M-009)
 
-<!-- ORCH: fill — TKT-92r3 outcome (desktop CLS fix, whether the mobile LCP gate still holds after the fix) -->
-<!-- ORCH: fill — TKT-96 outcome (implementer report, gate numbers, whether it changes the hero-gate evidence Tushar already has) -->
-<!-- ORCH: fill — TKT-97 outcome (CopyButton hardening result, what "legacy leftovers" were found and removed) -->
-<!-- ORCH: fill — TKT-98 outcome (OG inspector pass result: 7/7 families, both inspectors, screenshot paths) -->
+- **RC record run `dbc047c`** (`docs/reports/RC-dbc047c.md`): unit 625 · full e2e 1209/0 · `pnpm eval --base-url` preview 16 pass / 0 fail / 2 skip / 4 manual (`evals/results/m009-rc-dbc047c.json`).
+- **After TKT-92 r4 (`1de0ba6`):**
+  - mobile `/` perf 93 and LCP 2659 ms;
+  - `/work/teachspark` perf 88 and LCP 3164 ms;
+  - LCP is over 2.5 s at the median, which Tushar accepted (EXE-24).
+- **Latest full e2e recorded:** 1300/0 on TASK-116's final tree (`task-116`).
+- **After that, only targeted runs exist:** TASK-117, 118, 121 and 122. **No full e2e or `pnpm eval` is recorded on the current tip `27d0004`.**
 
-## 7. Tooling notes
+## 5. Where the specs live
 
-Campfire CLI: `"/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/dist/backlog"` from the worktree root. GateGuard asks for facts on the first Edit/Write per file and on `git checkout --`/`pkill` — state them and retry. `.env.tooling` has the E-drive Playwright/LHCI cache redirects. CI (`eval.yml`) runs only on `main` pushes/PRs — branch pushes don't trigger it.
+- `Design.md` (normative) plus the eight M-009 mockups: `docs/redesign-mockups/m-009/*.html` (S17).
+- Tushar's later specs and targets:
+  - `docs/redesign-mockups/m-009/tushar-2026-09-26/`: Ask Tushky drawer, Home Ask, certifications, How-I-think choreography, and target PNGs.
+  - `…/tushar-2026-09-27/contact-spec.md`
+  - `…/tushar-2026-09-28/`: about-hero, portfolio, portfolio-rectify, projects-scene-left, and video-embed specs, plus reference PNGs.
+- Per-ticket reports are in `docs/reports/` (TKT-*, TASK-*, RC-*), and screenshots are in `docs/screenshots/m-009/**`.
+
+## 6. Design.md §11 deviations (from `Design.md` itself)
+
+§11 holds 94 `Dev-` rows. The "pending" and "to confirm" rows are listed in §2. Three notes for Stage 8:
+- **Dev-41 appears twice**, as identical rows at `Design.md` lines 533 and 557.
+- Numbering has gaps: Dev-18, 44–45, 51–55, 57–59, 73–79 and 81–89 are absent. The repo has no record of whether these were renumbered or never used.
+- Dev-08 and Dev-12 still say "**pending Tushar**" (D8/D9). However, EXE-20 applied the five-item nav and dropped the quiet closes as defaults, and the nav is now tabs (Dev-97). Dev-20 and Dev-23 say "confirm at the hero gate", and that gate was signed off (EXE-22). Their disposition text has not been updated.
+
+## 7. What Stages 8–10 should open
+
+- **Stage 8 (design critique):**
+  - Open the running preview against `Design.md` and the spec folders in §5.
+  - Screenshots: `docs/screenshots/m-009/**`.
+  - Accessibility pass: `docs/a11y-pass.md`. It is an ARIA-snapshot proxy, not a VoiceOver session.
+  - EVAL-021 asset checklist: `evals/results/eval-021-ff806f5.md`.
+  - Manual EVAL-001/003/009/022.
+- **Stage 9:** `/code-review` over `main..m-009-redesign`, then `test-cases.md`, a full `pnpm test:e2e` and `pnpm eval` on the tip, and `lhci` on the preview.
+- **Stage 10:** `/security-review` and a threat pass. The CSP changed (`lib/csp.ts`, `tests/unit/csp.test.ts`: YouTube `frame-src`). There is a new third-party embed (`lib/video-providers.ts`, youtube-nocookie). Also check the new headshot asset (`content/media/portrait/`) and the PII gate (`scripts/forbidden-strings.ts`, `CREDENTIAL_SURFACES`). Then assemble `QA-report.md`.
+
+## 8. Hard stops (unchanged)
+
+- The 13-token gate holds.
+- Thresholds are never lowered without a `decisions.md` entry (EV2/EV6).
+- No PII.
+- Decoration budget ≤ 4 per section (EVAL-018; the parked list stays `[]`).
+- All routes are static.
+- Everything lives on `/Volumes/E Drive`.
+- **Never push to `main`, merge to `main`, deploy to production or spend money without Tushar's explicit approval.**
+- IDs (`M-`, `TKT-`, `TSK-`, `TASK-`, `EVAL-`, `Dev-`) are stable and never regenerated.
