@@ -24,6 +24,9 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "media-src 'self'",
+  // TASK-116: the Portfolio media stage embeds a product's pitch/demo from YouTube (privacy-enhanced
+  // host) or Vimeo — only after the viewer presses play, one player at a time. Nothing else may frame.
+  "frame-src https://www.youtube-nocookie.com https://player.vimeo.com",
   "font-src 'self'",
   "connect-src 'self'",
   "frame-ancestors 'none'",

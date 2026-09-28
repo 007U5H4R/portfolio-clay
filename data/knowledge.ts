@@ -190,8 +190,9 @@ export const knowledge: KnowledgeEntry[] = [
     evidence: [
       { label: "Experience", href: "/about#experience" },
       // §9 sanctioned edit 2: `?tab=enterprise` → `?filter=enterprise` (E-2).
-      // TKT-101: the project index moved to /projects.
-      { label: "Projects — Enterprise", href: "/projects?filter=enterprise" },
+      // TKT-101: the project index moved to /projects. TASK-116: the filter tabs are gone — the
+      // Portfolio page's "Enterprise & client work" section is the anchor now.
+      { label: "Portfolio — Enterprise", href: "/projects#enterprise" },
     ],
     sources: [{ id: "RESUME", label: "Résumé", ref: "RESUME", inventory: "§9" }],
     draft: true,

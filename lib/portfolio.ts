@@ -1,0 +1,101 @@
+import type { PortfolioAccent, PortfolioEntry, Project, VideoSource } from "@/data/schema";
+
+/**
+ * The Portfolio product model (TASK-116, spec §21) — the one shape the `/projects` showcase renders,
+ * built from `data/projects.ts` (the facts) + `data/portfolio.ts` (the presentation extras). The
+ * client showcase receives plain serialisable objects, so no client bundle pulls in zod or the full
+ * project records. Type-only schema imports on purpose.
+ *
+ * Derivations (one fact, one place):
+ *   name / description ← project.name / project.tagline
+ *   productUrl         ← project.links.live
+ *   githubUrl          ← project.links.github, only when `repoPublic` (a private repo is a dead link)
+ *   demoVideo          ← entry.demoVideo, else project.links.demoVideo (local MP4)
+ *   caseStudyHref      ← `/work/<slug>` (every personal build has a case-study page)
+ */
+export type MediaMode = "pitch" | "demo";
+
+export interface PortfolioProduct {
+  id: string;
+  name: string;
+  /** Short cover line (spec §15). */
+  tagline: string;
+  /** The one-sentence proposition (spec §11: 2–4 lines). */
+  description: string;
+  statusLabel: string;
+  /** Lucide icon name — the cover's symbolic hero glyph. */
+  glyph: string;
+  code: string;
+  accent: PortfolioAccent;
+  /** 1-based position in the carousel ("No. 03"). */
+  position: number;
+  pitchVideo?: VideoSource | undefined;
+  demoVideo?: VideoSource | undefined;
+  productUrl?: string | undefined;
+  githubUrl?: string | undefined;
+  prdUrl?: string | undefined;
+  caseStudyHref: string;
+}
+
+export function buildPortfolioProducts(projects: readonly Project[], entries: readonly PortfolioEntry[]): PortfolioProduct[] {
+  const bySlug = new Map(entries.map((entry) => [entry.slug, entry]));
+  return projects
+    .filter((project) => project.category === "personal")
+    .map((project, index) => {
+      const entry = bySlug.get(project.slug);
+      if (!entry) throw new Error(`portfolio: personal build "${project.slug}" has no data/portfolio.ts entry`);
+      const localDemo = project.links.demoVideo;
+      const demoVideo: VideoSource | undefined =
+        entry.demoVideo ?? (localDemo ? { kind: "file", src: localDemo.src, poster: localDemo.poster } : undefined);
+      return {
+        id: project.slug,
+        name: project.name,
+        tagline: entry.coverLine,
+        description: project.tagline,
+        statusLabel: project.statusLabel,
+        glyph: project.icon,
+        code: entry.code,
+        accent: entry.accent,
+        position: index + 1,
+        pitchVideo: entry.pitchVideo,
+        demoVideo,
+        productUrl: project.links.live,
+        githubUrl: project.links.repoPublic ? project.links.github : undefined,
+        prdUrl: entry.prdUrl,
+        caseStudyHref: `/work/${project.slug}`,
+      };
+    });
+}
+
+/** The media a product carries for a mode, if any. */
+export function mediaFor(product: PortfolioProduct, mode: MediaMode): VideoSource | undefined {
+  return mode === "pitch" ? product.pitchVideo : product.demoVideo;
+}
+
+/** A deep-link value resolves to a product id, or null (unknown ids fall back to the default). */
+export function parseProductParam(value: string | null | undefined, products: readonly PortfolioProduct[]): string | null {
+  if (!value) return null;
+  return products.some((product) => product.id === value) ? value : null;
+}
+
+/** The canonical deep link for a product (spec §50): `/projects?product=<id>`. */
+export function productHref(id: string): string {
+  return `/projects?product=${id}`;
+}
+
+/** Wrap-around index step for the looping carousel (spec §17). */
+export function stepIndex(index: number, delta: number, length: number): number {
+  return (((index + delta) % length) + length) % length;
+}
+
+/** The public URL a viewer can open when an embedded/local video fails (spec §49). */
+export function externalMediaUrl(source: VideoSource): string {
+  switch (source.kind) {
+    case "file":
+      return source.src;
+    case "youtube":
+      return `https://www.youtube.com/watch?v=${source.id}`;
+    case "vimeo":
+      return `https://vimeo.com/${source.id}`;
+  }
+}

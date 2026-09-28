@@ -4,8 +4,8 @@
  * Chapter ids are *schema values* (`data/schema.ts` CHAPTER_IDS); the `NN-slug` anchors are a
  * *presentation* concern that lives here once (and mirrored for humans in `docs/anchors.md`), so
  * no component or content file re-derives them. `routes()` produces the set of every valid internal
- * href — bare routes, `/work/<slug>#<chapterAnchor>`, page anchors, `/projects?filter=<f>` (E-2: the
- * only permitted query key is `filter`), and essay routes — so `validateAll()` (data/index.ts) and
+ * href — bare routes, `/work/<slug>#<chapterAnchor>`, page anchors, `/projects?product=<slug>` (TASK-116:
+ * the only permitted query key is `product`; the old `?filter=` tabs were removed), and essay routes — so `validateAll()` (data/index.ts) and
  * the anchors unit test resolve internal links against one source of truth. A dangling internal
  * link is a build failure (EVAL-013), never a later crawler finding.
  */
@@ -29,10 +29,8 @@ export const CHAPTER_ANCHORS: Record<ChapterId, { anchor: string; title: string 
 export const PAGE_ANCHORS = {
   about: ['experience', 'impact', 'capabilities', 'research'],
   contact: ['resume'],
+  projects: ['products', 'enterprise'], // TASK-116 Portfolio sections
 } as const;
-
-/** The `?filter=` values `/projects` accepts (mirrors the `Filter` enum in data/schema.ts). */
-export const WORK_FILTERS = ['ai', 'enterprise', 'cloud', 'experiments'] as const;
 
 /** Top-level routes that always exist. */
 export const STATIC_ROUTES = ['/', '/work', '/projects', '/about', '/thinking', '/contact', '/playground'] as const;
@@ -68,15 +66,15 @@ export interface RouteInputs {
 
 /**
  * Build the complete set of valid internal hrefs. Membership in the returned set IS resolution:
- * an href not in the set is dangling. Only `?filter=<f>` query hrefs are emitted, so any other
- * query key (e.g. a stray `?tab=`) cannot resolve — enforcing E-2 mechanically.
+ * an href not in the set is dangling. Only `?product=<slug>` query hrefs are emitted, so any other
+ * query key (e.g. a stray `?tab=` or the retired `?filter=`) cannot resolve — enforcing it mechanically.
  */
 export function routes({ projectSlugs, essaySlugs = [] }: RouteInputs): Set<string> {
   const set = new Set<string>();
 
   for (const r of STATIC_ROUTES) set.add(r);
-  // TKT-101: the filterable project index lives at `/projects` (case studies stay at `/work/<slug>`).
-  for (const f of WORK_FILTERS) set.add(`/projects?filter=${f}`);
+  // TASK-116: the Portfolio carousel deep link — one per personal build (case studies stay at `/work/<slug>`).
+  for (const slug of projectSlugs) set.add(`/projects?product=${slug}`);
 
   const chapterAnchors = Object.values(CHAPTER_ANCHORS).map((c) => c.anchor);
   for (const slug of projectSlugs) {
@@ -86,6 +84,7 @@ export function routes({ projectSlugs, essaySlugs = [] }: RouteInputs): Set<stri
 
   for (const anchor of PAGE_ANCHORS.about) set.add(`/about#${anchor}`);
   for (const anchor of PAGE_ANCHORS.contact) set.add(`/contact#${anchor}`);
+  for (const anchor of PAGE_ANCHORS.projects) set.add(`/projects#${anchor}`);
 
   for (const slug of essaySlugs) set.add(`/thinking/${slug}`);
 

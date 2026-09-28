@@ -10654,3 +10654,860 @@ html.lenis body {
   margin: 0;
 }
 /* end TASK-114 */
+/* TASK-116 · Portfolio (`/projects`) — Tushar's spec 2026-09-28
+   (docs/redesign-mockups/m-009/tushar-2026-09-28/portfolio-spec.md; Design.md §3.3 `/projects`, §11).
+   Section 1 (`section#products`, page paper): compact intro, a ripped-paper media stage on a kraft
+   backing (≈ 62 %) beside the product panel (≈ 38 %) at ≥ 1024, and the 90s cover carousel on a kraft
+   strip below; stacked (media → details → actions → carousel) under 1024. Section 2
+   (`section#enterprise`): a torn seam onto ruled dossier paper (`paper-2`) and a 3 / 2 / 1-column grid
+   of case-file cards. Paper tokens + `color-mix()` only (EVAL-020): the action-strip accents are steel
+   (pitch), rust (demo), green-2 (product), a steel/rust mix for the "muted lavender" (GitHub) and note
+   (PRD). Motion: the 250–350 ms product enter / 180–250 ms Pitch ↔ Demo enter, 2–4 px lifts — all off
+   under `prefers-reduced-motion: reduce`, where state changes are immediate. */
+@keyframes pf-enter {
+  from {
+    opacity: 0;
+    translate: 0 5px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@layer components {
+  /* --- accents (cover + selected state) --- */
+  [data-accent="steel"] { --pf-accent: var(--color-steel); }
+  [data-accent="rust"] { --pf-accent: var(--color-rust); }
+  [data-accent="terracotta"] { --pf-accent: var(--color-terracotta); }
+  [data-accent="forest"] { --pf-accent: var(--color-forest); }
+  [data-accent="green-2"] { --pf-accent: var(--color-green-2); }
+  [data-accent="navy-2"] { --pf-accent: var(--color-navy-2); }
+  [data-accent="kraft"] { --pf-accent: var(--color-kraft); }
+  [data-accent="note"] { --pf-accent: var(--color-note); }
+
+  /* --- Section 1 --- */
+  .pf-products {
+    position: relative;
+  }
+  .pf-products-wrap {
+    position: relative;
+    display: grid;
+    gap: clamp(20px, 2.6vw, 32px);
+    padding-block: clamp(28px, 4vw, 56px) clamp(64px, 7vw, 104px);
+  }
+  .pf-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-terracotta);
+  }
+  .pf-intro {
+    display: grid;
+    gap: 10px;
+    max-width: 44rem;
+  }
+  .pf-h1 {
+    font-size: clamp(2.125rem, 1.45rem + 2.8vw, 3.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .pf-h1-mark {
+    position: relative;
+    display: inline-block;
+  }
+  .pf-h1-mark .sketch {
+    position: absolute;
+    left: -2%;
+    bottom: -0.12em;
+    width: 104%;
+    height: 0.26em;
+  }
+  .pf-sub {
+    font-size: var(--text-lead);
+    color: var(--color-navy-2);
+  }
+  .pf-select-note {
+    justify-self: end;
+    margin-block: -14px -10px;
+    color: var(--color-ink-soft);
+  }
+  .pf-select-note .annotation-arrow {
+    width: 26px;
+    margin-left: auto;
+  }
+  @media (min-width: 1024px) {
+    .pf-select-note {
+      position: absolute;
+      top: clamp(40px, 5vw, 72px);
+      right: 2%;
+      margin: 0;
+    }
+  }
+
+  .pf-showcase {
+    display: grid;
+    gap: clamp(28px, 3.4vw, 44px);
+  }
+  .pf-feature {
+    display: grid;
+    gap: clamp(24px, 3vw, 44px);
+    align-items: start;
+  }
+  @media (min-width: 1024px) {
+    .pf-feature {
+      grid-template-columns: minmax(0, 62fr) minmax(0, 38fr);
+    }
+  }
+
+  /* --- media stage: ripped ivory frame on a kraft backing, taped (no glass, no browser chrome) --- */
+  .pf-stage.paper-sheet {
+    isolation: isolate;
+    margin: 0;
+    padding: clamp(10px, 1.4vw, 18px);
+    background: none;
+    box-shadow: none;
+    filter: drop-shadow(0 12px 16px color-mix(in oklab, var(--color-navy) 16%, transparent));
+  }
+  .pf-stage::before,
+  .pf-stage::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+  .pf-stage::before {
+    inset: 0;
+    z-index: -1;
+    background: var(--color-ivory);
+    clip-path: polygon(0 1.2%, 6% 0, 14% 1.4%, 23% 0.2%, 31% 1.6%, 42% 0.4%, 51% 1.5%, 60% 0.1%, 71% 1.3%, 80% 0.3%, 90% 1.6%, 100% 0.5%, 99.4% 12%, 100% 26%, 99.2% 41%, 100% 57%, 99.3% 72%, 100% 86%, 99.5% 100%, 89% 98.6%, 78% 100%, 67% 98.8%, 56% 99.8%, 45% 98.5%, 34% 99.9%, 24% 98.7%, 13% 99.8%, 4% 98.6%, 0 99.6%, 0.7% 85%, 0 70%, 0.6% 55%, 0 40%, 0.8% 26%, 0 12%);
+  }
+  .pf-stage::after {
+    inset: 14px -12px -14px 10px;
+    z-index: -2;
+    background: var(--color-kraft);
+    rotate: 1.2deg;
+    clip-path: polygon(0 2%, 9% 0, 20% 1.8%, 33% 0.3%, 47% 2%, 60% 0.2%, 74% 1.7%, 87% 0.4%, 100% 1.5%, 99% 30%, 100% 62%, 99.2% 100%, 84% 98.4%, 69% 100%, 53% 98.2%, 38% 99.8%, 22% 98.3%, 8% 99.7%, 0 98%, 0.9% 64%, 0 33%);
+  }
+  .pf-stage .paper-fastener[data-side="l"] {
+    left: 6%;
+  }
+  .pf-stage .paper-fastener[data-side="r"] {
+    right: 6%;
+  }
+  .pf-stage-screen {
+    position: relative;
+    display: grid;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--color-navy);
+    border-radius: 2px;
+  }
+  .pf-stage-screen > * {
+    grid-area: 1 / 1;
+  }
+  .pf-stage-poster {
+    object-fit: cover;
+  }
+  .pf-player {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--color-navy);
+  }
+  .pf-play {
+    z-index: 1;
+    place-self: center;
+    display: grid;
+    place-items: center;
+    width: clamp(64px, 7vw, 84px);
+    height: clamp(64px, 7vw, 84px);
+    border: 2px solid var(--color-navy);
+    border-radius: 50%;
+    color: var(--color-navy);
+    background: var(--color-ivory);
+    box-shadow: var(--shadow-paper-hover);
+    transition: translate 160ms var(--ease-hover);
+  }
+  .pf-play svg {
+    width: 44%;
+    height: 44%;
+    margin-left: 6%;
+    fill: currentColor;
+  }
+  .pf-play:hover {
+    translate: 0 -2px;
+  }
+  .pf-stage-tag {
+    z-index: 1;
+    align-self: end;
+    justify-self: start;
+    margin: 0 0 14px 14px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-navy);
+    background: var(--color-kraft);
+    border-radius: var(--radius-paper-sheet);
+    box-shadow: var(--shadow-sticky);
+  }
+  .pf-stage-loading,
+  .pf-stage-error {
+    z-index: 1;
+    place-self: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 90%;
+    padding: 10px 14px;
+    font-size: 15px;
+    color: var(--color-navy);
+    background: color-mix(in oklab, var(--color-rust) 14%, var(--color-ivory));
+    border-radius: var(--radius-paper);
+    box-shadow: var(--shadow-paper);
+  }
+  .pf-stage-loading {
+    background: var(--color-ivory);
+  }
+  .pf-stage-error svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-stage-error a {
+    color: var(--color-terracotta);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* --- the 90s cover (thumb + stage poster) --- */
+  .pf-cover {
+    --pf-ink: var(--color-navy);
+    position: relative;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    justify-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    padding: 0 10px 12px 18px;
+    overflow: hidden;
+    color: var(--pf-ink);
+    text-align: center;
+    background-color: color-mix(in oklab, var(--pf-accent) 24%, var(--color-ivory));
+    background-image:
+      radial-gradient(color-mix(in oklab, var(--pf-accent) 42%, transparent) 1.1px, transparent 1.4px),
+      linear-gradient(180deg, transparent 58%, color-mix(in oklab, var(--pf-accent) 16%, transparent));
+    background-size: 7px 7px, 100% 100%;
+    border: 2px solid var(--color-navy);
+    border-radius: 3px;
+  }
+  /* spine stripe + print-registration notch (faux packaging chrome) */
+  .pf-cover::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 10px;
+    background: repeating-linear-gradient(180deg, var(--pf-accent) 0 14px, var(--color-navy) 14px 16px);
+  }
+  .pf-cover::after {
+    content: "";
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--color-navy);
+    border-radius: 50%;
+    background: conic-gradient(var(--color-navy) 0 25%, transparent 0 50%, var(--color-navy) 0 75%, transparent 0);
+    opacity: 0.55;
+  }
+  .pf-cover-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(100% + 28px);
+    margin-inline: -18px -10px;
+    padding: 5px 8px 5px 16px;
+    background: var(--color-navy);
+  }
+  .pf-cover-code,
+  .pf-cover-no {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    color: var(--color-ivory);
+    background: var(--color-navy);
+  }
+  .pf-cover-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-self: center;
+    height: 100%;
+    max-height: 120px;
+    min-height: 0;
+    aspect-ratio: 1;
+  }
+  .pf-cover-burst {
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--color-navy);
+    border-radius: 50%;
+    background: repeating-conic-gradient(color-mix(in oklab, var(--pf-accent) 55%, var(--color-ivory)) 0 10deg, var(--color-ivory) 10deg 20deg);
+    box-shadow: 3px 3px 0 var(--color-navy);
+  }
+  .pf-cover-glyph {
+    position: relative;
+    width: 52%;
+    height: 52%;
+    color: var(--color-navy);
+    background: var(--color-ivory);
+    border-radius: 50%;
+    padding: 8%;
+    box-sizing: content-box;
+  }
+  .pf-cover-name {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 color-mix(in oklab, var(--pf-accent) 45%, var(--color-ivory));
+    overflow-wrap: anywhere;
+  }
+  .pf-cover-line {
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+    background: var(--color-ivory);
+    border: 1.5px solid var(--color-navy);
+  }
+  /* stage poster: the same cover, laid out wide (glyph left, title block right) */
+  .pf-cover[data-size="stage"] {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "top top"
+      "hero name"
+      "hero line";
+    align-items: center;
+    column-gap: clamp(12px, 3vw, 40px);
+    padding: 0 clamp(16px, 4vw, 48px) clamp(14px, 3vw, 36px) clamp(26px, 4vw, 52px);
+    border: 0;
+    border-radius: 0;
+    background-size: 9px 9px, 100% 100%;
+  }
+  .pf-cover[data-size="stage"]::before {
+    width: clamp(12px, 1.6vw, 20px);
+  }
+  .pf-cover[data-size="stage"] .pf-cover-top {
+    grid-area: top;
+    width: calc(100% + clamp(42px, 8vw, 100px));
+    margin-inline: calc(-1 * clamp(26px, 4vw, 52px)) calc(-1 * clamp(16px, 4vw, 48px));
+    padding-inline: clamp(26px, 4vw, 52px) clamp(16px, 4vw, 48px);
+  }
+  .pf-cover[data-size="stage"] .pf-cover-hero {
+    grid-area: hero;
+    width: min(88%, 260px);
+    height: auto;
+    max-height: none;
+    justify-self: center;
+  }
+  .pf-cover[data-size="stage"] .pf-cover-name {
+    grid-area: name;
+    align-self: end;
+    justify-self: start;
+    text-align: left;
+    font-size: clamp(22px, 3.6vw, 52px);
+    text-shadow: 3px 3px 0 color-mix(in oklab, var(--pf-accent) 45%, var(--color-ivory));
+  }
+  .pf-cover[data-size="stage"] .pf-cover-line {
+    grid-area: line;
+    align-self: start;
+    justify-self: start;
+    width: auto;
+    font-size: clamp(14px, 1.4vw, 18px);
+  }
+
+  /* --- product panel --- */
+  .pf-info {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+  }
+  .pf-info-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+  .pf-info-code {
+    padding: 3px 8px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-ivory);
+    background: var(--color-navy);
+    border-radius: 2px;
+  }
+  .pf-info-name {
+    font-size: clamp(2rem, 1.5rem + 1.6vw, 3rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+  .pf-info-tagline {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-terracotta);
+  }
+  .pf-info-desc {
+    max-width: 42ch;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .pf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* ripped-paper strip: the tear is a clipped ::before so the focus outline is never clipped */
+  .pf-action {
+    --pf-strip: var(--color-kraft);
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-navy);
+    text-decoration: none;
+    transition: translate 160ms var(--ease-hover);
+  }
+  .pf-action::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in oklab, var(--pf-strip) 30%, var(--color-ivory));
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 10%, transparent);
+    clip-path: polygon(2% 8%, 12% 0, 30% 6%, 48% 0, 66% 7%, 84% 0, 98% 6%, 100% 30%, 97% 52%, 100% 76%, 98% 94%, 82% 100%, 64% 93%, 46% 100%, 28% 94%, 10% 100%, 1% 92%, 3% 70%, 0 48%, 2% 26%);
+  }
+  .pf-action svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+  .pf-action[data-action="pitch"] { --pf-strip: var(--color-steel); }
+  .pf-action[data-action="demo"] { --pf-strip: var(--color-rust); }
+  .pf-action[data-action="product"] { --pf-strip: var(--color-green-2); }
+  .pf-action[data-action="github"] { --pf-strip: color-mix(in oklab, var(--color-steel) 62%, var(--color-rust)); }
+  .pf-action[data-action="prd"] { --pf-strip: var(--color-note); }
+  .pf-action[data-action="prd"]::before {
+    background: color-mix(in oklab, var(--color-note) 78%, var(--color-ivory));
+  }
+  .pf-action:hover {
+    translate: 0 -2px;
+  }
+  .pf-action[aria-pressed="true"]::before {
+    background: color-mix(in oklab, var(--pf-strip) 52%, var(--color-ivory));
+  }
+  .pf-action[aria-pressed="true"] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .pf-case-link {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-terracotta);
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+  }
+
+  /* --- carousel on a kraft strip --- */
+  .pf-carousel {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    padding: 14px clamp(10px, 2vw, 22px) 12px;
+    background-color: var(--color-kraft);
+    background-image: var(--grain-a), var(--grain-b);
+    background-size: 5px 5px, 7px 7px;
+    border-radius: 3px;
+    box-shadow: var(--shadow-paper);
+  }
+  .pf-carousel-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .pf-select,
+  .pf-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+  }
+  .pf-count {
+    margin-left: auto;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+  .pf-arrows {
+    display: flex;
+    gap: 8px;
+  }
+  .pf-arrow {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    color: var(--color-navy);
+    background: var(--color-ivory);
+    border: 1.5px solid var(--color-navy);
+    border-radius: 50%;
+    box-shadow: 2px 2px 0 var(--color-navy);
+    transition: translate 140ms var(--ease-hover), box-shadow 140ms var(--ease-hover);
+  }
+  .pf-arrow svg {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-arrow:hover {
+    translate: -1px -1px;
+    box-shadow: 3px 3px 0 var(--color-navy);
+  }
+  .pf-track {
+    --pf-gap: clamp(12px, 1.4vw, 18px);
+    --pf-thumb-w: 52%;
+    display: flex;
+    gap: var(--pf-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 8px;
+    padding: 16px 8px 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-navy-2) transparent;
+  }
+  @media (min-width: 640px) {
+    .pf-track {
+      --pf-thumb-w: 34%;
+    }
+  }
+  @media (min-width: 768px) {
+    .pf-track {
+      --pf-thumb-w: 27%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .pf-track {
+      --pf-thumb-w: calc((100% - 5 * var(--pf-gap)) / 6);
+    }
+  }
+  .pf-thumb {
+    position: relative;
+    flex: 0 0 var(--pf-thumb-w);
+    aspect-ratio: 3 / 4;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: none;
+    cursor: pointer;
+    scroll-snap-align: start;
+    box-shadow: var(--shadow-paper);
+    transition: translate 200ms var(--ease-hover), box-shadow 200ms var(--ease-hover);
+  }
+  .pf-thumb:hover {
+    translate: 0 -3px;
+    box-shadow: var(--shadow-paper-hover);
+  }
+  .pf-thumb:hover .pf-cover-name {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .pf-thumb[aria-selected="true"] {
+    translate: 0 -4px;
+    box-shadow: var(--shadow-paper-hover);
+  }
+  /* selected: a hand-drawn sketch outline + a tape strip (shape cues, never colour alone) */
+  .pf-thumb[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border: 2.5px solid var(--color-navy);
+    border-radius: 255px 14px 225px 14px / 14px 225px 14px 255px;
+    pointer-events: none;
+  }
+  .pf-thumb[aria-selected="true"]::before {
+    content: "";
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    z-index: 2;
+    width: 58px;
+    height: 20px;
+    background: var(--tape);
+    border: 1px solid var(--tape-border);
+    translate: -50% 0;
+    rotate: -4deg;
+    pointer-events: none;
+  }
+
+  /* --- Section 2: dossier paper --- */
+  .pf-enterprise {
+    position: relative;
+    background-color: var(--color-paper-2);
+    background-image: repeating-linear-gradient(0deg, transparent 0 31px, var(--rule-blue) 31px 32px);
+  }
+  .pf-enterprise > [data-decor="torn"] {
+    position: absolute;
+    top: -43px;
+    left: 0;
+  }
+  .pf-ent-wrap {
+    display: grid;
+    gap: clamp(28px, 3.4vw, 44px);
+    padding-block: clamp(24px, 3vw, 40px) clamp(72px, 8vw, 120px);
+  }
+  .pf-ent-intro {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    max-width: 44rem;
+  }
+  .pf-ent-intro .pf-eyebrow {
+    color: var(--color-green-2);
+  }
+  .pf-ent-h {
+    font-size: var(--text-h2);
+    line-height: 1.06;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .pf-ent-sub {
+    max-width: 52ch;
+    font-size: var(--text-lead);
+    color: var(--color-navy-2);
+  }
+  .pf-ent-note {
+    justify-self: end;
+    margin-top: -4px;
+    color: var(--color-ink-soft);
+  }
+  .pf-ent-note .annotation-arrow {
+    width: 24px;
+    margin-left: auto;
+  }
+  @media (min-width: 1024px) {
+    .pf-ent-intro {
+      grid-template-columns: minmax(0, 44rem) auto;
+      max-width: none;
+      column-gap: clamp(24px, 4vw, 64px);
+    }
+    .pf-ent-intro > :not(.pf-ent-note) {
+      grid-column: 1;
+    }
+    .pf-ent-note {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+      align-self: end;
+      justify-self: start;
+      margin: 0 0 0.4em;
+    }
+  }
+  .pf-cases {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(22px, 2.6vw, 32px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 768px) {
+    .pf-cases {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .pf-cases {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .pf-case-item {
+    display: grid;
+  }
+  .pf-case.paper-sheet {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto 1fr auto auto;
+    gap: 8px;
+    height: 100%;
+    padding: 26px 22px 18px;
+    background-color: var(--color-ivory);
+    border: 1px solid var(--line);
+    border-top: 3px double color-mix(in oklab, var(--color-navy) 22%, transparent);
+    transition: translate 180ms var(--ease-hover), box-shadow 180ms var(--ease-hover);
+  }
+  /* the paperclip (the card's own material, like the /contact card's) */
+  .pf-case.paper-sheet::before {
+    content: "";
+    position: absolute;
+    top: -14px;
+    left: 26px;
+    width: 12px;
+    height: 34px;
+    border: 2px solid var(--color-steel);
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 3px var(--color-ivory), inset 0 0 0 5px var(--color-steel);
+    rotate: -6deg;
+    pointer-events: none;
+  }
+  /* a torn, folded corner */
+  .pf-case.paper-sheet::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory)) 0 50%, var(--color-paper-2) 50%);
+    clip-path: polygon(0 100%, 100% 0, 100% 100%, 0 100%, 12% 80%, 30% 72%);
+    pointer-events: none;
+  }
+  .pf-case.paper-sheet:hover {
+    translate: 0 -2px;
+    box-shadow: var(--shadow-paper-hover);
+  }
+  .pf-case-stamp {
+    justify-self: end;
+    padding: 2px 8px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-terracotta);
+    border: 1.5px solid currentColor;
+    border-radius: 3px;
+    rotate: -2deg;
+  }
+  .pf-case-client {
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    line-height: 1.1;
+  }
+  .pf-case-program {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-green-2);
+  }
+  .pf-case-role {
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+  .pf-case-summary {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .pf-case-streams {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    margin: 2px 0 0;
+    padding: 10px 0 0;
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-navy-2);
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .pf-case-streams strong {
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+  .pf-case-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-case-tags li {
+    padding: 3px 8px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--color-navy);
+    background: var(--color-paper-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+  }
+  .pf-case-source {
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+
+  /* --- motion (spec §20, §45): enter only under no-preference; nothing moves under reduce --- */
+  @media (prefers-reduced-motion: no-preference) {
+    .pf-stage-screen[data-enter="product"],
+    .pf-feature[data-enter="product"] .pf-info {
+      animation: pf-enter 300ms var(--ease-reveal) both;
+    }
+    .pf-stage-screen[data-enter="mode"] {
+      animation: pf-enter 220ms var(--ease-reveal) both;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-thumb,
+    .pf-thumb:hover,
+    .pf-thumb[aria-selected="true"],
+    .pf-action,
+    .pf-action:hover,
+    .pf-arrow,
+    .pf-arrow:hover,
+    .pf-play,
+    .pf-play:hover,
+    .pf-case.paper-sheet,
+    .pf-case.paper-sheet:hover {
+      translate: none;
+      transition: none;
+    }
+    .pf-track {
+      scroll-behavior: auto;
+    }
+  }
+}
+/* end TASK-116 */
