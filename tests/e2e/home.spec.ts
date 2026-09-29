@@ -225,7 +225,9 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
     header: mobile ? 0 : 1,
     'section[aria-labelledby="hero-h"]': 1,
     "section#hero-copy": 4,
-    "section#work-featured": 4,
+    // TASK-133 (Dev-127): the three-product showcase keeps only its torn edge (the old quote annotation,
+    // flow sketch and sticky went with the TKT-75 grid; tapes are fasteners, cards content paper).
+    "section#work-featured": 1,
     "section#how-i-think": mobile ? 2 : 3,
     // TKT-113 (Dev-69): torn · collage backdrop · "That's Tushky!" annotation · sticky.
     "section#ask": 4,

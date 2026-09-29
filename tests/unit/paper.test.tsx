@@ -514,10 +514,10 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     return alts;
   };
 
-  it("the manifest has the twenty-nine design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + the twelve TASK-127 product covers + TASK-129 `cover-slag-city`, all `cover-<slug>` in §6.3) with the exact Design.md alt strings", () => {
+  it("the manifest has the thirty-two design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + the twelve TASK-127 product covers + TASK-129 `cover-slag-city` + the three TASK-133 `featured-<slug>` collages, all in §6.3) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(29);
-    for (const id of ["scene-experience", "scene-certifications", "polaroid-sunrise", "cover-teachspark", "cover-railcite", "cover-campfire-board", "cover-slag-city"]) expect(alts.has(id), `Design.md §6.3 must fix the ${id} alt`).toBe(true);
+    expect(alts.size).toBe(32);
+    for (const id of ["scene-experience", "scene-certifications", "polaroid-sunrise", "cover-teachspark", "cover-railcite", "cover-campfire-board", "cover-slag-city", "featured-railcite", "featured-slag-city", "featured-campfire-board"]) expect(alts.has(id), `Design.md §6.3 must fix the ${id} alt`).toBe(true);
     expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));
   });

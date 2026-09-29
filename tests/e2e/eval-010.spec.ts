@@ -108,8 +108,9 @@ test("@EVAL-010 reduced motion: card hover does not lift (/)", {
   await withReducedMotion(page);
   await page.goto("/", { waitUntil: "load" });
 
-  // Card hover must not translate (transform-animate) under reduced motion.
-  const card = page.locator('a[href="/work/teachspark"]').first();
+  // Card hover must not translate (transform-animate) under reduced motion. TASK-133: the home cards'
+  // one link is the Featured Work Explore button (→ the Portfolio deep link).
+  const card = page.locator('a[href^="/projects?product="]').first();
   await card.scrollIntoViewIfNeeded();
   const before = await card.boundingBox();
   await card.hover();
