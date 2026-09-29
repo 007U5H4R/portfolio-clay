@@ -3,10 +3,11 @@
  * findings of the TKT-90c pass.
  *
  *   A11Y-1 — `Reveal` content is in the accessibility tree ON LOAD, before any scroll: the six How I
- *            think h3s on `/` and the four product-journey h3s on `/about` resolve via `getByRole`
+ *            think h3s on `/` and the three chapter h3s on `/about` (TASK-136) resolve via `getByRole`
  *            (which skips `visibility:hidden` / `aria-hidden` content) while their Reveal has not
  *            fired yet; focus entering a Reveal marks it revealed.
- *   A11Y-2 — the decorative "●" kind-badge dot is not in the accessible text (`/about`).
+ *   A11Y-2 — decorative CSS glyphs are not in the accessible text: since TASK-136 retired the `/about`
+ *            kind-badge dot, the check runs on the `/work` "Scope & outcomes" disclosure's "+" marker.
  *   A11Y-3 — the insight artifact's decorative opening-quote glyph is not in the accessible text.
  *   A11Y-4 — the decision artifact reads "Why: <reason>" with a real space.
  *
@@ -44,17 +45,17 @@ test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () =
     for (const stage of STAGES) expect(tree).toContain(`heading "${stage}" [level=3]`);
   });
 
-  test("/about product journey: the four stage h3s have accessible names before scrolling", async ({ page }) => {
+  test("/about Three Chapters: the three chapter h3s have accessible names before scrolling (TASK-136)", async ({ page }) => {
     test.skip(width(page) !== 390 && width(page) !== 1440, "runs at the two boundary widths");
     await page.goto("/about", { waitUntil: "load" });
-    const journey = page.locator("section#journey");
-    await expect(journey.locator(".reveal").last()).not.toHaveAttribute("data-revealed", "");
-    const headings = journey.getByRole("list").first().getByRole("heading", { level: 3 });
-    await expect(headings).toHaveCount(4);
+    const chapters = page.locator("section#chapters");
+    await expect(chapters.locator(".reveal").last()).not.toHaveAttribute("data-revealed", "");
+    const headings = chapters.getByRole("list").first().getByRole("heading", { level: 3 });
+    await expect(headings).toHaveCount(3);
     for (const name of await headings.allInnerTexts()) expect(name.trim().length).toBeGreaterThan(0);
-    const tree = await journey.getByRole("list").first().ariaSnapshot();
-    expect(tree.match(/- listitem:/g)?.length ?? 0).toBe(4);
-    expect(tree.match(/heading "[^"]+" \[level=3\]/g)?.length ?? 0).toBe(4);
+    const tree = await chapters.getByRole("list").first().ariaSnapshot();
+    expect(tree.match(/- listitem:/g)?.length ?? 0).toBe(3);
+    expect(tree.match(/heading "[^"]+" \[level=3\]/g)?.length ?? 0).toBe(3);
   });
 
   test("focus entering a rolled stage card reveals it (/, TKT-110)", async ({ page }) => {
@@ -69,15 +70,15 @@ test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () =
   });
 });
 
-test("A11Y-2 the kind-badge dot is not read aloud (/about)", async ({ page }) => {
+test("A11Y-2 the disclosure's '+' marker is not read aloud (/work, TASK-136)", async ({ page }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
-  await page.goto("/about", { waitUntil: "load" });
-  const badge = page.locator(".aimp-kind").first();
-  await expect(badge).toBeAttached();
-  expect(await badge.ariaSnapshot()).not.toContain("●");
-  // Detector self-check: the pre-fix plain `content` IS picked up by the snapshot.
-  await page.addStyleTag({ content: '.aimp-kind::before { content: "●" !important; }' });
-  expect(await badge.ariaSnapshot()).toContain("●");
+  await page.goto("/work", { waitUntil: "load" });
+  const summary = page.locator(".ct-details-summary").first();
+  await expect(summary).toBeAttached();
+  expect(await summary.ariaSnapshot()).not.toContain("+");
+  // Detector self-check: a plain `content` IS picked up by the snapshot.
+  await page.addStyleTag({ content: '.ct-details-summary::before { content: "+" !important; }' });
+  expect(await summary.ariaSnapshot()).toContain("+");
 });
 
 test("A11Y-3 the insight opening-quote glyph is not read aloud (/work/teachspark)", async ({ page }) => {
