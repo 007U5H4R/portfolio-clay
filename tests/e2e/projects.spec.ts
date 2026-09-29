@@ -220,6 +220,14 @@ test("@EVAL-013 enterprise: six grouped case files below the showcase, no budget
   await expect(pear.locator(".pf-case-streams li")).toHaveCount(3);
   const lifepoint = section.locator("article").filter({ hasText: "LifePoint Health" });
   await expect(lifepoint.locator(".pf-case-streams li")).toHaveCount(3);
+  // TASK-132: every sub-project starts its own line: no two items share a row in any case file.
+  const sharedRows = await section.locator(".pf-case-streams").evaluateAll((lists) =>
+    lists.flatMap((list) => {
+      const tops = [...list.querySelectorAll("li")].map((li) => Math.round(li.getBoundingClientRect().top));
+      return tops.length === new Set(tops).size ? [] : [list.closest("article")?.querySelector("h3")?.textContent ?? "?"];
+    }),
+  );
+  expect(sharedRows, "case files with two sub-projects on one line").toEqual([]);
   const text = (await section.textContent()) ?? "";
   expect(text).not.toMatch(/[$€£₹]|budget/i);
   await expect(section.locator("a")).toHaveCount(0);
