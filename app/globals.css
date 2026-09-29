@@ -11009,7 +11009,7 @@ html.lenis body {
   /* ---- hero ---- */
   .abh {
     position: relative;
-    padding-block: clamp(28px, 4vw, 56px) clamp(96px, 9vw, 140px);
+    padding-block: clamp(28px, 4vw, 56px) clamp(80px, 7.4vw, 116px);
     overflow-x: clip;
   }
   .abh-grid {
@@ -11457,7 +11457,7 @@ html.lenis body {
     align-items: start;
   }
   .rvx-principles.paper-sheet {
-    padding: 26px 24px 24px;
+    padding: 26px 22px 24px;
     background-color: color-mix(in oklab, var(--color-ivory) 62%, var(--color-note));
   }
   .rvx-plist {
@@ -11494,7 +11494,7 @@ html.lenis body {
     position: relative;
     display: grid;
     justify-items: center;
-    max-width: 240px;
+    max-width: 210px;
     justify-self: center;
   }
   .rvx-note.paper-annotation {
@@ -11507,7 +11507,7 @@ html.lenis body {
   }
   @media (min-width: 640px) {
     .rvx-values-row {
-      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
     }
   }
   @media (min-width: 1024px) {
