@@ -36,6 +36,9 @@ const PRODUCT_COVER_IDS = [
   "cover-slag-city", // TASK-129
 ] as const;
 
+/** TASK-133: the three home Featured Work cut-paper collages (featured-rank order). */
+const FEATURED_ART_IDS = ["featured-railcite", "featured-slag-city", "featured-campfire-board"] as const;
+
 interface Finding {
   rule: string;
   detail: string;
@@ -158,7 +161,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the eleven other product covers, TASK-127 + `cover-slag-city`, TASK-129)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the eleven other product covers, TASK-127 + `cover-slag-city`, TASK-129 + the three `featured-<slug>` collages, TASK-133)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -167,6 +170,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "hero-desk",
         "polaroid-sunrise",
         ...PRODUCT_COVER_IDS,
+        ...FEATURED_ART_IDS,
         "scene-about",
         "scene-casestudy",
         "scene-certifications",
@@ -180,7 +184,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(29);
+    expect(ILLUSTRATIONS.length).toBe(32);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -260,6 +264,24 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
       expect(svg, `${cover.id} is not self-contained`).not.toMatch(/<image|<script|<style|href="(?!#)|url\((?!#)/);
     }
     expect(existsSync(join(PUBLIC_DIR, "media", "illustrations", "covers", "cover-teachspark.webp"))).toBe(false);
+  });
+
+  // TASK-133 (Featured Work spec §5–§7, §19): each featured card has its own hand-authored collage —
+  // transparent (it lies on the card's paper), text-free, self-contained, ≤ 40 kB, used on `/` only.
+  it("the three Featured Work collages are self-contained, text-free SVGs ≤ 40 kB on / (TASK-133)", () => {
+    const art = ILLUSTRATIONS.filter((e) => e.id.startsWith("featured-"));
+    expect(art.map((e) => e.id)).toEqual([...FEATURED_ART_IDS]);
+    for (const entry of art) {
+      expect(entry.kind, entry.id).toBe("scene");
+      expect(entry.file, entry.id).toBe(""); // public-only; the source is scripts/portfolio-art/featured/
+      expect(entry.publicSrc, entry.id).toBe(`/media/illustrations/featured/${entry.id}.svg`);
+      expect(entry.usedOn, entry.id).toEqual(["/"]);
+      const svg = readFileSync(join(PUBLIC_DIR, entry.publicSrc!.replace(/^\//, "")), "utf8");
+      expect(Buffer.byteLength(svg), `${entry.id} bytes`).toBeLessThanOrEqual(40_000);
+      expect(svg.startsWith(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${entry.width} ${entry.height}" width="${entry.width}" height="${entry.height}">`), entry.id).toBe(true);
+      expect(svg, `${entry.id} draws text`).not.toMatch(/<text|<tspan|<foreignObject/);
+      expect(svg, `${entry.id} is not self-contained`).not.toMatch(/<image|<script|<style|href="(?!#)|url\((?!#)/);
+    }
   });
 
   it("hero-banner is the 3168×1344 outpaint with the Dev-23 alt, used on / (TKT-93)", () => {

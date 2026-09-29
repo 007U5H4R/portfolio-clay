@@ -15,11 +15,13 @@
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
+ * TASK-133: `featured-<slug>`, the three hand-authored cut-paper collages on the home Featured Work cards
+ * (scripts/portfolio-art/featured/, public-only).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -351,5 +353,38 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 900,
     alt: "Illustration of a ruined industrial city at smoggy dusk: a forge hammer stands head-down on a heap of slag before a foundry's blazing furnace arch, molten slag runs out towards the viewer, and smokestacks, a blast-furnace tower, gutted buildings, a leaning crane and a broken green dome stand in the haze.",
     usedOn: ["/projects"],
+  },
+  {
+    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/railcite.ts) — the home Featured Work anchor card.
+    id: "featured-railcite",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/featured/featured-railcite.svg",
+    width: 1000,
+    height: 1040,
+    alt: "Illustration of a cut-paper collage: a navy, cream and red streamliner crossing a stone viaduct over a river, below a railway circular with a round stamp, ruled lines and a red approval stamp, a station map with a red route line, a small evidence slip with a green check, pines and a rust sun.",
+    usedOn: ["/"],
+  },
+  {
+    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/slag-city.ts) — home Featured Work, top-right card.
+    id: "featured-slag-city",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/featured/featured-slag-city.svg",
+    width: 1000,
+    height: 860,
+    alt: "Illustration of a cut-paper collage: a charcoal foundry skyline with smokestacks, a blast furnace and a crane before a rust sun, a torn district map, a forge hammer on a slag heap with a glowing run-off, dark water, and an arcade ticket stub with a blank token.",
+    usedOn: ["/"],
+  },
+  {
+    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/campfire-board.ts) — home Featured Work, bottom-right card.
+    id: "featured-campfire-board",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/featured/featured-campfire-board.svg",
+    width: 1000,
+    height: 860,
+    alt: "Illustration of a cut-paper collage: a planning board on an easel with three columns of pinned, scribbled paper notes and a small bar-chart slip, a campfire in a ring of stones, one wooden chair with a mug, pines, a lake and an orange sun.",
+    usedOn: ["/"],
   },
 ];

@@ -116,7 +116,8 @@ test("reduced motion collapses card hover lift and header transition", { tag: "@
   await withReducedMotion(page);
   await page.goto("/", { waitUntil: "load" });
 
-  const card = page.locator('a[href="/work/teachspark"]');
+  // TASK-133: the home Featured Work card's one link is its Explore button (→ /projects?product=<id>).
+  const card = page.locator('a[href^="/projects?product="]').first();
   await card.scrollIntoViewIfNeeded();
   const before = await card.boundingBox();
   await card.hover();
@@ -147,7 +148,9 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
 }) => {
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/", { waitUntil: "load" });
+  // TASK-133: home no longer links straight to a case study; the card → case-study hop is the
+  // Portfolio sheet's case-study link (TeachSpark is the default product on /projects).
+  await page.goto("/projects", { waitUntil: "load" });
 
   const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback path runs").toBeFalsy();
@@ -179,7 +182,8 @@ test("F6: card -> case study nav does not trip a render loop (React #185)", { ta
 
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/", { waitUntil: "load" });
+  // TASK-133: the card → case-study hop starts on /projects (home links to the Portfolio deep link).
+  await page.goto("/projects", { waitUntil: "load" });
 
   const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
   study.on("pageerror", (err) => pageErrors.push(err.message));

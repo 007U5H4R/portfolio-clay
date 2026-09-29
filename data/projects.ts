@@ -66,7 +66,7 @@ const EMPTY_CHAPTERS: Project["chapters"] = [
 ];
 
 /**
- * TeachSpark — the flagship full case study (featured rank 1, large; TKT-28, M-005). Every chapter
+ * TeachSpark — the flagship full case study (TKT-28, M-005; featured rank 1 + large until TASK-133). Every chapter
  * body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.1 + AUDIT §4 — nothing is
  * invented. Canonical pilot metrics use the Final-PRD snapshot 2026-08-24 (test handsets excluded);
  * the conflicting 2026-08-26 pitch snapshot is deliberately NOT mixed in (§8.1 "Choose one date").
@@ -85,8 +85,7 @@ export const teachspark: Project = {
   status: "pilot",
   statusLabel: "Live pilot (Twilio sandbox) — uptime after 2026-09-09 unverified",
   statusAsOf: "2026-09-09",
-  featured: 1,
-  gridSize: "large",
+  gridSize: "medium",
   icon: "MessageSquareText",
   role: "Solo build",
   dates: { start: "2026-08" },
@@ -525,7 +524,7 @@ export const teachspark: Project = {
 };
 
 /**
- * RailCite — the second featured full case study (featured rank 2, medium; TKT-29, M-005). Every
+ * RailCite — the home Featured Work anchor (featured rank 1, large — TASK-133; was rank 2, medium; TKT-29, M-005). Every
  * chapter body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.2 + AUDIT §5 —
  * nothing is invented. Corpus figures follow the decided **"live, with as-of date"** policy: the
  * live count (5,760 docs / 14,406 chunks) is dated 2026-09-15 from `/api/stats`, and the Final-PRD
@@ -548,8 +547,8 @@ export const railcite: Project = {
   status: "live",
   statusLabel: "Live",
   statusAsOf: "2026-09-15",
-  featured: 2,
-  gridSize: "medium",
+  featured: 1,
+  gridSize: "large",
   icon: "ShieldCheck",
   role: "Solo build",
   dates: { start: "2026-08", end: "2026-09" },
@@ -989,7 +988,7 @@ export const railcite: Project = {
 };
 
 /**
- * Nuptis → Velora — the third featured full case study (featured rank 3, medium; TKT-30, M-005).
+ * Nuptis → Velora — a full case study (TKT-30, M-005; featured rank 3 until TASK-133).
  * The Nuptis→Velora arc (S3) is carried by the display `name` while the route/slug is `velora`;
  * Velora is the surviving product and the page frames the kill/pivot as its spine. Every chapter
  * body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.5 (+ §8.4 pivot, §1.4/§1.5
@@ -1014,7 +1013,6 @@ export const velora: Project = {
   status: "live",
   statusLabel: "Live (mock data)",
   statusAsOf: "2026-09-15",
-  featured: 3,
   gridSize: "medium",
   icon: "Handshake",
   role: "Solo build",
@@ -2841,6 +2839,7 @@ export const campfireBoard: Project = {
   filters: ["experiments"],
   status: "prototype",
   statusLabel: "Built · local tool",
+  featured: 3, // TASK-133: home Featured Work, bottom-right
   gridSize: "small",
   icon: "SquareKanban",
   role: "Personal fork",
@@ -2888,6 +2887,7 @@ export const slagCity: Project = {
   status: "live",
   statusLabel: "Live · browser game",
   statusAsOf: "2026-09-29",
+  featured: 2, // TASK-133: home Featured Work, top-right
   gridSize: "small",
   icon: "Hammer",
   role: "Owner · personal build",
@@ -3033,12 +3033,12 @@ export const godrejSmartnet: Project = {
 /**
  * The full 16-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129):
  * 13 personal builds + 3 professional-experience entries.
- * Featured trio (rank 1/2/3): TeachSpark (large) · RailCite · Nuptis → Velora. Exactly one
- * `gridSize:'large'` (teachspark). `generateStaticParams` builds a `/work/<slug>` page for the 13
+ * Featured trio (rank 1/2/3, TASK-133): RailCite (large, the anchor) · Slag City · Campfire Board. Exactly one
+ * `gridSize:'large'` (railcite). TeachSpark and Nuptis → Velora stay on the Portfolio page and in `/work`. `generateStaticParams` builds a `/work/<slug>` page for the 13
  * personal builds only; professional entries render inline on `/work` (TKT-17), no case-study page.
  */
 export const projects: Project[] = [
-  // personal builds (13) — featured trio first, then the deep dives, then the card-depth builds
+  // personal builds (13) — the M-005 case studies first, then the deep dives, then the card-depth builds
   // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129)
   teachspark,
   railcite,
