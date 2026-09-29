@@ -9,10 +9,11 @@
  *   @EVAL-011 — the three Explore links are live controls: each href resolves 200.
  *   @EVAL-018 — `section#work-featured` carries exactly 1 decoration (its torn edge — Design.md §3.3,
  *               Dev-127) at 390 and 1440; ≤ 2 fasteners per card.
- *   Layout (spec §3, §16–§18; Design.md §7.1): ≥ 1100 RailCite left (~60 %) spanning both rows, Slag
- *   City top-right, Campfire Board bottom-right, the section ≈ 700–850 px; 700–1099 RailCite full width
- *   over the two side cards; < 700 one column in order. Never horizontal overflow; every CTA fully
- *   inside its card and the viewport.
+ *   Layout (reference image; Design.md §7.1, Dev-128): ≥ 1200 RailCite left (~60 %) spanning both rows,
+ *   Slag City top-right, Campfire Board bottom-right (equal heights), the RailCite sheet a wide landscape
+ *   (aspect 1.25–1.5) and its copy never wider than its calm half; 700–1199 RailCite full width over the
+ *   two side cards; < 700 one column in order. Never horizontal overflow; every CTA fully inside its card
+ *   and the viewport.
  *   Hover (spec §15): the CTA lifts 1 px and its arrow steps 3 px right; under reduced motion neither
  *   moves.
  */
@@ -158,7 +159,7 @@ test("featured layout: RailCite anchor + right column per breakpoint, compact, n
   expect(rail && slag && camp, "3 cards laid out").toBeTruthy();
   const w = width(page);
 
-  if (w >= 1100) {
+  if (w >= 1200) {
     // RailCite left (~58–62 % of the row), Slag City top-right, Campfire Board below it.
     const share = rail!.w / (slag!.x + slag!.w - rail!.x);
     expect(share).toBeGreaterThan(0.55);
@@ -168,9 +169,17 @@ test("featured layout: RailCite anchor + right column per breakpoint, compact, n
     expect(camp!.y).toBeGreaterThan(slag!.y + slag!.h - 1);
     expect(Math.abs(slag!.h - camp!.h)).toBeLessThanOrEqual(24); // equal or near-equal
     expect(rail!.h).toBeGreaterThanOrEqual(slag!.h + camp!.h);
-    // compact: ≈ 700–850 px including the heading (the section box, torn edge included)
+    // the anchor is a wide landscape sheet (reference ≈ 1.45) whose copy stays in its calm left half
+    expect(rail!.w / rail!.h).toBeGreaterThan(1.25);
+    expect(rail!.w / rail!.h).toBeLessThan(1.5);
+    const [copy] = await boxes(page.locator(`${SECTION} [data-featured="railcite"] .fw-copy`));
+    expect(copy!.w).toBeLessThanOrEqual(rail!.w * 0.5 + 1);
+    // the proof points sit side by side (one row)
+    const proof = await boxes(page.locator(`${SECTION} .fw-proof-item`));
+    expect(Math.abs(proof[0]!.y - proof[1]!.y)).toBeLessThanOrEqual(1);
+    // no wasted page: the section (torn edge + head + cards) stays around one desktop viewport
     const section = (await boxes(page.locator(SECTION)))[0]!;
-    expect(section.h).toBeLessThanOrEqual(900);
+    expect(section.h).toBeLessThanOrEqual(1120);
   } else if (w >= 700) {
     // RailCite full width on top; Slag City + Campfire Board side by side beneath.
     expect(Math.abs(rail!.w - (slag!.w + camp!.w))).toBeLessThanOrEqual(40);
