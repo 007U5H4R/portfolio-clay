@@ -14,6 +14,7 @@
  */
 import type { Locator, Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
+import { openCaseStudy } from "./case-study-system";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
@@ -51,7 +52,9 @@ test("@EVAL-002 featured section lists the 3 case studies in rank order", {
     const { slug, name } = FEATURED[i]!;
     const link = links(page).nth(i);
     await expect(link).toHaveAttribute("href", `/work/${slug}`);
-    await expect(link).toHaveAttribute("aria-label", name);
+    // TASK-130: the case study opens in a new tab, and the card's name says so.
+    await expect(link).toHaveAttribute("aria-label", `${name} (opens in a new tab)`);
+    await expect(link).toHaveAttribute("target", "_blank");
     await expect(link.locator("h3")).toHaveText(name);
     await expect(sheets(page).nth(i).locator("a")).toHaveCount(1);
   }
@@ -69,9 +72,10 @@ test("@EVAL-002 @EVAL-015 each featured card navigates to its case study (VT fal
     const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
     expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback path runs").toBeFalsy();
 
-    await page.locator(`${SECTION} a[href="/work/${slug}"]`).click();
-    await page.waitForURL(`**/work/${slug}`);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+    const study = await openCaseStudy(page, page.locator(`${SECTION} a[href="/work/${slug}"]`));
+    expect(new URL(study.url()).pathname).toBe(`/work/${slug}`);
+    await expect(study.getByRole("heading", { level: 1 })).toHaveText(name);
+    await study.close();
   }
 });
 

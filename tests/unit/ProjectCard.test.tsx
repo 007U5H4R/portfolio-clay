@@ -18,7 +18,10 @@ describe("ProjectCard (featured)", () => {
     const { container } = render(<ProjectCard project={teachspark} metrics={featuredMetrics(teachspark)} size="large" />);
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(1);
-    expect(links[0]?.getAttribute("aria-label")).toBe("TeachSpark");
+    // TASK-130: the case study opens in a new tab, and the name says so.
+    expect(links[0]?.getAttribute("aria-label")).toBe("TeachSpark (opens in a new tab)");
+    expect(links[0]?.getAttribute("target")).toBe("_blank");
+    expect(links[0]?.getAttribute("rel")).toContain("noopener");
     expect(links[0]?.getAttribute("href")).toBe("/work/teachspark");
     expect(container.querySelectorAll("a, button")).toHaveLength(1);
     // EXE-5 CSS-only VT name on the anchor.
@@ -87,7 +90,7 @@ describe("FeaturedWork", () => {
     expect(section).not.toBeNull();
     const links = [...section!.querySelectorAll("a")];
     expect(links.map((a) => a.getAttribute("href"))).toEqual(["/work/teachspark", "/work/railcite", "/work/velora"]);
-    expect(links.map((a) => a.getAttribute("aria-label"))).toEqual(["TeachSpark", "RailCite", "Nuptis → Velora"]);
+    expect(links.map((a) => a.getAttribute("aria-label"))).toEqual(["TeachSpark", "RailCite", "Nuptis → Velora"].map((n) => `${n} (opens in a new tab)`));
   });
 
   it("counts exactly 4 decorations (torn · annotation · flow sketch · sticky) and ≤ 2 fasteners per card", () => {

@@ -15,6 +15,7 @@
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
+import { isSystem } from "./case-study-system";
 import { collectDecorations, RULE_LIMITS } from "./eval-018-lib";
 
 const PATH = "/dev/artifacts";
@@ -22,7 +23,8 @@ const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const isEdge = (page: Page) => width(page) === 390 || width(page) === 1440;
 
 // Slugs that ship a full deep dive (chapters + an 8-node chain) — mirrors case-study.spec.ts DEEP_DIVE.
-const DEEP_DIVE = ["teachspark", "railcite", "velora", "nuptis", "cubicle", "bhakti-vilas"] as const;
+// TASK-130: minus the slugs now on the case-study system (no chapters/thinking chain there).
+const DEEP_DIVE = (["teachspark", "velora", "nuptis", "cubicle", "bhakti-vilas"] as const).filter((slug) => !isSystem(slug));
 const RICH = "teachspark";
 const NAV = 'nav[aria-label="Chapters"]';
 const PANEL = "#show-the-thinking-panel";

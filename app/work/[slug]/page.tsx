@@ -20,6 +20,11 @@ import { CHAPTER_ANCHORS } from "@/lib/anchors";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { Container } from "@/components/layout/Container";
+// TASK-130: the custom product case-study system (Tushar's spec 2026-09-29).
+import { getCaseStudy } from "@/data/case-studies";
+import { portfolioEntries } from "@/data/portfolio";
+import { CaseStudyView } from "@/components/case-study/system/CaseStudyView";
+import "./case-study.css";
 
 /**
  * Only the personal slugs are built; any other `/work/*` slug 404s (dynamicParams=false). Every
@@ -86,6 +91,20 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
   const currentIndex = PERSONAL.findIndex((entry) => entry.slug === project.slug);
   const nextProject = PERSONAL[(currentIndex + 1) % PERSONAL.length]!;
+
+  // TASK-130: a product with a case-study record renders the one-pager system (no shared scene
+  // opener — the product's own hero opens the page, spec §5); the rest keep the legacy template
+  // until their record lands.
+  const study = getCaseStudy(project.slug);
+  const portfolio = portfolioEntries.find((entry) => entry.slug === project.slug);
+  if (study && portfolio) {
+    return (
+      <>
+        <ProgressBar />
+        <CaseStudyView project={project} study={study} portfolio={portfolio} next={nextProject} />
+      </>
+    );
+  }
 
   const navItems: ChapterNavItem[] = renderedChapters.map(({ anchor, chapter, number }) => ({
     anchor,

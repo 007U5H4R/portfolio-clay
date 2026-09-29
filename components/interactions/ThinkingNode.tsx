@@ -1,3 +1,5 @@
+import { caseStudyLinkAttrs } from "@/lib/case-study-link";
+import { NewTabHint } from "@/components/common/NewTabHint";
 import type { CSSProperties } from "react";
 import type { ThinkingNode as ThinkingNodeData } from "@/data/schema";
 
@@ -42,8 +44,9 @@ export function ThinkingNode({ node, index, sourceLabel }: ThinkingNodeProps) {
       <span className="node-lab font-body">{STAGE_LABEL[node.stage]}</span>
       <p className="node-text font-body">{node.text}</p>
       {node.href ? (
-        <a href={node.href} data-inline-link="" className="node-src focus-ring rounded-[2px]">
+        <a href={node.href} data-inline-link="" className="node-src focus-ring rounded-[2px]" {...caseStudyLinkAttrs(node.href)}>
           {sourceLabel}
+          <NewTabHint href={node.href} />
         </a>
       ) : (
         <span className="node-src-plain">{sourceLabel}</span>

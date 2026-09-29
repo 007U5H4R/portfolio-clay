@@ -8,6 +8,8 @@
  */
 import type { Evidence } from "@/lib/ask";
 import { isInternalHref } from "@/lib/anchors";
+import { isCaseStudyHref } from "@/lib/case-study-link";
+import { NewTabHint } from "@/components/common/NewTabHint";
 
 export interface EvidenceLinksProps {
   evidence: Evidence[];
@@ -20,11 +22,14 @@ export function EvidenceLinks({ evidence, className }: EvidenceLinksProps) {
     <ul aria-label="Sources" className={classes}>
       {evidence.map((item) => {
         const external = !isInternalHref(item.href);
-        const externalAttrs = external ? { target: "_blank", rel: "noopener noreferrer" } : {};
+        // TASK-130: case-study links (`/work/<slug>`) open in a new tab too.
+        const newTab = external || isCaseStudyHref(item.href);
+        const externalAttrs = newTab ? { target: "_blank", rel: "noopener noreferrer" } : {};
         return (
           <li key={`${item.href}::${item.label}`}>
             <a href={item.href} className="ask-pill ask-pill-link focus-ring" {...externalAttrs}>
               {item.label}
+              <NewTabHint href={item.href} />
               <span aria-hidden="true" className="ask-pill-arrow">
                 →
               </span>

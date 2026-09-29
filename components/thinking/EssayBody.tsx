@@ -1,3 +1,4 @@
+import { NewTabHint } from "@/components/common/NewTabHint";
 import Link from "next/link";
 import type { Essay } from "@/data/schema";
 import { getProject } from "@/data/projects";
@@ -56,8 +57,9 @@ export function EssayBody({ essay, number, next }: EssayBodyProps) {
         <p className="essay-meta">
           <span>{essay.readingMinutes} min read</span>
           {relatedProject ? (
-            <Link href={`/work/${relatedProject.slug}`} className="essay-meta-rel focus-ring">
+            <Link href={`/work/${relatedProject.slug}`} target="_blank" rel="noopener noreferrer" className="essay-meta-rel focus-ring">
               Related project: {relatedProject.name} →
+              <NewTabHint />
             </Link>
           ) : null}
           {essay.draft ? <DraftTag /> : null}
@@ -90,8 +92,9 @@ export function EssayBody({ essay, number, next }: EssayBodyProps) {
         <p className="essay-framing">{essay.framing}</p>
 
         {relatedProject ? (
-          <Link href={`/work/${relatedProject.slug}`} className="essay-related focus-ring">
+          <Link href={`/work/${relatedProject.slug}`} target="_blank" rel="noopener noreferrer" className="essay-related focus-ring">
             <Hand kind="cta">Related project: {relatedProject.name} →</Hand>
+            <NewTabHint />
           </Link>
         ) : null}
       </FlatZone>

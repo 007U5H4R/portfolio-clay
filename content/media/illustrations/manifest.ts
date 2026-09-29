@@ -228,7 +228,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a cream streamliner with a rust chevron coming down the line at dusk, the sun setting behind it — every third sleeper a ruled document page, a signal ahead showing green, a lit signal box, and a stack of bound volumes with a magnifier in the foreground.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects", "/work/railcite"], // TASK-130: also the case study's pitch-video poster
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/velora.ts) — carousel cover + stage poster.

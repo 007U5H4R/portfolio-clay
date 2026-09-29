@@ -1,0 +1,1186 @@
+/* ============================================================================================
+   TASK-130 · Custom product case-study system (Tushar's spec 2026-09-29).
+   Route-scoped stylesheet for /work/[slug] (inlined with the route, experimental.inlineCss).
+   EVAL-020: paper tokens and color-mix() only — no colour literal anywhere in this file.
+
+   Shared (every product): typography, spacing, evidence UI (badges, legend, drawer), navigator,
+   action strip, a11y. Per product: `.csx[data-theme="<key>"]` blocks below — the metaphor, motif,
+   accents (--csx-a1…a3 come from the record's paper-token accents), hero composition, diagram
+   styling and the one-time motion. Mobile (< 768) is a real stacked read: decorations drop out
+   of layout, diagrams stack vertically, evidence cards swipe.
+   ============================================================================================ */
+
+.csx {
+  --csx-a1: var(--color-rust);
+  --csx-a2: var(--color-steel);
+  --csx-a3: var(--color-kraft);
+  --csx-ink: var(--color-navy);
+  --csx-soft: var(--color-ink-soft);
+  --csx-card: var(--color-ivory);
+  --csx-rule: color-mix(in oklab, var(--color-navy) 14%, transparent);
+  --csx-tint-1: color-mix(in oklab, var(--csx-a1) 10%, var(--color-ivory));
+  --csx-tint-2: color-mix(in oklab, var(--csx-a2) 12%, var(--color-ivory));
+  --csx-tint-3: color-mix(in oklab, var(--csx-a3) 30%, var(--color-ivory));
+  --csx-mark-size: 52px;
+  position: relative;
+  background: var(--color-paper);
+  color: var(--csx-ink);
+  overflow-x: clip;
+}
+
+.csx .sr-only-focusable:focus { position: static; }
+
+/* ── Hero ─────────────────────────────────────────────────────────────────────────────────── */
+.csx-hero {
+  position: relative;
+  padding-block: clamp(28px, 4vw, 56px) clamp(36px, 5vw, 72px);
+  isolation: isolate;
+}
+.csx-hero-in {
+  position: relative;
+  display: grid;
+  gap: clamp(20px, 3vw, 40px);
+  grid-template-areas: "copy" "media" "proofs";
+}
+@media (min-width: 1024px) {
+  .csx-hero-in {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-areas: "copy media" "proofs media";
+    align-items: start;
+    column-gap: clamp(32px, 4vw, 64px);
+  }
+  .csx-hero[data-layout="split-reverse"] .csx-hero-in {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    grid-template-areas: "media copy" "media proofs";
+  }
+  .csx-hero[data-layout="stacked"] .csx-hero-in {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "copy proofs" "media media";
+  }
+}
+.csx-hero-copy { grid-area: copy; position: relative; z-index: 1; }
+.csx-hero-media { grid-area: media; position: relative; z-index: 1; min-width: 0; }
+.csx-hero-proofs { grid-area: proofs; position: relative; z-index: 1; min-width: 0; }
+
+.csx-crumb {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--csx-soft);
+}
+.csx-crumb a { color: var(--color-navy-2); text-decoration: underline; text-underline-offset: 3px; }
+.csx-code {
+  margin: 0 0 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--csx-a1) 82%, var(--color-navy));
+}
+.csx-h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(52px, 6.4vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  color: var(--color-navy);
+  text-wrap: balance;
+}
+.csx-tagline {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(26px, 2.8vw, 38px);
+  line-height: 1.1;
+  color: color-mix(in oklab, var(--csx-a1) 88%, var(--color-navy));
+  font-variation-settings: "opsz" 96, "SOFT" 60;
+}
+.csx-prop {
+  margin: 18px 0 0;
+  max-width: 46ch;
+  font-size: clamp(17px, 1.35vw, 19px);
+  line-height: 1.55;
+  color: var(--color-navy-2);
+}
+
+/* Proof points (spec §5–§6) and evidence cards (§18) share one card. */
+.csx-proofs {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.csx-proofs > li { display: flex; min-width: 0; }
+@media (max-width: 639px) {
+  .csx-hero-proofs .csx-proofs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .csx-hero-proofs .csx-proofs > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+.csx-metric {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 16px 16px 14px;
+  background: var(--csx-card);
+  border: 1px solid var(--csx-rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow-paper);
+}
+.csx-metric p { margin: 0; }
+.csx-metric-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(34px, 3.2vw, 44px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 96, "SOFT" 20;
+  color: var(--color-navy);
+}
+.csx-metric[data-size="lg"] .csx-metric-value { font-size: clamp(38px, 3.6vw, 50px); }
+.csx-metric[data-kind="structural"] .csx-metric-value { color: var(--color-forest); }
+.csx-metric-label { font-size: 15px; line-height: 1.35; font-weight: 500; color: var(--color-navy-2); }
+.csx-metric-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 4px !important; }
+.csx-metric-date { font-size: 12px; color: var(--csx-soft); }
+.csx-metric-note { font-size: 14px; line-height: 1.45; color: var(--csx-soft); }
+
+/* Evidence badges (spec §19): glyph + word, never colour alone. */
+.csx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 7px;
+  border: 1px solid var(--csx-rule);
+  border-radius: 999px;
+  background: var(--color-ivory);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-navy-2);
+  white-space: nowrap;
+}
+.csx-badge-glyph { font-size: 12px; line-height: 1; }
+.csx-badge[data-kind="measured"] .csx-badge-glyph { color: var(--color-forest); }
+.csx-badge[data-kind="self-reported"] .csx-badge-glyph { color: var(--color-terracotta); }
+.csx-badge[data-kind="structural"] .csx-badge-glyph { color: var(--color-navy-2); }
+.csx-badge[data-kind="prototype"] .csx-badge-glyph { color: var(--color-ink-soft); }
+.csx-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: var(--csx-soft);
+}
+.csx-legend .csx-badge { background: transparent; }
+.csx-legend-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+}
+
+/* Hero media: a framed screenshot or the click-to-load pitch player on its poster. */
+.csx-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-navy);
+  box-shadow: 0 2px 4px color-mix(in oklab, var(--color-navy) 10%, transparent), 0 26px 48px -26px color-mix(in oklab, var(--color-navy) 55%, transparent);
+}
+.csx-video > * { position: absolute; inset: 0; }
+.csx-video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.csx-frame { margin: 0; }
+.csx-frame-screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--color-ivory);
+  border: 1px solid var(--csx-rule);
+  box-shadow: var(--shadow-paper);
+}
+.csx-frame img { display: block; width: 100%; height: auto; }
+.csx-frame[data-frame="browser"] .csx-frame-screen { padding-top: 22px; }
+.csx-frame-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22px;
+  background: color-mix(in oklab, var(--color-navy) 6%, var(--color-ivory));
+  border-bottom: 1px solid var(--csx-rule);
+}
+.csx-frame-bar::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--color-navy) 25%, transparent);
+  box-shadow: 10px 0 0 color-mix(in oklab, var(--color-navy) 18%, transparent), 20px 0 0 color-mix(in oklab, var(--color-navy) 12%, transparent);
+}
+.csx-frame[data-frame="phone"] .csx-frame-screen {
+  border: 6px solid var(--color-navy);
+  border-radius: 26px;
+  background: var(--color-navy);
+}
+.csx-frame[data-frame="phone"] img { border-radius: 19px; }
+.csx-frame[data-frame="print"] .csx-frame-screen { border-radius: 2px; padding: 10px; }
+.csx-frame-cap { margin-top: 8px; font-size: 14px; color: var(--csx-soft); }
+
+/* ── Sticky navigator (spec §24): ≥ 1024 only, light ─────────────────────────────────────── */
+.csx-nav { display: none; }
+@media (min-width: 1024px) {
+  .csx-nav {
+    display: block;
+    position: sticky;
+    top: calc(var(--header-h) + 6px);
+    z-index: 5;
+    width: fit-content;
+    max-width: calc(100% - 32px);
+    margin: 0 auto;
+    padding: 5px;
+    border: 1px solid var(--csx-rule);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px -12px color-mix(in oklab, var(--color-navy) 40%, transparent);
+  }
+  .csx-nav ol { display: flex; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .csx-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-navy-2);
+    text-decoration: none;
+  }
+  .csx-nav-link:hover { background: var(--csx-tint-1); color: var(--color-navy); }
+  .csx-nav-n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: color-mix(in oklab, var(--csx-a1) 85%, var(--color-navy)); }
+}
+
+/* ── Sections ─────────────────────────────────────────────────────────────────────────────── */
+.csx-body { position: relative; }
+.csx-sec {
+  position: relative;
+  padding-block: clamp(44px, 5.5vw, 84px);
+  scroll-margin-top: calc(var(--header-h) + 56px);
+}
+.csx-anchor { position: absolute; top: 0; left: 0; width: 1px; height: 1px; scroll-margin-top: calc(var(--header-h) + 56px); }
+.csx-sec-in {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .csx-sec-in {
+    grid-template-columns: var(--csx-mark-size) minmax(0, 1fr);
+    column-gap: clamp(24px, 3vw, 44px);
+  }
+  .csx-sec-head, .csx-sec-body { grid-column: 2; }
+  .csx-mark { grid-column: 1; grid-row: 1; }
+}
+.csx-sec-head { position: relative; }
+.csx-mark {
+  display: inline-grid;
+  place-items: center;
+  width: var(--csx-mark-size);
+  height: var(--csx-mark-size);
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background: var(--csx-a1);
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1024px) { .csx-mark { margin-bottom: 0; } }
+.csx-eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--csx-a1) 80%, var(--color-navy));
+}
+.csx-h2 {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(30px, 3.3vw, 46px);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  font-variation-settings: "opsz" 120, "SOFT" 30;
+  text-wrap: balance;
+}
+.csx-h2-sm { font-size: clamp(26px, 2.6vw, 36px); max-width: 30ch; }
+.csx-h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  font-variation-settings: "opsz" 72, "SOFT" 20;
+}
+.csx-lead {
+  margin: 0;
+  max-width: 58ch;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-navy-2);
+}
+.csx-sec-body { margin-top: 8px; }
+
+/* Problem: lead + one visual (spec §10–§11). */
+.csx-problem { display: grid; gap: 22px; }
+@media (min-width: 1024px) {
+  .csx-problem { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: start; column-gap: 40px; }
+  .csx-problem .csx-lead { grid-column: 1; }
+  .csx-problem .csx-flow { grid-column: 2; grid-row: 1 / span 2; }
+  .csx-problem .csx-quote { grid-column: 1; }
+}
+.csx-flow { margin: 0; }
+.csx-flow-cap {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--csx-soft);
+}
+.csx-flow-steps {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: flow;
+}
+@media (min-width: 768px) {
+  .csx-flow-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 26px; }
+}
+.csx-flow-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 10px 12px;
+  background: var(--csx-card);
+  border: 1px solid var(--csx-rule);
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.csx-flow-n {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--csx-a2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-navy-2);
+}
+.csx-flow-note { display: block; font-size: 14px; font-weight: 400; color: var(--csx-soft); }
+@media (min-width: 768px) {
+  .csx-flow-step:not(:last-child)::after {
+    content: "→";
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--csx-a1);
+  }
+  .csx-flow-step:nth-child(3n)::after { content: none; }
+}
+.csx-quote {
+  margin: 0;
+  padding: 16px 18px;
+  border-left: 3px solid var(--csx-a1);
+  background: var(--csx-tint-3);
+  border-radius: 0 6px 6px 0;
+}
+.csx-quote p { margin: 0; font-family: var(--font-display); font-size: 19px; line-height: 1.4; font-style: italic; }
+.csx-quote footer { margin-top: 8px; font-size: 14px; color: var(--csx-soft); }
+
+/* Product (spec §12). */
+.csx-product { display: grid; gap: 22px; }
+.csx-product .csx-lead { max-width: 60ch; }
+@media (min-width: 1024px) {
+  .csx-product[data-video] { grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr); column-gap: 32px; align-items: start; }
+  .csx-product[data-video] .csx-lead { grid-column: 1 / -1; }
+  .csx-product[data-video] .csx-video { grid-column: 1; }
+  .csx-product[data-video] .csx-states { grid-column: 2; grid-template-columns: minmax(0, 1fr); }
+}
+.csx-shots { display: grid; gap: 16px; }
+@media (min-width: 768px) {
+  .csx-shots[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .csx-shots[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .csx-shots[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.csx-states { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) { .csx-states { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.csx-state {
+  padding: 16px 18px;
+  background: var(--csx-card);
+  border: 1px solid var(--csx-rule);
+  border-left-width: 4px;
+  border-radius: 6px;
+  box-shadow: var(--shadow-paper);
+}
+.csx-state[data-tone="yes"] { border-left-color: var(--color-forest); }
+.csx-state[data-tone="no"] { border-left-color: var(--color-rust); background: color-mix(in oklab, var(--color-rust) 6%, var(--color-ivory)); }
+.csx-state-title { margin: 0 0 8px; font-weight: 600; font-size: 16px; }
+.csx-state ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.csx-state li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.45; color: var(--color-navy-2); }
+.csx-state li::before { position: absolute; left: 0; top: 0; font-weight: 700; }
+.csx-state[data-tone="yes"] li::before { content: "✓"; color: var(--color-forest); }
+.csx-state[data-tone="no"] li::before { content: "⊘"; color: var(--color-rust); }
+.csx-state[data-tone="neutral"] li::before { content: "•"; color: var(--color-steel); }
+
+/* Decisions (spec §14–§15). */
+.csx-decisions { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) {
+  .csx-decisions[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .csx-decisions[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) and (max-width: 1023px) { .csx-decisions[data-count="3"] { grid-template-columns: minmax(0, 1fr); } }
+.csx-decisions > li { display: flex; }
+.csx-decision {
+  width: 100%;
+  padding: 18px 18px 16px;
+  background: var(--csx-card);
+  border: 1px solid var(--csx-rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow-paper);
+}
+.csx-decision dl { margin: 0; display: grid; gap: 12px; }
+.csx-decision dt {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--csx-soft);
+}
+.csx-decision dd { margin: 3px 0 0; font-size: 15px; line-height: 1.45; color: var(--color-navy-2); }
+.csx-decision-row[data-row="could"] dd { color: var(--csx-soft); }
+.csx-decision-row[data-row="chose"] dt { color: var(--color-forest); }
+.csx-decision-row[data-row="chose"] dd {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--color-navy);
+}
+
+/* System / architecture (spec §16–§17). Mobile: a vertical line of steps. */
+.csx-system { display: grid; gap: 22px; }
+@media (min-width: 1024px) {
+  .csx-system[data-has-rules] { grid-template-columns: minmax(0, 1fr) 280px; column-gap: 32px; align-items: start; }
+  .csx-system .csx-lead { grid-column: 1 / -1; }
+}
+.csx-arch { margin: 0; min-width: 0; }
+.csx-arch-steps {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0 0 0 30px;
+  list-style: none;
+}
+.csx-arch-steps::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--csx-a2);
+  border-radius: 2px;
+}
+.csx-arch-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: baseline;
+  padding: 10px 14px;
+  background: var(--csx-card);
+  border: 1px solid var(--csx-rule);
+  border-radius: 6px;
+}
+.csx-arch-step::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--color-ivory);
+  border: 2.5px solid var(--csx-a1);
+}
+.csx-arch-n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--csx-soft); }
+.csx-arch-label { font-weight: 600; font-size: 15px; }
+.csx-arch-note { grid-column: 2; font-size: 14px; line-height: 1.4; color: var(--csx-soft); }
+@media (min-width: 1024px) {
+  .csx-arch-steps {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 30px 0 0;
+  }
+  .csx-arch-steps::before { left: 6%; right: 6%; top: 11px; bottom: auto; width: auto; height: 2px; }
+  .csx-arch-step {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    text-align: center;
+    padding: 12px 8px;
+    min-height: 118px;
+  }
+  .csx-arch-step::before { left: 50%; top: -25px; margin: 0 0 0 -6px; }
+  .csx-arch-note { grid-column: 1; }
+}
+.csx-arch-cap { margin-top: 12px; font-size: 14px; color: var(--csx-soft); }
+.csx-rules {
+  padding: 18px 18px 16px;
+  background: var(--csx-tint-3);
+  border: 1px solid var(--csx-rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow-paper);
+}
+.csx-rules ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.csx-rules li { position: relative; padding-left: 26px; font-size: 15px; line-height: 1.45; }
+.csx-rules li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--color-forest);
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-forest);
+}
+
+/* Outcome / evidence (spec §18–§20). Mobile: proof cards swipe (spec §34). */
+.csx-outcome { display: grid; gap: 22px; }
+.csx-outcome .csx-legend { margin-top: 0; }
+.csx-swipe { min-width: 0; border-radius: 6px; }
+@media (max-width: 767px) {
+  /* The focusable region is the scroller itself (axe scrollable-region-focusable). */
+  .csx-outcome .csx-swipe { overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; overscroll-behavior-x: contain; }
+  .csx-outcome .csx-proofs {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(78%, 1fr);
+    grid-template-columns: none;
+  }
+  .csx-outcome .csx-proofs > li { scroll-snap-align: start; }
+}
+@media (min-width: 1024px) { .csx-outcome .csx-proofs[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.csx-gaps {
+  padding: 16px 18px;
+  border: 1.5px dashed var(--csx-rule);
+  border-radius: 6px;
+}
+.csx-gaps .csx-h3 { font-size: 18px; }
+.csx-gaps ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.csx-gaps li { font-size: 15px; line-height: 1.5; color: var(--color-navy-2); }
+
+.csx-funnel { margin: 0; }
+.csx-funnel-steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.csx-funnel-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  min-height: 42px;
+  padding: 6px 12px;
+  isolation: isolate;
+}
+.csx-funnel-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w);
+  z-index: -1;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--csx-a1) 18%, var(--color-ivory));
+  border: 1px solid color-mix(in oklab, var(--csx-a1) 40%, transparent);
+}
+.csx-funnel-value { font-family: var(--font-display); font-size: 24px; font-variant-numeric: tabular-nums; }
+.csx-funnel-label { font-size: 15px; color: var(--color-navy-2); }
+.csx-funnel-note { color: var(--csx-soft); }
+.csx-funnel-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; color: var(--csx-soft); }
+
+/* Pivot (spec §49). */
+.csx-pivot { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 1024px) { .csx-pivot { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px; } }
+.csx-pivot-step {
+  position: relative;
+  padding: 16px 16px;
+  background: var(--csx-card);
+  border: 1px solid var(--csx-rule);
+  border-radius: 6px;
+}
+.csx-pivot-step p { margin: 0; }
+.csx-pivot-tag { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--csx-soft); margin-bottom: 6px !important; }
+.csx-pivot-name { font-family: var(--font-display); font-size: 28px; line-height: 1.1; }
+.csx-pivot-line { font-size: 15px; line-height: 1.45; color: var(--color-navy-2); margin-top: 6px !important; }
+.csx-pivot-step ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; line-height: 1.45; color: var(--color-navy-2); }
+.csx-pivot-x { color: var(--color-rust); font-size: 22px; }
+.csx-pivot-step[data-step="from"] .csx-pivot-name s { text-decoration-thickness: 3px; text-decoration-color: var(--color-rust); }
+.csx-pivot-step:not(:last-child)::after {
+  content: "↓";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translate(-50%, 50%);
+  font-size: 18px;
+  color: var(--csx-a1);
+}
+@media (min-width: 1024px) {
+  .csx-pivot-step:not(:last-child)::after { content: "→"; left: auto; right: -24px; top: 50%; bottom: auto; transform: translateY(-50%); }
+}
+
+/* Research. */
+.csx-research { display: grid; gap: 18px; }
+.csx-quotes { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) {
+  .csx-quotes[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .csx-quotes[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.csx-quotes .csx-quote { height: 100%; }
+.csx-quotes .csx-quote p { font-size: 17px; }
+.csx-insight { margin: 0; max-width: 62ch; font-family: var(--font-display); font-size: 22px; line-height: 1.35; }
+.csx-insight-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--csx-a1);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  vertical-align: 4px;
+}
+
+/* Learnings (spec §21). */
+.csx-learnings { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) {
+  .csx-learnings[data-count="2"], .csx-learnings[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .csx-learnings[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) and (max-width: 1023px) { .csx-learnings[data-count="3"] { grid-template-columns: minmax(0, 1fr); } }
+.csx-learnings > li { display: flex; }
+.csx-learning {
+  width: 100%;
+  padding: 18px 18px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--csx-rule);
+  background: var(--csx-tint-1);
+}
+.csx-learning[data-i="2"] { background: var(--csx-tint-2); }
+.csx-learning[data-i="3"] { background: color-mix(in oklab, var(--color-forest) 9%, var(--color-ivory)); }
+.csx-learning[data-i="4"] { background: var(--csx-tint-3); }
+.csx-learning p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--color-navy-2); }
+.csx-learning-n { font-family: var(--font-display); font-size: 18px !important; color: color-mix(in oklab, var(--csx-a1) 85%, var(--color-navy)) !important; margin-bottom: 4px !important; }
+
+/* ── Evidence drawer (spec §22–§23) ──────────────────────────────────────────────────────── */
+.csx-evidence { padding-block: clamp(32px, 4vw, 56px); border-top: 1px dashed var(--csx-rule); }
+.csx-evidence-in { display: grid; gap: 18px; align-items: center; }
+@media (min-width: 1024px) { .csx-evidence-in { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) auto; column-gap: 28px; } }
+.csx-evidence-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.csx-chip {
+  padding: 6px 12px;
+  border: 1px solid var(--csx-rule);
+  border-radius: 4px;
+  background: var(--csx-card);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-navy-2);
+}
+.csx-drawer-open {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--color-note);
+  color: var(--color-navy);
+  font: inherit;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-paper);
+}
+.csx-drawer-open:hover { background: color-mix(in oklab, var(--color-note) 80%, var(--color-kraft)); }
+.csx-drawer {
+  width: min(560px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: var(--color-paper);
+  color: var(--color-navy);
+  box-shadow: -20px 0 40px -20px color-mix(in oklab, var(--color-navy) 45%, transparent);
+}
+.csx-drawer::backdrop { background: color-mix(in oklab, var(--color-navy) 42%, transparent); }
+.csx-drawer[open] { animation: csx-drawer-in 220ms ease-out; }
+@keyframes csx-drawer-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.csx-drawer-panel { padding: 24px clamp(18px, 3vw, 32px) 32px; }
+.csx-drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.csx-drawer-h { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 28px; line-height: 1.1; }
+.csx-drawer-close {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--csx-rule);
+  border-radius: 50%;
+  background: var(--color-ivory);
+  color: var(--color-navy);
+  cursor: pointer;
+}
+.csx-drawer-note { margin: 10px 0 18px; font-size: 14px; color: var(--csx-soft); }
+.csx-drawer-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.csx-drawer-row { padding: 12px 14px; background: var(--color-ivory); border: 1px solid var(--csx-rule); border-radius: 6px; }
+.csx-drawer-row p { margin: 0; }
+.csx-drawer-title { font-weight: 600; font-size: 16px; }
+.csx-drawer-title a { color: var(--color-rust); text-decoration: underline; text-underline-offset: 3px; }
+.csx-drawer-meta { display: flex; gap: 10px; margin-top: 4px !important; font-size: 14px; color: var(--csx-soft); }
+.csx-drawer-type { font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 12px; color: var(--color-navy-2); }
+.csx-drawer-supports { margin-top: 6px !important; font-size: 14px; line-height: 1.45; color: var(--color-navy-2); }
+.csx-drawer-label { font-weight: 600; }
+
+/* ── Action strip (spec §43) ─────────────────────────────────────────────────────────────── */
+.csx-cta { padding-block: 8px clamp(40px, 5vw, 72px); }
+.csx-actions { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 640px) { .csx-actions { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); } }
+@media (min-width: 1024px) { .csx-actions { grid-template-columns: repeat(auto-fit, minmax(220px, 260px)); } }
+.csx-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: var(--color-navy);
+  color: var(--color-ivory);
+  text-decoration: none;
+  box-shadow: var(--shadow-paper);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.csx-action:hover { transform: translateY(-2px); box-shadow: var(--shadow-paper-hover); }
+.csx-action[data-action="live"] { background: color-mix(in oklab, var(--csx-a1) 88%, var(--color-navy)); }
+.csx-action[data-action="github"] { background: color-mix(in oklab, var(--color-steel) 55%, var(--color-navy)); }
+.csx-action-text { display: grid; flex: 1; }
+.csx-action-label { font-weight: 600; font-size: 16px; }
+.csx-action-hint { font-size: 14px; opacity: 0.9; }
+.csx-meta { margin: 18px 0 0; font-size: 14px; color: var(--csx-soft); }
+
+/* ── Decorations (Caveat only inside aria-hidden data-decor; hidden < 768, spec §34) ─────── */
+.csx-sticky, .csx-scribble, .csx-stamp { position: absolute; z-index: 2; pointer-events: none; margin: 0; }
+.csx-sticky {
+  width: 150px;
+  padding: 16px 14px;
+  background: var(--color-note);
+  box-shadow: var(--shadow-sticky, 0 8px 14px -8px color-mix(in oklab, var(--color-navy) 35%, transparent));
+  font-family: var(--font-hand);
+  font-size: 24px;
+  line-height: 1.1;
+  color: var(--color-navy);
+  transform: rotate(4deg);
+}
+.csx-scribble { font-family: var(--font-hand); font-size: 26px; line-height: 1.1; color: var(--color-navy-2); }
+.csx-stamp img { display: block; width: 100%; height: auto; }
+@media (max-width: 767px) {
+  .csx-sticky, .csx-scribble, .csx-stamp { display: none; }
+}
+
+/* ── Motion (spec §26–§27): only once JS set data-motion, never under reduced motion ──────── */
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-motion="on"] .csx-sec .csx-sec-body,
+  .csx[data-motion="on"] .csx-sec .csx-sec-head {
+    transition: opacity 520ms ease, transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .csx[data-motion="on"] .csx-sec:not([data-shown]) .csx-sec-body { opacity: 0; transform: translateY(14px); }
+  .csx[data-motion="on"] .csx-sec:not([data-shown]) .csx-sec-head { opacity: 0; }
+}
+
+/* =============================================================================================
+   RailCite — railway field notebook / official circular archive (spec §8, §47). Rail vocabulary
+   stays on this page only (spec §44).
+   ============================================================================================= */
+.csx[data-theme="railcite"] {
+  --csx-grid: color-mix(in oklab, var(--color-steel) 13%, transparent);
+  --csx-rail: color-mix(in oklab, var(--color-steel) 80%, var(--color-navy));
+}
+.csx[data-theme="railcite"] .csx-hero {
+  background:
+    linear-gradient(var(--csx-grid) 1px, transparent 1px) 0 0 / 26px 26px,
+    linear-gradient(90deg, var(--csx-grid) 1px, transparent 1px) 0 0 / 26px 26px,
+    linear-gradient(180deg, color-mix(in oklab, var(--color-kraft) 22%, var(--color-paper)), var(--color-paper));
+  border-bottom: 1px solid color-mix(in oklab, var(--color-kraft) 70%, transparent);
+}
+.csx[data-theme="railcite"] .csx-h1 { color: var(--color-navy); }
+.csx[data-theme="railcite"] .csx-tagline { color: var(--color-rust); }
+/* Proof points as ticket stubs: a perforated tear line with two punched notches above the badge. */
+.csx[data-theme="railcite"] .csx-metric {
+  border-radius: 4px;
+  border: 1px solid color-mix(in oklab, var(--color-kraft) 90%, var(--color-navy));
+}
+.csx[data-theme="railcite"] .csx-metric-foot {
+  position: relative;
+  margin-top: auto !important;
+  padding-top: 12px;
+  border-top: 1.5px dashed color-mix(in oklab, var(--color-kraft) 95%, var(--color-navy));
+}
+.csx[data-theme="railcite"] .csx-metric-foot::before,
+.csx[data-theme="railcite"] .csx-metric-foot::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  border: 1px solid color-mix(in oklab, var(--color-kraft) 90%, var(--color-navy));
+}
+.csx[data-theme="railcite"] .csx-metric-foot::before { left: -24px; clip-path: inset(0 0 0 50%); }
+.csx[data-theme="railcite"] .csx-metric-foot::after { right: -24px; clip-path: inset(0 50% 0 0); }
+.csx[data-theme="railcite"] .csx-metric-label { margin-bottom: 10px !important; }
+.csx[data-theme="railcite"] .csx-hero-proofs .csx-metric { min-height: 172px; }
+.csx[data-theme="railcite"] .csx-hero-proofs .csx-metric-value { color: var(--color-navy); }
+.csx[data-theme="railcite"] .csx-hero-proofs .csx-metric[data-kind="structural"] .csx-metric-value { color: var(--color-rust); }
+.csx[data-theme="railcite"] .csx-hero-video { transform: rotate(0.6deg); border: 6px solid var(--color-ivory); outline: 1px solid color-mix(in oklab, var(--color-kraft) 90%, var(--color-navy)); }
+/* Section numbers are station stops on one line down the page (≥ 1024): rust discs, ivory ring. */
+.csx[data-theme="railcite"] .csx-mark {
+  background: var(--color-rust);
+  box-shadow: 0 0 0 4px var(--color-paper), 0 0 0 6px color-mix(in oklab, var(--color-rust) 55%, transparent);
+  font-family: var(--font-display);
+}
+@media (min-width: 1024px) {
+  .csx[data-theme="railcite"] .csx-sec-in::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * clamp(44px, 5.5vw, 84px));
+    bottom: calc(-1 * clamp(44px, 5.5vw, 84px));
+    left: calc(var(--gutter-desktop) + (var(--csx-mark-size) / 2) - 9px);
+    width: 18px;
+    background:
+      linear-gradient(90deg, transparent 2px, var(--csx-rail) 2px 4px, transparent 4px 14px, var(--csx-rail) 14px 16px, transparent 16px),
+      repeating-linear-gradient(180deg, color-mix(in oklab, var(--color-kraft) 95%, var(--color-terracotta)) 0 3px, transparent 3px 11px);
+    transform-origin: top;
+    transition: transform 900ms cubic-bezier(0.3, 0.6, 0.2, 1);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .csx[data-theme="railcite"] .csx-sec:first-child .csx-sec-in::before { top: 0; }
+  .csx[data-theme="railcite"] .csx-sec:last-child .csx-sec-in::before { bottom: 30%; }
+  .csx[data-theme="railcite"] .csx-mark { z-index: 1; }
+  .csx[data-theme="railcite"] .csx-sec-head, .csx[data-theme="railcite"] .csx-sec-body { position: relative; z-index: 1; }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="railcite"][data-motion="on"] .csx-sec:not([data-shown]) .csx-sec-in::before { transform: scaleY(0); }
+}
+.csx[data-theme="railcite"] .csx-sec:nth-child(even) { background: color-mix(in oklab, var(--color-paper-2) 60%, var(--color-paper)); }
+.csx[data-theme="railcite"] .csx-eyebrow { color: var(--color-terracotta); letter-spacing: 0.2em; }
+/* The manual workflow reads like a sequence of clipped circulars. */
+.csx[data-theme="railcite"] .csx-flow-step { border-style: dashed; border-color: color-mix(in oklab, var(--color-kraft) 95%, var(--color-navy)); background: var(--color-ivory); }
+.csx[data-theme="railcite"] .csx-flow-n { border-color: var(--color-rust); color: var(--color-rust); }
+.csx[data-theme="railcite"] .csx-quote { border-left-color: var(--color-steel); background: color-mix(in oklab, var(--color-steel) 9%, var(--color-ivory)); }
+/* The trust pipeline is a line with stations; the validator is the signal. */
+.csx[data-theme="railcite"] .csx-arch-steps::before {
+  background: repeating-linear-gradient(90deg, var(--csx-rail) 0 10px, transparent 10px 14px);
+  height: 3px;
+}
+@media (max-width: 1023px) {
+  .csx[data-theme="railcite"] .csx-arch-steps::before { background: repeating-linear-gradient(180deg, var(--csx-rail) 0 10px, transparent 10px 14px); width: 3px; height: auto; }
+}
+.csx[data-theme="railcite"] .csx-arch-step:nth-child(6) { border-color: var(--color-forest); box-shadow: inset 0 -3px 0 var(--color-forest); }
+.csx[data-theme="railcite"] .csx-arch-step:nth-child(6)::before { border-color: var(--color-forest); background: var(--color-forest); }
+.csx[data-theme="railcite"] .csx-arch-step:nth-child(4) { border-style: dashed; }
+.csx[data-theme="railcite"] .csx-rules { background: color-mix(in oklab, var(--color-kraft) 26%, var(--color-ivory)); transform: rotate(0.5deg); }
+.csx[data-theme="railcite"] .csx-decision-row[data-row="chose"] dd::before { content: "✓ "; color: var(--color-forest); font-family: var(--font-body); font-weight: 700; }
+.csx[data-theme="railcite"] .csx-learning[data-i="1"] { background: color-mix(in oklab, var(--color-rust) 10%, var(--color-ivory)); }
+.csx[data-theme="railcite"] .csx-learning[data-i="2"] { background: color-mix(in oklab, var(--color-steel) 14%, var(--color-ivory)); }
+.csx[data-theme="railcite"] .csx-learning[data-i="3"] { background: color-mix(in oklab, var(--color-forest) 10%, var(--color-ivory)); }
+/* Decorations: the circular stamp in the hero's top-right, the note under it, the refusal stamp. */
+.rc-stamp-hero { width: 124px; right: -8px; top: -58px; transform: rotate(-9deg); opacity: 0.92; }
+.rc-sticky-hero { right: -26px; bottom: -64px; transform: rotate(4deg); }
+.rc-stamp-refusal { width: 190px; right: 0; top: 4px; transform: rotate(-8deg); }
+.rc-scribble-end { right: 12px; bottom: -34px; transform: rotate(-3deg); }
+@media (max-width: 1023px) {
+  .rc-sticky-hero, .rc-stamp-hero { display: none; }
+}
+@media (min-width: 1024px) {
+  .csx[data-theme="railcite"] .csx-hero-media { padding-top: 64px; }
+}
+
+/* Spec §31 / TASK-130 (Dev-127): no development copy on a case-study page. The band footer's hiring
+   line is still "Draft — pending sign-off", so it is left out here (this stylesheet ships only with
+   /work/[slug]); every other route keeps it until Tushar signs it off. */
+body:has(.csx) .band-hire { display: none; }
+
+/* Shared: a decorative paper object (a worksheet, a form) behind real media. */
+.csx-paper { position: absolute; z-index: 0; pointer-events: none; }
+.csx-paper img { display: block; width: 100%; height: auto; }
+@media (max-width: 767px) { .csx-paper { display: none; } }
+/* A phone screenshot never stretches to the column. */
+.csx-hero-shot[data-frame="phone"] { width: min(300px, 78vw); margin-inline: auto; position: relative; z-index: 1; }
+.csx-frame[data-frame="phone"] .csx-frame-screen { box-shadow: 0 2px 4px color-mix(in oklab, var(--color-navy) 12%, transparent), 0 30px 50px -28px color-mix(in oklab, var(--color-navy) 60%, transparent); }
+
+/* =============================================================================================
+   TeachSpark — teacher's desk / classroom workbook (spec §8, §46): ruled notebook paper with a red
+   margin, coloured notebook tabs for section numbers, chat bubbles for the loop, a red-pen stamp.
+   ============================================================================================= */
+.csx[data-theme="teachspark"] {
+  --csx-ruled: color-mix(in oklab, var(--color-steel) 17%, transparent);
+  --csx-margin: color-mix(in oklab, var(--color-rust) 42%, transparent);
+  --csx-bubble-bot: var(--color-ivory);
+  --csx-bubble-me: color-mix(in oklab, var(--color-forest) 16%, var(--color-ivory));
+}
+.csx[data-theme="teachspark"] .csx-hero {
+  background:
+    linear-gradient(90deg, transparent calc(var(--gutter-mobile) - 14px), var(--csx-margin) calc(var(--gutter-mobile) - 14px) calc(var(--gutter-mobile) - 12px), transparent calc(var(--gutter-mobile) - 12px)),
+    repeating-linear-gradient(180deg, transparent 0 31px, var(--csx-ruled) 31px 32px),
+    color-mix(in oklab, var(--color-note) 16%, var(--color-paper));
+}
+@media (min-width: 1024px) {
+  .csx[data-theme="teachspark"] .csx-hero {
+    background:
+      linear-gradient(90deg, transparent 72px, var(--csx-margin) 72px 74px, transparent 74px),
+      repeating-linear-gradient(180deg, transparent 0 31px, var(--csx-ruled) 31px 32px),
+      color-mix(in oklab, var(--color-note) 16%, var(--color-paper));
+  }
+}
+.csx[data-theme="teachspark"] .csx-tagline { color: var(--color-forest); font-style: normal; font-variation-settings: "opsz" 96, "SOFT" 100; }
+.csx[data-theme="teachspark"] .csx-code { color: var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-hero-media { display: grid; place-items: center; min-height: 360px; }
+.ts-worksheet { width: min(360px, 70%); left: 4%; top: 6%; transform: rotate(-6deg); }
+.ts-stamp-hero { width: 118px; right: 6%; bottom: 8%; transform: rotate(-12deg); }
+@media (min-width: 1024px) {
+  .csx[data-theme="teachspark"] .csx-hero-media { padding-block: 24px 40px; }
+  .csx[data-theme="teachspark"] .csx-hero-shot[data-frame="phone"] { transform: rotate(2deg) translateX(14%); }
+}
+@media (max-width: 1023px) { .ts-stamp-hero, .ts-worksheet { display: none; } }
+/* Proofs as graded worksheet marks. */
+.csx[data-theme="teachspark"] .csx-metric { border-radius: 3px; border-top: 4px solid var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-metric[data-kind="self-reported"] { border-top-color: var(--color-rust); }
+.csx[data-theme="teachspark"] .csx-metric-value { color: var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-metric[data-kind="self-reported"] .csx-metric-value { color: var(--color-terracotta); }
+/* Section numbers are notebook index tabs that slide in once. */
+.csx[data-theme="teachspark"] .csx-mark {
+  width: calc(var(--csx-mark-size) + 10px);
+  height: 40px;
+  border-radius: 3px 12px 12px 3px;
+  background: var(--color-forest);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 2px 3px 0 color-mix(in oklab, var(--color-navy) 18%, transparent);
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 400ms ease;
+}
+.csx[data-theme="teachspark"] .csx-sec:nth-child(2) .csx-mark { background: var(--color-rust); }
+.csx[data-theme="teachspark"] .csx-sec:nth-child(3) .csx-mark { background: var(--color-note); color: var(--color-navy); }
+.csx[data-theme="teachspark"] .csx-sec:nth-child(4) .csx-mark { background: var(--color-steel); }
+.csx[data-theme="teachspark"] .csx-sec:nth-child(5) .csx-mark { background: var(--color-green-2); }
+.csx[data-theme="teachspark"] .csx-sec:nth-child(6) .csx-mark { background: var(--color-terracotta); }
+@media (min-width: 1024px) {
+  .csx[data-theme="teachspark"] .csx-mark { margin-left: -20px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="teachspark"][data-motion="on"] .csx-sec:not([data-shown]) .csx-mark { transform: translateX(-34px); opacity: 0; }
+}
+.csx[data-theme="teachspark"] .csx-sec:nth-child(even) {
+  background: repeating-linear-gradient(180deg, transparent 0 31px, color-mix(in oklab, var(--color-steel) 9%, transparent) 31px 32px), color-mix(in oklab, var(--color-paper-2) 55%, var(--color-paper));
+}
+.csx[data-theme="teachspark"] .csx-eyebrow { color: var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-quote { border-left-color: var(--color-forest); background: color-mix(in oklab, var(--color-note) 34%, var(--color-ivory)); }
+/* The WhatsApp loop as chat bubbles beside the drawn chat. */
+@media (min-width: 1024px) {
+  .csx[data-theme="teachspark"] .csx-product[data-flow] { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); column-gap: 48px; align-items: start; }
+  .csx[data-theme="teachspark"] .csx-product[data-flow] .csx-lead { grid-column: 1 / -1; }
+  .csx[data-theme="teachspark"] .csx-product[data-flow] .csx-shots { grid-column: 2; grid-row: 2; }
+}
+.csx[data-theme="teachspark"] .csx-product-flow .csx-flow-steps { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.csx[data-theme="teachspark"] .csx-product-flow .csx-flow-step {
+  width: fit-content;
+  max-width: 88%;
+  min-height: 0;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in oklab, var(--color-navy) 12%, transparent);
+  border-radius: 14px 14px 14px 4px;
+  background: var(--csx-bubble-bot);
+  box-shadow: 0 2px 0 color-mix(in oklab, var(--color-navy) 8%, transparent);
+}
+.csx[data-theme="teachspark"] .csx-product-flow .csx-flow-step:nth-child(even) {
+  margin-left: auto;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--csx-bubble-me);
+}
+.csx[data-theme="teachspark"] .csx-product-flow .csx-flow-step::after { content: none !important; }
+.csx[data-theme="teachspark"] .csx-product-flow .csx-flow-n { border-color: var(--color-forest); color: var(--color-forest); width: 22px; height: 22px; font-size: 12px; }
+.csx[data-theme="teachspark"] .csx-shots[data-count="1"] .csx-frame { width: min(280px, 80%); margin-inline: auto; }
+.csx[data-theme="teachspark"] .csx-shots[data-count="1"] .csx-frame-screen { background: transparent; border: 0; box-shadow: none; }
+.csx[data-theme="teachspark"] .csx-frame-cap { text-align: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="teachspark"] .csx-product-flow .csx-flow-step { transition: transform 420ms ease calc(var(--i, 0) * 70ms), opacity 420ms ease calc(var(--i, 0) * 70ms); }
+  .csx[data-theme="teachspark"][data-motion="on"] .csx-sec:not([data-shown]) .csx-product-flow .csx-flow-step { opacity: 0; transform: translateY(8px); }
+}
+/* Decisions on index cards; the chosen line in green ink. */
+.csx[data-theme="teachspark"] .csx-decision { border-top: 4px solid var(--color-note); background: repeating-linear-gradient(180deg, transparent 0 27px, color-mix(in oklab, var(--color-steel) 12%, transparent) 27px 28px), var(--color-ivory); }
+.csx[data-theme="teachspark"] .csx-decision-row[data-row="chose"] dd { color: var(--color-forest); }
+.ts-sticky { right: 2%; top: -28px; transform: rotate(5deg); }
+@media (max-width: 1279px) { .ts-sticky { display: none; } }
+/* The architecture as chat hops. */
+.csx[data-theme="teachspark"] .csx-arch-step { border-radius: 14px; }
+.csx[data-theme="teachspark"] .csx-arch-step::before { border-color: var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-arch-steps::before { background: repeating-linear-gradient(90deg, var(--color-forest) 0 6px, transparent 6px 12px); height: 2px; }
+@media (max-width: 1023px) { .csx[data-theme="teachspark"] .csx-arch-steps::before { background: repeating-linear-gradient(180deg, var(--color-forest) 0 6px, transparent 6px 12px); width: 2px; height: auto; } }
+.csx[data-theme="teachspark"] .csx-arch-step:nth-child(5) { border-color: var(--color-forest); background: color-mix(in oklab, var(--color-forest) 9%, var(--color-ivory)); }
+.csx[data-theme="teachspark"] .csx-rules { background: color-mix(in oklab, var(--color-note) 40%, var(--color-ivory)); }
+/* The funnel in forest ink, the activation step in red pen. */
+.csx[data-theme="teachspark"] .csx-funnel-bar { background: color-mix(in oklab, var(--color-forest) 16%, var(--color-ivory)); border-color: color-mix(in oklab, var(--color-forest) 45%, transparent); }
+.csx[data-theme="teachspark"] .csx-funnel-step:nth-child(5) .csx-funnel-bar { background: color-mix(in oklab, var(--color-rust) 18%, var(--color-ivory)); border-color: color-mix(in oklab, var(--color-rust) 55%, transparent); }
+@media (min-width: 1024px) {
+  .csx[data-theme="teachspark"] .csx-outcome { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 32px; align-items: start; }
+  .csx[data-theme="teachspark"] .csx-outcome > .csx-lead { grid-column: 1 / -1; }
+  .csx[data-theme="teachspark"] .csx-outcome .csx-funnel { grid-row: 2 / span 2; }
+  .csx[data-theme="teachspark"] .csx-outcome .csx-proofs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="teachspark"] .csx-funnel-bar { transform-origin: left; transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 90ms); }
+  .csx[data-theme="teachspark"][data-motion="on"] .csx-sec:not([data-shown]) .csx-funnel-bar { transform: scaleX(0.05); }
+}
+.csx[data-theme="teachspark"] .csx-learning { border-radius: 3px; border-left: 6px solid var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-learning[data-i="2"] { border-left-color: var(--color-rust); }
+.csx[data-theme="teachspark"] .csx-learning[data-i="3"] { border-left-color: var(--color-note); }
+.ts-scribble-end { right: 16px; bottom: -40px; transform: rotate(-3deg); color: var(--color-rust); }
+@media (max-width: 1023px) { .ts-scribble-end { display: none; } }
+
+/* Pivot hero (spec §49): the killed first bet sits struck behind the product that survived. */
+.csx-pivot-from { position: relative; }
+.csx-pivot-from-shot { filter: grayscale(0.85) contrast(0.92); opacity: 0.88; }
+.csx-pivot-strike {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top right, transparent calc(50% - 3px), color-mix(in oklab, var(--color-rust) 85%, transparent) calc(50% - 3px) calc(50% + 3px), transparent calc(50% + 3px));
+}
+.csx-hero[data-layout="pivot"] .csx-hero-media { display: grid; align-items: end; gap: 18px; }
+@media (min-width: 1024px) {
+  .csx-hero[data-layout="pivot"] .csx-hero-media { grid-template-columns: minmax(0, 1fr); min-height: 520px; }
+  .csx-hero[data-layout="pivot"] .csx-pivot-from { position: absolute; left: 0; top: 30px; width: 68%; transform: rotate(-3deg); }
+  .csx-hero[data-layout="pivot"] .csx-hero-shot[data-frame="phone"] { justify-self: end; width: 270px; margin: 0 6% 0 0; transform: rotate(2deg); }
+}
+@media (max-width: 1023px) {
+  .csx-hero[data-layout="pivot"] .csx-pivot-from { width: 86%; transform: rotate(-2deg); }
+}
+
+/* =============================================================================================
+   Nuptis → Velora — a sourcing & onboarding dossier (spec §48–§49 for apparel, not lifestyle):
+   kraft folder ground, inspection-stamp numerals that press in once, a struck first bet.
+   ============================================================================================= */
+.csx[data-theme="velora"] .csx-hero {
+  background:
+    radial-gradient(circle at 12% 0, color-mix(in oklab, var(--color-kraft) 40%, transparent), transparent 55%),
+    linear-gradient(180deg, color-mix(in oklab, var(--color-kraft) 30%, var(--color-paper)), var(--color-paper));
+  border-bottom: 2px solid color-mix(in oklab, var(--color-kraft) 80%, var(--color-navy));
+}
+.csx[data-theme="velora"] .csx-h1 { font-size: clamp(46px, 5.6vw, 84px); }
+.csx[data-theme="velora"] .csx-tagline { color: var(--color-forest); }
+.csx[data-theme="velora"] .csx-code { color: var(--color-terracotta); }
+.csx[data-theme="velora"] .csx-metric { border-left: 5px solid var(--color-terracotta); border-radius: 2px 6px 6px 2px; }
+.csx[data-theme="velora"] .csx-metric-value { color: var(--color-terracotta); }
+.vl-stamp-day7 { width: 150px; left: 30%; top: 70px; transform: rotate(-14deg); z-index: 3; }
+.vl-swatch { width: 96px; left: -34px; bottom: -10px; transform: rotate(-9deg); z-index: 2; }
+@media (max-width: 1023px) { .vl-stamp-day7 { left: 40%; top: 10px; width: 110px; display: block; } .vl-swatch { display: none; } }
+@media (max-width: 767px) { .vl-stamp-day7 { display: none; } }
+/* Section numerals as round inspection stamps. */
+.csx[data-theme="velora"] .csx-mark {
+  background: transparent;
+  color: var(--color-forest);
+  border: 3px double var(--color-forest);
+  box-shadow: inset 0 0 0 5px var(--color-paper), inset 0 0 0 6px color-mix(in oklab, var(--color-forest) 50%, transparent);
+  transform: rotate(-8deg);
+  font-family: var(--font-display);
+  transition: transform 360ms cubic-bezier(0.3, 1.6, 0.5, 1), opacity 240ms ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="velora"][data-motion="on"] .csx-sec:not([data-shown]) .csx-mark { transform: rotate(-20deg) scale(1.35); opacity: 0; }
+}
+.csx[data-theme="velora"] .csx-sec:nth-child(even) { background: color-mix(in oklab, var(--color-kraft) 16%, var(--color-paper)); }
+.csx[data-theme="velora"] .csx-eyebrow { color: var(--color-terracotta); }
+.csx[data-theme="velora"] .csx-flow-step { border-style: solid; border-left: 4px solid var(--color-kraft); }
+.csx[data-theme="velora"] .csx-flow-step:nth-child(4), .csx[data-theme="velora"] .csx-flow-step:nth-child(5) { border-left-color: var(--color-rust); }
+@media (min-width: 768px) { .csx[data-theme="velora"] .csx-flow-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); } .csx[data-theme="velora"] .csx-flow-step:nth-child(3n)::after { content: "→"; } }
+@media (min-width: 1024px) {
+  .csx[data-theme="velora"] .csx-problem { grid-template-columns: minmax(0, 1fr); }
+  .csx[data-theme="velora"] .csx-problem .csx-flow { grid-column: 1; grid-row: auto; }
+}
+.csx[data-theme="velora"] .csx-quote { border-left-color: var(--color-terracotta); background: var(--color-ivory); }
+.csx[data-theme="velora"] .csx-insight-tag { background: var(--color-forest); }
+/* The pivot: a struck first bet, the evidence on kraft, the decision in forest ink, the survivor. */
+.csx[data-theme="velora"] .csx-pivot-step[data-step="from"] { background: color-mix(in oklab, var(--color-navy) 5%, var(--color-paper-2)); }
+.csx[data-theme="velora"] .csx-pivot-step[data-step="evidence"] { background: color-mix(in oklab, var(--color-kraft) 35%, var(--color-ivory)); }
+.csx[data-theme="velora"] .csx-pivot-step[data-step="decision"] { border: 2px solid var(--color-forest); }
+.csx[data-theme="velora"] .csx-pivot-step[data-step="to"] { background: color-mix(in oklab, var(--color-forest) 10%, var(--color-ivory)); border-color: var(--color-forest); }
+.csx[data-theme="velora"] .csx-pivot-step[data-step="to"] .csx-pivot-name { color: var(--color-forest); }
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="velora"] .csx-pivot-step[data-step="from"] s { text-decoration-color: transparent; transition: text-decoration-color 500ms ease 300ms; }
+  .csx[data-theme="velora"][data-motion="on"] .csx-sec[data-shown] .csx-pivot-step[data-step="from"] s,
+  .csx[data-theme="velora"]:not([data-motion="on"]) .csx-pivot-step[data-step="from"] s { text-decoration-color: var(--color-rust); }
+}
+/* Three phone screens, the middle one raised. */
+@media (min-width: 768px) {
+  .csx[data-theme="velora"] .csx-shots[data-count="3"] { gap: 28px; align-items: start; max-width: 860px; }
+  .csx[data-theme="velora"] .csx-shots[data-count="3"] .csx-shot-2 { transform: translateY(-18px); }
+}
+/* Phone screens never stretch to the column; on mobile they stack at a phone's width. */
+.csx-shots .csx-frame[data-frame="phone"] { width: min(260px, 72vw); margin-inline: auto; }
+.csx[data-theme="velora"] .csx-shots .csx-frame-cap { text-align: center; }
+.csx[data-theme="velora"] .csx-gaps { border-color: color-mix(in oklab, var(--color-terracotta) 40%, transparent); }
+.csx[data-theme="velora"] .csx-learning { border-top: 4px solid var(--color-forest); }
+.csx[data-theme="velora"] .csx-learning[data-i="1"] { background: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory)); border-top-color: var(--color-rust); }
+.vl-scribble-end { right: 12px; bottom: -36px; transform: rotate(-4deg); color: var(--color-forest); }
+@media (max-width: 1023px) { .vl-scribble-end { display: none; } }

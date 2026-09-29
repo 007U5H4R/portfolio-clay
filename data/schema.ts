@@ -156,6 +156,133 @@ export const EnterpriseCase = z.object({
   sources: z.array(z.object({ document: z.enum(ENTERPRISE_DOCUMENTS), page: z.number().int().min(1).max(4) })).min(1),
 }).refine(c => c.period.start <= c.period.end, { message: 'period.start must not be after period.end', path: ['period'] });
 
+/* ── case-study system (TASK-130, Tushar's case-study spec §37) ─────────────────────────────────
+   One record per personal build (`data/case-studies/<slug>.ts`). Every FACT still lives in
+   `data/projects.ts` / CONTENT_INVENTORY §8 / docs/trace: a case study only curates it into a short
+   one-pager and names the `SourceRef.id` (of the same project) behind every proof, decision, step and
+   evidence row — `validateAll()` fails the build on an id the project does not declare. */
+/* Spec §19: the four evidence badges, used on every metric and outcome. */
+export const EVIDENCE_KINDS = ['measured','self-reported','structural','prototype'] as const;
+export const EvidenceKind = z.enum(EVIDENCE_KINDS);
+/* A proof point (hero metric or outcome card). `value` stays short so it reads at a glance. */
+export const CaseProof = z.object({
+  value: z.string().min(1).max(16),
+  label: z.string().min(2).max(60),
+  kind: EvidenceKind,
+  note: z.string().min(8).max(200).optional(),          // the context line (dates, exclusions, caveats)
+  asOf: IsoDate.optional(),
+  source: z.string().min(2),
+});
+/* A real product image, copied from docs/case-study-sources/ as WebP (provenance is never rendered). */
+export const CaseImage = z.object({
+  src: z.string().regex(/^\/media\/(case-studies\/[a-z0-9-]+\/[a-z0-9-]+\.(webp|svg)|illustrations\/covers\/cover-[a-z0-9-]+\.svg)$/),
+  alt: z.string().min(12),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  caption: z.string().min(4).max(120).optional(),
+  frame: z.enum(['browser','phone','print','plain']).default('plain'),
+  provenance: z.string().min(8),
+});
+export const FlowStep = z.object({ label: z.string().min(2).max(40), note: z.string().min(2).max(90).optional() });
+const CaseSectionBase = {
+  id: Slug,                                              // the section's own anchor ("problem")
+  nav: z.string().min(3).max(16),                        // the sticky navigator label
+  eyebrow: z.string().min(3).max(32),
+  headline: z.string().min(8).max(96),
+  /* Legacy `NN-slug` chapter anchors (lib/anchors.ts) that land on this section, so every old deep
+     link from Ask, How I think and essays still resolves (EVAL-011/013). */
+  anchors: z.array(z.string().regex(/^\d{2}-[a-z-]+$/)).default([]),
+};
+export const ProblemSection = z.object({ ...CaseSectionBase, kind: z.literal('problem'),
+  context: z.string().min(20).max(360),
+  flow: z.object({ caption: z.string().min(4).max(80), steps: z.array(FlowStep).min(3).max(7), source: z.string().min(2) }).optional(),
+  quote: z.object({ text: z.string().min(12).max(240), attribution: z.string().min(2), source: z.string().min(2) }).optional(),
+});
+export const ProductSection = z.object({ ...CaseSectionBase, kind: z.literal('product'),
+  summary: z.string().min(20).max(320),
+  shots: z.array(CaseImage).max(4).default([]),
+  video: z.enum(['pitch','demo']).optional(),             // a portfolio YouTube id, click-to-load
+  poster: CaseImage.optional(),                           // the video's poster when it differs from the hero's
+  /* The recorded user flow ("what does the user actually do?", spec §12), drawn per theme. */
+  flow: z.object({ caption: z.string().min(4).max(80), steps: z.array(FlowStep).min(3).max(7), source: z.string().min(2) }).optional(),
+  /* Recorded output states (e.g. RailCite's `answered | refused` contract) — a diagram of the
+     contract, never a redrawn screenshot. */
+  states: z.array(z.object({ tone: z.enum(['yes','no','neutral']), title: z.string().min(3).max(40), lines: z.array(z.string().min(3).max(90)).min(1).max(4) })).max(3).default([]),
+  source: z.string().min(2),
+});
+export const Decision = z.object({
+  could: z.string().min(4).max(90), chose: z.string().min(4).max(90), because: z.string().min(8).max(180), source: z.string().min(2),
+});
+export const DecisionsSection = z.object({ ...CaseSectionBase, kind: z.literal('decisions'), items: z.array(Decision).min(1).max(3) });
+export const SystemSection = z.object({ ...CaseSectionBase, kind: z.literal('system'),
+  intro: z.string().min(12).max(240).optional(),
+  caption: z.string().min(8).max(120),                   // the diagram's figcaption
+  steps: z.array(FlowStep).min(3).max(8),                // spec §16: 5–8 steps (3 allowed for small systems)
+  rules: z.array(z.string().min(8).max(110)).max(3).default([]),
+  source: z.string().min(2),
+});
+export const Funnel = z.object({
+  caption: z.string().min(8).max(140), asOf: IsoDate, kind: EvidenceKind, source: z.string().min(2),
+  steps: z.array(z.object({ label: z.string().min(2).max(40), value: z.number().int().nonnegative(), note: z.string().max(40).optional() })).min(3).max(7),
+});
+export const OutcomeSection = z.object({ ...CaseSectionBase, kind: z.literal('outcome'),
+  intro: z.string().min(12).max(320).optional(),
+  proofs: z.array(CaseProof).max(6).default([]),
+  funnel: Funnel.optional(),
+  gaps: z.array(z.string().min(8).max(160)).max(3).default([]),   // what is honestly not measured
+});
+export const PivotSection = z.object({ ...CaseSectionBase, kind: z.literal('pivot'),
+  from: z.object({ name: z.string().min(2), line: z.string().min(8).max(140) }),
+  evidence: z.array(z.object({ text: z.string().min(8).max(200), source: z.string().min(2) })).min(1).max(3),
+  decision: z.object({ text: z.string().min(8).max(200), source: z.string().min(2) }),
+  to: z.object({ name: z.string().min(2), line: z.string().min(8).max(160) }),
+});
+export const ResearchSection = z.object({ ...CaseSectionBase, kind: z.literal('research'),
+  intro: z.string().min(12).max(300).optional(),
+  quotes: z.array(z.object({ text: z.string().min(12).max(240), attribution: z.string().min(2), source: z.string().min(2) })).min(1).max(3),
+  insight: z.object({ text: z.string().min(12).max(240), source: z.string().min(2) }).optional(),
+});
+export const LearningsSection = z.object({ ...CaseSectionBase, kind: z.literal('learnings'),
+  items: z.array(z.object({ title: z.string().min(4).max(48), body: z.string().min(12).max(200), source: z.string().min(2) })).min(2).max(4),
+});
+export const CaseSection = z.discriminatedUnion('kind', [ProblemSection, ProductSection, DecisionsSection, SystemSection, OutcomeSection, PivotSection, ResearchSection, LearningsSection]);
+/* Spec §23: an evidence-drawer row. Private docs are listed (title · type · date · what they support),
+   never linked; a public URL is only ever the SourceRef's own `url`. */
+export const EVIDENCE_TYPES = ['PRD','Design','Evaluation','Research','Architecture','Build ledger','Deck','Code','Live data','Post','Test run','Feedback','Analytics','Paper','Readme'] as const;
+export const EvidenceItem = z.object({ title: z.string().min(3).max(60), type: z.enum(EVIDENCE_TYPES), date: z.string().regex(/^\d{4}-\d{2}(-\d{2})?$/).optional(), supports: z.string().min(8).max(160), source: z.string().min(2) });
+/* Per-product art direction (spec §7–§9, §25, §39). `theme` keys the page's CSS scope. */
+export const CASE_THEMES = ['railcite','teachspark','velora','cubicle','tegaki','nuptis','bhakti-vilas','token-toli','pratyasa','dino-arcade-pwa','cinematic-portfolio','campfire-board','slag-city'] as const;
+export const CaseStudy = z.object({
+  slug: Slug,
+  theme: z.object({
+    key: z.enum(CASE_THEMES),
+    metaphor: z.string().min(8),                          // internal art-direction note, never rendered
+    accents: z.array(PortfolioAccent).min(1).max(3),      // spec §29: 1–3 product accents over the base palette
+  }),
+  story: z.string().min(4).max(60),                       // the one dominant narrative (spec §41), internal
+  hero: z.object({
+    tagline: z.string().min(4).max(48),                   // "Research on track."
+    proposition: z.string().min(20).max(220),
+    proofs: z.array(CaseProof).max(4).default([]),
+    media: z.union([CaseImage, z.object({ video: z.enum(['pitch','demo']), poster: CaseImage })]),
+    layout: z.enum(['split','split-reverse','stacked','pivot']).default('split'),
+    /* layout 'pivot' (spec §49): the killed first bet, shown struck beside the product that survived. */
+    pivotFrom: CaseImage.optional(),
+  }),
+  sections: z.array(CaseSection).min(3).max(7),
+  evidence: z.array(EvidenceItem).max(12).default([]),
+  /* Recorded artifacts CONTENT_INVENTORY §8 lists for this product that its project record doesn't
+     declare (e.g. a Final-PRD diagram) — same SourceRef shape; ids must not clash with the project's. */
+  extraSources: z.array(SourceRef).max(6).default([]),
+}).superRefine((c, ctx) => {
+  const ids = c.sections.map(s => s.id);
+  if (new Set(ids).size !== ids.length) ctx.addIssue({ code: 'custom', path: ['sections'], message: 'section ids must be unique' });
+  // accents[0] tints text (eyebrows, numerals, codes) — it must be an ink, never a light paper.
+  if (['note','kraft'].includes(c.theme.accents[0] ?? '')) ctx.addIssue({ code: 'custom', path: ['theme', 'accents', 0], message: 'the first accent must be an ink token (not note/kraft)' });
+  const anchors = c.sections.flatMap(s => s.anchors);
+  if (new Set(anchors).size !== anchors.length) ctx.addIssue({ code: 'custom', path: ['sections'], message: 'a legacy anchor may land on one section only' });
+});
+
 /* ── about ──────────────────────────────────────────────────── */
 export const Outcome = z.object({ text: z.string().min(8), kind: z.enum(['measured','self-reported']), source: z.string().min(2) });
 export const Experience = z.object({
@@ -203,3 +330,5 @@ export type ThinkingStageDef = z.infer<typeof ThinkingStageDef>; export type Ski
 export type ThinkingNode = z.infer<typeof ThinkingNode>; export type ThinkingChain = z.infer<typeof ThinkingChain>; // TKT-21: ShowTheThinking/ThinkingNode component props.
 export type PortfolioAccent = z.infer<typeof PortfolioAccent>; // TASK-116
 export type VideoMediaEntry = z.infer<typeof VideoMediaEntry>; export type PortfolioEntry = z.infer<typeof PortfolioEntry>; export type EnterpriseCase = z.infer<typeof EnterpriseCase>;
+export type CaseStudy = z.infer<typeof CaseStudy>; export type CaseSection = z.infer<typeof CaseSection>; export type CaseProof = z.infer<typeof CaseProof>; // TASK-130
+export type CaseImage = z.infer<typeof CaseImage>; export type EvidenceItem = z.infer<typeof EvidenceItem>; export type EvidenceKind = z.infer<typeof EvidenceKind>;

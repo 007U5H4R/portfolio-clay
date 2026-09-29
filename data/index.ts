@@ -21,6 +21,8 @@ import {
   ThinkingStageDef,
   PortfolioEntry,
   EnterpriseCase,
+  CaseStudy,
+  type CaseStudy as CaseStudyT,
   type Project as ProjectT,
   type PortfolioEntry as PortfolioEntryT,
   type EnterpriseCase as EnterpriseCaseT,
@@ -40,6 +42,8 @@ import { knowledge } from "./knowledge";
 import { thinkingFramework } from "./thinking-framework";
 import { portfolioEntries } from "./portfolio";
 import { enterpriseCases } from "./enterprise";
+import { caseStudyInputs, caseStudySourceIds } from "./case-studies";
+import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 export interface Collections {
   projects: ProjectT[];
@@ -51,6 +55,8 @@ export interface Collections {
   /** TASK-116: the /projects carousel extras + the enterprise case files. Optional so older fixtures still type-check. */
   portfolio?: PortfolioEntryT[] | undefined;
   enterprise?: EnterpriseCaseT[] | undefined;
+  /** TASK-130: the case-study one-pagers (raw inputs; parsed here so issues print, not throw). */
+  caseStudies?: unknown[] | undefined;
 }
 
 /** Live collections. */
@@ -63,6 +69,7 @@ export const collections: Collections = {
   thinkingFramework,
   portfolio: portfolioEntries,
   enterprise: enterpriseCases,
+  caseStudies: caseStudyInputs,
 };
 
 export type ValidateResult = { ok: true } | { ok: false; issues: string[] };
@@ -108,6 +115,7 @@ export function validateAll(cols: Collections = collections): ValidateResult {
     { name: "thinking", schema: ThinkingStageDef, items: cols.thinkingFramework, id: (i) => (i as ThinkingStageDefT).id ?? "?" },
     { name: "portfolio", schema: PortfolioEntry, items: cols.portfolio ?? [], id: (i) => (i as PortfolioEntryT).slug ?? "?" },
     { name: "enterprise", schema: EnterpriseCase, items: cols.enterprise ?? [], id: (i) => (i as EnterpriseCaseT).id ?? "?" },
+    { name: "caseStudies", schema: CaseStudy, items: cols.caseStudies ?? [], id: (i) => (i as CaseStudyT).slug ?? "?" },
   ];
 
   // 1) schema + 3) forbidden-content (per entity).
@@ -136,6 +144,49 @@ export function validateAll(cols: Collections = collections): ValidateResult {
     projectSlugs: ALL_PROJECT_SLUGS,
     essaySlugs: cols.writing.map((e) => e.slug),
   });
+  // TASK-130: every case study belongs to a personal build, cites only that project's declared
+  // sources, and its legacy anchors are real chapter anchors (so old deep links keep resolving).
+  const manifestAlt = new Map(ILLUSTRATIONS.filter((i) => i.publicSrc).map((i) => [i.publicSrc!, i]));
+  for (const raw of cols.caseStudies ?? []) {
+    const parsed = CaseStudy.safeParse(raw);
+    if (!parsed.success) continue; // schema issues were already reported above
+    const study = parsed.data;
+    const project = cols.projects.find((p) => p.slug === study.slug);
+    if (!project || project.category !== "personal") {
+      push("caseStudies", study.slug, "slug", "no personal project with this slug");
+      continue;
+    }
+    // An illustration keeps ONE alt, the manifest's (Design.md §6.1); its usedOn names this study.
+    const images: { src: string; alt: string }[] = [];
+    const collectImages = (value: unknown) => {
+      if (Array.isArray(value)) value.forEach(collectImages);
+      else if (value && typeof value === "object") {
+        const v = value as Record<string, unknown>;
+        if (typeof v.src === "string" && typeof v.alt === "string") images.push({ src: v.src, alt: v.alt });
+        Object.values(v).forEach(collectImages);
+      }
+    };
+    collectImages(study);
+    for (const image of images) {
+      const entry = manifestAlt.get(image.src);
+      if (!entry) continue;
+      if (entry.alt !== image.alt) push("caseStudies", study.slug, image.src, `alt must equal the illustration manifest's (${entry.id})`);
+      if (!entry.usedOn.includes(`/work/${study.slug}`)) push("caseStudies", study.slug, image.src, `${entry.id}.usedOn must list /work/${study.slug}`);
+    }
+    const declared = new Set(project.sources.map((s) => s.id));
+    for (const extra of study.extraSources) {
+      if (declared.has(extra.id)) push("caseStudies", study.slug, `extraSources.${extra.id}`, "clashes with a project source id");
+      declared.add(extra.id);
+    }
+    for (const id of caseStudySourceIds(study)) {
+      if (!declared.has(id)) push("caseStudies", study.slug, "source", `source '${id}' not declared in ${study.slug}.sources[]`);
+    }
+    for (const section of study.sections) {
+      for (const anchor of section.anchors) {
+        if (!resolves(`/work/${study.slug}#${anchor}`, routeSet)) push("caseStudies", study.slug, `sections.${section.id}.anchors`, `unknown chapter anchor "${anchor}"`);
+      }
+    }
+  }
   for (const k of cols.knowledge) {
     k.evidence?.forEach((e, i) => {
       if (isInternalHref(e.href) && !resolves(e.href, routeSet)) {

@@ -15,6 +15,9 @@
  * honest assertion is that the nav and its `#anchor` links do not render while every chapter is empty.
  */
 import { test, expect } from "./fixtures";
+// TASK-130: slugs on the custom case-study system are covered by case-study-system.spec.ts; the
+// legacy-template assertions below run only for the slugs still on the old template.
+import { isSystem } from "./case-study-system";
 
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
@@ -67,6 +70,7 @@ for (const study of CASE_STUDIES) {
     consoleErrors,
   }) => {
     test.skip(!isEdge(page), "case-study render pack runs at 390 and 1440");
+    test.skip(isSystem(study.slug), "on the TASK-130 system — case-study-system.spec.ts");
     const res = await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
     expect(res?.status(), `/work/${study.slug} must be 200`).toBe(200);
 
@@ -136,41 +140,7 @@ test("case-study · teachspark deep dive: metrics (TC-075), OverviewToggle (TC-0
   await noOverflow(page);
 });
 
-// ---------------------------------------------------------------------------
-// RailCite full deep dive (TKT-29 / M-005): header metrics carry every sourced field, the
-// OverviewToggle reveals the chapters, the ChapterNav anchors resolve, and ShowTheThinking exposes
-// the 8-node reasoning chain — the same deep-dive contract exercised for TeachSpark (TC-075/076/077).
-// ---------------------------------------------------------------------------
-test("case-study · railcite deep dive: metrics (TC-075), OverviewToggle (TC-076), ChapterNav anchors + ShowTheThinking (TC-077)", async ({
-  page,
-  noOverflow,
-}) => {
-  test.skip(!isEdge(page), "deep-dive pack runs at 390 and 1440");
-  const res = await page.goto("/work/railcite", { waitUntil: "load" });
-  expect(res?.status(), "/work/railcite must be 200").toBe(200);
-
-  // TC-075 — header metrics never appear naked: value + label + context + dated "as of" caption.
-  await expect(page.getByText("Documents indexed", { exact: true })).toBeVisible();
-  await expect(page.getByText("Invented citations", { exact: true })).toBeVisible();
-  await expect(page.getByText(/as of 15 Sep 2026/i).first()).toBeVisible();
-
-  // TC-076 — OverviewToggle defaults to 30-sec; chapters are hidden until "Deep dive" is chosen.
-  const group = page.getByRole("radiogroup", { name: "Case-study depth" });
-  await expect(group).toBeVisible();
-  await expect(page.locator('nav[aria-label="Chapters"]')).toHaveCount(0);
-  await page.getByRole("radio", { name: "Deep dive" }).click();
-
-  // TC-077 — deep view reveals the ChapterNav and the chapter sections resolve by anchor id.
-  await expectChapterNav(page);
-  for (const id of ["01-context", "03-discovery", "05-what-i-built", "08-what-i-learned"]) {
-    await expect(page.locator(`[id="${id}"]`)).toBeAttached();
-  }
-
-  // ShowTheThinking exposes the 8-node chain (present only on slugs with a full chain).
-  await expect(page.getByRole("button", { name: /Show the thinking/ })).toBeVisible();
-
-  await noOverflow(page);
-});
+// RailCite (TKT-29) moved to the TASK-130 one-pager: case-study-system.spec.ts covers it.
 
 // ---------------------------------------------------------------------------
 // Velora (Nuptis → Velora) full deep dive (TKT-30 / M-005): header metrics carry every sourced
@@ -393,10 +363,15 @@ test("case-study · VT off: /projects card navigates to the study with identical
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback runs").toBeFalsy();
 
   await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", "railcite");
-  await page.locator('a[href="/work/railcite"]').first().click();
-  await page.waitForURL("**/work/railcite");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("RailCite");
-  await expect(page.locator('[style*="project-railcite"]')).toBeVisible();
+  // TASK-130: the case study opens in a new tab; the new page lands on the same end state.
+  const card = page.locator('a[href="/work/railcite"]').first();
+  await expect(card).toHaveAttribute("target", "_blank");
+  const [study] = await Promise.all([page.waitForEvent("popup"), card.click()]);
+  await study.waitForLoadState("load");
+  expect(new URL(study.url()).pathname).toBe("/work/railcite");
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText("RailCite");
+  await expect(study.locator('[style*="project-railcite"]')).toBeVisible();
+  await study.close();
 });
 
 // ---------------------------------------------------------------------------

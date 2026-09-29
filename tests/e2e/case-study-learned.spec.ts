@@ -60,13 +60,8 @@ test("case-study · teachspark renders every learning exactly once (TC-157, S18)
   await noOverflow(page);
 });
 
-test("case-study · railcite Sources links only its public-URL source (TC-158)", async ({ page }) => {
-  await page.goto(`${BASE_URL}/work/railcite`);
-  const links = page.locator("section.sources a");
-  await expect(links).toHaveCount(1);
-  await expect(links).toHaveAttribute("href", "https://railcite.vercel.app");
-  await expect(links).toContainText("RailCite live /api/stats");
-});
+// TASK-130: RailCite's sources moved into its evidence drawer (case-study-system.spec.ts asserts
+// that only public sources link out, each in a new tab).
 
 test("case-study · a slug with learnings: [] renders no What I learned and no Sources section (TC-157)", async ({
   page,
