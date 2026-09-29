@@ -73,7 +73,10 @@
 .csx-crumb a { color: var(--color-navy-2); text-decoration: underline; text-underline-offset: 3px; }
 .csx-code {
   margin: 0 0 10px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* The body face with tabular numerals, not a mono stack: the site ships no mono web font, and an
+     unnamed platform mono face costs a system font-fallback search (fallback-glyphs.spec.ts). */
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -273,7 +276,7 @@
     text-decoration: none;
   }
   .csx-nav-link:hover { background: var(--csx-tint-1); color: var(--color-navy); }
-  .csx-nav-n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: color-mix(in oklab, var(--csx-a1) 85%, var(--color-navy)); }
+  .csx-nav-n { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 12px; color: color-mix(in oklab, var(--csx-a1) 85%, var(--color-navy)); }
 }
 
 /* ── Sections ─────────────────────────────────────────────────────────────────────────────── */
@@ -550,7 +553,7 @@
   background: var(--color-ivory);
   border: 2.5px solid var(--csx-a1);
 }
-.csx-arch-n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--csx-soft); }
+.csx-arch-n { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--csx-soft); }
 .csx-arch-label { font-weight: 600; font-size: 15px; }
 .csx-arch-note { grid-column: 2; font-size: 14px; line-height: 1.4; color: var(--csx-soft); }
 @media (min-width: 1024px) {

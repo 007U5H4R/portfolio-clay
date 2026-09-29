@@ -128,37 +128,8 @@ test.fixme("@EVAL-010 reduced motion: Ask / story / parallax collapse (TKT-10/13
   tag: "@EVAL-010",
 }, async () => {});
 
-// ---------------------------------------------------------------------------------------------------
-// TKT-83 · Show the thinking on a real case-study route (TC-162 step 4): under reduced motion the 8
-// nodes appear all at once (delay 0, opacity only) and nothing in the deep dive animates transform.
-// ---------------------------------------------------------------------------------------------------
-test.describe("TKT-83 · deep dive reduced motion", () => {
-  test("@EVAL-010 reduced motion: Show the thinking reveals all 8 nodes at once, opacity only (/work/teachspark)", {
-    tag: "@EVAL-010",
-  }, async ({ page, withReducedMotion }) => {
-    test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
-    await withReducedMotion(page);
-    await page.goto("/work/teachspark", { waitUntil: "load" });
-    await page.getByRole("radio", { name: "Deep dive" }).click();
-    await page.getByRole("button", { name: /Show the thinking/ }).click();
-
-    const nodes = page.locator("#show-the-thinking-panel li.thinking-node");
-    await expect(nodes).toHaveCount(8);
-    const styles = await nodes.evaluateAll((els) =>
-      els.map((el) => {
-        const s = getComputedStyle(el);
-        return { opacity: s.opacity, property: s.transitionProperty, delay: s.transitionDelay };
-      }),
-    );
-    for (const s of styles) {
-      expect(s.property, "node transition must collapse to opacity only").toBe("opacity");
-      expect(s.delay, "node transition-delay must be zeroed under reduced motion").toMatch(/^0s?$/);
-    }
-    await expect.poll(async () => nodes.evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity)), { timeout: 500 }).toEqual(
-      Array.from({ length: 8 }, () => "1"),
-    );
-  });
-});
+// TASK-130: the deep-dive reduced-motion checks retired with the §7.3 template; case-study-system
+// .spec.ts asserts every one-pager section is fully visible under reduced motion.
 
 // ---------------------------------------------------------------------------------------------------
 // TKT-90c · S90.02 / TC-174 step 2 — every Design.md §8 row collapses under reduced motion, on every
@@ -343,37 +314,6 @@ test.describe("TKT-90c · §8 reduced-motion row sweep", () => {
     await tabs.nth(1).click();
     expect(await sampled, "the product swap runs no transform/opacity animation under reduced motion").toEqual([]);
     await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
-  });
-
-  test("@EVAL-010 reduced motion: overview folder tabs swap instantly (/work/teachspark)", {
-    tag: "@EVAL-010",
-  }, async ({ page, withReducedMotion }) => {
-    test.skip(width(page) !== 1440, "reduced-motion check runs at w1440");
-    await withReducedMotion(page);
-    await page.goto("/work/teachspark", { waitUntil: "load" });
-    const deep = page.getByRole("radio", { name: "Deep dive" });
-    await deep.scrollIntoViewIfNeeded();
-    await deep.click();
-    const running = await page.evaluate(
-      (floorMs) =>
-        new Promise<string[]>((resolve) =>
-          requestAnimationFrame(() =>
-            resolve(
-              document
-                .getAnimations()
-                .filter((a) => a.playState === "running")
-                .filter((a) => {
-                  const d = a.effect?.getComputedTiming().duration;
-                  return typeof d === "number" && d > floorMs;
-                })
-                .map((a) => (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty ?? "waapi"),
-            ),
-          ),
-        ),
-      DURATION_FLOOR_MS,
-    );
-    expect(running, "the folder-tab swap runs no animation").toEqual([]);
-    await expect(deep).toHaveAttribute("aria-checked", "true");
   });
 
   test("@EVAL-010 reduced motion: the Ask panel opens in place, no slide (/)", {

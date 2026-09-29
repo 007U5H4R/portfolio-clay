@@ -16,7 +16,6 @@ import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 const OPENERS: readonly { route: string; id: string }[] = [
   { route: "/work", id: "scene-experience" }, // TASK-114 (Dev-103): its own scene; the pinboard moved to /projects (TKT-101)
   { route: "/projects", id: "scene-work" },
-  { route: "/work/teachspark", id: "scene-casestudy" },
   { route: "/thinking", id: "scene-thinking" },
   { route: "/thinking/green-tests-prove-it-runs", id: "scene-thinking" },
   { route: "/about", id: "scene-about" },

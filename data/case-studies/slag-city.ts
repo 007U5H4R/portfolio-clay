@@ -4,8 +4,9 @@ import type { CaseStudy } from "../schema";
 /**
  * Slag City — an original coin-op brawler for the browser (TASK-130; audit in
  * docs/reports/TASK-130/slag-city.md). Names no story character (Tushar, 2026-09-29). The game has
- * no AI features; its art is AI-generated (Higgsfield), stated plainly. No users, metrics or
- * learnings are recorded. The title-clearance owner gate is not a site claim and is not shown.
+ * no AI features. The art-generation credit is left out of the public copy, as on the project record
+ * (Tushar, 2026-09-29, TASK-129). No users, metrics or learnings are recorded. The title-clearance
+ * owner gate is not a site claim and is not shown.
  */
 export const slagCityCase: z.input<typeof CaseStudy> = {
   slug: "slag-city",
@@ -59,7 +60,7 @@ export const slagCityCase: z.input<typeof CaseStudy> = {
       headline: "Attract, insert coin, fight, continue, initials.",
       anchors: ["05-what-i-built"],
       summary:
-        "A side-scrolling brawler that behaves like a coin-op cabinet, with a story told in an eight-slide intro and the boss dialogue. The character and background art was generated with Higgsfield.",
+        "A side-scrolling brawler that behaves like a coin-op cabinet, with a story told in an eight-slide intro and the boss dialogue.",
       video: "demo",
       source: "SC-README",
       shots: [
@@ -134,7 +135,7 @@ export const slagCityCase: z.input<typeof CaseStudy> = {
     },
   ],
   evidence: [
-    { title: "README", type: "Readme", supports: "The coin-op loop, features, the deterministic core, Higgsfield art credit", source: "SC-README" },
+    { title: "README", type: "Readme", supports: "The coin-op loop, features, the deterministic core", source: "SC-README" },
     { title: "Discovery PRD", type: "PRD", date: "2026-09-05", supports: "Why an original, publishable game", source: "SC-DISCOVERY" },
     { title: "Deploy notes", type: "Build ledger", date: "2026-09-16", supports: "Live on Vercel", source: "SC-DEPLOY" },
     { title: "Critique captures", type: "Evaluation", supports: "The cabinet, continue and phone screens shown here", source: "SC-CAPTURES" },

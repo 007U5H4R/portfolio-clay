@@ -146,6 +146,12 @@ export function validateAll(cols: Collections = collections): ValidateResult {
   });
   // TASK-130: every case study belongs to a personal build, cites only that project's declared
   // sources, and its legacy anchors are real chapter anchors (so old deep links keep resolving).
+  if (cols.caseStudies) {
+    const covered = new Set(cols.caseStudies.map((raw) => (raw as { slug?: string }).slug));
+    for (const project of cols.projects.filter((p) => p.category === "personal")) {
+      if (!covered.has(project.slug)) push("caseStudies", project.slug, "(missing)", "every personal build needs a case-study record (TASK-130)");
+    }
+  }
   const manifestAlt = new Map(ILLUSTRATIONS.filter((i) => i.publicSrc).map((i) => [i.publicSrc!, i]));
   for (const raw of cols.caseStudies ?? []) {
     const parsed = CaseStudy.safeParse(raw);

@@ -217,7 +217,7 @@ export const DecisionsSection = z.object({ ...CaseSectionBase, kind: z.literal('
 export const SystemSection = z.object({ ...CaseSectionBase, kind: z.literal('system'),
   intro: z.string().min(12).max(240).optional(),
   caption: z.string().min(8).max(120),                   // the diagram's figcaption
-  steps: z.array(FlowStep).min(3).max(8),                // spec §16: 5–8 steps (3 allowed for small systems)
+  steps: z.array(FlowStep).min(5).max(8),                // spec §16 + brief §5: 5–8 steps; a smaller system gets no diagram
   rules: z.array(z.string().min(8).max(110)).max(3).default([]),
   source: z.string().min(2),
 });

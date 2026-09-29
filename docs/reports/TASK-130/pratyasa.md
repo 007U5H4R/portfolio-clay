@@ -10,7 +10,7 @@ Sources: `data/projects.ts` (`pratyasa`), CONTENT_INVENTORY §8.8, `docs/trace/p
 | 2 | Decision | A general credibility page, not a sales page (rev 2); "contributor, not owner"; "research prototype, not an approved or regulated diagnostic device" |
 | 3 | Evidence | The fact-locked PRD, and `verify-facts.py` with its required-facts list |
 | 4 | Measured outcome | None for the page. The device results are paper science and stay prose, never proof cards (trace) |
-| 5 | System | A small fact-lock pipeline (4 steps), recorded in §8.8 |
+| 5 | System | A small fact-lock pipeline, recorded in §8.8: PRD → required-facts list → `verify-facts.py` → static page → live at pratyasa.vercel.app (5 steps; the brief's 5–8 minimum) |
 | 6 | Learning | Only the ffmpeg/drawtext tooling note, which is too slight for a section, so there is no learnings section |
 | 7 | Screens | Device photo (hero) and framed case |
 | 8 | Docs | discoveryPRD (FACT-LOCK), Global Constraints, the site and its checker |

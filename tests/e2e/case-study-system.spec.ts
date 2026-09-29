@@ -89,6 +89,16 @@ for (const { study, name } of SYSTEM_STUDIES) {
       await expect(open).toHaveAttribute("aria-expanded", "false");
     });
 
+    test("learnings render exactly once each (S18 regression, kept from TC-157)", async ({ page }) => {
+      test.skip(width(page) !== 1440, "runs once at desktop width");
+      const learnings = study.sections.find((s) => s.kind === "learnings");
+      test.skip(!learnings, "no learnings recorded for this product");
+      await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
+      if (learnings && learnings.kind === "learnings") {
+        for (const item of learnings.items) await expect(page.getByRole("heading", { level: 3, name: item.title, exact: true })).toHaveCount(1);
+      }
+    });
+
     test("reduced motion: every section is fully visible without scrolling it into view", { tag: "@EVAL-010" }, async ({ page, withReducedMotion }) => {
       test.skip(width(page) !== 1440, "runs once at desktop width");
       await withReducedMotion(page);

@@ -111,6 +111,7 @@ export const pratyasaCase: z.input<typeof CaseStudy> = {
         { label: "Required-facts list", note: "in the checker" },
         { label: "Fact checker", note: "runs over the page" },
         { label: "Static page", note: "no third-party requests" },
+        { label: "Live site", note: "pratyasa.vercel.app" },
       ],
       rules: ["HTML, CSS and vanilla JS with a web app manifest.", "Zero third-party requests; system fonts only."],
     },

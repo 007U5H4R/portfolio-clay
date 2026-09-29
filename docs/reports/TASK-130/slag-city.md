@@ -12,7 +12,7 @@ Sources: `data/projects.ts` (`slag-city`; SC-README, SC-DISCOVERY, SC-DEPLOY), C
 | 7 | Screens | Coin/controls, combat, continue, phone portrait |
 
 - **Excluded screens:** the intro slides, because they name story characters and the site names none (Tushar, 2026-09-29).
-- **Stated plainly:** the art is AI-generated (Higgsfield); the game has no AI features.
+- **Art credit left out:** the game has no AI features, and the art-generation credit stays out of the public copy, matching Tushar's TASK-129 edit to the project record (2026-09-29).
 - **Not shown:** the title-clearance owner gate is not a site claim.
 - **Sections:**
   1. Why (01–03).
