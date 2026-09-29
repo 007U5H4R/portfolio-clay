@@ -10,7 +10,7 @@
 - Every Playwright run started its own `next start` on a free `PW_BASE_URL` port (3130–3150). No server was reused.
 - `git fetch origin && git merge origin/m-009-redesign` ran before each product and before the final push. Two merges brought changes in: Slag City (`a1f7b38`, TASK-129) and, before the final push, TASK-131/132 (`c9bfd55`, clean). The other fetches found nothing new.
 - **Browser workaround:** `pnpm exec playwright install chromium` is blocked by the network policy, and Playwright 1.63 wants Chromium build 1243. The container ships build 1194 under `/opt/pw-browsers`, so `$HOME/.cache/ms-playwright/chromium-1243` and `chromium_headless_shell-1243` are symlinks to it. Nothing in the repo depends on this.
-- **Network:** the proxy returns 403 for every live product host (railcite / slag-city / pratyasa `.vercel.app`, the TeachSpark landing on Railway) and for YouTube. **No fresh captures were possible.** Every product screenshot on the pages comes from `docs/case-study-sources/`; the rest of the imagery is TASK-127 covers and this task's hand-drawn SVG.
+- **Network:** the proxy returns 403 for every live product host (railcite / slag-city / pratyasa `.vercel.app`, the TeachSpark landing on Railway) and for YouTube. **No live captures were possible.** Every product screenshot comes from `docs/case-study-sources/`; the rest of the imagery is TASK-127 covers and this task's hand-drawn SVG. For the products that lacked real screens, a follow-up pass (see *Real product screens from the product repos* below) took them from each product repo's README screenshots, or ran the product locally from its repo.
 - **No `archify` skill** is available in this session. Per the brief's fallback, every architecture diagram is hand-authored as an accessible ordered list styled as a flow (see §7).
 - **No image generation** was used. All art is hand-authored SVG from `scripts/case-study-art/`.
 
@@ -182,7 +182,7 @@ Page-specific cuts (details and reasons in each `docs/reports/TASK-130/<slug>.md
 - **Nuptis:** marigold garland.
 
 **Screenshots** were converted to WebP (q78, sharp) by `scripts/case-study-art/media.ts` from `docs/case-study-sources/`. Every image records its source path in its `provenance` field.
-- 29 WebP files. With the SVG art, `public/media/case-studies/` is 1.1 MB for all 13 products together.
+- 35 WebP files. With the SVG art, `public/media/case-studies/` is 1.2 MB for all 13 products together.
 - Four products reuse their TASK-127 cover SVG in the hero (RailCite's as its pitch-video poster), and each manifest `usedOn` now lists the case study: RailCite, Cubicle, Token Toli, Dino Arcade.
 - `scene-casestudy` stays in the manifest with `usedOn: []` (kept for `/dev/primitives`).
 
@@ -255,7 +255,7 @@ Private documents are listed in the drawer without links. Only four drawer rows 
 
 ### 10. Remaining products that need source information from Tushar
 The pages say what isn't proven rather than fill gaps. These are what would make them stronger:
-- **RailCite:** real product UI screenshots. `docs/case-study-sources/railcite/` holds only a mascot image, so the page shows the product through its pitch and demo videos, with the TASK-127 cover and a drawn poster as their posters. Also needed: usage data after launch. Latency and groundedness evals are named as gaps.
+- **RailCite:** usage data after launch. Latency and groundedness evals are named as gaps. (Real UI is now on the page from the repo's README screenshots.)
 - **TeachSpark:**
   - the teacher interviews (none recorded);
   - LLM output-quality evals;
@@ -263,16 +263,39 @@ The pages say what isn't proven rather than fill gaps. These are what would make
   - whether the Railway pilot is still up after 9 Sep 2026;
   - a product demo video.
 - **Velora:** any user or pilot contact. Trust verification is out of scope by design.
-- **Cubicle:** a live run and UI screenshots. There has been no live run; the hero uses the TASK-127 cover.
+- **Cubicle:** a live run. The page now shows the real UI run locally, but the finished-run capture replays the repo's hand-built test fixture and says so.
 - **Tegaki:** pilot counts and learnings (none recorded, so no learnings section).
-- **Bhakti Vilas:** UI screenshots (none exist). The prototype imagery is captioned as illustrative.
+- **Bhakti Vilas:** UI screenshots. Its repo (`teenytinybot/Bhakti-Vilas`, an org account) isn't reachable from this session and the live site is blocked, so it still has none. The prototype imagery is captioned as illustrative.
 - **Token Toli:** nothing blocking; the page is short by design.
 - **Pratyasa:** the Soft Matter paper DOI (CONTENT_INVENTORY §8.8 MISSING); confirmation that the repo is public.
-- **Dino Arcade:** screenshots (§8.10: MISSING; the hero uses the cover) and a reviewed test run.
+- **Dino Arcade:** a reviewed test run. In-game screens can't be shown: the app ships no game, and the cabinet's marquee carries a licensed title (cropped off the capture now on the page).
 - **Campfire Board and Slag City:** usage and learnings (none recorded).
 - **Cinematic Portfolio:** nothing blocking.
 
 ---
+
+## Real product screens from the product repos (follow-up, 2026-09-29)
+
+Tushar asked for real product screens: "use chrome or you have the product URL, if nothing is there then generate from the Product project repo", and pointed to the READMEs.
+
+- **Live URLs, tried first:** the environment's network policy denies them (HTTP 403 on CONNECT for `railcite.vercel.app`, `pratyasa.vercel.app`, `slag-city.vercel.app`, `007u5h4r.github.io` and the TeachSpark Railway host). The fix is on the environment side: *Network access* in the cloud environment's settings, or an allowed-domains entry for those hosts.
+- **Product repos, used instead:** each was cloned read-only at the commit named in `docs/case-study-sources/INDEX.md`, where every file's provenance is recorded.
+
+| Product | Source | Now on the page | Handling |
+|---|---|---|---|
+| RailCite | README screenshots (`railcite@0112a6f docs/screenshots`) | Product section: the cited answer; the Sources panel with "Verified text" cards | Crops remove the signed-in account name, the mouse cursor and the floating nav. The home screen was not used (it greets the account by name) |
+| Pratyasa | README screenshots (`pratyasa@f1ca4d5`) | "The page" section: the top of the live page | The evidence capture was not used: it lists the co-inventors' names. The browser scrollbar is cropped |
+| Cubicle | No README screenshots. Run locally from `cubicle@6779998` (`next dev`, placeholder env values, no API keys, no database) | Product section: the idle home ("What are you building?"), and the office after a run (four desks Done, the PRD) | The finished-run view is `/dev/office` replaying the repo's **hand-built test fixture**. Its caption says "not a live run", and no claim changed. The dev stepper controls and the dev badge are cropped off. The transcript isn't shown (fixture timestamps render as "20725d ago") |
+| Dino Arcade | No README screenshots. Served locally from `dino-arcade-pwa@0bd1368` (`python3 -m http.server`), 844×390 landscape phone | Product section: the cabinet's "Insert Coin" screen, beside the home-screen icon | The marquee shows a licensed game title, so it is cropped off. No game file was loaded (the app ships none). The theme's layout now gives the wide capture the row |
+| TeachSpark | README screenshots exist (landing, how it works, join, demo, Spark Lab) | Unchanged | The page already uses the real mobile landing as its hero |
+| Bhakti Vilas | Repo `teenytinybot/Bhakti-Vilas` not accessible to this session; live site blocked | Unchanged | Still needs UI screens from Tushar |
+
+Checks after the change:
+- typecheck, lint and the token check are clean;
+- unit tests: 707 passed;
+- build OK;
+- case-study e2e (`case-study-system`, `case-study`, `eval-006` axe, `eval-008`, `eval-018`, `sweep`): **607 passed, 0 failed**; with `fallback-glyphs` and `eval-010`: 675 passed;
+- "after" screenshots retaken for RailCite, Cubicle, Dino Arcade and Pratyasa.
 
 ## Per-product narrative choices
 The dominant story (spec §41) for each product, with the one call that shaped each page. Detail is in `docs/reports/TASK-130/<slug>.md`.
@@ -339,7 +362,7 @@ Refinements made:
 - **Word count:** a Cubicle trim to fit 600 words.
 
 Still short (source-limited, see §10):
-- RailCite, Cubicle, Dino and Bhakti Vilas lack real product UI;
+- Bhakti Vilas lacks real product UI (repo not reachable from this session);
 - five pages have no learnings section.
 
 ## Gates
@@ -380,7 +403,7 @@ All seven environmental failures need network access to YouTube and the product 
 ## Follow-ups (not done in this task)
 - **Unused legacy CSS:** the old `.cs-*` case-study styles in `app/globals.css` no longer render anywhere. Removing them was left out to keep this diff reviewable.
 - **Themed mono labels:** the retro themes (Cubicle, Dino, Cinematic, Slag City) use a platform monospace stack as a motif. On Linux that face comes from a system font search. Only `/` and `/work/teachspark` are fallback-glyph gated, and TeachSpark now uses the body face. A mono web font, or naming the platform faces, would close this for the others.
-- **Fresh screenshots:** the network block meant no fresh captures of the live apps. A local run could add real RailCite and Slag City captures from their public live pages.
+- **Live captures:** the network policy blocks the live product hosts, so nothing was captured live. Allowing those hosts, or a local run on Tushar's Mac, would allow live captures, and would give Bhakti Vilas its first UI screens.
 
 ## Commits
 All on `cloud/task-130`, pushed after each product. `m-009-redesign` and `main` were never pushed to or merged into.
@@ -407,7 +430,9 @@ All on `cloud/task-130`, pushed after each product. `m-009-redesign` and `main` 
 | `f872490` | Expect the Portfolio case-study link to open a new tab in projects.spec |
 | `c9bfd55` | Merge `origin/m-009-redesign` (TASK-131, TASK-132; clean) |
 | `2bb569e` | Retake the TASK-130 after screenshots on the final build |
-| *(last)* | This report |
+| `729df06` | Add the TASK-130 final report |
+| `dc995fe` | Show real product screens for RailCite, Cubicle, Dino Arcade and Pratyasa (follow-up) |
+| *(last)* | This report update |
 
 Every TASK-130 commit subject names the task (table abbreviated), and every commit ends with the `Co-Authored-By: Claude Opus 5.5` and `Claude-Session` trailers.
 
