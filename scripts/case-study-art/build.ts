@@ -13,6 +13,7 @@ import { railciteAssets } from "./assets/railcite";
 import { teachsparkAssets } from "./assets/teachspark";
 import { veloraAssets } from "./assets/velora";
 import { tegakiAssets } from "./assets/tegaki";
+import { nuptisAssets } from "./assets/nuptis";
 import { buildMedia } from "./media";
 
 const ART: Record<string, Asset[]> = {
@@ -20,6 +21,7 @@ const ART: Record<string, Asset[]> = {
   teachspark: teachsparkAssets,
   velora: veloraAssets,
   tegaki: tegakiAssets,
+  nuptis: nuptisAssets,
 };
 
 async function main() {

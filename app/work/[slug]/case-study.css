@@ -1394,3 +1394,196 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="tegaki"] .csx-rules li::before { border-color: var(--color-rust); color: var(--color-rust); border-radius: 50%; }
 .tg-scribble { right: 4px; top: 6px; transform: rotate(-3deg); color: var(--color-rust); }
 @media (max-width: 1279px) { .tg-scribble { display: none; } }
+
+/* =============================================================================================
+   Nuptis — a wedding planner's run-sheet: a marigold garland along the hero's top edge, rosette
+   ribbon numerals, decisions on a checklist clipboard. Warm, busy-but-ordered.
+   ============================================================================================= */
+.csx[data-theme="nuptis"] .csx-hero {
+  padding-top: clamp(64px, 7vw, 96px);
+  background:
+    url("/media/case-studies/nuptis/garland.svg") center top / min(1200px, 160%) auto repeat-x,
+    linear-gradient(180deg, color-mix(in oklab, var(--color-note) 34%, var(--color-paper)), var(--color-paper) 70%);
+}
+.csx[data-theme="nuptis"] .csx-tagline { color: var(--color-terracotta); }
+.csx[data-theme="nuptis"] .csx-code { color: var(--color-terracotta); }
+.csx[data-theme="nuptis"] .csx-metric { border-radius: 12px; border: 1.5px solid color-mix(in oklab, var(--color-terracotta) 35%, transparent); }
+.csx[data-theme="nuptis"] .csx-metric-value { color: var(--color-terracotta); }
+/* Rosette ribbon numerals: a scalloped badge with two short tails. */
+.csx[data-theme="nuptis"] .csx-mark {
+  position: relative;
+  background: var(--color-terracotta);
+  box-shadow: 0 0 0 4px var(--color-note), 0 0 0 5px color-mix(in oklab, var(--color-terracotta) 60%, transparent);
+}
+.csx[data-theme="nuptis"] .csx-mark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  width: 26px;
+  height: 22px;
+  margin-left: -13px;
+  z-index: -1;
+  background: linear-gradient(115deg, var(--color-forest) 0 48%, transparent 48% 52%, var(--color-forest) 52%);
+  clip-path: polygon(0 0, 45% 0, 30% 100%, 15% 80%, 0 100%, 0 0, 55% 0, 100% 0, 100% 100%, 85% 80%, 70% 100%, 55% 0);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="nuptis"] .csx-mark { transition: transform 420ms cubic-bezier(0.3, 1.5, 0.5, 1); }
+  .csx[data-theme="nuptis"][data-motion="on"] .csx-sec:not([data-shown]) .csx-mark { transform: scale(0.6) rotate(-20deg); }
+}
+.csx[data-theme="nuptis"] .csx-sec:nth-child(even) { background: color-mix(in oklab, var(--color-note) 14%, var(--color-paper)); }
+.csx[data-theme="nuptis"] .csx-eyebrow { color: var(--color-terracotta); }
+.csx[data-theme="nuptis"] .csx-flow-step { border-color: color-mix(in oklab, var(--color-terracotta) 30%, transparent); }
+.csx[data-theme="nuptis"] .csx-flow-step:nth-child(3), .csx[data-theme="nuptis"] .csx-flow-step:nth-child(4), .csx[data-theme="nuptis"] .csx-flow-step:nth-child(5) { background: color-mix(in oklab, var(--color-rust) 7%, var(--color-ivory)); }
+@media (min-width: 768px) { .csx[data-theme="nuptis"] .csx-flow-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); } .csx[data-theme="nuptis"] .csx-flow-step:nth-child(3n)::after { content: "→"; } }
+@media (min-width: 1024px) {
+  .csx[data-theme="nuptis"] .csx-problem { grid-template-columns: minmax(0, 1fr); }
+  .csx[data-theme="nuptis"] .csx-problem .csx-flow { grid-column: 1; grid-row: auto; }
+}
+.csx[data-theme="nuptis"] .csx-quote { border-left-color: var(--color-terracotta); background: var(--color-ivory); }
+.csx[data-theme="nuptis"] .csx-insight-tag { background: var(--color-forest); }
+@media (min-width: 1024px) {
+  .csx[data-theme="nuptis"] .csx-shots[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* Decisions on a checklist clipboard. */
+.csx[data-theme="nuptis"] .csx-decisions { padding: 28px 18px 18px; border-radius: 12px; background: color-mix(in oklab, var(--color-kraft) 55%, var(--color-paper)); position: relative; }
+.csx[data-theme="nuptis"] .csx-decisions::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 90px;
+  height: 22px;
+  margin-left: -45px;
+  border-radius: 6px 6px 3px 3px;
+  background: var(--color-navy-2);
+}
+.csx[data-theme="nuptis"] .csx-decision { border-radius: 4px; }
+.csx[data-theme="nuptis"] .csx-decision-row[data-row="chose"] dd::before { content: "☑ "; color: var(--color-forest); font-family: var(--font-body); }
+.np-sticky { right: 0; top: 0; transform: rotate(4deg); }
+@media (max-width: 1279px) { .np-sticky { display: none; } }
+.csx[data-theme="nuptis"] .csx-arch-step::before { border-color: var(--color-terracotta); }
+.csx[data-theme="nuptis"] .csx-arch-steps::before { background: color-mix(in oklab, var(--color-terracotta) 60%, transparent); }
+.csx[data-theme="nuptis"] .csx-rules { background: var(--color-ivory); }
+.csx[data-theme="nuptis"] .csx-learning { border-radius: 12px; }
+
+/* =============================================================================================
+   Bhakti Vilas — dawn at a riverside temple: a saffron-to-paper dawn ground, diya-flame numerals
+   that glow in once, a dotted devotional path for the booking flow. Soft, never clinical.
+   ============================================================================================= */
+.csx[data-theme="bhakti-vilas"] .csx-hero {
+  background:
+    radial-gradient(ellipse 60% 70% at 85% 0, color-mix(in oklab, var(--color-note) 70%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in oklab, var(--color-note) 40%, var(--color-paper)), var(--color-paper));
+}
+.csx[data-theme="bhakti-vilas"] .csx-tagline { color: var(--color-rust); }
+.csx[data-theme="bhakti-vilas"] .csx-code { color: var(--color-terracotta); }
+.csx[data-theme="bhakti-vilas"] .csx-hero-shot .csx-frame-screen { border-radius: 999px 999px 10px 10px; padding: 0; border: 6px solid var(--color-ivory); box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-rust) 30%, transparent), 0 30px 50px -30px color-mix(in oklab, var(--color-rust) 60%, transparent); }
+.csx[data-theme="bhakti-vilas"] .csx-hero-shot img { aspect-ratio: 4 / 3.4; object-fit: cover; }
+.csx[data-theme="bhakti-vilas"] .csx-hero-shot .csx-frame-cap { text-align: center; }
+.csx[data-theme="bhakti-vilas"] .csx-metric { border-radius: 14px; border-color: color-mix(in oklab, var(--color-note) 90%, var(--color-rust)); }
+.csx[data-theme="bhakti-vilas"] .csx-metric-value { color: var(--color-rust); }
+/* Diya-flame numerals. */
+.csx[data-theme="bhakti-vilas"] .csx-mark {
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 50% 70%, var(--color-rust) 55%, var(--color-terracotta));
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-note) 70%, transparent);
+  transition: box-shadow 900ms ease 200ms;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="bhakti-vilas"][data-motion="on"] .csx-sec:not([data-shown]) .csx-mark { box-shadow: 0 0 0 0 transparent; }
+}
+.csx[data-theme="bhakti-vilas"] .csx-sec:nth-child(even) { background: color-mix(in oklab, var(--color-note) 16%, var(--color-paper)); }
+.csx[data-theme="bhakti-vilas"] .csx-eyebrow { color: var(--color-terracotta); }
+.csx[data-theme="bhakti-vilas"] .csx-quote { border-left-color: var(--color-rust); background: var(--color-ivory); border-radius: 0 14px 14px 0; }
+.csx[data-theme="bhakti-vilas"] .csx-insight-tag { background: var(--color-forest); }
+.csx[data-theme="bhakti-vilas"] .csx-decision { border-radius: 14px; }
+.csx[data-theme="bhakti-vilas"] .csx-decision-row[data-row="chose"] dd { color: var(--color-terracotta); }
+/* The booking flow as a path of lamps. */
+.csx[data-theme="bhakti-vilas"] .csx-product-flow .csx-flow-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 767px) { .csx[data-theme="bhakti-vilas"] .csx-product-flow .csx-flow-steps { grid-template-columns: minmax(0, 1fr); } }
+.csx[data-theme="bhakti-vilas"] .csx-flow-step { border-radius: 999px; justify-content: center; border-color: color-mix(in oklab, var(--color-rust) 30%, transparent); }
+.csx[data-theme="bhakti-vilas"] .csx-flow-step::after { content: "···" !important; right: -22px !important; color: var(--color-rust) !important; }
+.csx[data-theme="bhakti-vilas"] .csx-flow-step:last-child::after { content: none !important; }
+@media (max-width: 767px) { .csx[data-theme="bhakti-vilas"] .csx-flow-step::after { content: none !important; } }
+.csx[data-theme="bhakti-vilas"] .csx-flow-n { border-color: var(--color-rust); color: var(--color-rust); }
+.csx[data-theme="bhakti-vilas"] .csx-shots[data-count="1"] { max-width: 820px; }
+.csx[data-theme="bhakti-vilas"] .csx-learning { border-radius: 14px; }
+
+/* =============================================================================================
+   Token Toli — a research field notebook between two homes: ruled steel lines, sticky-note
+   numerals that land once, a dashed paper-plane line across each section. Discovery, not product.
+   ============================================================================================= */
+.csx[data-theme="token-toli"] .csx-hero {
+  background:
+    repeating-linear-gradient(180deg, transparent 0 29px, color-mix(in oklab, var(--color-steel) 15%, transparent) 29px 30px),
+    color-mix(in oklab, var(--color-green-2) 8%, var(--color-paper));
+}
+.csx[data-theme="token-toli"] .csx-tagline { color: var(--color-green-2); }
+.csx[data-theme="token-toli"] .csx-code { color: var(--color-green-2); }
+.csx[data-theme="token-toli"] .csx-hero-shot .csx-frame-screen { border-radius: 14px; border: 6px solid var(--color-ivory); box-shadow: var(--shadow-paper); transform: rotate(-1deg); }
+.csx[data-theme="token-toli"] .csx-metric { background: var(--color-note); border: 0; transform: rotate(-1.2deg); box-shadow: var(--shadow-sticky, var(--shadow-paper)); border-radius: 2px; }
+.csx[data-theme="token-toli"] .csx-proofs > li:nth-child(2) .csx-metric { transform: rotate(1.4deg); }
+.csx[data-theme="token-toli"] .csx-mark {
+  border-radius: 2px;
+  background: var(--color-note);
+  color: var(--color-navy);
+  transform: rotate(-4deg);
+  box-shadow: 0 6px 10px -6px color-mix(in oklab, var(--color-navy) 40%, transparent);
+  transition: transform 420ms cubic-bezier(0.3, 1.4, 0.5, 1), opacity 300ms ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="token-toli"][data-motion="on"] .csx-sec:not([data-shown]) .csx-mark { transform: rotate(-16deg) translateY(-14px); opacity: 0; }
+}
+.csx[data-theme="token-toli"] .csx-sec { border-top: 1.5px dashed color-mix(in oklab, var(--color-steel) 40%, transparent); }
+.csx[data-theme="token-toli"] .csx-sec:first-child { border-top: 0; }
+.csx[data-theme="token-toli"] .csx-eyebrow { color: var(--color-green-2); }
+.csx[data-theme="token-toli"] .csx-quote { border-left-color: var(--color-green-2); background: var(--color-ivory); }
+.csx[data-theme="token-toli"] .csx-quotes .csx-quote { background: color-mix(in oklab, var(--color-note) 55%, var(--color-ivory)); border-left: 0; border-radius: 2px; transform: rotate(-0.8deg); box-shadow: var(--shadow-paper); }
+.csx[data-theme="token-toli"] .csx-quotes > li:nth-child(2) .csx-quote { transform: rotate(0.9deg); }
+.csx[data-theme="token-toli"] .csx-insight-tag { background: var(--color-green-2); }
+.csx[data-theme="token-toli"] .csx-decisions[data-count="1"] { max-width: 640px; }
+.csx[data-theme="token-toli"] .csx-decision { border-top: 4px solid var(--color-green-2); }
+.csx[data-theme="token-toli"] .csx-learning { background: var(--color-ivory); border-left: 5px solid var(--color-green-2); }
+
+/* =============================================================================================
+   Pratyasa — a lab notebook and a certificate: graph-paper ground, readout-dial numerals, the
+   device photo in a gold certificate frame. A record, told plainly.
+   ============================================================================================= */
+.csx[data-theme="pratyasa"] .csx-hero {
+  background:
+    linear-gradient(color-mix(in oklab, var(--color-forest) 9%, transparent) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(90deg, color-mix(in oklab, var(--color-forest) 9%, transparent) 1px, transparent 1px) 0 0 / 20px 20px,
+    var(--color-ivory);
+}
+.csx[data-theme="pratyasa"] .csx-tagline { color: var(--color-forest); }
+.csx[data-theme="pratyasa"] .csx-code { color: var(--color-forest); }
+.csx[data-theme="pratyasa"] .csx-hero-shot .csx-frame-screen {
+  padding: 14px;
+  border-radius: 2px;
+  background: var(--color-ivory);
+  border: 10px solid var(--color-kraft);
+  outline: 2px solid color-mix(in oklab, var(--color-kraft) 60%, var(--color-navy));
+  outline-offset: -6px;
+}
+.csx[data-theme="pratyasa"] .csx-metric { border-radius: 2px; border: 1px solid color-mix(in oklab, var(--color-kraft) 90%, var(--color-navy)); background: color-mix(in oklab, var(--color-kraft) 12%, var(--color-ivory)); }
+.csx[data-theme="pratyasa"] .csx-metric-value { color: var(--color-forest); font-size: clamp(30px, 2.8vw, 40px) !important; }
+.csx[data-theme="pratyasa"] .csx-mark {
+  background: var(--color-ivory);
+  color: var(--color-forest);
+  border: 2px solid var(--color-forest);
+  box-shadow: inset 0 0 0 5px var(--color-ivory), inset 0 0 0 6px color-mix(in oklab, var(--color-forest) 35%, transparent);
+}
+.csx[data-theme="pratyasa"] .csx-h2 { background: linear-gradient(90deg, var(--color-forest), var(--color-forest)) left bottom / 0 2px no-repeat; }
+.csx[data-theme="pratyasa"] .csx-sec:nth-child(even) { background: color-mix(in oklab, var(--color-forest) 4%, var(--color-paper)); }
+.csx[data-theme="pratyasa"] .csx-eyebrow { color: var(--color-forest); }
+.csx[data-theme="pratyasa"] .csx-shots[data-count="1"] { max-width: 420px; }
+.csx[data-theme="pratyasa"] .csx-decision { border-radius: 2px; border-left: 4px solid var(--color-forest); }
+.csx[data-theme="pratyasa"] .csx-arch-step::before { border-color: var(--color-forest); }
+.csx[data-theme="pratyasa"] .csx-arch-steps::before { background: var(--color-forest); }
+.csx[data-theme="pratyasa"] .csx-rules { background: color-mix(in oklab, var(--color-kraft) 22%, var(--color-ivory)); }
+.bv-scribble { right: 8px; top: 8px; transform: rotate(-3deg); color: var(--color-terracotta); }
+.tt-sticky { right: 2%; top: 0; transform: rotate(5deg); }
+@media (max-width: 1279px) { .bv-scribble, .tt-sticky { display: none; } }
+/* One evidence card never stretches across the page. */
+.csx-proofs[data-count="1"] { max-width: 380px; }

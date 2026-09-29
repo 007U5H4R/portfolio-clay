@@ -82,6 +82,15 @@ const DECOR: Partial<Record<Theme, Partial<Record<Slot, ReactNode>>>> = {
     hero: <Stamp src="/media/case-studies/tegaki/hanko.svg" className="tg-hanko" />,
     product: <Scribble className="tg-scribble">read by a person, not a model</Scribble>,
   },
+  nuptis: {
+    decisions: <Sticky className="np-sticky">Vet by risk, not by habit.</Sticky>,
+  },
+  "bhakti-vilas": {
+    decisions: <Scribble className="bv-scribble">a kirtan before a screening</Scribble>,
+  },
+  "token-toli": {
+    outcome: <Sticky className="tt-sticky">Discovery only.</Sticky>,
+  },
 };
 
 export function themeDecor(theme: Theme, slot: Slot): ReactNode {

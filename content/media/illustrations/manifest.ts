@@ -284,7 +284,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a cosy hillside home at dusk with a lit window and a rocking chair on the porch, a mailbox by the gate, a lane winding away to a distant city, a paper plane flying along the line between poles, and an open notebook of research notes with sticky notes and glasses in the foreground.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects", "/work/token-toli"], // TASK-130: also the case-study hero
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/pratyasa.ts) — carousel cover + stage poster.

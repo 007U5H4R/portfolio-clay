@@ -34,6 +34,18 @@ export const MEDIA: MediaRow[] = [
   { slug: "tegaki", from: "hero.jpg", to: "landing.webp", width: 1200 },
   { slug: "tegaki", from: "anatomy.jpg", to: "anatomy.webp", width: 1000 },
   { slug: "tegaki", from: "report-excerpt.jpg", to: "report-excerpt.webp", width: 1000 },
+  // Nuptis — the live mock-data app (docs/screenshots; fictional agencies, couples and vendors).
+  { slug: "nuptis", from: "dashboard.jpg", to: "dashboard.webp", width: 1200 },
+  { slug: "nuptis", from: "onboarding.jpg", to: "onboarding.webp", width: 1000 },
+  { slug: "nuptis", from: "procurement.jpg", to: "procurement.webp", width: 1000 },
+  { slug: "nuptis", from: "contingency-drawer.jpg", to: "contingency-drawer.webp", width: 1000 },
+  // Bhakti Vilas — the prototype's own imagery (assets/tea-circle.jpg) and Tushar's Madhu Mukti
+  // staged-reveal funnel (its shares are labelled directional estimates in the image itself).
+  { slug: "bhakti-vilas", from: "tea-circle.jpg", to: "tea-circle.webp", width: 1200 },
+  { slug: "bhakti-vilas", from: "Madhu-Mukti-TOFU-MOFU-BOFU-Funnel.jpg", to: "madhu-mukti-funnel.webp", width: 1200 },
+  // Pratyasa — the real device (pratyasa-site/assets/device-photo.jpg) and its framed case photo.
+  { slug: "pratyasa", from: "device-photo.jpg", to: "device.webp", width: 1400 },
+  { slug: "pratyasa", from: "pratyasa-framed.jpg", to: "framed.webp", width: 900 },
 ];
 
 export async function buildMedia(only?: string) {
