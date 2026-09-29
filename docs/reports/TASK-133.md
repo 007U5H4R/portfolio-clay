@@ -100,3 +100,107 @@ All commits end with the Co-Authored-By trailer; only `cloud/task-133` was pushe
 ## Follow-up (after Tushar's answers)
 - Commit: `46f992b` — `exploreLabel()` in `components/projects/FeaturedWork.tsx`; `tests/unit/FeaturedWork.test.tsx`, `tests/e2e/featured.spec.ts`; Design.md §7.1 + Dev-127.
 - Re-verified: `pnpm typecheck` ✓ · `pnpm lint` ✓ · `pnpm test` 714 passed (4 skipped) · `pnpm build` ✓ · e2e `featured` + `home` (incl. axe) + `eval-010` at all four widths: 151 passed, 0 failed (373 project-scoped skips).
+
+---
+
+# Fidelity pass — replicate Tushar's reference image (2026-09-29)
+
+Tushar's follow-up: "replicate the supplied Featured Work reference image with very high visual fidelity". The
+reference (`docs/redesign-mockups/m-009/tushar-2026-09-29/featured-work-reference.jpg`) is now the visual spec. The
+content rules stand: RailCite, Slag City, Campfire Board, verified copy only. Branch restarted from `m-009-redesign`
+@ `a03780b` (PR [007U5H4R/portfolio-clay#3](https://github.com/007U5H4R/portfolio-clay/pull/3) was merged).
+
+## Visual audit (reference, 1672 × 941) → build at 1672 px
+| Measure | Reference | Build |
+|---|---|---|
+| Content width | ≈ 1587 (95 %) | 1560 (cap) |
+| RailCite card | 945 × 650 (1.45) | 934 × 668 (1.40) |
+| Slag City / Campfire Board | 617 × 310 / 617 × 320 | 603 × 322 / 602 × 322 |
+| Gaps | ≈ 25 | 26 |
+| Headline | ≈ 80 px serif, one line | 76 px Fraunces 600, one line |
+| Heading block → cards | ≈ 35 px | 44 px |
+| RailCite copy zone | left ≈ 42 %, top ≈ 55 % | left ≤ 50 %, copy ends ≈ 62 % (it carries the spec's one-liner, which the reference omits) |
+
+Side by side: `docs/screenshots/m-009/task-133/compare-reference-1672.jpg`. At 1440 the cards are 805 × 618 and
+519 × 297, the section 1011 px.
+
+## Report (fidelity spec §65)
+1. **Files modified:** `components/projects/FeaturedWork.tsx`; `app/globals.css` (TASK-133 block rewritten);
+   `scripts/portfolio-art/featured/{railcite,slag-city,campfire-board}.ts` (redrawn); `scripts/portfolio-art/decor.ts`
+   (+3 torn masks); `public/media/illustrations/featured/*.svg`; `public/media/portfolio/decor/tear-feature-{rail,slag,camp}.svg`
+   (new); `content/media/illustrations/{manifest.ts,README.md}`; `Design.md` (§6.3 alts, §7.1, Dev-128);
+   tests `tests/unit/FeaturedWork.test.tsx`, `tests/e2e/featured.spec.ts`, `tests/e2e/home.spec.ts`; screenshots.
+2. **Component structure:** `section#work-featured` → `TornEdge` (takes the section cream) → `.featured-body` →
+   `.fw-wrap` → `Reveal.fw-head` (eyebrow + rule, h2, subline) → `.fw-grid` → three `Reveal.fw-slot` → `Sheet
+   article.fw-card` (a tape fastener) → `.fw-paper[data-featured]` (torn mask) → `.fw-copy` (name, cover line,
+   RailCite: one-liner + proof list, the Explore link) + `.fw-art` (the collage `<img>`).
+3. **Layout ratios:** ≥ 1200 `1.55fr / 1fr` (RailCite ≈ 61 %), gaps 26 px; side cards `clamp(262px, 20.5vw, 320px)`,
+   RailCite spans both rows. Wrap `min(100% − 2 × clamp(16px, 3.2vw, 56px), 1560px)`.
+4. **Artwork assets:** three full-card SVG collages (RailCite 1450 × 1000, 28 kB; Slag City 1240 × 620, 16 kB;
+   Campfire Board 1240 × 640, 23 kB) and three torn masks. Each card keeps ONE SVG (layers inside it, drawn with
+   `<use>` for shadow → fibre rim → face → halftone) instead of per-layer files: the responsive behaviour comes
+   from positioning the whole composition (width-fit and bottom-anchored behind the copy on desktop; a
+   right-anchored crop under the copy on phones), which keeps it to three requests and no JavaScript.
+5. **RailCite layers (back → front):** rust circle → slate torn peak → grid-paper route map (dotted rust route,
+   stops) → second circular page → the circular (round seal, heading bars, number/date bars, ruled body, rust
+   approval stamp; no readable text) → sepia viaduct photo → kraft scrap, pale + slate ridges, river, lower
+   pines → dark forest mass (right) → stone viaduct (scissor-cut arches, stone courses, valley behind) → the
+   curving track to the lower-right corner → the three-quarter streamliner (navy/cream/rust, headlight, chevron,
+   four coaches receding to a vanishing point) → an evidence scrap.
+6. **Slag City layers:** district map (top-right corner) → rust sun → industrial-blue far skyline → two banded
+   stacks → navy hall + charcoal works (blast furnace, lit windows) + rust brick block → steel conveyor truss →
+   cream torn landscape → works yard → glowing slag run-off → dark water with ochre reflections → kraft scrap →
+   pine.
+7. **Campfire Board layers:** pale ridge → sunset circle → slate hills → lake → pines → easel + dark-framed
+   plan map (hills, dashed route, pins) with four scribble-only notes and a tape → meadow → two Adirondack chairs
+   and a tin mug → paper campfire in a stone ring → framing pine.
+8. **Torn paper:** baked vector masks (`scripts/portfolio-art/decor.ts`, the TASK-127 generator): a different mask
+   per card (`tear-feature-rail` most irregular along the bottom, `-slag` rough top + bottom, `-camp` gently
+   uneven), `mask: … 100% 100%` on `.fw-paper`; a warm two-step `drop-shadow` on the sheet follows the silhouette.
+   Inside the art, every piece has its own torn outline + fibre rim.
+9. **CTA routes:** `/projects?product=railcite` · `/projects?product=slag-city` · `/projects?product=campfire-board`,
+   same tab (unchanged, e2e-verified: the product is the active tab, tabpanel, sheet heading and stage poster).
+10. **Mobile:** heading (40 px h2, 12.5 px eyebrow, 17 px subline) → RailCite (copy, proof points stacked, CTA, then
+    the collage cropped to its right side) → Slag City (copy, then art) → Campfire Board (copy, then art); no
+    horizontal overflow. 700–1199: RailCite full width with the collage behind the copy, side cards side by side.
+11. **Compromises / deliberate differences from the reference:**
+    - **Rendering style:** the reference is a painterly raster; the build is hand-authored vector cut paper with
+      halftone (no image generation available; static SVG keeps it text-free, responsive and ≤ 40 kB each).
+      Composition, palette and hierarchy match; the painterly texture and photographic detail do not.
+    - **Copy the reference invents is not used:** "Industrial intelligence, organized for action." → "Coin-op
+      brawler, in the browser."; "A shared space for ideas, planning, and momentum." → "One dashboard, every
+      project."; no "Great Northern Railway", no words on the circular or the notes.
+    - **RailCite accessible name** stays "Explore case study: RailCite in Portfolio" (your label-in-name answer), not
+      the fidelity spec's "Explore RailCite in Portfolio".
+    - **Proof-point markers:** two 2–4-word markers ("as of 15 Sep 2026", "by construction") remain under the
+      numbers, where the fidelity spec asks for no caveat prose. The brief requires the 0 to be marked structural.
+    - **Campfire chairs:** two, not three (the spec allows two or three; the first brief asked not to imply a team).
+    - **RailCite one-liner** is kept (fidelity spec §16), so the copy runs a little lower than the reference's.
+    - **Numbers' colour:** terracotta (5,760) and forest (0), per the spec text; the reference draws them navy.
+    - **Section fill:** a paler cream mix, so the section's torn edge against the hero and How-I-think is fainter
+      than before (the TKT-106 slide-over still works).
+    - **Breakpoint:** the asymmetric spread starts at 1200 px (at 1100 the anchor copy was cramped); below it the
+      tablet layout applies.
+
+## Gates (fidelity pass)
+- `pnpm typecheck` ✓ · `pnpm lint` ✓ · `pnpm tokens:check` 13/13 ✓ · `pnpm test` 714 passed (4 skipped) ✓ · `pnpm build` ✓ (17 static routes; tushky-faq 21/21 fresh)
+- Bundle: `/` 161.3 kB · `/projects` 170.6 kB gz (budget 180) — unchanged; the art adds no JavaScript.
+- Home specs (`featured`, `home` incl. axe, `eval-008`, `eval-018`, `eval-010`, `torn-parallax`), all four widths: **554 passed, 0 failed**.
+- **Full `pnpm test:e2e`** (`PW_WORKERS=3`): **1358 passed, 9 failed, 1581 skipped** (project-scoped), 20.1 min.
+  - 7 environmental, identical on the untouched baseline (see the first pass above): `eval-014` MP4 playback;
+    `portfolio-video` Campfire + Slag City at w390 / w1440 (no YouTube egress); `eval-011-dead-controls` and
+    `playground` live URLs (external links answer HTTP 403 from the sandbox proxy).
+  - 2 load-only, re-run alone 3× at w1440 → all pass (51 passed): `eval-019` hero clip timing,
+    `torn-parallax` "no horizontal overflow on /".
+- Screenshots: `docs/screenshots/m-009/task-133/fidelity-{390,768,1440,1672}.png` and
+  `compare-reference-1672.jpg` (reference above, build below). Refinement rounds against the reference at 1672 /
+  1440: (1) proof points to one row, landscape lowered under the copy, rust circle freed from the circular,
+  subline to one line, Campfire sun moved off the copy; (2) the collage switched from `cover` to width-fit +
+  bottom-anchored so the calm copy zone is never cropped, the route map moved clear of the copy, the proof row
+  fitted at 1440, the spread moved to ≥ 1200 px.
+
+## Commits (fidelity pass)
+- `5fe7047` feat(home): redraw the Featured Work collages to the reference image
+- `8a90c9b` feat(home): rebuild the Featured Work layout to the reference image
+- `3f419fd` docs(home): Featured Work fidelity screenshots + reference comparison
+- this report update (last commit), then merged into `m-009-redesign` by PR on Tushar's go-ahead.
