@@ -33,6 +33,7 @@ const PRODUCT_COVER_IDS = [
   "cover-dino-arcade-pwa",
   "cover-cinematic-portfolio",
   "cover-campfire-board",
+  "cover-slag-city", // TASK-129
 ] as const;
 
 interface Finding {
@@ -157,7 +158,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the eleven other product covers, TASK-127)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the eleven other product covers, TASK-127 + `cover-slag-city`, TASK-129)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -179,7 +180,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(28);
+    expect(ILLUSTRATIONS.length).toBe(29);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -240,7 +241,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
   // TASK-127 (fidelity spec §4–§5, §10–§12): every product cover is a hand-authored SVG — the carousel
   // cover (5:6 crop) and the stage poster (16:9) of one product. TeachSpark's TASK-121 painted webp
   // was replaced by its SVG counterpart (one illustration style for the set), so it is gone from public/.
-  it("the twelve product covers are self-contained, text-free 1600×900 SVGs ≤ 40 kB, one per personal build (TASK-127)", () => {
+  it("the thirteen product covers are self-contained, text-free 1600×900 SVGs ≤ 40 kB, one per personal build (TASK-127; slag-city TASK-129)", () => {
     const covers = ILLUSTRATIONS.filter((e) => e.id.startsWith("cover-"));
     expect(covers.map((e) => e.id).sort()).toEqual([...PRODUCT_COVER_IDS].sort());
     for (const cover of covers) {

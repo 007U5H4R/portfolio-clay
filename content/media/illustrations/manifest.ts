@@ -14,11 +14,12 @@
  * TASK-117: `polaroid-sunrise`, the `/about` hero polaroid (a landscape without the character, public-only).
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
+ * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -338,6 +339,17 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a night campsite: a campfire with rising sparks beside a wooden easel pinned with three columns of paper cards above a plank of staggered bars, three tents, pines, a lantern post and a crescent moon, and a log seat with a mug beside a stack of cut logs.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-129: hand-authored SVG cover (scripts/portfolio-art/scenes/slag-city.ts) — carousel cover + stage poster.
+    id: "cover-slag-city",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-slag-city.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a ruined industrial city at smoggy dusk: a forge hammer stands head-down on a heap of slag before a foundry's blazing furnace arch, molten slag runs out towards the viewer, and smokestacks, a blast-furnace tower, gutted buildings, a leaning crane and a broken green dome stand in the haze.",
     usedOn: ["/projects"],
   },
 ];
