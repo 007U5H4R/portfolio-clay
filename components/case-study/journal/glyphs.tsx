@@ -108,6 +108,97 @@ const G: Record<string, ReactNode> = {
       <path d="M31.4 29.4L36 34M25 25h4M27 23v4" />
     </>
   ),
+  // ── Dino Arcade ─────────────────────────────────────────────────────────────────────────
+  homescreen: (
+    <>
+      <rect className="jx-gf" x="10" y="3" width="20" height="34" rx="4" />
+      <rect x="10" y="3" width="20" height="34" rx="4" />
+      <rect x="14" y="9" width="5" height="5" rx="1.2" />
+      <rect x="21" y="9" width="5" height="5" rx="1.2" />
+      <rect x="14" y="16" width="5" height="5" rx="1.2" />
+      <path d="M22 17.5h3M23.5 16v3M17.5 32h5" />
+    </>
+  ),
+  file: (
+    <>
+      <path className="jx-gf" d="M8 7h20l4 4v22H8Z" />
+      <path d="M8 7h20l4 4v22H8ZM13 7v8h12V7M13 22h14v11H13Z" />
+    </>
+  ),
+  slot: (
+    <>
+      <rect className="jx-gf" x="5" y="14" width="30" height="20" rx="3" />
+      <rect x="5" y="14" width="30" height="20" rx="3" />
+      <path d="M11 20h18v4H11ZM14 4h12v14H14ZM17 8h6" />
+    </>
+  ),
+  offline: (
+    <>
+      <path className="jx-gf" d="M11 29h19a6.5 6.5 0 0 0 0-13 9 9 0 0 0-17-2.4A7.5 7.5 0 0 0 11 29Z" />
+      <path d="M11 29h19a6.5 6.5 0 0 0 0-13 9 9 0 0 0-17-2.4A7.5 7.5 0 0 0 11 29ZM7 35L33 6" />
+    </>
+  ),
+  power: (
+    <>
+      <rect className="jx-gf" x="7" y="7" width="26" height="26" rx="5" />
+      <rect x="7" y="7" width="26" height="26" rx="5" />
+      <path d="M20 12v8M14.6 15.2a8 8 0 1 0 10.8 0" />
+    </>
+  ),
+  board: (
+    <>
+      <rect className="jx-gf" x="6" y="8" width="28" height="24" rx="2" />
+      <rect x="6" y="8" width="28" height="24" rx="2" />
+      <rect x="14" y="14" width="12" height="12" rx="1" />
+      <path d="M17 8V4M23 8V4M17 36v-4M23 36v-4M6 17H2M6 23H2M38 17h-4M38 23h-4M17 20h6" />
+    </>
+  ),
+  bezel: (
+    <>
+      <rect className="jx-gf" x="5" y="4" width="30" height="8" rx="2" />
+      <rect x="5" y="4" width="30" height="8" rx="2" />
+      <rect x="7" y="14" width="26" height="22" rx="4" />
+      <rect x="11" y="18" width="18" height="12" rx="2" />
+      <path d="M11 8h18" />
+    </>
+  ),
+  joystick: (
+    <>
+      <circle className="jx-gf" cx="15" cy="9" r="5" />
+      <circle cx="15" cy="9" r="5" />
+      <path d="M15 14v11M4 27h32v8H4ZM27 21.5h.1M32 21.5h.1" />
+      <ellipse cx="15" cy="27" rx="6" ry="2" />
+    </>
+  ),
+  cartridgeX: (
+    <>
+      <path className="jx-gf" d="M9 6h22v24l-3 4H12l-3-4Z" />
+      <path d="M9 6h22v24l-3 4H12l-3-4ZM14 12h12v8H14ZM14 34v-4h12v4" />
+      <path d="M4 4l32 32M36 4L4 36" />
+    </>
+  ),
+  serverX: (
+    <>
+      <rect className="jx-gf" x="7" y="5" width="26" height="12" rx="2" />
+      <rect x="7" y="5" width="26" height="12" rx="2" />
+      <rect x="7" y="21" width="26" height="12" rx="2" />
+      <path d="M11 11h.1M11 27h.1M4 4l32 32" />
+    </>
+  ),
+  barrier: (
+    <>
+      <path className="jx-gf" d="M3 12h34v10H3Z" />
+      <path d="M3 12h34v10H3ZM9 12l-6 10M17 12l-6 10M25 12l-6 10M33 12l-6 10M8 22v14M32 22v14M5 36h6M29 36h6" />
+    </>
+  ),
+  coin: (
+    <>
+      <circle className="jx-gf" cx="20" cy="20" r="14" />
+      <circle cx="20" cy="20" r="14" />
+      <circle cx="20" cy="20" r="9" />
+      <path d="M20 14v12M17 17h5a2 2 0 0 1 0 4h-4a2 2 0 0 0 0 4h5" />
+    </>
+  ),
   check: <path d="M8 21l7 7 17-17" />,
 };
 

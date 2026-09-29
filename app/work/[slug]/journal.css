@@ -652,3 +652,256 @@
   .csx[data-theme="cubicle"] #evidence .jx-notmeasured { grid-column: 8 / span 3; grid-row: 1 / span 3; align-self: center; }
   .csx[data-theme="cubicle"] #evidence .jx-cub-outcome .jx-stamp { grid-column: 11 / -1; grid-row: 1 / span 3; align-self: center; justify-self: center; }
 }
+
+/* =============================================================================================
+   Dino Arcade — a retro arcade poster on a desert road-trip postcard (brief §22–§33): dark navy,
+   arcade charcoal, burnt orange, sunset red, teal, cream. Power-cable rail, arcade-token markers,
+   arcade tickets. The editorial paper page stays; only the art is arcade.
+   ============================================================================================= */
+.csx[data-theme="dino-arcade-pwa"][data-layout="journal"] {
+  --dn-char: color-mix(in oklab, var(--color-navy-2) 70%, var(--color-navy));
+  --dn-orange: var(--color-rust);
+  --dn-red: var(--color-terracotta);
+  --dn-teal: color-mix(in oklab, var(--color-green-2) 62%, var(--color-steel));
+  --dn-gold: color-mix(in oklab, var(--color-note) 70%, var(--color-rust));
+  --dn-cream: var(--color-ivory);
+  --jx-glyph-fill: color-mix(in oklab, var(--color-note) 55%, var(--color-ivory));
+  --jx-scene-ratio: 1200 / 960;
+  --jx-hero-ground: color-mix(in oklab, var(--color-rust) 10%, var(--jx-paper));
+}
+.csx[data-theme="dino-arcade-pwa"] .csx-eyebrow { color: var(--color-terracotta); }
+.csx[data-theme="dino-arcade-pwa"] .jx-tagline { color: var(--color-terracotta); }
+
+/* Hero: the postcard with the real cabinet screen in the phone. Screen = x 280 · y 492 · 640 × 270 of 1200 × 960. */
+.jx-dn-screen {
+  position: absolute;
+  left: 23.333%;
+  top: 51.25%;
+  width: 53.333%;
+  height: 28.125%;
+  object-fit: cover;
+  border-radius: 1.2% / 2.8%;
+  z-index: 1;
+}
+.jx-dn-scan {
+  position: absolute;
+  left: 23.333%;
+  top: 51.25%;
+  width: 53.333%;
+  height: 28.125%;
+  z-index: 2;
+  border-radius: 1.2% / 2.8%;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, color-mix(in oklab, var(--color-navy) 22%, transparent) 0 1px, transparent 1px 3px),
+    radial-gradient(130% 110% at 50% 50%, transparent 60%, color-mix(in oklab, var(--color-navy) 45%, transparent));
+}
+.jx-dn-stamp {
+  position: absolute;
+  left: 5%;
+  top: 5%;
+  z-index: 3;
+  width: 13%;
+  padding: 5px;
+  background:
+    radial-gradient(circle, var(--jx-paper) 0 3px, transparent 3.5px) -5px -5px / 10px 10px,
+    var(--color-ivory);
+  box-shadow: var(--jx-shadow);
+  transform: rotate(-5deg);
+}
+.jx-dn-stamp img { display: block; width: 100%; height: auto; border-radius: 12%; }
+.jx-dn-ticket {
+  font-size: 20px;
+  background:
+    radial-gradient(circle at 0 50%, var(--jx-paper) 0 7px, transparent 7.5px),
+    radial-gradient(circle at 100% 50%, var(--jx-paper) 0 7px, transparent 7.5px),
+    color-mix(in oklab, var(--dn-gold) 55%, var(--color-ivory));
+  padding: 8px 18px 10px;
+  border-top: 2px dashed color-mix(in oklab, var(--dn-red) 45%, transparent);
+  border-bottom: 2px dashed color-mix(in oklab, var(--dn-red) 45%, transparent);
+}
+.jx-dn-ticket::before { display: none; }
+.jx-dn-ticket[data-n="1"] { left: 30%; top: 25%; transform: rotate(-6deg); }
+.jx-dn-ticket[data-n="2"] { right: 1%; top: 56%; transform: rotate(5deg); max-width: 140px; }
+.jx-dn-ticket[data-n="3"] { right: 2%; top: 24%; transform: rotate(-4deg); max-width: 150px; }
+@media (prefers-reduced-motion: no-preference) {
+  .jx-dn-scene .jx-dn-screen { animation: dn-power 900ms steps(6, end) 300ms both; }
+  @keyframes dn-power { from { filter: brightness(0.2) saturate(0.4); } }
+}
+
+/* The rail: an arcade power cable with a pixel progress light. Markers: arcade tokens. */
+.csx[data-theme="dino-arcade-pwa"] .jx-rail {
+  background:
+    linear-gradient(var(--dn-orange), var(--dn-orange)) 50% 0 / 8px 8px repeat-y,
+    linear-gradient(90deg, transparent 5px, var(--dn-char) 5px 13px, transparent 13px);
+  background-size: 8px 64px, 100% 100%;
+  background-position: 50% 24px, 0 0;
+  background-repeat: repeat-y, no-repeat;
+}
+.csx[data-theme="dino-arcade-pwa"][data-layout="journal"] .csx-mark {
+  width: 70px;
+  height: 70px;
+  margin-inline: 7px;
+  border: 4px double color-mix(in oklab, var(--dn-red) 70%, var(--color-navy));
+  background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--color-note) 80%, var(--color-ivory)), var(--dn-gold) 62%, color-mix(in oklab, var(--dn-gold) 70%, var(--dn-red)));
+  color: var(--color-navy);
+  font-family: "Courier New", ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 24px;
+  box-shadow: 0 8px 12px -6px color-mix(in oklab, var(--color-navy) 55%, transparent);
+}
+
+/* 01 · Product: install flow as arcade tickets, then two real phones. */
+.jx-dn-product { display: grid; gap: 22px; }
+.jx-dn-flow { margin: 0; }
+.jx-dn-flow ol { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) { .jx-dn-flow ol { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; } }
+.jx-dn-ticketstep {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background:
+    radial-gradient(circle at 0 50%, var(--jx-paper) 0 8px, transparent 8.5px),
+    radial-gradient(circle at 100% 50%, var(--jx-paper) 0 8px, transparent 8.5px),
+    var(--color-ivory);
+  box-shadow: var(--jx-shadow);
+  color: var(--color-navy);
+}
+.jx-dn-step-n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--dn-orange); color: var(--color-ivory); font-family: "Courier New", ui-monospace, monospace; font-weight: 700; font-size: 16px; }
+.jx-dn-step-label { font-weight: 700; font-size: 16px; line-height: 1.2; }
+@media (min-width: 768px) {
+  .jx-dn-ticketstep:not(:last-child)::after { content: "→"; position: absolute; right: -15px; top: 50%; z-index: 1; font-weight: 700; font-size: 18px; color: var(--dn-red); transform: translateY(-50%); }
+}
+.jx-dn-phones { display: grid; gap: 28px; align-items: end; justify-items: center; }
+@media (min-width: 768px) { .jx-dn-phones { grid-template-columns: minmax(0, 660px) 220px; justify-content: center; gap: 56px; } }
+.jx-dn-phone { margin: 0; width: 100%; }
+.jx-dn-phone-body { position: relative; background: var(--dn-char); box-shadow: var(--jx-shadow-lg), inset 0 0 0 4px color-mix(in oklab, var(--dn-teal) 80%, transparent); }
+.jx-dn-phone[data-orient="landscape"] .jx-dn-phone-body { padding: 16px 40px 16px 44px; border-radius: 34px; transform: rotate(-1deg); }
+.jx-dn-phone[data-orient="landscape"] .jx-dn-phone-body::before { content: ""; position: absolute; left: 16px; top: 50%; width: 10px; height: 46px; margin-top: -23px; border-radius: 5px; background: var(--color-navy); }
+.jx-dn-phone[data-orient="landscape"] img { display: block; width: 100%; height: auto; border-radius: 10px; }
+.jx-dn-phone[data-orient="portrait"] { max-width: 220px; }
+@media (max-width: 767px) { .jx-dn-phone[data-orient="portrait"] { max-width: 180px; } }
+.jx-dn-phone[data-orient="portrait"] .jx-dn-phone-body { aspect-ratio: 9 / 18; padding: 36px 16px 20px; border-radius: 34px; transform: rotate(2deg); background: linear-gradient(180deg, color-mix(in oklab, var(--color-navy) 90%, var(--dn-red)), color-mix(in oklab, var(--dn-red) 55%, var(--dn-gold))); }
+.jx-dn-home { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.jx-dn-app { aspect-ratio: 1; border-radius: 22%; background: color-mix(in oklab, var(--color-ivory) 22%, transparent); }
+.jx-dn-icon { position: absolute; left: 50%; bottom: 20%; width: 42%; display: grid; justify-items: center; gap: 6px; transform: translateX(-50%); }
+.jx-dn-icon img { display: block; width: 100%; height: auto; border-radius: 22%; box-shadow: 0 10px 18px -8px color-mix(in oklab, var(--color-navy) 80%, transparent); }
+.jx-dn-icon-name { font-size: 14px; font-weight: 600; color: var(--color-ivory); white-space: nowrap; }
+@media (min-width: 1024px) {
+  .csx[data-theme="dino-arcade-pwa"] #product .csx-sec-head { grid-column: 2 / span 6; }
+  .csx[data-theme="dino-arcade-pwa"] #product .jx-lede { grid-column: 8 / -1; grid-row: 1; align-self: end; }
+  .csx[data-theme="dino-arcade-pwa"] #product .jx-dn-flow { grid-column: 2 / -1; grid-row: 2; }
+  .csx[data-theme="dino-arcade-pwa"] #product .jx-dn-phones { grid-column: 2 / -1; grid-row: 3; }
+}
+
+/* 02 · Decision: two arcade instruction placards. */
+.jx-dn-decisions { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) { .jx-dn-decisions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.jx-dn-placard {
+  position: relative;
+  padding: 20px 22px 22px;
+  border-radius: 10px;
+  background: var(--dn-char);
+  color: var(--color-ivory);
+  box-shadow: var(--jx-shadow-lg), inset 0 0 0 3px color-mix(in oklab, var(--dn-gold) 70%, transparent);
+}
+.jx-dn-placard:nth-child(1) { transform: rotate(-0.8deg); }
+.jx-dn-placard:nth-child(2) { transform: rotate(0.7deg); }
+.jx-dn-placard-h { margin: 0 0 12px; font-family: "Courier New", ui-monospace, monospace; font-weight: 700; font-size: 15px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dn-gold); }
+.jx-dn-placard .jx-glyph { position: absolute; top: 16px; right: 18px; width: 46px; height: 46px; color: var(--dn-gold); --jx-glyph-fill: color-mix(in oklab, var(--dn-gold) 25%, transparent); }
+.jx-dn-placard dl { display: grid; gap: 12px; margin: 0; }
+.jx-dn-placard dt { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in oklab, var(--color-ivory) 78%, transparent); }
+.jx-dn-placard dd { margin: 2px 0 0; font-family: var(--font-display); font-size: 21px; line-height: 1.2; }
+.jx-dn-placard [data-tone="could"] dd { text-decoration: line-through; text-decoration-color: var(--dn-orange); text-decoration-thickness: 2px; color: color-mix(in oklab, var(--color-ivory) 80%, transparent); }
+.jx-dn-placard [data-tone="chose"] dd { font-weight: 700; font-size: 26px; color: var(--dn-gold); }
+.jx-dn-placard [data-tone="because"] dd { font-family: var(--font-body); font-size: 16px; line-height: 1.45; }
+@media (min-width: 1024px) {
+  .csx[data-theme="dino-arcade-pwa"] #decisions .csx-sec-head { grid-column: 2 / span 4; }
+  .csx[data-theme="dino-arcade-pwa"] #decisions .jx-dn-decisions { grid-column: 6 / -1; grid-row: 1 / span 2; }
+}
+
+/* 03 · System: five machine parts inside the phone's outline. */
+.jx-dn-machine { position: relative; margin: 0; padding: 20px 22px 30px; border: 3px dashed color-mix(in oklab, var(--dn-char) 50%, transparent); border-radius: 36px; }
+.jx-dn-machine ol { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) { .jx-dn-machine ol { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; } }
+.jx-dn-part {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  padding: 16px 12px 14px;
+  text-align: center;
+  border-radius: 12px;
+  background: var(--dn-char);
+  color: var(--color-ivory);
+  box-shadow: var(--jx-shadow), inset 0 0 0 2px color-mix(in oklab, var(--dn-teal) 80%, transparent);
+}
+.jx-dn-part .jx-glyph { width: 48px; height: 48px; color: var(--dn-gold); --jx-glyph-fill: color-mix(in oklab, var(--dn-orange) 45%, transparent); }
+.jx-dn-part-label { font-weight: 700; font-size: 16px; }
+.jx-dn-part-note { font-size: 14px; line-height: 1.3; color: color-mix(in oklab, var(--color-ivory) 82%, transparent); }
+@media (min-width: 768px) {
+  .jx-dn-part:not(:last-child)::after { content: "→"; position: absolute; right: -17px; top: 34px; font-weight: 700; font-size: 20px; color: var(--dn-red); }
+}
+.jx-dn-machine-edge {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  margin: 0;
+  padding: 2px 12px;
+  background: var(--jx-paper);
+  font-family: "Courier New", ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-navy);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+@media (min-width: 1024px) {
+  .csx[data-theme="dino-arcade-pwa"] #system .jx-dn-machine { grid-column: 2 / -1; grid-row: 2; }
+}
+
+/* 04 · Outcome: the road from the cabinet, past the limit, to Slag City. */
+.jx-dn-road { position: relative; display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 1024px) { .jx-dn-road { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; } }
+.jx-dn-stop {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 18px 20px 20px;
+  background: var(--color-ivory);
+  box-shadow: var(--jx-shadow);
+  color: var(--color-navy);
+}
+.jx-dn-stop .jx-glyph { width: 44px; height: 44px; }
+.jx-dn-stop-name { margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+.jx-dn-stop-line { margin: 0; font-size: 16px; line-height: 1.4; }
+.jx-dn-stop[data-stop="limit"] {
+  background:
+    linear-gradient(var(--color-ivory), var(--color-ivory)) 12px 12px / calc(100% - 24px) calc(100% - 24px) no-repeat,
+    repeating-linear-gradient(-45deg, var(--dn-gold) 0 14px, var(--color-navy) 14px 28px);
+  padding: 30px 30px 32px;
+}
+.jx-dn-limit-stamp { justify-self: start; margin-top: 8px; font-size: 18px; }
+.jx-dn-stop[data-stop="to"] { background: color-mix(in oklab, var(--dn-teal) 18%, var(--color-ivory)); box-shadow: var(--jx-shadow-lg); transform: rotate(0.8deg); }
+.jx-dn-next { margin-top: 6px; font-weight: 700; color: var(--color-navy); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
+@media (min-width: 1024px) {
+  .jx-dn-stop:not(:last-child)::after { content: "→"; position: absolute; right: -19px; top: 44px; z-index: 1; font-weight: 700; font-size: 22px; color: var(--dn-red); }
+  .csx[data-theme="dino-arcade-pwa"] #outcome .jx-dn-road { grid-column: 2 / -1; grid-row: 2; }
+}
+
+/* 05 · Learnings: orange · teal · gold cards. */
+.csx[data-theme="dino-arcade-pwa"] .jx-learning:nth-child(1) { --jx-l: color-mix(in oklab, var(--dn-orange) 16%, var(--color-ivory)); }
+.csx[data-theme="dino-arcade-pwa"] .jx-learning:nth-child(2) { --jx-l: color-mix(in oklab, var(--dn-teal) 18%, var(--color-ivory)); }
+.csx[data-theme="dino-arcade-pwa"] .jx-learning:nth-child(3) { --jx-l: color-mix(in oklab, var(--dn-gold) 30%, var(--color-ivory)); }
+@media (min-width: 1024px) { .csx[data-theme="dino-arcade-pwa"] #learnings .csx-sec-head { grid-column: 2 / -1; } }
+
+/* Compact evidence strip for thin records (brief §31). */
+.jx-evidence[data-compact] .jx-evidence-in { padding-block: 14px; }
+.jx-evidence[data-compact] .jx-evidence-head .csx-h2 { font-size: clamp(20px, 1.6vw, 24px); }

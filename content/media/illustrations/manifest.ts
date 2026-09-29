@@ -253,7 +253,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
-    usedOn: ["/projects", "/work/cubicle"], // TASK-130: also the case-study hero
+    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own office scene with the real UI
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/nuptis.ts) — carousel cover + stage poster.
@@ -319,7 +319,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a teal smartphone dressed as a little arcade cabinet, a lit striped marquee on top and a pixel dinosaur on its screen, standing on a shelf before a big striped sunset over red desert mesas and pixel cacti, two coins beside it and a blank memory card sliding towards it.",
-    usedOn: ["/projects", "/work/dino-arcade-pwa"], // TASK-130: also the case-study hero
+    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own postcard scene with the real UI
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cinematic-portfolio.ts) — carousel cover + stage poster.

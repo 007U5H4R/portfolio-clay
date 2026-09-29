@@ -1476,36 +1476,6 @@ body:has(.csx) .band-hire { display: none; }
 .csx-proofs[data-count="1"] { max-width: 380px; }
 
 /* =============================================================================================
-   Dino Arcade — a backlit cabinet on a phone: sunset marquee stripes, a CRT scanline ground,
-   coin-slot numerals. Playful; no game art beyond the generic cover.
-   ============================================================================================= */
-.csx[data-theme="dino-arcade-pwa"] .csx-hero {
-  background:
-    repeating-linear-gradient(180deg, transparent 0 3px, color-mix(in oklab, var(--color-navy) 4%, transparent) 3px 4px),
-    linear-gradient(180deg, color-mix(in oklab, var(--color-note) 55%, var(--color-paper)) 0 18%, color-mix(in oklab, var(--color-rust) 18%, var(--color-paper)) 18% 26%, color-mix(in oklab, var(--color-steel) 14%, var(--color-paper)) 26%);
-}
-.csx[data-theme="dino-arcade-pwa"] .csx-tagline { color: var(--color-navy-2); font-style: normal; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: clamp(22px, 2.2vw, 30px); text-transform: uppercase; letter-spacing: 0.04em; }
-.csx[data-theme="dino-arcade-pwa"] .csx-code { color: var(--color-rust); }
-.csx[data-theme="dino-arcade-pwa"] .csx-hero-shot .csx-frame-screen { border-radius: 22px; border: 8px solid var(--color-navy-2); box-shadow: 0 0 0 3px var(--color-note), 0 28px 44px -26px color-mix(in oklab, var(--color-navy) 60%, transparent); }
-.csx[data-theme="dino-arcade-pwa"] .csx-metric { border-radius: 10px; border: 2px solid var(--color-navy-2); box-shadow: 3px 3px 0 var(--color-navy-2); }
-.csx[data-theme="dino-arcade-pwa"] .csx-metric-value { color: var(--color-rust); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-.csx[data-theme="dino-arcade-pwa"] .csx-mark { border-radius: 6px; width: 34px; height: 52px; background: var(--color-navy-2); box-shadow: inset 0 -10px 0 color-mix(in oklab, var(--color-note) 55%, transparent); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 16px; }
-.csx[data-theme="dino-arcade-pwa"] .csx-eyebrow { color: var(--color-rust); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-.csx[data-theme="dino-arcade-pwa"] .csx-flow-step { border: 2px solid var(--color-navy-2); box-shadow: 2px 2px 0 var(--color-navy-2); border-radius: 8px; }
-@media (min-width: 768px) { .csx[data-theme="dino-arcade-pwa"] .csx-product-flow .csx-flow-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } .csx[data-theme="dino-arcade-pwa"] .csx-flow-step:nth-child(3n)::after { content: "→"; } }
-/* The landscape cabinet capture takes the row; the home-screen icon sits beside it at icon size. */
-@media (min-width: 768px) {
-  .csx[data-theme="dino-arcade-pwa"] .csx-shots[data-count="2"] { grid-template-columns: minmax(0, 1fr) 180px; align-items: end; max-width: 980px; }
-}
-.csx[data-theme="dino-arcade-pwa"] .csx-shots[data-count="1"] .csx-frame,
-.csx[data-theme="dino-arcade-pwa"] .csx-frame.csx-shot-2 { max-width: 180px; }
-.csx[data-theme="dino-arcade-pwa"] .csx-shots .csx-frame-screen { border-radius: 36px; background: transparent; border: 0; box-shadow: none; }
-.csx[data-theme="dino-arcade-pwa"] .csx-shot-1 .csx-frame-screen { border-radius: 18px; box-shadow: 0 0 0 3px var(--color-navy-2), 0 24px 40px -26px color-mix(in oklab, var(--color-navy) 60%, transparent); }
-.csx[data-theme="dino-arcade-pwa"] .csx-decision { border: 2px solid var(--color-navy-2); box-shadow: 3px 3px 0 var(--color-navy-2); border-radius: 10px; }
-.csx[data-theme="dino-arcade-pwa"] .csx-arch-step { border: 2px solid var(--color-navy-2); border-radius: 8px; }
-.csx[data-theme="dino-arcade-pwa"] .csx-arch-step::before { border-color: var(--color-rust); background: var(--color-note); }
-
-/* =============================================================================================
    Cinematic Portfolio — a screening room: a dark letterboxed hero, frame-counter numerals, film
    sprocket rules between sections.
    ============================================================================================= */

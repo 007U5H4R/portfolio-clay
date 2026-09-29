@@ -8,6 +8,7 @@ import { JournalHero } from "./JournalHero";
 import { CaseStudyEvidenceDrawer } from "./CaseStudyEvidenceDrawer";
 import { JournalCta } from "./JournalCta";
 import { CubicleHeroArt, renderCubicleSection } from "./cubicle/Cubicle";
+import { DinoHeroArt, renderDinoSection } from "./dino/Dino";
 
 interface JournalProduct {
   art: (study: CaseStudy) => ReactNode;
@@ -19,6 +20,7 @@ interface JournalProduct {
 /* Each product owns its composition (brief §62: distinct identities first, shared frame second). */
 const PRODUCTS: Record<string, JournalProduct> = {
   cubicle: { art: (study) => <CubicleHeroArt study={study} />, section: renderCubicleSection },
+  "dino-arcade-pwa": { art: (study) => <DinoHeroArt study={study} />, section: renderDinoSection, compactEvidence: true },
 };
 
 export function hasJournal(slug: string): boolean {

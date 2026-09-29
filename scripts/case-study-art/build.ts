@@ -16,6 +16,7 @@ import { tegakiAssets } from "./assets/tegaki";
 import { nuptisAssets } from "./assets/nuptis";
 import { cubicleJournalAssets } from "./journal/cubicle";
 import { journalSharedAssets } from "./journal/shared";
+import { dinoJournalAssets } from "./journal/dino";
 import { buildMedia } from "./media";
 
 const ART: Record<string, Asset[]> = {
@@ -26,6 +27,7 @@ const ART: Record<string, Asset[]> = {
   nuptis: nuptisAssets,
   cubicle: cubicleJournalAssets,
   journal: journalSharedAssets,
+  "dino-arcade-pwa": dinoJournalAssets,
 };
 
 async function main() {
