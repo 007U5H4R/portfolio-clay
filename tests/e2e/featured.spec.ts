@@ -31,7 +31,12 @@ const DEFAULT_PRODUCT = projects.find((p) => p.category === "personal")!;
 
 const SECTION = "section#work-featured";
 const cards = (page: Page) => page.locator(`${SECTION} article[data-paper="card"]`);
-const explore = (page: Page, name: string) => page.getByRole("link", { name: `Explore ${name} in Portfolio`, exact: true });
+/** The Explore link's accessible name begins with its visible text (WCAG 2.5.3), then product + destination. */
+const exploreName = (name: string) => {
+  const cta = FEATURED.find((f) => f.name === name)!.cta;
+  return cta === "Explore" ? `Explore ${name} in Portfolio` : `${cta}: ${name} in Portfolio`;
+};
+const explore = (page: Page, name: string) => page.getByRole("link", { name: exploreName(name), exact: true });
 
 type Box = { x: number; y: number; w: number; h: number };
 /** Un-rotated layout boxes (offset geometry ignores the paper tilt and the reveal translate). */
@@ -70,6 +75,7 @@ test("@EVAL-002 featured shows exactly RailCite, Slag City, Campfire Board — o
     await expect(link).toHaveAttribute("href", `/projects?product=${slug}`);
     await expect(link).not.toHaveAttribute("target", /.*/);
     await expect(link).toHaveText(cta);
+    await expect(link).toHaveAccessibleName(new RegExp(`^${cta}`)); // label in name
   }
 });
 

@@ -102,7 +102,7 @@ describe("<FeaturedWork />", () => {
     const { container } = render(<FeaturedWork />);
     const cards = [...container.querySelectorAll('article[data-paper="card"]')];
     const want = [
-      ["railcite", "Explore RailCite in Portfolio", "Explore case study"],
+      ["railcite", "Explore case study: RailCite in Portfolio", "Explore case study"],
       ["slag-city", "Explore Slag City in Portfolio", "Explore"],
       ["campfire-board", "Explore Campfire Board in Portfolio", "Explore"],
     ] as const;
@@ -116,6 +116,8 @@ describe("<FeaturedWork />", () => {
       expect(link.getAttribute("aria-label")).toBe(label);
       expect(link.hasAttribute("target")).toBe(false);
       expect(text(link).trim()).toBe(cta);
+      // WCAG 2.5.3 label in name: the accessible name starts with the visible text
+      expect(label.startsWith(cta)).toBe(true);
     });
     expect(container.querySelectorAll('a[href^="/work/"]')).toHaveLength(0);
   });

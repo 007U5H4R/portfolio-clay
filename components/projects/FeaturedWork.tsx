@@ -72,9 +72,18 @@ export function featuredCards(featured: readonly Project[] = FEATURED): Featured
       tagline: `${entry.coverLine}.`,
       metrics,
       href: productHref(project.slug),
-      ctaLabel: `Explore ${project.name} in Portfolio`,
+      ctaLabel: exploreLabel(presentation.cta, project.name),
     };
   });
+}
+
+/**
+ * The CTA's accessible name: it always BEGINS with the visible label (WCAG 2.5.3 label in name), then
+ * names the product and where it goes — "Explore Slag City in Portfolio" (spec §24) and, for RailCite's
+ * "Explore case study", "Explore case study: RailCite in Portfolio" (Tushar 2026-09-29, TASK-133 Q1).
+ */
+export function exploreLabel(cta: string, name: string): string {
+  return cta === "Explore" ? `Explore ${name} in Portfolio` : `${cta}: ${name} in Portfolio`;
 }
 
 /** The terracotta torn-paper Explore button (spec §15) — a real same-tab link to the Portfolio deep link. */
