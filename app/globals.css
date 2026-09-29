@@ -7627,6 +7627,321 @@ html.lenis body {
 }
 /* end TKT-104 */
 
+/* TASK-134 · Ask Tushky voice strip (Tushar's voice UI spec 2026-09-29 + tushky-voice-ui-reference.jpg;
+   Design.md §11 Dev-128). `components/ai/voice/TushkyVoicePlayer.tsx` renders it inside each Tushky
+   answer bubble, between the answer and its sources. A compact cream paper strip with a softly
+   irregular edge and a paper-on-paper shadow: terracotta play disc (44 px), navy label, a small bar
+   waveform that fills with progress, a muted clock, and a secondary Replay. One height (60 px) in
+   every state so nothing jumps (UI §46). Below 300 px of strip the label shortens and Replay keeps
+   only its icon (UI §32). Paper tokens + color-mix only (EVAL-020); text ≥ 14 px (EVAL-008);
+   targets ≥ 44 px; the rust focus ring. Only the playing strip animates, and reduced motion stops
+   every animation and lift (UI §41–42, §45). */
+@layer components {
+  .tk-turn-avatar-wrap {
+    position: relative;
+    display: block;
+    width: 32px;
+    height: 32px;
+  }
+  /* UI §14: the one speaking cue — two small sound-wave marks beside the avatar. */
+  .tk-speaking-marks {
+    position: absolute;
+    top: 6px;
+    right: -9px;
+    width: 8px;
+    height: 18px;
+    opacity: 0;
+    border-right: 2px solid var(--color-rust);
+    border-radius: 0 12px 12px 0;
+    transition: opacity 160ms ease;
+  }
+  .tk-speaking-marks::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    right: 3px;
+    width: 4px;
+    height: 10px;
+    border-right: 2px solid color-mix(in oklab, var(--color-rust) 70%, transparent);
+    border-radius: 0 8px 8px 0;
+  }
+  .tk-turn[data-speaking] .tk-speaking-marks {
+    opacity: 1;
+    animation: tk-voice-marks 1100ms ease-in-out infinite;
+  }
+  @keyframes tk-voice-marks {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  .tk-voice {
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 400px;
+    min-height: 60px;
+    margin-top: 10px;
+    padding: 7px 10px 7px 8px;
+    /* softly irregular paper edge (UI §17): unequal radii, never a torn clip that hides controls */
+    border-radius: 30px 26px 28px 24px / 28px 24px 30px 26px;
+    border: 1px solid color-mix(in oklab, var(--color-kraft) 55%, transparent);
+    background-color: color-mix(in oklab, var(--color-note) 16%, var(--color-ivory));
+    background-image: repeating-linear-gradient(115deg, transparent 0 7px, color-mix(in oklab, var(--color-kraft) 7%, transparent) 7px 8px);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-ivory) 80%, transparent) inset,
+      0 2px 6px color-mix(in oklab, var(--color-navy) 9%, transparent),
+      0 8px 18px -10px color-mix(in oklab, var(--color-terracotta) 30%, transparent);
+    color: var(--color-navy);
+  }
+  .tk-voice:focus {
+    outline: none;
+  }
+  .tk-voice-main {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 6px 0 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-navy);
+    font: inherit;
+    cursor: pointer;
+  }
+  .tk-voice-main[aria-disabled="true"] {
+    cursor: progress;
+  }
+  .tk-voice-disc {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--color-terracotta);
+    color: var(--color-ivory);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
+      0 2px 5px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
+    transition:
+      transform 140ms ease,
+      box-shadow 140ms ease;
+  }
+  .tk-voice-icon {
+    fill: currentColor;
+  }
+  .tk-voice[data-state="idle"] .tk-voice-icon,
+  .tk-voice[data-state="paused"] .tk-voice-icon,
+  .tk-voice[data-state="pending"] .tk-voice-icon {
+    margin-left: 3px; /* optical centre of the play triangle */
+  }
+  .tk-voice[data-state="ended"] .tk-voice-icon {
+    fill: none;
+  }
+  .tk-voice-main:hover .tk-voice-disc {
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
+      0 4px 9px color-mix(in oklab, var(--color-terracotta) 45%, transparent);
+  }
+  .tk-voice-main:active .tk-voice-disc,
+  .tk-voice[data-state="pending"] .tk-voice-disc {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px color-mix(in oklab, var(--color-navy) 30%, transparent) inset;
+  }
+  .tk-voice-label {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .tk-voice[data-state="playing"] .tk-voice-label,
+  .tk-voice[data-state="paused"] .tk-voice-label {
+    color: var(--color-terracotta);
+    font-weight: 600;
+  }
+  .tk-voice-label-short {
+    display: none;
+  }
+  .tk-voice-wave {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 2px;
+    min-width: 36px;
+    height: 24px;
+    overflow: hidden;
+  }
+  .tk-voice-bar {
+    flex: 1 1 0;
+    min-width: 2px;
+    max-width: 3px;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--color-terracotta) 26%, var(--color-ivory));
+    transition: background-color 200ms ease;
+  }
+  .tk-voice-bar[data-on] {
+    background: var(--color-terracotta);
+  }
+  .tk-voice[data-state="loading"] .tk-voice-bar {
+    background: color-mix(in oklab, var(--color-terracotta) 16%, var(--color-ivory));
+  }
+  .tk-voice[data-state="ended"] .tk-voice-bar {
+    background: color-mix(in oklab, var(--color-terracotta) 55%, var(--color-ivory));
+  }
+  /* only the playing strip moves: the bar under the playhead breathes */
+  .tk-voice[data-state="playing"] .tk-voice-bar[data-head] {
+    background: var(--color-navy);
+    animation: tk-voice-head 700ms ease-in-out infinite alternate;
+  }
+  @keyframes tk-voice-head {
+    to {
+      transform: scaleY(0.6);
+    }
+  }
+  .tk-voice-time {
+    flex-shrink: 0;
+    min-width: 34px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+    text-align: right;
+  }
+  .tk-voice-replay {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 6px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 8px 0 12px;
+    border: 0;
+    border-left: 1px solid color-mix(in oklab, var(--color-kraft) 70%, transparent);
+    border-radius: 0 999px 999px 0;
+    background: transparent;
+    color: var(--color-terracotta);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .tk-voice-replay:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* UI §7: a small ring of terracotta dots */
+  .tk-voice-spinner {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 22px;
+    animation: tk-voice-spin 1100ms steps(8) infinite;
+  }
+  .tk-voice-spinner span {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--color-ivory);
+  }
+  .tk-voice-spinner span:nth-child(2n) {
+    opacity: 0.55;
+  }
+  @keyframes tk-voice-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .tk-voice[data-state="loading"] .tk-voice-label {
+    font-weight: 400;
+    color: var(--color-navy-2);
+  }
+
+  /* error (UI §23) and resting (UI §24): same footprint, the answer above untouched */
+  .tk-voice[data-state="error"],
+  .tk-voice[data-state="resting"] {
+    justify-content: space-between;
+    padding-left: 16px;
+  }
+  .tk-voice[data-state="error"] {
+    border-color: color-mix(in oklab, var(--color-rust) 45%, transparent);
+    background-color: color-mix(in oklab, var(--color-rust) 7%, var(--color-ivory));
+  }
+  .tk-voice-msg {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--color-navy);
+  }
+  .tk-voice-retry {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--color-rust);
+    border-radius: 999px;
+    background: var(--color-ivory);
+    color: var(--color-terracotta);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* UI §32: narrower strips drop words, never controls, and never wrap. The drawer bubble is only
+     ≈ 340 px wide even at 1440, so from 380 px down Replay keeps just its icon (its accessible name is
+     unchanged); from 300 px down the label becomes "Listen" and Pause/Resume are icon-only. */
+  @container (max-width: 380px) {
+    .tk-voice-replay-text {
+      display: none;
+    }
+    .tk-voice-replay {
+      padding: 0 6px 0 10px;
+    }
+  }
+  @container (max-width: 300px) {
+    .tk-voice-label-long {
+      display: none;
+    }
+    .tk-voice-label-short {
+      display: inline;
+    }
+    .tk-voice-main {
+      gap: 8px;
+      padding-right: 2px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tk-voice-spinner,
+    .tk-voice[data-state="playing"] .tk-voice-bar[data-head],
+    .tk-turn[data-speaking] .tk-speaking-marks {
+      animation: none !important;
+    }
+    .tk-voice-disc,
+    .tk-voice-bar,
+    .tk-speaking-marks {
+      transition: none;
+    }
+    .tk-voice-main:hover .tk-voice-disc,
+    .tk-voice-main:active .tk-voice-disc,
+    .tk-voice[data-state="pending"] .tk-voice-disc {
+      transform: none;
+    }
+  }
+}
+/* end TASK-134 */
+
 /* TKT-102 · /certifications — the collage certification timeline + "More on Credly" shelf (Tushar
    direction 2026-09-26, docs/redesign-mockups/m-009/tushar-2026-09-26/certifications-target.png +
    certifications-spec.md; Design.md §11 Dev-46/47). `components/certifications/*` render it. Same
