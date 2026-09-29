@@ -9,7 +9,7 @@ import { invalidProject } from "@/tests/fixtures/invalid-project.fixture";
  */
 describe("content gate — deliberate failing fixture", () => {
   // TASK-116: the fixture replaces `projects`, so the portfolio ↔ personal-build match is out of scope here.
-  const result = validateAll({ ...collections, projects: [invalidProject as unknown as Project], portfolio: undefined });
+  const result = validateAll({ ...collections, projects: [invalidProject as unknown as Project], portfolio: undefined, caseStudies: undefined }); // TASK-130: same for case studies
 
   it("fails validation", () => {
     expect(result.ok).toBe(false);

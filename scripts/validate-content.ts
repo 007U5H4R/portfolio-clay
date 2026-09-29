@@ -19,7 +19,7 @@ import { faqFreshness } from "@/lib/ask/faq-versions";
 const fixtureMode = process.env.CONTENT_FIXTURE === "invalid";
 
 const cols: Collections = fixtureMode
-  ? { ...collections, projects: [invalidProject as unknown as Project], portfolio: undefined } // TASK-116: only the planted project issues
+  ? { ...collections, projects: [invalidProject as unknown as Project], portfolio: undefined, caseStudies: undefined } // TASK-116/TASK-130: only the planted project issues
   : collections;
 
 const result = validateAll(cols);

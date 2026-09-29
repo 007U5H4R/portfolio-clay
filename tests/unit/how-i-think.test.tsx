@@ -124,7 +124,9 @@ describe("HowIThink (TKT-76, TC-148)", () => {
       expect(href).toBe(stage.example.href);
       expect(routeSet.has(href), `${href} must resolve in routes()`).toBe(true);
       expect(href).toMatch(/^\/work\/[a-z0-9-]+#\d{2}-[a-z-]+$/);
-      expect(a.textContent).toBe(`See how I tested this in ${stage.example.projectName}`);
+      // TASK-130: the pill opens the case study in a new tab (visually hidden note in its name).
+      expect(a.getAttribute("target")).toBe("_blank");
+      expect(a.textContent).toBe(`See how I tested this in ${stage.example.projectName} (opens in a new tab)`);
     });
   });
 

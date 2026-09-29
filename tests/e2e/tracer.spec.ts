@@ -15,6 +15,7 @@
  * /resume.pdf 404 (E-13).
  */
 import { test, expect } from "./fixtures";
+import { openCaseStudy } from "./case-study-system";
 // The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
 // JPEGs for `next/image`, which Playwright's TypeScript transform cannot load.
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
@@ -154,13 +155,10 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
   const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback path runs").toBeFalsy();
 
-  await page.locator('a[href="/work/teachspark"]').first().click();
-  await page.waitForURL("**/work/teachspark");
-
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
-  // Case-study header media is present (the ClayFrame VT target + its placeholder media).
-  await expect(page.locator('[style*="project-teachspark"]')).toBeVisible();
-  await expect(page.getByText("Hero media coming")).toBeVisible();
+  // TASK-130: the case study opens in a new tab and lands on the same end state.
+  const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.locator('[style*="project-teachspark"]')).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -187,11 +185,12 @@ test("F6: card -> case study nav does not trip a render loop (React #185)", { ta
   // TASK-133: the card → case-study hop starts on /projects (home links to the Portfolio deep link).
   await page.goto("/projects", { waitUntil: "load" });
 
-  await page.locator('a[href="/work/teachspark"]').first().click();
-  await page.waitForURL("**/work/teachspark");
+  const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
+  study.on("pageerror", (err) => pageErrors.push(err.message));
+  await study.reload({ waitUntil: "load" });
 
   // The real case study renders (not Next's "This page couldn't load" error boundary)...
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
   // ...and no update-depth / render loop was thrown during the navigation.
   const loopErrors = pageErrors.filter(
     (m) => m.includes("Maximum update depth") || m.includes("#185"),

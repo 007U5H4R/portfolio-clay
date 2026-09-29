@@ -80,7 +80,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 3168,
     height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug beside him, a mug and a stack of books on the side table.",
-    usedOn: ["/work/[slug]"],
+    usedOn: [], // TASK-130 (Dev-130): case studies open on their own product hero; kept for /dev/primitives
   },
   {
     id: "scene-about",
@@ -231,7 +231,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a cream streamliner with a rust chevron coming down the line at dusk, the sun setting behind it — every third sleeper a ruled document page, a signal ahead showing green, a lit signal box, and a stack of bound volumes with a magnifier in the foreground.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects", "/work/railcite"], // TASK-130: also the case study's pitch-video poster
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/velora.ts) — carousel cover + stage poster.
@@ -253,7 +253,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own office scene with the real UI
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/nuptis.ts) — carousel cover + stage poster.
@@ -286,7 +286,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a cosy hillside home at dusk with a lit window and a rocking chair on the porch, a mailbox by the gate, a lane winding away to a distant city, a paper plane flying along the line between poles, and an open notebook of research notes with sticky notes and glasses in the foreground.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects", "/work/token-toli"], // TASK-130: also the case-study hero
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/pratyasa.ts) — carousel cover + stage poster.
@@ -319,7 +319,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a teal smartphone dressed as a little arcade cabinet, a lit striped marquee on top and a pixel dinosaur on its screen, standing on a shelf before a big striped sunset over red desert mesas and pixel cacti, two coins beside it and a blank memory card sliding towards it.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own postcard scene with the real UI
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cinematic-portfolio.ts) — carousel cover + stage poster.

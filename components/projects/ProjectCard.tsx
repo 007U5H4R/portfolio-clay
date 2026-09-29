@@ -1,3 +1,4 @@
+import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import type { ReactNode } from "react";
 import type { Metric, Project } from "@/data/schema";
 import { Hand, Sheet, Tape, type TapeSide } from "@/components/paper";
@@ -57,7 +58,9 @@ export function ProjectCard({
       <ViewTransitionLink
         href={`/work/${slug}`}
         transitionName={`project-${slug}`}
-        aria-label={name}
+        aria-label={`${name} ${NEW_TAB_HINT}`}
+        target="_blank"
+        rel="noopener noreferrer"
         data-card-size={size}
         className="work-card-link focus-ring"
       >

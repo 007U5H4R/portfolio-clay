@@ -1,3 +1,4 @@
+import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import type { Project } from "@/data/schema";
 import { Annotation } from "@/components/paper/Annotation";
 import { TornEdge } from "@/components/paper/TornEdge";
@@ -24,7 +25,9 @@ export function NextProject({ project }: NextProjectProps) {
         <ViewTransitionLink
           href={`/work/${project.slug}`}
           transitionName={`project-${project.slug}`}
-          aria-label={`Next project: ${project.name}`}
+          aria-label={`Next project: ${project.name} ${NEW_TAB_HINT}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="cs-next-link"
         >
           <span className="cs-next-eyebrow">Next</span>
