@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-29 06:41'
-updated_date: '2026-09-29 07:18'
+updated_date: '2026-09-29 07:21'
 labels:
   - P2
   - m-009
@@ -25,4 +25,6 @@ Tushar 2026-09-29 sent Slag City's launch (1xvj8j79Svs) and demo (tc4QDVl8NJM) Y
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged 2026-09-29 (feeb9ab..68ca404). Slag City SC-01: launch/demo YouTube, live link, public GitHub, SVG cover. Checks: 708 unit tests; build; /projects 170.1 kB; e2e 279 passed / 0 failed (w390 + w1440, own port). FAQ products-built updated and re-stamped. Open: trademark clearance of the name; the Higgsfield art credit line.
+
+2026-09-29 follow-up (Tushar): name stays Slag City; the Higgsfield art credit is removed from the overview; the case study goes to TASK-130.
 <!-- SECTION:NOTES:END -->
