@@ -1,40 +1,55 @@
 import { Container } from "@/components/layout/Container";
-import { ContactEntrance } from "@/components/contact/ContactEntrance";
-import { AboutCollage } from "./hero/AboutCollage";
-import { AboutNarrative } from "./hero/AboutNarrative";
-
-export { ABOUT_PULL_QUOTE, ABOUT_STATS, ABOUT_STATS_HOW } from "./hero/about-hero-data";
+import { Reveal } from "@/components/interactions/Reveal";
+import { Annotation, Sketch } from "@/components/paper";
+import { ABOUT_HERO } from "./about-content";
+import { AboutArtImg } from "./AboutArtImg";
 
 /**
- * `/about` hero (TASK-117 — Tushar's About hero spec 2026-09-28, the reference of record:
- * `docs/redesign-mockups/m-009/tushar-2026-09-28/about-hero-spec.md`; supersedes the TKT-86 layout,
- * Design.md §7.4 "Hero" + §11). Server component, directly under TKT-95's `SceneOpener`.
+ * `/about` hero (TASK-136, spec §2–§6; supersedes TASK-117's "machines → systems → people" hero). Server
+ * component, directly under the page's scene opener.
  *
- *   ≥ 900: two columns `56fr 44fr` — the story (eyebrow, h1, hand subline, stats card, personal note)
- *          left, the scrapbook collage (philosophy note, polaroid, Venn notebook page, hand line) right.
- *   < 900: one column in spec §24 order — eyebrow → h1 → subline → stats → quote → polaroid →
- *          notebook → personal note (the note is `aria-hidden`, so moving it changes no reading order).
+ *   ≥ 1024  LEFT ~44 %: eyebrow ABOUT, the h1 (rust hand-drawn underline under "real-world impact."), one
+ *           short paragraph — no biography. RIGHT ~56 %: the editorial paper collage, overlapping the
+ *           paper: the research sketches, the city under the terracotta sun, the book stack (AI · Systems
+ *           · Products · Impact) and the product desk (notebook, laptop, mug), plus two handwritten notes.
+ *   < 1024  copy first, then the collage (spec §45); < 640 the collage drops to the city + the books.
  *
- * Structure (spec §28): `AboutHero` → `AboutNarrative` (`AboutEyebrow`, `AboutHeadline`,
- * `AboutSubline`, `AboutMetrics`, `AboutPersonalNote`) + `AboutCollage` (`PhilosophyNote`,
- * `JourneyPolaroid`, `IntersectionSketch`).
- *
- * EVAL-018 (Design.md §3.3 `/about` hero = 4, at every width): subline annotation · personal-note
- * annotation · "same curiosity, still here." annotation · the sprig `collage`. Stats card, quote
- * note, polaroid and notebook page are content paper; tape and pins are fasteners. No `DraftTag`
- * (spec §5 — Tushar's direction for this section only).
- *
- * Motion (spec §22, §27): `ContactEntrance` (the shared arm-then-reveal wrapper — no JS-off hider,
- * no motion library) sets `data-in` once the grid is 20 % in view; the TASK-117 CSS block staggers
- * the `data-enter` pieces over ≈ 1.1 s. Nothing moves under `prefers-reduced-motion: reduce`.
+ * EVAL-018 (Design.md §3.3 `/about` hero): underline sketch · collage (one object, every piece inside,
+ * `aria-hidden`) · two annotations = 4 at every width (hidden pieces stay in the DOM).
+ * Motion: the copy and the collage settle in once (`Reveal`); nothing moves under reduced motion.
  */
 export function AboutHero() {
+  const [before] = ABOUT_HERO.title.split(ABOUT_HERO.underlined);
   return (
-    <Container as="section" aria-labelledby="about-hero-heading" className="ahero">
-      <ContactEntrance className="ahero-grid">
-        <AboutNarrative />
-        <AboutCollage />
-      </ContactEntrance>
+    <Container as="section" aria-labelledby="about-hero-heading" className="abh">
+      <div className="abh-grid">
+        <Reveal className="abh-copy" index={0}>
+          <p className="ab-eyebrow">{ABOUT_HERO.eyebrow}</p>
+          <h1 id="about-hero-heading" className="abh-title">
+            {before}
+            <span className="abh-mark">
+              {ABOUT_HERO.underlined}
+              <Sketch variant="underline" />
+            </span>
+          </h1>
+          <p className="abh-lead">{ABOUT_HERO.lead}</p>
+        </Reveal>
+
+        <Reveal className="abh-stage" index={2}>
+          <div className="abh-collage" data-decor="collage" aria-hidden="true">
+            <AboutArtImg id="research-sketches" className="abh-piece abh-sketches" />
+            <AboutArtImg id="systems-collage" className="abh-piece abh-city" />
+            <AboutArtImg id="product-desk" className="abh-piece abh-desk" />
+            <AboutArtImg id="books-stack" className="abh-piece abh-books" />
+          </div>
+          <Annotation rotate={-3} size="lg" className="abh-note abh-note-a">
+            {ABOUT_HERO.notes[0]}
+          </Annotation>
+          <Annotation rotate={3} size="lg" className="abh-note abh-note-b">
+            {ABOUT_HERO.notes[1]}
+          </Annotation>
+        </Reveal>
+      </div>
     </Container>
   );
 }

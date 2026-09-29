@@ -1,40 +1,50 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
-import { Hand, TornEdge } from "@/components/paper";
-import { resumeAction } from "@/lib/site";
+import { ABOUT_CTA } from "./about-content";
+import { AboutArtImg } from "./AboutArtImg";
+
+function Arrow() {
+  return (
+    <svg className="acx-arrow" viewBox="0 0 20 12" width="20" height="12" aria-hidden="true" focusable="false">
+      <path d="M1 6h16M12 1.5 17 6l-5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 /**
- * AboutCta (TKT-87, Design.md §7.4) — `section#about-cta` on `paper`, one torn edge (§3.3: 1).
- * h2 "Let's build what's next.", primary "Let's talk" → `/contact`, secondary résumé control from
- * `resumeAction()` (PB5 — never hard-coded; today the placeholder → `/contact#resume`, the EVAL-002
- * path from `/about`), and the colophon in decision TP10's exact wording (Inter 13). The band
- * footer follows via the layout. Server component.
+ * The About → Experience CTA (TASK-136, spec §34–§35) — `section#about-cta`, the strip that closes the page:
+ * a deep navy torn-paper strip (a baked tear mask, like the TASK-133 cards) with cream text "Want the full
+ * story with roles, achievements and metrics?", a terracotta primary "See full experience →" (`/work`, the
+ * existing Experience tab) and a cream secondary "View certifications →" (`/certifications`), and a small
+ * cut-paper mountain horizon at the right end. No generic contact CTA here — the header's "Let's connect"
+ * and the band footer carry that.
+ *
+ * EVAL-018: the horizon `collage` (`alt=""`, hidden < 640 but kept in the DOM) = 1; no torn section edge
+ * (the strip's own tear is its paper).
  */
 export function AboutCta() {
-  const resume = resumeAction();
   return (
-    <section id="about-cta" aria-labelledby="about-cta-heading" className="acta-s">
-      <TornEdge fill="paper" />
-      <div className="acta-body">
-        <Container className="acta-wrap">
-          <h2 id="about-cta-heading">Let&apos;s build what&apos;s next.</h2>
-          <div className="acta-row">
-            <Link href="/contact" className="hero-btn hero-btn-primary focus-ring">
-              <Hand kind="cta">Let&apos;s talk</Hand>
-              <span aria-hidden="true">→</span>
+    <section id="about-cta" aria-labelledby="about-cta-heading" className="acx">
+      <Container className="acx-wrap">
+        <div className="acx-strip">
+          <h2 id="about-cta-heading" className="acx-title">
+            {ABOUT_CTA.title}
+          </h2>
+          <div className="acx-actions">
+            <Link href={ABOUT_CTA.primary.href} className="acx-btn acx-btn-primary focus-ring">
+              {ABOUT_CTA.primary.label}
+              <Arrow />
             </Link>
-            <Link
-              href={resume.href}
-              download={resume.download || undefined}
-              title={resume.note}
-              className="hero-btn hero-btn-secondary focus-ring"
-            >
-              {resume.label}
+            <Link href={ABOUT_CTA.secondary.href} className="acx-btn acx-btn-secondary focus-ring">
+              {ABOUT_CTA.secondary.label}
+              <Arrow />
             </Link>
           </div>
-          <p className="acta-colophon">Designed and built with Claude Code.</p>
-        </Container>
-      </div>
+          <div className="acx-horizon" data-decor="collage" aria-hidden="true">
+            <AboutArtImg id="mountains" className="acx-horizon-img" />
+          </div>
+        </div>
+      </Container>
     </section>
   );
 }

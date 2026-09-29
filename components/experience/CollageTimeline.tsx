@@ -41,6 +41,11 @@ export interface TimelineEntry {
   bullets: string[];
   /** A trailing labelled list (Work: the résumé outcomes, all self-reported). */
   outcomes?: { label: string; items: string[] } | undefined;
+  /**
+   * A closed disclosure under the bullets (TASK-136: the role record that left `/about` — context, role,
+   * scale, what changed and the self-reported outcomes, verbatim from `data/experience.ts`).
+   */
+  details?: { summary: string; rows: { term: string; items: string[] }[] } | undefined;
   /** The real logo, or `undefined` → the name set in type (`labelText`) on the taped label. */
   logo?: OrgLogo | undefined;
   labelText: string;
@@ -166,6 +171,21 @@ function Entry({ entry, index }: { entry: TimelineEntry; index: number }) {
               ))}
             </ul>
           </div>
+        ) : null}
+        {entry.details && entry.details.rows.length > 0 ? (
+          <details className="ct-details" data-details={entry.id}>
+            <summary className="ct-details-summary focus-ring">{entry.details.summary}</summary>
+            <dl className="ct-details-list" data-flat="">
+              {entry.details.rows.map((row) => (
+                <div key={row.term} className="ct-details-row">
+                  <dt data-micro-label="">{row.term}</dt>
+                  {row.items.map((item) => (
+                    <dd key={item}>{item}</dd>
+                  ))}
+                </div>
+              ))}
+            </dl>
+          </details>
         ) : null}
       </Sheet>
     </li>

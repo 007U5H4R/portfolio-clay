@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CollageTimeline, type TimelineEntry, type TimelineTone } from "@/components/experience/CollageTimeline";
 import { EDU_DOODLES, WORK_DOODLES } from "@/components/experience/Doodles";
 import { ORG_LOGOS } from "@/components/experience/logos";
+import { Skills } from "@/components/experience/Skills";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { education } from "@/data/credentials";
 import { experience } from "@/data/experience";
@@ -23,13 +24,15 @@ export const metadata: Metadata = buildMetadata({
  * superseding Dev-90's "no scene opener") the page opens on its own scene, `scene-experience`, in the
  * shared `SceneOpener` — sized, cropped and parallaxed exactly like every other tab's.
  *
- * Opener → Work Experience (newest first) → the torn paper cut-out → Education on the `paper-2` tone. On scroll
+ * Opener → Work Experience (newest first) → the torn paper cut-out → Education on the `paper-2` tone → Skills
+ * (TASK-136: moved from `/about`, with the languages line). On scroll
  * the Education sheet slides up over the Work section: while Education enters the viewport, the Work
  * content drifts down at half speed (the TKT-96 mechanism — CSS scroll-driven, `@supports`-guarded,
  * off under reduced motion; app/globals.css TKT-101 block).
  *
  * Every date, role, bullet and name comes verbatim from `data/experience.ts` / `data/credentials.ts`
- * (the same records `/about` renders). Mismatches against the reference images are listed for Tushar
+ * (TASK-136: `/about` no longer repeats them — each role card carries its full record in a closed "Scope &
+ * outcomes" disclosure). Mismatches against the reference images are listed for Tushar
  * in docs/reports/TKT-101.md — the data is never edited to match a picture.
  */
 
@@ -71,6 +74,21 @@ const workEntries: TimelineEntry[] = [...experience]
             label: kinds.size === 1 && kinds.has("self-reported") ? "Outcomes · self-reported" : "Outcomes",
             items: role.outcomes.map((o) => o.text),
           },
+      // TASK-136: the full role record that used to sit in `/about`'s experience timeline, in a closed
+      // disclosure so the approved card stays compact. Verbatim fields; "not recorded" scale is omitted.
+      details: {
+        summary: "Scope & outcomes",
+        rows: [
+          { term: "Context", items: [role.context] },
+          { term: "Role", items: [role.responsibility] },
+          ...(role.scale === "not recorded" ? [] : [{ term: "Scale", items: [role.scale] }]),
+          { term: "What changed", items: [role.whatChanged] },
+          {
+            term: kinds.size === 1 && kinds.has("self-reported") ? "Outcomes · self-reported" : "Outcomes",
+            items: role.outcomes.map((o) => o.text),
+          },
+        ],
+      },
       logo: ORG_LOGOS[role.id],
       labelText: role.company,
       tone: WORK_TONES[i % WORK_TONES.length]!,
@@ -123,6 +141,7 @@ export default function ExperiencePage() {
           torn
         />
       </div>
+      <Skills />
     </>
   );
 }
