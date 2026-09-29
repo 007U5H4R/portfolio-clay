@@ -60,6 +60,15 @@ export const pratyasaCase: z.input<typeof CaseStudy> = {
       source: "PT-DISCOVERY-PRD",
       shots: [
         {
+          src: "/media/case-studies/pratyasa/page.webp",
+          alt: "The top of the live Pratyasa page: a low-cost handheld biosensor for bacterial endotoxin at the bedside, “Granted patent IN 429867, Government of India”, Get in touch and Watch it run buttons, and the prototype photo.",
+          width: 1400,
+          height: 653,
+          frame: "browser",
+          caption: "The live page",
+          provenance: "docs/case-study-sources/pratyasa/page-hero.jpg ← 007U5H4R/pratyasa@f1ca4d5 docs/screenshots/hero.jpg (README)",
+        },
+        {
           src: "/media/case-studies/pratyasa/framed.webp",
           alt: "The Pratyasa analyser's black case with its gold wordmark, photographed in a gold frame.",
           width: 900,

@@ -54,6 +54,15 @@ export const dinoArcadeCase: z.input<typeof CaseStudy> = {
       },
       shots: [
         {
+          src: "/media/case-studies/dino-arcade-pwa/cabinet.webp",
+          alt: "Dino Arcade on a phone held landscape: a dark recessed cabinet bezel with one glowing orange “Insert Coin — Tap to start” button.",
+          width: 1200,
+          height: 505,
+          frame: "plain",
+          caption: "The cabinet, waiting for a coin",
+          provenance: "docs/case-study-sources/dino-arcade-pwa/cabinet-landscape.jpg ← run locally from 007U5H4R/dino-arcade-pwa@0bd1368 (marquee cropped)",
+        },
+        {
           src: "/media/case-studies/dino-arcade-pwa/icon.webp",
           alt: "Dino Arcade's home-screen icon: a glowing orange play button under a marquee bar on a dark rounded tile.",
           width: 360,

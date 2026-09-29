@@ -84,6 +84,26 @@ export const cubicleCase: z.input<typeof CaseStudy> = {
           { label: "Share by link" },
         ],
       },
+      shots: [
+        {
+          src: "/media/case-studies/cubicle/home.webp",
+          alt: "Cubicle's home screen: “Your first team fits in a cubicle.” above a “What are you building?” box, with four desks — PM, Researcher, Designer, Developer — each marked Ready.",
+          width: 720,
+          height: 596,
+          frame: "browser",
+          caption: "The office, waiting for an idea",
+          provenance: "docs/case-study-sources/cubicle/home-idle.jpg ← run locally from 007U5H4R/cubicle@6779998 (no keys, no database)",
+        },
+        {
+          src: "/media/case-studies/cubicle/office-replay.webp",
+          alt: "Cubicle after a run: all four desks marked Done above a one-page PRD with Problem, Who it is for, Proposed solution, v1 scope, One success metric and The open question we argued about.",
+          width: 704,
+          height: 660,
+          frame: "browser",
+          caption: "The real UI replaying the repo’s test fixture — not a live run",
+          provenance: "docs/case-study-sources/cubicle/office-replay.jpg ← 007U5H4R/cubicle@6779998 /dev/office, hand-built fixture tests/replay/fixtures/run-001.json",
+        },
+      ],
       states: [
         { tone: "neutral", title: "What teammates can say", lines: ["propose · question · objection", "agree · done"] },
         { tone: "yes", title: "What every run produces", lines: ["A one-page PRD", "A competitor scan", "Landing-page copy", "A build plan"] },

@@ -58,3 +58,7 @@ Accents: navy-2, green-2, note.
   - the decks mention;
   - the three secondary personas.
 - **Kept as prose, never a proof card:** cost ≈ $0.04 and latency 50–75 s, which are estimates.
+
+## Follow-up: real screens from the product repo (2026-09-29)
+
+The product section now shows the real UI, run locally from `cubicle@6779998` with placeholder env values (no keys, no database): the idle home, and `/dev/office` replaying the repo's hand-built test fixture, captioned "not a live run". No claim changed: there is still no live run. Provenance: `docs/case-study-sources/INDEX.md`.

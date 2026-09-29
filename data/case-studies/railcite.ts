@@ -83,6 +83,26 @@ export const railciteCase: z.input<typeof CaseStudy> = {
         provenance: "TASK-130 hand-authored SVG, scripts/case-study-art/assets/railcite.ts",
       },
       source: "RC-SYNTHESIZE",
+      shots: [
+        {
+          src: "/media/case-studies/railcite/answer.webp",
+          alt: "RailCite's Ask console: a demurrage-waiver case in the Commercial domain, answered “Cited from 8 passages in the Goods manual” with an inline citation marker [1] and an English/Hindi toggle.",
+          width: 850,
+          height: 420,
+          frame: "browser",
+          caption: "A case answered from the Goods manual, cited inline",
+          provenance: "docs/case-study-sources/railcite/answer.jpg ← 007U5H4R/railcite@0112a6f docs/screenshots/answer.jpg (README)",
+        },
+        {
+          src: "/media/case-studies/railcite/sources.webp",
+          alt: "RailCite's Sources panel: numbered primary-circular cards with circular numbers, dates and page ranges, each marked “Verified text”.",
+          width: 928,
+          height: 336,
+          frame: "browser",
+          caption: "Every citation opens its circular, page by page",
+          provenance: "docs/case-study-sources/railcite/sources.jpg ← 007U5H4R/railcite@0112a6f docs/screenshots/sources.jpg (README)",
+        },
+      ],
       states: [
         { tone: "yes", title: "Answered", lines: ["The governing circular, with number and date", "Supersession lineage: which version governs today", "Every citation resolves to a real source"] },
         { tone: "no", title: "Refused", lines: ["No passage governs the case", "Designed as a success state, never an error"] },

@@ -23,3 +23,7 @@ Sources: `data/projects.ts` (`dino-arcade-pwa`, one README source), CONTENT_INVE
   - coin-slot numerals.
 - **Accents:** steel, rust, note.
 - **Cut:** no game names, no ROM or BIOS mentions, no Chrome T-rex (a generic pixel sauropod on the cover).
+
+## Follow-up: real screens from the product repo (2026-09-29)
+
+The product section now shows the real cabinet start screen, served locally from `dino-arcade-pwa@0bd1368` (landscape phone). The marquee (a licensed game title) is cropped off; no game file was loaded. Provenance: `docs/case-study-sources/INDEX.md`.

@@ -43,11 +43,25 @@ export const MEDIA: MediaRow[] = [
   // staged-reveal funnel (its shares are labelled directional estimates in the image itself).
   { slug: "bhakti-vilas", from: "tea-circle.jpg", to: "tea-circle.webp", width: 1200 },
   { slug: "bhakti-vilas", from: "Madhu-Mukti-TOFU-MOFU-BOFU-Funnel.jpg", to: "madhu-mukti-funnel.webp", width: 1200 },
+  // RailCite — the product's own README screenshots (railcite@0112a6f docs/screenshots). Crops drop the
+  // signed-in account chip, the mouse cursor and the floating bottom nav.
+  { slug: "railcite", from: "answer.jpg", to: "answer.webp", width: 1100, extract: { left: 288, top: 86, width: 850, height: 420 } },
+  { slug: "railcite", from: "sources.jpg", to: "sources.webp", width: 1100, extract: { left: 312, top: 176, width: 928, height: 336 } },
+  // Cubicle — run locally from the repo (cubicle@6779998, `next dev`, placeholder env, no keys, no
+  // database): the idle home, and /dev/office after replaying the repo's hand-built test fixture
+  // (tests/replay/fixtures/run-001.json). Crops drop the dev stepper controls and the dev badge.
+  { slug: "cubicle", from: "home-idle.jpg", to: "home.webp", width: 1000, extract: { left: 360, top: 90, width: 720, height: 596 } },
+  { slug: "cubicle", from: "office-replay.jpg", to: "office-replay.webp", width: 1000, extract: { left: 368, top: 326, width: 704, height: 660 } },
   // Pratyasa — the real device (pratyasa-site/assets/device-photo.jpg) and its framed case photo.
   { slug: "pratyasa", from: "device-photo.jpg", to: "device.webp", width: 1400 },
   { slug: "pratyasa", from: "pratyasa-framed.jpg", to: "framed.webp", width: 900 },
+  // The live page itself (pratyasa@f1ca4d5 docs/screenshots/hero.jpg, the README's "Hero").
+  { slug: "pratyasa", from: "page-hero.jpg", to: "page.webp", width: 1400, extract: { left: 0, top: 0, width: 1548, height: 722 } },
   // Dino Arcade — the app's home-screen icon (assets/icon-512.png); no screenshots exist.
   { slug: "dino-arcade-pwa", from: "icon-512.jpg", to: "icon.webp", width: 360 },
+  // The cabinet's start screen, run locally from the repo (dino-arcade-pwa@0bd1368, python -m http.server,
+  // 844×390 landscape phone @2x). The marquee carries the licensed game's title, so it is cropped off.
+  { slug: "dino-arcade-pwa", from: "cabinet-landscape.jpg", to: "cabinet.webp", width: 1200, extract: { left: 0, top: 70, width: 1688, height: 710 } },
   // Cinematic Portfolio — poster frames of the scroll film (assets/posters/*.jpg).
   { slug: "cinematic-portfolio", from: "hero.jpg", to: "film-hero.webp", width: 1400 },
   { slug: "cinematic-portfolio", from: "work.jpg", to: "film-work.webp", width: 900 },

@@ -1616,13 +1616,14 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="dino-arcade-pwa"] .csx-eyebrow { color: var(--color-rust); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .csx[data-theme="dino-arcade-pwa"] .csx-flow-step { border: 2px solid var(--color-navy-2); box-shadow: 2px 2px 0 var(--color-navy-2); border-radius: 8px; }
 @media (min-width: 768px) { .csx[data-theme="dino-arcade-pwa"] .csx-product-flow .csx-flow-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } .csx[data-theme="dino-arcade-pwa"] .csx-flow-step:nth-child(3n)::after { content: "→"; } }
-@media (min-width: 1024px) {
-  .csx[data-theme="dino-arcade-pwa"] .csx-product[data-flow] { grid-template-columns: minmax(0, 1fr) 200px; column-gap: 36px; }
-  .csx[data-theme="dino-arcade-pwa"] .csx-product[data-flow] .csx-lead { grid-column: 1 / -1; }
-  .csx[data-theme="dino-arcade-pwa"] .csx-product[data-flow] .csx-shots { grid-column: 2; grid-row: 2; }
+/* The landscape cabinet capture takes the row; the home-screen icon sits beside it at icon size. */
+@media (min-width: 768px) {
+  .csx[data-theme="dino-arcade-pwa"] .csx-shots[data-count="2"] { grid-template-columns: minmax(0, 1fr) 180px; align-items: end; max-width: 980px; }
 }
-.csx[data-theme="dino-arcade-pwa"] .csx-shots[data-count="1"] .csx-frame { max-width: 180px; }
+.csx[data-theme="dino-arcade-pwa"] .csx-shots[data-count="1"] .csx-frame,
+.csx[data-theme="dino-arcade-pwa"] .csx-frame.csx-shot-2 { max-width: 180px; }
 .csx[data-theme="dino-arcade-pwa"] .csx-shots .csx-frame-screen { border-radius: 36px; background: transparent; border: 0; box-shadow: none; }
+.csx[data-theme="dino-arcade-pwa"] .csx-shot-1 .csx-frame-screen { border-radius: 18px; box-shadow: 0 0 0 3px var(--color-navy-2), 0 24px 40px -26px color-mix(in oklab, var(--color-navy) 60%, transparent); }
 .csx[data-theme="dino-arcade-pwa"] .csx-decision { border: 2px solid var(--color-navy-2); box-shadow: 3px 3px 0 var(--color-navy-2); border-radius: 10px; }
 .csx[data-theme="dino-arcade-pwa"] .csx-arch-step { border: 2px solid var(--color-navy-2); border-radius: 8px; }
 .csx[data-theme="dino-arcade-pwa"] .csx-arch-step::before { border-color: var(--color-rust); background: var(--color-note); }

@@ -83,3 +83,7 @@ Then the evidence drawer, the action strip (live product, pitch, demo), and next
 | 22/40 critique, P0 | RC-IMPECCABLE |
 | Nightly crawl / freshness | RC-CRON-SPEC |
 | Gaps (no usage, latency, groundedness, logged CCI sessions) | RC-FINAL-PRD |
+
+## Follow-up: real screens from the product repo (2026-09-29)
+
+The product section now shows two real screens from the repo's README screenshots (`railcite@0112a6f`): the cited answer and the Sources panel. Crops drop the signed-in account name, the cursor and the floating nav; the home screen (it greets the account by name) is not used. Provenance: `docs/case-study-sources/INDEX.md`.

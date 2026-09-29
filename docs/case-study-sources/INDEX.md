@@ -86,3 +86,16 @@ Copied from Tushar's local project folders on 2026-09-29, resized to at most 160
 | slag-city | 20-continue-mobile.jpg | 1600×739 | 194 | `Slag City/docs/verification/critique2/20-continue-mobile.png` |
 | slag-city | 21-gameover-desktop.jpg | 1600×933 | 206 | `Slag City/docs/verification/critique2/21-gameover-desktop.png` |
 | slag-city | 21-gameover-mobile.jpg | 1600×739 | 149 | `Slag City/docs/verification/critique2/21-gameover-mobile.png` |
+
+## Added from the product repos (TASK-130 follow-up, 2026-09-29)
+
+The live hosts are blocked from the cloud session, so these come from each product repo's own README screenshots (`docs/screenshots/`), cloned read-only at the commit shown. Copied unchanged; the WebP crops in `scripts/case-study-art/media.ts` remove the signed-in account name, the mouse cursor and the floating nav.
+
+| product | file | w×h | KB | original |
+|---|---|---|---|---|
+| railcite | answer.jpg | 1440×607 | 72 | `007U5H4R/railcite@0112a6f:docs/screenshots/answer.jpg` (README "cited answer") |
+| railcite | sources.jpg | 1568×661 | 80 | `007U5H4R/railcite@0112a6f:docs/screenshots/sources.jpg` (README "Sources panel") |
+| pratyasa | page-hero.jpg | 1568×722 | 60 | `007U5H4R/pratyasa@f1ca4d5:docs/screenshots/hero.jpg` (README "Hero") |
+| dino-arcade-pwa | cabinet-landscape.jpg | 1688×780 | 57 | Captured in this session: `007U5H4R/dino-arcade-pwa@0bd1368` served locally (`python3 -m http.server`), Chromium, 844×390 landscape phone @2x, service worker blocked. The README has no screenshots; the marquee (a licensed game title) is cropped off in the WebP |
+| cubicle | home-idle.jpg | 1440×900 | 50 | Captured in this session: `007U5H4R/cubicle@6779998` run locally (`next dev`, placeholder env values, no API keys, no database), Chromium 1440×900, route `/`. The README has no screenshots and the product has never had a live run |
+| cubicle | office-replay.jpg | 1440×2938 | 278 | Same local run, route `/dev/office` after stepping through all 24 events of the repo's hand-built synthetic test fixture (`tests/replay/fixtures/run-001.json`): real UI components, fixture content, not a live model run |
