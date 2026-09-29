@@ -668,7 +668,7 @@
   border-radius: 6px;
 }
 .csx-pivot-step p { margin: 0; }
-.csx-pivot-tag { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--csx-soft); margin-bottom: 6px !important; }
+.csx-pivot-tag { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-navy-2); margin-bottom: 6px !important; }
 .csx-pivot-name { font-family: var(--font-display); font-size: 28px; line-height: 1.1; }
 .csx-pivot-line { font-size: 15px; line-height: 1.45; color: var(--color-navy-2); margin-top: 6px !important; }
 .csx-pivot-step ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; line-height: 1.45; color: var(--color-navy-2); }
@@ -1038,7 +1038,7 @@ body:has(.csx) .band-hire { display: none; }
 }
 .csx[data-theme="teachspark"] .csx-sec:nth-child(2) .csx-mark { background: var(--color-rust); }
 .csx[data-theme="teachspark"] .csx-sec:nth-child(3) .csx-mark { background: var(--color-note); color: var(--color-navy); }
-.csx[data-theme="teachspark"] .csx-sec:nth-child(4) .csx-mark { background: var(--color-steel); }
+.csx[data-theme="teachspark"] .csx-sec:nth-child(4) .csx-mark { background: var(--color-navy-2); }
 .csx[data-theme="teachspark"] .csx-sec:nth-child(5) .csx-mark { background: var(--color-green-2); }
 .csx[data-theme="teachspark"] .csx-sec:nth-child(6) .csx-mark { background: var(--color-terracotta); }
 @media (min-width: 1024px) {

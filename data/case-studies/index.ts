@@ -1,13 +1,14 @@
 import { CaseStudy, type CaseStudy as CaseStudyT } from "../schema";
 import { railciteCase } from "./railcite";
 import { teachsparkCase } from "./teachspark";
+import { veloraCase } from "./velora";
 
 /**
  * The case-study records (TASK-130, spec §37), one per personal build, parsed once so the schema's
  * defaults apply. A record's `source` ids are cross-checked against its project's `sources[]` by
  * `validateAll()` (data/index.ts). Server-only: never import this from a client component.
  */
-export const caseStudyInputs = [teachsparkCase, railciteCase];
+export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase];
 
 export const caseStudies: CaseStudyT[] = caseStudyInputs.map((input) => CaseStudy.parse(input));
 

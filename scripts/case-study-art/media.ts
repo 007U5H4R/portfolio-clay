@@ -22,6 +22,13 @@ export const MEDIA: MediaRow[] = [
   // PRD's "2-Minute WhatsApp Loop" slide (docs/assets/p2-whatsapp-loop.jpg; an illustrative chat).
   { slug: "teachspark", from: "demo-poster.jpg", to: "landing-mobile.webp", width: 560 },
   { slug: "teachspark", from: "p2-whatsapp-loop.jpg", to: "loop-chat.webp", width: 560, extract: { left: 95, top: 135, width: 292, height: 615 } },
+  // Velora — the real app screens (docs/screenshots of the live mock-data build), and Nuptis's
+  // roster dashboard for the pivot hero. Screens with third-party certification marks are not used.
+  { slug: "velora", from: "trust-profile.jpg", to: "trust-profile.webp", width: 540 },
+  { slug: "velora", from: "bids.jpg", to: "bids.webp", width: 540 },
+  { slug: "velora", from: "rfps.jpg", to: "rfps.webp", width: 540 },
+  { slug: "velora", from: "role-select.jpg", to: "role-select.webp", width: 540 },
+  { slug: "velora", from: "../nuptis/dashboard.jpg", to: "nuptis-dashboard.webp", width: 1000 },
 ];
 
 export async function buildMedia(only?: string) {

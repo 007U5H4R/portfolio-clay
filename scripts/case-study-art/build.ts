@@ -11,11 +11,13 @@ import { join } from "node:path";
 import type { Asset } from "./kit";
 import { railciteAssets } from "./assets/railcite";
 import { teachsparkAssets } from "./assets/teachspark";
+import { veloraAssets } from "./assets/velora";
 import { buildMedia } from "./media";
 
 const ART: Record<string, Asset[]> = {
   railcite: railciteAssets,
   teachspark: teachsparkAssets,
+  velora: veloraAssets,
 };
 
 async function main() {
