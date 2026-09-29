@@ -13,11 +13,12 @@
  * TASK-114 (Dev-103/104): two new scenes for `/work` and `/certifications`, encoded the same way at the same size.
  * TASK-117: `polaroid-sunrise`, the `/about` hero polaroid (a landscape without the character, public-only).
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
+ * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -204,17 +205,139 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     usedOn: ["/about"],
   },
   {
-    // TASK-121 (Tushar's portfolio rectify spec 2026-09-28 §5.2, §7): TeachSpark's painted 90s game-box
-    // cover — one text-free image that is both its carousel cover (4:5 crop) and its enlarged stage
-    // poster (16:9 crop); the title lettering is HTML over it. Higgsfield `gpt_image_2_5` (low, 4:3),
-    // job 6f36b2b9-…, 0.25 cr. Served from public/ through next/image (1120×840 WebP source).
+    // TASK-121 painted a raster cover here (Dev-115); TASK-127 (fidelity spec §4, §10, §12) replaced it with
+    // a hand-authored SVG counterpart of the same concept, so all twelve covers share one illustration
+    // style (scripts/portfolio-art/scenes/teachspark.ts). Carousel cover (5:6) + stage poster (16:9).
     id: "cover-teachspark",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-teachspark.webp",
-    width: 1120,
-    height: 840,
-    alt: "Illustration of a friendly cream retro robot holding a stack of worksheets in a dusk-lit classroom — a plain green chat bubble beside it, a navy chalkboard of chalk stars, a globe, books and a glowing desk lamp.",
+    publicSrc: "/media/illustrations/covers/cover-teachspark.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a friendly cream robot with a smiling screen face on a teacher's desk, holding out a fan of three ruled worksheets beside a plain green chat bubble with a page in it, a navy chalkboard of chalk doodles behind, a glowing desk lamp, and a dusk window, globe and phone.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127 (Tushar's portfolio fidelity spec 2026-09-28 §4, §12): RailCite's cover — a hand-authored,
+    // text-free 1600×900 SVG (scripts/portfolio-art/scenes/railcite.ts), the carousel cover (5:6 crop)
+    // and the stage poster (16:9). No generation, no credits.
+    id: "cover-railcite",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-railcite.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a cream streamliner with a rust chevron coming down the line at dusk, the sun setting behind it — every third sleeper a ruled document page, a signal ahead showing green, a lit signal box, and a stack of bound volumes with a magnifier in the foreground.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/velora.ts) — carousel cover + stage poster.
+    id: "cover-velora",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-velora.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a sunset atelier: a dress form in a draped rose gown with a gold sash and a tape measure stands before a garment rack, an arched window shows a violet-to-peach sky over low workshop roofs, and a worktable holds fabric swatches, two tied with thread, spools and shears.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cubicle.ts) — carousel cover + stage poster.
+    id: "cover-cubicle",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-cubicle.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/nuptis.ts) — carousel cover + stage poster.
+    id: "cover-nuptis",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-nuptis.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of an Indian wedding mandap being set up at golden hour: a floral canopy with blush domes on four marigold-wrapped pillars, garland swags and small lights, flower crates on the lawn, a hazy palace, and a planner's table with a checklist clipboard, walkie-talkie and ribbon badges.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/bhakti-vilas.ts) — carousel cover + stage poster.
+    id: "cover-bhakti-vilas",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-bhakti-vilas.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of dawn at a riverside temple: a harmonium with open bellows rests on a striped rug on stone steps beside a lit brass diya and manjira cymbals, while across the misty river stand a temple spire and the rising sun, with lotuses, floating lamps, a moored boat and hanging bells.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/token-toli.ts) — carousel cover + stage poster.
+    id: "cover-token-toli",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-token-toli.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a cosy hillside home at dusk with a lit window and a rocking chair on the porch, a mailbox by the gate, a lane winding away to a distant city, a paper plane flying along the line between poles, and an open notebook of research notes with sticky notes and glasses in the foreground.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/pratyasa.ts) — carousel cover + stage poster.
+    id: "cover-pratyasa",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-pratyasa.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a lab bench at blue hour: a handheld analyser with a curve on its screen and a sample droplet on its sensor strip, a phone showing a line graph, test tubes and a flask, a brass desk lamp, a microscope by the window, and a certificate scroll tied with a ribbon and a wax seal.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/tegaki.ts) — carousel cover + stage poster.
+    id: "cover-tegaki",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-tegaki.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a writing desk at dusk: a page of handwritten loops under a brass magnifying glass, a fountain pen, an ink bottle and washi tape, a folded letter with a vermilion seal, a teacup, a paper lantern and a plum-blossom sprig, before an indigo sky with a vermilion sun over a band of wave pattern.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/dino-arcade-pwa.ts) — carousel cover + stage poster.
+    id: "cover-dino-arcade-pwa",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-dino-arcade-pwa.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a teal smartphone dressed as a little arcade cabinet, a lit striped marquee on top and a pixel dinosaur on its screen, standing on a shelf before a big striped sunset over red desert mesas and pixel cacti, two coins beside it and a blank memory card sliding towards it.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cinematic-portfolio.ts) — carousel cover + stage poster.
+    id: "cover-cinematic-portfolio",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-cinematic-portfolio.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a dusky screening room: a vintage reel projector on a table throws a warm, dusty beam onto a curtained screen showing mountains at sunrise, with a film strip of tiny landscape frames curling through the foreground, a clapperboard, film cans and a director's chair.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/campfire-board.ts) — carousel cover + stage poster.
+    id: "cover-campfire-board",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-campfire-board.svg",
+    width: 1600,
+    height: 900,
+    alt: "Illustration of a night campsite: a campfire with rising sparks beside a wooden easel pinned with three columns of paper cards above a plank of staggered bars, three tents, pines, a lantern post and a crescent moon, and a log seat with a mug beside a stack of cut logs.",
     usedOn: ["/projects"],
   },
 ];

@@ -19,6 +19,22 @@ const CONTENT_DIR = join(ROOT, "content", "media", "illustrations");
 const PUBLIC_DIR = join(ROOT, "public");
 const FIXTURES_DIR = join(ROOT, "tests", "fixtures", "illustrations-onesided");
 
+/** TASK-127: one hand-authored SVG cover per personal build (data/portfolio.ts order). */
+const PRODUCT_COVER_IDS = [
+  "cover-teachspark",
+  "cover-railcite",
+  "cover-velora",
+  "cover-cubicle",
+  "cover-nuptis",
+  "cover-bhakti-vilas",
+  "cover-token-toli",
+  "cover-pratyasa",
+  "cover-tegaki",
+  "cover-dino-arcade-pwa",
+  "cover-cinematic-portfolio",
+  "cover-campfire-board",
+] as const;
+
 interface Finding {
   rule: string;
   detail: string;
@@ -141,7 +157,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the eleven other product covers, TASK-127)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -149,7 +165,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "hero-clip",
         "hero-desk",
         "polaroid-sunrise",
-        "cover-teachspark",
+        ...PRODUCT_COVER_IDS,
         "scene-about",
         "scene-casestudy",
         "scene-certifications",
@@ -163,7 +179,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(17);
+    expect(ILLUSTRATIONS.length).toBe(28);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -221,17 +237,26 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     );
   });
 
-  it("cover-teachspark is the 1120×840 painted cover, ≤ 110 kB, used on /projects (TASK-121)", () => {
-    const cover = ILLUSTRATIONS.find((e) => e.id === "cover-teachspark")!;
-    expect(cover.file).toBe(""); // public-only, served through next/image
-    expect(cover.publicSrc).toBe("/media/illustrations/covers/cover-teachspark.webp");
-    expect([cover.width, cover.height]).toEqual([1120, 840]);
-    expect(cover.usedOn).toEqual(["/projects"]);
-    const bytes = readFileSync(join(PUBLIC_DIR, "media", "illustrations", "covers", "cover-teachspark.webp"));
-    expect(bytes.length).toBeLessThanOrEqual(110_000);
-    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
-      "5da86b19320c4895d35235332a1e1368576e1d5f7a26e2e2832f937d4a685cb9",
-    );
+  // TASK-127 (fidelity spec §4–§5, §10–§12): every product cover is a hand-authored SVG — the carousel
+  // cover (5:6 crop) and the stage poster (16:9) of one product. TeachSpark's TASK-121 painted webp
+  // was replaced by its SVG counterpart (one illustration style for the set), so it is gone from public/.
+  it("the twelve product covers are self-contained, text-free 1600×900 SVGs ≤ 40 kB, one per personal build (TASK-127)", () => {
+    const covers = ILLUSTRATIONS.filter((e) => e.id.startsWith("cover-"));
+    expect(covers.map((e) => e.id).sort()).toEqual([...PRODUCT_COVER_IDS].sort());
+    for (const cover of covers) {
+      expect(cover.kind, cover.id).toBe("scene");
+      expect(cover.file, cover.id).toBe(""); // public-only; the source is scripts/portfolio-art/scenes/
+      expect(cover.publicSrc, cover.id).toBe(`/media/illustrations/covers/${cover.id}.svg`);
+      expect([cover.width, cover.height], cover.id).toEqual([1600, 900]);
+      expect(cover.usedOn, cover.id).toEqual(["/projects"]);
+      const svg = readFileSync(join(PUBLIC_DIR, cover.publicSrc!.replace(/^\//, "")), "utf8");
+      expect(Buffer.byteLength(svg), `${cover.id} bytes`).toBeLessThanOrEqual(40_000);
+      expect(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">'), cover.id).toBe(true);
+      // titles stay HTML (crisp, accessible): no drawn text; nothing external, scripted or styled
+      expect(svg, `${cover.id} draws text`).not.toMatch(/<text|<tspan|<foreignObject/);
+      expect(svg, `${cover.id} is not self-contained`).not.toMatch(/<image|<script|<style|href="(?!#)|url\((?!#)/);
+    }
+    expect(existsSync(join(PUBLIC_DIR, "media", "illustrations", "covers", "cover-teachspark.webp"))).toBe(false);
   });
 
   it("hero-banner is the 3168×1344 outpaint with the Dev-23 alt, used on / (TKT-93)", () => {

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
-import { Pin, Sheet } from "@/components/paper";
+import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
+import { Pin, Sheet, Tape } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
 
 export interface ProductInfoPanelProps {
@@ -40,11 +40,12 @@ function StripBody({ icon: Icon, label, hint, external }: { icon: LucideIcon; la
 }
 
 /**
- * The right-hand product sheet (TASK-116, spec §11–§13, §22, §44; TASK-121 rectify spec §5.3–§6): its
- * own torn ivory sheet, pinned and tilted +0.4°, over a kraft back sheet. Hierarchy: tiny metadata
- * (code · shortened status, §5.4) → name → tagline → a ≤ 2-line description → the full-width torn
- * strip stack (each strip: icon block, label, a short hint, an arrow; its own tint and tear) → the
- * case-study tab. Up to five strips — Pitch / Demo switch the LEFT stage
+ * The right-hand product sheet (TASK-116, spec §11–§13, §22, §44; TASK-121 rectify spec §5.3–§6;
+ * TASK-127 fidelity spec §6–§8): its own torn, faintly stained ivory sheet at +0.6° over a paper-2
+ * under-sheet, pinned top-left and taped top-right (the host's two fasteners). Hierarchy: tiny
+ * metadata (code · shortened status, §7) → name → tagline → a ≤ 3-line description → the torn strip
+ * stack (each strip: a torn icon chip, a serif label, a short hint, an arrow; its own tint, tear and
+ * tilt) → the case study as the last, kraft strip. Up to five action strips — Pitch / Demo switch the LEFT stage
  * (`aria-pressed` carries the current mode, never colour alone); Product / GitHub / PRD open a new
  * tab. An action with nothing behind it is not rendered at all (no disabled dead buttons). The case
  * study link ("Explore the build", spec §4) keeps the recruiter hop to `/work/<slug>` (EVAL-002).
@@ -71,8 +72,9 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   );
 
   return (
-    <Sheet as="div" variant="card" rotate={0.4} className="pf-info">
+    <Sheet as="div" variant="card" rotate={0.6} className="pf-info">
       <Pin tone="rust" className="pf-info-pin" />
+      <Tape side="r" rotate={8} className="pf-info-tape" />
       <p className="pf-info-meta">
         <span className="pf-info-code">{product.code}</span>
         <span aria-hidden="true">·</span>
@@ -104,8 +106,13 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
           );
         })}
       </ul>
-      <Link href={product.caseStudyHref} className="pf-case-link focus-ring">
-        Read the case study <span aria-hidden="true">→</span>
+      <Link href={product.caseStudyHref} className="pf-action pf-case-link focus-ring" data-action="case">
+        <span className="pf-action-icon" aria-hidden="true">
+          <BookOpen aria-hidden="true" focusable="false" strokeWidth={1.75} />
+        </span>
+        <span className="pf-action-label">
+          Read the case study <span aria-hidden="true">→</span>
+        </span>
       </Link>
     </Sheet>
   );

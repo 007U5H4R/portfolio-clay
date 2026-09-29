@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { parseProductParam, productHref, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { MainMediaStage } from "./MainMediaStage";
 import { ProductCarousel } from "./ProductCarousel";
@@ -8,6 +8,8 @@ import { ProductInfoPanel } from "./ProductInfoPanel";
 
 export interface IndependentProductsShowcaseProps {
   products: readonly PortfolioProduct[];
+  /** The page intro (server-rendered), placed in the same spread as the stage and sheet (TASK-127). */
+  intro?: ReactNode;
 }
 
 const PANEL_ID = "pf-panel";
@@ -17,8 +19,12 @@ const tabId = (id: string) => `pf-tab-${id}`;
 
 /**
  * Section 1's interactive core (TASK-116, spec §3, §6, §8–§10, §18, §50): media stage (left, ~62 %),
- * product panel (right, ~38 %), carousel (full width below). Mobile order is the DOM order: media →
- * details → actions → carousel (spec §46).
+ * product panel (right, ~38 %), carousel (full width below). Mobile order is the DOM order: intro →
+ * media → details → actions → carousel (spec §46; fidelity spec §29).
+ *
+ * TASK-127 (fidelity spec §2): at ≥ 1024 the intro, stage, sheet and carousel share one grid
+ * (`.pf-showcase`, the tabpanel is a subgrid), so the sheet rises beside the intro and the whole top
+ * composes as one spread; the intro stays outside the tabpanel.
  *
  * State is explicit React state (spec §9) — never DOM hacks:
  *   activeProductId  the selected product; changing it ALWAYS resets `mediaMode` to "pitch",
@@ -33,7 +39,7 @@ const tabId = (id: string) => `pf-tab-${id}`;
  * (`history.replaceState`, which Next's App Router integrates with) — no history spam and no
  * RSC refetch per click.
  */
-export function IndependentProductsShowcase({ products }: IndependentProductsShowcaseProps) {
+export function IndependentProductsShowcase({ products, intro }: IndependentProductsShowcaseProps) {
   const first = products[0];
   const [activeProductId, setActiveProductId] = useState<string>(first?.id ?? "");
   const [mediaMode, setMediaMode] = useState<MediaMode>("pitch");
@@ -78,6 +84,7 @@ export function IndependentProductsShowcase({ products }: IndependentProductsSho
 
   return (
     <div className="pf-showcase">
+      {intro}
       <div
         id={PANEL_ID}
         className="pf-feature"
