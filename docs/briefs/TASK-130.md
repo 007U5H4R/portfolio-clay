@@ -80,6 +80,11 @@ This brief is for the session running TASK-130 on Tushar Pathak's portfolio, ide
 ## 5. Visual system
 - **Shared:** typography, spacing, evidence UI, nav behaviour and a11y.
 - **Per product:** the metaphor, motif, 1–3 accents, hero composition, diagram types and section order (spec §7–§9, §39). RailCite's railway vocabulary stays on RailCite only.
+- **Architecture diagrams (Tushar, 2026-09-29: "if needed you can also add Architectural diagram for all products, you can create using archify"):** give each product whose records describe a real system a compact architecture diagram, 5–8 steps, in plain language (spec §16–§17).
+  - If the `archify` skill is available in your session, use it. Otherwise hand-author the diagram as an accessible inline or static SVG in the same restrained style.
+  - Draw only components recorded in `data/projects.ts`, CONTENT_INVENTORY §8 or `docs/trace/` (e.g. TeachSpark: WhatsApp → Twilio → Express → state machine → Claude → PDF/DOCX; RailCite's query pipeline). Never invent components.
+  - Products with no recorded architecture get no diagram.
+  - Every diagram needs a text alternative that lists its steps.
 - **Art:** hand-authored SVG, like TASK-127's `scripts/portfolio-art/`. Image generation is not available. Ship art as static files in `public/` so it adds no JavaScript.
 - **Colour:** EVAL-020 (`tests/unit/eval-020.test.ts`) forbids colour literals in `app/`, `components/` and `lib/` `.ts`/`.tsx`/`.css`, except in `app/globals.css`. There must be exactly 13 `--color-*` tokens. Derive product accents from the tokens (with `color-mix`, as TASK-121/127 did) or keep them inside the static SVGs.
 - **Motion:** viewport-triggered, one-time and product-specific (spec §26–§27). Respect reduced motion.
