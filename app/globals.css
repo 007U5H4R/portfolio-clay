@@ -11973,8 +11973,7 @@ html.lenis body {
     padding-top: 8px;
     border-top: 1px solid var(--line);
   }
-  .pf-case-role,
-  .pf-case-source {
+  .pf-case-role {
     font-size: 14px;
     line-height: 1.4;
     color: var(--color-ink-soft);

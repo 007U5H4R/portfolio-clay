@@ -7,18 +7,6 @@ export interface EnterpriseClientWorkProps {
   cases: readonly EnterpriseCase[];
 }
 
-/** "Project Manager portfolio V2.0, p. 1 · Résumé, p. 3" — titles and pages, never a file path. */
-function sourceLine(sources: EnterpriseCase["sources"]): string {
-  const byDoc = new Map<string, number[]>();
-  for (const { document, page } of sources) byDoc.set(document, [...(byDoc.get(document) ?? []), page]);
-  return [...byDoc.entries()]
-    .map(([doc, pages]) => {
-      const consecutive = pages.length === 2 && pages[1] === (pages[0] ?? 0) + 1;
-      return `${doc}, ${pages.length > 1 ? "pp." : "p."} ${pages.join(consecutive ? "–" : ", ")}`;
-    })
-    .join(" · ");
-}
-
 /**
  * Section 2 — Enterprise & Client Work (TASK-116, spec §25–§42, §47, §52; TASK-127 fidelity spec
  * §20–§24). Deliberately quieter than Section 1: a chapter break of two layered torn page edges onto
@@ -28,7 +16,8 @@ function sourceLine(sources: EnterpriseCase["sources"]): string {
  * Each card is content paper (`data-paper="card"`, not counted) clipped into a manila folder: the
  * folder's tab carries a neutral "Case file 0N" stamp (says nothing factual), then client (h3),
  * program, a 1–2 sentence summary, the grouped sub-projects (names only — the detail stays in
- * `data/enterprise.ts`), 4–6 tags, and a quiet file foot (role · dates, then the source line) — a plain
+ * `data/enterprise.ts`), 4–6 tags, and a quiet file foot (role · dates; no source line on the page since TASK-131 — the
+ * provenance stays in `data/enterprise.ts`) — a plain
  * `div`, not a `<footer>`: each route keeps exactly one footer, the band (layout.spec). The
  * folder, paperclip and tab are the card's own CSS material. No "Open case file →" CTA: no detail
  * page exists, so it would be a dead link (spec §34).
@@ -77,7 +66,6 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
                   <p className="pf-case-role">
                     {item.role} · {formatRange(item.period)}
                   </p>
-                  <p className="pf-case-source">Source: {sourceLine(item.sources)}</p>
                 </div>
               </Sheet>
             </li>
