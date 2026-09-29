@@ -397,7 +397,9 @@ Tushar asked for these three pages to reach RailCite's level of craft, density a
   - the one new case-study link (Dino Arcade → the Slag City case study) follows the new-tab rule.
 
 ### Checks
-Unit tests: 715 passed. Typecheck, lint, tokens (13/13), content gate and build are clean. E2E results are in the commit that adds this section.
+Unit tests: 715 passed. Typecheck, lint, tokens (13/13), content gate and build are clean; bundle 158.3 kB on each journal page.
+
+E2E (case-study-system, case-study, EVAL-006/008/010/018, sweep, case-study-new-tab, projects, layout, fallback-glyphs) at 390/768/1024/1440: 773 passed, 931 skipped (width-scoped), 4 failed. All four failures were the same finding: EVAL-008 flagged the Velora pivot timeline's "Days 1–7" and "By day 9" labels, which were 13px. They are labels, so they now carry `data-micro-label` (≥ 12px, ivory on charcoal). On a fresh build, the Velora EVAL-008 and case-study-system tests pass at every width (19 passed).
 
 ## Per-product narrative choices
 The dominant story (spec §41) for each product, with the one call that shaped each page. Detail is in `docs/reports/TASK-130/<slug>.md`.
@@ -548,7 +550,11 @@ All on `cloud/task-130`, pushed after each product. `m-009-redesign` and `main` 
 | `dc995fe` | Show real product screens for RailCite, Cubicle, Dino Arcade and Pratyasa (follow-up) |
 | `6ef19f5` | Update the TASK-130 report with the real product screens follow-up |
 | `3dd4a73` | Merge `origin/m-009-redesign` (TASK-133 Featured Work). TASK-133 took Dev-127, so TASK-130's deviations are now **Dev-128** (no dev copy), **Dev-129** (case-study system) and **Dev-130** (new-tab rule) |
-| *(last)* | Renumber TASK-130's Dev references after the merge |
+| `8b47c20` | Renumber TASK-130's Dev references after the merge |
+| `2256c10` | Rebuild the Cubicle case study as a journal page (redesign follow-up) |
+| `2c7c67f` | Rebuild the Dino Arcade case study as a journal page |
+| `e5dde5f` | Give Velora its fashion-studio journal page and extract shared journal parts |
+| *(last)* | Record the journal redesign's e2e results and retake its after screenshots |
 
 Every TASK-130 commit subject names the task (table abbreviated), and every commit ends with the `Co-Authored-By: Claude Opus 5.5` and `Claude-Session` trailers.
 
