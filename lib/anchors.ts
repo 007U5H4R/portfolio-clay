@@ -56,6 +56,7 @@ export const ALL_PROJECT_SLUGS = [
   'dino-arcade-pwa',
   'cinematic-portfolio',
   'campfire-board', // TASK-124
+  'slag-city', // TASK-129
 ] as const;
 
 export interface RouteInputs {

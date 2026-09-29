@@ -327,6 +327,7 @@ describe("TC-091 · sanity", () => {
         "dino-arcade-pwa",
         "cinematic-portfolio",
         "campfire-board",
+        "slag-city",
       ].sort(),
     );
   });
