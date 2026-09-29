@@ -159,7 +159,7 @@ test("@EVAL-017 home carries title, description and an OG image", async ({ page 
 // hero opens with its torn edge as the first child (Design.md §7.1). The hero's copy block sits on
 // `paper` under the banner's torn edge, so Featured (paper-2) → How-I-think (paper) → Ask (paper-2).
 // ---------------------------------------------------------------------------
-test("TC-151 home sections alternate paper / paper-2 and open with a torn edge", async ({ page }) => {
+test("TC-151 home sections alternate their paper fills and open with a torn edge", async ({ page }) => {
   test.skip(width(page) !== 1440, "fills + DOM structure are viewport-independent; checked once at w1440");
   await page.goto("/", { waitUntil: "load" });
 
@@ -171,14 +171,18 @@ test("TC-151 home sections alternate paper / paper-2 and open with a torn edge",
       probe.style.backgroundColor = `var(${v})`;
       return getComputedStyle(probe).backgroundColor;
     };
-    const out = { paper: read("--color-paper"), paper2: read("--color-paper-2") };
+    const out = { paper: read("--color-paper"), paper2: read("--color-paper-2"), featured: "" };
+    // TASK-133 (Dev-128): Featured Work sits on the reference's paler cream, a mix of the paper tokens.
+    probe.style.backgroundColor = "color-mix(in oklab, var(--color-paper) 72%, var(--color-ivory))";
+    out.featured = getComputedStyle(probe).backgroundColor;
     probe.remove();
     return out;
   });
   expect(tokens.paper).not.toBe(tokens.paper2);
+  expect(tokens.featured).not.toBe(tokens.paper);
 
   const expected: [string, string][] = [
-    ["#work-featured", tokens.paper2],
+    ["#work-featured", tokens.featured],
     ["#how-i-think", tokens.paper],
     ["#ask", tokens.paper2],
   ];

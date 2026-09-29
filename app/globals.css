@@ -2054,70 +2054,78 @@ html.lenis body {
 }
 /* end TKT-75 */
 
-/* TASK-133 · home Featured Work — the three-product editorial showcase (Tushar's spec 2026-09-29,
-   docs/redesign-mockups/m-009/tushar-2026-09-29/; Design.md §7.1, §11 Dev-127). `section#work-featured`
-   keeps its paper-2 body under the torn edge. Compact head (eyebrow + rule · h2 · one subline), then:
-     ≥ 1100  RailCite anchor left (1.5fr ≈ 60 %) spanning two rows · Slag City over Campfire Board right;
-     700–1099  RailCite full width (copy | art) · the two side cards side by side (art over copy);
-     < 700   one column, RailCite → Slag City → Campfire Board, art over copy on every card.
-   Each card is a torn cream sheet: the tear is a baked mask (the TASK-127 `tear-wide-*` masks) on
-   `.fw-paper`, the shadow a warm `drop-shadow` on the sheet (follows the silhouette); the art column is
-   pasted in with its own torn edge (`tear-tall-*` mask, oversized so only the inner edge shows). CTA:
-   the terracotta torn-paper button — hover lifts 1 px, deepens the shadow, the arrow steps 3 px right.
-   Paper tokens + `color-mix()` only (EVAL-020); the colour of the art lives in its static SVGs. */
+/* TASK-133 · home Featured Work — the three-product editorial showcase, rebuilt to Tushar's reference
+   image (docs/redesign-mockups/m-009/tushar-2026-09-29/; Design.md §7.1, §11 Dev-127/128).
+   `section#work-featured` keeps its torn edge; its body is a paler cream than the cards (the reference's
+   calm page under warmer paper). A wide editorial wrap (≈ 93 vw, ≤ 1560 px), then:
+     ≥ 1200  RailCite anchor left (`1.55fr` ≈ 60 %) spanning both rows · Slag City over Campfire Board;
+     700–1199  RailCite full width (collage behind the copy) · the side cards side by side (copy, art);
+     < 700   one column RailCite → Slag City → Campfire Board, copy then art on every card.
+   Each card is a torn paper sheet (its own baked mask: tear-feature-rail / -slag / -camp), warm
+   drop-shadow on the sheet. From 1200 (RailCite from 700) the card's collage fills the whole sheet
+   behind the copy — the SVGs keep a calm upper-left zone for it. CTA: the terracotta torn-paper
+   rectangle; hover lifts it 1 px, deepens its shadow, steps the arrow 3 px. Cards never move.
+   Paper tokens + `color-mix()` only (EVAL-020); the art's colour lives in its static SVGs. */
 @layer components {
   .featured {
     position: relative;
-    --fw-cream: color-mix(in oklab, var(--color-ivory) 70%, var(--color-note));
+    --fw-bg: color-mix(in oklab, var(--color-paper) 72%, var(--color-ivory));
+    --fw-card: color-mix(in oklab, var(--color-paper-2) 86%, var(--color-kraft));
     --fw-fibers: url("/media/portfolio/decor/paper-fibers.svg");
-    --fw-tear-a: url("/media/portfolio/decor/tear-wide-a.svg");
-    --fw-tear-b: url("/media/portfolio/decor/tear-wide-b.svg");
-    --fw-tear-art: url("/media/portfolio/decor/tear-tall-a.svg");
     --fw-tear-strip: url("/media/portfolio/decor/tear-strip-b.svg");
-    --fw-shadow: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent))
-      drop-shadow(0 12px 16px color-mix(in oklab, var(--color-terracotta) 16%, transparent));
+    --fw-shadow: drop-shadow(0 1px 1.5px color-mix(in oklab, var(--color-navy) 12%, transparent))
+      drop-shadow(0 8px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
+    --fw-gutter: clamp(16px, 3.2vw, 56px);
   }
   .featured-body {
-    background: var(--color-paper-2);
+    background: var(--fw-bg);
   }
-  .featured-wrap {
-    /* bottom: the site's section padding (Design.md §2.3) — the next sheet slides up to 200 px (phones
-       120 px) over this section's foot as it scrolls on (TKT-106), so the CTAs stay clear of that zone */
-    padding-block: clamp(14px, 1.6vw, 24px) clamp(100px, 8.4vw, 122px);
+  .fw-wrap {
+    width: min(100% - 2 * var(--fw-gutter), 1560px);
+    margin-inline: auto;
+    /* bottom: the site's section scale — the next sheet slides up to 200 px (phones 120 px) over this
+       section's foot as it scrolls on (TKT-106), so the CTAs stay clear of that zone */
+    padding-block: clamp(22px, 3.4vw, 52px) clamp(100px, 7.4vw, 116px);
   }
 
   /* head */
   .fw-head {
     display: grid;
-    gap: 10px;
-    margin-bottom: clamp(26px, 2.4vw, 34px);
+    margin-bottom: clamp(28px, 2.8vw, 44px);
   }
   .fw-eyebrow {
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-size: var(--text-caption);
+    gap: 18px;
+    font-size: clamp(12.5px, 1vw, 15px);
     font-weight: 600;
-    letter-spacing: 0.26em;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--color-terracotta);
   }
   .fw-eyebrow::after {
     content: "";
-    width: 64px;
+    width: 72px;
     height: 1.5px;
     background: currentColor;
   }
   .fw-h2 {
-    font-size: clamp(36px, 4.2vw, 60px);
-    line-height: 1.02;
-    font-variation-settings: "opsz" 120, "SOFT" 30;
+    margin-top: clamp(14px, 1.4vw, 22px);
+    font-size: clamp(40px, 5vw, 76px);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 144, "SOFT" 0;
     color: var(--color-navy);
   }
   .fw-sub {
-    max-width: 72ch;
-    font-size: clamp(17px, 1.35vw, 19px);
-    line-height: 1.45;
+    max-width: 920px;
+    margin-top: clamp(8px, 0.8vw, 12px);
+    font-family: var(--font-display);
+    font-size: clamp(17px, 1.5vw, 23px);
+    font-weight: 400;
+    line-height: 1.35;
+    font-variation-settings: "opsz" 14;
     color: var(--color-navy-2);
   }
 
@@ -2132,7 +2140,7 @@ html.lenis body {
     min-width: 0;
   }
 
-  /* the sheet: no ivory box — the torn cream paper is `.fw-paper` */
+  /* the sheet: the torn paper is `.fw-paper`, the shadow follows its silhouette */
   .fw-card.paper-sheet {
     display: grid;
     padding: 0;
@@ -2148,16 +2156,22 @@ html.lenis body {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    align-content: start;
     min-width: 0;
-    background-color: var(--fw-cream);
+    overflow: hidden;
+    background-color: var(--fw-card);
     background-image: var(--fw-fibers);
     background-size: 420px 420px;
-    -webkit-mask: var(--fw-tear-b) 0 0 / 100% 100% no-repeat;
-    mask: var(--fw-tear-b) 0 0 / 100% 100% no-repeat;
+    -webkit-mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
+    mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
   }
-  .fw-card-anchor .fw-paper {
-    -webkit-mask-image: var(--fw-tear-a);
-    mask-image: var(--fw-tear-a);
+  .fw-paper[data-featured="railcite"] {
+    -webkit-mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
+    mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
+  }
+  .fw-paper[data-featured="campfire-board"] {
+    -webkit-mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
+    mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
   }
 
   /* copy */
@@ -2167,96 +2181,98 @@ html.lenis body {
     display: grid;
     align-content: start;
     justify-items: start;
-    gap: 10px;
     min-width: 0;
-    padding: 22px 24px 30px;
-  }
-  .fw-kicker {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    line-height: 1.5;
-    text-transform: uppercase;
-    color: var(--color-green-2);
+    padding: 28px 22px 22px;
   }
   .fw-name {
-    font-size: clamp(28px, 2.2vw, 34px);
-    line-height: 1.02;
-    font-variation-settings: "opsz" 96, "SOFT" 20;
+    font-size: clamp(34px, 3.2vw, 50px);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 144, "SOFT" 0;
     color: var(--color-navy);
+    text-wrap: balance;
   }
   .fw-card-anchor .fw-name {
-    font-size: clamp(44px, 4.4vw, 66px);
-    font-variation-settings: "opsz" 144, "SOFT" 30;
+    font-size: clamp(46px, 5vw, 78px);
   }
   .fw-tagline {
-    max-width: 24ch;
+    max-width: 22ch;
+    margin-top: clamp(8px, 0.8vw, 12px);
     font-family: var(--font-display);
-    font-size: 17px;
+    font-size: clamp(17px, 1.3vw, 20px);
     line-height: 1.3;
+    font-variation-settings: "opsz" 14;
     color: var(--color-navy-2);
   }
   .fw-card-anchor .fw-tagline {
     max-width: none;
-    font-size: clamp(22px, 2vw, 28px);
+    margin-top: clamp(8px, 0.9vw, 14px);
+    font-size: clamp(24px, 2.2vw, 34px);
+    font-variation-settings: "opsz" 48;
     color: var(--color-terracotta);
   }
   .fw-line {
     max-width: 34ch;
-    font-size: 16px;
-    line-height: 1.5;
+    margin-top: 12px;
+    font-size: clamp(16px, 1.2vw, 18px);
+    line-height: 1.45;
     color: var(--color-navy-2);
   }
   .fw-proof {
-    display: grid;
-    gap: 10px;
-    margin-block: 4px 2px;
-    padding-top: 12px;
-    border-top: 1px dashed var(--line-strong);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 0;
+    margin-top: clamp(18px, 1.8vw, 26px);
     list-style: none;
   }
   .fw-proof-item {
     display: grid;
-    grid-template-columns: 26px auto minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
+    grid-template-columns: auto minmax(0, auto);
+    gap: 9px;
+    align-items: start;
+    padding-right: 16px;
+  }
+  .fw-proof-item + .fw-proof-item {
+    padding-left: 16px;
+    border-left: 1px solid var(--line-strong);
+  }
+  .fw-proof-item:last-child {
+    padding-right: 0;
   }
   .fw-proof-icon {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 30px;
+    margin-top: 2px;
     color: var(--color-terracotta);
   }
   .fw-proof-body {
     display: grid;
-    gap: 2px;
-    min-width: 0;
   }
   .fw-proof-value {
     font-family: var(--font-display);
-    font-size: 34px;
+    font-size: clamp(32px, 2.6vw, 42px);
     font-weight: 500;
     line-height: 1;
     font-variant-numeric: tabular-nums;
-    color: var(--color-navy);
+    color: var(--color-terracotta);
   }
   .fw-proof-item[data-metric="structural"] .fw-proof-value {
     color: var(--color-forest);
   }
   .fw-proof-label {
-    font-size: 15px;
+    margin-top: 4px;
+    font-size: 14.5px;
     line-height: 1.25;
     text-transform: lowercase;
     color: var(--color-navy-2);
   }
   .fw-proof-kind {
+    margin-top: 2px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.3;
-    letter-spacing: 0.02em;
     color: var(--color-ink-soft);
-  }
-  .fw-proof-item[data-metric="structural"] .fw-proof-kind {
-    color: var(--color-navy-2);
   }
 
   /* the terracotta torn-paper Explore button */
@@ -2265,10 +2281,10 @@ html.lenis body {
     isolation: isolate;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    min-height: 46px;
-    margin-top: 6px;
-    padding: 10px 22px 11px;
+    gap: 12px;
+    min-height: 48px;
+    margin-top: clamp(16px, 1.6vw, 22px);
+    padding: 11px 22px 12px;
     font-size: 16px;
     font-weight: 500;
     line-height: 1.2;
@@ -2278,6 +2294,12 @@ html.lenis body {
     transition:
       translate 0.18s ease,
       filter 0.18s ease;
+  }
+  .fw-card-anchor .fw-cta {
+    min-height: 54px;
+    margin-top: clamp(22px, 2.2vw, 32px);
+    padding-inline: 26px;
+    font-size: 17px;
   }
   .fw-cta::before {
     content: "";
@@ -2305,32 +2327,39 @@ html.lenis body {
     background-color: var(--color-terracotta);
   }
 
-  /* art: pasted in, torn along its inner edge */
+  /* art — stacked (phones, and the side cards below 1200): a crop of the collage's right side */
   .fw-art {
     position: relative;
-    order: -1;
     min-width: 0;
     aspect-ratio: 16 / 10;
     overflow: hidden;
-    /* oversized tall tear: only the bottom edge falls inside the box when stacked */
-    -webkit-mask: var(--fw-tear-art) 50% 0 / calc(100% + 48px) calc(100% + 18px) no-repeat;
-    mask: var(--fw-tear-art) 50% 0 / calc(100% + 48px) calc(100% + 18px) no-repeat;
   }
   .fw-art img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 58%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    height: 118%;
   }
   .fw-card-anchor .fw-art {
-    aspect-ratio: 1 / 0.9;
+    aspect-ratio: 6 / 5;
   }
   .fw-card-anchor .fw-art img {
-    object-position: 60% 72%;
+    height: 128%;
+  }
+  /* phones: the two proof points stack (no room side by side), without the separator */
+  @media (max-width: 699px) {
+    .fw-proof {
+      flex-direction: column;
+    }
+    .fw-proof-item + .fw-proof-item {
+      padding-left: 0;
+      border-left: 0;
+    }
   }
 
-  /* 700–1099: RailCite full width (copy | art); the side cards side by side */
+  /* 700–1199: RailCite full width with its collage behind the copy; the side cards side by side */
   @media (min-width: 700px) {
     .fw-grid {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -2339,68 +2368,80 @@ html.lenis body {
       grid-column: 1 / -1;
     }
     .fw-card-anchor .fw-paper {
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-      min-height: 460px;
+      min-height: clamp(500px, 64vw, 620px);
+    }
+    .fw-proof-item {
+      padding-right: 12px;
+    }
+    .fw-proof-item + .fw-proof-item {
+      padding-left: 12px;
     }
     .fw-card-anchor .fw-copy {
-      align-content: center;
-      padding: 40px 12px 40px 40px;
+      max-width: 54%;
+      padding: clamp(36px, 3.6vw, 58px) 0 36px clamp(32px, 3vw, 56px);
     }
     .fw-card-anchor .fw-art {
-      order: 0;
-      aspect-ratio: auto;
-      /* the tall tear, overhanging top/right/bottom: only its left edge shows */
-      -webkit-mask-position: 0 50%;
-      mask-position: 0 50%;
-      -webkit-mask-size: calc(100% + 40px) calc(100% + 48px);
-      mask-size: calc(100% + 40px) calc(100% + 48px);
-    }
-    .fw-card-anchor .fw-art img {
       position: absolute;
       inset: 0;
+      z-index: 0;
+      aspect-ratio: auto;
+    }
+    /* width-fit, bottom-anchored: the collage is transparent above, so a card taller than the art
+       simply shows more paper at the top — the calm copy zone is never cropped away */
+    .fw-card-anchor .fw-art img {
+      inset: auto 0 0;
+      width: 100%;
+      height: auto;
+    }
+    .fw-card-side .fw-copy {
+      padding: 30px 26px 20px;
     }
   }
 
-  /* ≥ 1100: the asymmetric spread */
-  @media (min-width: 1100px) {
+  /* ≥ 1200: the asymmetric spread; every collage fills its sheet behind the copy */
+  @media (min-width: 1200px) {
     .fw-grid {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
       grid-template-rows: auto auto;
-      gap: 26px 28px;
+      gap: 26px;
     }
     .fw-slot-anchor {
       grid-column: 1;
       grid-row: 1 / span 2;
     }
     .fw-card-anchor .fw-paper {
-      grid-template-columns: minmax(0, 0.86fr) minmax(0, 1fr);
-      min-height: 500px;
+      min-height: 0;
+      height: 100%;
     }
     .fw-card-anchor .fw-copy {
-      padding: 40px 8px 36px 42px;
+      max-width: 50%;
     }
-    .fw-card-anchor .fw-art img {
-      object-position: 62% 100%;
+    .fw-proof-item {
+      padding-right: 16px;
+    }
+    .fw-proof-item + .fw-proof-item {
+      padding-left: 16px;
     }
     .fw-card-side .fw-paper {
-      grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
-      min-height: 237px;
+      min-height: clamp(262px, 20.5vw, 320px);
     }
     .fw-card-side .fw-copy {
-      align-content: center;
-      padding: 24px 4px 24px 28px;
+      max-width: 46%;
+      padding: clamp(28px, 2.6vw, 42px) 0 24px clamp(26px, 2.2vw, 36px);
+    }
+    .fw-card-side .fw-paper[data-featured="campfire-board"] .fw-copy {
+      max-width: 42%;
     }
     .fw-card-side .fw-art {
-      order: 0;
-      aspect-ratio: auto;
-      -webkit-mask-position: 0 50%;
-      mask-position: 0 50%;
-      -webkit-mask-size: calc(100% + 40px) calc(100% + 48px);
-      mask-size: calc(100% + 40px) calc(100% + 48px);
-    }
-    .fw-card-side .fw-art img {
       position: absolute;
       inset: 0;
+      z-index: 0;
+      aspect-ratio: auto;
+    }
+    .fw-card-side .fw-art img {
+      inset: auto 0 0;
+      width: 100%;
+      height: auto;
     }
   }
 
@@ -2418,15 +2459,31 @@ html.lenis body {
   }
 }
 
-/* TASK-133 entrance (spec §25): the shared one-shot `Reveal` (unlayered, like `.reveal`, so it can
-   override it), retuned per piece — heading + RailCite rise 10 px, the right cards slide 10 px in from
-   the right. Motion-safe only: under reduced motion `.reveal` shows everything at once. */
+/* Unlayered (to win over the TornEdge fill utility and `.reveal`): the torn edge takes the section's
+   paler cream; the entrance is the shared one-shot `Reveal`, retuned — head and RailCite settle up
+   10 / 12 px, the right cards only fade, 80 / 140 ms after RailCite. Reduced motion: `.reveal` shows
+   everything at once (the global rule). */
+#work-featured > .fw-torn {
+  fill: var(--fw-bg);
+}
 @media (prefers-reduced-motion: no-preference) {
-  .fw-rv-y.reveal:not([data-revealed]):not(:focus-within) {
+  .fw-head.reveal:not([data-revealed]):not(:focus-within) {
     transform: translateY(10px);
   }
-  .fw-rv-x.reveal:not([data-revealed]):not(:focus-within) {
-    transform: translateX(10px);
+  .fw-slot-anchor.reveal:not([data-revealed]):not(:focus-within) {
+    transform: translateY(12px);
+  }
+  .fw-slot-side.reveal:not([data-revealed]):not(:focus-within) {
+    transform: none;
+  }
+  .fw-slot.reveal {
+    transition-delay: 0ms;
+  }
+  .fw-slot-side.reveal:nth-child(2) {
+    transition-delay: 80ms;
+  }
+  .fw-slot-side.reveal:nth-child(3) {
+    transition-delay: 140ms;
   }
 }
 /* end TASK-133 */

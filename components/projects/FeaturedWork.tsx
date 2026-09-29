@@ -4,7 +4,6 @@ import type { Metric, Project } from "@/data/schema";
 import { projects } from "@/data/projects";
 import { portfolioEntries } from "@/data/portfolio";
 import { featuredPresentation, type FeaturedPresentation } from "@/data/featured";
-import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Sheet, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { illustration } from "@/lib/illustrations";
@@ -19,10 +18,11 @@ export const FEATURED: Project[] = projects
   .filter((project) => project.featured)
   .sort((a, b) => (a.featured ?? 0) - (b.featured ?? 0));
 
-/** Per-card paper placement (spec §10: RailCite −0.2…−0.4°, Slag City +0.2…+0.5°, Campfire −0.2…+0.2°). */
+/** Per-card paper placement (fidelity spec §43–§44: RailCite −0.15°, tape top-left; Slag City +0.2°, tape
+ *  top; Campfire Board −0.15°, a subtle tape). */
 const PLACEMENT: readonly { rotate: number; tape: TapeSide }[] = [
-  { rotate: -0.3, tape: "l" },
-  { rotate: 0.35, tape: "c" },
+  { rotate: -0.15, tape: "l" },
+  { rotate: 0.2, tape: "c" },
   { rotate: -0.15, tape: "r" },
 ];
 
@@ -30,14 +30,14 @@ const PLACEMENT: readonly { rotate: number; tape: TapeSide }[] = [
 const METRIC_ICON: Record<Metric["kind"], LucideIcon> = { measured: FileText, structural: ShieldCheck, "self-reported": FileText };
 
 /**
- * How a proof point states its kind (the site's metric-kind convention — MetricStrip / ProjectCard:
- * kind named in text, `as of` date for a measured value). "0 invented citations" is enforced by the
- * code, not measured, so it reads "Structural · by construction" (its record context), never a date.
+ * The two-to-four-word honesty marker under a proof point (no caveat prose on Home — fidelity spec §20):
+ * a measured value carries its `as of` date; "0 invented citations" is enforced by the code, not
+ * measured, so it reads "by construction" (its record context), never a date.
  */
 export function metricKindNote(metric: Metric): string {
-  if (metric.kind === "structural") return "Structural · by construction";
-  if (metric.kind === "self-reported") return `Self-reported · ${formatAsOf(metric.asOf)}`;
-  return `Measured · ${formatAsOf(metric.asOf)}`;
+  if (metric.kind === "structural") return "by construction";
+  if (metric.kind === "self-reported") return `self-reported, ${formatAsOf(metric.asOf)}`;
+  return formatAsOf(metric.asOf);
 }
 
 export interface FeaturedCard {
@@ -126,9 +126,6 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
       <Tape side={place.tape} />
       <div className="fw-paper" data-featured={project.slug}>
         <div className="fw-copy">
-          {anchor ? <p className="fw-kicker" data-micro-label="">
-              {project.tags.join(" · ")}
-            </p> : null}
           <h3 id={headingId} className="fw-name">
             {project.name}
           </h3>
@@ -140,11 +137,11 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
                 const Icon = METRIC_ICON[metric.kind];
                 return (
                   <li key={metric.label} className="fw-proof-item" data-metric={metric.kind}>
-                    <Icon className="fw-proof-icon" aria-hidden="true" strokeWidth={1.6} />
-                    <b className="fw-proof-value" data-metric-value="">
-                      {metric.value}
-                    </b>{" "}
+                    <Icon className="fw-proof-icon" aria-hidden="true" strokeWidth={1.5} />
                     <span className="fw-proof-body">
+                      <b className="fw-proof-value" data-metric-value="">
+                        {metric.value}
+                      </b>{" "}
                       <span className="fw-proof-label" data-metric-label="">
                         {metric.label}
                       </span>
@@ -166,27 +163,30 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
 }
 
 /**
- * Home Featured Work (TASK-133, Tushar's spec 2026-09-29; supersedes the TKT-75 three-card grid —
- * Design.md §7.1, §11 Dev-127). `section#work-featured` on `paper-2` under its torn edge: a compact
- * head (eyebrow · h2 · one subline, spec §2), then an asymmetric editorial spread — RailCite as the
- * large anchor (left, ~60 %), Slag City over Campfire Board (right). Each card is a torn cream sheet
- * with its own hand-authored cut-paper collage (static SVG, no JS) and ONE real link: the terracotta
- * Explore button → `/projects?product=<slug>` (the Portfolio deep link, same tab — spec §12–§14, §26).
+ * Home Featured Work (TASK-133; the fidelity pass treats Tushar's reference image as the visual spec —
+ * Design.md §7.1, §11 Dev-127/128). `section#work-featured` under its torn edge, on a paler cream: a wide
+ * editorial wrap (≈ 93 vw, ≤ 1560 px), the head (eyebrow + rule · h2 · one subline), then the spread —
+ * RailCite as the large anchor (left, `1.55fr` ≈ 60 %), Slag City over Campfire Board (right). Each card
+ * is a torn paper sheet whose hand-authored collage fills the WHOLE card behind the copy (static SVG, no
+ * JS; the copy sits in the collage's calm zone), with ONE real link: the terracotta torn-paper Explore
+ * button → `/projects?product=<slug>` (the Portfolio deep link, same tab).
  *
  * Decorations = 1 (the torn edge — Design.md §3.3); the tapes are fasteners and the cards content
- * paper. Motion (spec §25): the existing one-shot `Reveal` (IntersectionObserver, fires once) —
- * heading and RailCite rise 10 px, the right cards slide 10 px in from the right; none under reduced
- * motion. Server component (only `Reveal` is a client leaf, already on the page for How I think).
+ * paper. Motion: the existing one-shot `Reveal` — head and RailCite settle up, the right cards fade in
+ * 80 / 140 ms later; nothing moves under reduced motion. Server component (`Reveal` is the only client
+ * leaf, already on the page for How I think).
  */
 export function FeaturedWork() {
   const cards = featuredCards();
   return (
     <section id="work-featured" aria-labelledby="work-featured-heading" className="featured">
-      <TornEdge fill="paper-2" />
+      <TornEdge fill="paper-2" className="fw-torn" />
       <div className="featured-body">
-        <Container className="featured-wrap">
+        <div className="fw-wrap">
           <Reveal className="fw-head fw-rv-y" index={0}>
-            <p className="fw-eyebrow">Featured work</p>
+            <p className="fw-eyebrow" data-micro-label="">
+              Featured work
+            </p>
             <h2 id="work-featured-heading" className="fw-h2">
               Real problems. Real products.
             </h2>
@@ -197,13 +197,13 @@ export function FeaturedWork() {
               <Reveal
                 key={card.project.slug}
                 index={index + 1}
-                className={`fw-slot ${index === 0 ? "fw-slot-anchor fw-rv-y" : "fw-slot-side fw-rv-x"}`}
+                className={`fw-slot ${index === 0 ? "fw-slot-anchor fw-rv-y" : "fw-slot-side fw-rv-fade"}`}
               >
                 <Card card={card} index={index} />
               </Reveal>
             ))}
           </div>
-        </Container>
+        </div>
       </div>
     </section>
   );
