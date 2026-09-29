@@ -235,8 +235,8 @@ test.describe("ask-panel", () => {
     // TASK-123: a suggested question is answered from the curated FAQ cache, not the index.
     await expect(lastAnswer(page)).toHaveAttribute("data-source", "faq-cache");
     const sources = lastAnswer(page).getByRole("list", { name: "Sources" }).getByRole("link");
-    // TASK-124 (8ada55f): the reviewed products answer also cites Campfire Board.
-    await expect(sources).toHaveText(["TeachSpark", "RailCite", "Nuptis → Velora", "Campfire Board"]);
+    // TASK-124 (8ada55f): the reviewed products answer also cites Campfire Board; TASK-129 adds Slag City.
+    await expect(sources).toHaveText(["TeachSpark", "RailCite", "Nuptis → Velora", "Campfire Board", "Slag City"]);
     for (const href of await sources.evaluateAll((els) => els.map((a) => a.getAttribute("href") ?? "")))
       expect(href).not.toMatch(/^https?:/); // titles only — no raw URLs for this answer
     const followUps = lastAnswer(page).getByRole("list", { name: "Follow-up questions" }).getByRole("button");

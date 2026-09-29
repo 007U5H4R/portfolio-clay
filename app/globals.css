@@ -11064,6 +11064,7 @@ html.lenis body {
   .pf-cover[data-product="dino-arcade-pwa"] { --title: var(--color-note); --extrude: var(--color-rust); }
   .pf-cover[data-product="cinematic-portfolio"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="campfire-board"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
+  .pf-cover[data-product="slag-city"] { --title: var(--color-note); --extrude: var(--color-rust); }
   /* the cover-line plate: a cream printed label with the product's emblem */
   .pf-cover-plate {
     position: absolute;

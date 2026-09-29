@@ -7,6 +7,7 @@ import { dinoArcadePwa } from "./dino-arcade-pwa";
 import { nuptis } from "./nuptis";
 import { pratyasa } from "./pratyasa";
 import { railcite } from "./railcite";
+import { slagCity } from "./slag-city";
 import { teachspark } from "./teachspark";
 import { tegaki } from "./tegaki";
 import { tokenToli } from "./token-toli";
@@ -26,4 +27,5 @@ export const scenes: readonly Scene[] = [
   dinoArcadePwa,
   cinematicPortfolio,
   campfireBoard,
+  slagCity,
 ];
