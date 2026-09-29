@@ -74,6 +74,10 @@ const DECOR: Partial<Record<Theme, Partial<Record<Slot, ReactNode>>>> = {
     ),
     learnings: <Scribble className="vl-scribble-end">one survived.</Scribble>,
   },
+  cubicle: {
+    hero: <Sticky className="cb-sticky-hero">Built, not launched.</Sticky>,
+    decisions: <Scribble className="cb-scribble">trust → ownership → autonomy</Scribble>,
+  },
 };
 
 export function themeDecor(theme: Theme, slot: Slot): ReactNode {
