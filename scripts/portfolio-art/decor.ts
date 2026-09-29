@@ -229,6 +229,12 @@ const TEARS: readonly TearSpec[] = [
   { file: "tear-tape.svg", w: 120, h: 34, seed: 113, depth: { top: 1.5, right: 7, bottom: 1.5, left: 7 }, step: 1.5 },
   { file: "tear-tag.svg", w: 220, h: 44, seed: 127, depth: { top: 3, right: 5, bottom: 4, left: 5 }, step: 2 },
   { file: "tear-seam.svg", w: 1600, h: 60, seed: 131, depth: { top: 14 }, step: 4 },
+  // TASK-133 home Featured Work sheets, one per card (spec: restrained, never the same edge twice):
+  // RailCite — the widest, most irregular along the bottom; Slag City — rough top + bottom;
+  // Campfire Board — gently uneven top / bottom.
+  { file: "tear-feature-rail.svg", w: 950, h: 650, seed: 137, depth: { top: 8, right: 7, bottom: 16, left: 8 }, step: 3 },
+  { file: "tear-feature-slag.svg", w: 620, h: 310, seed: 149, depth: { top: 9, right: 5, bottom: 10, left: 5 }, step: 3 },
+  { file: "tear-feature-camp.svg", w: 620, h: 320, seed: 151, depth: { top: 6, right: 5, bottom: 8, left: 6 }, step: 3 },
 ];
 
 export const decorAssets: readonly { file: string; render: () => string }[] = [
