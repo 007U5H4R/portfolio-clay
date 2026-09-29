@@ -186,7 +186,14 @@ export function TushkyVoicePlayer({ messageId, question, answerText, faqId, cach
       focusInside.current = true;
     },
     onBlur: (event: FocusEvent<HTMLDivElement>) => {
-      if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) focusInside.current = false;
+      const strip = event.currentTarget;
+      const left = event.target;
+      // Focus left the strip on purpose (another control, or a click on plain text) only if the control
+      // that lost it is still in the page; a control removed by a state swap keeps the flag, so the
+      // effect above can hand focus to its replacement. Never steal focus back otherwise.
+      setTimeout(() => {
+        if (left.isConnected && !strip.contains(document.activeElement)) focusInside.current = false;
+      }, 0);
     },
   };
 

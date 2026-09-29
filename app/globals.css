@@ -7628,7 +7628,7 @@ html.lenis body {
 /* end TKT-104 */
 
 /* TASK-134 · Ask Tushky voice strip (Tushar's voice UI spec 2026-09-29 + tushky-voice-ui-reference.jpg;
-   Design.md §11 Dev-128). `components/ai/voice/TushkyVoicePlayer.tsx` renders it inside each Tushky
+   Design.md §11 Dev-129). `components/ai/voice/TushkyVoicePlayer.tsx` renders it inside each Tushky
    answer bubble, between the answer and its sources. A compact cream paper strip with a softly
    irregular edge and a paper-on-paper shadow: terracotta play disc (44 px), navy label, a small bar
    waveform that fills with progress, a muted clock, and a secondary Replay. One height (60 px) in

@@ -287,6 +287,22 @@ describe("TushkyVoicePlayer", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /Try again/ }));
   });
 
+  it("never steals focus: after the visitor moves on, a later state change leaves focus alone", async () => {
+    let fail: (r: Response) => void = () => {};
+    renderPlayer(vi.fn(() => new Promise<Response>((r) => (fail = r))));
+    const main = screen.getByRole("button", { name: "Listen to Tushky's answer" });
+    main.focus();
+    fireEvent.click(main);
+    main.blur(); // e.g. a click on the answer text: focus goes to <body>
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 5));
+    });
+    fail(new Response(JSON.stringify({ code: "voice-unavailable" }), { status: 502 }));
+    await flush();
+    expect(screen.getByRole("button", { name: /Try again/ })).toBeInTheDocument();
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it("resting: the quota copy and no retry button", async () => {
     renderPlayer(vi.fn(async () => new Response(JSON.stringify({ code: "voice-resting" }), { status: 503 })));
     fireEvent.click(screen.getByRole("button", { name: "Listen to Tushky's answer" }));

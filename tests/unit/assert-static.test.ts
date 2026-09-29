@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { checkStatic, DYNAMIC_ROUTE_ALLOWLIST } from "@/scripts/assert-static";
 
 /**
- * TASK-134 (Design.md §11 Dev-127) — the SSG guarantee with the site's first server functions:
+ * TASK-134 (Design.md §11 Dev-128) — the SSG guarantee with the site's first server functions:
  * exactly `/api/tushky/speech` and the dev-only `/api/dev/tushky-voice` may run at request time.
  * Every page must still be prerendered, and any other dynamic route handler fails the build.
  */

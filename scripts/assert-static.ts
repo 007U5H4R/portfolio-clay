@@ -11,7 +11,7 @@
  * (`/_not-found`, `/_global-error`) and metadata/route handlers (`favicon.ico`, `opengraph-image`,
  * `sitemap`, `robots`), which are emitted as build-time assets.
  *
- * TASK-134 (Design.md §11 Dev-127): the site gains its first server functions. Exactly these route
+ * TASK-134 (Design.md §11 Dev-128): the site gains its first server functions. Exactly these route
  * handlers may be dynamic — `/api/tushky/speech` (Ask Tushky's voice, a Vercel Node function) and
  * `/api/dev/tushky-voice` (the voice audition tool, which 404s outside `pnpm dev`). Any OTHER
  * route handler that is not prerendered fails the build, exactly like a dynamic page; pages get no
@@ -93,7 +93,7 @@ function main(): void {
   if (result.dynamicHandlers.length > 0) {
     console.error("assert-static: these route handlers run at request time but are not allow-listed:");
     for (const route of result.dynamicHandlers) console.error(`  - ${route}`);
-    console.error(`Only ${[...DYNAMIC_ROUTE_ALLOWLIST].join(", ")} may be dynamic (TASK-134, Design.md §11 Dev-127).`);
+    console.error(`Only ${[...DYNAMIC_ROUTE_ALLOWLIST].join(", ")} may be dynamic (TASK-134, Design.md §11 Dev-128).`);
     process.exit(1);
   }
   console.log(
