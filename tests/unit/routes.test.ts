@@ -9,7 +9,7 @@ import {
   loadRoutes,
   type FetchLike,
 } from "@/tests/e2e/routes";
-import { navItems } from "@/lib/nav";
+import { allNavItems, navItems } from "@/lib/nav";
 import allowlist from "@/tests/e2e/crawler-allowlist.json";
 
 const SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -77,10 +77,18 @@ describe("loadRoutes fallback order (S09.03)", () => {
 // route the crawler (EVAL-011) can reach, and none needs the allow-list. If Tushar reverts D8 the
 // expected length becomes 4 and the band gains a Playground link (one documented edit each).
 describe("primary nav (lib/nav.ts, D8)", () => {
-  it("has the seven items in order — Experience + Portfolio (TKT-101, renamed TASK-116), Certifications (TKT-102)", () => {
-    expect(navItems).toHaveLength(7);
-    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/projects", "/thinking", "/about", "/playground", "/certifications"]);
-    expect(navItems.map((item) => item.label)).toEqual(["Home", "Experience", "Portfolio", "Thinking", "About", "Playground", "Certifications"]);
+  it("shows five tabs in order; Thinking and Playground are hidden (TASK-135)", () => {
+    expect(navItems).toHaveLength(5);
+    expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/projects", "/about", "/certifications"]);
+    expect(navItems.map((item) => item.label)).toEqual(["Home", "Experience", "Portfolio", "About", "Certifications"]);
+  });
+
+  it("keeps the hidden tabs in allNavItems so they can be switched back on (TASK-135)", () => {
+    expect(allNavItems.map((item) => item.label)).toEqual(["Home", "Experience", "Portfolio", "Thinking", "About", "Playground", "Certifications"]);
+    expect(allNavItems.filter((item) => item.hidden).map((item) => item.href)).toEqual(["/thinking", "/playground"]);
+    // The pages stay built and public: both routes are still in the sitemap.
+    expect(STATIC_ROUTES).toContain("/thinking");
+    expect(STATIC_ROUTES).toContain("/playground");
   });
 
   it("never lists Contact — the pill, the band and page CTAs carry that path", () => {
