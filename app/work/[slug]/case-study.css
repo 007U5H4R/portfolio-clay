@@ -147,6 +147,7 @@
   color: var(--color-navy);
 }
 .csx-metric[data-size="lg"] .csx-metric-value { font-size: clamp(38px, 3.6vw, 50px); }
+.csx-metric[data-long] .csx-metric-value, .csx-metric[data-size="lg"][data-long] .csx-metric-value { font-size: clamp(28px, 2.6vw, 36px); }
 .csx-metric[data-kind="structural"] .csx-metric-value { color: var(--color-forest); }
 .csx-metric-label { font-size: 15px; line-height: 1.35; font-weight: 500; color: var(--color-navy-2); }
 .csx-metric-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 4px !important; }
@@ -358,6 +359,10 @@
   .csx-problem .csx-lead { grid-column: 1; }
   .csx-problem .csx-flow { grid-column: 2; grid-row: 1 / span 2; }
   .csx-problem .csx-quote { grid-column: 1; }
+}
+@media (min-width: 1024px) {
+  .csx-problem:not(:has(.csx-flow)) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .csx-problem:not(:has(.csx-flow)) .csx-quote { grid-column: 2; grid-row: 1; align-self: start; }
 }
 .csx-flow { margin: 0; }
 .csx-flow-cap {
@@ -623,20 +628,31 @@
   display: grid;
   grid-template-columns: 56px minmax(0, 1fr);
   align-items: center;
-  min-height: 42px;
-  padding: 6px 12px;
-  isolation: isolate;
+  row-gap: 4px;
+  padding: 4px 0;
 }
+/* The bar is a track under the label: the fill is sized to the funnel's first step. */
 .csx-funnel-bar {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-navy) 7%, transparent);
+  overflow: hidden;
+}
+.csx-funnel-bar::after {
+  content: "";
   position: absolute;
   inset: 0 auto 0 0;
   width: var(--w);
-  z-index: -1;
-  border-radius: 4px;
-  background: color-mix(in oklab, var(--csx-a1) 18%, var(--color-ivory));
-  border: 1px solid color-mix(in oklab, var(--csx-a1) 40%, transparent);
+  border-radius: inherit;
+  background: var(--csx-a1);
+  transform-origin: left;
 }
-.csx-funnel-value { font-family: var(--font-display); font-size: 24px; font-variant-numeric: tabular-nums; }
+.csx-funnel-value { grid-row: 1 / span 2; }
+.csx-funnel-label { grid-column: 2; grid-row: 1; }
+.csx-funnel-value { font-family: var(--font-display); font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1; }
 .csx-funnel-label { font-size: 15px; color: var(--color-navy-2); }
 .csx-funnel-note { color: var(--csx-soft); }
 .csx-funnel-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; color: var(--csx-soft); }
@@ -965,7 +981,7 @@ body:has(.csx) .band-hire { display: none; }
 .csx-paper img { display: block; width: 100%; height: auto; }
 @media (max-width: 767px) { .csx-paper { display: none; } }
 /* A phone screenshot never stretches to the column. */
-.csx-hero-shot[data-frame="phone"] { width: min(300px, 78vw); margin-inline: auto; position: relative; z-index: 1; }
+.csx-hero-shot[data-frame="phone"] { width: min(300px, 56vw); margin-inline: auto; position: relative; z-index: 1; }
 .csx-frame[data-frame="phone"] .csx-frame-screen { box-shadow: 0 2px 4px color-mix(in oklab, var(--color-navy) 12%, transparent), 0 30px 50px -28px color-mix(in oklab, var(--color-navy) 60%, transparent); }
 
 /* =============================================================================================
@@ -1080,8 +1096,8 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="teachspark"] .csx-arch-step:nth-child(5) { border-color: var(--color-forest); background: color-mix(in oklab, var(--color-forest) 9%, var(--color-ivory)); }
 .csx[data-theme="teachspark"] .csx-rules { background: color-mix(in oklab, var(--color-note) 40%, var(--color-ivory)); }
 /* The funnel in forest ink, the activation step in red pen. */
-.csx[data-theme="teachspark"] .csx-funnel-bar { background: color-mix(in oklab, var(--color-forest) 16%, var(--color-ivory)); border-color: color-mix(in oklab, var(--color-forest) 45%, transparent); }
-.csx[data-theme="teachspark"] .csx-funnel-step:nth-child(5) .csx-funnel-bar { background: color-mix(in oklab, var(--color-rust) 18%, var(--color-ivory)); border-color: color-mix(in oklab, var(--color-rust) 55%, transparent); }
+.csx[data-theme="teachspark"] .csx-funnel-bar::after { background: var(--color-forest); }
+.csx[data-theme="teachspark"] .csx-funnel-step:nth-child(5) .csx-funnel-bar::after { background: var(--color-rust); }
 @media (min-width: 1024px) {
   .csx[data-theme="teachspark"] .csx-outcome { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 32px; align-items: start; }
   .csx[data-theme="teachspark"] .csx-outcome > .csx-lead { grid-column: 1 / -1; }
@@ -1089,8 +1105,8 @@ body:has(.csx) .band-hire { display: none; }
   .csx[data-theme="teachspark"] .csx-outcome .csx-proofs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .csx[data-theme="teachspark"] .csx-funnel-bar { transform-origin: left; transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 90ms); }
-  .csx[data-theme="teachspark"][data-motion="on"] .csx-sec:not([data-shown]) .csx-funnel-bar { transform: scaleX(0.05); }
+  .csx[data-theme="teachspark"] .csx-funnel-bar::after { transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 90ms); }
+  .csx[data-theme="teachspark"][data-motion="on"] .csx-sec:not([data-shown]) .csx-funnel-bar::after { transform: scaleX(0.04); }
 }
 .csx[data-theme="teachspark"] .csx-learning { border-radius: 3px; border-left: 6px solid var(--color-forest); }
 .csx[data-theme="teachspark"] .csx-learning[data-i="2"] { border-left-color: var(--color-rust); }

@@ -9,7 +9,7 @@ import { EvidenceBadge } from "./EvidenceBadge";
  */
 export function MetricCard({ proof, size = "md" }: { proof: CaseProof; size?: "md" | "lg" }) {
   return (
-    <div className="csx-metric" data-size={size} data-kind={proof.kind} data-paper="card">
+    <div className="csx-metric" data-size={size} data-kind={proof.kind} data-long={proof.value.length > 5 ? "" : undefined} data-paper="card">
       <p className="csx-metric-value">{proof.value}</p>
       <p className="csx-metric-label">{proof.label}</p>
       <p className="csx-metric-foot">

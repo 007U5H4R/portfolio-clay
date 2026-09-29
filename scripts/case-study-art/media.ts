@@ -17,7 +17,12 @@ export interface MediaRow {
   extract?: { left: number; top: number; width: number; height: number };
 }
 
-export const MEDIA: MediaRow[] = [];
+export const MEDIA: MediaRow[] = [
+  // TeachSpark — the real mobile landing (web/public/demo-poster.jpg), and the phone from the Final
+  // PRD's "2-Minute WhatsApp Loop" slide (docs/assets/p2-whatsapp-loop.jpg; an illustrative chat).
+  { slug: "teachspark", from: "demo-poster.jpg", to: "landing-mobile.webp", width: 560 },
+  { slug: "teachspark", from: "p2-whatsapp-loop.jpg", to: "loop-chat.webp", width: 560, extract: { left: 95, top: 135, width: 292, height: 615 } },
+];
 
 export async function buildMedia(only?: string) {
   for (const row of MEDIA) {

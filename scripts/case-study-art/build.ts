@@ -10,10 +10,12 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Asset } from "./kit";
 import { railciteAssets } from "./assets/railcite";
+import { teachsparkAssets } from "./assets/teachspark";
 import { buildMedia } from "./media";
 
 const ART: Record<string, Asset[]> = {
   railcite: railciteAssets,
+  teachspark: teachsparkAssets,
 };
 
 async function main() {
