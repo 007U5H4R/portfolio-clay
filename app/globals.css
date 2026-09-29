@@ -1894,65 +1894,12 @@ html.lenis body {
 }
 /* end TKT-77 */
 
-/* TKT-75 · featured work — `section#work-featured` + the taped `ProjectCard` (Design.md §7.1; values
-   lifted from docs/redesign-mockups/m-009/home.html `.featured` / `.work-card`). The card's rotation
-   is the `rotate` property off `--rot` (Sheet), so the hover lift is a plain `transform` and the tilt
-   survives it. Reduced motion: no lift, the shadow swap only. Tokens only (EVAL-020). */
+/* TKT-75 · featured work cards — the taped `ProjectCard` (Design.md §7.1; values lifted from
+   docs/redesign-mockups/m-009/home.html `.work-card`). TASK-133 replaced the home section that used it
+   (its rules are the TASK-133 block below); these card rules stay with `components/projects/ProjectCard.tsx`.
+   The card's rotation is the `rotate` property off `--rot` (Sheet), so the hover lift is a plain
+   `transform` and the tilt survives it. Reduced motion: no lift, the shadow swap only. Tokens only (EVAL-020). */
 @layer components {
-  .featured {
-    position: relative;
-  }
-  .featured-body {
-    background: var(--color-paper-2);
-  }
-  .featured-wrap {
-    padding-block: 16px clamp(72px, 8vw, 120px);
-  }
-  .featured-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 32px;
-    align-items: end;
-    margin-bottom: clamp(36px, 5vw, 64px);
-  }
-  .featured-head-copy {
-    display: grid;
-    gap: 10px;
-  }
-  .featured-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .featured-h2 {
-    font-size: clamp(40px, 4.6vw, 64px);
-    line-height: 1.02;
-    font-variation-settings: "opsz" 120, "SOFT" 30;
-    color: var(--color-navy);
-  }
-  .featured-lead {
-    max-width: 44ch;
-    font-size: 17px;
-    color: var(--color-navy-2);
-  }
-  .featured-quote {
-    max-width: 360px;
-    font-size: 24px;
-  }
-  .featured-quote small {
-    display: block;
-    margin-top: 4px;
-    font-size: 18px;
-    color: var(--color-ink-soft);
-  }
-  .featured-quote .annotation-arrow {
-    width: 130px;
-    height: auto;
-    margin-top: 6px;
-  }
-
   .work-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -2077,11 +2024,6 @@ html.lenis body {
       padding-bottom: 84px;
     }
   }
-  @media (max-width: 900px) {
-    .featured-head {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
   @media (max-width: 640px) {
     .work-grid {
       grid-template-columns: minmax(0, 1fr);
@@ -2111,6 +2053,383 @@ html.lenis body {
   }
 }
 /* end TKT-75 */
+
+/* TASK-133 · home Featured Work — the three-product editorial showcase (Tushar's spec 2026-09-29,
+   docs/redesign-mockups/m-009/tushar-2026-09-29/; Design.md §7.1, §11 Dev-127). `section#work-featured`
+   keeps its paper-2 body under the torn edge. Compact head (eyebrow + rule · h2 · one subline), then:
+     ≥ 1100  RailCite anchor left (1.5fr ≈ 60 %) spanning two rows · Slag City over Campfire Board right;
+     700–1099  RailCite full width (copy | art) · the two side cards side by side (art over copy);
+     < 700   one column, RailCite → Slag City → Campfire Board, art over copy on every card.
+   Each card is a torn cream sheet: the tear is a baked mask (the TASK-127 `tear-wide-*` masks) on
+   `.fw-paper`, the shadow a warm `drop-shadow` on the sheet (follows the silhouette); the art column is
+   pasted in with its own torn edge (`tear-tall-*` mask, oversized so only the inner edge shows). CTA:
+   the terracotta torn-paper button — hover lifts 1 px, deepens the shadow, the arrow steps 3 px right.
+   Paper tokens + `color-mix()` only (EVAL-020); the colour of the art lives in its static SVGs. */
+@layer components {
+  .featured {
+    position: relative;
+    --fw-cream: color-mix(in oklab, var(--color-ivory) 70%, var(--color-note));
+    --fw-fibers: url("/media/portfolio/decor/paper-fibers.svg");
+    --fw-tear-a: url("/media/portfolio/decor/tear-wide-a.svg");
+    --fw-tear-b: url("/media/portfolio/decor/tear-wide-b.svg");
+    --fw-tear-art: url("/media/portfolio/decor/tear-tall-a.svg");
+    --fw-tear-strip: url("/media/portfolio/decor/tear-strip-b.svg");
+    --fw-shadow: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent))
+      drop-shadow(0 12px 16px color-mix(in oklab, var(--color-terracotta) 16%, transparent));
+  }
+  .featured-body {
+    background: var(--color-paper-2);
+  }
+  .featured-wrap {
+    /* bottom: the site's section padding (Design.md §2.3) — the next sheet slides up to 200 px (phones
+       120 px) over this section's foot as it scrolls on (TKT-106), so the CTAs stay clear of that zone */
+    padding-block: clamp(14px, 1.6vw, 24px) clamp(100px, 8.4vw, 122px);
+  }
+
+  /* head */
+  .fw-head {
+    display: grid;
+    gap: 10px;
+    margin-bottom: clamp(26px, 2.4vw, 34px);
+  }
+  .fw-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--color-terracotta);
+  }
+  .fw-eyebrow::after {
+    content: "";
+    width: 64px;
+    height: 1.5px;
+    background: currentColor;
+  }
+  .fw-h2 {
+    font-size: clamp(36px, 4.2vw, 60px);
+    line-height: 1.02;
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+    color: var(--color-navy);
+  }
+  .fw-sub {
+    max-width: 72ch;
+    font-size: clamp(17px, 1.35vw, 19px);
+    line-height: 1.45;
+    color: var(--color-navy-2);
+  }
+
+  /* spread */
+  .fw-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .fw-slot {
+    display: grid;
+    min-width: 0;
+  }
+
+  /* the sheet: no ivory box — the torn cream paper is `.fw-paper` */
+  .fw-card.paper-sheet {
+    display: grid;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    filter: var(--fw-shadow);
+  }
+  .fw-card > .paper-fastener {
+    z-index: 3;
+  }
+  .fw-paper {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    background-color: var(--fw-cream);
+    background-image: var(--fw-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: var(--fw-tear-b) 0 0 / 100% 100% no-repeat;
+    mask: var(--fw-tear-b) 0 0 / 100% 100% no-repeat;
+  }
+  .fw-card-anchor .fw-paper {
+    -webkit-mask-image: var(--fw-tear-a);
+    mask-image: var(--fw-tear-a);
+  }
+
+  /* copy */
+  .fw-copy {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 10px;
+    min-width: 0;
+    padding: 22px 24px 30px;
+  }
+  .fw-kicker {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--color-green-2);
+  }
+  .fw-name {
+    font-size: clamp(28px, 2.2vw, 34px);
+    line-height: 1.02;
+    font-variation-settings: "opsz" 96, "SOFT" 20;
+    color: var(--color-navy);
+  }
+  .fw-card-anchor .fw-name {
+    font-size: clamp(44px, 4.4vw, 66px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+  .fw-tagline {
+    max-width: 24ch;
+    font-family: var(--font-display);
+    font-size: 17px;
+    line-height: 1.3;
+    color: var(--color-navy-2);
+  }
+  .fw-card-anchor .fw-tagline {
+    max-width: none;
+    font-size: clamp(22px, 2vw, 28px);
+    color: var(--color-terracotta);
+  }
+  .fw-line {
+    max-width: 34ch;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .fw-proof {
+    display: grid;
+    gap: 10px;
+    margin-block: 4px 2px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line-strong);
+    list-style: none;
+  }
+  .fw-proof-item {
+    display: grid;
+    grid-template-columns: 26px auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+  }
+  .fw-proof-icon {
+    width: 26px;
+    height: 26px;
+    color: var(--color-terracotta);
+  }
+  .fw-proof-body {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .fw-proof-value {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-navy);
+  }
+  .fw-proof-item[data-metric="structural"] .fw-proof-value {
+    color: var(--color-forest);
+  }
+  .fw-proof-label {
+    font-size: 15px;
+    line-height: 1.25;
+    text-transform: lowercase;
+    color: var(--color-navy-2);
+  }
+  .fw-proof-kind {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: var(--color-ink-soft);
+  }
+  .fw-proof-item[data-metric="structural"] .fw-proof-kind {
+    color: var(--color-navy-2);
+  }
+
+  /* the terracotta torn-paper Explore button */
+  .fw-cta {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    margin-top: 6px;
+    padding: 10px 22px 11px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-ivory);
+    text-decoration: none;
+    filter: drop-shadow(0 2px 3px color-mix(in oklab, var(--color-terracotta) 30%, transparent));
+    transition:
+      translate 0.18s ease,
+      filter 0.18s ease;
+  }
+  .fw-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-rust);
+    -webkit-mask: var(--fw-tear-strip) 0 0 / 100% 100% no-repeat;
+    mask: var(--fw-tear-strip) 0 0 / 100% 100% no-repeat;
+  }
+  .fw-cta-arrow {
+    flex: none;
+    transition: translate 0.18s ease;
+  }
+  .fw-cta:hover,
+  .fw-cta:focus-visible {
+    translate: 0 -1px;
+    filter: drop-shadow(0 5px 7px color-mix(in oklab, var(--color-terracotta) 42%, transparent));
+  }
+  .fw-cta:hover .fw-cta-arrow,
+  .fw-cta:focus-visible .fw-cta-arrow {
+    translate: 3px 0;
+  }
+  .fw-cta:hover::before {
+    background-color: var(--color-terracotta);
+  }
+
+  /* art: pasted in, torn along its inner edge */
+  .fw-art {
+    position: relative;
+    order: -1;
+    min-width: 0;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    /* oversized tall tear: only the bottom edge falls inside the box when stacked */
+    -webkit-mask: var(--fw-tear-art) 50% 0 / calc(100% + 48px) calc(100% + 18px) no-repeat;
+    mask: var(--fw-tear-art) 50% 0 / calc(100% + 48px) calc(100% + 18px) no-repeat;
+  }
+  .fw-art img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 58%;
+  }
+  .fw-card-anchor .fw-art {
+    aspect-ratio: 1 / 0.9;
+  }
+  .fw-card-anchor .fw-art img {
+    object-position: 60% 72%;
+  }
+
+  /* 700–1099: RailCite full width (copy | art); the side cards side by side */
+  @media (min-width: 700px) {
+    .fw-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .fw-slot-anchor {
+      grid-column: 1 / -1;
+    }
+    .fw-card-anchor .fw-paper {
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      min-height: 460px;
+    }
+    .fw-card-anchor .fw-copy {
+      align-content: center;
+      padding: 40px 12px 40px 40px;
+    }
+    .fw-card-anchor .fw-art {
+      order: 0;
+      aspect-ratio: auto;
+      /* the tall tear, overhanging top/right/bottom: only its left edge shows */
+      -webkit-mask-position: 0 50%;
+      mask-position: 0 50%;
+      -webkit-mask-size: calc(100% + 40px) calc(100% + 48px);
+      mask-size: calc(100% + 40px) calc(100% + 48px);
+    }
+    .fw-card-anchor .fw-art img {
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  /* ≥ 1100: the asymmetric spread */
+  @media (min-width: 1100px) {
+    .fw-grid {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      gap: 26px 28px;
+    }
+    .fw-slot-anchor {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+    .fw-card-anchor .fw-paper {
+      grid-template-columns: minmax(0, 0.86fr) minmax(0, 1fr);
+      min-height: 500px;
+    }
+    .fw-card-anchor .fw-copy {
+      padding: 40px 8px 36px 42px;
+    }
+    .fw-card-anchor .fw-art img {
+      object-position: 62% 100%;
+    }
+    .fw-card-side .fw-paper {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+      min-height: 237px;
+    }
+    .fw-card-side .fw-copy {
+      align-content: center;
+      padding: 24px 4px 24px 28px;
+    }
+    .fw-card-side .fw-art {
+      order: 0;
+      aspect-ratio: auto;
+      -webkit-mask-position: 0 50%;
+      mask-position: 0 50%;
+      -webkit-mask-size: calc(100% + 40px) calc(100% + 48px);
+      mask-size: calc(100% + 40px) calc(100% + 48px);
+    }
+    .fw-card-side .fw-art img {
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fw-cta,
+    .fw-cta-arrow {
+      transition: none;
+    }
+    .fw-cta:hover,
+    .fw-cta:focus-visible,
+    .fw-cta:hover .fw-cta-arrow,
+    .fw-cta:focus-visible .fw-cta-arrow {
+      translate: none;
+    }
+  }
+}
+
+/* TASK-133 entrance (spec §25): the shared one-shot `Reveal` (unlayered, like `.reveal`, so it can
+   override it), retuned per piece — heading + RailCite rise 10 px, the right cards slide 10 px in from
+   the right. Motion-safe only: under reduced motion `.reveal` shows everything at once. */
+@media (prefers-reduced-motion: no-preference) {
+  .fw-rv-y.reveal:not([data-revealed]):not(:focus-within) {
+    transform: translateY(10px);
+  }
+  .fw-rv-x.reveal:not([data-revealed]):not(:focus-within) {
+    transform: translateX(10px);
+  }
+}
+/* end TASK-133 */
 
 /* TKT-81 · case-study template part 1 — header, metric strip, overview (folder tabs + notebook), thin
    "Deep dive coming" tag, next-project band (Design.md §7.3; values lifted from
@@ -4674,8 +4993,8 @@ html.lenis body {
 /* end TASK-117 */
 
 /* TKT-80 residue (TASK-120) — the old /projects index (WorkHero / FilterTabs / WorkIndex / EmptyState /
-   ExperienceStrip) was removed in TASK-116; its dead rules are gone. These four rules still match the
-   home Featured `ProjectCard` (components/projects/ProjectCard.tsx via FeaturedWork) and, sitting after
+   ExperienceStrip) was removed in TASK-116; its dead rules are gone. These four rules still match
+   `ProjectCard` (components/projects/ProjectCard.tsx; off the home page since TASK-133) and, sitting after
    the TKT-75 block, still win the cascade there: `.work-metrics` is a wrapping flex row (not TKT-75's
    grid) and metric labels are 14 px (not 12 px). Kept verbatim so the home cards render unchanged; a
    later merge into TKT-75 is a separate, visual-diffed change. */
