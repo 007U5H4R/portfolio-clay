@@ -2,30 +2,36 @@ import type { z } from "zod";
 import type { CaseStudy } from "../schema";
 
 /**
- * Nuptis → Velora — killing the wrong bet (TASK-130; audit in docs/reports/TASK-130/velora.md).
- * Apparel sourcing and vendor onboarding (not lifestyle). The "portable trust" bet is the PRD's own
- * framing ("trust is unverified and non-portable") and ships as the Trust profile screen — always
- * with its caveat: the scores are authored, never verified. Team research is labelled team research;
- * its "verify before external use" day counts are not shown. No users, no pilot: nothing implies one.
+ * Nuptis → Velora — nine days, two products, one survived (TASK-130; audit in
+ * docs/reports/TASK-130/velora.md). Journal layout (Tushar's redesign brief, 2026-09-29): the pivot
+ * is the centrepiece. Apparel sourcing and vendor onboarding (not lifestyle). The "portable trust"
+ * bet is the PRD's own framing ("trust is unverified and non-portable") and ships as the Trust profile
+ * screen — always labelled as authored prototype data, never verified. Team research is labelled team
+ * research; its day counts appear only as team secondary research marked "verify before external
+ * use", never as Velora's data. When Velora was built inside the nine days isn't recorded beyond
+ * "killed on day seven … nine days", so the card says "by day 9". No users, no pilot.
  */
 export const veloraCase: z.input<typeof CaseStudy> = {
   slug: "velora",
+  layout: "journal",
   theme: {
     key: "velora",
-    metaphor: "Sourcing & onboarding dossier: kraft folder, inspection-stamp numerals, swatch tags, a struck first bet",
+    metaphor: "A fashion sourcing studio: linen moodboard, fabric swatches, garment tags, a stitched rail, sample-tag markers, the struck first concept",
     accents: ["forest", "terracotta", "kraft"],
   },
-  story: "Killing the wrong bet",
+  story: "Nine days. Two products. One survived.",
   extraSources: [
     { id: "NP-PRD", label: "Nuptis PRD", ref: "CS3/Nuptis-PRD.md:3 / :18 / :201; CS3/Nuptis/docs/screenshots/dashboard.jpg", inventory: "§8.4" },
   ],
   hero: {
     tagline: "Where brands and makers find their fit.",
-    proposition:
-      "A B2B apparel sourcing marketplace where fashion brands and garment manufacturers swipe to connect, and matches turn into bids — the product that survived killing the first one.",
+    proposition: "A B2B apparel sourcing marketplace where brands and manufacturers match, then turn matches into bids.",
+    beats: ["Nine days.", "Two products.", "One survived."],
+    notes: ["Kill without flinching.", "Keep the insight. Kill the bet.", "Portable trust."],
     proofs: [
-      { value: "2", label: "vendor-onboarding products in nine days", kind: "structural", source: "CS3-9DAY-SERIES", note: "Nuptis for wedding agencies, then Velora for apparel — built solo" },
-      { value: "Day 7", label: "the first product was killed", kind: "structural", source: "CS3-9DAY-SERIES", note: "“Nine days. Two products. One survived.”" },
+      { value: "2", label: "products", kind: "structural", source: "CS3-9DAY-SERIES", note: "Nuptis, then Velora — nine days, solo" },
+      { value: "Day 7", label: "first product killed", kind: "structural", source: "CS3-9DAY-SERIES" },
+      { value: "1 day", label: "to build Velora", kind: "structural", asOf: "2026-08-11", source: "V-README" },
     ],
     media: {
       src: "/media/case-studies/velora/role-select.webp",
@@ -43,6 +49,7 @@ export const veloraCase: z.input<typeof CaseStudy> = {
       frame: "browser",
       provenance: "docs/case-study-sources/nuptis/dashboard.jpg ← Case Study 3/Nuptis/docs/screenshots/dashboard.jpg",
     },
+    scene: { src: "/media/case-studies/velora/hero-studio.svg", width: 1200, height: 960 },
     layout: "pivot",
   },
   sections: [
@@ -50,33 +57,35 @@ export const veloraCase: z.input<typeof CaseStudy> = {
       kind: "problem",
       id: "problem",
       nav: "Problem",
-      eyebrow: "The onboarding problem",
+      eyebrow: "The problem",
       headline: "Supplier trust is found by asking around — and it doesn’t travel.",
       anchors: ["01-context", "02-problem"],
-      context:
-        "An indie apparel founder needs a garment manufacturer; a factory in Tiruppur or Ludhiana needs brands. Today they meet through cold referrals, trade fairs or directories where trust is unverified and non-portable.",
+      context: "An indie apparel brand needs a garment maker; a factory in Tiruppur or Ludhiana needs brands.",
       flow: {
-        caption: "How a founder finds a factory today",
+        caption: "How a brand finds a factory today",
         source: "V-PRD",
-        steps: [{ label: "Cold referrals" }, { label: "Trade fairs" }, { label: "Directories" }, { label: "Unverified trust" }, { label: "Trust that doesn’t carry over" }],
+        steps: [{ label: "Cold referrals" }, { label: "Trade fairs" }, { label: "Directories" }, { label: "Unverified trust" }, { label: "Trust that doesn’t travel" }],
       },
     },
     {
       kind: "research",
       id: "research",
-      nav: "Research",
+      nav: "Insight",
       eyebrow: "Research (team)",
       headline: "The delay is waiting, not work.",
       anchors: ["03-discovery"],
-      intro: "The cohort’s procurement interviews were pooled across the team; Tushar’s own share isn’t separately recorded.",
+      intro: "Procurement interviews were pooled across the Case Study 3 team.",
+      timeline: {
+        active: "Active work · under 10%",
+        waiting: "Waiting between hand-offs",
+        figure: "15–30 business days",
+        note: "Team secondary research, marked “verify before external use” — shown as background, never as Velora’s data.",
+        source: "CS3-TEAM-PRD",
+      },
       quotes: [
         { text: "I find out where a vendor is by asking around.", attribution: "Procurement interview, team PRD", source: "CS3-TEAM-PRD" },
         { text: "We scrutinise new vendors. Changes to old ones, we just… trust.", attribution: "Procurement interview, team PRD", source: "CS3-TEAM-PRD" },
       ],
-      insight: {
-        text: "Almost none of onboarding is active work — it is idle queue-time between cross-functional handoffs.",
-        source: "CS3-TEAM-PRD",
-      },
     },
     {
       kind: "pivot",
@@ -85,24 +94,26 @@ export const veloraCase: z.input<typeof CaseStudy> = {
       eyebrow: "The pivot",
       headline: "Kill the first bet on day seven.",
       anchors: ["04-product-bet"],
-      from: { name: "Nuptis", line: "Vendor ops for wedding-planning agencies — live and designed, with every success metric defined and none measured." },
-      evidence: [
-        { text: "“Weddings were blue — but a shallow pool.”", source: "CS3-9DAY-SERIES" },
-        { text: "Few events and low willingness to pay: too thin a market to keep building for.", source: "CS3-9DAY-SERIES" },
-      ],
-      decision: { text: "Keep the trust-and-onboarding insight; aim it at apparel vendor onboarding.", source: "CS3-9DAY-SERIES" },
-      to: { name: "Velora", line: "Brands and manufacturers swipe to connect; matches turn into bids. Built in a day." },
+      from: { name: "Nuptis", line: "Vendor ops for wedding-planning agencies — live, with every success metric defined and none measured.", when: "Days 1–7" },
+      evidence: [{ text: "“Weddings were blue — but a shallow pool.” Few events, low willingness to pay.", source: "CS3-9DAY-SERIES" }],
+      decision: { text: "Keep the trust-and-onboarding insight; aim it at apparel sourcing.", source: "CS3-9DAY-SERIES" },
+      to: { name: "Velora", line: "Brands and manufacturers match; matches turn into bids. Built in a day.", when: "By day 9" },
+      stamp: "Day 7 · killed",
     },
     {
       kind: "product",
       id: "portable-trust",
       nav: "The bet",
-      eyebrow: "The bet: portable trust",
-      headline: "A trust profile a vendor carries into every match.",
+      eyebrow: "The bet",
+      headline: "Portable trust.",
       anchors: ["05-what-i-built"],
-      summary:
-        "Each manufacturer carries one trust profile — a score out of 100 — into discovery, RFPs and bids. In this prototype the scores are authored and shown as if verified; real verification was out of scope.",
+      summary: "One trust profile a manufacturer carries into every match, RFP and bid. The scores are authored prototype data — verification was out of scope.",
       source: "V-PRD",
+      flow: {
+        caption: "Brand ↔ manufacturer",
+        source: "V-PRD",
+        steps: [{ label: "Match" }, { label: "RFP" }, { label: "Bid" }],
+      },
       shots: [
         {
           src: "/media/case-studies/velora/trust-profile.webp",
@@ -110,7 +121,7 @@ export const veloraCase: z.input<typeof CaseStudy> = {
           width: 540,
           height: 803,
           frame: "phone",
-          caption: "Trust profile (authored score)",
+          caption: "Trust profile",
           provenance: "docs/case-study-sources/velora/trust-profile.jpg ← Case Study 3/Velora/docs/screenshots/trust-profile.jpg",
         },
         {
@@ -134,29 +145,10 @@ export const veloraCase: z.input<typeof CaseStudy> = {
       ],
     },
     {
-      kind: "outcome",
-      id: "evidence",
-      nav: "Evidence",
-      eyebrow: "Evidence",
-      headline: "A working prototype — not traction.",
-      anchors: ["06-evaluation", "07-outcome"],
-      intro: "Velora runs live on mock data and was evaluated as a build. There are no users and no pilot.",
-      proofs: [
-        { value: "10/10", label: "unit tests passing", kind: "measured", asOf: "2026-09-15", source: "V-REVIEW" },
-        { value: "0", label: "horizontal overflow at 375 and 768 px", kind: "measured", asOf: "2026-08-11", source: "V-REVIEW", note: "on every route, at the final review" },
-        { value: "1 day", label: "to build the live app", kind: "structural", asOf: "2026-08-11", source: "V-README", note: "all 40+ build commits on 11 Aug 2026" },
-      ],
-      gaps: [
-        "No users, no pilot and no usage data.",
-        "Trust Scores are authored, not verified against any external source.",
-        "The Supabase path was built but never run against a real project.",
-      ],
-    },
-    {
       kind: "learnings",
       id: "learnings",
       nav: "Learnings",
-      eyebrow: "What I learned",
+      eyebrow: "Key learnings",
       headline: "Nine days. Two products. One survived.",
       anchors: ["08-what-i-learned"],
       items: [
@@ -165,11 +157,26 @@ export const veloraCase: z.input<typeof CaseStudy> = {
         { title: "Label honestly", body: "Mock data isn’t a proven path, and an authored score isn’t a verified one.", source: "V-PRD" },
       ],
     },
+    {
+      kind: "outcome",
+      id: "evidence",
+      nav: "Evidence",
+      eyebrow: "Evidence",
+      headline: "A working prototype — not traction.",
+      anchors: ["06-evaluation", "07-outcome"],
+      proofs: [
+        { value: "10/10", label: "unit tests passing", kind: "measured", asOf: "2026-09-15", source: "V-REVIEW" },
+        { value: "0", label: "horizontal overflow", kind: "measured", asOf: "2026-08-11", source: "V-REVIEW", note: "every route, at 375 and 768 px" },
+        { value: "1 day", label: "build time", kind: "structural", asOf: "2026-08-11", source: "V-README", note: "all 40+ build commits on 11 Aug 2026" },
+      ],
+      gaps: ["Real users", "A real pilot", "Usage data", "A verified trust score"],
+      stamp: ["Mock data"],
+    },
   ],
   evidence: [
     { title: "Velora PRD", type: "PRD", date: "2026-08-10", supports: "The problem, the two sides and authored Trust Scores", source: "V-PRD" },
     { title: "Apparel Discovery PRD", type: "Research", date: "2026-08-12", supports: "H1 (coordination, not effort) and the confidence tags", source: "V-DISCOVERY-PRD" },
-    { title: "Case Study 3 team PRD", type: "Research", supports: "Pooled procurement interviews and the queue-time insight", source: "CS3-TEAM-PRD" },
+    { title: "Case Study 3 team PRD", type: "Research", supports: "Pooled procurement interviews; the queue-time insight and its unverified day counts", source: "CS3-TEAM-PRD" },
     { title: "Nine-day series", type: "Post", supports: "“Weddings were blue — but a shallow pool.”; the day-seven kill", source: "CS3-9DAY-SERIES" },
     { title: "Nuptis PRD", type: "PRD", date: "2026-08-07", supports: "The first bet and its unmeasured success metrics", source: "NP-PRD" },
     { title: "Velora README", type: "Readme", supports: "The one-day build and the stack", source: "V-README" },

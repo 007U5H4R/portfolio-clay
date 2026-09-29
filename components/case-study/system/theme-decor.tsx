@@ -65,19 +65,6 @@ const DECOR: Partial<Record<Theme, Partial<Record<Slot, ReactNode>>>> = {
     decisions: <Sticky className="ts-sticky">Capability, not dependency.</Sticky>,
     learnings: <Scribble className="ts-scribble-end">ready for tomorrow’s class ✓</Scribble>,
   },
-  velora: {
-    hero: (
-      <>
-        <Stamp src="/media/case-studies/velora/stamp-day7.svg" className="vl-stamp-day7" />
-        <Paper src="/media/case-studies/velora/swatch.svg" className="vl-swatch" width={220} height={300} />
-      </>
-    ),
-    learnings: <Scribble className="vl-scribble-end">one survived.</Scribble>,
-  },
-  cubicle: {
-    hero: <Sticky className="cb-sticky-hero">Built, not launched.</Sticky>,
-    decisions: <Scribble className="cb-scribble">trust → ownership → autonomy</Scribble>,
-  },
   tegaki: {
     hero: <Stamp src="/media/case-studies/tegaki/hanko.svg" className="tg-hanko" />,
     product: <Scribble className="tg-scribble">read by a person, not a model</Scribble>,

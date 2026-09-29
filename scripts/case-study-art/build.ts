@@ -11,18 +11,18 @@ import { join } from "node:path";
 import type { Asset } from "./kit";
 import { railciteAssets } from "./assets/railcite";
 import { teachsparkAssets } from "./assets/teachspark";
-import { veloraAssets } from "./assets/velora";
 import { tegakiAssets } from "./assets/tegaki";
 import { nuptisAssets } from "./assets/nuptis";
 import { cubicleJournalAssets } from "./journal/cubicle";
 import { journalSharedAssets } from "./journal/shared";
 import { dinoJournalAssets } from "./journal/dino";
+import { veloraJournalAssets } from "./journal/velora";
 import { buildMedia } from "./media";
 
 const ART: Record<string, Asset[]> = {
   railcite: railciteAssets,
   teachspark: teachsparkAssets,
-  velora: veloraAssets,
+  velora: veloraJournalAssets,
   tegaki: tegakiAssets,
   nuptis: nuptisAssets,
   cubicle: cubicleJournalAssets,

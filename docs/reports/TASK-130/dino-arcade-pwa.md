@@ -27,3 +27,7 @@ Sources: `data/projects.ts` (`dino-arcade-pwa`, one README source), CONTENT_INVE
 ## Follow-up: real screens from the product repo (2026-09-29)
 
 The product section now shows the real cabinet start screen, served locally from `dino-arcade-pwa@0bd1368` (landscape phone). The marquee (a licensed game title) is cropped off; no game file was loaded. Provenance: `docs/case-study-sources/INDEX.md`.
+
+## Follow-up: journal redesign (2026-09-29)
+
+Rebuilt as a retro arcade poster on a desert road-trip postcard: the real cabinet screen sits in a hand-authored phone, and the real icon is the stamp. Chapters: product → decision (bring your own ROM) → system (the cabinet's parts) → outcome (a road from the limit to Slag City, whose link opens in a new tab) → learnings. The learnings come from Tushar's brief, each traced to the README or the Slag City Discovery PRD. There is no licensed title or trademarked character in any asset. Full comparison: `docs/reports/TASK-130.md` → "Journal redesign".

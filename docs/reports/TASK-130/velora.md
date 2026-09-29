@@ -79,3 +79,7 @@ Accents: forest, terracotta, kraft. There is no "verified" stamp art, because no
 | One-day build (11 Aug 2026) | V-README |
 | 10/10 tests, 0 overflow, 156 kB | V-REVIEW |
 | H1 coordination hypothesis, confidence tags | V-DISCOVERY-PRD |
+
+## Follow-up: journal redesign (2026-09-29)
+
+Rebuilt as a fashion-sourcing studio moodboard: the real Nuptis dashboard is struck through, and Velora's real phones sit on linen. Six chapters: problem → insight (team research, labelled) → pivot (Days 1–7 → killed on day 7 → by day 9) → the bet: portable trust → learnings → evidence. The trust score always carries "authored prototype data". The 156 kB bundle figure moved to the evidence drawer. The old `stamp-day7.svg` and `swatch.svg` assets are gone. Full comparison: `docs/reports/TASK-130.md` → "Journal redesign".

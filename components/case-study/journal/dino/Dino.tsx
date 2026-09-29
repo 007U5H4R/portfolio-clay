@@ -3,6 +3,7 @@ import type { CaseImage, CaseSection, CaseStudy } from "@/data/schema";
 import { caseStudyLinkAttrs } from "@/lib/case-study-link";
 import { NewTabHint } from "@/components/common/NewTabHint";
 import { Glyph } from "../glyphs";
+import { JournalLearnings } from "../parts";
 
 /**
  * TASK-130 journal · Dino Arcade (Tushar's redesign brief §22–§33): a legal/content constraint became
@@ -191,23 +192,6 @@ function Outcome({ section }: { section: Extract<CaseSection, { kind: "pivot" }>
   );
 }
 
-function Learnings({ section }: { section: Extract<CaseSection, { kind: "learnings" }> }) {
-  return (
-    <ul className="jx-learnings" data-count={section.items.length}>
-      {section.items.map((item, i) => (
-        <li key={item.title} className="jx-learning" style={idx(i)}>
-          <Glyph name={LEARNING_GLYPHS[i] ?? "check"} />
-          <span className="jx-learning-n" aria-hidden="true">
-            {String(i + 1).padStart(2, "0")}
-          </span>
-          <h3 className="jx-learning-h">{item.title}</h3>
-          <p className="jx-learning-body">{item.body}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export function renderDinoSection(section: CaseSection): ReactNode {
   switch (section.kind) {
     case "product":
@@ -219,7 +203,7 @@ export function renderDinoSection(section: CaseSection): ReactNode {
     case "pivot":
       return <Outcome section={section} />;
     case "learnings":
-      return <Learnings section={section} />;
+      return <JournalLearnings section={section} glyphs={LEARNING_GLYPHS} />;
     default:
       return null;
   }

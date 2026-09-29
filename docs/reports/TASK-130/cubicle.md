@@ -62,3 +62,7 @@ Accents: navy-2, green-2, note.
 ## Follow-up: real screens from the product repo (2026-09-29)
 
 The product section now shows the real UI, run locally from `cubicle@6779998` with placeholder env values (no keys, no database): the idle home, and `/dev/office` replaying the repo's hand-built test fixture, captioned "not a live run". No claim changed: there is still no live run. Provenance: `docs/case-study-sources/INDEX.md`.
+
+## Follow-up: journal redesign (2026-09-29)
+
+Rebuilt to the RailCite grammar as a 1990s startup cubicle at golden hour: the real finished-run screen sits inside a hand-authored CRT scene, with four speech-act bubbles. Five chapters: problem → product → trust system (trust → ownership → autonomy) → learnings → evidence. Model names and artifact-heading sources moved to the evidence drawer. "Visible reasoning creates trust" is the product's bet, untested with users. Totals and the full comparison are in `docs/reports/TASK-130.md` → "Journal redesign".

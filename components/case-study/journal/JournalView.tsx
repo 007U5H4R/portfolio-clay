@@ -9,10 +9,11 @@ import { CaseStudyEvidenceDrawer } from "./CaseStudyEvidenceDrawer";
 import { JournalCta } from "./JournalCta";
 import { CubicleHeroArt, renderCubicleSection } from "./cubicle/Cubicle";
 import { DinoHeroArt, renderDinoSection } from "./dino/Dino";
+import { VeloraHeroArt, veloraSectionRenderer } from "./velora/Velora";
 
 interface JournalProduct {
   art: (study: CaseStudy) => ReactNode;
-  section: (section: CaseSection) => ReactNode;
+  section: (section: CaseSection, study: CaseStudy) => ReactNode;
   /** A smaller evidence strip for thin records (brief §31). */
   compactEvidence?: boolean;
 }
@@ -21,6 +22,7 @@ interface JournalProduct {
 const PRODUCTS: Record<string, JournalProduct> = {
   cubicle: { art: (study) => <CubicleHeroArt study={study} />, section: renderCubicleSection },
   "dino-arcade-pwa": { art: (study) => <DinoHeroArt study={study} />, section: renderDinoSection, compactEvidence: true },
+  velora: { art: (study) => <VeloraHeroArt study={study} />, section: (section, study) => veloraSectionRenderer(study)(section) },
 };
 
 export function hasJournal(slug: string): boolean {
@@ -73,7 +75,7 @@ export function JournalView({ project, study, portfolio, next }: JournalViewProp
               headline={section.headline}
               anchors={section.anchors}
             >
-              {product.section(section)}
+              {product.section(section, study)}
             </SectionFrame>
           ))}
         </div>

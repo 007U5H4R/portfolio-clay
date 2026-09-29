@@ -905,3 +905,232 @@
 /* Compact evidence strip for thin records (brief §31). */
 .jx-evidence[data-compact] .jx-evidence-in { padding-block: 14px; }
 .jx-evidence[data-compact] .jx-evidence-head .csx-h2 { font-size: clamp(20px, 1.6vw, 24px); }
+
+/* =============================================================================================
+   Nuptis → Velora — a fashion-sourcing studio (brief §34–§45): cream, fashion charcoal, muted coral,
+   sage, dusty lavender, navy. A stitched rail, fabric sample-tag markers, swatches, garment tags,
+   RFP forms. The pivot is the centrepiece.
+   ============================================================================================= */
+.csx[data-theme="velora"][data-layout="journal"] {
+  --vl-char: color-mix(in oklab, var(--color-navy-2) 80%, var(--color-navy));
+  --vl-coral: color-mix(in oklab, var(--color-rust) 64%, var(--color-note));
+  --vl-coral-ink: color-mix(in oklab, var(--color-rust) 80%, var(--color-navy));
+  --vl-sage: color-mix(in oklab, var(--color-green-2) 55%, var(--color-ivory));
+  --vl-lavender: color-mix(in oklab, color-mix(in oklab, var(--color-steel) 72%, var(--color-rust)) 42%, var(--color-ivory));
+  --jx-glyph-fill: color-mix(in oklab, var(--vl-coral) 30%, var(--color-ivory));
+  --jx-scene-ratio: 1200 / 960;
+  --jx-hero-ground: color-mix(in oklab, var(--vl-sage) 22%, var(--jx-paper));
+}
+.csx[data-theme="velora"] .csx-eyebrow { color: var(--vl-coral-ink); }
+.csx[data-theme="velora"] .jx-tagline { color: var(--color-forest); }
+.csx[data-theme="velora"] .jx-h1 { font-size: clamp(46px, 5.6vw, 88px); }
+
+/* Hero overlays on the moodboard (1200 × 960). */
+.jx-vl-killed {
+  position: absolute;
+  z-index: 2;
+  left: 8%;
+  top: 35%;
+  width: 42%;
+  margin: 0;
+  padding: 8px;
+  background: var(--color-ivory);
+  box-shadow: var(--jx-shadow-lg);
+  transform: rotate(-4deg);
+  clip-path: polygon(0 0, 96% 0, 99% 8%, 96% 16%, 100% 26%, 97% 36%, 100% 47%, 96% 58%, 99% 69%, 96% 80%, 100% 90%, 97% 100%, 0 100%);
+}
+.jx-vl-killed img { display: block; width: 100%; height: auto; filter: grayscale(0.65) contrast(0.9); opacity: 0.85; }
+.jx-vl-strike {
+  position: absolute;
+  left: 4%;
+  right: 6%;
+  top: 50%;
+  height: 7px;
+  margin-top: -3px;
+  border-radius: 4px;
+  background: var(--color-rust);
+  transform: rotate(-9deg);
+  transform-origin: left center;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-ivory) 50%, transparent);
+}
+.jx-vl-killed-stamp { position: absolute; right: 8%; bottom: 8%; font-size: clamp(14px, 1.3vw, 20px); background: color-mix(in oklab, var(--color-ivory) 85%, transparent); }
+.jx-vl-arrow { position: absolute; z-index: 2; left: 43%; top: 27%; width: 17%; height: auto; overflow: visible; fill: none; stroke: var(--vl-coral-ink); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.jx-vl-phone { margin: 0; }
+.jx-vl-phone-body { display: block; padding: 8px; border-radius: 26px; background: var(--vl-char); box-shadow: var(--jx-shadow-lg); }
+.jx-vl-phone-body img { display: block; width: 100%; height: auto; border-radius: 19px; }
+.jx-vl-scene .jx-vl-phone { position: absolute; }
+.jx-vl-front { z-index: 3; right: 15%; top: 6%; width: 24%; transform: rotate(-2deg); }
+.jx-vl-back { z-index: 2; right: 1.5%; top: 24%; width: 19%; transform: rotate(7deg); }
+.jx-vl-authored {
+  display: inline-block;
+  margin: 10px 0 0;
+  padding: 5px 10px;
+  background: color-mix(in oklab, var(--color-kraft) 70%, var(--color-ivory));
+  border: 1.5px dashed color-mix(in oklab, var(--color-navy) 40%, transparent);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-navy);
+}
+.jx-vl-scene .jx-vl-authored { position: absolute; left: -18%; bottom: -10%; transform: rotate(-7deg); max-width: 150px; box-shadow: var(--jx-shadow); }
+.jx-vl-note[data-n="1"] { left: 12%; top: 69%; transform: rotate(-5deg); background: color-mix(in oklab, var(--vl-coral) 40%, var(--color-ivory)); }
+.jx-vl-note[data-n="2"] { left: 42%; bottom: 14%; transform: rotate(3deg); max-width: 170px; }
+.jx-vl-note[data-n="3"] { left: 44%; top: 3%; transform: rotate(-3deg); background: color-mix(in oklab, var(--vl-sage) 60%, var(--color-ivory)); }
+@media (max-width: 767px) { .jx-vl-arrow, .jx-vl-scene .jx-vl-authored, .jx-vl-killed-stamp { display: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .jx-vl-scene .jx-vl-strike { animation: vl-strike 700ms cubic-bezier(0.6, 0, 0.2, 1) 500ms both; }
+  @keyframes vl-strike { from { transform: rotate(-9deg) scaleX(0); } }
+}
+
+/* The rail: a stitched thread. Markers: fabric sample tags. */
+.csx[data-theme="velora"] .jx-rail {
+  background:
+    repeating-linear-gradient(180deg, var(--vl-coral-ink) 0 14px, transparent 14px 22px) 50% 0 / 4px 100% no-repeat,
+    linear-gradient(90deg, transparent 8px, color-mix(in oklab, var(--vl-coral) 25%, transparent) 8px 10px, transparent 10px);
+}
+.csx[data-theme="velora"][data-layout="journal"] .csx-mark {
+  width: 76px;
+  height: 58px;
+  margin-inline: 4px;
+  border-radius: 0;
+  background: var(--vl-sage);
+  color: var(--color-navy);
+  font-size: 26px;
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 22% 100%, 0 50%);
+  padding-left: 12px;
+  filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--color-navy) 35%, transparent));
+}
+.csx[data-theme="velora"][data-layout="journal"] .csx-mark::before { content: ""; position: absolute; left: 12px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--jx-paper); box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--color-navy) 40%, transparent); }
+.csx[data-theme="velora"] #pivot .csx-mark { background: var(--vl-coral); }
+
+/* 01 · Problem: a desk of sourcing cards. */
+.jx-vl-problem { display: grid; gap: 18px; }
+.jx-vl-journey { margin: 0; }
+.jx-vl-journey ol { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) { .jx-vl-journey ol { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; } }
+.jx-vl-card {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 16px 16px 18px;
+  background: var(--color-ivory);
+  box-shadow: var(--jx-shadow);
+  color: var(--color-navy);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.25;
+  border-left: 5px solid var(--vl-sage);
+}
+.jx-vl-card:nth-child(odd) { transform: rotate(-1.4deg); }
+.jx-vl-card:nth-child(even) { transform: rotate(1.1deg) translateY(10px); }
+.jx-vl-card .jx-glyph { width: 46px; height: 46px; }
+.jx-vl-card[data-late] { border-left-color: var(--vl-coral); background: color-mix(in oklab, var(--vl-coral) 12%, var(--color-ivory)); }
+@media (min-width: 768px) {
+  .jx-vl-card:not(:last-child)::after { content: "→"; position: absolute; right: -18px; top: 40%; z-index: 1; font-size: 18px; color: var(--vl-coral-ink); }
+}
+@media (min-width: 1024px) {
+  .csx[data-theme="velora"] #problem .csx-sec-head { grid-column: 2 / span 7; }
+  .csx[data-theme="velora"] #problem .jx-lede { grid-column: 9 / -1; grid-row: 1; align-self: end; }
+  .csx[data-theme="velora"] #problem .jx-vl-journey { grid-column: 2 / -1; grid-row: 2; }
+}
+
+/* 02 · Insight: waiting vs work (team research, labelled). */
+.jx-vl-research { display: grid; gap: 18px; }
+.jx-vl-wait { margin: 0; padding: 22px 24px 20px; background: var(--color-ivory); box-shadow: var(--jx-shadow-lg); }
+.jx-vl-wait-figure { margin: 0 0 12px; font-family: var(--font-display); font-size: clamp(30px, 3vw, 44px); font-weight: 600; color: var(--color-navy); }
+.jx-vl-bar { display: grid; grid-template-columns: minmax(0, 0.09fr) minmax(0, 0.91fr); height: 46px; border: 2px solid var(--color-navy); }
+.jx-vl-bar-active { background: var(--vl-coral); border-right: 2px solid var(--color-navy); }
+.jx-vl-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 10px 0 0; font-size: 15px; font-weight: 700; color: var(--color-navy); }
+.jx-vl-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.jx-vl-legend span::before { content: ""; width: 16px; height: 16px; border: 2px solid var(--color-navy); }
+.jx-vl-legend [data-seg="active"]::before { background: var(--vl-coral); }
+.jx-vl-legend [data-seg="waiting"]::before { background: color-mix(in oklab, var(--vl-sage) 60%, var(--color-ivory)); }
+.jx-vl-bar-waiting {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 22%, color-mix(in oklab, var(--color-navy) 55%, transparent) 22% calc(22% + 2px)),
+    repeating-linear-gradient(45deg, color-mix(in oklab, var(--vl-sage) 60%, var(--color-ivory)) 0 8px, color-mix(in oklab, var(--vl-sage) 30%, var(--color-ivory)) 8px 16px);
+}
+
+.jx-vl-wait-note { margin: 12px 0 0; font-size: 14px; line-height: 1.4; color: var(--csx-soft); }
+.jx-vl-quotes { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) { .jx-vl-quotes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.jx-vl-quote { margin: 0; padding: 14px 16px; background: var(--vl-lavender); box-shadow: var(--jx-shadow); transform: rotate(-0.8deg); }
+.jx-vl-quotes li:nth-child(2) .jx-vl-quote { transform: rotate(0.9deg); background: color-mix(in oklab, var(--vl-sage) 45%, var(--color-ivory)); }
+.jx-vl-quote blockquote { margin: 0; }
+.jx-vl-quote blockquote p { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 18px; line-height: 1.35; color: var(--color-navy); }
+.jx-vl-quote figcaption { margin-top: 6px; font-size: 14px; color: var(--color-navy); }
+@media (min-width: 1024px) {
+  .csx[data-theme="velora"] #research .csx-sec-head { grid-column: 2 / span 5; }
+  .csx[data-theme="velora"] #research .jx-lede { grid-column: 2 / span 5; grid-row: 2; }
+  .csx[data-theme="velora"] #research .jx-vl-quotes { grid-column: 2 / span 5; grid-row: 3; grid-template-columns: minmax(0, 1fr); }
+  .csx[data-theme="velora"] #research .jx-vl-wait { grid-column: 7 / -1; grid-row: 1 / span 3; align-self: center; }
+}
+
+/* 03 · Pivot — the centrepiece: Nuptis struck, the evidence, the kept insight, Velora. */
+.jx-vl-timeline { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 1024px) { .jx-vl-timeline { grid-template-columns: 1.25fr 1fr 1fr 1.1fr; gap: 30px; align-items: start; } }
+.jx-vl-step { position: relative; display: grid; align-content: start; gap: 8px; padding: 18px 20px 20px; background: var(--color-ivory); box-shadow: var(--jx-shadow); color: var(--color-navy); }
+.jx-vl-step .jx-glyph { width: 44px; height: 44px; }
+.jx-vl-when { margin: 0; justify-self: start; padding: 2px 10px; background: var(--vl-char); color: var(--color-ivory); font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.jx-vl-name { margin: 0; font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+.jx-vl-line { margin: 0; font-size: 16px; line-height: 1.4; }
+.jx-vl-step[data-step="from"] { transform: rotate(-1.6deg); background: color-mix(in oklab, var(--color-paper) 70%, var(--color-kraft)); }
+.jx-vl-step[data-step="from"] .jx-vl-name { text-decoration: line-through; text-decoration-color: var(--color-rust); text-decoration-thickness: 3px; }
+.jx-vl-concept { position: relative; }
+.jx-vl-concept img { display: block; width: 100%; height: auto; filter: grayscale(0.7); opacity: 0.8; border: 1px solid color-mix(in oklab, var(--color-navy) 20%, transparent); }
+.jx-vl-kill { justify-self: start; margin-top: 4px; font-size: 20px; }
+.jx-vl-step[data-step="evidence"] { background: var(--vl-lavender); transform: rotate(1deg); }
+.jx-vl-step[data-step="keep"] { background: color-mix(in oklab, var(--vl-sage) 45%, var(--color-ivory)); transform: rotate(-0.6deg); }
+.jx-vl-step[data-step="to"] { border-top: 6px solid var(--vl-coral); box-shadow: var(--jx-shadow-lg); transform: rotate(0.8deg); }
+.jx-vl-survivor { width: 44%; }
+.jx-vl-survivor img { display: block; width: 100%; height: auto; border-radius: 14px; border: 5px solid var(--vl-char); }
+@media (min-width: 1024px) {
+  .jx-vl-step:not(:last-child)::after { content: "→"; position: absolute; right: -24px; top: 42px; z-index: 1; font-size: 24px; font-weight: 700; color: var(--vl-coral-ink); }
+  .csx[data-theme="velora"] #pivot .csx-sec-head { grid-column: 2 / -1; }
+  .csx[data-theme="velora"] #pivot .jx-vl-timeline { grid-column: 2 / -1; grid-row: 2; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="velora"][data-motion="on"] #pivot .jx-vl-step[data-step="from"] .jx-vl-strike { transition: transform 600ms cubic-bezier(0.6, 0, 0.2, 1) 300ms; }
+  .csx[data-theme="velora"][data-motion="on"] #pivot:not([data-shown]) .jx-vl-step[data-step="from"] .jx-vl-strike { transform: rotate(-9deg) scaleX(0); }
+  .csx[data-theme="velora"][data-motion="on"] #pivot .jx-vl-step { transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 500ms ease; transition-delay: calc(var(--vl-d, 0) * 1ms); }
+  .csx[data-theme="velora"][data-motion="on"] #pivot .jx-vl-step[data-step="to"] { --vl-d: 900; }
+  .csx[data-theme="velora"][data-motion="on"] #pivot .jx-vl-step[data-step="from"] { --vl-d: 700; }
+  .csx[data-theme="velora"][data-motion="on"] #pivot:not([data-shown]) .jx-vl-step[data-step="to"] { opacity: 0; transform: translateX(40px); }
+  .csx[data-theme="velora"][data-motion="on"] #pivot:not([data-shown]) .jx-vl-step[data-step="from"] { transform: none; }
+}
+
+/* 04 · Portable trust: brand ⇄ manufacturer, match → RFP → bid, three real phones. */
+.jx-vl-bet { display: grid; gap: 18px; }
+.jx-vl-flow { margin: 0; padding: 18px 20px; background: var(--color-ivory); box-shadow: var(--jx-shadow); }
+.jx-vl-sides { display: flex; align-items: center; gap: 14px; margin: 0 0 12px; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-navy); }
+.jx-vl-sides span[aria-hidden] { color: var(--vl-coral-ink); }
+.jx-vl-flow ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+.jx-vl-flowstep { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 6px; background: color-mix(in oklab, var(--vl-sage) 30%, var(--color-ivory)); color: var(--color-navy); font-weight: 700; font-size: 16px; }
+.jx-vl-flowstep:not(:last-child)::after { content: "→"; position: absolute; right: -15px; top: 30%; font-weight: 700; color: var(--vl-coral-ink); }
+.jx-vl-phones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
+@media (max-width: 767px) { .jx-vl-phones { grid-template-columns: repeat(2, minmax(0, 1fr)); } .jx-vl-shot-3 { display: none; } }
+.jx-vl-shot-1 { transform: rotate(-2deg); }
+.jx-vl-shot-2 { transform: translateY(26px); }
+.jx-vl-shot-3 { transform: rotate(2deg); }
+.jx-vl-authored-tag { margin-top: 10px; }
+@media (min-width: 1024px) {
+  .csx[data-theme="velora"] #portable-trust .csx-sec-head { grid-column: 2 / span 5; }
+  .csx[data-theme="velora"] #portable-trust .jx-lede { grid-column: 2 / span 5; grid-row: 2; }
+  .csx[data-theme="velora"] #portable-trust .jx-vl-flow { grid-column: 2 / span 5; grid-row: 3; align-self: start; }
+  .csx[data-theme="velora"] #portable-trust .jx-vl-phones { grid-column: 7 / -1; grid-row: 1 / span 3; }
+}
+
+/* 05 · Learnings: coral · sage · lavender. 06 · Evidence: MOCK DATA. */
+.csx[data-theme="velora"] .jx-learning:nth-child(1) { --jx-l: color-mix(in oklab, var(--vl-coral) 24%, var(--color-ivory)); }
+.csx[data-theme="velora"] .jx-learning:nth-child(2) { --jx-l: color-mix(in oklab, var(--vl-sage) 40%, var(--color-ivory)); }
+.csx[data-theme="velora"] .jx-learning:nth-child(3) { --jx-l: var(--vl-lavender); }
+@media (min-width: 1024px) { .csx[data-theme="velora"] #learnings .csx-sec-head { grid-column: 2 / -1; } }
+.jx-vl-outcome { display: grid; gap: 18px; }
+.jx-vl-outcome .jx-stamp { justify-self: start; font-size: clamp(26px, 2.6vw, 38px); }
+@media (min-width: 1024px) {
+  .csx[data-theme="velora"] #evidence .csx-sec-head { grid-column: 2 / span 6; }
+  .csx[data-theme="velora"] #evidence .jx-outcome-proofs { grid-column: 2 / span 6; grid-row: 2; }
+  .csx[data-theme="velora"] #evidence .jx-notmeasured { grid-column: 8 / span 3; grid-row: 1 / span 2; align-self: center; }
+  .csx[data-theme="velora"] #evidence .jx-vl-outcome .jx-stamp { grid-column: 11 / -1; grid-row: 1 / span 2; align-self: center; justify-self: center; }
+}

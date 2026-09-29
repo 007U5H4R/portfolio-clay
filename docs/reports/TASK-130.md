@@ -297,6 +297,108 @@ Checks after the change:
 - case-study e2e (`case-study-system`, `case-study`, `eval-006` axe, `eval-008`, `eval-018`, `sweep`): **607 passed, 0 failed**; with `fallback-glyphs` and `eval-010`: 675 passed;
 - "after" screenshots retaken for RailCite, Cubicle, Dino Arcade and Pratyasa.
 
+## Journal redesign — Cubicle, Dino Arcade, Velora (follow-up, 2026-09-29)
+
+Tushar asked for these three pages to reach RailCite's level of craft, density and storytelling.
+- **Kept from RailCite:** its grammar (hero with real UI and proofs, a numbered vertical rail, one message per chapter, diagrams instead of paragraphs, an evidence strip and drawer, paper CTA strips).
+- **Not copied:** its railway scene. Each page reinvents the scene around its own product.
+- **Build order:** Cubicle, then Dino Arcade, then Velora, each reviewed visually at 1440 and 390 before the next. The shared primitives were extracted last (brief §62).
+
+### Per product
+
+| | Cubicle | Dino Arcade | Velora |
+|---|---|---|---|
+| Story | Visible reasoning creates trust (built, not launched) | A legal constraint became the architecture — and led to Slag City | Nine days. Two products. One survived. |
+| Sections, old → new | 7 → **5**: problem · product · trust system · learnings · evidence | 4 → **5**: product · decision · system · outcome · learnings (+ a compact evidence strip) | 6 → **6**: problem · insight · pivot · the bet · learnings · evidence |
+| Words (≤ 600 gate), old → new | 588 → 507 | 269 → 327 | 478 → 403 |
+| Visual metaphor | A 1990s startup cubicle at golden hour: beige CRT, partition fabric, printouts, memos | A retro arcade poster on a desert road-trip postcard | A fashion-sourcing studio: linen moodboard, swatches, garment tags |
+| Rail · markers | Partition-fabric spine with fixing screws · rust folder tabs | Arcade power cable with a pixel progress light · gold arcade tokens | A stitched coral thread · fabric sample tags |
+| Real UI in the hero | The finished run (four Done desks over the PRD) inside the CRT | The captured cabinet screen inside the phone; the real icon as the postcard stamp | The role-select and trust-profile phones; the real Nuptis dashboard struck through |
+| Motion (once, never under reduced motion) | Speech acts rise from the CRT; the four printouts drop in | The screen powers on | Nuptis gets struck, then Velora enters |
+
+**Copy removed:**
+- **Cubicle:**
+  - the separate insight chapter (the "why" gap now sits in the problem line);
+  - decisions 2 and 3: bounded debate became learning 02, and search-only-for-the-scan became the key-rules memo;
+  - the teammates' speech-act state card;
+  - "share by link";
+  - the three old build learnings, replaced by the three in the brief.
+- **Dino Arcade:**
+  - the cover illustration as the hero, now the real UI in a scene;
+  - the outcome paragraph, now the road diagram;
+  - the two "not recorded" gaps. One of them is still true, that the core's test results weren't reviewed, and it stays in §10 below.
+- **Velora:**
+  - longer context and product lines;
+  - the evidence intro;
+  - the not-measured list, now four short labels.
+
+**Moved to the evidence drawer:**
+- **Cubicle:** the model names (Gemini Flash for the agents, Flash-Lite for the orchestrator), per the brief's "do not lead with model names". Also the artifact headings' source (`lib/prompts/headings.ts`).
+- **Velora:** the 156 kB bundle figure.
+
+**Accuracy calls:**
+- **Cubicle:**
+  - "Visible reasoning creates trust" is worded as the product's bet, "untested with users", because Cubicle never had users.
+  - The finished-run screen is labelled as the repo's hand-built test fixture.
+  - 29/97 TC rows is shown with "17 blocked · 48 planned" and "0 failed", as the QA report states.
+- **Dino Arcade:**
+  - Its learnings come from Tushar's brief, each traced to the README or the Slag City Discovery PRD (none were recorded before).
+  - The scene's marquee carries the app's own name. The licensed game's title and any trademarked character are left out; the dinosaur is a generic pixel sauropod.
+- **Velora:**
+  - "15–30 business days" and "under 10% active work" appear only as the team's secondary research, marked "verify before external use", as the project record already shows them.
+  - The Velora card says "by day 9", because the records don't say which day it was built.
+  - The trust score always carries "authored prototype data".
+  - "Vendor Passport" wording is not used anywhere.
+
+### Shared and custom components
+- **Shared (journal):**
+  - `JournalView` (the frame: hero · rail · chapters · evidence · CTA · next project);
+  - `JournalHero`;
+  - `CaseStudyEvidenceDrawer` (collapsed strip of artifact types with "View all evidence →"; expands to the existing accessible drawer);
+  - `JournalCta` (paper strips: the record's public links plus the product's Portfolio entry; no fabricated links);
+  - `parts.tsx` (`JournalLearnings`, `JournalOutcome`);
+  - `glyphs.tsx` (hand-drawn story glyphs, token-tinted);
+  - `case-context.ts` (evidence rows, legend kinds, actions, accents — `CaseStudyView` now uses it too).
+- **Reused from the system:** `SectionFrame`, `CaseMotion`, `MetricCard`, `EvidenceBadge`/`BadgeLegend`, `EvidenceDrawer`, `NextProject`, `CaseImageFrame`.
+- **Custom:** `journal/cubicle/Cubicle.tsx`, `journal/dino/Dino.tsx`, `journal/velora/Velora.tsx`; scene scripts under `scripts/case-study-art/journal/`.
+- **Schema:** optional journal fields only; the other ten records are unchanged.
+  - hero beats, notes and scene;
+  - product outputs;
+  - system decision and ladder;
+  - four rules, four gaps and stamps;
+  - pivot `when`/`stamp`;
+  - the research timeline.
+
+### New assets
+| File | Size |
+|---|---|
+| `cubicle/hero-office.svg` (scene; the CRT screen left open for the real UI) | 24.0 kB |
+| `cubicle/hero-screen.webp` (4:3 crop of the local replay capture) | 19.9 kB |
+| `dino-arcade-pwa/hero-postcard.svg` | 15.2 kB |
+| `velora/hero-studio.svg` | 24.7 kB |
+| `journal/paper-fiber.svg`, `journal/torn-edge.svg` (shared paper) | 0.7 kB, 0.9 kB |
+
+- **Removed as unused:** `velora/stamp-day7.svg`, `velora/swatch.svg` and their source script.
+- **Covers:** the Cubicle and Dino Arcade covers are back to Portfolio-only use.
+- **JS budget:** `/work/cubicle`, `/work/dino-arcade-pwa` and `/work/velora` stay at **158.3 kB** first-load JS. The journal adds no client JavaScript; everything is server-rendered except the existing drawer and reveal hooks.
+
+### Responsive and accessibility
+- **Layout by width:**
+  - **≥ 1024:** each chapter is a 12-column editorial grid beside its marker; the rail runs down the left.
+  - **768–1023:** simplified; diagrams wrap.
+  - **< 768:** one linear story. The hero copy is followed by the real UI in its scene, and proof tiles go compact 3-up so the product shows early.
+  - **Removed below 768:** speech bubbles, handwritten notes, the hero arrow and the hero's authored tag and stamp. The rail is hidden.
+- **Real product images:** descriptive `alt` text.
+- **Scenes, notes, bubbles and stamps:** decorative scenes and hand notes are `alt=""` / `aria-hidden` and within the EVAL-018 budget. Status stamps are real text.
+- **Other:**
+  - diagrams are HTML lists with captions;
+  - text stays text, not baked into images;
+  - reduced motion renders everything at rest;
+  - the one new case-study link (Dino Arcade → the Slag City case study) follows the new-tab rule.
+
+### Checks
+Unit tests: 715 passed. Typecheck, lint, tokens (13/13), content gate and build are clean. E2E results are in the commit that adds this section.
+
 ## Per-product narrative choices
 The dominant story (spec §41) for each product, with the one call that shaped each page. Detail is in `docs/reports/TASK-130/<slug>.md`.
 - **RailCite:** *trust*. "0 invented citations" is ◇ Structural ("by construction", the validator rejects any citation not in the retrieved set), never ● Measured. The critique's P0 is named in the gaps.
@@ -404,6 +506,18 @@ All seven environmental failures need network access to YouTube and the product 
 - **Unused legacy CSS:** the old `.cs-*` case-study styles in `app/globals.css` no longer render anywhere. Removing them was left out to keep this diff reviewable.
 - **Themed mono labels:** the retro themes (Cubicle, Dino, Cinematic, Slag City) use a platform monospace stack as a motif. On Linux that face comes from a system font search. Only `/` and `/work/teachspark` are fallback-glyph gated, and TeachSpark now uses the body face. A mono web font, or naming the platform faces, would close this for the others.
 - **Live captures:** the network policy blocks the live product hosts, so nothing was captured live. Allowing those hosts, or a local run on Tushar's Mac, would allow live captures, and would give Bhakti Vilas its first UI screens.
+
+## Campfire sync (for the orchestrator)
+Tushar asked this session to "sync with Campfire". The board runs on his Mac (`move-ticket.sh`, port 6480), which this cloud machine can't reach. The brief also forbids editing `backlog/`, and TASK-130 has no card file on any pushed branch. So nothing was moved here. Apply these on the Mac:
+
+| Ticket | Move to | Note |
+|---|---|---|
+| TASK-130 | **In Review** | All 13 personal builds are done, and so are the follow-ups: real screens, plus the Cubicle, Dino Arcade and Velora journal redesign. PR [007U5H4R/portfolio-clay#2](https://github.com/007U5H4R/portfolio-clay/pull/2) (`cloud/task-130` → `m-009-redesign`) is open and waiting on Tushar's merge. Move it to Done after the merge. |
+
+Candidate new tickets, from "Follow-ups" above (create only if Tushar wants them):
+- remove the unused legacy `.cs-*` CSS;
+- name a mono web font for the retro themes;
+- run live captures from the Mac, including Bhakti Vilas's first UI screens.
 
 ## Commits
 All on `cloud/task-130`, pushed after each product. `m-009-redesign` and `main` were never pushed to or merged into.

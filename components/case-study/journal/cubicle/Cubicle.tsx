@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { CaseImage, CaseSection, CaseStudy } from "@/data/schema";
 import { CaseImageFrame } from "@/components/case-study/system/CaseImageFrame";
-import { MetricCard } from "@/components/case-study/system/MetricCard";
 import { Glyph } from "../glyphs";
+import { JournalLearnings, JournalOutcome } from "../parts";
 
 /**
  * TASK-130 journal · Cubicle (Tushar's redesign brief §9–§21): "visible reasoning creates trust".
@@ -210,57 +210,6 @@ function TrustSystem({ section }: { section: Extract<CaseSection, { kind: "syste
   );
 }
 
-function Learnings({ section }: { section: Extract<CaseSection, { kind: "learnings" }> }) {
-  return (
-    <ul className="jx-learnings" data-count={section.items.length}>
-      {section.items.map((item, i) => (
-        <li key={item.title} className="jx-learning" style={idx(i)}>
-          <Glyph name={LEARNING_GLYPHS[i] ?? "check"} />
-          <span className="jx-learning-n" aria-hidden="true">
-            {String(i + 1).padStart(2, "0")}
-          </span>
-          <h3 className="jx-learning-h">{item.title}</h3>
-          <p className="jx-learning-body">{item.body}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Evidence({ section }: { section: Extract<CaseSection, { kind: "outcome" }> }) {
-  return (
-    <div className="jx-outcome jx-cub-outcome jx-flat">
-      {section.intro ? <p className="jx-lede">{section.intro}</p> : null}
-      <ul className="csx-proofs jx-outcome-proofs" data-count={section.proofs.length}>
-        {section.proofs.map((proof) => (
-          <li key={`${proof.value}-${proof.label}`}>
-            <MetricCard proof={proof} />
-          </li>
-        ))}
-      </ul>
-      {section.gaps.length > 0 ? (
-        <div className="jx-notmeasured" data-paper="card">
-          <h3 className="jx-notmeasured-h" data-micro-label="">
-            Not measured yet
-          </h3>
-          <ul>
-            {section.gaps.map((gap) => (
-              <li key={gap}>{gap}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-      {section.stamp ? (
-        <p className="jx-stamp">
-          {section.stamp.map((line) => (
-            <span key={line}>{line}</span>
-          ))}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 export function renderCubicleSection(section: CaseSection): ReactNode {
   switch (section.kind) {
     case "problem":
@@ -270,9 +219,9 @@ export function renderCubicleSection(section: CaseSection): ReactNode {
     case "system":
       return <TrustSystem section={section} />;
     case "learnings":
-      return <Learnings section={section} />;
+      return <JournalLearnings section={section} glyphs={LEARNING_GLYPHS} />;
     case "outcome":
-      return <Evidence section={section} />;
+      return <JournalOutcome section={section} gapsTitle="Not measured yet" className="jx-cub-outcome" />;
     default:
       return null;
   }
