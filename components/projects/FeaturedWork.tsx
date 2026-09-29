@@ -117,7 +117,9 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
       <Tape side={place.tape} />
       <div className="fw-paper" data-featured={project.slug}>
         <div className="fw-copy">
-          {anchor ? <p className="fw-kicker">{project.tags.join(" · ")}</p> : null}
+          {anchor ? <p className="fw-kicker" data-micro-label="">
+              {project.tags.join(" · ")}
+            </p> : null}
           <h3 id={headingId} className="fw-name">
             {project.name}
           </h3>
@@ -137,7 +139,7 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
                       <span className="fw-proof-label" data-metric-label="">
                         {metric.label}
                       </span>
-                      <span className="fw-proof-kind" data-metric-kind="">
+                      <span className="fw-proof-kind" data-metric-kind="" data-micro-label="">
                         {metricKindNote(metric)}
                       </span>
                     </span>
