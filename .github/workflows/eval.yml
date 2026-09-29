@@ -16,7 +16,9 @@ concurrency:
 jobs:
   eval:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The full suite (~2,950 Playwright tests across four widths, plus Lighthouse) outgrew 30 min at
+    # one worker: the TASK-133 run (PR #4) was cancelled at test 2225. 60 min leaves headroom.
+    timeout-minutes: 60
     # `pnpm build` / `pnpm eval` / `pnpm test:e2e` wrap their command in `dotenv -e .env.tooling`,
     # which pins TMPDIR + PLAYWRIGHT_BROWSERS_PATH to this machine's E Drive (machine constraint).
     # dotenv-cli never overrides a variable already present in the environment, so setting both
@@ -69,6 +71,11 @@ jobs:
         run: pnpm build
 
       - name: Evaluate
+        # Two Playwright workers on the 4-vCPU runner (playwright.config.ts defaults to 1). The
+        # CopyButton timing test that failed at 2 workers was hardened in TKT-92/TKT-97 (300/0 at
+        # PW_WORKERS=2, --repeat-each=20).
+        env:
+          PW_WORKERS: "2"
         run: pnpm eval --label ci-${{ github.sha }}
 
       - name: Upload eval results
