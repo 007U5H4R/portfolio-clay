@@ -5,13 +5,14 @@ import { veloraCase } from "./velora";
 import { cubicleCase } from "./cubicle";
 import { tegakiCase } from "./tegaki";
 import { nuptisCase } from "./nuptis";
+import { bhaktiVilasCase } from "./bhakti-vilas";
 
 /**
  * The case-study records (TASK-130, spec §37), one per personal build, parsed once so the schema's
  * defaults apply. A record's `source` ids are cross-checked against its project's `sources[]` by
  * `validateAll()` (data/index.ts). Server-only: never import this from a client component.
  */
-export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase];
+export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase, bhaktiVilasCase];
 
 export const caseStudies: CaseStudyT[] = caseStudyInputs.map((input) => CaseStudy.parse(input));
 
