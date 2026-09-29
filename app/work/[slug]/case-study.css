@@ -434,7 +434,9 @@
   border-radius: 0 6px 6px 0;
 }
 .csx-quote p { margin: 0; font-family: var(--font-display); font-size: 19px; line-height: 1.4; font-style: italic; }
-.csx-quote footer { margin-top: 8px; font-size: 14px; color: var(--csx-soft); }
+.csx-quote blockquote { margin: 0; }
+/* The attribution is a figcaption, not a <footer>: one <footer> per page (the band; layout.spec.ts). */
+.csx-quote figcaption { margin-top: 8px; font-size: 14px; color: var(--csx-soft); }
 
 /* Product (spec §12). */
 .csx-product { display: grid; gap: 22px; }

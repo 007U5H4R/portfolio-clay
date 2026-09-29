@@ -10,10 +10,12 @@ export function ResearchWall({ section }: { section: Research }) {
       <ul className="csx-quotes" data-count={section.quotes.length}>
         {section.quotes.map((quote) => (
           <li key={quote.text}>
-            <blockquote className="csx-quote" data-paper="card">
-              <p>“{quote.text}”</p>
-              <footer>— {quote.attribution}</footer>
-            </blockquote>
+            <figure className="csx-quote" data-paper="card">
+              <blockquote>
+                <p>“{quote.text}”</p>
+              </blockquote>
+              <figcaption>— {quote.attribution}</figcaption>
+            </figure>
           </li>
         ))}
       </ul>

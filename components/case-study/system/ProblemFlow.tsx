@@ -29,10 +29,12 @@ export function ProblemFlow({ section }: { section: Problem }) {
         </figure>
       ) : null}
       {section.quote ? (
-        <blockquote className="csx-quote">
-          <p>{section.quote.text}</p>
-          <footer>— {section.quote.attribution}</footer>
-        </blockquote>
+        <figure className="csx-quote">
+          <blockquote>
+            <p>{section.quote.text}</p>
+          </blockquote>
+          <figcaption>— {section.quote.attribution}</figcaption>
+        </figure>
       ) : null}
     </div>
   );
