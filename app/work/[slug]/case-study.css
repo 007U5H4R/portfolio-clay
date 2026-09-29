@@ -825,9 +825,14 @@
   color: var(--color-ivory);
   text-decoration: none;
   box-shadow: var(--shadow-paper);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition: box-shadow 160ms ease;
 }
-.csx-action:hover { transform: translateY(-2px); box-shadow: var(--shadow-paper-hover); }
+.csx-action:hover { box-shadow: var(--shadow-paper-hover); }
+/* The lift is motion: only when the reader allows it (EVAL-010 hover sweep). */
+@media (prefers-reduced-motion: no-preference) {
+  .csx-action { transition: transform 160ms ease, box-shadow 160ms ease; }
+  .csx-action:hover { transform: translateY(-2px); }
+}
 .csx-action[data-action="live"] { background: color-mix(in oklab, var(--csx-a1) 62%, var(--color-navy)); }
 .csx-action[data-action="github"] { background: color-mix(in oklab, var(--color-steel) 55%, var(--color-navy)); }
 .csx-action-text { display: grid; flex: 1; }
