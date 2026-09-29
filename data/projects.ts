@@ -2874,8 +2874,8 @@ export const campfireBoard: Project = {
  * made public at Tushar's request (2026-09-29) → `github` + repoPublic:true. Every field traces to the
  * Slag City README / Discovery PRD / deploy notes (CONTENT_INVENTORY §8.13, `docs/trace/slag-city.md`).
  * No story character is named (the final boss shares a name with a well-known TV villain). The game has
- * no AI features; its character and background art was generated with Higgsfield (README Credits), which
- * the overview says. No users, metrics or outcomes are recorded, so none are claimed. Card depth.
+ * no AI features. The art-generation credit is deliberately left out of the public copy (Tushar, 2026-09-29).
+ * No users, metrics or outcomes are recorded, so none are claimed. Card depth.
  */
 export const slagCity: Project = {
   slug: "slag-city",
@@ -2903,7 +2903,7 @@ export const slagCity: Project = {
   overview: {
     thirtySecond: [
       "A side-scrolling brawler built the way a coin-op cabinet behaves: attract mode, insert coin, fight, a 10-second continue countdown, and initials on the hi-score table. It is one complete stage — a three-boss gauntlet, with a story told in an eight-slide intro and the boss dialogue — playable on a desktop in a simulated cabinet or on a phone with on-screen controls. Coins are free. It started where Dino Arcade stops: that emulator is fine for private play but cannot be published, so the goal was a publishable beat-'em-up with wholly original IP.",
-      "Built with Phaser 3, TypeScript and Vite, and deployed on Vercel. The game logic is a pure TypeScript core with a seeded RNG, so recorded input replays are hashed in tests and a behaviour change fails a golden; keyboard, gamepad and touch feed one input frame. Audio is synthesised in the browser with Web Audio; the character and background art was generated with Higgsfield and packed into sprite atlases by the repo's own pipeline.",
+      "Built with Phaser 3, TypeScript and Vite, and deployed on Vercel. The game logic is a pure TypeScript core with a seeded RNG, so recorded input replays are hashed in tests and a behaviour change fails a golden; keyboard, gamepad and touch feed one input frame. Audio is synthesised in the browser with Web Audio.",
     ],
     deepDive: false,
   },
