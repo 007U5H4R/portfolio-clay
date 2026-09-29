@@ -1,0 +1,25 @@
+# TASK-130 · Dino Arcade: audit and narrative (spec §51 steps 1–5)
+
+Sources: `data/projects.ts` (`dino-arcade-pwa`, one README source), CONTENT_INVENTORY §8.10, and `docs/trace/dino-arcade-pwa.md`. The only image is the app icon (§8.10: screenshot MISSING), so the hero uses the TASK-127 cover (manifest alt; `usedOn` updated).
+
+| # | Question | Answer |
+|---|---|---|
+| 1 | Problem / story | Turn a phone into an arcade cabinet, without shipping any game |
+| 2 | Decision | BYO-ROM, "the load-bearing product decision"; offline-first, with no backend, accounts or analytics |
+| 3–4 | Evidence / outcome | None measured; test results exist but weren't reviewed. The honest outcome is that it's fine for private play and can't be published, which is why Slag City exists (SC Discovery PRD, extra source) |
+| 5 | System | Service worker → IndexedDB file → vendored EmulatorJS core → cabinet shell → on-screen controller |
+| 6 | Learning | None recorded, so no learnings section |
+| 7–8 | Screens / docs | App icon only; README |
+
+- **Page length:** a short page by design (269 words).
+- **Sections:**
+  1. Product (anchors 01–03, 05).
+  2. Decisions (04).
+  3. System.
+  4. Outcome (06–08).
+- **Metaphor:** a backlit cabinet:
+  - marquee stripes;
+  - scanlines;
+  - coin-slot numerals.
+- **Accents:** steel, rust, note.
+- **Cut:** no game names, no ROM or BIOS mentions, no Chrome T-rex (a generic pixel sauropod on the cover).

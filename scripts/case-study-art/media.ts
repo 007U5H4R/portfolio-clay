@@ -46,6 +46,22 @@ export const MEDIA: MediaRow[] = [
   // Pratyasa — the real device (pratyasa-site/assets/device-photo.jpg) and its framed case photo.
   { slug: "pratyasa", from: "device-photo.jpg", to: "device.webp", width: 1400 },
   { slug: "pratyasa", from: "pratyasa-framed.jpg", to: "framed.webp", width: 900 },
+  // Dino Arcade — the app's home-screen icon (assets/icon-512.png); no screenshots exist.
+  { slug: "dino-arcade-pwa", from: "icon-512.jpg", to: "icon.webp", width: 360 },
+  // Cinematic Portfolio — poster frames of the scroll film (assets/posters/*.jpg).
+  { slug: "cinematic-portfolio", from: "hero.jpg", to: "film-hero.webp", width: 1400 },
+  { slug: "cinematic-portfolio", from: "work.jpg", to: "film-work.webp", width: 900 },
+  { slug: "cinematic-portfolio", from: "close.jpg", to: "film-close.webp", width: 900 },
+  // Campfire Board — the local dashboard's own screens (docs/screenshots).
+  { slug: "campfire-board", from: "kanban.jpg", to: "kanban.webp", width: 1400 },
+  { slug: "campfire-board", from: "gantt.jpg", to: "gantt.webp", width: 1000 },
+  { slug: "campfire-board", from: "workflow.jpg", to: "workflow.webp", width: 1000 },
+  // Slag City — critique captures of the live game (docs/verification/critique2). The intro slides
+  // are not used: they name story characters, which the site never does (Tushar, 2026-09-29).
+  { slug: "slag-city", from: "11-coin-new.jpg", to: "attract.webp", width: 1400 },
+  { slug: "slag-city", from: "06-gameplay-combat.jpg", to: "combat.webp", width: 1000 },
+  { slug: "slag-city", from: "20-continue-desktop.jpg", to: "continue.webp", width: 1000 },
+  { slug: "slag-city", from: "18-mobile-portrait-play.jpg", to: "mobile.webp", width: 420 },
 ];
 
 export async function buildMedia(only?: string) {

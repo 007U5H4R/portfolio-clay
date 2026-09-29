@@ -8,13 +8,14 @@ import { nuptisCase } from "./nuptis";
 import { bhaktiVilasCase } from "./bhakti-vilas";
 import { tokenToliCase } from "./token-toli";
 import { pratyasaCase } from "./pratyasa";
+import { dinoArcadeCase } from "./dino-arcade-pwa";
 
 /**
  * The case-study records (TASK-130, spec §37), one per personal build, parsed once so the schema's
  * defaults apply. A record's `source` ids are cross-checked against its project's `sources[]` by
  * `validateAll()` (data/index.ts). Server-only: never import this from a client component.
  */
-export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase, bhaktiVilasCase, tokenToliCase, pratyasaCase];
+export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase, bhaktiVilasCase, tokenToliCase, pratyasaCase, dinoArcadeCase];
 
 export const caseStudies: CaseStudyT[] = caseStudyInputs.map((input) => CaseStudy.parse(input));
 
