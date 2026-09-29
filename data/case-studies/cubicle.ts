@@ -2,37 +2,46 @@ import type { z } from "zod";
 import type { CaseStudy } from "../schema";
 
 /**
- * Cubicle — visible collaboration, built but not launched (TASK-130; audit in
- * docs/reports/TASK-130/cubicle.md). Highest overclaim-risk record (docs/trace/cubicle.md): no live
- * run, no deployment, no users, a team of six with Tushar's own role unrecorded. Cost (~$0.04) and
- * latency (50–75 s) are Solution-PRD estimates — prose in the gaps, never a proof card.
+ * Cubicle — visible reasoning creates trust; built, not launched (TASK-130; audit in
+ * docs/reports/TASK-130/cubicle.md). Journal layout (Tushar's redesign brief, 2026-09-29): five
+ * chapters — problem · product · trust system · learnings · evidence. Highest overclaim-risk record
+ * (docs/trace/cubicle.md): no live run, no deployment, no users, a team of six with Tushar's own role
+ * unrecorded. The finished-run screen replays the repo's hand-built test fixture and says so. Model
+ * names live in the evidence drawer only. Cost (≈ $0.04) and latency (50–75 s) are estimates — they
+ * appear only as "not measured".
  */
 export const cubicleCase: z.input<typeof CaseStudy> = {
   slug: "cubicle",
+  layout: "journal",
   theme: {
     key: "cubicle",
-    metaphor: "Office operating system / workbench: a retro monitor bezel, system-state pills with LEDs, pinned task cards",
+    metaphor: "A 1990s startup cubicle at golden hour: beige CRT, fabric partition spine, folder-tab chapter markers, printed deliverables, office memos",
     accents: ["navy-2", "green-2", "note"],
   },
-  story: "Visible collaboration (built, not launched)",
+  story: "Visible reasoning creates trust (built, not launched)",
+  extraSources: [
+    { id: "CUB-HEADINGS", label: "Cubicle artifact headings", ref: "007U5H4R/cubicle@6779998 lib/prompts/headings.ts (ARTIFACT_ROLE, HEADINGS)", inventory: "§8.3" },
+  ],
   hero: {
     tagline: "Your first team fits in a cubicle.",
-    proposition:
-      "A solo founder types an idea and watches four AI teammates — PM, researcher, designer, developer — debate it in the open, then produce a PRD, a competitor scan, landing copy and a build plan.",
+    proposition: "A solo founder types an idea and watches four AI teammates debate it in the open — then gets the plan.",
+    beats: ["One idea.", "Four visible teammates.", "Four artifacts."],
+    notes: ["Show the why.", "Debate before deliverables.", "Trust first."],
     proofs: [
-      { value: "4", label: "AI teammates debating in the open", kind: "prototype", source: "CUB-DISCOVERY-PRD" },
-      { value: "4", label: "fixed artifacts from every run", kind: "prototype", source: "CUB-TECHNICAL-PLAN" },
-      { value: "10 days", label: "a buildathon, team of six", kind: "structural", source: "CUB-BUILDATHON-BRIEF", note: "Sept 7 → 16, 2026" },
+      { value: "4", label: "AI teammates", kind: "prototype", source: "CUB-DISCOVERY-PRD", note: "PM · researcher · designer · developer" },
+      { value: "4", label: "fixed artifacts", kind: "prototype", source: "CUB-TECHNICAL-PLAN", note: "PRD · scan · landing copy · build plan" },
+      { value: "10 days", label: "buildathon", kind: "structural", source: "CUB-BUILDATHON-BRIEF", note: "a team of six, Sept 7 → 16, 2026" },
     ],
     media: {
-      src: "/media/illustrations/covers/cover-cubicle.svg",
-      alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
-      width: 1600,
-      height: 900,
+      src: "/media/case-studies/cubicle/hero-screen.webp",
+      alt: "Cubicle's real interface after a run: four teammate desks — PM, Researcher, Designer, Developer — each marked Done, above the PRD they wrote.",
+      width: 704,
+      height: 528,
       frame: "plain",
-      provenance: "TASK-127 hand-authored cover, scripts/portfolio-art/scenes/cubicle (no product screenshots exist)",
+      provenance: "docs/case-study-sources/cubicle/office-replay.jpg (4:3 crop) ← 007U5H4R/cubicle@6779998 /dev/office replaying the hand-built test fixture",
     },
-    layout: "split-reverse",
+    scene: { src: "/media/case-studies/cubicle/hero-office.svg", width: 1200, height: 960 },
+    layout: "split",
   },
   sections: [
     {
@@ -41,27 +50,24 @@ export const cubicleCase: z.input<typeof CaseStudy> = {
       nav: "Problem",
       eyebrow: "The problem",
       headline: "Solo builders have no team — so ideas die before the first artifact.",
-      anchors: ["01-context", "02-problem"],
-      context:
-        "The AI tools that could fill the gap speak in one generic voice or hide their work, so the founder can’t trust the output.",
+      anchors: ["01-context", "02-problem", "03-discovery"],
+      context: "AI tools answer in one generic voice and hide their reasoning. Nobody shows the “why”.",
+      flow: {
+        caption: "What a solo founder does today",
+        source: "CUB-DISCOVERY-PRD",
+        steps: [
+          { label: "An idea" },
+          { label: "A generic AI prompt" },
+          { label: "A generic PRD" },
+          { label: "Low trust" },
+          { label: "Nothing shipped", note: "never sent to anyone" },
+        ],
+      },
       quote: {
         text: "He has pasted the idea into ChatGPT three times and got three slightly different, equally generic PRDs that he never sent to anyone.",
-        attribution: "“Aarav”, the target persona in the Discovery PRD",
+        attribution: "Aarav, the target persona — Discovery PRD",
         source: "CUB-DISCOVERY-PRD",
       },
-    },
-    {
-      kind: "research",
-      id: "insight",
-      nav: "Insight",
-      eyebrow: "The gap",
-      headline: "Nobody shows the “why”.",
-      anchors: ["03-discovery"],
-      intro:
-        "Six problem spaces scored against the brief, 46 secondary sources — and no primary interviews.",
-      quotes: [
-        { text: "Nobody makes the collaboration visible. The word ‘why’ is missing from the whole table. That is the gap.", attribution: "Discovery PRD", source: "CUB-DISCOVERY-PRD" },
-      ],
     },
     {
       kind: "product",
@@ -69,19 +75,17 @@ export const cubicleCase: z.input<typeof CaseStudy> = {
       nav: "Product",
       eyebrow: "The product",
       headline: "Type an idea. Watch the team argue. Get four artifacts.",
-      summary:
-        "The debate is the product: every proposal and objection is visible before the deliverables are written.",
+      summary: "The debate is the product: every proposal and objection is on screen before a deliverable is written.",
       source: "CUB-TECHNICAL-PLAN",
       flow: {
         caption: "One run, as designed",
         source: "CUB-TECHNICAL-PLAN",
         steps: [
-          { label: "Type a product idea" },
-          { label: "An orchestrator picks who speaks" },
-          { label: "Four teammates debate" },
-          { label: "A stop rule ends it" },
-          { label: "Four artifacts in parallel" },
-          { label: "Share by link" },
+          { label: "Idea" },
+          { label: "Orchestrator", note: "picks who speaks" },
+          { label: "Team debate", note: "PM · research · design · dev" },
+          { label: "Stop rule" },
+          { label: "4 artifacts" },
         ],
       },
       shots: [
@@ -91,7 +95,7 @@ export const cubicleCase: z.input<typeof CaseStudy> = {
           width: 720,
           height: 596,
           frame: "browser",
-          caption: "The office, waiting for an idea",
+          caption: "Idle: waiting for an idea",
           provenance: "docs/case-study-sources/cubicle/home-idle.jpg ← run locally from 007U5H4R/cubicle@6779998 (no keys, no database)",
         },
         {
@@ -100,65 +104,60 @@ export const cubicleCase: z.input<typeof CaseStudy> = {
           width: 704,
           height: 660,
           frame: "browser",
-          caption: "The real UI replaying the repo’s test fixture — not a live run",
+          caption: "Done: the real UI replaying the repo’s test fixture — not a live run",
           provenance: "docs/case-study-sources/cubicle/office-replay.jpg ← 007U5H4R/cubicle@6779998 /dev/office, hand-built fixture tests/replay/fixtures/run-001.json",
         },
       ],
-      states: [
-        { tone: "neutral", title: "What teammates can say", lines: ["propose · question · objection", "agree · done"] },
-        { tone: "yes", title: "What every run produces", lines: ["A one-page PRD", "A competitor scan", "Landing-page copy", "A build plan"] },
-      ],
-    },
-    {
-      kind: "decisions",
-      id: "decisions",
-      nav: "Decisions",
-      eyebrow: "Product decisions",
-      headline: "Trust first, ownership second, autonomy last.",
-      anchors: ["04-product-bet"],
-      items: [
-        {
-          could: "Lead with maximum agent autonomy",
-          chose: "Earn trust first with a visible debate",
-          because: "Founders won’t hand ownership to agents they don’t yet trust — the reverse of how the red ocean sequences it.",
-          source: "CUB-DISCOVERY-PRD",
-        },
-        {
-          could: "An open-ended chat with no deliverable",
-          chose: "A bounded debate, then four fixed artifacts",
-          because: "Fixed artifacts make the 90-second promise checkable and keep cost and time bounded.",
-          source: "CUB-TECHNICAL-PLAN",
-        },
-        {
-          could: "Ground every call in web search",
-          chose: "Search only for the competitor scan",
-          because: "When search is down, the scan says so: “From memory, unverified — could not reach search.”",
-          source: "CUB-PACKAGE-JSON",
-        },
+      outputs: [
+        { name: "PRD", owner: "PM", lines: ["Problem", "Who it is for", "Proposed solution", "v1 scope: in / out", "One success metric", "The open question we argued about"], source: "CUB-HEADINGS" },
+        { name: "Competitor scan", owner: "Researcher", lines: ["Three competitors", "What this means for positioning", "Confidence note"], source: "CUB-HEADINGS" },
+        { name: "Landing copy", owner: "Designer", lines: ["Headline", "Subheadline", "Three benefits", "Call to action", "Two objections, answered"], source: "CUB-HEADINGS" },
+        { name: "Build plan", owner: "Developer", lines: ["Smallest v1 slice", "Suggested stack", "Five steps with rough time", "What we cut and why", "Riskiest assumption to test first"], source: "CUB-HEADINGS" },
       ],
     },
     {
       kind: "system",
       id: "system",
-      nav: "System",
-      eyebrow: "How it works",
-      headline: "The database is the truth; the stream is a convenience.",
-      anchors: ["05-what-i-built"],
-      caption: "One run through Cubicle’s single streaming route",
+      nav: "Trust system",
+      eyebrow: "Trust system",
+      headline: "Trust first. Ownership second. Autonomy last.",
+      anchors: ["04-product-bet", "05-what-i-built"],
+      ladder: ["Trust", "Ownership", "Autonomy"],
+      decision: {
+        could: "Maximum agent autonomy",
+        chose: "Visible debate first",
+        because: "Founders need to see the reasoning before they hand over ownership.",
+        source: "CUB-DISCOVERY-PRD",
+      },
+      caption: "How one run moves through Cubicle",
       source: "CUB-TECHNICAL-PLAN",
       steps: [
-        { label: "POST /api/runs", note: "one streaming route" },
-        { label: "Orchestrator", note: "Gemini Flash-Lite picks the next speaker" },
-        { label: "Four role agents", note: "Gemini Flash, speech-act envelopes" },
-        { label: "Stop rules", note: "6 messages · 45 s · 70% tokens · repeats" },
-        { label: "Four artifact calls", note: "in parallel" },
-        { label: "Postgres", note: "every message saved as it happens" },
-        { label: "Browser", note: "mirrored over a live stream" },
+        { label: "Idea", note: "typed by the founder" },
+        { label: "Orchestrator", note: "picks the next speaker" },
+        { label: "4 role agents", note: "propose · question · object" },
+        { label: "Stop rules", note: "6 messages · 45 s" },
+        { label: "4 artifacts", note: "written in parallel" },
+        { label: "Database", note: "every message saved" },
+        { label: "Browser", note: "a live mirror" },
       ],
       rules: [
-        "One gateway module is the only code that talks to the model.",
-        "Structured output is validated before it is saved.",
-        "Search grounding is limited to the competitor scan.",
+        "The debate is bounded.",
+        "Structured outputs are validated.",
+        "Competitor search may say “unverified”.",
+        "The database is the source of truth.",
+      ],
+    },
+    {
+      kind: "learnings",
+      id: "learnings",
+      nav: "Learnings",
+      eyebrow: "Key learnings",
+      headline: "Three lessons from building Cubicle.",
+      anchors: ["08-what-i-learned"],
+      items: [
+        { title: "Visible reasoning creates trust", body: "The product’s bet: a founder trusts a plan they watched being argued. Untested with users.", source: "CUB-DISCOVERY-PRD" },
+        { title: "Bounded debate beats endless chat", body: "Stop rules and four fixed artifacts keep a run’s cost and time bounded.", source: "CUB-TECHNICAL-PLAN" },
+        { title: "Read the diff, not only green checks", body: "The two most important defects were found by reading the reasoning, not by any test.", source: "CUB-LESSON-LEARNT" },
       ],
     },
     {
@@ -168,40 +167,31 @@ export const cubicleCase: z.input<typeof CaseStudy> = {
       eyebrow: "Evidence",
       headline: "Built and tested offline — not launched.",
       anchors: ["06-evaluation", "07-outcome"],
-      intro: "The QA report’s call: “CONDITIONALLY READY — STEPS REQUIRED”.",
+      intro: "The QA report’s verdict: “CONDITIONALLY READY — STEPS REQUIRED”.",
       proofs: [
         { value: "326", label: "automated tests passing", kind: "measured", asOf: "2026-09-12", source: "CUB-QA-REPORT", note: "3 skipped; typecheck, lint and audit clean in CI" },
-        { value: "29 / 97", label: "test cases passed; 17 blocked, 48 planned, 0 failed", kind: "measured", asOf: "2026-09-12", source: "CUB-QA-REPORT" },
+        { value: "29 / 97", label: "test cases passed", kind: "measured", asOf: "2026-09-12", source: "CUB-QA-REPORT", note: "17 blocked · 48 planned" },
+        { value: "0", label: "test cases failed", kind: "measured", asOf: "2026-09-12", source: "CUB-QA-REPORT" },
       ],
       gaps: [
-        "The real four-agent run has never executed against a live model or database.",
-        "No deployment and no users; the ≈ $0.04 cost and 50–75 s latency are estimates.",
-        "A team build of six — Tushar’s own named role was never recorded.",
+        "A real four-agent run on a live model",
+        "Users or usage",
+        "Live latency (50–75 s is an estimate)",
+        "Real cost (≈ $0.04 a run is an estimate)",
       ],
-    },
-    {
-      kind: "learnings",
-      id: "learnings",
-      nav: "Learnings",
-      eyebrow: "What I learned",
-      headline: "Green gates aren’t the whole review.",
-      anchors: ["08-what-i-learned"],
-      items: [
-        { title: "Don’t trust jsdom with layout", body: "Pull geometry into pure functions, test those, and check the render in a real browser.", source: "CUB-LESSON-LEARNT" },
-        { title: "Harness on real fixtures", body: "Mount every new component into a client-only dev harness that replays recorded runs.", source: "CUB-LESSON-LEARNT" },
-        { title: "Read the diff", body: "The two most important defects were found by reading the reasoning, not by any test.", source: "CUB-LESSON-LEARNT" },
-      ],
+      stamp: ["Prototype", "Not launched"],
     },
   ],
   evidence: [
-    { title: "Discovery PRD", type: "PRD", date: "2026-09-08", supports: "The problem, the Aarav persona, the gap insight and the sequencing bet", source: "CUB-DISCOVERY-PRD" },
+    { title: "Discovery PRD", type: "PRD", date: "2026-09-08", supports: "The problem, the Aarav persona, the gap insight and the trust-first sequencing bet", source: "CUB-DISCOVERY-PRD" },
     { title: "Research notes", type: "Research", supports: "46 secondary sources, tagged High/Medium/Low", source: "CUB-RESEARCH-NOTES" },
-    { title: "Technical plan", type: "Architecture", date: "2026-09-09", supports: "The streaming route, debate protocol and stop rules", source: "CUB-TECHNICAL-PLAN" },
+    { title: "Technical plan", type: "Architecture", date: "2026-09-09", supports: "The streaming route, debate protocol, stop rules and the database as the source of truth", source: "CUB-TECHNICAL-PLAN" },
     { title: "Decisions log", type: "Design", supports: "Decisions S1–S6", source: "CUB-DECISIONS" },
-    { title: "package.json + gateway", type: "Code", supports: "Gemini models and the unverified-search fallback", source: "CUB-PACKAGE-JSON" },
-    { title: "QA report", type: "Evaluation", date: "2026-09-12", supports: "326 tests, 97 TC rows, QA gates, “CONDITIONALLY READY”", source: "CUB-QA-REPORT" },
+    { title: "package.json + gateway", type: "Code", supports: "Gemini Flash (agents) and Flash-Lite (orchestrator); the unverified-search fallback", source: "CUB-PACKAGE-JSON" },
+    { title: "Artifact headings", type: "Code", supports: "Each artifact’s owner and its fixed headings", source: "CUB-HEADINGS" },
+    { title: "QA report", type: "Evaluation", date: "2026-09-12", supports: "326 tests; 97 TC rows (29 pass, 17 blocked, 48 planned, 0 fail); “CONDITIONALLY READY”", source: "CUB-QA-REPORT" },
     { title: "HANDOFF", type: "Build ledger", supports: "Offline build finished; the first real run never happened", source: "CUB-HANDOFF" },
-    { title: "Lessons learnt", type: "Build ledger", date: "2026-09-12", supports: "L1, L2, L8", source: "CUB-LESSON-LEARNT" },
+    { title: "Lessons learnt", type: "Build ledger", date: "2026-09-12", supports: "L8: read the diff", source: "CUB-LESSON-LEARNT" },
     { title: "Buildathon brief", type: "Research", supports: "A team of six, ten days", source: "CUB-BUILDATHON-BRIEF" },
   ],
 };

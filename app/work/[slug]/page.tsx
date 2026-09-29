@@ -8,7 +8,9 @@ import { site } from "@/lib/site";
 import { getCaseStudy } from "@/data/case-studies";
 import { portfolioEntries } from "@/data/portfolio";
 import { CaseStudyView } from "@/components/case-study/system/CaseStudyView";
+import { JournalView } from "@/components/case-study/journal/JournalView";
 import "./case-study.css";
+import "./journal.css";
 
 /**
  * Only the personal slugs are built; any other `/work/*` slug 404s (dynamicParams=false). Every
@@ -63,7 +65,11 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   return (
     <>
       <ProgressBar />
-      <CaseStudyView project={project} study={study} portfolio={portfolio} next={nextProject} />
+      {study.layout === "journal" ? (
+        <JournalView project={project} study={study} portfolio={portfolio} next={nextProject} />
+      ) : (
+        <CaseStudyView project={project} study={study} portfolio={portfolio} next={nextProject} />
+      )}
     </>
   );
 }

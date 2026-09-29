@@ -208,6 +208,8 @@ export const ProductSection = z.object({ ...CaseSectionBase, kind: z.literal('pr
   /* Recorded output states (e.g. RailCite's `answered | refused` contract) — a diagram of the
      contract, never a redrawn screenshot. */
   states: z.array(z.object({ tone: z.enum(['yes','no','neutral']), title: z.string().min(3).max(40), lines: z.array(z.string().min(3).max(90)).min(1).max(4) })).max(3).default([]),
+  /* Journal layout: the run's printed deliverables (name · owner · the product's own headings). */
+  outputs: z.array(z.object({ name: z.string().min(2).max(24), owner: z.string().min(2).max(24), lines: z.array(z.string().min(2).max(48)).min(1).max(6), source: z.string().min(2) })).max(4).default([]),
   source: z.string().min(2),
 });
 export const Decision = z.object({
@@ -218,7 +220,11 @@ export const SystemSection = z.object({ ...CaseSectionBase, kind: z.literal('sys
   intro: z.string().min(12).max(240).optional(),
   caption: z.string().min(8).max(120),                   // the diagram's figcaption
   steps: z.array(FlowStep).min(5).max(8),                // spec §16 + brief §5: 5–8 steps; a smaller system gets no diagram
-  rules: z.array(z.string().min(8).max(110)).max(3).default([]),
+  rules: z.array(z.string().min(8).max(110)).max(4).default([]),
+  /* Journal layout: the one load-bearing decision drawn beside the system, and an ordered ladder
+     (e.g. trust → ownership → autonomy) when the record states the sequence. */
+  decision: Decision.optional(),
+  ladder: z.array(z.string().min(3).max(20)).min(2).max(4).optional(),
   source: z.string().min(2),
 });
 export const Funnel = z.object({
@@ -229,18 +235,25 @@ export const OutcomeSection = z.object({ ...CaseSectionBase, kind: z.literal('ou
   intro: z.string().min(12).max(320).optional(),
   proofs: z.array(CaseProof).max(6).default([]),
   funnel: Funnel.optional(),
-  gaps: z.array(z.string().min(8).max(160)).max(3).default([]),   // what is honestly not measured
+  gaps: z.array(z.string().min(8).max(160)).max(4).default([]),   // what is honestly not measured
+  /* Journal layout: a status stamp over the evidence ("Prototype / Not launched", "Mock data"). */
+  stamp: z.array(z.string().min(3).max(24)).min(1).max(2).optional(),
 });
 export const PivotSection = z.object({ ...CaseSectionBase, kind: z.literal('pivot'),
-  from: z.object({ name: z.string().min(2), line: z.string().min(8).max(140) }),
+  from: z.object({ name: z.string().min(2), line: z.string().min(8).max(140), when: z.string().min(3).max(16).optional() }),
   evidence: z.array(z.object({ text: z.string().min(8).max(200), source: z.string().min(2) })).min(1).max(3),
   decision: z.object({ text: z.string().min(8).max(200), source: z.string().min(2) }),
-  to: z.object({ name: z.string().min(2), line: z.string().min(8).max(160) }),
+  to: z.object({ name: z.string().min(2), line: z.string().min(8).max(160), when: z.string().min(3).max(16).optional() }),
+  /* Journal layout: the stamp on the killed card ("Day 7 · killed", "Can't publish"). */
+  stamp: z.string().min(3).max(24).optional(),
 });
 export const ResearchSection = z.object({ ...CaseSectionBase, kind: z.literal('research'),
   intro: z.string().min(12).max(300).optional(),
   quotes: z.array(z.object({ text: z.string().min(12).max(240), attribution: z.string().min(2), source: z.string().min(2) })).min(1).max(3),
   insight: z.object({ text: z.string().min(12).max(240), source: z.string().min(2) }).optional(),
+  /* Journal layout: active work vs waiting, drawn as a proportional bar. `figure` only when the
+     record carries it, with its attribution (e.g. team secondary research, unverified). */
+  timeline: z.object({ active: z.string().min(3).max(40), waiting: z.string().min(3).max(40), figure: z.string().min(2).max(40).optional(), note: z.string().min(8).max(140), source: z.string().min(2) }).optional(),
 });
 export const LearningsSection = z.object({ ...CaseSectionBase, kind: z.literal('learnings'),
   items: z.array(z.object({ title: z.string().min(4).max(48), body: z.string().min(12).max(200), source: z.string().min(2) })).min(2).max(4),
@@ -268,7 +281,14 @@ export const CaseStudy = z.object({
     layout: z.enum(['split','split-reverse','stacked','pivot']).default('split'),
     /* layout 'pivot' (spec §49): the killed first bet, shown struck beside the product that survived. */
     pivotFrom: CaseImage.optional(),
+    /* Journal layout (TASK-130 redesign): two or three one-line beats under the tagline, up to three
+       decorative handwritten notes (aria-hidden), and the hand-authored scene the real UI sits in. */
+    beats: z.array(z.string().min(3).max(40)).max(3).default([]),
+    notes: z.array(z.string().min(3).max(32)).max(3).default([]),
+    scene: z.object({ src: z.string().regex(/^\/media\/case-studies\/[a-z0-9-]+\/[a-z0-9-]+\.svg$/), width: z.number().int().positive(), height: z.number().int().positive() }).optional(),
   }),
+  /* 'journal' = the bespoke editorial one-pager (Cubicle, Dino Arcade, Velora); 'system' = the shared template. */
+  layout: z.enum(['system','journal']).default('system'),
   sections: z.array(CaseSection).min(3).max(7),
   evidence: z.array(EvidenceItem).max(12).default([]),
   /* Recorded artifacts CONTENT_INVENTORY §8 lists for this product that its project record doesn't

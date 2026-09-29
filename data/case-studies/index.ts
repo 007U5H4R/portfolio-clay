@@ -43,7 +43,7 @@ export function caseStudySourceIds(study: CaseStudyT): string[] {
  * string except the evidence drawer, source ids, art direction notes and image metadata.
  */
 export function caseStudyWords(study: CaseStudyT): number {
-  const skip = new Set(["source", "evidence", "theme", "story", "slug", "id", "anchors", "kind", "tone", "layout", "media", "shots", "poster", "video", "asOf"]);
+  const skip = new Set(["source", "evidence", "theme", "story", "slug", "id", "anchors", "kind", "tone", "layout", "media", "shots", "poster", "video", "asOf", "scene"]);
   let words = 0;
   const walk = (value: unknown, key?: string) => {
     if (key && skip.has(key)) return;

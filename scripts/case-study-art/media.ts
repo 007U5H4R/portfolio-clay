@@ -52,6 +52,8 @@ export const MEDIA: MediaRow[] = [
   // (tests/replay/fixtures/run-001.json). Crops drop the dev stepper controls and the dev badge.
   { slug: "cubicle", from: "home-idle.jpg", to: "home.webp", width: 1000, extract: { left: 360, top: 90, width: 720, height: 596 } },
   { slug: "cubicle", from: "office-replay.jpg", to: "office-replay.webp", width: 1000, extract: { left: 368, top: 326, width: 704, height: 660 } },
+  // The journal hero's monitor: the same replay, cropped 4:3 (four Done desks over the PRD).
+  { slug: "cubicle", from: "office-replay.jpg", to: "hero-screen.webp", width: 704, extract: { left: 368, top: 326, width: 704, height: 528 } },
   // Pratyasa — the real device (pratyasa-site/assets/device-photo.jpg) and its framed case photo.
   { slug: "pratyasa", from: "device-photo.jpg", to: "device.webp", width: 1400 },
   { slug: "pratyasa", from: "pratyasa-framed.jpg", to: "framed.webp", width: 900 },

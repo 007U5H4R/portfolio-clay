@@ -1,8 +1,6 @@
-import type { CSSProperties, ReactNode } from "react";
-import type { CaseImage, CaseSection, CaseStudy, EvidenceKind, PortfolioEntry, Project } from "@/data/schema";
-import { resolveVideoMedia } from "@/lib/portfolio";
-import { watchUrl, type VideoMedia } from "@/lib/video-providers";
-import { formatYearMonth } from "@/lib/format";
+import type { ReactNode } from "react";
+import type { CaseImage, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
+import type { VideoMedia } from "@/lib/video-providers";
 import { Container } from "@/components/layout/Container";
 import { NextProject } from "@/components/case-study/NextProject";
 import { CaseStudyHero } from "./CaseStudyHero";
@@ -16,11 +14,11 @@ import { OutcomeBoard } from "./OutcomeBoard";
 import { PivotFlow } from "./PivotFlow";
 import { ResearchWall } from "./ResearchWall";
 import { LearningCard } from "./LearningCard";
-import { EvidenceDrawer, type EvidenceRow } from "./EvidenceDrawer";
-import { CaseStudyCTA, type CaseAction } from "./CaseStudyCTA";
+import { EvidenceDrawer } from "./EvidenceDrawer";
+import { CaseStudyCTA } from "./CaseStudyCTA";
 import { CaseMotion } from "./CaseMotion";
 import { themeDecor } from "./theme-decor";
-import { EVIDENCE_KINDS } from "@/data/schema";
+import { accentVars, caseActions, evidenceRows as buildEvidenceRows, legendKinds as buildLegendKinds, videoFor as resolveVideo } from "./case-context";
 
 export interface CaseStudyViewProps {
   project: Project;
@@ -29,21 +27,6 @@ export interface CaseStudyViewProps {
   next: Pick<Project, "slug" | "name">;
 }
 
-/** Paper-token accents → CSS custom properties the theme stylesheet reads (EVAL-020: token names only). */
-function accentVars(accents: readonly string[]): CSSProperties {
-  const vars: Record<string, string> = {};
-  accents.forEach((token, index) => {
-    vars[`--csx-a${index + 1}`] = `var(--color-${token})`;
-  });
-  return vars as CSSProperties;
-}
-
-const DATE_FMT = (value: string): string => {
-  const [year, month, day] = value.split("-");
-  const ym = formatYearMonth(`${year}-${month}`);
-  return day ? `${Number(day)} ${ym}` : ym;
-};
-
 /**
  * The custom product case-study one-pager (TASK-130, Tushar's spec). Shared: typography, spacing,
  * the evidence UI (badges, drawer), the navigator, the action strip, a11y. Per product (via
@@ -51,23 +34,13 @@ const DATE_FMT = (value: string): string => {
  * accents, hero composition, diagram styling and section order.
  */
 export function CaseStudyView({ project, study, portfolio, next }: CaseStudyViewProps) {
-  const sourceById = new Map([...project.sources, ...study.extraSources].map((source) => [source.id, source]));
-  const videoFor = (mode: "pitch" | "demo"): VideoMedia | undefined => {
-    const entry = mode === "pitch" ? portfolio.pitchVideo : portfolio.demoVideo;
-    return entry ? resolveVideoMedia(entry, project.name, mode) : undefined;
-  };
+  const videoFor = (mode: "pitch" | "demo"): VideoMedia | undefined => resolveVideo(project, portfolio, mode);
 
   const heroMedia = study.hero.media;
   const heroVideo = "video" in heroMedia ? videoFor(heroMedia.video) : undefined;
 
   // Evidence badges used anywhere on the page → the one legend shows only those.
-  const kinds = new Set<EvidenceKind>(study.hero.proofs.map((proof) => proof.kind));
-  for (const section of study.sections) {
-    if (section.kind !== "outcome") continue;
-    section.proofs.forEach((proof) => kinds.add(proof.kind));
-    if (section.funnel) kinds.add(section.funnel.kind);
-  }
-  const legendKinds = EVIDENCE_KINDS.filter((kind) => kinds.has(kind));
+  const legendKinds = buildLegendKinds(study);
   const heroHasLegend = study.hero.proofs.length > 0;
 
   const posterFor = (mode: "pitch" | "demo", own?: CaseImage): ReactNode => {
@@ -116,22 +89,10 @@ export function CaseStudyView({ project, study, portfolio, next }: CaseStudyView
 
   const slotFor = (kind: CaseSection["kind"]) => kind;
 
-  const evidenceRows: EvidenceRow[] = study.evidence.map((item) => ({
-    title: item.title,
-    type: item.type,
-    date: item.date ? DATE_FMT(item.date) : undefined,
-    supports: item.supports,
-    url: sourceById.get(item.source)?.url,
-  }));
+  const evidenceRows = buildEvidenceRows(project, study);
   const evidenceTypes = Array.from(new Set(study.evidence.map((item) => item.type)));
 
-  const actions: CaseAction[] = [];
-  if (project.links.live) actions.push({ kind: "live", label: "Live product", hint: `Open ${project.name.split(" → ").pop()}`, href: project.links.live });
-  const pitch = videoFor("pitch");
-  if (pitch) actions.push({ kind: "pitch", label: "Pitch video", hint: "Watch on YouTube", href: watchUrl(pitch) });
-  const demo = videoFor("demo");
-  if (demo) actions.push({ kind: "demo", label: "Demo video", hint: "Watch on YouTube", href: watchUrl(demo) });
-  if (project.links.repoPublic && project.links.github) actions.push({ kind: "github", label: "GitHub", hint: "View the source", href: project.links.github });
+  const actions = caseActions(project, portfolio);
 
   const rootId = `case-${study.slug}`;
 
