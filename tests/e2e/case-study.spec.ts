@@ -1,10 +1,10 @@
 /**
  * case-study.spec.ts (TKT-19 → TASK-130, `pnpm test:e2e --grep 'case-study'`) — the route-level gate
  * every case study shares. TASK-130 replaced the §7.3 template (30-sec / Deep dive tabs, chapters,
- * Show the thinking) with the one-pager system (Design.md Dev-129); its per-page contract — one h1,
+ * Show the thinking) with the one-pager system (Design.md Dev-130); its per-page contract — one h1,
  * labelled sections, badge legend, no dev copy, evidence drawer, motion, JS-off — lives in
  * case-study-system.spec.ts. This file keeps what is route-wide: axe on every slug (EVAL-006), the
- * card → study hop (now a new tab, Dev-130) and the next-project band.
+ * card → study hop (now a new tab, Dev-131) and the next-project band.
  */
 import { test, expect } from "./fixtures";
 import { SYSTEM_STUDIES } from "./case-study-system";
@@ -66,7 +66,7 @@ test("case-study · TKT-81 next band: the whole section is one link with a kraft
   await expect(band.locator("a")).toHaveCount(1);
   const link = band.locator("a");
   await expect(link).toHaveAttribute("href", "/work/railcite");
-  await expect(link).toHaveAttribute("target", "_blank"); // TASK-130 (Dev-130)
+  await expect(link).toHaveAttribute("target", "_blank"); // TASK-130 (Dev-131)
   await expect(link.locator("h2")).toContainText("RailCite");
   // Keyboard focus (not a click) so :focus-visible applies.
   await link.focus();

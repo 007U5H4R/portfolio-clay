@@ -981,7 +981,7 @@
   .csx[data-theme="railcite"] .csx-hero-media { padding-top: 64px; }
 }
 
-/* Spec §31 / TASK-130 (Dev-128): no development copy on a case-study page. The band footer's hiring
+/* Spec §31 / TASK-130 (Dev-129): no development copy on a case-study page. The band footer's hiring
    line is still "Draft — pending sign-off", so it is left out here (this stylesheet ships only with
    /work/[slug]); every other route keeps it until Tushar signs it off. */
 body:has(.csx) .band-hire { display: none; }

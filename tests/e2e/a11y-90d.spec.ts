@@ -75,4 +75,4 @@ test("A11Y-2 the kind-badge dot is not read aloud (/about)", async ({ page }) =>
 });
 
 // TASK-130: A11Y-3 / A11Y-4 checked the deep-dive artifact cards on /work/teachspark; the one-pager no
-// longer renders them (Dev-129). Their components are still covered by tests/unit/artifacts.test.tsx.
+// longer renders them (Dev-130). Their components are still covered by tests/unit/artifacts.test.tsx.

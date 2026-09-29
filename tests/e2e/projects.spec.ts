@@ -98,7 +98,7 @@ test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the UR
   await page.goto("/projects", { waitUntil: "load" });
   const cs = page.getByRole("tabpanel").getByRole("link", { name: /Read the case study/ });
   await expect(cs).toHaveAttribute("href", `/work/${PERSONAL[0]!.slug}`);
-  // TASK-130 (Dev-130): the case study opens in a new tab; /projects stays put.
+  // TASK-130 (Dev-131): the case study opens in a new tab; /projects stays put.
   const study = await openCaseStudy(page, cs);
   await expect(study).toHaveURL(new RegExp(`/work/${PERSONAL[0]!.slug}$`));
   await expect(study.getByRole("heading", { level: 1 })).toHaveText(PERSONAL[0]!.name);
