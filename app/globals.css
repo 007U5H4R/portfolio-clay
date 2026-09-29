@@ -11922,9 +11922,9 @@ html.lenis body {
     color: var(--color-navy-2);
   }
   .pf-case-streams {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 14px;
+    /* TASK-132: one sub-project per line (a wrapping row put short items side by side). */
+    display: grid;
+    gap: 4px;
     align-content: start;
     margin: 4px 0 0;
     padding: 8px 0 0;
@@ -11973,8 +11973,7 @@ html.lenis body {
     padding-top: 8px;
     border-top: 1px solid var(--line);
   }
-  .pf-case-role,
-  .pf-case-source {
+  .pf-case-role {
     font-size: 14px;
     line-height: 1.4;
     color: var(--color-ink-soft);

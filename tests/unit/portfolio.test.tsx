@@ -364,11 +364,12 @@ describe("Enterprise case files (spec §27–§35)", () => {
     expect(leaked.ok).toBe(false);
   });
 
-  it("renders six case files with sources and no links (no detail pages exist — spec §34)", () => {
+  it("renders six case files with no links (no detail pages exist — spec §34) and no Source line (TASK-131)", () => {
     const { container } = render(<EnterpriseClientWork cases={enterpriseCases} />);
     expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(6);
     expect(container.querySelectorAll("a")).toHaveLength(0);
-    expect(screen.getAllByText(/^Source: /)).toHaveLength(6);
+    expect(screen.queryAllByText(/^Source:/)).toHaveLength(0);
+    expect(container.textContent).not.toMatch(/Project Manager portfolio|Résumé, p/);
     expect(container.querySelector("[data-decor]")).not.toBeNull();
   });
 });
