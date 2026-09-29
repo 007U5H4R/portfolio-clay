@@ -122,7 +122,7 @@
       "What certifications does he have?"
     ],
     "updatedAt": "2026-09-29",
-    "profileVersion": "v1-65827b07653b",
+    "profileVersion": "v1-73690808f11c",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -148,8 +148,8 @@
     "answer": "Here are the numbers, with their caveats attached. At American Express he owns the roadmap for 35+ Accounts Receivable capabilities, 180+ user stories across four Agile teams, with a 30% cut in feature delivery cycle time (self-reported). TeachSpark's first-week pilot (snapshot 24 Aug 2026, test handsets excluded) brought 17 teachers onto WhatsApp, activated 8, and saved a median 37.5 minutes each, by their own report. RailCite keeps 5,760 government documents searchable (as of 15 Sep 2026) with zero invented citations, enforced by construction rather than measured on a sample.",
     "sources": [
       {
-        "label": "Impact",
-        "href": "/about#impact"
+        "label": "Experience — scope & outcomes",
+        "href": "/work#work-experience"
       },
       {
         "label": "TeachSpark — Outcome",
@@ -190,8 +190,8 @@
     "answer": "Three stand out. First, discovery and hypothesis framing: confidence-tagged PRDs and assumption tables, written before any code. Second, AI product design where trust is the feature, like RailCite's cite-or-refuse design, TeachSpark's QC pass and honest instrumentation. Third, enterprise delivery at scale: roadmaps across four Agile teams at American Express, and program governance on GCP and AWS. The full product, AI, technology and execution skill clusters are on the About page.",
     "sources": [
       {
-        "label": "Capabilities",
-        "href": "/about#capabilities"
+        "label": "Skills",
+        "href": "/work#skills"
       },
       {
         "label": "RailCite",
@@ -207,8 +207,8 @@
       "What enterprise programs has he worked on?",
       "What cloud experience does he have?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-ea7682386db7",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-f8c25c1d39ec",
     "dependsOn": [
       "skills",
       "experience",
@@ -249,7 +249,7 @@
       "Walk me through a specific project."
     ],
     "updatedAt": "2026-09-29",
-    "profileVersion": "v1-57dfea8be962",
+    "profileVersion": "v1-a5b6a283b7ac",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -400,7 +400,7 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-09-29",
-    "profileVersion": "v1-aa3d703d9bf7",
+    "profileVersion": "v1-2e08fef43e71",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -427,8 +427,8 @@
         "href": "/work"
       },
       {
-        "label": "About — Experience",
-        "href": "/about#experience"
+        "label": "Experience",
+        "href": "/work#work-experience"
       }
     ],
     "followUps": [
@@ -462,8 +462,8 @@
         "href": "/work"
       },
       {
-        "label": "About — Experience",
-        "href": "/about#experience"
+        "label": "Experience",
+        "href": "/work#work-experience"
       }
     ],
     "followUps": [
@@ -616,8 +616,8 @@
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-69a54130f812",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-04739892b7a9",
     "dependsOn": [
       "credentials",
       "knowledge"
@@ -654,8 +654,8 @@
       "What impact has he created?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-57fcaf993a47",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-936612ba7d19",
     "dependsOn": [
       "knowledge",
       "experience"
@@ -694,7 +694,7 @@
       "Tell me about Velora."
     ],
     "updatedAt": "2026-09-29",
-    "profileVersion": "v1-d51e4888ef4b",
+    "profileVersion": "v1-770a77b6f7a4",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -735,7 +735,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-09-29",
-    "profileVersion": "v1-cc23f458b9d6",
+    "profileVersion": "v1-6ae21c1e5b51",
     "dependsOn": [
       "knowledge",
       "project:railcite",
