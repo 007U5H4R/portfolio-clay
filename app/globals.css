@@ -11329,8 +11329,8 @@ html.lenis body {
     margin-top: 10px;
     padding-top: 8px;
     border-top: 1px dashed var(--line-sketch);
-    font-size: 13px;
-    letter-spacing: 0.04em;
+    font-size: 14px;
+    letter-spacing: 0.02em;
     color: var(--color-ink-soft);
   }
   @media (max-width: 899px) {
@@ -11407,13 +11407,13 @@ html.lenis body {
     color: var(--color-navy);
   }
   .rvx-meta {
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--color-terracotta);
   }
   .rvx-text {
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.45;
     color: var(--color-navy-2);
   }
@@ -11443,7 +11443,7 @@ html.lenis body {
     flex-wrap: wrap;
     gap: 6px 18px;
     margin-top: 14px;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--color-ink-soft);
   }
   .rvx-values-h2 {
@@ -11731,7 +11731,7 @@ html.lenis body {
   .ct-details-row dt {
     grid-row: span 8;
     padding-top: 2px;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
