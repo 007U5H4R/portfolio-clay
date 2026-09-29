@@ -4,6 +4,7 @@ import {
   Cloud,
   Film,
   Gamepad2,
+  Hammer,
   Handshake,
   Landmark,
   MessageSquareText,
@@ -45,6 +46,7 @@ const ICONS: Record<string, LucideIcon> = {
   Cloud,
   Network,
   SquareKanban,
+  Hammer,
 };
 
 /** Resolve a project's `icon` name to a lucide component (falls back to the message icon). */
@@ -2866,6 +2868,55 @@ export const campfireBoard: Project = {
   ],
 };
 
+/**
+ * Slag City (TASK-129). An original arcade beat-'em-up that runs in the browser — one complete stage,
+ * live at slag-city.vercel.app (HTTP 200, checked 2026-09-29). Its GitHub repo 007U5H4R/slag-city was
+ * made public at Tushar's request (2026-09-29) → `github` + repoPublic:true. Every field traces to the
+ * Slag City README / Discovery PRD / deploy notes (CONTENT_INVENTORY §8.13, `docs/trace/slag-city.md`).
+ * No story character is named (the final boss shares a name with a well-known TV villain). The game has
+ * no AI features. The art-generation credit is deliberately left out of the public copy (Tushar, 2026-09-29).
+ * No users, metrics or outcomes are recorded, so none are claimed. Card depth.
+ */
+export const slagCity: Project = {
+  slug: "slag-city",
+  name: "Slag City",
+  tagline:
+    "An original arcade beat-'em-up that runs in your browser — one complete stage, on a desktop cabinet or a phone.",
+  category: "personal",
+  tags: ["Phaser 3", "Beat-'em-up", "Browser game"],
+  filters: ["experiments"],
+  status: "live",
+  statusLabel: "Live · browser game",
+  statusAsOf: "2026-09-29",
+  gridSize: "small",
+  icon: "Hammer",
+  role: "Owner · personal build",
+  dates: { start: "2026-09" },
+  duration: "Sep 2026",
+  links: {
+    live: "https://slag-city.vercel.app",
+    github: "https://github.com/007U5H4R/slag-city",
+    repoPublic: true,
+  },
+  hero: {},
+  metrics: [],
+  overview: {
+    thirtySecond: [
+      "A side-scrolling brawler built the way a coin-op cabinet behaves: attract mode, insert coin, fight, a 10-second continue countdown, and initials on the hi-score table. It is one complete stage — a three-boss gauntlet, with a story told in an eight-slide intro and the boss dialogue — playable on a desktop in a simulated cabinet or on a phone with on-screen controls. Coins are free. It started where Dino Arcade stops: that emulator is fine for private play but cannot be published, so the goal was a publishable beat-'em-up with wholly original IP.",
+      "Built with Phaser 3, TypeScript and Vite, and deployed on Vercel. The game logic is a pure TypeScript core with a seeded RNG, so recorded input replays are hashed in tests and a behaviour change fails a golden; keyboard, gamepad and touch feed one input frame. Audio is synthesised in the browser with Web Audio.",
+    ],
+    deepDive: false,
+  },
+  chapters: EMPTY_CHAPTERS,
+  thinking: [],
+  learnings: [],
+  sources: [
+    { id: "SC-README", label: "Slag City README", ref: "SC/README.md (header, intro, Highlights, How it works, Credits & license)", inventory: "§8.13" },
+    { id: "SC-DISCOVERY", label: "Slag City Discovery PRD", ref: "SC/Discovery-PRD.md §1 (2026-09-05)", inventory: "§8.13" },
+    { id: "SC-DEPLOY", label: "Slag City deploy notes", ref: "SC/docs/deploy/DEPLOY.md (LIVE 2026-09-16)", inventory: "§8.13" },
+  ],
+};
+
 /* ── professional experience entries (TKT-15, §2.3) ────────────────────────────────
  * `category:'professional'`: the schema forbids `links.live`, `demoVideo` and `featured` on these,
  * so corporate work can never imply a public product (Solution-PRD §5). Status is neutral
@@ -2980,15 +3031,15 @@ export const godrejSmartnet: Project = {
 };
 
 /**
- * The full 15-record collection (TKT-15; Campfire Board added by TASK-124): 12 personal builds + 3
- * professional-experience entries.
+ * The full 16-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129):
+ * 13 personal builds + 3 professional-experience entries.
  * Featured trio (rank 1/2/3): TeachSpark (large) · RailCite · Nuptis → Velora. Exactly one
- * `gridSize:'large'` (teachspark). `generateStaticParams` builds a `/work/<slug>` page for the 12
+ * `gridSize:'large'` (teachspark). `generateStaticParams` builds a `/work/<slug>` page for the 13
  * personal builds only; professional entries render inline on `/work` (TKT-17), no case-study page.
  */
 export const projects: Project[] = [
-  // personal builds (12) — featured trio first, then the deep dives, then the card-depth builds
-  // (newest record last: Campfire Board, TASK-124)
+  // personal builds (13) — featured trio first, then the deep dives, then the card-depth builds
+  // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129)
   teachspark,
   railcite,
   velora,
@@ -3001,6 +3052,7 @@ export const projects: Project[] = [
   dinoArcadePwa,
   cinematicPortfolio,
   campfireBoard,
+  slagCity,
   // professional experience (3)
   marsArModernization,
   cloudModernizationPrograms,

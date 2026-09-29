@@ -2,8 +2,8 @@
  * portfolio-video.spec.ts (TASK-122, video-embed spec §5, §6, §11–§15, §20) — the video player wired
  * into the REAL Portfolio showcase (TASK-121 visuals), via `/dev/portfolio-video`: the real product
  * data with TEST-ONLY YouTube ids overlaid on product 1 (pitch + demo) and product 2 (pitch only).
- * TASK-124: `data/portfolio.ts` now carries one REAL pair — Campfire Board's launch pitch + demo — so
- * the last describe below proves them on the plain `/projects` page (no dev route needed).
+ * TASK-124: `data/portfolio.ts` carries REAL pairs — Campfire Board (TASK-124) and Slag City (TASK-129) — so
+ * the last two describes below prove them on the plain `/projects` page (no dev route needed).
  *
  * Only renders under `ALLOW_DEV_ROUTES=1`; every test SKIPs (never fails) on a plain build. Run:
  * `ALLOW_DEV_ROUTES=1 pnpm build && ALLOW_DEV_ROUTES=1 pnpm test:e2e portfolio-video`.
@@ -167,6 +167,65 @@ test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
     await demoBtn.click();
     await expect(frames(page)).toHaveCount(0);
     await stage(page).getByRole("button", { name: /^Play Campfire Board product demonstration$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    expect(await embedId(page)).toBe(DEMO_ID);
+    await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
+    expect(violations).toEqual([]);
+  });
+});
+
+/* TASK-129 — Slag City's real launch pitch + demo on the plain `/projects` page: poster first (no
+   iframe), exactly one privacy-enhanced iframe after Play, Demo swaps it, the live product link and the
+   public GitHub repo (public since 2026-09-29) each open in a new tab, no CSP console error. */
+test.describe("Slag City real videos on /projects (TASK-129)", () => {
+  const PITCH_ID = "1xvj8j79Svs";
+  const DEMO_ID = "tc4QDVl8NJM";
+
+  test.beforeEach(() => {
+    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+  });
+
+  test("select Slag City: poster → one youtube-nocookie iframe; Demo swaps the id; product + GitHub open new tabs; no CSP error", async ({ page, noOverflow }) => {
+    const violations = cspWatch(page);
+    await page.goto("/projects?product=slag-city", { waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const tab = document.querySelector('[role="tab"]');
+      return !!tab && Object.keys(tab).some((k) => k.startsWith("__reactProps"));
+    });
+    await expect(panel(page)).toHaveAttribute("data-active-product", "slag-city");
+    await expect(page.getByRole("tab", { selected: true })).toHaveAttribute("data-product", "slag-city");
+    const pitchBtn = actions(page).getByRole("button", { name: "Pitch video" });
+    const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
+    await expect(pitchBtn).toBeVisible();
+    await expect(demoBtn).toBeVisible();
+    await expect(frames(page)).toHaveCount(0);
+
+    // The live game and the public repo: one action each, and a click opens a new tab (not this one).
+    for (const [action, href] of [
+      ["product", "https://slag-city.vercel.app"],
+      ["github", "https://github.com/007U5H4R/slag-city"],
+    ] as const) {
+      const link = actions(page).locator(`[data-action="${action}"]`);
+      await expect(link).toHaveCount(1);
+      await expect(link).toHaveAttribute("href", href);
+      await expect(link).toHaveAttribute("target", "_blank");
+      const [popup] = await Promise.all([page.context().waitForEvent("page"), link.click()]);
+      await popup.waitForURL((url) => url.href.startsWith(href), { waitUntil: "commit" });
+      await popup.close();
+      expect(page.url()).toContain("/projects");
+    }
+
+    await stage(page).getByRole("button", { name: /^Play Slag City pitch video$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    const src = new URL((await frames(page).getAttribute("src"))!);
+    expect(src.origin).toBe("https://www.youtube-nocookie.com");
+    expect(src.pathname).toBe(`/embed/${PITCH_ID}`);
+    await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
+    await noOverflow(page);
+
+    await demoBtn.click();
+    await expect(frames(page)).toHaveCount(0);
+    await stage(page).getByRole("button", { name: /^Play Slag City product demonstration$/ }).click();
     await expect(frames(page)).toHaveCount(1);
     expect(await embedId(page)).toBe(DEMO_ID);
     await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });

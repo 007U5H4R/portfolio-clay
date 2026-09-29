@@ -10,7 +10,8 @@ import type { PortfolioEntry } from "./schema";
  *   - `coverLine` the short cover tagline. TeachSpark, RailCite and Cubicle use Tushar's own example
  *                 lines from spec §15; the rest are shortened from each project's `tagline` and add
  *                 no fact the tagline does not state (Campfire Board's is from its README: "renders
- *                 them all through one dashboard … across every project at once"),
+ *                 them all through one dashboard … across every project at once"; Slag City's from its
+ *                 README header: "Coin-op loop" + "An original arcade beat-'em-up that runs in your browser"),
  *   - `accent`    a paper token name (EVAL-020),
  *   - `pitchVideo` / `demoVideo` / `prdUrl` when they exist. Campfire Board carries the first real pair
  *                 (TASK-124: "Campfire Board launch" / "Campfire Board demo" on YouTube, public and
@@ -63,5 +64,19 @@ export const portfolioEntries: PortfolioEntry[] = [
     coverGlyph: "Flame",
     pitchVideo: { provider: "youtube", videoId: "K_-510L6e7g" },
     demoVideo: { provider: "youtube", videoId: "DkxDQji3dz8" },
+  },
+  {
+    // TASK-129 (Tushar 2026-09-29): YouTube "slag city launch" (pitch) and "SlagCity demo enhanced" (demo),
+    // channel The Purposeful PM, public + embeddable (oEmbed). Live product + public repo come from data/projects.ts.
+    slug: "slag-city",
+    code: "SC-01",
+    coverLine: "Coin-op brawler, in the browser",
+    accent: "rust",
+    meta: "Live · browser game",
+    coverArt: "cover-slag-city",
+    lettering: "block",
+    coverGlyph: "Hammer",
+    pitchVideo: { provider: "youtube", videoId: "1xvj8j79Svs" },
+    demoVideo: { provider: "youtube", videoId: "tc4QDVl8NJM" },
   },
 ];

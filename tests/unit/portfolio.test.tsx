@@ -272,7 +272,13 @@ describe("Portfolio data model (spec §5, §21)", () => {
     expect(campfire?.demoVideo).toEqual({ provider: "youtube", videoId: "DkxDQji3dz8", title: "Campfire Board product demonstration", poster: undefined });
     expect(campfire?.productUrl).toBeUndefined(); // a local tool — no product link
     expect(campfire?.githubUrl).toBe("https://github.com/007U5H4R/pm-dashboard"); // public repo (2026-09-28)
-    expect(products.filter((p) => !["railcite", "campfire-board"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-129: Slag City carries its launch pitch + demo, a live product link and its public repo.
+    const slag = products.find((p) => p.id === "slag-city");
+    expect(slag?.pitchVideo).toEqual({ provider: "youtube", videoId: "1xvj8j79Svs", title: "Slag City pitch video", poster: undefined });
+    expect(slag?.demoVideo).toEqual({ provider: "youtube", videoId: "tc4QDVl8NJM", title: "Slag City product demonstration", poster: undefined });
+    expect(slag?.productUrl).toBe("https://slag-city.vercel.app");
+    expect(slag?.githubUrl).toBe("https://github.com/007U5H4R/slag-city"); // public repo (2026-09-29)
+    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],

@@ -3,7 +3,7 @@
  * gate. Every test title starts with "case-study" so the ticket's `--grep 'case-study'` selects
  * exactly this suite.
  *
- * Covers all 12 personal slugs (TSK-18; campfire-board TASK-124): each renders the header (h1 = project name), the graceful
+ * Covers all 13 personal slugs (TSK-18; campfire-board TASK-124; slag-city TASK-129): each renders the header (h1 = project name), the graceful
  * thin-content path (30-sec overview + a labelled "Deep dive coming" note, never a broken/empty
  * chapter section — chapters/metrics/thinking are empty until M-005), a valid NextProject band, and
  * passes axe + no-overflow + min-targets at 390 & 1440. Plus the View-Transition fallback (card →
@@ -57,6 +57,7 @@ const CASE_STUDIES = [
   { slug: "dino-arcade-pwa", name: "Dino Arcade" },
   { slug: "cinematic-portfolio", name: "Cinematic Portfolio" },
   { slug: "campfire-board", name: "Campfire Board" },
+  { slug: "slag-city", name: "Slag City" },
 ] as const;
 
 // ---------------------------------------------------------------------------
