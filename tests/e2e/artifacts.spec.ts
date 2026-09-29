@@ -85,6 +85,6 @@ test("artifacts board · EVAL-018 collector: 0 violations, 0 decorations, all 8 
 });
 
 // TASK-130: the case-study deep dive (chapter Prose flat zones, ChapterNav, Show the thinking) was
-// retired with the §7.3 template (Design.md Dev-128). The artifact forms above still render on this
+// retired with the §7.3 template (Design.md Dev-129). The artifact forms above still render on this
 // board; the one-pager contract lives in case-study-system.spec.ts, and decorations on every case
 // study are swept by eval-018.spec.ts.

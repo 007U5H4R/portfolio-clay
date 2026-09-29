@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
 const PERSONAL = projects.filter((project) => project.category === "personal");
 
 /**
- * The custom product case study (TASK-130, Tushar's spec 2026-09-29; Design.md Dev-128): every
+ * The custom product case study (TASK-130, Tushar's spec 2026-09-29; Design.md Dev-129): every
  * personal build renders a one-page story from its own record in `data/case-studies/<slug>.ts`
  * through `CaseStudyView` — product hero, numbered sections, evidence drawer, action strip and the
  * next-project band. `validateAll()` fails the build if a personal build has no record, so there is

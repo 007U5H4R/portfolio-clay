@@ -116,7 +116,7 @@ All 13 personal builds, in the brief's order: RailCite, TeachSpark, Velora, Cubi
 
 Thin records produce short pages on purpose (brief §3: no padding). A page with no recorded learnings has no learnings section.
 
-**New-tab rule (Dev-129).** Every `/work/<slug>` link (with or without `#hash`; `/work` itself excluded) carries `target="_blank" rel="noopener noreferrer"` and a visually hidden "(opens in a new tab)".
+**New-tab rule (Dev-130).** Every `/work/<slug>` link (with or without `#hash`; `/work` itself excluded) carries `target="_blank" rel="noopener noreferrer"` and a visually hidden "(opens in a new tab)".
 - **Where it's applied:**
   - `ProjectCard`;
   - the Portfolio info panel's "Read the case study";
@@ -142,7 +142,7 @@ Across every page, these are gone:
 - the Role/Duration header row (moved to the CTA meta line);
 - all dev copy: "Draft", "Pending sign-off", "coming soon", "Hero media coming", "Deep dive coming".
 
-That last removal supersedes Dev-10 on case-study pages and is recorded as **Dev-127**. The footer's "open to work" band is also hidden on case studies, where it repeated the CTA. The template change itself is **Dev-128**.
+That last removal supersedes Dev-10 on case-study pages and is recorded as **Dev-128**. The footer's "open to work" band is also hidden on case studies, where it repeated the CTA. The template change itself is **Dev-129**.
 
 Page-specific cuts (details and reasons in each `docs/reports/TASK-130/<slug>.md`):
 - **RailCite:**
@@ -345,7 +345,7 @@ The dominant story (spec §41) for each product, with the one call that shaped e
 - the badge chosen for each proof, where the record's wording allowed more than one (for example, build-day counts as ◇ Structural);
 - which source screenshots to use and how to crop them;
 - the accent choices;
-- hiding the footer hiring band on case studies (Dev-127);
+- hiding the footer hiring band on case studies (Dev-128);
 - Velora's "portable trust" framing of the Vendor Passport idea;
 - tightening Pratyasa's diagram to five steps by adding its live URL;
 - leaving Slag City's art credit out, following the TASK-129 record edit.
@@ -432,7 +432,9 @@ All on `cloud/task-130`, pushed after each product. `m-009-redesign` and `main` 
 | `2bb569e` | Retake the TASK-130 after screenshots on the final build |
 | `729df06` | Add the TASK-130 final report |
 | `dc995fe` | Show real product screens for RailCite, Cubicle, Dino Arcade and Pratyasa (follow-up) |
-| *(last)* | This report update |
+| `6ef19f5` | Update the TASK-130 report with the real product screens follow-up |
+| `3dd4a73` | Merge `origin/m-009-redesign` (TASK-133 Featured Work). TASK-133 took Dev-127, so TASK-130's deviations are now **Dev-128** (no dev copy), **Dev-129** (case-study system) and **Dev-130** (new-tab rule) |
+| *(last)* | Renumber TASK-130's Dev references after the merge |
 
 Every TASK-130 commit subject names the task (table abbreviated), and every commit ends with the `Co-Authored-By: Claude Opus 5.5` and `Claude-Session` trailers.
 

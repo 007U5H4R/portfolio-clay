@@ -80,7 +80,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 3168,
     height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug beside him, a mug and a stack of books on the side table.",
-    usedOn: [], // TASK-130 (Dev-128): case studies open on their own product hero; kept for /dev/primitives
+    usedOn: [], // TASK-130 (Dev-129): case studies open on their own product hero; kept for /dev/primitives
   },
   {
     id: "scene-about",
