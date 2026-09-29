@@ -1323,3 +1323,74 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="cubicle"] .csx-rules { background: var(--color-ivory); border-style: dashed; }
 .csx[data-theme="cubicle"] .csx-gaps { border-color: color-mix(in oklab, var(--color-rust) 45%, transparent); background: color-mix(in oklab, var(--color-rust) 4%, transparent); }
 .csx[data-theme="cubicle"] .csx-learning { border-radius: 10px; }
+
+/* =============================================================================================
+   Tegaki — a Japanese stationery / handwriting studio (spec §8): a genkō-yōshi square grid, ink
+   brush underlines that draw once, ink-circle numerals, a vermilion hanko. Quiet and crafted.
+   ============================================================================================= */
+.csx[data-theme="tegaki"] {
+  --tg-grid: color-mix(in oklab, var(--color-rust) 11%, transparent);
+}
+.csx[data-theme="tegaki"] .csx-hero {
+  background:
+    linear-gradient(var(--tg-grid) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(90deg, var(--tg-grid) 1px, transparent 1px) 0 0 / 30px 30px,
+    var(--color-ivory);
+}
+.csx[data-theme="tegaki"] .csx-hero[data-layout="stacked"] .csx-hero-in { align-items: end; }
+.csx[data-theme="tegaki"] .csx-h1 { letter-spacing: -0.03em; }
+.csx[data-theme="tegaki"] .csx-tagline { color: var(--color-rust); font-style: normal; font-weight: 400; }
+.csx[data-theme="tegaki"] .csx-code { color: var(--color-rust); }
+.csx[data-theme="tegaki"] .csx-hero-media { max-width: 1040px; }
+.csx[data-theme="tegaki"] .csx-metric { background: var(--color-paper); border: 0; border-top: 2px solid var(--color-navy); border-radius: 0; box-shadow: none; }
+.csx[data-theme="tegaki"] .csx-metric-value { color: var(--color-navy); font-weight: 400; }
+.csx[data-theme="tegaki"] .csx-metric[data-kind="structural"] .csx-metric-value { color: var(--color-rust); }
+.tg-hanko { width: 104px; right: -18px; top: -30px; transform: rotate(6deg); }
+@media (max-width: 1023px) { .tg-hanko { width: 74px; right: 4px; top: -24px; } }
+@media (max-width: 767px) { .tg-hanko { display: none; } }
+/* Numerals in a hand-drawn ink circle; each h2 gets a brush underline that draws once. */
+.csx[data-theme="tegaki"] .csx-mark {
+  background: transparent;
+  color: var(--color-navy);
+  border: 2.5px solid var(--color-navy);
+  border-radius: 46% 54% 50% 50% / 52% 46% 54% 48%;
+  font-weight: 400;
+}
+.csx[data-theme="tegaki"] .csx-h2 { position: relative; padding-bottom: 14px; }
+.csx[data-theme="tegaki"] .csx-h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(260px, 60%);
+  height: 14px;
+  background: url("/media/case-studies/tegaki/brush.svg") left center / 100% 100% no-repeat;
+  opacity: 0.85;
+  transform-origin: left;
+  transition: transform 900ms cubic-bezier(0.5, 0, 0.2, 1) 150ms;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .csx[data-theme="tegaki"][data-motion="on"] .csx-sec:not([data-shown]) .csx-h2::after { transform: scaleX(0); }
+}
+.csx[data-theme="tegaki"] .csx-sec { background: var(--color-ivory); }
+.csx[data-theme="tegaki"] .csx-sec:nth-child(even) { background: var(--color-paper); }
+.csx[data-theme="tegaki"] .csx-eyebrow { color: var(--color-rust); letter-spacing: 0.3em; }
+.csx[data-theme="tegaki"] .csx-flow-step { background: var(--color-paper); border: 0; border-left: 2px solid var(--color-rust); border-radius: 0; }
+.csx[data-theme="tegaki"] .csx-flow-n { border-color: var(--color-rust); color: var(--color-rust); border-radius: 3px; }
+.csx[data-theme="tegaki"] .csx-product-flow .csx-flow-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 767px) { .csx[data-theme="tegaki"] .csx-product-flow .csx-flow-steps { grid-template-columns: minmax(0, 1fr); } }
+.csx[data-theme="tegaki"] .csx-product-flow .csx-flow-step { flex-direction: column; align-items: flex-start; }
+.csx[data-theme="tegaki"] .csx-product-flow .csx-flow-label { font-family: var(--font-display); font-size: 22px; font-weight: 400; }
+.csx[data-theme="tegaki"] .csx-frame-screen { border-radius: 2px; box-shadow: 0 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent), 0 18px 30px -22px color-mix(in oklab, var(--color-navy) 40%, transparent); }
+.csx[data-theme="tegaki"] .csx-research .csx-quote { background: transparent; border-left: 0; padding: 0; }
+.csx[data-theme="tegaki"] .csx-research .csx-quote p { font-size: clamp(24px, 2.4vw, 34px); line-height: 1.3; font-style: normal; font-weight: 400; }
+.csx[data-theme="tegaki"] .csx-decision { background: var(--color-paper); border: 0; border-top: 2px solid var(--color-navy); border-radius: 0; box-shadow: none; }
+.csx[data-theme="tegaki"] .csx-decision-row[data-row="chose"] dt { color: var(--color-rust); }
+.csx[data-theme="tegaki"] .csx-arch-step { border-radius: 2px; background: var(--color-paper); }
+.csx[data-theme="tegaki"] .csx-arch-step::before { border-color: var(--color-rust); }
+.csx[data-theme="tegaki"] .csx-arch-steps::before { background: var(--color-navy); height: 1.5px; }
+@media (max-width: 1023px) { .csx[data-theme="tegaki"] .csx-arch-steps::before { width: 1.5px; height: auto; } }
+.csx[data-theme="tegaki"] .csx-rules { background: var(--color-paper); border: 0; border-left: 3px solid var(--color-rust); border-radius: 0; box-shadow: none; }
+.csx[data-theme="tegaki"] .csx-rules li::before { border-color: var(--color-rust); color: var(--color-rust); border-radius: 50%; }
+.tg-scribble { right: 4px; top: 6px; transform: rotate(-3deg); color: var(--color-rust); }
+@media (max-width: 1279px) { .tg-scribble { display: none; } }

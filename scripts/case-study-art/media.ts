@@ -29,6 +29,11 @@ export const MEDIA: MediaRow[] = [
   { slug: "velora", from: "rfps.jpg", to: "rfps.webp", width: 540 },
   { slug: "velora", from: "role-select.jpg", to: "role-select.webp", width: 540 },
   { slug: "velora", from: "../nuptis/dashboard.jpg", to: "nuptis-dashboard.webp", width: 1000 },
+  // Tegaki — the live pilot's own screens (docs/screenshots; the report excerpt is a labelled
+  // fictional sample). Sign-in and pricing are not shown as screenshots.
+  { slug: "tegaki", from: "hero.jpg", to: "landing.webp", width: 1200 },
+  { slug: "tegaki", from: "anatomy.jpg", to: "anatomy.webp", width: 1000 },
+  { slug: "tegaki", from: "report-excerpt.jpg", to: "report-excerpt.webp", width: 1000 },
 ];
 
 export async function buildMedia(only?: string) {
