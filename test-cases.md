@@ -2230,3 +2230,23 @@ IDs use the `TC-T2b-` prefix so parallel M-010 tracks cannot collide on `TC-178+
 | TC-T2b-12 | Spacing/velocity/cap logic: no spawn under 110 px, even fill, ≤ 5 per move, size 90→125 px and tilt ±8→±20° with speed | Vitest `cursor-logic.test.ts` | EVAL-028 | P1 | Automated · pass |
 | TC-T2b-13 | 0 cursor bytes in the home first-load set or any route's HTML; planted-marker fixture fails the scan; SKIPs visibly with no build | Vitest `eval-027-cursor.test.ts` | EVAL-027 | P0 | Automated · pass |
 | TC-T2b-14 | Cross-browser (Safari, Firefox), trackpad, real mid-range-laptop profiling, drag-out-of-window | manual | — | P2 | Planned · manual — only Chromium is available to CI |
+
+---
+
+## M-010 T3 · Paper-cut scene art, light + dark (TASK-144.5 integrate, TASK-144.6 QA; Dev-160…169)
+
+IDs use the `TC-T3-` prefix so parallel M-010 tracks cannot collide; the merge may renumber. Evals: EVAL-019/021 (budgets + provenance), EVAL-025 (pairing), EVAL-026 (switch stability), EVAL-031 T3 (Tushar's side-by-side style gate).
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T3-01 | The seven tab scenes (`scene-about/-experience/-thinking/-work/-playground/-certifications/-contact`) each carry `darkFile`; the pair set is exactly `hero-banner` + those seven; `scene-casestudy` stays unpaired | Vitest `eval-025.test.ts` | EVAL-025 | P0 | Automated · pass |
+| TC-T3-02 | Every pair: identical pixel size (3168×1344), one alt, both files ≤ 350 kB, a README row for the dark file naming its light twin | Vitest `eval-025.test.ts` | EVAL-025 | P0 | Automated · pass |
+| TC-T3-03 | Every paired scene has a light and a dark narrow crop (`<id>-mobile.webp`, `<id>-dark-mobile.webp`) of identical size, ≤ 350 kB, README-listed; the dark crop sits on the light crop's grid and `scene-casestudy` has none | Vitest `eval-025.test.ts`, `scene-opener-frames.test.ts` | EVAL-025, EVAL-021 | P0 | Automated · pass |
+| TC-T3-04 | Provenance both ways after the swap: no orphan file in `content/media/illustrations/`, every id has a README row, every alt starts "Illustration of" and is text-free; alts equal Design.md §6.3 | Vitest `eval-021.test.ts`, `paper.test.tsx` | EVAL-021 | P0 | Automated · pass |
+| TC-T3-05 | On each tab opener at w390 and w1440, in each theme: exactly one twin visible with pixels, the right file (`<id>` / `<id>-dark`, `-mobile` at 390), the other twin `display: none`, no CSS filter, one alt | Playwright `eval-025-scenes.spec.ts` | EVAL-025 | P0 | Automated |
+| TC-T3-06 | light → dark → light on every static route at w390 and w1440: CLS < 0.05, `scrollHeight` Δ ≤ 1 px, no filtered art, no scene figure left with no visible image | Playwright `eval-026.spec.ts` (unchanged; now exercises seven paired scenes) | EVAL-026 | P0 | Automated |
+| TC-T3-07 | The opposite twin is lazy and never fetched before load on the home hero; warmed after idle (the openers' `ThemeArtPreload`) so the first switch is instant | Playwright `eval-019.spec.ts` (home), `eval-025-scenes.spec.ts` | EVAL-019, EVAL-026 | P1 | Automated |
+| TC-T3-08 | Cross-site review, 390 and 1440, light and dark (paper-cut-2 §60/§62): no white box or bright light-theme scene in dark; text that sits on art is AA (none sits on art: titles are on paper below the opener, the hero copy on the paper sheet); one palette; each tab has its own metaphor; the home polaroids crop to their subjects in both themes. Screenshots `docs/screenshots/m-010/t3/<tab>-{light,dark}-{390,1440}.png` | manual review of 32 screenshots + `/Volumes/E Drive/Dev/.scratch/t3-site-compare.png` | EVAL-031 | P0 | Manual · done by the T3 builder; Tushar's gate pending |
+| TC-T3-09 | No tab's art repeats another's (tab uniqueness) and none repeats the home hero's desk; the About v1 desk scene is rejected, About v2 is the mountain overlook | manual (contact sheet) | EVAL-031 | P1 | Manual · done; Tushar's gate pending |
+| TC-T3-10 | The intro video's poster still renders (`intro-poster.webp`, the retired watercolour crop, byte-identical to the old `scene-contact-mobile.webp`) | Playwright `eval-019.spec.ts` (poster lazy, never high-priority) | EVAL-019 | P2 | Automated |
+| TC-T3-11 | Tushky art (`paper-cut/tushky/*`) has no slot and ships nothing: no file, no manifest entry, documented as an unused library asset | Vitest `eval-021.test.ts` (no orphan) + README | EVAL-021 | P2 | Automated · pass |
