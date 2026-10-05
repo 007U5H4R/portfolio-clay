@@ -2170,3 +2170,26 @@ Anchors follow the TKT-19 scheme (`#01-context` … `#08-what-i-learned`, `lib/a
 *M-009 addendum (2026-09-24): TC-122…TC-177 = 56 cases · P0 40 · P1 13 · P2 3 · P3 0; four permanent S18 regression cases (TC-135, TC-157, TC-164, TC-167); five gate-type positive controls (TC-122, TC-123, TC-127, TC-129, TC-138); 47 automated or partly automated, 9 with a manual component, 2 manual-only (TC-146, TC-177). Grand total TC-001…TC-177 = 177 cases.*
 
 *v1 totals (counted from the case fields): 121 cases · P0 60 · P1 49 · P2 12 · P3 0. By primary type: functional 38 · validation 16 · accessibility 15 · content-integrity 11 · responsive 10 · visual-review 7 · security-functional 5 · performance 5 · deployment-smoke 3 · regression 3 · negative 3 · error-handling 2 · edge/boundary 2 · e2e 1. Automation: 110 cases have an automated component (Playwright 73 · Vitest 38 · script 19 · axe 17 · LHCI 5; many cases use more than one tool), of which 9 also carry a manual step; 11 are manual-only (Appendix C lists all 20 with a manual component). Authored before implementation; statuses are `Planned` until Stage 7 QA gates and Stage 9B fill them from real runs.*
+
+---
+
+## M-010 T2b · Paper Trail cursor (TASK-142, S29, Dev-150…154)
+
+IDs use the `TC-T2b-` prefix so parallel M-010 tracks cannot collide on `TC-178+`; the merge may renumber. Spec: `docs/specs/m-010/cursor.md`; evals: EVAL-027 (isolation), EVAL-028 (gating + mobile, both themes).
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T2b-01 | Touch/coarse (w390): 0 `[data-paper-cursor]`, `has-custom-cursor` never set, cursor chunk never requested | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-02 | Fine pointer mounts only after `load` (chunk `requestStart ≥ loadEventStart`); native cursor until the first pointer move | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-03 | Reduced motion and no-JS: nothing mounts, page intact, native cursor; a blocked chunk leaves the native cursor (no "no cursor" state) | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-04 | Each exclusion zone (`input, textarea, select, button, video, iframe, [contenteditable], [data-no-trail]`) computes a non-`none` cursor and spawns 0 nodes on a drag | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-05 | Ask drawer open: native cursor, 0 trail nodes, custom cursor hidden | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-06 | Trail only on left-button hold-and-drag; hover and right-button drag spawn 0; nodes decorative (`alt=""`, `aria-hidden`), `pointer-events:none`, cleaned up after the lifetime | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-07 | ≤ 18 active nodes on a long fast stroke; only `transform` + `opacity` animate (cursor.md §45) | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-08 | No selection lock after release, window blur or tab hidden (`body.cursor-dragging` removed, `user-select` restored) | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-09 | No horizontal scroll at 375 and 768 in light and dark, with a trail drag in flight | Playwright `eval-028.spec.ts` (`dataset.theme` set directly until T2's fixture) | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-10 | Section themes: `tushky` is paw-only, `railcite` starts with the rail ticket; unknown theme → default; deterministic loop | Playwright + Vitest `cursor-logic.test.ts` | EVAL-028 | P1 | Automated · pass |
+| TC-T2b-11 | Semantic labels: `OPEN →`, `OPEN ↗`, `CODE ↗`, `PRD ↗`, `CASE STUDY →`, `VIEW →`, `EXPLORE →`, `PLAY ▶`, `WOOF 🐾` (paw dot); none for plain content, buttons, in-page anchors | Playwright + Vitest `cursor-dom.test.tsx` | EVAL-028 | P1 | Automated · pass |
+| TC-T2b-12 | Spacing/velocity/cap logic: no spawn under 110 px, even fill, ≤ 5 per move, size 90→125 px and tilt ±8→±20° with speed | Vitest `cursor-logic.test.ts` | EVAL-028 | P1 | Automated · pass |
+| TC-T2b-13 | 0 cursor bytes in the home first-load set or any route's HTML; planted-marker fixture fails the scan; SKIPs visibly with no build | Vitest `eval-027-cursor.test.ts` | EVAL-027 | P0 | Automated · pass |
+| TC-T2b-14 | Cross-browser (Safari, Firefox), trackpad, real mid-range-laptop profiling, drag-out-of-window | manual | — | P2 | Planned · manual — only Chromium is available to CI |

@@ -98,7 +98,7 @@ export function mountPaperCursor(): () => void {
   };
 
   // ---- paper trail ------------------------------------------------------------------------------
-  const active: { el: HTMLImageElement; anim: Animation }[] = [];
+  const active: { el: HTMLImageElement; anim: Animation; release: () => void }[] = [];
   let pressed = false;
   let last: Point = { x: 0, y: 0 };
   let lastT = 0;
@@ -131,16 +131,22 @@ export function mountPaperCursor(): () => void {
       ],
       { duration: LIFETIME, fill: "forwards" },
     );
-    const item = { el: img, anim };
-    active.push(item);
-    const release = () => {
-      img.remove();
-      const i = active.indexOf(item);
-      if (i !== -1) active.splice(i, 1);
+    const item = {
+      el: img,
+      anim,
+      release: () => {
+        img.remove();
+        const i = active.indexOf(item);
+        if (i !== -1) active.splice(i, 1);
+      },
     };
-    anim.onfinish = release;
-    anim.oncancel = release;
-    for (const old of capActive(active, MAX_ACTIVE)) old.anim.cancel();
+    active.push(item);
+    anim.onfinish = item.release;
+    // Evict synchronously: `cancel()` fires `oncancel` a frame later, which would let the DOM overshoot the cap.
+    for (const old of capActive(active, MAX_ACTIVE)) {
+      old.anim.cancel();
+      old.release();
+    }
   };
 
   const endPress = () => {
@@ -226,7 +232,10 @@ export function mountPaperCursor(): () => void {
     document.removeEventListener("visibilitychange", onVisibility);
     window.removeEventListener("blur", endPress);
     endPress();
-    for (const item of active.splice(0)) item.anim.cancel();
+    for (const item of active.splice(0)) {
+      item.anim.cancel();
+      item.el.remove();
+    }
     html.classList.remove("has-custom-cursor");
     root.remove();
     layer.remove();
