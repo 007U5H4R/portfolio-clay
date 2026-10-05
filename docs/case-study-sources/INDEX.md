@@ -45,6 +45,10 @@ Copied from Tushar's local project folders on 2026-09-29, resized to at most 160
 | bhakti-vilas | Madhu-Mukti-TOFU-MOFU-BOFU-Funnel.jpg | 1600×924 | 164 | `case study 2/Madhu-Mukti-TOFU-MOFU-BOFU-Funnel.png` |
 | bhakti-vilas | tea-circle.jpg | 1600×1066 | 449 | `case study 2/Bhakti-Vilas/assets/tea-circle.jpg` |
 | bhakti-vilas | diabetes-cardio.jpg | 1600×1066 | 310 | `case study 2/Bhakti-Vilas/bhakti_wellness_home/diabetes-cardio.png` |
+| bhakti-vilas | sessions-desktop.jpg | 1600×1000 | 176 | live site `https://bhakti-vilas.vercel.app/bhakti_sessions/code.html`, captured 2026-10-05 at 1440×900 after the mock sign-in (TASK-137) |
+| bhakti-vilas | home-desktop.jpg | 1600×1000 | 206 | live site `https://bhakti-vilas.vercel.app/bhakti_wellness_home/code.html`, captured 2026-10-05 at 1440×900 after the mock sign-in (TASK-137) |
+| bhakti-vilas | community-desktop.jpg | 1600×1000 | 154 | live site `https://bhakti-vilas.vercel.app/bhakti_community/code.html`, captured 2026-10-05 at 1440×900 after the mock sign-in (TASK-137) |
+| bhakti-vilas | profile-mobile.jpg | 739×1600 | 87 | live site `https://bhakti-vilas.vercel.app/my_bhakti_profile/code.html`, captured 2026-10-05 at 390×844 after the mock sign-in (TASK-137) |
 | pratyasa | device-photo.jpg | 1600×900 | 197 | `Patent/pratyasa-site/assets/device-photo.jpg` |
 | pratyasa | pratyasa-framed.jpg | 1600×1369 | 335 | `Patent/pratyasa-framed.png` |
 | tegaki | og-cover.jpg | 1600×840 | 94 | `Graphology/public/og-cover.png` |
