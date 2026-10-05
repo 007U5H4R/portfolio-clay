@@ -106,6 +106,15 @@ export function BandFooter() {
           </div>
         </Container>
       </div>
+      {/* M-010 T4 (TASK-145.3): the paper ocean — decorative, aria-hidden, transform-only motion (paper-cut-2 §65–§122). */}
+      <div className="band-ocean" aria-hidden="true" data-band-ocean="">
+        <span className="ocean-track ocean-back" />
+        <span className="ocean-track ocean-mid" />
+        <span className="ocean-ship-wrap">
+          <span className="ocean-ship" />
+        </span>
+        <span className="ocean-track ocean-front" />
+      </div>
     </footer>
   );
 }
