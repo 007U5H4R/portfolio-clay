@@ -3,9 +3,10 @@ id: TASK-143.1
 title: >-
   T2c.1 Author the gummy bear GLB in headless Blender: shape keys, collision
   proxy, export
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:24'
+updated_date: '2026-10-05 17:47'
 labels:
   - P2
 dependencies: []

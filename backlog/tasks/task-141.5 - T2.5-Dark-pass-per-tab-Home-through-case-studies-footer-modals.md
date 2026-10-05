@@ -1,9 +1,10 @@
 ---
 id: TASK-141.5
 title: 'T2.5 Dark pass per tab: Home through case studies, footer, modals'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 17:47'
 labels:
   - P1
 dependencies: []
