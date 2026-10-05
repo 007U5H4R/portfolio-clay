@@ -198,6 +198,12 @@ export function mountPaperCursor(): () => void {
     lastT = e.timeStamp;
   };
 
+  // A press that starts on an <img>/<a> would turn into a native drag-and-drop, which cancels the pointer
+  // stream (pointercancel) after one node. While the trail is held, the stroke is ours.
+  const onDragStart = (e: DragEvent) => {
+    if (pressed) e.preventDefault();
+  };
+
   const onLeave = (e: MouseEvent) => {
     if (e.relatedTarget === null) hide();
   };
@@ -209,6 +215,7 @@ export function mountPaperCursor(): () => void {
   document.addEventListener("pointerdown", onDown, { passive: true, capture: true });
   document.addEventListener("pointerup", endPress, { passive: true, capture: true });
   document.addEventListener("pointercancel", endPress, { passive: true, capture: true });
+  document.addEventListener("dragstart", onDragStart, true);
   document.addEventListener("mouseout", onLeave, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
   window.addEventListener("blur", endPress);
@@ -228,6 +235,7 @@ export function mountPaperCursor(): () => void {
     document.removeEventListener("pointerdown", onDown, true);
     document.removeEventListener("pointerup", endPress, true);
     document.removeEventListener("pointercancel", endPress, true);
+    document.removeEventListener("dragstart", onDragStart, true);
     document.removeEventListener("mouseout", onLeave);
     document.removeEventListener("visibilitychange", onVisibility);
     window.removeEventListener("blur", endPress);

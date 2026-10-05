@@ -228,6 +228,21 @@ test.describe("@EVAL-028 paper trail behaviour", () => {
     await expect.poll(() => nodeCount(page), { timeout: 4000 }).toBe(0);
   });
 
+  test("@EVAL-028 a stroke that starts on a real image keeps trailing (no native image drag)", async ({ page }) => {
+    await page.goto("/");
+    await mounted(page);
+    const hero = page.locator("main img").first();
+    await hero.scrollIntoViewIfNeeded();
+    const box = (await hero.boundingBox())!;
+    const y = Math.min(box.y + box.height / 2, page.viewportSize()!.height - 40);
+    const x0 = box.x + 40;
+    await page.mouse.move(x0, y);
+    await page.mouse.down();
+    await page.mouse.move(x0 + 520, y + 30, { steps: 30 });
+    expect(await nodeCount(page)).toBeGreaterThanOrEqual(4);
+    await page.mouse.up();
+  });
+
   test("@EVAL-028 ≤ 18 active nodes on a long fast stroke; only transform + opacity animate", async ({ page }) => {
     await page.goto("/");
     await mounted(page);
