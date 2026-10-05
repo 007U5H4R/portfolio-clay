@@ -2006,6 +2006,26 @@ Consumes `tickets.md` M-009 (TKT-69…91, TSK-30…47), `technical-plan.md` §F,
 
 ---
 
+## M-010 T5 · The paper-cut business card `/card` (TASK-146)
+
+`TC-T5-` ids are scoped to this track; the board assigns permanent `TC-178+` numbers when the track merges. Apple Wallet is out of scope (S27) and is asserted absent, never tested as a feature.
+
+| ID | Case | Method | EVAL | Status |
+|---|---|---|---|---|
+| TC-T5-01 | `/card` returns 200, is listed in `sitemap.xml`, has an absolute-https OG image that serves a PNG | `tests/e2e/eval-029.spec.ts` + `eval-017.spec.ts` | EVAL-029, EVAL-017 | Automated |
+| TC-T5-02 | The flip is a real `<button>` with an accessible name that names the action, toggles on Enter and Space, and exposes `aria-expanded` | `eval-029.spec.ts` | EVAL-029 | Automated |
+| TC-T5-03 | Back-face links are not focusable while the front shows (face is `inert`) and become tabbable once flipped; the front goes inert | `eval-029.spec.ts` | EVAL-029 | Automated |
+| TC-T5-04 | The rendered QR decodes (jsQR over an element screenshot) to `${siteUrl()}/card`; it stays dark-on-light in dark theme | `eval-029.spec.ts`, `tests/unit/card-qr.test.ts` | EVAL-029 | Automated |
+| TC-T5-05 | "Save contact" returns a `text/vcard` attachment with BEGIN/VERSION/FN/N/TITLE/EMAIL/URL/END, no TEL, no BDAY, no phone/DOB pattern | `eval-029.spec.ts`, `tests/unit/card-vcard.test.ts` | EVAL-029, EVAL-013 | Automated |
+| TC-T5-06 | No Apple Wallet control, badge, text, `.pkpass` or route anywhere on `/card` | `eval-029.spec.ts`, `tests/unit/card-back.test.tsx` | EVAL-029 | Automated |
+| TC-T5-07 | If the QR cannot be generated no QR frame renders and the rest of the back still works | `tests/unit/card-back.test.tsx` | EVAL-029 | Automated |
+| TC-T5-08 | Reduced motion: card computed transform `none`, scene `perspective: none`, pointer writes nothing, flip is a front/back opacity crossfade | `eval-029.spec.ts` | EVAL-029, EVAL-010 | Automated |
+| TC-T5-09 | Pointer movement moves nearer layers further than far layers and stays inside the bleed | `eval-029.spec.ts` (≥ 1024) | EVAL-029 | Automated |
+| TC-T5-10 | The home first-load set carries no card code, QR library or card art | `tests/unit/card-bundle-isolation.test.ts` (skips without a build) | EVAL-027 | Automated |
+| TC-T5-11 | `/card` passes the shared route sweeps (axe, overflow, targets, decoration budget, crawler) at the four widths | `routes.json` sweeps | EVAL-006, 008, 018 | Automated |
+| TC-T5-12 | Style gate: front and back × light and dark at 390 and 1440 against `card-reference-*.jpg` | `docs/screenshots/m-010/t5/` reviewed by Claude | EVAL-031 | Manual |
+| TC-T5-13 | iOS and Android camera scan the on-screen QR at the TASK-146 gate | phone | EVAL-029 | Manual |
+
 ## Appendix A · Coverage matrix — ticket → test cases
 
 Every live ticket's acceptance criteria are covered by at least one case; task-level coverage is listed where a task has its own criteria. "Shared AC" for content tickets = TKT-28…33/54 common contract (a)–(f).
