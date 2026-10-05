@@ -3,9 +3,10 @@ id: TASK-145.1
 title: >-
   T4.1 Paper-cut top nav: paper base, identity card, paper tabs, terracotta
   active layer, navy CTA, theme chip
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 18:07'
+updated_date: '2026-10-05 18:18'
 labels:
   - P1
 dependencies: []

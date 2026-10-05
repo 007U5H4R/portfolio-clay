@@ -1,9 +1,10 @@
 ---
 id: TASK-144.6
 title: T3.6 Cross-site paper-cut visual QA
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 18:08'
 labels:
   - P1
 dependencies: []
