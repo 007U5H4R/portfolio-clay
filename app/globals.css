@@ -12565,3 +12565,192 @@ html[data-theme-vt]::view-transition-group(root) {
   border-radius: 10px;
   background: var(--color-navy);
 }
+
+/* ==================================================================================================
+   M-010 T4 (TASK-145.1) · paper-cut nav — paper-cut-2 §169–§210. Unlayered, grouped, tokens only.
+   Layers (back to front): backing scraps → main paper strip (.header-paper-sheet) → paper tabs
+   (.header-nav-link::before) → terracotta active layer (.hn-strip) → labels. Every extra layer is a
+   pseudo-element or an absolutely positioned decorative span, so no layout box changes size (QA-010
+   spacing and the 108 / 72 px header heights are untouched). Shadows come from --shadow-ink.
+   ================================================================================================== */
+.site-header {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+.site-header[data-scrolled] {
+  border-bottom-color: transparent;
+}
+.header-paper {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow-x: clip;
+  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 14%, transparent))
+    drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 10%, transparent));
+}
+.site-header[data-scrolled] .header-paper {
+  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent))
+    drop-shadow(0 8px 10px color-mix(in oklab, var(--shadow-ink) 16%, transparent));
+}
+.header-paper-sheet {
+  position: absolute;
+  inset: 0 0 -5px 0;
+  background:
+    var(--grain-a) 0 0 / 7px 7px,
+    var(--grain-b) 3px 4px / 11px 11px,
+    var(--color-ivory);
+  /* hand-cut lower edge: a few small steps, never a straight rule */
+  clip-path: polygon(
+    0 0, 100% 0, 100% calc(100% - 3px), 94% calc(100% - 1px), 81% 100%, 67% calc(100% - 2px), 52% calc(100% - 1px),
+    38% 100%, 23% calc(100% - 2px), 9% calc(100% - 1px), 0 calc(100% - 3px)
+  );
+}
+.header-scrap {
+  position: absolute;
+  bottom: -9px;
+  height: 11px;
+  border-radius: 2px;
+}
+.header-scrap-graph {
+  left: 4%;
+  width: 90px;
+  transform: rotate(-1.2deg);
+  background:
+    repeating-linear-gradient(0deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(90deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
+    color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
+}
+.header-scrap-rust {
+  right: 12%;
+  width: 70px;
+  transform: rotate(0.9deg);
+  background: color-mix(in oklab, var(--color-rust) 70%, var(--color-ivory));
+}
+.header-scrap-kraft {
+  left: 46%;
+  width: 56px;
+  transform: rotate(-0.6deg);
+  background: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
+}
+.header-scrap-kraft {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .header-scrap-kraft {
+    display: block;
+  }
+}
+
+/* identity: the monogram sits on its own small paper card */
+.header-monogram {
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 22%, transparent), 0 3px 5px -2px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
+  transform: rotate(-2deg);
+}
+
+/* paper tabs: the card is a pseudo-element that overhangs the hit area (no width change) */
+.header-nav-link {
+  isolation: isolate;
+}
+.header-nav-link::before {
+  content: "";
+  position: absolute;
+  inset: 5px -6px;
+  z-index: -2;
+  border-radius: 7px;
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 16%, transparent), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
+  transition: transform 160ms var(--ease-hover), box-shadow 160ms var(--ease-hover);
+}
+.header-nav-link:nth-child(odd)::before {
+  transform: rotate(-0.5deg);
+}
+.header-nav-link:nth-child(even)::before {
+  transform: rotate(0.4deg);
+}
+.header-nav-link:hover::before {
+  transform: translateY(-1px) rotate(0deg);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent), 0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+}
+.header-nav-link[aria-current="page"]::before {
+  background: color-mix(in oklab, var(--color-terracotta) 12%, var(--color-ivory));
+}
+.hn-strip {
+  position: absolute;
+  z-index: -1;
+  left: -3px;
+  right: -3px;
+  bottom: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--color-terracotta);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+  transform: scaleX(0) rotate(-0.8deg);
+  transform-origin: left center;
+  transition: transform 220ms var(--ease-hover);
+  pointer-events: none;
+}
+.header-nav-link:hover .hn-strip {
+  transform: scaleX(0.5) rotate(-0.8deg);
+}
+.header-nav-link[aria-current="page"] .hn-strip,
+.header-nav-link[aria-current="page"]:hover .hn-strip {
+  transform: scaleX(1) rotate(-0.8deg);
+}
+
+/* Connect CTA: a navy paper layer with a lifted ivory-edge top and a contact shadow */
+.header-pill {
+  background: var(--color-navy);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
+    0 5px 8px -3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+}
+.header-pill-arrow {
+  display: inline-block;
+}
+.header-pill:hover {
+  transform: translateY(-1px) rotate(-0.4deg);
+}
+
+/* theme control: its own paper chip (the switch inside is unchanged) */
+.header-chip {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  isolation: isolate;
+}
+.header-chip::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  border-radius: 12px;
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 20%, transparent), 0 3px 6px -3px color-mix(in oklab, var(--shadow-ink) 25%, transparent);
+  transform: rotate(0.8deg);
+}
+
+/* the right-edge scroll fade must match the paper strip, not the page */
+@media (max-width: 1439px) {
+  .header-tabs::after {
+    background: linear-gradient(to right, color-mix(in srgb, var(--color-ivory) 0%, transparent), var(--color-ivory));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-nav-link::before,
+  .hn-strip,
+  .header-pill:hover {
+    transition: none;
+  }
+  .header-nav-link:hover::before,
+  .header-pill:hover {
+    transform: none;
+  }
+}
+/* end M-010 T4 nav */
