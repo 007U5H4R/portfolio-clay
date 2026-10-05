@@ -2230,3 +2230,22 @@ IDs use the `TC-T2b-` prefix so parallel M-010 tracks cannot collide on `TC-178+
 | TC-T2b-12 | Spacing/velocity/cap logic: no spawn under 110 px, even fill, ≤ 5 per move, size 90→125 px and tilt ±8→±20° with speed | Vitest `cursor-logic.test.ts` | EVAL-028 | P1 | Automated · pass |
 | TC-T2b-13 | 0 cursor bytes in the home first-load set or any route's HTML; planted-marker fixture fails the scan; SKIPs visibly with no build | Vitest `eval-027-cursor.test.ts` | EVAL-027 | P0 | Automated · pass |
 | TC-T2b-14 | Cross-browser (Safari, Firefox), trackpad, real mid-range-laptop profiling, drag-out-of-window | manual | — | P2 | Planned · manual — only Chromium is available to CI |
+
+## M-010 T4 · Paper-cut chrome — nav, footer ocean, dividers, depth (TASK-145, Dev-170…184)
+
+IDs use the `TC-T4-` prefix so parallel M-010 tracks cannot collide; the merge may renumber. Spec: `docs/specs/m-010/paper-cut-2.md` (nav §169–§210, footer §65–§122, dividers §170–§232, depth §233–§265). Automated rows live in `tests/e2e/t4-chrome.spec.ts`; `tests/e2e/t4-shots.spec.ts` (opt-in, `T4_SHOTS=1`) writes the EVAL-031 T4 evidence to `docs/screenshots/m-010/t4/`.
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T4-01 | Nav: routes and labels unchanged, Ask button present, exactly one `aria-current` tab with its terracotta strip drawn, every tab keyboard-reachable with a visible focus ring | Playwright `t4-chrome.spec.ts` | EVAL-008 | P0 | Automated |
+| TC-T4-02 | No horizontal scroll at 375 / 768 / 1440 on `/` and `/about` with the nav, ocean and dividers | Playwright `t4-chrome.spec.ts` | EVAL-008 | P0 | Automated |
+| TC-T4-03 | Footer ocean is `aria-hidden`, three wave tracks + one ship, and sits below the footer text (`.band-bar`) | Playwright `t4-chrome.spec.ts` | EVAL-008 | P0 | Automated |
+| TC-T4-04 | Ocean keyframes animate `transform` only; `prefers-reduced-motion: reduce` leaves 0 running animations | Playwright `t4-chrome.spec.ts` | EVAL-010 | P0 | Automated |
+| TC-T4-05 | Every `[data-decor="torn"]` renders three ridge layers; reduced motion freezes them | Playwright `t4-chrome.spec.ts` | EVAL-010 | P1 | Automated |
+| TC-T4-06 | Switching to dark swaps the ocean to the `-dark` twins and the page height changes by ≤ 1 px | Playwright `t4-chrome.spec.ts` | EVAL-026 | P0 | Automated |
+| TC-T4-07 | `TornEdge` markup contract (`data-decor`, `aria-hidden`, three paths) and snapshots per fill | Vitest `paper.test.tsx` | EVAL-018 | P1 | Automated |
+| TC-T4-08 | Depth tokens: `--depth-0…5` cast from `--shadow-ink` (no navy glow in dark); legacy `--shadow-paper*` remapped; 13/13 tokens + 55 contrast pairs unchanged | `pnpm tokens:check` | EVAL-020 | P0 | Automated |
+| TC-T4-09 | Nav acceptance §209 (paper strip reads 3D, identity layered, tabs read as paper, terracotta layer under the active tab, navy Connect CTA, chip around the switch) in both themes at 390 and 1440 | manual · `docs/screenshots/m-010/t4/nav-*` | EVAL-031 | P1 | Manual |
+| TC-T4-10 | Footer report §121 and divider benchmark §229: ocean in the footer palette with the text above the waves; dividers replace the zig-zag one-for-one | manual · `docs/screenshots/m-010/t4/footer-*`, `divider-*`, `/Volumes/E Drive/Dev/.scratch/t4-compare.png` | EVAL-031 | P1 | Manual — Tushar's style gate |
+| TC-T4-11 | Ocean art ≤ 200 kB per layer (8 files, 19–86 kB) with a provenance row each | `docs/briefs/TASK-145-art.md` | EVAL-025 | P1 | Verified by size listing |
+| TC-T4-12 | Safari / Firefox, real-device scroll smoothness | manual | — | P2 | Planned · manual — only Chromium in CI |
