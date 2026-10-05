@@ -27,6 +27,12 @@ const CLIP = illustration("hero-clip");
 /** The mp4 is the second rendition of the same clip (Design.md §5.2 source order webm → mp4). */
 const CLIP_MP4 = CLIP.publicSrc!.replace(/\.webm$/, ".mp4");
 
+/**
+ * The intro video's poster: the /contact scene's 4:3 character crop (Tushar by the window, waving). Not
+ * the hero clip's poster (`hero-desk`), which EVAL-019 keeps out of the page as an <img> (TKT-93).
+ */
+const INTRO_POSTER = "/media/illustrations/scene-contact-mobile.webp";
+
 /** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
 const BANNER_FOCAL_X = 0.49;
 /**
@@ -156,7 +162,7 @@ export function Hero() {
               <ProductMediaPlayer
                 media={hero.introVideo}
                 className="pf-stage-screen hero-intro-screen"
-                fallbackPoster={<Image src={POSTER.publicSrc!} alt="" fill sizes="(min-width: 640px) 560px, 92vw" className="pf-stage-poster" />}
+                fallbackPoster={<Image src={INTRO_POSTER} alt="" fill sizes="(min-width: 640px) 560px, 92vw" className="pf-stage-poster hero-intro-poster" />}
               />
             </Sheet>
           </div>
