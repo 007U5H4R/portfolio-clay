@@ -18,7 +18,7 @@ The `t-design` Mobbin research step was **not re-run**: Tushar approved `home.ht
 | Asset | Source of truth on disk | Shipped rendition (Stage 7, §6) | Used on |
 |---|---|---|---|
 | Character sheet, **locked Variant B** (2026-09-23; EV4 likeness gate) | `Portfolio-illustration/illustrations/character-sheet/character-ref-LOCKED.png` | `content/media/illustrations/reference/character-sheet-b.jpg` (reference only, never rendered on a page) | Stage-8 style-drift check for every scene and the clip |
-| Hero desk scene + **clip A** (thinks, one pen turn, 2.5 s, plays once, holds — S14) | `Portfolio-illustration/animation/export/hero-animation.{webm,mp4}`, `hero-poster.webp`, `hero-end.webp` (1280×684) | `public/media/illustrations/hero-animation.webm` (176 kB ≤ 200) · `.mp4` (312 kB ≤ 350) · `hero-poster.webp` (87 kB ≤ 120) | `/` hero (§5) + home OG (§9) |
+| Hero desk scene + **clip A** (thinks, one pen turn, 2.5 s, plays once, holds — S14; **clip A retired by S24 / TASK-140, §5**) | `Portfolio-illustration/animation/export/hero-animation.{webm,mp4}`, `hero-poster.webp`, `hero-end.webp` (1280×684) | `public/media/illustrations/hero-animation.webm` (176 kB ≤ 200) · `.mp4` (312 kB ≤ 350) · `hero-poster.webp` (87 kB ≤ 120) | `/` hero (§5) + home OG (§9) |
 | Six page scenes (gpt_image_2_5 from the locked sheet, 2026-09-23) | `Portfolio-illustration/illustrations/scenes/scene-{work,casestudy,about,thinking,playground,contact}.{png,jpg}` | `content/media/illustrations/scene-*.jpg` → `next/image` AVIF/WebP | one per route family (§7) |
 
 Character: Indian man, short dark hair, full beard, grey blazer, dark shirt; gouache-and-pencil editorial style. Never Pixar, chibi or mascot. Every scene and the clip are judged against the sheet at Stage 8 (EVAL-009 item 6, EVAL-022).
@@ -94,7 +94,7 @@ Hex is authoritative (D2 stands); the OKLCH below was **generated with the repo'
   --color-kraft: oklch(0.812 0.064 81.035);
 }
 ```
-Dark mode: none (S19). No `dark:` variants, no theme toggle.
+Dark mode: added by M-010 (S22, supersedes S19) — the same 13 names are redefined under `[data-theme="dark"]`; the values and the theme contract are §13. This `@theme` block is the light theme.
 
 ### 2.2 Typography (S13)
 `next/font/google`, subset `latin`, `display: "swap"`: **Fraunces** (variable, `axes: ["opsz", "SOFT"]`, weight 400–700 — display only), **Inter** (400/500/600 — body and UI), **Caveat** (400/600 — hand). Manrope is removed with its `--font-manrope` variable. If the loader rejects Fraunces' axes, the Phase-0 tracer falls back to static Fraunces 500 and drops `font-variation-settings` (Solution-PRD §12.7).
@@ -256,51 +256,41 @@ One `<section>` on `paper`: eyebrow "Lost?" (annotation-free), h1 "This page wan
 
 ---
 
-## 5. Hero contract (`/`, S14 — EVAL-019, EVAL-010, EVAL-001)
+## 5. Hero contract (`/`, S14 → S24 — EVAL-019, EVAL-010, EVAL-001)
 
 ### 5.1 Layout
 > **TKT-108 (2026-09-26, Dev-50):** the copy block's strings, CTAs and marginalia are now as §7.1 "Hero copy block" records (Tushar's reference); the copy lines below are the history.
 
 `<section class="hero" aria-labelledby="hero-h">` grid `minmax(0,42fr) minmax(0,58fr)` ≥ 1024 (copy left, scene right), gap `clamp(20px, 3vw, 44px)`, padding-block `clamp(28px, 4vw, 56px)` / `clamp(80px, 9vw, 130px)`; single column < 1024 with the copy first and the scene second (5-second test needs the copy above the fold at 390; the scene follows at full width, 1280/684 ratio, caption static below). Copy column (max 560 px, gap 22): eyebrow (**data**: `Senior Product Manager · Product Thinker · AI Builder · Problem Solver` — the mockup's shorter triad is not used, Dev-01), h1 (**data**: "I turn ambiguity into AI-native products people can use." with the rust underline draw-in on the last three words — Dev-01), hand-sub annotation "Same curiosity.<br>Bigger problems." (`clamp(26px, 2.6vw, 34px)`, −1.5°, `aria-hidden`), support paragraph (**data** `hero.support`, Inter 17 px, ≤ 46ch, hidden < 768 as today), CTA row: primary "View my work →" → `/work`, secondary "Ask my portfolio" (magnifier glyph) → `#ask`. The `FloatingTiles` proof tiles are gone; the three VERIFIED proof lines live in Featured Work's metrics (§7.1).
 
-### 5.2 Markup per mode (the EVAL-019 matrix)
-Static HTML (every mode) — rendered by the server, never lazy:
+### 5.2 Markup (M-010 — the paper-cut still, S24 / TASK-140 / Dev-136; supersedes the M-009 clip contract)
+The clip, `HeroClip`, the `registration` module, the `--clip-*` slot, the clip mask and the `hero-animation.*` files are retired; the M-009 text (a 2.5 s clip that plays once and holds, D10) stays in git at `a4f17c2`. Static HTML in every mode — rendered by the server, never lazy:
 ```html
-<figure class="hero-scene" data-illustration="hero-desk">
-  <div class="frame">                                  <!-- aspect-ratio 1280 / 684; cream mask on the left + bottom edge -->
-    <img src="/media/illustrations/hero-poster.webp"   <!-- next/image priority → fetchpriority="high", loading="eager", srcset/sizes -->
-         width="1280" height="684" fetchpriority="high" decoding="async"
-         sizes="(min-width: 1024px) 58vw, 100vw"
-         alt="Illustration of Tushar at a warm desk — laptop, notebook, books, a plant, a lamp, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.">
-    <!-- DEFAULT MODE ONLY, mounted on the client after hydration (§5.3): -->
-    <video autoplay muted playsinline preload="metadata"
-           poster="/media/illustrations/hero-poster.webp"
-           aria-hidden="true" tabindex="-1" data-hero-clip>
-      <source src="/media/illustrations/hero-animation.webm" type="video/webm">
-      <source src="/media/illustrations/hero-animation.mp4" type="video/mp4">
-    </video>
+<figure data-illustration="hero-banner" class="scene-banner">       <!-- full-bleed, whole 3168×1344 scene ≥ 768, 4:3 crop below -->
+  <div class="scene-banner-canvas">
+    <picture>
+      <source media="(max-width: 767px)" srcset="…/hero-banner-mobile.webp (next/image)" sizes="54vw">
+      <img src="…" width="3168" height="1344" fetchpriority="high" loading="eager" decoding="async" sizes="100vw"
+           alt="Illustration of Tushar in layered paper-cut at a warm desk — …">   <!-- manifest alt, once -->
+    </picture>
   </div>
-  <figcaption data-decor="annotation" aria-hidden="true">the desk where most of it happens</figcaption>
 </figure>
 ```
-- **No `loop`, ever.** No `controls`, no audio track. The video overlays the `<img>` (absolute, same box, same mask); its `poster` is the same file as the `<img>`, so mounting causes no visible change until frame 1 decodes.
-- **Poster is the LCP element** in every mode (`priority` on the `next/image`; the `<video>` never paints before the poster). The `hero-end.webp` last frame is *not* shipped as an image — the paused video holds its own last frame.
-- **Asset caps** (measured 2026-09-24): webm 176 kB ≤ 200 · mp4 312 kB ≤ 350 · poster 87 kB ≤ 120. `tests/e2e/eval-019.spec.ts` asserts the file sizes from `public/media/illustrations/`.
+- **No `<video>` anywhere in `.hero-banner`, in any mode, theme or width; no `[data-hero-clip]`.** There is no motion to fall back from, so reduced motion, touch and Save-Data render exactly what default mode renders (WCAG 2.2.2 no longer applies). The postmark and the three polaroids ride the same canvas unchanged (Dev-21/Dev-80); the new banner keeps the three blank papers where the old one had them, so their CSS positions stand.
+- **The banner `<img>` is the LCP element in every mode**, once in the markup, with explicit width/height. Exactly one hero image is fetched before first paint: the active theme's rendition. The dark twin (`hero-banner-dark.webp`, same size, same entry) is registered in the manifest (`darkFile`) and is **not** in the markup until TASK-141 wires `data-theme`; when it is, the inactive rendition is lazy, hidden and never fetched, and the swap is by `[data-theme]` selector on two `<img>`s or a `<picture>` with a `data-theme`-keyed source, never a CSS filter (EV9).
+- **Caps** (EVAL-019, measured 2026-10-05): each 3168×1344 banner rendition ≤ 350 kB — light 310,084 B, dark 284,288 B; narrow crops (1824×1344) 179,022 B and 179,112 B. `tests/e2e/eval-019.spec.ts` asserts the files and the markup.
+- The intro video's lazy poster rule (TASK-138) is unchanged: `<img class="pf-stage-poster" loading="lazy">`, never `fetchpriority="high"`.
 
-### 5.3 Mode detection and lifecycle (client, `HeroClip` component — D10)
-1. On mount (once): `posterOnly = matchMedia('(prefers-reduced-motion: reduce)').matches || matchMedia('(hover: none), (pointer: coarse)').matches || navigator.connection?.saveData === true`. If `posterOnly` → render nothing (the static `<img>` stays; **no `<video>` enters the DOM** — satisfies reduced-motion, touch and Save-Data at both widths).
-2. Else render the `<video>`; call `play()` defensively — a rejected promise (autoplay policy) or an `error` event **unmounts the video** so the poster shows (the "error" screen state).
-3. `ended` → do nothing (the element stays paused on its last frame). Never call `load()`, `play()` again or set `currentTime`; ignore `visibilitychange`, scroll, and re-renders (`currentTime` must never decrease — EVAL-019 "0 restarts"). Ended within ≤ 4 s of arrival: hydration + a 2.5 s clip.
-4. Media queries are read once; a later change to reduced-motion mid-session does not restart or remove anything (the clip is over in 2.5 s).
-5. `<video>` is `aria-hidden`; the `<img>` alt carries the description. WCAG 2.2.2 needs no pause control: 2.5 s, no loop.
+### 5.3 Spec for the still (the brief the art was generated from; the material rules are §13.3)
+Same composition and meaning as the M-009 banner: Tushar seated at his desk, chin on hand, pen over an open notebook, laptop, the book stack and white mug at left, the corkboard, three blank pinned papers and the mountain photo on the wall, the green lamp and pen cup at right, the sleeping golden retriever at the right edge, the doorway with a hanging plant. Every prop in the same place (the polaroid positions depend on it). The character matches the locked sheet (`character-ref-LOCKED.png`) as layered cut paper — never Pixar, chibi or mascot. No text in the image: book spines and notes are blank (the TKT-105 text clean stops being a concern).
 
 ### 5.4 States
 | State | What shows |
 |---|---|
-| loading (first paint, all modes) | poster `<img>` (LCP), copy, CTAs — pure SSR HTML, works without JS |
-| working (default mode) | clip plays once over the poster, holds its last frame |
-| poster-only (reduced motion / touch / Save-Data / JS off) | poster only; identical layout |
-| error (autoplay rejected, decode/network error) | video unmounted → poster |
+| loading (all modes) | the banner `<img>` (LCP), copy, CTAs — pure SSR HTML, works without JS |
+| working | identical to loading (a still has no mode) |
+| error (image failed) | the banner box keeps its paper fill and the alt as visible text (§6.4 rule); the copy block is unaffected |
+| empty | n/a — the hero is static content |
 
 ---
 
@@ -308,11 +298,12 @@ Static HTML (every mode) — rendered by the server, never lazy:
 
 ### 6.1 One source of truth: `content/media/illustrations/manifest.ts`
 ```ts
-export type IllustrationKind = "scene" | "poster" | "clip" | "reference";
+export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot"; // no "clip" entry ships since S24
 export interface Illustration {
-  id: "hero-desk" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b"; // + TASK-114 (Dev-103/104)
+  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b"; // + TASK-114 (Dev-103/104)
   kind: IllustrationKind;
-  file: string;          // relative to content/media/illustrations/ (source rendition)
+  file: string;          // relative to content/media/illustrations/ (source rendition; the LIGHT one when darkFile is set)
+  darkFile?: string;     // TASK-140 (S23/EV9, EVAL-025): the matched dark rendition — same entry, one shared alt, identical pixel size
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster only; scenes go through next/image)
   width: number; height: number;
   alt: string;           // MUST start with "Illustration of" (scenes/poster) or "Animated illustration of" (clip); ≥ 8 chars (schema)
@@ -328,7 +319,7 @@ Rules the Vitest (`tests/unit/eval-021.test.ts`) enforces: every file under `con
 | id | alt |
 |---|---|
 | `hero-desk` (poster) | Illustration of Tushar at a warm desk — laptop, notebook, books, a plant, a lamp, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact. |
-| `hero-clip` | Animated illustration of Tushar thinking at his desk and turning a pen — plays once. (`aria-hidden`; recorded for the manifest only) |
+| `hero-banner` (light + dark) | Illustration of Tushar in layered paper-cut at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, a mountain photo, and a stack of books. |
 | `scene-work` | Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below — beside a quiet studio corner: a wooden bookshelf, trailing and potted plants, and sketches, swatches and landscapes taped to the wall. |
 | `scene-casestudy` | Illustration of Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug beside him, a mug and a stack of books on the side table. |
 | `scene-about` | Illustration of Tushar from behind on a hillside path at dawn, coffee in one hand and a notebook under his arm, looking out over pine forest towards a snow-capped mountain horizon. |
@@ -361,7 +352,7 @@ Rules the Vitest (`tests/unit/eval-021.test.ts`) enforces: every file under `con
 ### 6.4 Placement forms (one per page; §3.3 counts them as content paper, not decoration)
 - **Taped photograph** (`data-paper="photo"`, ivory frame 12–14 px padding, 2 fasteners, ±1.6–2.4°, Caveat caption annotation below/inside): case study, thinking, contact, essay (pinned, 5:4 crop).
 - **Scene bleed** (`<figure data-illustration>` absolutely positioned behind the copy, `object-fit: cover`, cream `mask-image` gradients on the copy side and bottom): work (desktop), about, playground. **One `<img>` element** restyled per breakpoint — not the mockup's desktop `alt=""` background plus a second mobile `<img>` (Dev-06) — so the description is announced once and the file downloads once. Below 1024 the bleed becomes a 4:3 masked photograph under the copy.
-- **Hero frame** (§5): masked poster + clip.
+- **Hero frame** (§5): the paper-cut still banner, no clip.
 - Every `next/image` scene: `sizes` per placement, AVIF/WebP, `loading="lazy"` except the hero poster; intrinsic `width`/`height` always set (no CLS). Image load failure → the frame keeps its ivory paper and shows the alt as visible caption text (schema rule "placeholders render the alt as visible caption text, never a broken img").
 
 ---
@@ -426,7 +417,7 @@ Tushar's About redesign spec 2026-09-29 (`docs/redesign-mockups/m-009/tushar-202
 ### 7.9 Screen-state summary (web-deliverables gate 3)
 | View | loading | empty | error | working |
 |---|---|---|---|---|
-| Hero clip (§5) | poster (SSR) | — | poster (video unmounted) | clip once + hold |
+| Hero banner (§5) | still (SSR) | — | still (image failed: paper + visible alt) | still |
 | Ask inline / panel | ruled-paper shimmer + sr-only status | FALLBACK line + 3 chips | rust-bordered panel + "Try again" | answer + evidence |
 | `/work` filtered index | SSR list (no spinner; `?filter=` read client-side, one-frame flash accepted — TP7) | pinned "No projects match this filter" card + "Show all →" | n/a (static) | numbered index |
 | Case-study hero media / `PrototypeFrame` | poster + spinner overlay | "Hero media coming" kraft tag / alt-as-caption placeholder | overlay "View live →" | native video |
@@ -444,7 +435,7 @@ Global: `@media (prefers-reduced-motion: reduce)` sets every transition/animatio
 
 | Interaction | Mechanism | Curve | Duration | Reduced motion |
 |---|---|---|---|---|
-| Hero clip | `<video>` once, holds | — | 2.5 s | poster only |
+| Hero | still image, no motion | — | — | identical |
 | Headline underline draw-in (`/`, `/work`, `/thinking`, `/playground`, essays h2) | CSS `stroke-dashoffset` 400 → 0, once on load | `ease-out`, delay 0.5 s | 1.1 s | drawn (no animation) |
 | Section reveal (`Reveal`, IntersectionObserver once) | CSS transition opacity + translateY(12px) | `cubic-bezier(.2,.7,.2,1)` | 500 ms, 70 ms stagger | opacity-only ≈ instant |
 | Card hover (work cards, openers, experiment cards) | CSS transition `transform`, `box-shadow` | `ease` | 250 ms | none (shadow change only) |
@@ -619,5 +610,82 @@ Each row: what differs from the mockup or the earlier spec, why, and the disposi
 | Dev-133 | **Amends TP1 (all-static).** The site gains its first server functions (TASK-134): `POST /api/tushky/speech` (a Vercel Node function that speaks a real Ask Tushky answer, recomputed on the server from the question — it never accepts text) and the dev-only `GET /api/dev/tushky-voice` (voice audition; 404 unless `NODE_ENV=development`). Every page stays prerendered. `scripts/assert-static.ts` now allows exactly these two dynamic route handlers and fails the build on any other non-prerendered handler or page (`tests/unit/assert-static.test.ts`). The route's rate limit and audio cache are in-memory per instance (no KV approved); CSP `media-src` gains `blob:` | voice spec §11, §53–56, §74; brief §3.2–3.4 | Proposed 2026-09-29 (TASK-134) — Tushar approves the first server function and adds `GEMINI_API_KEY` in Vercel |
 | Dev-134 | Ask Tushky voice strip (TASK-134) vs the mockup and the two voice specs: the strip sits inside each answer bubble between the answer and its sources (UI §1/§20); a refusal or empty answer gets none. In the drawer the bubble is ≈ 340 px wide even at 1440, so Replay is icon-only below a 380 px strip and the label is "Listen" with icon-only Pause/Resume below 300 px (UI §32; accessible names unchanged). Ended shows "Replay" (UI §11 allows it). The loading copy appears only after 150 ms so cached audio goes straight to Playing (UI §21). The speaking cue is two small rust sound-wave marks by the avatar (UI §14). Left out, both optional: the "Tap to hear Tushky →" annotation and the "Tushky can talk too 🔊" note (the empty state stays unchanged, brief §4), and seeking (UI §13). FAQ audio metadata lives in `data/tushky/faq-audio.json` keyed by FAQ id instead of an `audio` field inside `faq.json` (spec §29), so the TASK-123 refresh script and the audio script never rewrite each other's file. `TushkyVoicePlayer` takes the question and the answer text, not `speechText` (UI §37), because the server recomputes the speech | voice UI spec §1–46; voice spec §19–24, §29 | Proposed 2026-09-29 (TASK-134) |
 | Dev-135 | `/about` rebuilt as WHO Tushar is (TASK-136, Tushar 2026-09-29; §7.4): hero · Three Chapters · Career Across Contexts · Research + What Drives Me · Recognition · a dark Experience strip. Résumé content leaves About for `/work`: every role card gains a closed "Scope & outcomes" `<details>` (context, role, scale when recorded, what changed, the self-reported outcomes — verbatim, `data-flat` dl), and Skills ("What I Bring", the four clusters) + the languages line become `section#skills` after Education; education stays only on `/work`. The reference image's placeholder facts are not used (no IIT / Google as employer / AIG / HSBC, no Nvidia / Star of the Month / Spot Award, not "1 patent filed" — the patent is granted, IN 429867; no "2010–2013"). Kept against the reference: the site-wide `scene-about` opener (Dev-103, every tab) and the header's existing tabs (TASK-135 keeps Thinking / Playground hidden). Career-strip company references are set in type, not logos (only two of the four employers have official files, Dev-92). The "Let's build what's next." CTA, its résumé control and the TP10 colophon line on `/about` are removed per spec §35 ("no generic Contact me here"); contact stays in the header pill and the band footer, the résumé row on `/contact`. Evidence links that pointed at the retired `/about#experience`, `#impact` and `#capabilities` now point at `/work#work-experience` / `/work#skills` (`data/knowledge.ts`, `data/tushky/faq.json`; the eight affected FAQ answers re-stamped — their text is unchanged). Art: eleven hand-authored cut-paper SVGs in `public/about/` (`scripts/about-art/`, ≤ 40 kB each; the only lettering is the four book spines) | Tushar's spec (applied) |
+| Dev-136 | **The Home hero is a paper-cut still; clip A is retired** (TASK-140, S24; Dev ids per track are §13.5). The banner `hero-banner` is regenerated (Higgsfield `gpt_image_2_5`, medium, 2k, 21:9, 2 credits: light + dark twin, each accepted first time) from the gouache banner and the locked character sheet; encoded 3168×1344 `webp q78` (310 kB / 284 kB). The manifest entry gains `darkFile`; the alt changes (no book titles — the spines are blank). Removed: `HeroClip`, `components/hero/registration.ts`, the `hero-clip` entry, `hero-animation.webm/.mp4`, `hero-clip-mask.png`, `tests/unit/hero-clip.test.tsx`, the clip half of `eval-019.spec.ts`. Kept: `hero-desk` + `hero-poster.webp` (gouache) as the OG image source until the OG re-skin. The dark twin is registered, not wired (T2). | S24 ("just a still image"); EV7; EV9 | Applied (TASK-140); the T1 style gate is EVAL-031 |
 
 Nothing here re-opens the palette (S12), typography (S13), hero (S14), the budget threshold (S15/EV5 — only its definitions are refined by D6), the band (S16) or the scope (§12.3–12.4).
+
+---
+
+## 13. M-010 paper-cut + theme (Stage 4 slim, TP15 / TASK-147; decisions S22–S25, EV8/EV9, D13)
+
+M-010 adds a dark theme (S22) and moves the art to a 3D paper-cut diorama system (S23). It re-opens **nothing** else in §1–§12: the 13 token *names*, typography, the decoration contract (§3), the counts (§3.3) and the screen states stand. Sources: `docs/specs/m-010/dark-mode.md` §3–§8, §12–§14; `paper-cut-2.md` §5–§8, §136–§138.
+
+### 13.1 Dark palette — the same 13 names, redefined under `[data-theme="dark"]`
+Hex is authoritative; OKLCH is `culori` at 3 decimals (the `scripts/tokens-check.ts` convention; round-trips to the hex). Dark values are the `dark-mode.md` §3 family (`#0B1530` / `#172646`, ivory `#F4EEDF`, terracotta `#C0613C`-ish) adapted so every pair below clears WCAG AA. **The tokens are named for their light-theme colour but carry a *role*:** `navy` is "ink", so in dark it holds the warm ivory text value, and `ivory` is "card", so it holds the lifted navy card value. A component that says `bg-ivory text-navy` flips correctly with no `dark:` variant (S25).
+
+| # | Token | Light | Dark hex | Dark OKLCH (culori) | Dark role |
+|---|---|---|---|---|---|
+| 1 | `paper` | `#F7F1E7` | `#0B1530` | `oklch(0.204 0.056 266.285)` | page background — deep navy paper, never `#000` |
+| 2 | `ivory` | `#FBF7EF` | `#172646` | `oklch(0.274 0.063 263.798)` | sheets, cards, inputs (dark-mode.md "elevated paper card") |
+| 3 | `paper-2` | `#EFE7D8` | `#101C38` | `oklch(0.232 0.057 264.87)` | alternating section fill B |
+| 4 | `navy` | `#0D1735` | `#F4EEDF` | `oklch(0.95 0.021 88.721)` | primary text and ink strokes (warm ivory) |
+| 5 | `navy-2` | `#2E3854` | `#C7CDD9` | `oklch(0.847 0.018 264.473)` | secondary text |
+| 6 | `ink-soft` | `#5A6178` | `#A3ADBF` | `oklch(0.746 0.028 262.313)` | captions, meta, placeholders |
+| 7 | `rust` | `#B64927` | `#DC7650` | `oklch(0.674 0.138 40.765)` | primary button, links, underlines, pins |
+| 8 | `terracotta` | `#92381F` | `#E8946F` | `oklch(0.744 0.114 44.355)` | band fill, hover lift, kraft-tag text |
+| 9 | `forest` | `#214F43` | `#8CCBB0` | `oklch(0.792 0.075 165.958)` | positive metrics, check, live dot |
+| 10 | `green-2` | `#496D58` | `#9CC7AD` | `oklch(0.792 0.059 158.207)` | kickers, tags, stamp text |
+| 11 | `steel` | `#63799E` | `#7E94B8` | `oklch(0.663 0.059 260.177)` | ruled lines, badge borders, eval labels |
+| 12 | `note` | `#EEDCA9` | `#4B4023` | `oklch(0.375 0.047 89.32)` | sticky-note fill (a dark mustard card; ink on it is `navy`) |
+| 13 | `kraft` | `#D7BE93` | `#6B5B3C` | `oklch(0.479 0.05 83.384)` | tape, kraft tags and stamps — **a fill only** in dark, never text |
+
+`scripts/tokens-check.ts` (`AUTHORITATIVE`) gains a second block with these hexes and `app/globals.css` gets the `[data-theme="dark"]` block in one commit (TASK-141); `eval-020` then counts 13 distinct names, each defined once per theme.
+
+**Contrast (culori WCAG, computed 2026-10-05; AA = 4.5 text, 3.0 UI):**
+
+| Text on background | Ratio | | Text on background | Ratio |
+|---|---|---|---|---|
+| `navy` / `paper` | 15.58 | | `forest` / `paper` | 9.69 |
+| `navy` / `ivory` | 12.94 | | `forest` / `ivory` | 8.05 |
+| `navy` / `paper-2` | 14.57 | | `green-2` / `paper-2` | 8.98 |
+| `navy-2` / `paper` | 11.31 | | `green-2` / `ivory` | 7.98 |
+| `navy-2` / `ivory` | 9.39 | | `terracotta` / `paper-2` | 7.14 |
+| `navy-2` / `paper-2` | 10.57 | | `rust` / `paper` (links) | 5.80 |
+| `ink-soft` / `paper` | 7.98 | | `rust` / `paper-2` | 5.42 |
+| `ink-soft` / `ivory` | 6.62 | | `rust` / `ivory` | 4.81 |
+| `ink-soft` / `paper-2` | 7.46 | | `ivory` on `rust` (primary button) | 4.81 |
+| `navy` / `note` (sticky) | 8.82 | | `ivory` on `terracotta` (band) | 6.35 |
+| `navy-2` / `note` | 6.40 | | `navy` / `kraft` (kraft tags) | 5.69 |
+| `steel` / `paper` (non-text 3:1) | 5.85 | | `steel` / `ivory` (non-text) | 4.86 |
+
+Two rules fall out of the role inversion: (1) the band keeps its text on `ivory` (`--on-band` unchanged) — a light-terracotta fill with dark text, 6.35; `navy` on `terracotta` is 2.04 and must not be used there; (2) a surface filled with `navy` (nav pill, next-project band) becomes a light ivory fill with `ivory`-token text, 12.94 — acceptable for the pill; the next-project band uses an `ivory` fill with `navy` text instead (T3/T4 decide the band footer's own treatment; the ocean palette of §13.3 may override the band fill, not the text pair).
+
+### 13.2 Theme contract (S25 — one mechanism for dark-mode.md §11–§14 and toggle.md)
+- **Attribute:** `data-theme="light" | "dark"` on `<html>`. Tokens are redefined per theme in `app/globals.css` (`:root` keeps the light block, `[data-theme="dark"]` the dark one); components never branch on theme and use no `dark:` variants and no colour literals (EVAL-020).
+- **Resolution order:** (1) the saved explicit choice, (2) `prefers-color-scheme`, (3) light. Only an explicit toggle choice is persisted. Storage key: `portfolio-theme` (`"light" | "dark"`); an absent, malformed or unreadable (`try/catch`, private mode) value falls through to step 2.
+- **No flash:** one tiny inline `<script>` as the first child of `<head>` (before any stylesheet link and before first paint) resolves the theme and sets `document.documentElement.dataset.theme`; React never writes the attribute during hydration (no mismatch — `suppressHydrationWarning` on `<html>` only), and the toggle's click handler is the only later writer (EV8 measures the attribute history and the script order). `color-scheme` is set per theme so form controls and scrollbars match.
+- **While following the system** (no saved choice), a `prefers-color-scheme` change updates the attribute live; an explicit choice ignores it.
+- **Art swaps by theme, never by filter** (EV9): paired files share one manifest entry (`darkFile`, §6.1) and identical dimensions; both renditions are never fetched at once (§5.2).
+
+### 13.3 Paper-cut material rules (condensed from paper-cut-2 §5–§8, dark-mode §5–§8)
+**Art (generated scenes).** Matte cardstock, individually cut layered shapes with visible thickness, fine fibres and grain, slightly imperfect cut edges, soft ambient occlusion and close contact shadows, **4–7 depth layers** (background wall, mid-background architecture, midground board and objects, foreground figure and primary object, front-edge scraps), warm directional daylight from the **upper left**, no hard cinematic light. Palette: cream, ivory, deep navy, terracotta as the base; sage, muted blue, dusty lavender, warm yellow, coral as accents. **Forbidden:** shiny 3D, Pixar or plastic figurines, clay, glossy icons, neon, glass, photoreal skin, flat vector, child's-craft look, stock-illustration generic. The figure keeps the locked likeness (EV4) as cut paper, never a mascot. **No text in any generated image** — type stays HTML. Dark twin: the same composition, props and figure; deep navy / midnight / indigo / slate-blue cardstock, warm lamp and moon accents, terracotta and cream retained; no neon, no purple glow, no pure-black-heavy rendering (paper-cut-2 §136–§138).
+
+**Chrome (CSS).** A layer is a sheet with thickness: a 1 px lighter edge on its top and left (the lit sides) and a 1–2 px offset for each stacked layer beneath it. Every sheet carries **two shadows**: a contact shadow (≤ 2 px blur, ≈ 8 % of the shadow colour) and an ambient shadow (≈ 24 px blur, negative spread, ≈ 22 %), both falling down and slightly right of the upper-left light — the existing `--shadow-paper` shape (§2.1). Hover lifts by growing the ambient shadow, never by glow.
+
+**Dark theme.** A derived property that means *ink* keeps `navy` (it is warm ivory in dark, so `--line`, `--line-strong`, `--rule-blue` and the grain dots become light-on-dark with no change); a derived property that means *shadow* is **redefined in the dark block from `paper`** — `--shadow-paper`, `--shadow-paper-hover`, `--shadow-sticky` mix `paper` (`#0B1530`, a deep navy), never `black` and never `navy`, at the same blur and spread, with the ambient opacity raised to ≈ 45 % because a navy shadow on a navy card needs the extra weight to read. A sheet gains a 1 px top-left rim, `color-mix(in oklab, var(--color-navy) 9%, transparent)`, in place of the white edge a light sheet gets for free. Borders are muted: `--line` stays ≈ 12 %, and a bright border round every card is a defect. No glow, no neon outline, no giant floating-card shadow. Torn edges, tape, pins and the grain keep rendering as dark handmade cardstock, not a generic dark UI (dark-mode.md §5). Never `#000000` as a surface.
+
+### 13.4 Hero still (replaces clip A — S24, TASK-140)
+The spec is §5.2–§5.4. Summary of what is decided: a **21:9 paper-cut still** (3168×1344 rendition, light and dark twin on one manifest entry), the M-009 composition and prop positions preserved so the polaroids, postmark and copy sheet need no layout change; the figure matches `character-ref-LOCKED.png`; no text in the image; the banner `<img>` is the LCP in every mode; no `<video>`, no clip, no `HeroClip`; the dark twin is generated from the light result (same composition, evening palette per §13.1, a warm lamp pool and a moonlit window, no CSS filter). Credits: 2 (one generation each, accepted). T1 style gate: EVAL-031 — the light and dark stills side by side with the locked sheet.
+
+### 13.5 Dev-id ranges per track (this file's §11 table; the last id before M-010 is Dev-135)
+| Track | Ids | Track | Ids |
+|---|---|---|---|
+| **T1** hero still (TASK-140) | Dev-136 … Dev-139 | **T3** per-tab art pairs | Dev-160 … Dev-169 |
+| **T2** theme + toggle (TASK-141) | Dev-140 … Dev-149 | **T4** nav, dividers, ocean footer | Dev-170 … Dev-184 |
+| **T2b** | Dev-150 … Dev-154 | **T5** card | Dev-185 … Dev-189 |
+| **T2c** | Dev-155 … Dev-159 | | |
+
+T1 uses **Dev-136** (§11: the still, the retired clip files, the `darkFile` manifest field, the alt change); Dev-137 … Dev-139 are reserved for T1 follow-ups (a regenerated asset after the style gate, the OG source moving off `hero-poster.webp`). A track that runs out of ids stops and asks; ids are never borrowed across ranges, so parallel branches cannot collide.
+
+### 13.6 Decision D13 (recorded in `decisions.md`)
+The dark theme redefines the 13 tokens by **role, not by colour name** (§13.1): `navy` is ink and is ivory in dark. Rejected: 13 new `--color-*-dark` names (breaks EVAL-020's "exactly 13", doubles every component's class list) and `dark:` variants (S25, S19's own objection to scattered theme branches). Cost: a surface *filled* with `navy` or `kraft` flips meaning, so §13.1's two rules and the "kraft is a fill only" rule are part of the contract, and T2 must audit every `bg-navy` and `text-kraft` use.
