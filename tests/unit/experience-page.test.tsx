@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, within } from "@testing-library/react";
 import ExperiencePage from "@/app/work/page";
-import { education } from "@/data/credentials";
+import { education, languages } from "@/data/credentials";
 import { experience } from "@/data/experience";
+import { skills } from "@/data/skills";
 
 // TKT-101 (Tushar direction 2026-09-26; Design.md §7.2, §11 Dev-90…45): `/work` is the Experience page —
 // Work Experience then Education, as collage timelines. Copy is the data's, verbatim (D7): every name,
@@ -31,10 +32,10 @@ describe("/work Experience page (TKT-101)", () => {
     expect(first.getAttribute("data-priority")).toBe("true");
   });
 
-  it("has one sr-only h1 and the two section headings in order", () => {
+  it("has one sr-only h1 and the three section headings in order (Skills moved here from /about, TASK-136)", () => {
     const { container } = render(<ExperiencePage />);
     const headings = Array.from(container.querySelectorAll("h1, h2")).map((h) => `${h.tagName}:${h.textContent}`);
-    expect(headings).toEqual(["H1:Experience", "H2:Work Experience", "H2:Education"]);
+    expect(headings).toEqual(["H1:Experience", "H2:Work Experience", "H2:Education", "H2:What I Bring"]);
   });
 
   it("Work Experience lists every role newest first, as an ordered list of h3 cards", () => {
@@ -108,5 +109,42 @@ describe("/work Experience page (TKT-101)", () => {
     const { container } = render(<ExperiencePage />);
     expect(section(container, "work-experience").querySelectorAll(".ct-collage > .ct-row")).toHaveLength(experience.length);
     expect(section(container, "education").querySelectorAll(".ct-collage > .ct-row")).toHaveLength(education.length);
+  });
+
+  // TASK-136: `/about` stopped repeating the résumé, so everything its experience timeline, impact résumé
+  // figures, skills and languages showed must be here. Every string is read from the data, never retyped.
+  it("each role card carries its full record in a closed 'Scope & outcomes' disclosure, verbatim (TASK-136)", () => {
+    const { container } = render(<ExperiencePage />);
+    const work = section(container, "work-experience");
+    for (const role of experience) {
+      const details = work.querySelector<HTMLDetailsElement>(`details[data-details="${role.id}"]`);
+      expect(details, `${role.id} disclosure`).not.toBeNull();
+      expect(details!.open).toBe(false);
+      expect(details!.querySelector("summary")?.textContent).toBe("Scope & outcomes");
+      const dl = details!.querySelector("dl")!;
+      expect(dl.hasAttribute("data-flat")).toBe(true);
+      expect(dl.querySelector("[data-decor]")).toBeNull();
+      const dds = Array.from(dl.querySelectorAll("dd")).map((dd) => dd.textContent);
+      expect(dds).toContain(role.context);
+      expect(dds).toContain(role.responsibility);
+      expect(dds).toContain(role.whatChanged);
+      if (role.scale === "not recorded") expect(dl.textContent).not.toContain("not recorded");
+      else expect(dds).toContain(role.scale);
+      for (const outcome of role.outcomes) expect(dds).toContain(outcome.text);
+      expect(Array.from(dl.querySelectorAll("dt")).map((dt) => dt.textContent)).toContain("Outcomes · self-reported");
+    }
+  });
+
+  it("Skills lists the four data/skills.ts clusters verbatim, then the languages line; torn = its one decoration", () => {
+    const { container } = render(<ExperiencePage />);
+    const skillsSection = section(container, "skills");
+    const sheets = Array.from(skillsSection.querySelectorAll("article"));
+    expect(sheets).toHaveLength(skills.length);
+    sheets.forEach((sheet, i) => {
+      expect(sheet.querySelector("h3")?.textContent).toBe(skills[i]!.name);
+      expect(Array.from(sheet.querySelectorAll("li")).map((li) => li.textContent)).toEqual(skills[i]!.items);
+    });
+    expect(skillsSection.querySelector(".acap-langs")?.textContent).toBe(`Languages: ${languages.join(", ")}.`);
+    expect(Array.from(skillsSection.querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"))).toEqual(["torn"]);
   });
 });

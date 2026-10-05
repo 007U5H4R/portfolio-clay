@@ -50,16 +50,16 @@ const S9_HREFS = [
   "/thinking",
   "/work/teachspark#05-what-i-built",
   "/work/railcite#05-what-i-built",
-  "/about#experience",
+  "/work#work-experience", // TASK-136: was /about#experience (and /about#impact's résumé figures)
   "/work/railcite#06-evaluation",
-  "/about#impact",
   "/work/teachspark#07-outcome",
   "/work/railcite#07-outcome",
   "/about",
   "/work",
   "/projects", // TKT-101: the project index moved from /work (the "Work" evidence link → "Projects")
   "/projects#enterprise", // §9 `?tab=enterprise` → E-2 `?filter=` → TASK-116: the Portfolio enterprise section
-  "/about#capabilities",
+  "/work#skills", // TASK-136: was /about#capabilities
+  "/about#research",
 ];
 
 describe("lib/anchors routes()", () => {
@@ -98,7 +98,10 @@ describe("lib/anchors routes()", () => {
   });
 
   it("exposes the documented page anchors", () => {
-    expect(PAGE_ANCHORS.about).toContain("experience");
+    expect(PAGE_ANCHORS.about).toEqual(["chapters", "career", "research", "values", "recognition"]);
+    expect(PAGE_ANCHORS.work).toEqual(["work-experience", "education", "skills"]);
+    // TASK-136: the résumé anchors left /about with their sections
+    for (const gone of ["experience", "impact", "capabilities"]) expect(resolves(`/about#${gone}`, ROUTE_SET)).toBe(false);
     expect(PAGE_ANCHORS.contact).toContain("resume");
     expect(PAGE_ANCHORS.projects).toEqual(["products", "enterprise"]);
   });
