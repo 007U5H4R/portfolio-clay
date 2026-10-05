@@ -18,6 +18,7 @@
  */
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
+import { isSystem } from "./case-study-system";
 import { DEV_ROUTES } from "./routes";
 import { STATIC_ROUTES } from "@/app/sitemap";
 import { projects } from "@/data/projects";
@@ -51,7 +52,8 @@ test.fixme("@EVAL-006 axe clean with the AskPanel open (TKT-10)", { tag: "@EVAL-
 // until "Deep dive" is selected (TC-076). A heading-order check against the default 30-sec view
 // would trivially pass regardless of the fix, so this guard is meaningless without opening it first.
 const DEEP_DIVE_SLUGS = new Set(
-  projects.filter((p) => p.category === "personal" && p.overview.deepDive).map((p) => p.slug),
+  // TASK-130: slugs on the case-study system have no tabs — everything is in the DOM already.
+  projects.filter((p) => p.category === "personal" && p.overview.deepDive && !isSystem(p.slug)).map((p) => p.slug),
 );
 
 // CF-3 (M-007 carry-forward, QA-003 regression guard): axe's `wcag2a`/`wcag2aa`/`wcag21aa` tags do

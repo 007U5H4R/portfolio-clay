@@ -15,6 +15,7 @@ import { AlertTriangle, SendHorizontal, X } from "lucide-react";
 import type { FormEvent, Ref, RefObject } from "react";
 import type { Answer } from "@/lib/ask";
 import { isInternalHref } from "@/lib/anchors";
+import { isCaseStudyHref } from "@/lib/case-study-link";
 import { illustration } from "@/lib/illustrations";
 import { knowledge } from "@/data/knowledge";
 import { Icon } from "@/components/common/Icon";
@@ -147,16 +148,18 @@ function Sources({ answer }: { answer: Extract<Answer, { kind: "answer" }> }) {
       <p className="tk-sources-label">Sources from portfolio:</p>
       <ul aria-label="Sources" className="tk-chips">
         {answer.evidence.map((item) => {
+          // TASK-130: a case-study source (`/work/<slug>`) opens in a new tab like an external one.
           const external = !isInternalHref(item.href);
+          const caseStudy = isCaseStudyHref(item.href);
           return (
             <li key={`${item.href}::${item.label}`}>
               <a
                 href={item.href}
                 className="tk-source focus-ring"
-                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                {...(external || caseStudy ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
                 {item.label}
-                {external ? <span className="sr-only"> (opens in a new tab)</span> : null}
+                {external || caseStudy ? <span className="sr-only"> (opens in a new tab)</span> : null}
               </a>
             </li>
           );

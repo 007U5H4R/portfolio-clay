@@ -151,7 +151,9 @@ describe("TC-162 · ShowTheThinking on paper (Design.md §7.3, §3.3 count 2)", 
     expect(links).toHaveLength(4);
     for (const a of Array.from(links)) {
       expect(a.getAttribute("href")).toBe("/work/teachspark#02-problem");
-      expect(a.textContent).toBe("TeachSpark Final PRD");
+      // TASK-130: a case-study link opens in a new tab; the visually hidden note is part of its name.
+      expect(a.textContent).toBe("TeachSpark Final PRD (opens in a new tab)");
+      expect(a.getAttribute("target")).toBe("_blank");
       expect(a).toHaveClass("node-src");
     }
     expect(container.querySelectorAll(".node-src-plain")).toHaveLength(4);

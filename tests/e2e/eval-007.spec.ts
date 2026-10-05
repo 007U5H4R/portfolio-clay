@@ -159,52 +159,5 @@ test.fixme("@EVAL-007 keyboard: FilterTabs / ExperienceTimeline / CopyButton (TK
   tag: "@EVAL-007",
 }, async () => {});
 
-// ---------------------------------------------------------------------------------------------------
-// TKT-83 · deep dive (TC-161 / TC-162) — the chapter nav rail and the Show-the-thinking disclosure on a
-// real case-study route, keyboard only. The full contract lives in tests/e2e/artifacts.spec.ts; this
-// block is the EVAL-007 flow entry: every stop is reachable and wears the rust ring.
-// ---------------------------------------------------------------------------------------------------
-test.describe("TKT-83 · deep dive keyboard flow", () => {
-  test("@EVAL-007 deep dive: Deep dive radio → chapter nav links → Show the thinking → source links, all by Tab/Enter", {
-    tag: "@EVAL-007",
-  }, async ({ page }) => {
-    test.skip(width(page) !== 1440, "keyboard sweep runs once at a desktop width");
-    await page.goto("/work/teachspark", { waitUntil: "load" });
-
-    // Open the deep dive with the keyboard (roving radiogroup, TKT-48).
-    await page.getByRole("radio", { name: "30-sec" }).focus();
-    await page.keyboard.press("ArrowRight");
-    await expect(page.getByRole("radio", { name: "Deep dive" })).toHaveAttribute("aria-checked", "true");
-
-    // Tab from the radiogroup lands on the first chapter-nav link (≥ 1024 the rail is in the DOM —
-    // MediaGate mounts it one effect after the deep view, so wait for it before counting).
-    const navLinks = page.locator('nav[aria-label="Chapters"] a');
-    await expect(navLinks.first()).toBeVisible();
-    const count = await navLinks.count();
-    expect(count).toBeGreaterThan(0);
-    await page.keyboard.press("Tab");
-    await expect(navLinks.first()).toBeFocused();
-    for (let i = 1; i < count; i++) {
-      await page.keyboard.press("Tab");
-      await expect(navLinks.nth(i)).toBeFocused();
-    }
-
-    // The Show-the-thinking toggle is a native button: Enter opens, focus stays, Tab enters the chain.
-    const trigger = page.getByRole("button", { name: /Show the thinking/ });
-    await trigger.focus();
-    await expect(trigger).toBeFocused();
-    await page.keyboard.press("Enter");
-    await expect(trigger).toHaveAttribute("aria-expanded", "true");
-    await expect(trigger).toBeFocused();
-    const sourceLinks = page.locator("#show-the-thinking-panel a");
-    if ((await sourceLinks.count()) > 0) {
-      await page.keyboard.press("Tab");
-      await expect(sourceLinks.first()).toBeFocused();
-      const ring = await sourceLinks.first().evaluate((el) => {
-        const s = getComputedStyle(el);
-        return { w: s.outlineWidth, style: s.outlineStyle };
-      });
-      expect(ring).toEqual({ w: "2px", style: "solid" });
-    }
-  });
-});
+// TASK-130: the deep-dive keyboard flow retired with the §7.3 template; the one-pager's keyboard
+// contract (the evidence drawer: focus in, Tab trapped, Esc, focus return) is in case-study-system.spec.ts.

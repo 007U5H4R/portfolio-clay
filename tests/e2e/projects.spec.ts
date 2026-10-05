@@ -19,6 +19,7 @@
  * Tags carried so the tests surface under the relevant eval ids (`pnpm eval --only …`).
  */
 import { test, expect } from "./fixtures";
+import { openCaseStudy } from "./case-study-system";
 import { projects } from "@/data/projects";
 import { enterpriseCases } from "@/data/enterprise";
 
@@ -81,7 +82,7 @@ test("@EVAL-011 the carousel lists every personal build; the first is selected i
   await expect(page.getByRole("button", { name: /^(Pitch|Demo) video$/ })).toHaveCount(0);
 });
 
-test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the URL; the case-study link navigates", {
+test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the URL; the case-study link opens in a new tab", {
   tag: ["@EVAL-002", "@EVAL-011"],
 }, async ({ page }) => {
   test.skip(width(page) !== 1440, "click flow verified once at w1440");
@@ -97,9 +98,11 @@ test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the UR
   await page.goto("/projects", { waitUntil: "load" });
   const cs = page.getByRole("tabpanel").getByRole("link", { name: /Read the case study/ });
   await expect(cs).toHaveAttribute("href", `/work/${PERSONAL[0]!.slug}`);
-  await cs.click();
-  await expect(page).toHaveURL(new RegExp(`/work/${PERSONAL[0]!.slug}$`));
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(PERSONAL[0]!.name);
+  // TASK-130 (Dev-131): the case study opens in a new tab; /projects stays put.
+  const study = await openCaseStudy(page, cs);
+  await expect(study).toHaveURL(new RegExp(`/work/${PERSONAL[0]!.slug}$`));
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText(PERSONAL[0]!.name);
+  await study.close();
 });
 
 test("@EVAL-011 the deep link selects its product; an unknown one falls back to the first", { tag: "@EVAL-011" }, async ({ page }) => {

@@ -18,7 +18,6 @@ const TOLERANCE_PX = 2;
 const HOME_RATIO = 3168 / 1344;
 const OPENERS = [
   { route: "/projects", id: "scene-work" } /* TKT-101 moved the scene-work opener to /projects */,
-  { route: "/work/teachspark", id: "scene-casestudy" },
   { route: "/thinking", id: "scene-thinking" },
   { route: `/thinking/${writing[0]!.slug}`, id: "scene-thinking" },
   { route: "/about", id: "scene-about" },
