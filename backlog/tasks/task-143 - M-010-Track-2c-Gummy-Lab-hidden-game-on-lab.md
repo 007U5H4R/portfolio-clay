@@ -1,9 +1,10 @@
 ---
 id: TASK-143
 title: 'M-010 Track 2c: Gummy Lab hidden game on /lab'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 17:24'
 labels:
   - P3
 milestone: m-9
