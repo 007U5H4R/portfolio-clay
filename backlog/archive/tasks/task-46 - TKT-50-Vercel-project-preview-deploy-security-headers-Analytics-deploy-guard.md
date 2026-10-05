@@ -6,7 +6,7 @@ title: >-
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:13'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:2'
@@ -16,10 +16,6 @@ milestone: m-6
 dependencies:
   - TASK-43
   - TASK-44
-  - TASK-45
-  - TASK-22
-  - TASK-23
-  - TASK-24
 priority: high
 type: chore
 ordinal: 46000

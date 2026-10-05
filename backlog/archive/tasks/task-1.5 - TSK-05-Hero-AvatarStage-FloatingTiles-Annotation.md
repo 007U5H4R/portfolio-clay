@@ -4,14 +4,12 @@ title: 'TSK-05: Hero + AvatarStage + FloatingTiles + Annotation'
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:12'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:2'
 milestone: m-0
-dependencies:
-  - TASK-1.2
-  - TASK-1.3
+dependencies: []
 parent_task_id: TASK-1
 priority: high
 type: task

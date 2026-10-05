@@ -6,14 +6,13 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 19:10'
+updated_date: '2026-10-05 13:36'
 labels:
   - P1
   - 'sp:2'
   - seo
 milestone: m-6
-dependencies:
-  - TASK-46
+dependencies: []
 priority: high
 type: task
 ordinal: 47000

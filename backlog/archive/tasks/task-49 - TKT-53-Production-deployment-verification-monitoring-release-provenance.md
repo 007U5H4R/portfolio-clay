@@ -4,7 +4,7 @@ title: 'TKT-53: Production deployment + verification + monitoring + release prov
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:13'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:3'
@@ -13,7 +13,6 @@ labels:
 milestone: m-6
 dependencies:
   - TASK-48
-  - TASK-8
 priority: high
 type: chore
 ordinal: 49000

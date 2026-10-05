@@ -4,13 +4,12 @@ title: 'TSK-15: WorkHero + page assembly + OG + Playwright suite'
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:13'
+updated_date: '2026-10-05 13:36'
 labels:
   - P1
   - 'sp:1'
 milestone: m-3
 dependencies:
-  - TASK-16.2
   - TASK-6
 parent_task_id: TASK-16
 priority: high

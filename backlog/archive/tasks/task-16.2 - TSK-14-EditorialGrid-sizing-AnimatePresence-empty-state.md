@@ -4,13 +4,12 @@ title: 'TSK-14: EditorialGrid sizing + AnimatePresence + empty state'
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:12'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:2'
 milestone: m-3
 dependencies:
-  - TASK-16.1
   - TASK-15
 parent_task_id: TASK-16
 priority: high

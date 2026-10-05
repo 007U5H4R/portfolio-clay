@@ -4,14 +4,13 @@ title: 'TKT-15: Expand data/projects.ts to all 14 entries at card fidelity'
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-17 02:27'
+updated_date: '2026-10-05 13:36'
 labels:
   - P1
   - 'sp:3'
   - data
 milestone: m-3
 dependencies:
-  - TASK-3
   - TASK-12
 priority: high
 type: task
