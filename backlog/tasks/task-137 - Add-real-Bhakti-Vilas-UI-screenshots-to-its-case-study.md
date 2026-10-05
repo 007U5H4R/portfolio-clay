@@ -1,9 +1,10 @@
 ---
 id: TASK-137
 title: Add real Bhakti Vilas UI screenshots to its case study
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 10:30'
+updated_date: '2026-10-05 12:54'
 labels:
   - P2
 dependencies: []

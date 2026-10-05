@@ -1,11 +1,11 @@
 ---
 id: TASK-134
 title: Add opt-in Gemini TTS voice playback to Ask Tushky answers
-status: In Progress
+status: Done
 assignee:
   - '@claude-cloud'
 created_date: '2026-09-29 13:22'
-updated_date: '2026-09-29 13:30'
+updated_date: '2026-10-05 12:54'
 labels:
   - P2
   - m-009
@@ -25,5 +25,5 @@ Tushar 2026-09-29: add a Listen / Pause / Replay voice strip to each Tushky answ
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Cloud session started 2026-09-29 via claude.ai/code: Default env, portfolio-clay, cloud/task-134, Opus 5.5 High. https://claude.ai/code/session_01STVirYEr4n5BXdHBXAVKLv. The brief states that no live Gemini text path exists, the TTS route recomputes the answer, the rate limit is per-instance only (no KV) and Tushar adds GEMINI_API_KEY to Vercel himself. gemini-3.8-flash-lite-tts was verified on his key.
+Merged via PR #8 (2026-10-05 18:05) to m-009-redesign; preview only. Its CI failures were EVAL-019 + EVAL-016 (fixed by TASK-138) and informational Lighthouse LCP. Voice stays silent until GEMINI_API_KEY is set in Vercel.
 <!-- SECTION:NOTES:END -->
