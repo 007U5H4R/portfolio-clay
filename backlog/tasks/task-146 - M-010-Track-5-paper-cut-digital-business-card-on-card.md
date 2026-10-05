@@ -1,9 +1,10 @@
 ---
 id: TASK-146
 title: 'M-010 Track 5: paper-cut digital business card on /card'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 17:22'
 labels:
   - P2
 milestone: m-9
