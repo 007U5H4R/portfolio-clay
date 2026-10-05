@@ -3,11 +3,11 @@ id: TASK-136
 title: >-
   Redesign the About page as 'who Tushar is', removing résumé duplication with
   Experience
-status: In Progress
+status: In Review
 assignee:
   - '@claude-cloud'
 created_date: '2026-09-29 14:24'
-updated_date: '2026-09-29 15:07'
+updated_date: '2026-10-05 12:54'
 labels:
   - P1
   - m-009
@@ -27,5 +27,5 @@ Tushar 2026-09-29: rebuild About from his approved reference: hero collage, Thre
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Cloud session started on the 3rd attempt (after two 'Overloaded' failures): https://claude.ai/code/session_01JQDsS6oaQpKFCedaT7CP7E (Default / portfolio-clay / cloud/task-136, Opus 5.5 High).
+Work complete on origin/cloud/task-136 (report docs/reports/TASK-136.md); no PR yet, not merged. Awaiting Tushar's review.
 <!-- SECTION:NOTES:END -->
