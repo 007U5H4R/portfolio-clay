@@ -30,6 +30,7 @@ export function AskAIButton() {
       type="button"
       aria-label="Ask AI"
       aria-haspopup="dialog"
+      data-cursor="WOOF 🐾"
       aria-expanded={panelOpen}
       className="header-ask focus-ring"
       onClick={onClick}

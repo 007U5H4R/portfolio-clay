@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
+import { themeInitScript } from "@/lib/theme";
 import { knowledge } from "@/data/knowledge";
 import faqData from "@/data/tushky/faq.json";
 import type { FaqEntry } from "@/lib/ask/faq";
@@ -14,6 +15,7 @@ import { Header } from "@/components/navigation/Header";
 import { BandFooter } from "@/components/layout/BandFooter";
 import { AskProvider } from "@/components/ai/AskProvider";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
+import { PaperCursorGate } from "@/components/cursor/PaperCursorGate";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
 // plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
@@ -73,7 +75,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}
+      // The pre-paint script below sets data-theme before first paint; React never writes it (S25), so
+      // the only server/client difference is this one attribute on <html> — nowhere else.
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Theme pre-paint (Design.md §13.2, S25): first child of <head>, ahead of every stylesheet. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         {/*
           AskProvider is hoisted here (from app/page.tsx, TKT-10) so the deterministic Ask provider
@@ -83,6 +95,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
         <SmoothScroll />
+        {/* Paper Trail cursor (S29, TASK-142): fine pointers only, lazy chunk after load. */}
+        <PaperCursorGate />
         <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
           <SkipLink />
           <Header />

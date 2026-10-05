@@ -4,6 +4,7 @@ import { Annotation } from "@/components/paper";
 import { MediaGate } from "@/components/paper/MediaGate";
 import { site } from "@/lib/site";
 import { AskAIButton } from "./AskAIButton";
+import { ThemeToggle } from "./ThemeToggle";
 import { HeaderScroll } from "./HeaderScroll";
 import { Monogram } from "./Monogram";
 import { PrimaryNav } from "./PrimaryNav";
@@ -55,6 +56,7 @@ export function Header() {
             <span aria-hidden="true">→</span>
           </Link>
           <AskAIButton />
+          <ThemeToggle />
         </div>
       </Container>
     </header>

@@ -6,11 +6,11 @@
  *
  *   no video          — default · reduced motion · touch (the w390 project) · Save-Data: 0 `<video>` inside
  *                       `.hero-banner` after hydration, 0 `[data-hero-clip]`, and the banner `<img>` is visible.
- *   SSR               — `request.get("/")`: exactly one banner `<img>` in the static HTML with
+ *   SSR               — `request.get("/")`: exactly one light banner `<img>` (plus its lazy dark twin) in the static HTML with
  *                       fetchpriority="high", loading="eager", 3168×1344, `sizes="100vw"` and the manifest alt
  *                       (once in the markup); 0 `<video` in the hero; 0 `data-hero-clip`.
- *   one hero image    — exactly one hero banner image is fetched before the load event (the dark twin, being
- *                       absent from the markup, is never requested).
+ *   one hero image    — exactly one hero banner image is fetched before the load event (the dark twin is in
+ *                       the markup, lazy and display:none, and is only warmed after idle — TASK-141, S23/EV9).
  *   intro poster      — kept verbatim from TASK-138: the intro print's `<img class="pf-stage-poster">` is
  *                       `loading="lazy"` and never `fetchpriority="high"`.
  *   files             — 0 `hero-animation.*` and no clip mask under `public/`; every banner rendition
@@ -66,7 +66,7 @@ async function expectStill(page: Page, mode: string) {
   note("eval-019", `${mode} @${width(page)}: ${videos} <video> in the hero, ${clipHooks} [data-hero-clip]`);
   expect(videos, `${mode}: no <video> in the hero`).toBe(0);
   expect(clipHooks, `${mode}: no [data-hero-clip]`).toBe(0);
-  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
+  await expect(page.getByAltText(BANNER.alt).filter({ visible: true })).toHaveCount(1);
 }
 
 // ---------------------------------------------------------------------------
@@ -116,8 +116,17 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
   expect(markupOnly, "no clip hook in the SSR HTML").not.toContain("data-hero-clip");
 
   const imgTags = markupOnly.match(/<img\b[^>]*>/g) ?? [];
-  const banners = imgTags.filter((tag) => tag.includes("hero-banner"));
-  expect(banners, "exactly one banner <img>").toHaveLength(1);
+  const bannerTags = imgTags.filter((tag) => tag.includes("hero-banner"));
+  // TASK-141 (S23/EV9): the markup carries the active (light) banner plus its matched dark twin — the twin lazy,
+  // never high-priority, hidden by `[data-theme]` CSS — so exactly one of each, never two of either.
+  const banners = bannerTags.filter((tag) => !tag.includes("hero-banner-dark"));
+  const darkTwins = bannerTags.filter((tag) => tag.includes("hero-banner-dark"));
+  expect(banners, "exactly one light banner <img>").toHaveLength(1);
+  expect(darkTwins, "exactly one dark twin <img>").toHaveLength(1);
+  expect(darkTwins[0], "the dark twin is lazy").toMatch(/\bloading="lazy"/);
+  expect(darkTwins[0], "the dark twin is never a high-priority candidate").not.toMatch(/\bfetchpriority="high"/i);
+  // the hook sits on the <picture> (narrow art direction) that wraps each twin's <img>
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="dark"/);
   const banner = banners[0]!;
   // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML attribute
   // names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM check below
@@ -127,11 +136,13 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
   expect(banner).toMatch(/\bwidth="3168"/);
   expect(banner).toMatch(/\bheight="1344"/);
   expect(banner).toMatch(/\bsizes="100vw"/);
-  expect(banner, "the dark twin is not in the markup until the theme wiring lands").not.toContain("hero-banner-dark");
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="light"/);
   const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
   const alt = /\balt="([^"]*)"/.exec(banner)?.[1] ?? "";
   expect(alt).toBe(escape(BANNER.alt));
-  expect(markupOnly.split(escape(BANNER.alt)).length - 1, "alt string once in the rendered markup").toBe(1);
+  // One alt per twin in the markup; only the active twin is rendered (the other is display:none — removed from
+  // the accessibility tree), so a screen reader hears it once (checked live below).
+  expect(markupOnly.split(escape(BANNER.alt)).length - 1, "alt string once per twin in the rendered markup").toBe(2);
 
   // Intro-video rule (TASK-138), kept verbatim: its poster is lazy and never a high-priority candidate.
   for (const tag of imgTags.filter((t) => /\bclass="[^"]*pf-stage-poster/.test(t))) {
@@ -141,7 +152,8 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
 
   // Live DOM at w1440: the parsed attribute + the LCP-relevant IDL property.
   await page.goto("/", { waitUntil: "load" });
-  const img = page.getByAltText(BANNER.alt);
+  const img = page.getByAltText(BANNER.alt).filter({ visible: true });
+  await expect(img).toHaveCount(1);
   await expect(img).toHaveAttribute("fetchpriority", "high");
   expect(await img.evaluate((el: HTMLImageElement) => el.fetchPriority)).toBe("high");
   await expect(img).toHaveAttribute("loading", "eager");
@@ -150,17 +162,25 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
 // ---------------------------------------------------------------------------
 // One hero image fetched before the load event; the inactive (dark) twin is never requested.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 exactly one hero banner image is fetched, and never the dark twin", async ({ page }) => {
+test("@EVAL-019 exactly one hero banner image is fetched before load; the dark twin is warmed only after idle", async ({ page }) => {
   skipUnmeasured(page);
-  const urls = new Set<string>();
+  const before = new Set<string>();
+  let loaded = false;
+  const all = new Set<string>();
   page.on("request", (req) => {
-    if (req.url().includes("hero-banner")) urls.add(req.url());
+    if (!req.url().includes("hero-banner")) return;
+    all.add(req.url());
+    if (!loaded) before.add(req.url());
+  });
+  page.on("load", () => {
+    loaded = true;
   });
   await page.goto("/", { waitUntil: "load" });
-  await page.waitForTimeout(500);
-  note("eval-019", `hero banner requests @${width(page)}: ${[...urls].join(" | ")}`);
-  expect(urls.size, "one hero banner URL requested").toBe(1);
-  expect([...urls].some((u) => u.includes("dark")), "the dark twin is not fetched").toBe(false);
+  note("eval-019", `hero banner requests before load @${width(page)}: ${[...before].join(" | ")}`);
+  expect(before.size, "one hero banner URL requested before load").toBe(1);
+  expect([...before].some((u) => u.includes("dark")), "the dark twin is not fetched before load").toBe(false);
+  // dark-mode.md §44: after the page is idle the opposite-theme twin is preloaded, so the first switch is instant.
+  await expect.poll(() => [...all].some((u) => u.includes("dark")), { timeout: 8000, message: "the dark twin is warmed after idle" }).toBe(true);
 });
 
 // ---------------------------------------------------------------------------

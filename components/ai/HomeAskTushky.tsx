@@ -28,7 +28,7 @@ const MASCOT = illustration("tushky-paws");
  */
 export function HomeAskTushky() {
   return (
-    <section id="ask" aria-labelledby="ask-heading" className="ask-section hat">
+    <section id="ask" aria-labelledby="ask-heading" className="ask-section hat" data-cursor-theme="tushky">
       <TornEdge fill="paper-2" />
       <div className="ask-section-body hat-body">
         <TushkyCollage />

@@ -3,10 +3,10 @@ id: TASK-146.1
 title: >-
   T5.1 Generate the card art: paper-fiber textures, sailboat cut-out, reference
   renders (local, Higgsfield)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-05 17:22'
-updated_date: '2026-10-05 17:23'
+updated_date: '2026-10-05 17:27'
 labels:
   - P1
 dependencies: []

@@ -228,8 +228,8 @@ for (const target of [1024, 1280, 1440]) {
         return { count: boxes.length, overlaps, outside, squeezed, minGap };
       });
       const where = `${route} @ ${target}`;
-      // TASK-112: brand + every nav tab + pill + Ask at every width (no menu button).
-      expect(report.count, `${where}: brand + every nav item + pill + Ask visible`).toBe(3 + navItems.length);
+      // TASK-112: brand + every nav tab + pill + Ask at every width (no menu button); TASK-141 adds the theme switch.
+      expect(report.count, `${where}: brand + every nav item + pill + Ask + theme switch visible`).toBe(4 + navItems.length);
       expect(report.overlaps, `${where}: overlapping header controls`).toEqual([]);
       expect(report.outside, `${where}: controls outside the header`).toEqual([]);
       expect(report.squeezed, `${where}: a control squeezed below its content`).toEqual([]);

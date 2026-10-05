@@ -1,9 +1,10 @@
 ---
 id: TASK-141.6
 title: 'T2.6 Theme-aware art swap, opposite-theme preload, theme transitions'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 17:47'
 labels:
   - P2
 dependencies: []

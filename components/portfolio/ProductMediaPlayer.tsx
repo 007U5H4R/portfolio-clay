@@ -116,7 +116,7 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
   const showFrame = (state === "loading" || state === "ready") && src;
 
   return (
-    <div {...rest} data-player-state={state} data-provider={media.provider}>
+    <div {...rest} data-no-trail="" data-player-state={state} data-provider={media.provider}>
       {showFrame ? (
         <iframe
           ref={frameRef}

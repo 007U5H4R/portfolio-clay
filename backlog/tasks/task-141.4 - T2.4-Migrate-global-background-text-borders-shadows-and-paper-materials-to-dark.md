@@ -3,10 +3,10 @@ id: TASK-141.4
 title: >-
   T2.4 Migrate global background, text, borders, shadows and paper materials to
   dark
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
-updated_date: '2026-10-05 15:57'
+updated_date: '2026-10-05 17:47'
 labels:
   - P1
 dependencies: []
