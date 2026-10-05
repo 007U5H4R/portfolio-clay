@@ -197,6 +197,34 @@ Where it knowingly differs:
 8. **The old About CTA** ("Let's build what's next.", the résumé control, "Designed and built with Claude Code.") is removed, as spec §35 asks. The band footer still carries "Built with curiosity, chai & Claude Code." Is TP10's exact wording still needed anywhere?
 9. **The `/work` disclosure.** The role details sit in a closed "Scope & outcomes" disclosure so the approved cards stay compact. Should they be open by default, or folded into the bullets instead?
 
+## After the merge with `m-009-redesign` (2026-10-05)
+
+Tushar asked for the merge (and a push and deploy) after the report above, so the sync from note 1 is now
+done: `6805a42` merges `origin/m-009-redesign` (PR #4 Featured Work fidelity pass, PR #5 CI eval limits).
+One conflict: both branches added **Dev-128** to Design.md §11. TASK-133 keeps Dev-128; the About rebuild
+is now **Dev-129** (Design.md, the TASK-136 CSS block comment and this report updated).
+
+Gates on the merged tree:
+
+| Gate | Result |
+|---|---|
+| typecheck · lint · tokens:check | pass · pass · 13/13 |
+| `pnpm test` | 66 files passed, 1 skipped · 716 passed, 4 skipped |
+| `pnpm build` | pass, all routes static (17) |
+| `pnpm test:e2e` (4 widths, `PW_WORKERS=2`) | 1,327 passed · 9 failed · 1,552 skipped |
+
+The 9 failures: the 7 container-environment ones listed above (external 403s, no YouTube, no ffmpeg),
+plus `home-ask-tushky.spec.ts:118` ("✦ Ask Tushky" CTA opens the drawer…) at w1024 and w1440. Re-run
+alone ×3 it fails 4/6 here; on a clean worktree of `origin/m-009-redesign` it also fails 2/6 (a click
+timeout / the drawer stuck in `data-closing`). This branch does not touch Home or the Ask drawer, so it is
+an upstream intermittent, not this task's — it needs its own look.
+
+**Deploy.** Vercel's GitHub integration built the Preview for `6805a42`:
+https://portfolio-clay-hs2gmkpoz-tushar-49a6.vercel.app (status: success). No production deploy was made:
+production comes from `main`, which is not part of this branch, and the release is still blocked by the
+PB4 gate in `scripts/predeploy-check.ts` (it needs the case-study MP4s at `VERCEL_ENV=production`;
+HANDOFF.md). There is no Vercel CLI or token in this session.
+
 ## Commits
 
 - `a1828ba` docs: add Tushar's About redesign spec, reference and cloud brief (TASK-136) — the base (brief) commit, not this session’s
@@ -209,4 +237,6 @@ Where it knowingly differs:
 - `6b8467e` docs(about): before/after screenshots of /about and /work at 390, 768, 1440 (TASK-136)
 - `03a2652` fix(about): lift About's small text to the 14 px content floor (TASK-136)
 - `c910af3` docs(about): refresh the /about after screenshots and reference comparison (TASK-136)
-- (this report) `docs(reports): TASK-136 report — About rebuild, the Experience split, gates, open questions`
+- `60d07ef` docs(reports): TASK-136 report — About rebuild, the Experience split, gates, open questions
+- `6805a42` Merge origin/m-009-redesign into cloud/task-136 (TASK-136)
+- (this commit) `docs(reports): record the post-merge gates and the preview deploy (TASK-136)`
