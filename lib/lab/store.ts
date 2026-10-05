@@ -47,6 +47,8 @@ export interface LabSnapshot {
   toasts: Toast[];
   /** Bumped on every new run so scene parts can key off it. */
   runId: number;
+  /** Bumped whenever pickups spawn, expire or are collected (the scene re-reads the spawner). */
+  pickupsVersion: number;
 }
 
 export interface LabStore extends LabSnapshot {
@@ -75,6 +77,7 @@ const initial = (): Omit<LabSnapshot, "state"> => ({
   summary: null,
   toasts: [],
   runId: 0,
+  pickupsVersion: 0,
 });
 
 /** One store per lab mount (never shared across enter/exit cycles: no leaked state). */

@@ -1,5 +1,5 @@
-import { Color, MeshPhysicalMaterial, MeshStandardMaterial, ShaderMaterial, Vector3, type IUniform, type WebGLProgramParametersWithUniforms } from "three";
-import type { CandyPalette, RGB } from "@/lib/lab/tokens";
+import { Color, MeshPhysicalMaterial, SRGBColorSpace, MeshStandardMaterial, ShaderMaterial, Vector3, type IUniform, type WebGLProgramParametersWithUniforms } from "three";
+import { mix, type CandyPalette, type RGB } from "@/lib/lab/tokens";
 import type { TierConfig } from "@/lib/lab/tiers";
 
 /**
@@ -9,7 +9,8 @@ import type { TierConfig } from "@/lib/lab/tiers";
  * literals. High tier uses real `transmission`; lower tiers keep the same translucent look with
  * opacity + clearcoat + the shader glow, which is far cheaper on phones.
  */
-export const col = (c: RGB) => new Color(c[0], c[1], c[2]);
+/** Palette values are sRGB (read from CSS); convert into three's linear working space. */
+export const col = (c: RGB) => new Color().setRGB(c[0], c[1], c[2], SRGBColorSpace);
 
 export interface GummyUniforms {
   uTime: IUniform<number>;
@@ -24,7 +25,7 @@ export interface GummyUniforms {
 }
 
 export function createGummyMaterial(palette: CandyPalette, tier: TierConfig) {
-  const body = col(palette.orange);
+  const body = col(mix(palette.orange, palette.peach, 0.12));
   const uniforms: GummyUniforms = {
     uTime: { value: 0 },
     uJelly: { value: 0 },
@@ -47,12 +48,12 @@ export function createGummyMaterial(palette: CandyPalette, tier: TierConfig) {
     sheen: 0.4,
     sheenColor: col(palette.peach),
     attenuationColor: col(palette.jelly),
-    attenuationDistance: 1.3,
-    thickness: 0.9,
+    attenuationDistance: 0.9,
+    thickness: 1.1,
     envMapIntensity: 1.1,
   });
   if (tier.transmission) {
-    material.transmission = 0.62;
+    material.transmission = 0.42;
   } else {
     material.transparent = true;
     material.opacity = 0.9;
@@ -178,7 +179,7 @@ export function createLiquidMaterial(palette: CandyPalette) {
         float streak = smoothstep(0.92, 1.0, sin(vUv.x * 18.0 + uTime * 0.8 + depth * 5.0) * 0.5 + 0.5) * 0.18;
         float surface = smoothstep(0.86, 1.0, vUv.y);
         c += uGlow * (surface * 0.55 + streak) + uGlow * uDanger * 0.35 * (0.6 + 0.4 * sin(uTime * 8.0));
-        float a = mix(0.5, 0.82, depth) + surface * 0.1;
+        float a = mix(0.34, 0.74, depth) + surface * 0.12;
         gl_FragColor = vec4(c, a);
         #include <colorspace_fragment>
       }`,

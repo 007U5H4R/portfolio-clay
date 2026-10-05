@@ -23,7 +23,7 @@ export function Stage() {
     const room = new RoomEnvironment();
     const target = pmrem.fromScene(room, 0.04);
     scene.environment = target.texture;
-    scene.environmentIntensity = palette.isDark ? 0.5 : 0.8;
+    scene.environmentIntensity = palette.isDark ? 0.4 : 0.45;
     return () => {
       scene.environment = null;
       target.dispose();
@@ -35,14 +35,14 @@ export function Stage() {
   const backdrop = useMemo(() => {
     const geometry = new PlaneGeometry(90, 70);
     const material = new ShaderMaterial({
-      uniforms: { uTop: { value: col(palette.top) }, uBottom: { value: col(palette.bottom) }, uGlow: { value: col(palette.peach) }, uTp: { value: 0 } },
+      uniforms: { uTop: { value: col(palette.top) }, uBottom: { value: col(palette.bottom) }, uGlow: { value: col(palette.glow) }, uGlowAmt: { value: palette.isDark ? 0.1 : 0.18 }, uTp: { value: 0 } },
       vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: /* glsl */ `
-        uniform vec3 uTop; uniform vec3 uBottom; uniform vec3 uGlow; uniform float uTp; varying vec2 vUv;
+        uniform vec3 uTop; uniform vec3 uBottom; uniform vec3 uGlow; uniform float uGlowAmt; uniform float uTp; varying vec2 vUv;
         void main(){
           vec3 c = mix(uBottom, uTop, smoothstep(0.1, 0.9, vUv.y));
           float v = distance(vUv, vec2(0.5, 0.55));
-          c = mix(c, uGlow, (1.0 - smoothstep(0.0, 0.55, v)) * 0.18 + uTp * 0.18);
+          c = mix(c, uGlow, (1.0 - smoothstep(0.0, 0.55, v)) * uGlowAmt + uTp * 0.18);
           c *= 1.0 - smoothstep(0.45, 0.95, v) * 0.1;
           gl_FragColor = vec4(c, 1.0);
           #include <colorspace_fragment>
@@ -99,10 +99,10 @@ export function Stage() {
       {orbs.items.map((o, i) => (
         <mesh key={i} ref={(m) => void (orbRefs.current[i] = m)} geometry={orbs.geo} material={o.mat} position={[o.x, o.y, o.z]} scale={o.r} />
       ))}
-      <ambientLight intensity={palette.isDark ? 0.25 : 0.4} color={col(palette.cream)} />
-      <directionalLight position={[-6, 9, 7]} intensity={palette.isDark ? 1.6 : 2.4} color={col(palette.cream)} />
-      <directionalLight position={[6, 2.5, 6]} intensity={0.8} color={col(palette.peach)} />
-      <directionalLight position={[0, 5, -6]} intensity={1.2} color={col(palette.pink)} />
+      <ambientLight intensity={palette.isDark ? 0.2 : 0.22} color={col(palette.cream)} />
+      <directionalLight position={[-6, 9, 7]} intensity={palette.isDark ? 1.3 : 1.5} color={col(palette.cream)} />
+      <directionalLight position={[6, 2.5, 6]} intensity={0.5} color={col(palette.peach)} />
+      <directionalLight position={[0, 5, -6]} intensity={0.8} color={col(palette.pink)} />
     </>
   );
 }

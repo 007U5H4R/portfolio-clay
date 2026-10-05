@@ -65,10 +65,10 @@ export interface ArenaSpec {
 
 export const FLOOR_Y = -5;
 export const CEILING_Y = 6.3;
-export const DANGER_TOP_REST = -4.35;
+export const DANGER_TOP_REST = -4.5;
 
 export function portraitHalfWidth(aspect: number): number {
-  return aspect < 0.9 ? 3 : 5;
+  return aspect < 0.9 ? 2.7 : 5;
 }
 
 export function buildArena(halfW: number, simplified = false): ArenaSpec {
@@ -108,10 +108,9 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
     { x: fx(-0.3), y: -3.8 },
     { x: fx(0.35), y: -3.9 },
     { x: fx(0.7), y: 3.7 },
-    { x: fx(-0.55), y: 5.3 },
     { x: fx(0.0), y: 0.2 },
     { x: fx(0.75), y: -1.9 },
-    { x: fx(-0.1), y: 5.4 },
+    { x: fx(-0.15), y: 5.3 },
   ];
   return {
     halfW: hw,

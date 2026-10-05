@@ -44,6 +44,8 @@ export interface CandyPalette {
   face: RGB;
   top: RGB;
   bottom: RGB;
+  /** The soft centre light behind the bear. */
+  glow: RGB;
   gold: RGB;
   isDark: boolean;
 }
@@ -61,10 +63,10 @@ export function readPalette(): CandyPalette {
   const terracotta = readToken("--color-terracotta");
   const isDark = luminance(paper) < 0.3;
   const lift = (c: RGB, t: number) => mix(c, isDark ? [0.2, 0.16, 0.26] : [1, 1, 1], t);
-  const orange = mix(rust, note, isDark ? 0.1 : 0.12);
+  const orange = isDark ? mix(rust, [1, 0.85, 0.7], 0.14) : mix(rust, note, 0.34);
   return {
     cream: mix(ivory, kraft, isDark ? 0.1 : 0.22),
-    peach: lift(mix(rust, kraft, 0.45), isDark ? 0 : 0.1),
+    peach: isDark ? mix(rust, [1, 0.85, 0.7], 0.4) : lift(mix(rust, kraft, 0.45), 0.1),
     pink: lift(mix(rust, steel, 0.22), isDark ? 0 : 0.34),
     orange,
     cyan: lift(mix(steel, green, 0.45), isDark ? 0 : 0.22),
@@ -72,8 +74,9 @@ export function readPalette(): CandyPalette {
     jelly: mix(rust, terracotta, isDark ? 0 : 0.35),
     ink: navy,
     face: mix(luminance(paper) < luminance(navy) ? paper : navy, rust, 0.18),
-    top: isDark ? mix(paper, rust, 0.12) : mix(ivory, kraft, 0.3),
-    bottom: isDark ? mix(paper, terracotta, 0.3) : mix(ivory, rust, 0.34),
+    top: isDark ? mix(paper, steel, 0.16) : mix(ivory, kraft, 0.22),
+    bottom: isDark ? mix(paper, rust, 0.09) : mix(ivory, rust, 0.22),
+    glow: isDark ? mix(steel, rust, 0.3) : mix(rust, kraft, 0.45),
     gold: mix(note, rust, isDark ? 0.2 : 0.18),
     isDark,
   };

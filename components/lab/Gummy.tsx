@@ -5,6 +5,7 @@ import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { ConvexHullCollider, CuboidCollider, RigidBody, useRapier, type RapierRigidBody } from "@react-three/rapier";
 import {
   CanvasTexture,
+  SRGBColorSpace,
   CircleGeometry,
   Group,
   Mesh,
@@ -89,7 +90,9 @@ function blobTexture(color: [number, number, number]) {
   grad.addColorStop(1, `color(srgb ${color[0]} ${color[1]} ${color[2]} / 0)`);
   g.fillStyle = grad;
   g.fillRect(0, 0, 64, 64);
-  return new CanvasTexture(c);
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  return tex;
 }
 
 class GummyBoundary extends Component<{ onFail: () => void; fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -150,7 +153,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     return buildFallback(material, faceMat);
   }, [model, material, faceMat]);
   const shadowMat = useMemo(() => {
-    const m = new MeshBasicMaterial({ map: blobTexture(rt.palette.ink), transparent: true, depthWrite: false });
+    const m = new MeshBasicMaterial({ map: blobTexture(rt.palette.face), transparent: true, depthWrite: false });
     return m;
   }, [rt]);
   const shadowGeo = useMemo(() => new CircleGeometry(0.55, 24), []);
@@ -228,7 +231,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         ty = spawn.y + Math.sin(rt.time * 3) * 0.06;
         ts = 1;
       } else if (parkedKind === "results") {
-        ts = 1.45;
+        ts = rt.resultsScale;
       } else if (parkedKind === "exit") {
         tx = b.x;
         ty = b.y;

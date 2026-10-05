@@ -1,6 +1,9 @@
 import { createContext, useContext } from "react";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
+import type { AudioManager } from "@/lib/lab/audio";
+import type { GameEngine } from "@/lib/lab/engine";
+import type { Spawner } from "@/lib/lab/spawner";
 import type { GummyPhysicsState } from "@/lib/lab/gummy-state";
 import type { Jelly } from "@/lib/lab/jelly";
 import type { ParticlePool } from "@/lib/lab/particles";
@@ -40,6 +43,8 @@ export interface EnvKnobs {
   dangerRise: number;
   /** Disappearing platforms active. */
   vanish: boolean;
+  /** Bounce-pad sideways drift in [-1, 1] (phase ≥ 3). */
+  padShift: number;
   /** Visual power-up/mode flags. */
   rainbow: number;
   gold: number;
@@ -72,6 +77,11 @@ export interface LabRuntime {
   reducedMotion: boolean;
   arena: ArenaSpec;
   store: LabStoreApi;
+  engine: GameEngine;
+  audio: AudioManager;
+  spawner: Spawner;
+  /** Asks the shell to leave the lab (portal / button / ESC) with the exit animation. */
+  requestExit(via: "portal" | "button"): void;
   jelly: Jelly;
   particles: ParticlePool;
   bear: BearKinematics;
@@ -86,6 +96,10 @@ export interface LabRuntime {
   zoom: number;
   /** 0 = intro framing, 1 = play framing; eased by the camera rig. */
   introBlend: number;
+  /** World (z = 0) → canvas CSS pixels, for DOM overlays and tests. Set by the camera rig. */
+  project(x: number, y: number): { x: number; y: number };
+  /** World scale of the bear on the results screen (set by the camera so it clears the card). */
+  resultsScale: number;
   /** Melt (game over) progress 0–1 and reform progress 0–1. */
   melt: number;
   reform: number;
@@ -127,7 +141,7 @@ export function createBear(): BearKinematics {
 }
 
 export function createEnv(): EnvKnobs {
-  return { phase: 0, motion: 0, gravityMul: 1, windX: 0, dangerRise: 0, vanish: false, rainbow: 0, gold: 0, lowGravity: 0, tpGlow: 0 };
+  return { phase: 0, motion: 0, gravityMul: 1, windX: 0, dangerRise: 0, vanish: false, padShift: 0, rainbow: 0, gold: 0, lowGravity: 0, tpGlow: 0 };
 }
 
 export const noopHooks: LabHooks = {

@@ -10,6 +10,7 @@ import { stopSmoothScroll } from "@/lib/smooth-scroll";
 import { playExit, settleOverlay } from "@/components/easter-egg/transition";
 import { createRuntime } from "./create-runtime";
 import { createFxHooks } from "./fx";
+import { CenterText, Chrome, Hint, Hud, Intro, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
 import type { LabRuntime } from "./runtime";
 import { webglAvailable } from "./webgl";
@@ -61,6 +62,9 @@ export default function LabApp() {
     },
     [router, store, runtime, mode],
   );
+  useEffect(() => {
+    if (runtime) runtime.requestExit = exit;
+  }, [runtime, exit]);
 
   // Cover and silence the portfolio underneath; restore everything on unmount.
   useEffect(() => {
@@ -77,61 +81,110 @@ export default function LabApp() {
       chrome.forEach((el) => el.removeAttribute("inert"));
       html.style.overflow = prevOverflow;
       releaseScroll();
+      runtime?.audio.dispose();
     };
-  }, []);
+  }, [runtime]);
+
+  // Discovery → intro: the visitor arrived (CURIOUS MIND), then the bear is ready.
+  const asset = store((s) => s.assetStatus);
+  useEffect(() => {
+    if (!runtime) return;
+    store.getState().send("DISCOVER");
+    runtime.engine.discover();
+  }, [runtime, store]);
+  useEffect(() => {
+    if (!runtime || asset === "loading") return;
+    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), 500);
+    return () => window.clearTimeout(t);
+  }, [runtime, store, asset]);
+  useEffect(() => {
+    if (!runtime) return;
+    // Never strand the visitor behind a stalled asset: show the intro after a while regardless.
+    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), 9000);
+    return () => window.clearTimeout(t);
+  }, [runtime, store]);
+
+  const startRun = useCallback(
+    (event: "PLAY" | "REPLAY") => {
+      const s = store.getState();
+      const next = s.send(event);
+      if (next !== "COUNTDOWN" || !runtime) return;
+      runtime.engine.beginRun();
+      runtime.jelly.reset();
+      runtime.melt = 0;
+      runtime.reform = 0;
+      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], tpMode: false, banner: null, hint: null, summary: null });
+    },
+    [store, runtime],
+  );
+
+  const togglePause = useCallback(() => {
+    const s = store.getState();
+    if (s.state === "PAUSED") s.send("RESUME");
+    else if (s.machine.running) s.send("PAUSE");
+  }, [store]);
+
+  const toggleMute = useCallback(() => {
+    if (!runtime) return;
+    const muted = runtime.audio.setMuted(!runtime.audio.muted);
+    store.getState().patch({ muted });
+  }, [runtime, store]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         exit("button");
+      } else if ((e.key === "p" || e.key === "P") && !e.repeat) {
+        togglePause();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [exit]);
+  }, [exit, togglePause]);
 
   const state = store((s) => s.state);
-  // Interim flow (replaced by the full intro/countdown/engine in TASK-143.4).
-  useEffect(() => {
-    if (mode !== "canvas") return;
-    store.getState().send("DISCOVER");
-    store.getState().send("INTRO_READY");
-  }, [mode, store]);
-  const play = () => {
-    const s = store.getState();
-    s.send("PLAY");
-    window.setTimeout(() => store.getState().send("COUNTDOWN_DONE"), 1400);
-  };
-  const asset = store((s) => s.assetStatus);
+  const tp = store((s) => s.tpMode);
+  const running = state === "PLAYING" || state === "DANGER" || state === "PAUSED" || state === "COUNTDOWN";
 
   return (
-    <div className={styles.root} data-lab={mode} data-lab-state={state} data-lab-asset={asset} data-lab-path={LAB_PATH} data-lenis-prevent="">
+    <div
+      className={styles.root}
+      data-lab={mode}
+      data-lab-state={state}
+      data-lab-asset={asset}
+      data-lab-path={LAB_PATH}
+      data-theme-mode={tp ? "tp" : undefined}
+      data-lenis-prevent=""
+    >
       {mode === "canvas" && runtime ? (
-        <div className={styles.canvasWrap} data-lab-canvas="">
+        <div className={styles.canvasWrap} data-lab-canvas="" role="group" aria-label="Gummy Lab play field">
           <GameScene runtime={runtime} />
         </div>
       ) : null}
-      <div className={styles.chrome}>
-        <Link
-          className={styles.back}
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            exit("button");
-          }}
-        >
-          <span aria-hidden="true">←</span> Back to Portfolio
-        </Link>
-      </div>
-      {state === "INTRO" ? (
-        <div className={styles.screen}>
-          <button type="button" className={styles.play} onClick={play}>
-            Let&apos;s play →
-          </button>
+      {mode === "canvas" ? <Chrome store={store} onExit={() => exit("button")} onMute={toggleMute} /> : (
+        <div className={styles.chrome}>
+          <Link className={styles.back} href="/" onClick={(e) => { e.preventDefault(); exit("button"); }}>
+            <span aria-hidden="true">←</span> Back to Portfolio
+          </Link>
         </div>
-      ) : null}
-      {mode === "fallback" ? <Fallback onBack={() => exit("button")} /> : null}
+      )}
+      {mode === "canvas" ? (
+        <>
+          {running ? <Hud store={store} onPause={togglePause} /> : null}
+          <CenterText store={store} />
+          <PowerChips store={store} />
+          <TpEmblem store={store} />
+          <Hint store={store} />
+          <Toasts store={store} />
+          {state === "DISCOVERED" ? <p className={styles.loading} role="status">Warming up the Gummy Lab…</p> : null}
+          {state === "INTRO" ? <Intro onPlay={() => startRun("PLAY")} /> : null}
+          {state === "PAUSED" ? <PauseCard onResume={togglePause} onExit={() => exit("button")} /> : null}
+          {state === "RESULTS" ? <Results store={store} onReplay={() => startRun("REPLAY")} onExit={() => exit("button")} /> : null}
+        </>
+      ) : (
+        <Fallback onBack={() => exit("button")} />
+      )}
     </div>
   );
 }

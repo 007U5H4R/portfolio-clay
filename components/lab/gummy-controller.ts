@@ -12,6 +12,7 @@ import {
   tapKick,
   type PointerSample,
 } from "@/lib/lab/controls";
+import { SUPER_SQUISH_MULTIPLIER } from "@/lib/lab/engine";
 import type { LabRuntime } from "./runtime";
 
 /**
@@ -163,14 +164,14 @@ export class GummyController {
         this.rt.hooks.flick();
       }
     } else if (mode === "squish") {
-      const mul = this.rt.superSquish ? 2.1 : 1;
+      const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
       const v = rb.linvel();
       rb.setLinvel({ x: v.x * 0.3, y: bounceSpeed(b.charge, mul), z: 0 }, true);
       b.sinceBounce = 0;
       this.rt.jelly.impact(0, 1, 8 + 12 * b.charge);
       this.rt.hooks.squish(b.charge, this.rt.superSquish);
     } else if (mode === "pending" && isTap(held, this.movedPx)) {
-      const mul = this.rt.superSquish ? 2.1 : 1;
+      const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
       const k = tapKick(this.world.x - b.x, mul);
       const v = rb.linvel();
       rb.setLinvel({ x: v.x * 0.5 + k.x, y: Math.max(v.y, 0) * 0.3 + k.y, z: 0 }, true);
@@ -206,7 +207,7 @@ export class GummyController {
     const rb = this.rt.bearBody.current;
     if (!rb || this.keyCooldown > 0) return;
     this.keyCooldown = 0.38;
-    const mul = this.rt.superSquish ? 2.1 : 1;
+    const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
     const v = rb.linvel();
     rb.setLinvel({ x: v.x * 0.6, y: Math.max(v.y * 0.2, 0) + TAP_BOUNCE_SPEED * 1.15 * mul, z: 0 }, true);
     this.rt.bear.sinceBounce = 0;

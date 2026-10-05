@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "three";
+import { PerspectiveCamera, Vector3 } from "three";
 import { useRuntime } from "./runtime";
 
 /**
@@ -23,6 +24,14 @@ export function fitDistance(aspect: number, halfW: number, height: number, margi
 export function CameraRig() {
   const rt = useRuntime();
   const { camera, size } = useThree();
+  const focus = useRef(0.62);
+  useEffect(() => {
+    const v = new Vector3();
+    rt.project = (x, y) => {
+      v.set(x, y, 0).project(camera);
+      return { x: ((v.x + 1) / 2) * size.width, y: ((1 - v.y) / 2) * size.height };
+    };
+  }, [rt, camera, size]);
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30);
     const cam = camera as PerspectiveCamera;
@@ -30,16 +39,20 @@ export function CameraRig() {
     const { arena } = rt;
     const h = arena.ceilingY - arena.floorY + 0.8;
     const play = fitDistance(aspect, arena.halfW, h);
-    // intro: close on the large bear
-    const introDist = Math.max(((3.8) / 2) / TAN, (2.2 / (TAN * aspect)));
-    const target = rt.store.getState().machine.state;
-    const wantPlay = target === "COUNTDOWN" || target === "PLAYING" || target === "PAUSED" || target === "DANGER" || target === "GAME_OVER";
-    const goal = wantPlay ? 1 : 0;
-    rt.introBlend += (goal - rt.introBlend) * (1 - Math.exp(-3.2 * dt));
+    // intro / results: a close product shot. The bear is placed by screen fraction so it clears the
+    // title (intro, lower) or the results card (results, upper) on any aspect ratio.
+    const introDist = Math.max(5.6 / 2 / TAN, 2.4 / (TAN * aspect));
+    const introH = 2 * introDist * TAN;
+    const state = rt.store.getState().machine.state;
+    const wantPlay = state === "COUNTDOWN" || state === "PLAYING" || state === "PAUSED" || state === "DANGER" || state === "GAME_OVER";
+    rt.introBlend += ((wantPlay ? 1 : 0) - rt.introBlend) * (1 - Math.exp(-3.2 * dt));
     const k = rt.introBlend;
     const dist = introDist + (play - introDist) * k;
     const centreY = (arena.floorY + arena.ceilingY) / 2 + 0.2;
-    const introY = arena.introPos.y + 0.9 + (aspect < 0.9 ? 1.1 : 0);
+    focus.current += ((state === "RESULTS" ? 0.17 : 0.62) - focus.current) * (1 - Math.exp(-4 * dt));
+    rt.resultsScale = Math.min(1.5, Math.max(0.9, 0.17 * introH));
+    const bearMid = arena.introPos.y + 0.5 * (state === "RESULTS" ? rt.resultsScale : 1.9);
+    const introY = bearMid + (focus.current - 0.5) * introH;
     const follow = rt.reducedMotion ? 0 : 0.06;
     const fy = (rt.bear.y - centreY) * follow * k;
     const zoom = rt.reducedMotion ? 0 : rt.zoom * 0.05;

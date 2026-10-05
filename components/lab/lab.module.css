@@ -163,6 +163,24 @@
   gap: 8px;
 }
 
+.emblem {
+  position: absolute;
+  left: 50%;
+  top: calc(max(12px, env(safe-area-inset-top)) + 100px);
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--color-ivory);
+  background: radial-gradient(circle at 35% 30%, var(--color-note), var(--color-rust) 75%);
+  box-shadow: 0 0 18px color-mix(in oklab, var(--color-rust) 55%, transparent);
+  pointer-events: none;
+  z-index: 2;
+  animation: pop 800ms var(--ease-hover);
+}
+
 /* ---- danger / countdown / toasts / banners ------------------------------------------------- */
 .center {
   position: absolute;
@@ -263,7 +281,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 14%;
+  top: 24%;
   text-align: center;
   font: 400 1.6rem/1.1 var(--font-hand);
   color: var(--color-terracotta);
@@ -330,6 +348,7 @@
 }
 .play {
   margin-top: auto;
+  gap: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -460,6 +479,7 @@
   .count,
   .banner,
   .results,
+  .emblem,
   .powerChip,
   .hint,
   .danger {

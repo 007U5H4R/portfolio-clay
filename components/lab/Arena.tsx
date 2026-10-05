@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { BallCollider, CuboidCollider, RigidBody, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
-import { CanvasTexture, CylinderGeometry, Group, Mesh, MeshStandardMaterial, PlaneGeometry, SphereGeometry, TorusGeometry } from "three";
+import { CanvasTexture, SRGBColorSpace, CylinderGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, SphereGeometry, TorusGeometry } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { BumperSpec, PadSpec, PlatformSpec, TargetSpec } from "@/lib/lab/arena";
 import { col, createCandyMaterial, createLiquidMaterial } from "./materials";
@@ -21,8 +21,15 @@ const DEPTH = 1.2;
 export function Arena() {
   const rt = useRuntime();
   const { arena } = rt;
+  const root = useRef<Group>(null);
+  // The intro and results are product shots on a bare backdrop; the play field appears with the countdown.
+  useFrame(() => {
+    const st = rt.store.getState().state;
+    const shown = st === "COUNTDOWN" || st === "PLAYING" || st === "DANGER" || st === "PAUSED" || st === "GAME_OVER" || st === "EXITING";
+    if (root.current && root.current.visible !== shown) root.current.visible = shown;
+  });
   return (
-    <>
+    <group ref={root} visible={false}>
       <Walls />
       <DangerFloor />
       {arena.platforms.map((p, i) => (
@@ -38,7 +45,7 @@ export function Arena() {
         <Target key={t.id} spec={t} />
       ))}
       <Portal />
-    </>
+    </group>
   );
 }
 
@@ -94,7 +101,7 @@ function DangerFloor() {
     uniforms.uDanger.value += (danger - uniforms.uDanger.value) * 0.15;
     if (mesh.current) mesh.current.position.y = arena.dangerTop + rt.env.dangerRise - 1.3;
   });
-  return <mesh ref={mesh} geometry={geo} material={material} position={[0, arena.dangerTop - 1.3, 0.7]} renderOrder={5} />;
+  return <mesh ref={mesh} geometry={geo} material={material} position={[0, arena.dangerTop - 1.3, 0.45]} renderOrder={5} />;
 }
 
 const TINTS = ["peach", "pink", "mint", "cyan"] as const;
@@ -170,6 +177,10 @@ function Pad({ spec }: { spec: PadSpec }) {
   useFrame((_, dt) => {
     cooldown.current = Math.max(0, cooldown.current - dt);
     hit.current = Math.max(0, hit.current - dt * 3);
+    // From the chaos phase the floor launch pad drifts sideways ("bounce pads reposition", §20).
+    if (spec.id === "PF" && rb.current) {
+      rb.current.setNextKinematicTranslation({ x: spec.x + rt.env.padShift * rt.arena.halfW * 0.25, y: spec.y, z: 0 });
+    }
     if (top.current) {
       const k = hit.current;
       top.current.scale.y = 1 - 0.5 * Math.sin(k * Math.PI) + 0.25 * Math.sin(k * 9) * k;
@@ -190,7 +201,7 @@ function Pad({ spec }: { spec: PadSpec }) {
     rt.hooks.pad(spec, spec.x, spec.y);
   };
   return (
-    <RigidBody ref={rb} type="fixed" colliders={false} position={[spec.x, spec.y, 0]} onCollisionEnter={onEnter}>
+    <RigidBody ref={rb} type={spec.id === "PF" ? "kinematicPosition" : "fixed"} colliders={false} position={[spec.x, spec.y, 0]} onCollisionEnter={onEnter}>
       <CuboidCollider args={[spec.w / 2, 0.1, 0.6]} position={[0, 0.1, 0]} restitution={0} />
       <mesh geometry={geoBase} material={baseMat} position={[0, 0.06, 0]} />
       <group ref={top} position={[0, 0.09, 0]}>
@@ -279,6 +290,7 @@ function labelTexture(text: string, ink: [number, number, number], fontFamily: s
   g.font = `700 ${size}px ${fontFamily}`;
   g.fillText(text, 64, 66);
   const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
   return t;
 }
 
@@ -291,11 +303,11 @@ function Target({ spec }: { spec: TargetSpec }) {
   const cooldown = useRef(0);
   const done = useRef(false);
   const geo = useMemo(() => new CylinderGeometry(spec.r, spec.r, 0.5, 28), [spec.r]);
-  const mat = useMemo(() => createCandyMaterial(palette.cyan, { opacity: 0.9, emissive: 0.05 }), [palette]);
+  const mat = useMemo(() => createCandyMaterial(palette.cyan, { opacity: 0.92, emissive: 0.08 }), [palette]);
   const labelGeo = useMemo(() => new PlaneGeometry(spec.r * 1.5, spec.r * 1.5), [spec.r]);
   const labelMat = useMemo(() => {
     const font = getComputedStyle(document.documentElement).getPropertyValue("--font-body") || "sans-serif";
-    return new MeshStandardMaterial({ map: labelTexture(spec.id, palette.face, font), transparent: true, roughness: 0.6 });
+    return new MeshBasicMaterial({ map: labelTexture(spec.id, palette.face, font), transparent: true });
   }, [spec.id, palette]);
   const ring = useMemo(() => new TorusGeometry(spec.r * 1.08, 0.04, 8, 32), [spec.r]);
   const ringMat = useMemo(() => createCandyMaterial(palette.pink, { emissive: 0.2 }), [palette]);

@@ -1,4 +1,7 @@
 import { buildArena, portraitHalfWidth } from "@/lib/lab/arena";
+import { AudioManager } from "@/lib/lab/audio";
+import { GameEngine } from "@/lib/lab/engine";
+import { Spawner } from "@/lib/lab/spawner";
 import { Jelly } from "@/lib/lab/jelly";
 import { ParticlePool } from "@/lib/lab/particles";
 import type { LabStoreApi } from "@/lib/lab/store";
@@ -19,6 +22,10 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     reducedMotion,
     arena,
     store,
+    engine: new GameEngine(store.getState().machine),
+    audio: new AudioManager(),
+    spawner: new Spawner(arena.anchors),
+    requestExit: () => {},
     jelly: new Jelly(),
     particles: new ParticlePool(tier.particles),
     bear: createBear(),
@@ -29,6 +36,8 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     shake: 0,
     zoom: 0,
     introBlend: 0,
+    project: (x, y) => ({ x, y }),
+    resultsScale: 1.15,
     melt: 0,
     reform: 0,
     exit: null,
