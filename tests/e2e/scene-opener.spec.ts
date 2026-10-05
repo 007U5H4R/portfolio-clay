@@ -32,7 +32,10 @@ for (const { route, id } of OPENERS) {
     const first = page.locator("main#main > *").first();
     await expect(first).toHaveAttribute("data-opener", id);
 
-    const img = first.locator("img");
+    // T3 (TASK-144.5): the opener holds a light and a dark twin; the active theme's one is the visible image (the
+    // other is `display: none`, `eval-025-scenes.spec.ts`), and it is the one that carries the LCP attributes.
+    await expect(first.locator("img")).toHaveCount(2);
+    const img = first.locator("img:visible");
     await expect(img).toHaveCount(1);
     await expect(img).toHaveAttribute("alt", alt);
     await expect(img).toHaveAttribute("fetchpriority", "high");

@@ -57,6 +57,26 @@ describe("EVAL-025 — dark-art pairing", () => {
     expect(paired.map((e) => e.id)).toContain("hero-banner");
   });
 
+  // TASK-144.5 (M-010 T3): every paper-cut scene that has a tab slot is paired too; `scene-casestudy` (144.4) stays unpaired.
+  const SCENE_PAIRS = ["scene-about", "scene-experience", "scene-thinking", "scene-work", "scene-playground", "scene-certifications", "scene-contact"] as const;
+  it("every T3 scene is paired and the pair set is exactly hero-banner + the seven tab scenes", () => {
+    expect(paired.map((e) => e.id).sort()).toEqual(["hero-banner", ...SCENE_PAIRS].sort());
+    expect(ILLUSTRATIONS.find((e) => e.id === "scene-casestudy")!.darkFile).toBeUndefined();
+  });
+
+  it("every paired scene has a light + dark narrow crop of identical size, ≤ 350 kB, and the dark one in the README", async () => {
+    for (const id of SCENE_PAIRS) {
+      const light = join(process.cwd(), "public", "media", "illustrations", `${id}-mobile.webp`);
+      const dark = join(process.cwd(), "public", "media", "illustrations", `${id}-dark-mobile.webp`);
+      expect(existsSync(light), `${id}-mobile.webp`).toBe(true);
+      expect(existsSync(dark), `${id}-dark-mobile.webp`).toBe(true);
+      const [a, b] = [await sharp(light).metadata(), await sharp(dark).metadata()];
+      expect([b.width, b.height], `${id} crop size`).toEqual([a.width, a.height]);
+      for (const f of [light, dark]) expect(statSync(f).size, f).toBeLessThanOrEqual(SCENE_CAP_BYTES);
+      expect(readme, `${id}-dark-mobile.webp README row`).toContain(`${id}-dark-mobile.webp`);
+    }
+  });
+
   it("the real tree has zero findings", async () => {
     const sizes = new Map<string, Size>();
     for (const entry of paired) {

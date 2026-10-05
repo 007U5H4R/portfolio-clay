@@ -20,14 +20,16 @@ const NARROW_MARGIN_PX = 16;
 
 /** Horizontal focal point per scene (0–1 of the scene width): the subject's centre in the 21:9 outpaint. */
 export const OPENER_FOCAL_X: Record<SceneId, number> = {
-  "scene-work": 0.55, // Tushar + his hand on the corkboard
-  "scene-casestudy": 0.5, // Tushar in the armchair + the sleeping dog
-  "scene-thinking": 0.5, // Tushar writing at the desk
-  "scene-about": 0.42, // Tushar on the path (left) looking towards the mountain
-  "scene-playground": 0.5, // Tushar holding the cardboard prototype
-  "scene-contact": 0.52, // Tushar waving
-  "scene-experience": 0.6, // TASK-114: Tushar (face ≈ 0.45) pointing at the whiteboard (≈ 0.51–0.84)
-  "scene-certifications": 0.55, // TASK-114: Tushar (face ≈ 0.44) hanging a frame, the dog below, the certificate wall (to ≈ 0.80)
+  // TASK-144.5 (M-010 T3): the paper-cut scenes' focal points (PLAN.md mobile-crop column). Every value keeps the 4:3
+  // box un-clamped (0.283 ≤ x ≤ 0.717), so each narrow crop is exactly the visible region plus the 16 px margin.
+  "scene-work": 0.5, // the two shelves, centred — the blank cream frame at the centre
+  "scene-casestudy": 0.5, // Tushar in the armchair + the sleeping dog (watercolour, 144.4 deferred)
+  "scene-thinking": 0.5, // the pathway's middle four stations (sticky notes → light bulb → blocks → checked sheet)
+  "scene-about": 0.66, // Tushar from behind (≈ 0.70) with the terracotta sun (≈ 0.58) and the snow-capped peaks to his right
+  "scene-playground": 0.6, // Tushar holding the prototype (≈ 0.60) under the stage curtains
+  "scene-contact": 0.71, // Tushar waving (≈ 0.72) on the notebook page — the right 57 % of the scene
+  "scene-experience": 0.68, // the city window (≈ 0.40–0.56), Tushar (≈ 0.58) and the whiteboard (to ≈ 0.98)
+  "scene-certifications": 0.5, // the pinboard of eight blank certificates, centred
 };
 
 /** The box's left edge on the scene (fraction), as the CSS clamp in `.scene-banner-canvas` computes it. */
@@ -47,6 +49,8 @@ export function openerNarrow(id: SceneId): SceneBannerNarrow {
   const { left, width } = narrowCropPx(OPENER_FOCAL_X[id]);
   return {
     src: `/media/illustrations/${id}-mobile.webp`,
+    // The dark twin's crop (T3, TASK-144.5); `scene-casestudy` is the one scene with no dark art (144.4 deferred).
+    ...(id === "scene-casestudy" ? {} : { darkSrc: `/media/illustrations/${id}-dark-mobile.webp` }),
     width,
     height: OPENER_SCENE_H,
     left: left / OPENER_SCENE_W,

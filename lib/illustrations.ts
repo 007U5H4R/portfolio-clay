@@ -1,13 +1,20 @@
 import type { StaticImageData } from "next/image";
 import { ILLUSTRATIONS, type Illustration } from "@/content/media/illustrations/manifest";
-import sceneWork from "@/content/media/illustrations/scene-work.jpg";
+import sceneWork from "@/content/media/illustrations/scene-work.webp";
+import sceneWorkDark from "@/content/media/illustrations/scene-work-dark.webp";
 import sceneCasestudy from "@/content/media/illustrations/scene-casestudy.jpg";
-import sceneAbout from "@/content/media/illustrations/scene-about.jpg";
-import sceneThinking from "@/content/media/illustrations/scene-thinking.jpg";
-import scenePlayground from "@/content/media/illustrations/scene-playground.jpg";
-import sceneContact from "@/content/media/illustrations/scene-contact.jpg";
-import sceneExperience from "@/content/media/illustrations/scene-experience.jpg";
-import sceneCertifications from "@/content/media/illustrations/scene-certifications.jpg";
+import sceneAbout from "@/content/media/illustrations/scene-about.webp";
+import sceneAboutDark from "@/content/media/illustrations/scene-about-dark.webp";
+import sceneThinking from "@/content/media/illustrations/scene-thinking.webp";
+import sceneThinkingDark from "@/content/media/illustrations/scene-thinking-dark.webp";
+import scenePlayground from "@/content/media/illustrations/scene-playground.webp";
+import scenePlaygroundDark from "@/content/media/illustrations/scene-playground-dark.webp";
+import sceneContact from "@/content/media/illustrations/scene-contact.webp";
+import sceneContactDark from "@/content/media/illustrations/scene-contact-dark.webp";
+import sceneExperience from "@/content/media/illustrations/scene-experience.webp";
+import sceneExperienceDark from "@/content/media/illustrations/scene-experience-dark.webp";
+import sceneCertifications from "@/content/media/illustrations/scene-certifications.webp";
+import sceneCertificationsDark from "@/content/media/illustrations/scene-certifications-dark.webp";
 import heroBanner from "@/content/media/illustrations/hero-banner.webp";
 import heroBannerDark from "@/content/media/illustrations/hero-banner-dark.webp";
 
@@ -36,11 +43,18 @@ const SCENE_IMAGES: Record<StaticIllustrationId, StaticImageData> = {
 
 /**
  * The matched dark-theme twins (S23, EV9; manifest `darkFile`): one static import per paired id, identical pixel
- * size to its light twin (EVAL-025). Ids without an entry have no dark art yet (T3 adds them) and render the
- * light scene in both themes.
+ * size to its light twin (EVAL-025). T3 (TASK-144.5) paired every scene but `scene-casestudy` (144.4, deferred),
+ * which has no dark art and renders its light scene in both themes.
  */
 const DARK_SCENE_IMAGES: Partial<Record<StaticIllustrationId, StaticImageData>> = {
   "hero-banner": heroBannerDark,
+  "scene-work": sceneWorkDark,
+  "scene-about": sceneAboutDark,
+  "scene-thinking": sceneThinkingDark,
+  "scene-playground": scenePlaygroundDark,
+  "scene-contact": sceneContactDark,
+  "scene-experience": sceneExperienceDark,
+  "scene-certifications": sceneCertificationsDark,
 };
 
 /** The dark twin's static import, or `undefined` when the scene has no dark art yet. */
