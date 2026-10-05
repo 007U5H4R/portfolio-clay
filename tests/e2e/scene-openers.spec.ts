@@ -79,7 +79,7 @@ for (const { route, id } of OPENERS) {
       expect(focal, `${id} focal point inside the box`).toBeGreaterThan(box.x + box.w * 0.25);
       expect(focal, `${id} focal point inside the box`).toBeLessThan(box.x + box.w * 0.75);
       // The narrow rendition covers the part of the canvas the box shows (no blank strip at either side).
-      const img = await page.locator(".scene-opener .scene-banner-img").boundingBox();
+      const img = await page.locator(".scene-opener .scene-banner-img:visible").boundingBox();
       expect(img!.x).toBeLessThanOrEqual(box.x + 0.5);
       expect(img!.x + img!.width).toBeGreaterThanOrEqual(box.x + box.w - 0.5);
     }

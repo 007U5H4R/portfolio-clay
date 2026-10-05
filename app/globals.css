@@ -8968,11 +8968,17 @@ html.lenis body {
       --banner-h: 75vw;
     }
   }
-  /* Home's second polaroid is a square crop of `scene-about`, whose outpaint keeps the figure left of
-     centre (the original frame sits at x 336–2360 of 3168): aim the crop at the same region the 3:2
-     scene's centred square showed before (x ≈ 676–2020 → 37 %), so the figure stays in the polaroid. */
+  /* T3 (TASK-144.5): the three polaroids are square crops (1344 of 3168 px) of the paper-cut scenes; each is aimed at
+     its subject, `object-position-x = (focal × 3168 − 672) / (3168 − 1344)`: `scene-about` (the man, ≈ 0.70 → 85 %),
+     `scene-playground` (the man holding the prototype, ≈ 0.60 → 67 %), `scene-work` (the shelves' centre → 50 %). */
+  .hero-polaroid:nth-child(1) .hero-polaroid-img {
+    object-position: 85% 50%;
+  }
   .hero-polaroid:nth-child(2) .hero-polaroid-img {
-    object-position: 37% 50%;
+    object-position: 67% 50%;
+  }
+  .hero-polaroid:nth-child(3) .hero-polaroid-img {
+    object-position: 50% 50%;
   }
 }
 /* end TKT-107 */

@@ -288,8 +288,9 @@ test("@EVAL-008 /projects has no horizontal overflow and ≥44 targets", { tag: 
 test("@EVAL-018 /projects: one scene img; decoration counts products 2 / enterprise 2", { tag: ["@EVAL-018", "@EVAL-013"] }, async ({ page }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "counts asserted at the two boundary widths");
   await page.goto("/projects", { waitUntil: "load" });
-  await expect(page.locator('img[src*="scene-work"], img[srcset*="scene-work"]')).toHaveCount(1);
-  const img = page.locator('[data-opener="scene-work"] img');
+  // T3 (TASK-144.5): one VISIBLE scene img (its dark twin is in the markup, `display: none`).
+  await expect(page.locator('img[src*="scene-work"]:visible, img[srcset*="scene-work"]:visible')).toHaveCount(1);
+  const img = page.locator('[data-opener="scene-work"] img:visible');
   await expect(img).toHaveCount(1);
   expect((await img.getAttribute("alt"))?.length ?? 0).toBeGreaterThan(20);
   const counts = await page.evaluate(() => {

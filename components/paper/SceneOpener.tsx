@@ -1,3 +1,4 @@
+import { ThemeArtPreload } from "@/components/paper/ThemeArtPreload";
 import { SceneBanner } from "@/components/paper/SceneBanner";
 import { OPENER_FOCAL_X, openerNarrow } from "@/components/paper/scene-opener-frames";
 import { TornEdge, type TornFill } from "@/components/paper/TornEdge";
@@ -29,6 +30,8 @@ export function SceneOpener({ id, priority = false, tornFill = "paper" }: SceneO
   return (
     <section className="scene-opener" data-opener={id}>
       <SceneBanner id={id} focalX={OPENER_FOCAL_X[id]} priority={priority} sizes="100vw" narrow={openerNarrow(id)} />
+      {/* T3 (TASK-144.5): the opener's art is a light/dark pair — warm the opposite twin once idle, as on the home hero. */}
+      <ThemeArtPreload />
       <TornEdge fill={tornFill} className="scene-opener-torn" />
     </section>
   );

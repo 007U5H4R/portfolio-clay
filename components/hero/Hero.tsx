@@ -8,7 +8,7 @@ import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/comp
 import { SceneBanner } from "@/components/paper/SceneBanner";
 import { ThemeArtPreload } from "@/components/paper/ThemeArtPreload";
 import { hero } from "@/data/hero";
-import { sceneImage, type SceneId } from "@/lib/illustrations";
+import { darkSceneImage, sceneImage, type SceneId } from "@/lib/illustrations";
 
 /**
  * The h1 in its three reference lines (TKT-108): `data/hero.ts` splits the headline where Tushar's
@@ -21,8 +21,12 @@ const H1_LINES = [hero.headline.before.trim(), hero.headline.highlight.trim(), h
 const HAND_MARK = "problems.";
 const [HAND_HEAD = "", HAND_TAIL = ""] = hero.handLine.text.split(HAND_MARK);
 
-/** The intro video's poster: the /contact scene's 4:3 character crop (Tushar by the window, waving). */
-const INTRO_POSTER = "/media/illustrations/scene-contact-mobile.webp";
+/**
+ * The intro video's poster: the retired watercolour /contact scene's 4:3 character crop (Tushar by the window, waving,
+ * Dev-132). T3 (TASK-144.5) gave it its own file — `scene-contact-mobile.webp` is now the paper-cut crop — and kept it,
+ * since the poster stands in for the YouTube facade, not for the contact art.
+ */
+const INTRO_POSTER = "/media/illustrations/intro-poster.webp";
 
 /** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
 const BANNER_FOCAL_X = 0.49;
@@ -90,7 +94,9 @@ export function Hero() {
           {POLAROIDS.map((polaroid) => (
             <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
               <Tape side={polaroid.tape} />
-              <Image src={sceneImage(polaroid.id)} alt="" sizes="(max-width: 767px) 20vw, 11vw" className="hero-polaroid-img" />
+              <Image src={sceneImage(polaroid.id)} alt="" sizes="(max-width: 767px) 20vw, 11vw" className="hero-polaroid-img" data-theme-art="light" />
+              {/* The dark twin's crop (T3, EVAL-025/026): lazy and `display: none` while light, like the banner's twin. */}
+              <Image src={darkSceneImage(polaroid.id) ?? sceneImage(polaroid.id)} alt="" sizes="(max-width: 767px) 20vw, 11vw" className="hero-polaroid-img" data-theme-art="dark" />
             </Sheet>
           ))}
         </div>
