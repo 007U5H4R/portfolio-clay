@@ -259,22 +259,24 @@ test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) 
     await expect(page.locator("h1#hero-h")).toContainText("AI-native products");
     return;
   }
+  // Tushar 2026-10-05 (Design.md §11 Dev-132): the intro video sits right after the eyebrow at every
+  // width, so on phones the h1 and CTAs move to one scroll away; the first viewport holds the name, the
+  // title, the desk and the video.
   const vh = page.viewportSize()!.height;
   const elements = {
     name: page.locator("header .header-name"),
     title: page.getByText(hero.eyebrow.text, { exact: true }),
-    value: page.locator("h1#hero-h"),
     desk: page.getByAltText(HERO_BANNER_ALT),
-    work: page.getByRole("link", { name: "View my work →" }),
-    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" }),
+    video: page.locator(".hero-intro").getByRole("button", { name: `Play ${hero.introVideo.title}` }),
   };
   for (const [label, locator] of Object.entries(elements)) {
     await expect(locator, label).toBeVisible();
     const box = (await locator.boundingBox())!;
     expect(box.y, `${label} top inside the first viewport`).toBeGreaterThanOrEqual(0);
-    // Text and CTAs must be wholly above the fold; the banner only needs to be on screen.
+    // Text and the Play button must be wholly above the fold; the banner only needs to be on screen.
     const bottom = label === "desk" ? box.y : box.y + box.height;
     expect(bottom, `${label} (${Math.round(box.y)}–${Math.round(box.y + box.height)}) within ${vh}px`).toBeLessThanOrEqual(vh);
   }
-  await expect(elements.value).toContainText("AI-native products");
+  await expect(page.locator("h1#hero-h")).toContainText("AI-native products");
+  await expectCopyWithinOneScroll(page);
 });

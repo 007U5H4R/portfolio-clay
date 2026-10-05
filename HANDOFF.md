@@ -35,6 +35,7 @@ Updated 2026-09-28 (TASK-86, docs only). Branch `m-009-redesign` @ `27d0004`. **
 | Portfolio scrapbook rework | **TASK-121 In Progress** (merged `762ea58`; painted covers open) | Dev-115–118 |
 | Click-to-load YouTube/Vimeo player, CSP derived from data | TASK-122 (merged `15abb00`) | Dev-119/120 |
 | Ask Tushky curated FAQ cache (`data/tushky/faq.json`, versioned by data hash; offline Gemini refresh script, no live LLM) | TASK-123 (merged `d53f964`) | — |
+| Ask Tushky voice playback: Listen/Pause/Replay strip, Gemini TTS through the site's first server function `POST /api/tushky/speech` (recomputes the real answer, never takes text). Silent until Tushar adds `GEMINI_API_KEY` in Vercel (`docs/reports/TASK-134-setup.md`) | TASK-134 (branch `cloud/task-134`, not merged) | Dev-133, Dev-134 |
 | Hardening: CopyButton test, OG verification | TASK-92 (TKT-97), TASK-93 (TKT-98; the essay `og:image` 404 was fixed in `016c0ab`) | — |
 
 **Still open in the backlog:** TASK-121 (In Progress) and TASK-120 (To Do: remove the legacy `/projects` CSS left by TASK-116). Also blocked: TASK-8 (sanitised résumé), TASK-46/49 (deploy and production) and TASK-22…26 (demo media, `on-hold`) (`docs/reports/CAMPFIRE-TRIAGE-2026-09-26.md`; EXE-24).

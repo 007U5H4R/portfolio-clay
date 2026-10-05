@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 import { portfolioEntries } from "./data/portfolio";
 import { buildCsp, providersInUse } from "./lib/csp";
 
-// Security headers (decision TP9). This is a fully static site (TP1 — no SSR, no middleware,
-// no per-request rendering), so a script nonce is not available; the CSP below is the pragmatic
+// Security headers (decision TP9). Every page is static (TP1 — no SSR, no middleware, no
+// per-request rendering; TASK-134 added the one server function, `POST /api/tushky/speech`, and a
+// dev-only audition route, both allow-listed in scripts/assert-static.ts), so a script nonce is not available; the CSP below is the pragmatic
 // static-site policy TP9 specifies, with `'unsafe-inline'` on `script-src` required by Next's
 // static-page inline hydration bootstrap (the `self.__next_f.push(...)` RSC-payload scripts Next
 // emits inline on every page — verified in the built HTML, S01.07/A11) and on `style-src` for

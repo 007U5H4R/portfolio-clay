@@ -1,0 +1,33 @@
+{
+  "about": "TASK-134 (voice spec §8 / §44). How Tushky's voice says portfolio terms. The speech normaliser (lib/tushky-voice/speech-text.ts) replaces each `term` (whole word, case-sensitive) with `say` in the SPOKEN transcript only; the displayed answer never changes. Only pronunciations that are certain live in `terms`. `unconfirmed` lists terms left to the model until Tushar confirms how they are said; they are NOT applied. A change here changes every affected answer's speech hash, so its pre-generated FAQ audio goes stale automatically.",
+  "terms": [
+    { "term": "GCP", "say": "G C P", "note": "Google Cloud Platform, said as letters (spec §8)" },
+    { "term": "PRDs", "say": "P R Ds", "note": "plural of PRD" },
+    { "term": "PRD", "say": "P R D", "note": "spec §8" },
+    { "term": "AWS", "say": "A W S", "note": "said as letters" },
+    { "term": "GenAI", "say": "Gen A I", "note": "Generative AI" },
+    { "term": "RAG", "say": "rag", "note": "retrieval-augmented generation, said as the word (spec §8: keep the natural pronunciation)" },
+    { "term": "FHIR", "say": "fire", "note": "HL7's own pronunciation of FHIR is \"fire\" (hl7.org/fhir). The brief suggested letters; see docs/reports/TASK-134.md" },
+    { "term": "SAFe", "say": "safe", "note": "Scaled Agile Framework, said as the word" },
+    { "term": "HIPAA", "say": "hippa", "note": "said as one word" },
+    { "term": "PSM I", "say": "P S M one", "note": "Scrum.org level I" },
+    { "term": "PSPO I", "say": "P S P O one", "note": "Scrum.org level I" },
+    { "term": "M.Tech", "say": "M Tech", "note": "Master of Technology" },
+    { "term": "B.E.", "say": "B E", "note": "Bachelor of Engineering" },
+    { "term": "K–12", "say": "K to 12", "note": "school grades; the en dash is not a range here" }
+  ],
+  "unconfirmed": [
+    { "term": "Tushar", "question": "stress and vowel length (TOO-shar or tu-SHAR?)" },
+    { "term": "Tushky", "question": "rhymes with \"husky\"?" },
+    { "term": "Quantiphi", "question": "KWAN-ti-fy or KWAN-ti-fee?" },
+    { "term": "Shellkode", "question": "\"shell code\"?" },
+    { "term": "RailCite", "question": "\"rail site\"?" },
+    { "term": "MARS", "question": "the word \"Mars\" or M A R S?" },
+    { "term": "Pratyasa", "question": "syllable stress" },
+    { "term": "Tegaki", "question": "te-GAH-kee?" },
+    { "term": "Nuptis", "question": "NUP-tis?" },
+    { "term": "Velora", "question": "ve-LOR-a?" },
+    { "term": "Devin", "question": "the product name, said like the given name?" },
+    { "term": "IN 429867", "question": "patent number: digit by digit, or \"four two nine, eight six seven\"?" }
+  ]
+}

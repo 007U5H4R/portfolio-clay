@@ -27,6 +27,12 @@ const CLIP = illustration("hero-clip");
 /** The mp4 is the second rendition of the same clip (Design.md §5.2 source order webm → mp4). */
 const CLIP_MP4 = CLIP.publicSrc!.replace(/\.webm$/, ".mp4");
 
+/**
+ * The intro video's poster: the /contact scene's 4:3 character crop (Tushar by the window, waving). Not
+ * the hero clip's poster (`hero-desk`), which EVAL-019 keeps out of the page as an <img> (TKT-93).
+ */
+const INTRO_POSTER = "/media/illustrations/scene-contact-mobile.webp";
+
 /** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
 const BANNER_FOCAL_X = 0.49;
 /**
@@ -147,6 +153,20 @@ export function Hero() {
         <Container className="hero-copy">
           <p className="hero-eyebrow">{hero.eyebrow.text}</p>
 
+          {/* Tushar 2026-10-05: his intro video, right after the eyebrow line (every width) — a taped
+              print on the sheet. The click-to-load player (TASK-122): nothing loads from YouTube until
+              Play is pressed. */}
+          <div className="hero-intro">
+            <Sheet variant="photo" rotate={-0.6} className="hero-intro-print">
+              <Tape side="c" />
+              <ProductMediaPlayer
+                media={hero.introVideo}
+                className="pf-stage-screen hero-intro-screen"
+                fallbackPoster={<Image src={INTRO_POSTER} alt="" fill sizes="(min-width: 640px) 560px, 92vw" className="pf-stage-poster hero-intro-poster" />}
+              />
+            </Sheet>
+          </div>
+
           <h1 id="hero-h" className="hero-h1">
             <span className="hero-h1-line">{H1_LINES[0]}</span>{" "}
             <span className="hero-h1-line">{H1_LINES[1]}</span>{" "}
@@ -192,18 +212,6 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Tushar 2026-10-05: his intro video, centred under the CTAs — a taped print on the sheet.
-              The click-to-load player (TASK-122): nothing loads from YouTube until Play is pressed. */}
-          <div className="hero-intro">
-            <Sheet variant="photo" rotate={-0.6} className="hero-intro-print">
-              <Tape side="c" />
-              <ProductMediaPlayer
-                media={hero.introVideo}
-                className="pf-stage-screen hero-intro-screen"
-                fallbackPoster={<Image src={POSTER.publicSrc!} alt="" fill sizes="(min-width: 1024px) 720px, 92vw" className="pf-stage-poster" />}
-              />
-            </Sheet>
-          </div>
         </Container>
       </section>
     </section>
