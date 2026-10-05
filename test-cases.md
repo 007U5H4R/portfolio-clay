@@ -2006,6 +2006,43 @@ Consumes `tickets.md` M-009 (TKT-69…91, TSK-30…47), `technical-plan.md` §F,
 
 ---
 
+## M-010 T2 · Dark mode + paper-cut theme toggle (TASK-141)
+
+Ids are `TC-T2.n` (track-scoped so parallel M-010 lanes cannot collide). Specs live in `tests/e2e/eval-023.spec.ts`, `eval-024.spec.ts`, `eval-026.spec.ts`, `tests/unit/theme.test.ts`, `theme-toggle.test.tsx`, `eval-020.test.ts`, `eval-025.test.ts`.
+
+### TC-T2.1 · Theme resolution, persistence and no flash (saved > system > light)
+- **Related:** M-010 · TASK-141.1 · **EVAL:** EVAL-023
+- **Steps:** 1. Six scenarios at 390 and 1440: no choice + system light/dark; saved light/dark against the opposite system; hard reload after toggling; a runtime system flip with and without a saved choice. 2. MutationObserver history of `<html data-theme>`. 3. Served HTML head order. 4. Storage writes on a plain visit. 5. Console hydration warnings.
+- **Expected:** 6/6 correct · history length 1 per document · inline script before the first stylesheet · 0 writes on a plain visit (only a toggle writes `portfolio-theme`) · 0 hydration warnings.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright `eval-023.spec.ts` + Vitest `theme.test.ts` · **Status:** Planned
+### TC-T2.2 · The switch is accessible (semantics, keyboard, focus ring, reserved box, reduced motion, axe)
+- **Related:** M-010 · TASK-141.3 · **EVAL:** EVAL-024
+- **Steps:** 1. `role="switch"` named "Use dark theme"; `aria-checked` equals `data-theme === "dark"` both ways; Light/Dark are real text. 2. Tab/Space/Enter toggle. 3. Focus ring solid ≥ 2 px, ≥ 3:1 in both themes. 4. Box identical before/after hydration, 0 layout shift attributed to it. 5. Reduced motion: no transition, no VT/transition mark, still switches. 6. axe on `header` in both themes and states. 7. Manual: VoiceOver reads "Use dark theme, switch, off/on".
+- **Expected:** 100 % keyboard · state correct both ways · 0 shift · 0 axe critical/serious.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y (+ manual VoiceOver) — `eval-024.spec.ts`, `theme-toggle.test.tsx` · **Status:** Planned
+### TC-T2.3 · Theme-switch stability on every route (and with the Ask drawer, on a case study, at the footer)
+- **Related:** M-010 · TASK-141.5/141.6 · **EVAL:** EVAL-026
+- **Steps:** light → dark → light on the 9 static routes at 390 and 1440, then with the drawer open, then at the footer of `/work/teachspark`; buffered CLS observer; `scrollHeight`; computed `filter` on img/picture/video/iframe/canvas/[data-scene]; the band's terracotta token; console.
+- **Expected:** CLS < 0.05 · Δheight ≤ 1 px · 0 filtered media · band token intact · 0 console errors.
+- **Type:** performance · **Priority:** P1 · **Automation:** Y — `eval-026.spec.ts` · **Status:** Planned
+### TC-T2.4 · Dark palette + every token pair AA in both themes; 13 names defined once per theme
+- **Related:** M-010 · TASK-141.1, 141.4 · **EVAL:** EVAL-020 (extended)
+- **Steps:** `pnpm tokens:check` (13/13 light, 13/13 dark, N/N contrast pairs); `eval-020.test.ts` (26 `--color-*` definitions = 13 names × 2 themes; 0 literals outside `app/globals.css`).
+- **Expected:** all round-trip; every pair ≥ its minimum in both themes; no 14th name.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y · **Status:** Planned
+### TC-T2.5 · Hero art swaps by theme: one image fetched before load, the twin warmed when idle, no filter
+- **Related:** M-010 · TASK-141.6 · **EVAL:** EVAL-019, EVAL-025, EVAL-026
+- **Steps:** SSR markup carries the light banner (eager, high priority) + one lazy dark twin; exactly one hero URL before load; the twin is requested after idle; in dark the visible banner is the dark twin with one alt; both renditions pair in the manifest at identical size.
+- **Expected:** as stated · 0 `filter` on art.
+- **Type:** content-integrity · **Priority:** P1 · **Automation:** Y — `eval-019.spec.ts`, `eval-025.test.ts` · **Status:** Planned
+### TC-T2.6 · Per-tab dark pass: no white boxes, no pure black, legible on Home, Work, Projects, About, Thinking, Playground, Certifications, Contact, a case study, the Ask drawer and the footer
+- **Related:** M-010 · TASK-141.5 · **EVAL:** EVAL-031 (manual style gate), EVAL-006 ×2
+- **Steps:** screenshots of each route light and dark at 390 and 1440 (`docs/screenshots/m-010/t2/`); eyeball for white canvases, unreadable text, broken shadows.
+- **Expected:** every route reads as the same paper world in the evening; findings recorded or fixed.
+- **Type:** visual-review · **Priority:** P1 · **Automation:** N — manual (screenshots are the evidence) · **Status:** Planned
+
+---
+
 ## Appendix A · Coverage matrix — ticket → test cases
 
 Every live ticket's acceptance criteria are covered by at least one case; task-level coverage is listed where a task has its own criteria. "Shared AC" for content tickets = TKT-28…33/54 common contract (a)–(f).
