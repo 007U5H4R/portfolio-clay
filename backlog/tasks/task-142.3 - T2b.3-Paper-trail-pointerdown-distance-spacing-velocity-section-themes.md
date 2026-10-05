@@ -1,9 +1,10 @@
 ---
 id: TASK-142.3
 title: 'T2b.3 Paper trail: pointerdown, distance spacing, velocity, section themes'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 18:51'
 labels:
   - P2
 dependencies: []

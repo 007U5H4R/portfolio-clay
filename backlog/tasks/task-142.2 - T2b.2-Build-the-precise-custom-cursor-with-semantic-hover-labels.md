@@ -1,9 +1,10 @@
 ---
 id: TASK-142.2
 title: T2b.2 Build the precise custom cursor with semantic hover labels
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 18:51'
 labels:
   - P2
 dependencies: []

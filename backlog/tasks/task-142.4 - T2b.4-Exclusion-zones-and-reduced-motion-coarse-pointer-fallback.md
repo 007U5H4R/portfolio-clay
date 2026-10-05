@@ -1,9 +1,10 @@
 ---
 id: TASK-142.4
 title: T2b.4 Exclusion zones and reduced-motion / coarse-pointer fallback
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 18:51'
 labels:
   - P1
 dependencies: []

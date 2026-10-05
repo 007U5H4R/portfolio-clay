@@ -3,9 +3,10 @@ id: TASK-142.1
 title: >-
   T2b.1 Audit pointer CSS, write the trail asset manifest, generate and optimize
   trail art
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
+updated_date: '2026-10-05 18:51'
 labels:
   - P2
 dependencies: []
