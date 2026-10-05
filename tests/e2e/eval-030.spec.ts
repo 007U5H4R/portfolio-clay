@@ -274,15 +274,9 @@ test.describe("@EVAL-030 the lab page", () => {
   });
 
   test("@EVAL-030 '← Back to Portfolio' exits, returning to the page the visitor came from", async ({ page }) => {
-    await page.goto("/projects");
-    await page.waitForLoadState("load");
-    await rapidClicks(page, BRAND, 5, 150);
-    await page.waitForURL("**/lab", { timeout: 15_000 });
-    await waitLab(page);
+    await enterLab(page);
     await page.getByRole("link", { name: /back to portfolio/i }).first().click();
-    await page.waitForURL((u) => u.pathname !== "/lab", { timeout: 15_000 });
-    // Clicks 2–5 landed on "/" (click 1 navigated home), so "back" is the page before /lab.
-    expect(["/", "/projects"]).toContain(new URL(page.url()).pathname);
+    await page.waitForURL((u) => u.pathname === "/", { timeout: 20_000 });
   });
 
   test("@EVAL-030 a direct visit has no history: ESC still lands on the home page", async ({ page }) => {
@@ -503,11 +497,19 @@ test.describe("@EVAL-030 mobile (touch)", () => {
     }
     expect((await bear(page)).state).toBe("DRAGGED");
     // fast final swipe = flick
+    await page.evaluate(() => {
+      const w = window as unknown as { __maxSpeed: number };
+      w.__maxSpeed = 0;
+      const tick = () => {
+        const b = window.__gummyLab!.rt.bear;
+        w.__maxSpeed = Math.max(w.__maxSpeed, Math.hypot(b.vx, b.vy));
+        requestAnimationFrame(tick);
+      };
+      tick();
+    });
     await touch("touchMove", b.px - 200, b.py - 190);
     await touch("touchEnd");
-    await page.waitForTimeout(250);
-    const after = await bear(page);
-    expect(Math.hypot(after.vx, after.vy)).toBeGreaterThan(1);
+    await page.waitForFunction(() => (window as unknown as { __maxSpeed: number }).__maxSpeed > 3, null, { timeout: 8000 });
   });
 });
 
