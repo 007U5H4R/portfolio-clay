@@ -161,11 +161,11 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   ["inkSoft", "ivory", "text", ".work-metric-asof", "card asOf, metric labels"],
   ["inkSoft", "note", "text", "src:components/case-study/artifacts/SourceCaption.tsx", "artifact source caption on the hypothesis sticky, 12 px (4.52 — thinnest margin on the site)"],
   ["green2", "ivory", "text", ".work-kicker", "featured card kicker, story dl dt"],
-  ["forest", "paper", "text", ".aj-range", "about journey ranges (12 px)"],
+  ["terracotta", "paper", "text", ".ab-eyebrow", "/about eyebrows, 14 px / 600 (TASK-136)"],
+  ["terracotta", "paper", "text", ".crx-desc", "/about career-era descriptors, 15 px / 600 (TASK-136)"],
   ["forest", "paper2", "text", ".artifact-eval dt", "evaluation labels (Dev-29; steel failed at 3.59)"],
-  ["forest", "ivory", "text", ".aimp-kind[data-kind=\"measured\"]", "measured badges, zero metrics"],
   ["terracotta", "paper2", "text", ".sources-list a[data-inline-link]", "Sources links (TKT-82)"],
-  ["terracotta", "ivory", "text", ".aimp-kind[data-kind=\"self-reported\"]", "self-reported badges, band social glyphs"],
+  ["terracotta", "ivory", "text", ".rvx-meta", "/about patent line on the ivory artifact card, 12.5 px / 600 (TASK-136)"],
   ["terracotta", "note", "text", ".artifact-lbl", "hypothesis label on the sticky"],
   ["terracotta", "paper", "text", ".essay-related:hover", "hover deepening on paper"],
   ["terracotta", "paper", "text", "src:components/paper/DraftTag.tsx", "DraftTag, 12 px / 600 on paper"],
@@ -174,12 +174,14 @@ const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   // Rust as text: ≥ 4.5 only on paper/ivory (Design §2.1 reserves it for ≥ 17 px or bold anyway)
   ["rust", "paper", "text", ".node-src", "thinking-node source link, 13 px / 600 (TKT-83)"],
   ["rust", "ivory", "text", ".work-card-cta", "work-card CTA and kicker status on the card sheet"],
-  // Terracotta on kraft only as LARGE text (4.16:1)
-  ["terracotta", "kraft", "large", ".proof-award b", "award years, Fraunces 30 px on the kraft tag (Dev-35)"],
+  // (Terracotta on kraft is LARGE-text only — 4.16:1; its one use, the /about award tags, retired in TASK-136.)
   // Inverse surfaces
   ["ivory", "rust", "text", ".hero-btn-primary", "primary buttons (hero, contact), 22 px / 600"],
   ["paper", "rust", "text", "src:app/not-found.tsx", "404 \"Back home\" button, 22 px / 600 (not large for axe: < 24 px and < 700)"],
   ["ivory", "navy", "text", ".header-pill", "nav pill, Ask submit, next-project band"],
+  ["ivory", "navy", "text", ".acx-title", "/about Experience strip heading (TASK-136)"],
+  ["ivory", "rust", "text", ".acx-btn-primary", "/about \"See full experience\" button, 16 px / 600 (TASK-136)"],
+  ["navy", "ivory", "text", ".acx-btn-secondary", "/about \"View certifications\" button on the navy strip (TASK-136)"],
   ["kraft", "navy", "text", ".cs-next-eyebrow", "next-project eyebrow (12 px) and note"],
 ];
 

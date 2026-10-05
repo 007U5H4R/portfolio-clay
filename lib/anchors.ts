@@ -27,7 +27,8 @@ export const CHAPTER_ANCHORS: Record<ChapterId, { anchor: string; title: string 
 
 /** In-page anchors for the static content pages. */
 export const PAGE_ANCHORS = {
-  about: ['experience', 'impact', 'capabilities', 'research'],
+  about: ['chapters', 'career', 'research', 'values', 'recognition'], // TASK-136: WHO Tushar is
+  work: ['work-experience', 'education', 'skills'], // TASK-136: the résumé record moved here from /about
   contact: ['resume'],
   projects: ['products', 'enterprise'], // TASK-116 Portfolio sections
 } as const;
@@ -85,6 +86,7 @@ export function routes({ projectSlugs, essaySlugs = [] }: RouteInputs): Set<stri
   }
 
   for (const anchor of PAGE_ANCHORS.about) set.add(`/about#${anchor}`);
+  for (const anchor of PAGE_ANCHORS.work) set.add(`/work#${anchor}`);
   for (const anchor of PAGE_ANCHORS.contact) set.add(`/contact#${anchor}`);
   for (const anchor of PAGE_ANCHORS.projects) set.add(`/projects#${anchor}`);
 
