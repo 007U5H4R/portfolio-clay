@@ -504,3 +504,8 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** `gummy-bear.md` needs Three.js, React Three Fiber and Rapier, far beyond the home budget, and is an optional Easter egg (P3).
 **Decision.** `/lab`, reached by 5 quick clicks on the name or the TP monogram, loads its 3D stack only on that route. The bear is modelled in Blender (Blender MCP, installed 2026-10-05) and exported as GLB. `/lab` is excluded from the nav and the sitemap, with `noindex`.
 **Rejected.** An overlay on the current page (would pull the 3D stack into every route).
+
+## TP15 · M-010 is planned from Tushar's prompts; Stages 5–6 fold into each track's kickoff — accepted (Tushar, 2026-10-05)
+**Context.** The eight M-010 track tickets exist (TASK-140…146), and the six specs in `docs/specs/m-010/` already carry their own implementation orders and QA lists (e.g. paper-cut-2 §120 footer, §208 nav, §228 dividers; toggle.md §24). Re-deriving them in separate stages would spend Claude quota for little new information.
+**Decision.** Stage 3 (evaluation) and Stage 4 (Design.md tokens + dark palette taken from the prompts, plus the paper-cut hero pilot as Tushar's style gate) run as stages. Stages 5–6 are not run separately: at each track's kickoff, that prompt's implementation order becomes the track's Campfire subtasks and test cases. Every brief names exact spec section ranges; long specs are never read whole.
+**Rejected.** Full separate Stages 5–6 (duplicate the prompts); skipping Stages 3–4 (S24 breaks EVAL-019, dark mode doubles the a11y surface, and the style gate is the riskiest assumption).
