@@ -7,6 +7,7 @@
  * via culori and guards them from drift.
  *
  *   pnpm tokens:check --write   rewrites the 13 `--color-*` oklch() lines in app/globals.css
+ *                               (light `@theme` AND the `[data-theme="dark"]` block, Design.md §13.1)
  *                               from the authoritative hex (culori, 3-decimal precision).
  *   pnpm tokens:check           parses globals.css, converts each oklch() back to an 8-bit
  *                               sRGB hex and asserts it equals the authoritative hex (0 diff).
@@ -37,6 +38,37 @@ const AUTHORITATIVE: Record<string, string> = {
   "--color-kraft": "#D7BE93",
 };
 
+// Dark twin — Design.md §13.1 (S22/S25, D13): the same 13 names redefined by ROLE under
+// `[data-theme="dark"]` in app/globals.css (navy = ink = warm ivory; ivory = card = lifted navy).
+// Declared AFTER the light set on purpose: tests/unit/contrast-pairs.test.ts reads the first hit.
+const AUTHORITATIVE_DARK: Record<string, string> = {
+  "--color-paper": "#0B1530",
+  "--color-ivory": "#172646",
+  "--color-paper-2": "#101C38",
+  "--color-navy": "#F4EEDF",
+  "--color-navy-2": "#C7CDD9",
+  "--color-ink-soft": "#A3ADBF",
+  "--color-rust": "#DC7650",
+  "--color-terracotta": "#E8946F",
+  "--color-forest": "#8CCBB0",
+  "--color-green-2": "#9CC7AD",
+  "--color-steel": "#7E94B8",
+  "--color-note": "#4B4023",
+  "--color-kraft": "#6B5B3C",
+};
+
+const BLOCKS = [
+  { name: "light", header: "@theme {", tokens: AUTHORITATIVE },
+  { name: "dark", header: '[data-theme="dark"] {', tokens: AUTHORITATIVE_DARK },
+] as const;
+
+/** [start, end) of a rule body: from its header to the first closing brace (these blocks hold no nested rules). */
+function blockRange(css: string, header: string): [number, number] {
+  const start = css.indexOf(header);
+  if (start < 0) return [-1, -1];
+  return [start, css.indexOf("}", start)];
+}
+
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -62,43 +94,60 @@ function lineRegExp(token: string): RegExp {
 
 function write(): void {
   let css = readFileSync(GLOBALS, "utf8");
-  for (const [token, hex] of Object.entries(AUTHORITATIVE)) {
-    const re = lineRegExp(token);
-    if (!re.test(css)) {
-      console.error(`tokens:check --write: token ${token} not found in globals.css`);
+  let count = 0;
+  for (const block of BLOCKS) {
+    const [a, b] = blockRange(css, block.header);
+    if (a < 0) {
+      console.error(`tokens:check --write: ${block.name} block (${block.header}) not found in globals.css`);
       process.exit(1);
     }
-    css = css.replace(re, `$1${oklchFor(hex)}`);
+    let body = css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const re = lineRegExp(token);
+      if (!re.test(body)) {
+        console.error(`tokens:check --write: token ${token} not found in the ${block.name} block`);
+        process.exit(1);
+      }
+      body = body.replace(re, `$1${oklchFor(hex)}`);
+      count += 1;
+    }
+    css = css.slice(0, a) + body + css.slice(b);
   }
   writeFileSync(GLOBALS, css);
-  console.log(`wrote ${Object.keys(AUTHORITATIVE).length} oklch colour tokens to app/globals.css`);
+  console.log(`wrote ${count} oklch colour tokens to app/globals.css (light + dark)`);
 }
 
 function check(): void {
   const css = readFileSync(GLOBALS, "utf8");
   const total = Object.keys(AUTHORITATIVE).length;
-  let ok = 0;
   const failures: string[] = [];
+  const summary: string[] = [];
 
-  for (const [token, hex] of Object.entries(AUTHORITATIVE)) {
-    const m = css.match(new RegExp(`${escapeRegExp(token)}:\\s*(oklch\\([^)]*\\))`));
-    if (!m || !m[1]) {
-      failures.push(`${token}: no oklch() value found`);
-      continue;
+  for (const block of BLOCKS) {
+    let ok = 0;
+    const [a, b] = blockRange(css, block.header);
+    const body = a < 0 ? "" : css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const m = body.match(new RegExp(`${escapeRegExp(token)}:\\s*(oklch\\([^)]*\\))`));
+      if (!m || !m[1]) {
+        failures.push(`[${block.name}] ${token}: no oklch() value found`);
+        continue;
+      }
+      const back = formatHex(m[1]);
+      if (!back) {
+        failures.push(`[${block.name}] ${token}: could not parse ${m[1]}`);
+        continue;
+      }
+      if (back.toUpperCase() === hex.toUpperCase()) {
+        ok += 1;
+      } else {
+        failures.push(`[${block.name}] ${token}: ${m[1]} → ${back.toUpperCase()} ≠ ${hex.toUpperCase()}`);
+      }
     }
-    const back = formatHex(m[1]);
-    if (!back) {
-      failures.push(`${token}: could not parse ${m[1]}`);
-      continue;
-    }
-    if (back.toUpperCase() === hex.toUpperCase()) {
-      ok += 1;
-    } else {
-      failures.push(`${token}: ${m[1]} → ${back.toUpperCase()} ≠ ${hex.toUpperCase()}`);
-    }
+    summary.push(block.name === "light" ? `${ok}/${total} tokens round-trip OK` : `${ok}/${total} dark tokens round-trip OK`);
   }
 
-  console.log(`${ok}/${total} tokens round-trip OK`);
+  console.log(summary.join("\n"));
   if (failures.length > 0) {
     console.error(failures.join("\n"));
     process.exit(1);

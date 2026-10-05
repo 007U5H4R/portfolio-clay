@@ -10,7 +10,7 @@ import { join, relative, sep } from "node:path";
  * status `pnpm eval --only EVAL-020` reports is this file's pass/fail — nothing hand-entered.
  *
  *   (1) `scripts/tokens-check.ts` prints `13/13 tokens round-trip OK` and exits 0.
- *   (2) `app/globals.css` defines exactly the 13 paper `--color-*` names — no 14th, none missing.
+ *   (2) `app/globals.css` defines exactly the 13 paper `--color-*` names, once per theme (light + dark) — no 14th, none missing.
  *   (3) No colour literal (hex / rgb(a) / hsl(a) / oklch / oklab) in `app/**`, `components/**` or `lib/**`
  *       outside the two allow-listed files (`app/globals.css`, `lib/og.tsx`). Covering `lib/**`
  *       is TC-123 step 4: `lib/og.tsx` is the only file under `lib/` allowed a literal.
@@ -160,11 +160,13 @@ describe("EVAL-020 paper token gate", () => {
     expect(r.status).toBe(0);
   }, 60_000);
 
-  it("(2) globals.css defines exactly the 13 paper --color-* tokens (TC-122 step 2)", () => {
+  it("(2) globals.css defines exactly the 13 paper --color-* names, once per theme (TC-122 step 2; Design.md §13.1)", () => {
     const css = readFileSync(join(ROOT, "app/globals.css"), "utf8");
     const defined = [...css.matchAll(/^\s*--color-([a-z0-9-]+)\s*:/gm)].map((m) => m[1]);
-    expect(defined).toHaveLength(13);
-    expect([...defined].sort()).toEqual([...PAPER_NAMES].sort());
+    // 13 light (@theme) + 13 dark ([data-theme="dark"]): the same names redefined by role, never a 14th name.
+    expect(defined).toHaveLength(26);
+    expect([...new Set(defined)].sort()).toEqual([...PAPER_NAMES].sort());
+    for (const name of PAPER_NAMES) expect(defined.filter((d) => d === name), `--color-${name}`).toHaveLength(2);
   });
 
   it("(3) no colour literal outside app/globals.css + lib/og.tsx (TC-123 steps 2 and 4)", () => {
