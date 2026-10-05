@@ -15,6 +15,7 @@ import { Header } from "@/components/navigation/Header";
 import { BandFooter } from "@/components/layout/BandFooter";
 import { AskProvider } from "@/components/ai/AskProvider";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
+import { PaperCursorGate } from "@/components/cursor/PaperCursorGate";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
 // plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
@@ -94,6 +95,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
         <SmoothScroll />
+        {/* Paper Trail cursor (S29, TASK-142): fine pointers only, lazy chunk after load. */}
+        <PaperCursorGate />
         <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
           <SkipLink />
           <Header />

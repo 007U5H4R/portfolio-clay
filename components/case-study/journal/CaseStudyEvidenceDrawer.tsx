@@ -32,7 +32,7 @@ const TYPE_ICON: Record<EvidenceType, LucideIcon> = {
 export function CaseStudyEvidenceDrawer({ items, rows, name, compact = false }: { items: readonly z.infer<typeof EvidenceItem>[]; rows: readonly EvidenceRow[]; name: string; compact?: boolean | undefined }) {
   const types = Array.from(new Set(items.map((item) => item.type)));
   return (
-    <section className="csx-evidence jx-evidence" data-compact={compact ? "" : undefined} aria-labelledby="evidence-drawer-section-h">
+    <section className="csx-evidence jx-evidence" data-no-trail="" data-compact={compact ? "" : undefined} aria-labelledby="evidence-drawer-section-h">
       <div className="jx-evidence-in" data-paper="card">
         <div className="jx-evidence-head">
           <p className="csx-eyebrow" data-micro-label="">
