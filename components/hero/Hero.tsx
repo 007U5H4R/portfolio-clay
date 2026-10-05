@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { HeroAskLink } from "@/components/hero/HeroAskLink";
 import { HeroClip } from "@/components/hero/HeroClip";
+import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
 import { clipSlotStyle } from "@/components/hero/registration";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
@@ -189,6 +190,19 @@ export function Hero() {
                 </svg>
               </span>
             </div>
+          </div>
+
+          {/* Tushar 2026-10-05: his intro video, centred under the CTAs — a taped print on the sheet.
+              The click-to-load player (TASK-122): nothing loads from YouTube until Play is pressed. */}
+          <div className="hero-intro">
+            <Sheet variant="photo" rotate={-0.6} className="hero-intro-print">
+              <Tape side="c" />
+              <ProductMediaPlayer
+                media={hero.introVideo}
+                className="pf-stage-screen hero-intro-screen"
+                fallbackPoster={<Image src={POSTER.publicSrc!} alt="" fill sizes="(min-width: 1024px) 720px, 92vw" className="pf-stage-poster" />}
+              />
+            </Sheet>
           </div>
         </Container>
       </section>

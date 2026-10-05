@@ -9927,6 +9927,41 @@ html.lenis body {
   }
 }
 /* end TKT-108 */
+/* Tushar 2026-10-05 · the intro video in the hero: a taped photo print centred under the CTA row
+   (every width), reusing the portfolio player's screen (`.pf-stage-screen` 16:9, `.pf-play`,
+   `.pf-player`). The print is content paper with one tape fastener, so the decoration count is unchanged. */
+@layer components {
+  .hero-intro {
+    justify-self: center;
+    width: min(100%, 720px);
+    margin-top: clamp(34px, 4.2vw, 60px);
+  }
+  .hero-intro-print {
+    display: block;
+    box-shadow: var(--shadow-paper);
+  }
+  .hero-intro-screen.pf-stage-screen > .pf-play {
+    --pf-play: clamp(56px, 6vw, 80px);
+    position: absolute;
+    left: calc(50% - var(--pf-play) / 2);
+    top: calc(50% - var(--pf-play) / 2);
+  }
+  /* TKT-106: the Featured Work sheet slides up to 200 px (phones 120 px) over the hero's foot. Keep that
+     zone clear of the video so the sheet never covers the print; with no lag there is nothing to clear. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .hero-copy:has(.hero-intro) {
+        padding-bottom: 216px;
+      }
+      @media (max-width: 767px) {
+        .hero-copy:has(.hero-intro) {
+          padding-bottom: 136px;
+        }
+      }
+    }
+  }
+}
+/* end hero intro video */
 /* TKT-110 · How I think choreography (Tushar's spec 2026-09-26,
    docs/redesign-mockups/m-009/tushar-2026-09-26/how-i-think-choreography-spec.md; Design.md §11
    Dev-70…). The paper-unrolling sequence driven by `components/motion/journey/*`: the runner flips
