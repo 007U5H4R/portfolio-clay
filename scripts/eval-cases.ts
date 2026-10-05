@@ -58,7 +58,6 @@ const AUTOMATED_RUNNERS = [
  * clip until TASK-140 replaces the hero and rewrites the spec in the same change.
  */
 const DEFERRED_SPECS: Record<string, string> = {
-  "EVAL-029": "/card — TASK-146 (business card)",
 };
 
 const EvalCaseSchema = z
