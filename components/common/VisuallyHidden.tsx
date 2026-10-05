@@ -1,5 +1,13 @@
 import type { ElementType, ReactNode } from "react";
 
+/**
+ * Props the polymorphic shell passes down. A bare `ElementType` is the union of every intrinsic
+ * element — and `@react-three/fiber` (the lazy /lab game) augments JSX with three.js elements whose
+ * `children` is `never`, which breaks that union. Narrowing to the props we actually pass keeps it
+ * a DOM-tag-or-component type (type-only; no runtime change).
+ */
+type DomShellProps = { className?: string; children?: ReactNode; [attr: `data-${string}`]: string | undefined };
+
 export interface VisuallyHiddenProps {
   children: ReactNode;
   /** Render as something other than a <span> (e.g. "div") when the context needs it. */
@@ -14,6 +22,6 @@ export interface VisuallyHiddenProps {
  * technique (not `display:none`, which would hide it from assistive tech too).
  */
 export function VisuallyHidden({ children, as, className }: VisuallyHiddenProps) {
-  const Component = (as ?? "span") as ElementType;
+  const Component = (as ?? "span") as ElementType<DomShellProps>;
   return <Component className={["sr-only", className].filter(Boolean).join(" ")}>{children}</Component>;
 }

@@ -3,7 +3,8 @@
  * `/` or of any other route. Runs `scripts/bundle-budget.ts --forbid` over the REAL `.next` build and
  * also greps each prerendered HTML (inlined CSS/RSC payload). SKIPs visibly with no build — never a
  * vacuous pass. A planted-marker fixture proves the scan can fail. (The 3D-stack markers join this
- * file's list with TASK-143.)
+ * file's list with TASK-143.) TASK-143 adds the 3D half below: three.js / R3F / Rapier / the gummy GLB
+ * markers may exist only in lazily imported chunks that no route other than `/lab` ever loads.
  */
 import { afterAll, describe, expect, it } from "vitest";
 import { spawnSync } from "node:child_process";
@@ -18,8 +19,8 @@ const built = existsSync(resolve(APP_DIR, "index.html"));
 /** Strings that exist only in the lazily loaded cursor chunk / stylesheet. */
 const CURSOR_MARKERS = ["data-paper-cursor", "paperCursor", "portfolio-cursor", "cursor-trail-item", "has-custom-cursor", "/cursor/trail/"];
 
-function budget(cwd: string, route: string) {
-  const r = spawnSync("pnpm", ["exec", "tsx", SCRIPT, "--route", route, "--json", "--forbid", CURSOR_MARKERS.join(",")], { cwd, encoding: "utf8" });
+function budget(cwd: string, route: string, markers: readonly string[] = CURSOR_MARKERS) {
+  const r = spawnSync("pnpm", ["exec", "tsx", SCRIPT, "--route", route, "--json", "--forbid", markers.join(",")], { cwd, encoding: "utf8" });
   return JSON.parse((r.stdout ?? "").trim());
 }
 
@@ -29,6 +30,14 @@ function htmlRoutes(dir: string): string[] {
     if (e.isDirectory()) return htmlRoutes(p);
     return e.name.endsWith(".html") ? [p] : [];
   });
+}
+
+/** Strings that exist only in the lazily loaded 3D stack (three.js, R3F, Rapier wasm, the GLB path). */
+const STACK_MARKERS = ["THREE.WebGLRenderer", "__r3f", "rapier_wasm3d", "KHR_materials_transmission", "/lab/gummy.glb"];
+
+function firstLoadChunks(htmlFile: string): string[] {
+  const html = readFileSync(htmlFile, "utf8");
+  return Array.from(new Set(Array.from(html.matchAll(/\/_next\/(static\/[^"'\s?]+\.js)/g)).map((m) => m[1]!)));
 }
 
 const SPAWN_TIMEOUT = 120_000;
@@ -60,6 +69,53 @@ describe.skipIf(!built)("EVAL-027 · cursor isolation on the real build", () => 
   });
 });
 
+describe.skipIf(!built)("EVAL-027 · 3D stack isolation on the real build (TASK-143)", () => {
+  const chunkDir = resolve(ROOT, ".next/static/chunks");
+  const chunkFiles = built ? readdirSync(chunkDir).filter((f) => f.endsWith(".js")) : [];
+  const text = (f: string) => readFileSync(resolve(chunkDir, f), "utf8");
+  const stackChunks = chunkFiles.filter((f) => STACK_MARKERS.some((m) => text(f).includes(m)));
+  // The lazy loader chunk(s): they name a stack chunk by file name (the dynamic import).
+  const referrers = chunkFiles.filter((f) => !stackChunks.includes(f) && stackChunks.some((c) => text(f).includes(c)));
+
+  it("the 3D stack exists as lazy chunks (the scan is not vacuous)", () => {
+    expect(stackChunks.length).toBeGreaterThan(0);
+    expect(referrers.length).toBeGreaterThan(0);
+    for (const marker of ["THREE.WebGLRenderer", "__r3f", "rapier_wasm3d"]) {
+      expect(stackChunks.some((f) => text(f).includes(marker)), marker).toBe(true);
+    }
+  });
+
+  it("home first-load set has 0 three.js / R3F / Rapier bytes", () => {
+    const parsed = budget(ROOT, "/", STACK_MARKERS);
+    expect(parsed.ok).toBe(true);
+    expect(parsed.forbiddenHits).toEqual([]);
+    expect(parsed.overBudget).toBe(false);
+  }, SPAWN_TIMEOUT);
+
+  it("no route's first-load set — /lab included — contains a stack chunk or the loader that names one", () => {
+    const files = htmlRoutes(APP_DIR);
+    expect(files.length).toBeGreaterThan(5);
+    const banned = new Set([...stackChunks, ...referrers].map((f) => `static/chunks/${f}`));
+    for (const file of files) {
+      const route = "/" + relative(APP_DIR, file).replace(/\.html$/, "").replace(/^index$/, "");
+      const html = readFileSync(file, "utf8");
+      for (const marker of STACK_MARKERS) expect(html.includes(marker), `${route} HTML contains "${marker}"`).toBe(false);
+      for (const chunk of firstLoadChunks(file)) expect(banned.has(chunk), `${route} first-load includes ${chunk}`).toBe(false);
+      const parsed = budget(ROOT, route, STACK_MARKERS);
+      if (parsed.ok) expect(parsed.forbiddenHits, route).toEqual([]);
+    }
+  }, SPAWN_TIMEOUT);
+
+  it("/lab's own first-load JS is recorded (informational, no threshold) and /lab is the only route that can reach the stack", () => {
+    const lab = budget(ROOT, "/lab", []);
+    expect(lab.ok).toBe(true);
+    console.info(`[EVAL-027] /lab first-load JS = ${lab.firstLoadJsGzipKb} kB gz (${lab.chunkCount} chunks); lazy 3D chunks = ${stackChunks.join(", ")}`);
+    // Only the lab route's own page chunks name the lazy loader: the loader is not in any other route's first load.
+    const labPage = readFileSync(resolve(APP_DIR, "lab.html"), "utf8");
+    expect(labPage).toContain("noindex");
+  });
+});
+
 describe("EVAL-027 · planted-marker fixture", () => {
   let dir = "";
   afterAll(() => dir && rmSync(dir, { recursive: true, force: true }));
@@ -75,5 +131,22 @@ describe("EVAL-027 · planted-marker fixture", () => {
     expect(parsed.forbiddenHits.map((h: { file: string }) => h.file)).toEqual(["static/chunks/b.js", "static/chunks/b.js"]);
     const human = spawnSync("pnpm", ["exec", "tsx", SCRIPT, "--forbid", "cursor-trail-item"], { cwd: dir, encoding: "utf8" });
     expect(human.status).toBe(1);
+  }, SPAWN_TIMEOUT);
+
+  it("--forbid catches a planted three.js marker too (the 3D scan can fail)", () => {
+    mkdirSync(resolve(ROOT, ".eval"), { recursive: true });
+    const d3 = mkdtempSync(resolve(ROOT, ".eval", "eval027-3d-fixture-"));
+    try {
+      mkdirSync(resolve(d3, ".next/server/app"), { recursive: true });
+      mkdirSync(resolve(d3, ".next/static/chunks"), { recursive: true });
+      writeFileSync(resolve(d3, ".next/static/chunks/a.js"), `console.warn("THREE.WebGLRenderer: planted");`);
+      writeFileSync(resolve(d3, ".next/server/app/index.html"), `<script src="/_next/static/chunks/a.js"></script>`);
+      const parsed = budget(d3, "/", STACK_MARKERS);
+      expect(parsed.forbiddenHits.map((h: { marker: string }) => h.marker)).toEqual(["THREE.WebGLRenderer"]);
+      const human = spawnSync("pnpm", ["exec", "tsx", SCRIPT, "--forbid", STACK_MARKERS.join(",")], { cwd: d3, encoding: "utf8" });
+      expect(human.status).toBe(1);
+    } finally {
+      rmSync(d3, { recursive: true, force: true });
+    }
   }, SPAWN_TIMEOUT);
 });

@@ -2208,6 +2208,46 @@ Anchors follow the TKT-19 scheme (`#01-context` … `#08-what-i-learned`, `lib/a
 
 *v1 totals (counted from the case fields): 121 cases · P0 60 · P1 49 · P2 12 · P3 0. By primary type: functional 38 · validation 16 · accessibility 15 · content-integrity 11 · responsive 10 · visual-review 7 · security-functional 5 · performance 5 · deployment-smoke 3 · regression 3 · negative 3 · error-handling 2 · edge/boundary 2 · e2e 1. Automation: 110 cases have an automated component (Playwright 73 · Vitest 38 · script 19 · axe 17 · LHCI 5; many cases use more than one tool), of which 9 also carry a manual step; 11 are manual-only (Appendix C lists all 20 with a manual component). Authored before implementation; statuses are `Planned` until Stage 7 QA gates and Stage 9B fill them from real runs.*
 
+
+---
+
+## M-010 T2c · Gummy Lab (TASK-143, S30, T2c-D1…)
+
+IDs use the `TC-T2c-` prefix so parallel M-010 tracks cannot collide on `TC-178+`; the merge may renumber. Spec: `docs/specs/m-010/gummy-bear.md` (§9–40, §41–51); evals: EVAL-030 (functional), EVAL-027 (isolation). Specs live in `tests/e2e/eval-030.spec.ts` plus the Vitest files named below. Frame rate (§39) is profiled by hand — see TC-T2c-30.
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T2c-01 | 5 rapid clicks (≤ 3.5 s) on the header name → `/lab`; on the TP monogram → `/lab`; from an inner page the sequence survives click 1's navigation | Playwright `eval-030.spec.ts` + Vitest `lab-click-detector.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-02 | 4 clicks, a slow sequence (> 3.5 s) and a pause that expires the window do nothing; per-click hints animate only transform/opacity/filter/letter-spacing (no layout properties) | Playwright `eval-030.spec.ts` + Vitest `lab-click-detector.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-03 | `/lab` is 200 with `<meta name="robots" content="noindex">`, **not** disallowed in `robots.txt`, 0 sitemap entries, 0 `a[href="/lab"]` (static HTML of every sitemap URL + live DOM of four routes) | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-04 | Only `/lab` is served with `'wasm-unsafe-eval'` (Rapier); `'unsafe-eval'` appears nowhere; every other CSP directive is identical on both | Vitest `csp.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-05 | 0 three.js / R3F / Rapier / GLB-path bytes in the first-load set of `/` and every other route (and none of the lazy loader chunks that name them); the 3D chunks exist (scan not vacuous); a planted three.js marker fails the scan; `/lab` first-load recorded | Vitest `eval-027-cursor.test.ts` (3D block) | EVAL-027 | P0 | Automated · pass |
+| TC-T2c-06 | `/lab` renders a canvas, or — with WebGL forced off — a labelled fallback with the Back link (never blank); Back works; 0 console errors | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-07 | Exits: ESC (also during the loading shell), "← Back to Portfolio", browser Back, results/pause Back buttons, the in-world portal; a direct visit has no history and lands on `/`; the portfolio underneath is `inert` while open and restored after; the entry/exit overlay never lingers | Playwright `eval-030.spec.ts` + Vitest `lab-session.test.ts` | EVAL-030 | P0 | Automated · pass (portal: manual) |
+| TC-T2c-08 | State machine: explicit states, legal transitions only, pause resumes into PLAYING or DANGER, EXIT accepted everywhere and terminal | Vitest `lab-state-machine.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-09 | Control maths: drag is a spring (never a teleport), flick = pointer velocity over 100 ms scaled and capped, tap kicks away from the poke, squish charge → bounce, Super Squish multiplier | Vitest `lab-controls.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-10 | Real pointer: tap bounces, drag pulls the bear with a spring (state DRAGGED), hold-and-release launches, ← → nudge, Space bounces, P pauses/resumes | Playwright `eval-030.spec.ts` (w1440) | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-11 | Touch (w390): drag moves the gummy, a fast final swipe launches it; HUD fits 390 px, 0 horizontal overflow, every control ≥ 44 px | Playwright `eval-030.spec.ts` (w390) | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-12 | Jelly: impact → compression → overshoot → damped rest; ears/arms follow through; weights bounded [0, 1]; reduced-motion amplitude smaller; side hits wobble the head | Vitest `lab-jelly.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-13 | Faces and states: happy by default, worried in danger, surprised at speed/long fall; Surprised/Panic never above 0.6; physics-state priority; device tiers and adaptive DPR | Vitest `lab-tiers-expressions.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-14 | Danger rule: touching danger starts a 1.2 s countdown, leaving cancels it (a late rescue is a "save" bonus), the timer recovers only slowly, past 1.2 s the run ends; droplets restore time | Vitest `lab-engine.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-15 | Score and combo: 10 pts/s survival; actions chain x2…x10 and multiply points; combo holds 3 s then decays; re-hitting one thing does not farm | Vitest `lab-engine.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-16 | Difficulty ramp: calm → arena moves → dynamic → chaos → LAB UNSTABLE; eased, bounded (rise ≤ 0.95, gravity 0.5–1.45), monotone phases | Vitest `lab-difficulty.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-17 | Power-ups: Low Gravity ≈ 7 s, Golden ×2, Rainbow bonus + bounce, Super Squish single-use, Time Freeze rare (> 30 s) and 3 s; spawner caps (≤ 3 rings, 1 star, 1 power-up), anchors only, expiry, droplet on danger | Vitest `lab-engine.test.ts`, `lab-spawner.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-18 | TP MODE (all four AI/PRODUCT/DESIGN/BUILD targets in one run, once) raises the multiplier and lights the scene; achievements unlock once (curious mind, wobble master, gummy operator, product sense, you really found it) | Vitest `lab-engine.test.ts`, `lab-storage.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-19 | Game over → results (score, best, combo, time, targets, power-ups, status line) → Play again resets every run value; best score kept | Vitest `lab-engine.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-20 | High score persists in localStorage under its own key only (survives a reload); corrupt/blocked storage never throws; no cookies; no third-party requests | Vitest `lab-storage.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-21 | Audio is muted by default, builds no `AudioContext` until unmuted, tolerates no Web Audio; the toggle is a labelled `aria-pressed` button | Vitest `lab-audio.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-22 | Reduced motion: hint animations off, transition collapses to a cross-fade, particles ≤ 24, wobble amplitude ≤ 0.4, camera follow/shake off — and a full run is still playable | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-23 | GLB contract: `GummyBear` + `GummyCollider` nodes, the 15 morph targets, 1 unit tall / +Y / base at origin, collider inside the body's footprint, `GummyBody`/`GummyFace` materials, < 400 kB | Vitest `lab-glb.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-24 | Asset loaded (`data-lab-asset="ready"`); with the GLB blocked the lab still reaches the intro and plays through with the stand-in gummy | Playwright `eval-030.spec.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-25 | Particle pool never exceeds its tier cap; particles fall and expire | Vitest `lab-particles.test.ts` | EVAL-030 | P2 | Automated · pass |
+| TC-T2c-26 | Axe (critical/serious) on the lab; keyboard Tab stops wear the shared 2 px solid focus ring; the lab follows the dark theme | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-27 | 3 enter/exit cycles: 0 console errors and the `requestAnimationFrame` rate after each exit is back to the home baseline (no zombie loop) | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-28 | Return route: `safeReturnRoute` never returns the lab, a protocol-relative or cross-origin URL; back-navigation used only after a trigger entry from a portfolio page | Vitest `lab-session.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-29 | Visual review: intro / play / game over, light and dark, 390 and 1440 — `docs/screenshots/m-010/t2c/` (`pnpm tsx scripts/lab-screenshots.ts`) | manual (screenshots) | — | P1 | Captured · manual review |
+| TC-T2c-30 | Frame rate (60 fps desktop, 45–60 fps phone), real-GPU feel of the jelly, sound design, the entry/exit transitions, the in-world portal, Safari/Firefox, real-device touch | manual | EVAL-030 (informational) | P2 | Planned · manual — the build sandbox has no GPU (SwiftShader only) |
+
 ---
 
 ## M-010 T2b · Paper Trail cursor (TASK-142, S29, Dev-150…154)

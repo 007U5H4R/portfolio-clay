@@ -59,7 +59,6 @@ const AUTOMATED_RUNNERS = [
  */
 const DEFERRED_SPECS: Record<string, string> = {
   "EVAL-029": "/card — TASK-146 (business card)",
-  "EVAL-030": "/lab — TASK-143 (Gummy Lab)",
 };
 
 const EvalCaseSchema = z

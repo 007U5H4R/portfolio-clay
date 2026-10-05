@@ -5,6 +5,7 @@ import { MediaGate } from "@/components/paper/MediaGate";
 import { site } from "@/lib/site";
 import { AskAIButton } from "./AskAIButton";
 import { ThemeToggle } from "./ThemeToggle";
+import { SecretTrigger } from "@/components/easter-egg/SecretTrigger";
 import { HeaderScroll } from "./HeaderScroll";
 import { Monogram } from "./Monogram";
 import { PrimaryNav } from "./PrimaryNav";
@@ -29,6 +30,7 @@ export function Header() {
   return (
     <header data-site-header="" className="site-header">
       <HeaderScroll />
+      <SecretTrigger />
       <Container className="site-header-row">
         <Link href="/" aria-label={`${site.name} — home`} className="header-brand focus-ring">
           <Monogram />
