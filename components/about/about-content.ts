@@ -164,3 +164,9 @@ export const ABOUT_CTA = {
   primary: { label: "See full experience", href: "/work" },
   secondary: { label: "View certifications", href: "/certifications" },
 } as const;
+
+export const TESTIMONIALS_HEAD = {
+  eyebrow: "Recommendations",
+  title: "In their words.",
+  more: "Read all recommendations on LinkedIn",
+} as const;

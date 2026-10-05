@@ -4,6 +4,7 @@ import AboutPage from "@/app/about/page";
 import { ABOUT_CTA, CHAPTERS, ERAS, PRINCIPLES } from "@/components/about/about-content";
 import { awards, papers, patent, researchDisclaimer } from "@/data/credentials";
 import { experience } from "@/data/experience";
+import { recommendationsHref, testimonials } from "@/data/testimonials";
 
 // TASK-136 (Tushar's About redesign spec 2026-09-29): `/about` is WHO Tushar is — hero → Three Chapters →
 // Career Across Contexts → Research + What Drives Me → Recognition → the dark Experience strip. Facts come
@@ -39,14 +40,14 @@ function decor(section: Element): string[] {
     .map((el) => el.getAttribute("data-decor") ?? "");
 }
 
-const PLACEHOLDERS = [/\bIIT\b/, /\bGoogle\b(?! Cloud Partner)/, /\bAIG\b/, /\bHSBC\b/, /Nvidia/i, /Star of the Month/i, /Spot Award/i, /patent filed/i, /2010/, /2013/, /2009/];
+const PLACEHOLDERS = [/\bIIT\b/, /\bGoogle\b(?! Cloud)/, /\bAIG\b/, /\bHSBC\b/, /Nvidia/i, /Star of the Month/i, /Spot Award/i, /patent filed/i, /2010/, /2013/, /2009/];
 
 describe("/about (TASK-136)", () => {
   it("renders the five areas in spec order after the scene opener; the headings alone tell the story (spec §60)", () => {
     const { container } = render(<AboutPage />);
     expect((container.firstElementChild as HTMLElement).getAttribute("data-opener")).toBe("scene-about");
     const ids = Array.from(container.querySelectorAll(":scope > section")).map((s) => s.id || s.getAttribute("aria-labelledby"));
-    expect(ids).toEqual([null, "about-hero-heading", "chapters", "career", "research-values", "recognition", "about-cta"]);
+    expect(ids).toEqual([null, "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta"]);
     const headings = Array.from(container.querySelectorAll("h1, h2")).map((h) => h.textContent);
     expect(headings).toEqual([
       "A builder who connects deep tech to real-world impact.",
@@ -55,6 +56,7 @@ describe("/about (TASK-136)", () => {
       "From labs to lasting ideas.",
       "Curiosity, impact and continuous learning.",
       "A few milestones along the way.",
+      "In their words.",
       ABOUT_CTA.title,
     ]);
   });
@@ -169,6 +171,31 @@ describe("/about (TASK-136)", () => {
     expect(items.length).toBeGreaterThanOrEqual(2);
     expect(items.length).toBeLessThanOrEqual(4);
     expect(decor(section)).toEqual(["torn", "annotation"]);
+  });
+
+  it("In their words: Tushar's three picks, public on LinkedIn only, verbatim excerpts, no photos (TASK-136 follow-up)", () => {
+    expect(testimonials.map((t) => t.id)).toEqual(["jay-mundhara", "shivali-sharma", "sumeet-chaurasia"]);
+    for (const t of testimonials) {
+      expect(t.publicOnLinkedIn, t.id).toBe(true);
+      // every shown fragment is a verbatim substring of the full recommendation
+      for (const fragment of t.excerpt) expect(t.text, t.id).toContain(fragment);
+      // the display role is cut from the author's own headline
+      for (const part of t.role.split(/,\s*|\s·\s/)) expect(t.headline, t.id).toContain(part);
+    }
+    const { container } = render(<AboutPage />);
+    const section = container.querySelector("section#testimonials")!;
+    const cards = Array.from(section.querySelectorAll("figure[data-paper='card']"));
+    expect(cards).toHaveLength(testimonials.length);
+    cards.forEach((card, i) => {
+      const t = testimonials[i]!;
+      expect(card.querySelector("blockquote p")?.textContent).toBe(t.excerpt.join(" … "));
+      expect(card.querySelector("blockquote")?.getAttribute("cite")).toBe(recommendationsHref);
+      expect(card.querySelector(".tsx-name")?.textContent).toBe(t.name);
+      expect(card.querySelector("time")?.getAttribute("datetime")).toBe(t.date);
+      expect(card.querySelector("img")).toBeNull();
+    });
+    expect(section.querySelector(`a[href="${recommendationsHref}"]`)).not.toBeNull();
+    expect(decor(section)).toEqual(["torn"]);
   });
 
   it("the dark strip links to the existing Experience and Certifications tabs — no contact CTA, no second route", () => {
