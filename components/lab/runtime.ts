@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { RapierRigidBody } from "@react-three/rapier";
+import type { MeshPhysicalMaterial } from "three";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
 import type { AudioManager } from "@/lib/lab/audio";
 import type { GameEngine } from "@/lib/lab/engine";
@@ -66,6 +67,17 @@ export interface LabHooks {
   tap(): void;
 }
 
+/** Live tuning knobs for the `?debug` panel (§47); all 1 by default. */
+export interface Tuning {
+  gravity: number;
+  bounce: number;
+  jelly: number;
+  flick: number;
+  follow: number;
+  spawn: number;
+  morph: number;
+}
+
 export interface ExitSequence {
   via: "portal" | "button";
   t: number;
@@ -108,6 +120,9 @@ export interface LabRuntime {
   pointer: { x: number; y: number; active: boolean };
   /** Intro poke pulse 0–1 (decays). */
   poke: number;
+  tune: Tuning;
+  /** The gummy's physical material, exposed so the debug panel can tune transmission/roughness/thickness/IOR. */
+  gummyMaterial: { current: MeshPhysicalMaterial | null };
   /** Boost multipliers set by power-ups. */
   bounceMul: number;
   superSquish: boolean;
@@ -138,6 +153,10 @@ export function createBear(): BearKinematics {
     inDanger: false,
     state: "AIRBORNE",
   };
+}
+
+export function createTuning(): Tuning {
+  return { gravity: 1, bounce: 1, jelly: 1, flick: 1, follow: 1, spawn: 1, morph: 1 };
 }
 
 export function createEnv(): EnvKnobs {

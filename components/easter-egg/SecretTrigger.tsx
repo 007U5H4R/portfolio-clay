@@ -2,7 +2,7 @@
 
 import "./secret-trigger.css";
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { createClickDetector } from "@/lib/lab/click-detector";
 import { LAB_PATH, rememberEntry } from "@/lib/lab/session";
 
@@ -14,11 +14,10 @@ const BRAND = "[data-site-header] .header-brand";
  * progressively stronger hints (`data-gummy-step`, styled in secret-trigger.css). This file and
  * `lib/lab/click-detector.ts` are the only Gummy Lab code in the first-load set: no three.js, no
  * game code — the transition module is fetched lazily from click 2, the lab itself only on `/lab`.
- * There is deliberately no `<a href="/lab">` anywhere (S30: hidden): the route change is a
- * programmatic `router.push` under the entry overlay.
+ * There is deliberately no `<a href="/lab">` anywhere (S30: hidden): the navigation is programmatic,
+ * under the entry overlay, as a full document load (the lab page carries its own CSP).
  */
 export function SecretTrigger() {
-  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -48,7 +47,9 @@ export function SecretTrigger() {
           m.playEntry({
             nameEl: brand.querySelector(".header-name"),
             reducedMotion: reduced,
-            navigate: () => router.push(LAB_PATH),
+            // A full document load, not a client-side route change: /lab is served with its own CSP
+            // (it alone may compile the Rapier wasm), and a document keeps the CSP it was loaded with.
+            navigate: () => window.location.assign(LAB_PATH),
           }),
         );
         return;
@@ -65,11 +66,22 @@ export function SecretTrigger() {
     };
 
     document.addEventListener("click", onClick, true);
+    document.documentElement.dataset.gummyTrigger = "ready"; // armed (also lets tests wait for hydration)
     return () => {
+      delete document.documentElement.dataset.gummyTrigger;
       document.removeEventListener("click", onClick, true);
       window.clearTimeout(resetTimer);
     };
-  }, [router]);
+  }, []);
+
+  // Coming back (browser Back / bfcache) must never show a frozen entry overlay.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) document.querySelector("[data-gummy-overlay]")?.remove();
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
 
   // The exit overlay outlives the route change: once the portfolio has painted, fade it out.
   useEffect(() => {

@@ -298,7 +298,6 @@ function Target({ spec }: { spec: TargetSpec }) {
   const rt = useRuntime();
   const { palette } = rt;
   const group = useRef<Group>(null);
-  const glow = useRef<MeshStandardMaterial>(null);
   const hit = useRef(0);
   const cooldown = useRef(0);
   const done = useRef(false);
@@ -332,7 +331,6 @@ function Target({ spec }: { spec: TargetSpec }) {
     hit.current = Math.max(0, hit.current - dt * 2.5);
     if (group.current) group.current.scale.setScalar(1 + 0.14 * Math.sin(hit.current * Math.PI));
     mat.emissiveIntensity = 0.05 + (done.current ? 0.35 : 0) + hit.current * 0.4;
-    void glow;
   });
   const onEnter = (p: CollisionEnterPayload) => {
     if (!isBear(p) || cooldown.current > 0) return;

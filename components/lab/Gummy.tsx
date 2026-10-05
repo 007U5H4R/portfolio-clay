@@ -128,6 +128,7 @@ function GummyFromAsset() {
 }
 
 const EASE = (k: number, dt: number) => 1 - Math.exp(-k * dt);
+const FACE_MORPHS = new Set<MorphName>(["Happy", "Surprised", "Worried", "Panic", "Blink"]);
 
 function GummyBody({ model }: { model: Prepared | "fallback" }) {
   const rt = useRuntime();
@@ -138,6 +139,12 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
   const shadow = useRef<Mesh>(null);
 
   const { material, uniforms } = useMemo(() => createGummyMaterial(rt.palette, rt.tier), [rt]);
+  useEffect(() => {
+    rt.gummyMaterial.current = material;
+    return () => {
+      rt.gummyMaterial.current = null;
+    };
+  }, [rt, material]);
   const faceMat = useMemo(() => createFaceMaterial(rt.palette), [rt]);
   const prepared = useMemo<Prepared>(() => {
     if (model !== "fallback") {
@@ -201,7 +208,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
   const spawn = rt.arena.spawn;
   const intro = rt.arena.introPos;
 
-  useFrame((state, rawDt) => {
+  useFrame((_, rawDt) => {
     const rb = body.current;
     const vis = visual.current;
     if (!rb || !vis) return;
@@ -285,7 +292,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         const ctrl = ctrlRef.current;
         ctrl?.update(dt, rb);
         const gf = ctrl?.gravityFactor ?? 1;
-        rb.setGravityScale(rt.env.gravityMul * gf, true);
+        rb.setGravityScale(rt.env.gravityMul * gf * rt.tune.gravity, true);
         // grounded: a short ray straight down (sensors excluded)
         const ray = rayRef.current;
         if (ray) {
@@ -304,7 +311,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     const powered = rt.env.rainbow > 0.5 || rt.env.gold > 0.5 || rt.env.lowGravity > 0.5 || rt.superSquish;
     b.state = physicsState({ dragged: b.dragged, squishing: b.squishing, inDanger: b.inDanger, sinceBounce: b.sinceBounce, powered, grounded: b.grounded });
     const jelly = rt.jelly;
-    jelly.amplitude = rt.reducedMotion ? 0.4 : 1;
+    jelly.amplitude = (rt.reducedMotion ? 0.4 : 1) * rt.tune.jelly;
     jelly.step(dt);
     const w = jelly.weights(L.weights);
 
@@ -353,11 +360,12 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     final.Worried = L.face.Worried;
     final.Panic = Math.min(FACE_OPEN_CAP, L.face.Panic);
     final.Blink = blinkW;
+    const morphScale = rt.tune.morph;
     for (const { mesh, index } of prepared.morphMeshes) {
       const inf = mesh.morphTargetInfluences!;
       for (const n of MORPH_NAMES) {
         const i = index[n];
-        if (i !== undefined) inf[i] = final[n];
+        if (i !== undefined) inf[i] = Math.min(1, final[n] * (FACE_MORPHS.has(n) ? 1 : morphScale));
       }
     }
 
@@ -433,7 +441,6 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         sh.visible = false;
       }
     }
-    void state;
   });
 
   return (
@@ -448,12 +455,11 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         linearDamping={0.08}
         canSleep={false}
         ccd
-        onCollisionEnter={(p) => {
+        onCollisionEnter={() => {
           const lv = body.current?.linvel();
           const b = rt.bear;
           const v = Math.hypot(b.vx, b.vy);
           const speed = Math.max(v, lv ? Math.hypot(lv.x, lv.y) : 0);
-          void p;
           if (speed < 2.6) return;
           const len = Math.hypot(b.vx, b.vy) || 1;
           rt.hooks.impact(speed, b.vx / len, b.vy / len, b.x, b.y + 0.2);

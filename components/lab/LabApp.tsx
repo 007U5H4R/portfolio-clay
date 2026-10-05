@@ -4,11 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { enteredFromPortfolio, LAB_PATH, readReturnRoute } from "@/lib/lab/session";
+import { canGoBackToPortfolio, LAB_PATH, readReturnRoute } from "@/lib/lab/session";
 import { createLabStore } from "@/lib/lab/store";
 import { stopSmoothScroll } from "@/lib/smooth-scroll";
 import { playExit, settleOverlay } from "@/components/easter-egg/transition";
 import { createRuntime } from "./create-runtime";
+import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { CenterText, Chrome, Hint, Hud, Intro, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
@@ -55,7 +56,7 @@ export default function LabApp() {
           playExit({
             targetRect: monogram?.getBoundingClientRect() ?? null,
             reducedMotion: reduced,
-            navigate: () => (enteredFromPortfolio() && window.history.length > 1 ? router.back() : router.push(readReturnRoute())),
+            navigate: () => (canGoBackToPortfolio() ? router.back() : router.push(readReturnRoute())),
           }),
         mode === "canvas" && !reduced ? 650 : 0,
       );
@@ -135,7 +136,7 @@ export default function LabApp() {
       if (e.key === "Escape") {
         e.preventDefault();
         exit("button");
-      } else if ((e.key === "p" || e.key === "P") && !e.repeat) {
+      } else if ((e.key === "p" || e.key === "P") && !e.repeat && !(e.target instanceof HTMLInputElement)) {
         togglePause();
       }
     };
@@ -143,6 +144,8 @@ export default function LabApp() {
     return () => window.removeEventListener("keydown", onKey);
   }, [exit, togglePause]);
 
+  // `?debug=panel` also shows the tuning panel (spec §47); plain `?debug` only exposes the handles.
+  const [debug] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "panel");
   const state = store((s) => s.state);
   const tp = store((s) => s.tpMode);
   const running = state === "PLAYING" || state === "DANGER" || state === "PAUSED" || state === "COUNTDOWN";
@@ -177,6 +180,7 @@ export default function LabApp() {
           <TpEmblem store={store} />
           <Hint store={store} />
           <Toasts store={store} />
+          {debug && runtime ? <DebugPanel runtime={runtime} /> : null}
           {state === "DISCOVERED" ? <p className={styles.loading} role="status">Warming up the Gummy Lab…</p> : null}
           {state === "INTRO" ? <Intro onPlay={() => startRun("PLAY")} /> : null}
           {state === "PAUSED" ? <PauseCard onResume={togglePause} onExit={() => exit("button")} /> : null}

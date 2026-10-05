@@ -46,3 +46,23 @@ export function enteredFromPortfolio(): boolean {
     return false;
   }
 }
+
+/** The same-origin page that loaded this document (the trigger's hard navigation sets it), if it is not the lab. */
+function portfolioReferrer(): boolean {
+  try {
+    if (!document.referrer) return false;
+    const ref = new URL(document.referrer);
+    return ref.origin === window.location.origin && ref.pathname !== LAB_PATH;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Leaving by history (`back()`) is right only when this lab was entered from a portfolio page in this
+ * tab — the previous entry is then that page, scroll position included. A direct visit, or a reload
+ * after navigating elsewhere, has no such entry and returns to the stored route / home instead.
+ */
+export function canGoBackToPortfolio(): boolean {
+  return enteredFromPortfolio() && window.history.length > 1 && portfolioReferrer();
+}

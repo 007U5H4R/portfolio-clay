@@ -51,10 +51,11 @@ export function flickVelocity(samples: readonly PointerSample[], now: number, wi
 }
 
 /** Launch velocity for a release: scaled and capped; below the minimum it is a plain drop (no launch). */
-export function flickLaunch(samples: readonly PointerSample[], now: number): Vec2 | null {
+export function flickLaunch(samples: readonly PointerSample[], now: number, scale = 1): Vec2 | null {
   const v = flickVelocity(samples, now);
   if (Math.hypot(v.x, v.y) < FLICK_MIN_SPEED) return null;
-  return clampSpeed({ x: v.x * FLICK_MULTIPLIER, y: v.y * FLICK_MULTIPLIER }, FLICK_MAX_SPEED);
+  const k = FLICK_MULTIPLIER * scale;
+  return clampSpeed({ x: v.x * k, y: v.y * k }, FLICK_MAX_SPEED);
 }
 
 /** 0 until the hold passes SQUISH_START_MS, then eases to 1 at SQUISH_FULL_MS. */

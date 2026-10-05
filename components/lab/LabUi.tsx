@@ -143,7 +143,8 @@ export function TpEmblem({ store }: { store: LabStoreApi }) {
 
 export function PowerChips({ store }: { store: LabStoreApi }) {
   const powers = store((s) => s.powers);
-  if (powers.length === 0) return null;
+  const state = store((s) => s.state);
+  if (powers.length === 0 || (state !== "PLAYING" && state !== "DANGER" && state !== "PAUSED")) return null;
   return (
     <div className={styles.power} aria-hidden="true">
       {powers.map((p) => (

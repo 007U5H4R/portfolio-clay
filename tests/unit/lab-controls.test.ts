@@ -46,6 +46,12 @@ describe("flick", () => {
     const absurd = flickLaunch([{ t: 0, x: 0, y: 0 }, { t: 10, x: 50, y: 50 }], 10)!;
     expect(Math.hypot(absurd.x, absurd.y)).toBeCloseTo(FLICK_MAX_SPEED, 5);
   });
+  it("the debug flick multiplier scales the launch (still capped)", () => {
+    const swipe = [{ t: 0, x: 0, y: 0 }, { t: 100, x: 0.5, y: 0 }];
+    expect(flickLaunch(swipe, 100, 2)!.x).toBeCloseTo(flickLaunch(swipe, 100, 1)!.x * 2, 5);
+    const absurd = flickLaunch([{ t: 0, x: 0, y: 0 }, { t: 10, x: 50, y: 50 }], 10, 2)!;
+    expect(Math.hypot(absurd.x, absurd.y)).toBeCloseTo(FLICK_MAX_SPEED, 5);
+  });
   it("a slow release is a plain drop, not a launch", () => {
     expect(flickLaunch([{ t: 0, x: 0, y: 0 }, { t: 100, x: 0.05, y: 0 }], 100)).toBeNull();
   });

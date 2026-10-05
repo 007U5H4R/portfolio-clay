@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Color, DoubleSide, Mesh, MeshStandardMaterial, PMREMGenerator, PlaneGeometry, ShaderMaterial, SphereGeometry } from "three";
+import { DoubleSide, Mesh, MeshStandardMaterial, PMREMGenerator, PlaneGeometry, ShaderMaterial, SphereGeometry } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { col } from "./materials";
 import { useRuntime } from "./runtime";
@@ -81,7 +81,6 @@ export function Stage() {
     },
     [orbs],
   );
-  const tint = useRef(new Color());
   useFrame(() => {
     const u = (backdrop.material as ShaderMaterial).uniforms;
     u.uTp!.value += (rt.env.tpGlow - u.uTp!.value) * 0.05;
@@ -90,7 +89,6 @@ export function Stage() {
       const m = orbRefs.current[i];
       if (m) m.position.y = o.y + Math.sin(rt.time * 0.4 + o.ph) * 0.35 * amp;
     });
-    void tint;
   });
 
   return (

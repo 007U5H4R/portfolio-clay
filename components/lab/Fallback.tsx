@@ -10,7 +10,7 @@ import styles from "./lab.module.css";
 export function Fallback({ onBack }: { onBack: () => void }) {
   return (
     <div className={styles.layer}>
-      <section className={styles.fallback} data-lab="fallback" aria-labelledby="lab-fallback-title">
+      <section className={styles.fallback} data-lab-fallback="" aria-labelledby="lab-fallback-title">
         <p className={styles.micro}>You found the secret lab.</p>
         <h1 id="lab-fallback-title" className={styles.title} style={{ fontSize: "2.2rem" }}>
           Gummy Lab

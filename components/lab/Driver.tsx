@@ -204,7 +204,7 @@ export function Driver() {
     e.gold = env.gold;
     e.lowGravity = env.lowGravity;
     e.tpGlow = env.tpGlow;
-    rt.bounceMul = env.bounceMul;
+    rt.bounceMul = env.bounceMul * rt.tune.bounce;
     rt.superSquish = env.superSquish;
 
     if (machine.state === "GAME_OVER") {

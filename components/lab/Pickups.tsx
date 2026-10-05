@@ -218,7 +218,7 @@ export function Pickups() {
       return;
     }
     const snap = rt.engine.snapshot();
-    const out = rt.spawner.update(Math.min(rawDt, 0.1), snap.timeS, { inDanger: rt.bear.inDanger, bearX: rt.bear.x, bearY: rt.bear.y });
+    const out = rt.spawner.update(Math.min(rawDt, 0.1) * rt.tune.spawn, snap.timeS, { inDanger: rt.bear.inDanger, bearX: rt.bear.x, bearY: rt.bear.y });
     if (out.spawned.length || out.expired.length) rt.store.getState().patch({ pickupsVersion: rt.store.getState().pickupsVersion + 1 });
   });
 

@@ -53,7 +53,7 @@ export function CameraRig() {
     rt.resultsScale = Math.min(1.5, Math.max(0.9, 0.17 * introH));
     const bearMid = arena.introPos.y + 0.5 * (state === "RESULTS" ? rt.resultsScale : 1.9);
     const introY = bearMid + (focus.current - 0.5) * introH;
-    const follow = rt.reducedMotion ? 0 : 0.06;
+    const follow = rt.reducedMotion ? 0 : 0.06 * rt.tune.follow;
     const fy = (rt.bear.y - centreY) * follow * k;
     const zoom = rt.reducedMotion ? 0 : rt.zoom * 0.05;
     rt.zoom = Math.max(0, rt.zoom - dt * 1.5);

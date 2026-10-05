@@ -120,7 +120,7 @@ export class GummyController {
       /* capture is best-effort */
     }
     this.mode = "pending";
-    this.downT = performance.now();
+    this.downT = e.timeStamp; // the input's own timestamp: robust to a busy main thread (a slow frame can batch events)
     this.downPx = { x: e.clientX, y: e.clientY };
     this.movedPx = 0;
     this.grab = { x: cx - this.world.x, y: cy - this.world.y };
@@ -134,8 +134,7 @@ export class GummyController {
     if (e.pointerId !== this.pointerId || this.mode === "idle") return;
     this.world.x = this.rt.pointer.x;
     this.world.y = this.rt.pointer.y;
-    const now = performance.now();
-    this.samples.push({ t: now, x: this.world.x, y: this.world.y });
+    this.samples.push({ t: e.timeStamp, x: this.world.x, y: this.world.y });
     if (this.samples.length > 12) this.samples.shift();
     this.movedPx = Math.max(this.movedPx, Math.hypot(e.clientX - this.downPx.x, e.clientY - this.downPx.y));
     if ((this.mode === "pending" || this.mode === "squish") && this.movedPx > 12) {
@@ -147,7 +146,8 @@ export class GummyController {
   private onUp(e: PointerEvent) {
     if (e.pointerId !== this.pointerId) return;
     const rb = this.rt.bearBody.current;
-    const held = performance.now() - this.downT;
+    const now = e.timeStamp;
+    const held = now - this.downT;
     const b = this.rt.bear;
     const mode = this.mode;
     this.mode = "idle";
@@ -156,7 +156,7 @@ export class GummyController {
     b.squishing = false;
     if (!rb || !this.isLive()) return;
     if (mode === "drag") {
-      const launch = flickLaunch(this.samples, performance.now());
+      const launch = flickLaunch(this.samples, now, this.rt.tune.flick);
       if (launch) {
         rb.setLinvel({ x: launch.x, y: launch.y, z: 0 }, true);
         b.sinceBounce = 0;

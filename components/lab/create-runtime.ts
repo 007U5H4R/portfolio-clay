@@ -7,7 +7,7 @@ import { ParticlePool } from "@/lib/lab/particles";
 import type { LabStoreApi } from "@/lib/lab/store";
 import { detectTier, readDevice, tierConfig } from "@/lib/lab/tiers";
 import { readPalette } from "@/lib/lab/tokens";
-import { createBear, createEnv, noopHooks, type LabRuntime } from "./runtime";
+import { createBear, createEnv, createTuning, noopHooks, type LabRuntime } from "./runtime";
 
 /** Build the per-mount runtime (browser only): palette from the live theme, tier from the device. */
 export function createRuntime(store: LabStoreApi): LabRuntime {
@@ -43,6 +43,8 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     exit: null,
     pointer: { x: 0, y: 0, active: false },
     poke: 0,
+    tune: createTuning(),
+    gummyMaterial: { current: null },
     bounceMul: 1,
     superSquish: false,
     onAsset: () => {},
