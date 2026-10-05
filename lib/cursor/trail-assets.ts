@@ -29,6 +29,11 @@ export function themeForSlug(slug: string): TrailTheme {
   return "default";
 }
 
+/** Route fallback when no `data-cursor-theme` ancestor exists (the About page has no single wrapper). */
+export function themeForPath(pathname: string): TrailTheme {
+  return pathname === "/about" || pathname.startsWith("/about/") ? "about" : "default";
+}
+
 export function trailSrc(name: string): string {
   return `${TRAIL_BASE}${name}.svg`;
 }

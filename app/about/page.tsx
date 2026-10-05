@@ -32,7 +32,7 @@ export const metadata: Metadata = buildMetadata({
  */
 export default function AboutPage() {
   return (
-    <div data-cursor-theme="about" style={{ display: "contents" }}>
+    <>
       <SceneOpener id="scene-about" priority />
       <AboutHero />
       <ThreeChapters />
@@ -40,6 +40,6 @@ export default function AboutPage() {
       <ResearchValues />
       <Recognition />
       <AboutCta />
-    </div>
+    </>
   );
 }

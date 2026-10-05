@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { shouldMountCursor, isPrimaryMouseDown } from "@/lib/cursor/gate";
 import { planSpawns, styleForSpeed, capActive } from "@/lib/cursor/trail-math";
 import { MAX_ACTIVE, MAX_PER_MOVE, MAX_WIDTH, MIN_WIDTH, SPACING } from "@/lib/cursor/trail-config";
-import { TRAIL_ASSETS, allTrailSrcs, pieceAt, themeFor } from "@/lib/cursor/trail-assets";
+import { TRAIL_ASSETS, allTrailSrcs, pieceAt, themeFor, themeForPath, themeForSlug } from "@/lib/cursor/trail-assets";
 
 describe("gating (EVAL-028)", () => {
   const ok = { finePointer: true, reducedMotion: false, loaded: true };
@@ -75,6 +75,14 @@ describe("themes + manifest", () => {
     expect(themeFor("nope")).toBe("default");
     expect(themeFor(undefined)).toBe("default");
     expect(themeFor("constructor")).toBe("default");
+  });
+  it("derives themes from project slugs and the About route", () => {
+    expect(themeForSlug("campfire-board")).toBe("campfire");
+    expect(themeForSlug("slag-city")).toBe("slag-city");
+    expect(themeForSlug("railcite")).toBe("railcite");
+    expect(themeForSlug("teachspark")).toBe("default");
+    expect(themeForPath("/about")).toBe("about");
+    expect(themeForPath("/work")).toBe("default");
   });
   it("loops deterministically and wraps", () => {
     const n = TRAIL_ASSETS.railcite.length;

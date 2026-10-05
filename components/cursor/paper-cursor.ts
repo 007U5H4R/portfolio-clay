@@ -2,7 +2,7 @@ import "./cursor.css";
 import { isExcludedTarget, isPrimaryMouseDown } from "@/lib/cursor/gate";
 import { labelFor } from "@/lib/cursor/labels";
 import { FOLLOW, LIFETIME, MAX_ACTIVE } from "@/lib/cursor/trail-config";
-import { allTrailSrcs, pieceAt, themeFor, type TrailTheme } from "@/lib/cursor/trail-assets";
+import { allTrailSrcs, pieceAt, themeFor, themeForPath, type TrailTheme } from "@/lib/cursor/trail-assets";
 import { capActive, planSpawns, styleForSpeed, type Point } from "@/lib/cursor/trail-math";
 
 /**
@@ -105,6 +105,11 @@ export function mountPaperCursor(): () => void {
   let spawnIndex = 0;
   let theme: TrailTheme = "default";
 
+  const resolveTheme = (el: EventTarget | null): TrailTheme => {
+    const tagged = (el as Element | null)?.closest?.<HTMLElement>("[data-cursor-theme]")?.dataset.cursorTheme;
+    return tagged ? themeFor(tagged) : themeForPath(window.location.pathname);
+  };
+
   const spawn = (p: Point, dir: Point, speed: number) => {
     const style = styleForSpeed(speed);
     const rot = (Math.random() * 2 - 1) * style.maxTilt;
@@ -158,7 +163,7 @@ export function mountPaperCursor(): () => void {
   const onDown = (e: PointerEvent) => {
     if (!isPrimaryMouseDown(e) || isExcludedTarget(e.target)) return;
     pressed = true;
-    theme = themeFor((e.target as Element | null)?.closest<HTMLElement>("[data-cursor-theme]")?.dataset.cursorTheme);
+    theme = resolveTheme(e.target);
     body.classList.add("cursor-dragging");
     root.dataset.pressed = "true";
     last = { x: e.clientX, y: e.clientY };
@@ -192,7 +197,7 @@ export function mountPaperCursor(): () => void {
     if (plan.points.length === 0) return;
     const dt = Math.max(1, e.timeStamp - lastT);
     const speed = Math.hypot(cur.x - last.x, cur.y - last.y) / dt;
-    theme = themeFor((e.target as Element | null)?.closest<HTMLElement>("[data-cursor-theme]")?.dataset.cursorTheme);
+    theme = resolveTheme(e.target);
     for (const p of plan.points) spawn(p, plan.dir, speed);
     last = plan.anchor;
     lastT = e.timeStamp;
