@@ -15,11 +15,13 @@
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
+ * TASK-133: `featured-<slug>`, the three hand-authored cut-paper collages on the home Featured Work cards
+ * (scripts/portfolio-art/featured/, public-only; full-card compositions since the fidelity pass).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city";
+  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition)
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
@@ -78,7 +80,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 3168,
     height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar reading in a green armchair under a floor lamp, a golden retriever asleep on the rug beside him, a mug and a stack of books on the side table.",
-    usedOn: ["/work/[slug]"],
+    usedOn: [], // TASK-130 (Dev-130): case studies open on their own product hero; kept for /dev/primitives
   },
   {
     id: "scene-about",
@@ -229,7 +231,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a cream streamliner with a rust chevron coming down the line at dusk, the sun setting behind it — every third sleeper a ruled document page, a signal ahead showing green, a lit signal box, and a stack of bound volumes with a magnifier in the foreground.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects", "/work/railcite"], // TASK-130: also the case study's pitch-video poster
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/velora.ts) — carousel cover + stage poster.
@@ -251,7 +253,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own office scene with the real UI
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/nuptis.ts) — carousel cover + stage poster.
@@ -284,7 +286,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a cosy hillside home at dusk with a lit window and a rocking chair on the porch, a mailbox by the gate, a lane winding away to a distant city, a paper plane flying along the line between poles, and an open notebook of research notes with sticky notes and glasses in the foreground.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects", "/work/token-toli"], // TASK-130: also the case-study hero
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/pratyasa.ts) — carousel cover + stage poster.
@@ -317,7 +319,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1600,
     height: 900,
     alt: "Illustration of a teal smartphone dressed as a little arcade cabinet, a lit striped marquee on top and a pixel dinosaur on its screen, standing on a shelf before a big striped sunset over red desert mesas and pixel cacti, two coins beside it and a blank memory card sliding towards it.",
-    usedOn: ["/projects"],
+    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own postcard scene with the real UI
   },
   {
     // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cinematic-portfolio.ts) — carousel cover + stage poster.
@@ -351,5 +353,38 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 900,
     alt: "Illustration of a ruined industrial city at smoggy dusk: a forge hammer stands head-down on a heap of slag before a foundry's blazing furnace arch, molten slag runs out towards the viewer, and smokestacks, a blast-furnace tower, gutted buildings, a leaning crane and a broken green dome stand in the haze.",
     usedOn: ["/projects"],
+  },
+  {
+    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/railcite.ts) — the home Featured Work anchor card.
+    id: "featured-railcite",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/featured/featured-railcite.svg",
+    width: 1450,
+    height: 1000,
+    alt: "Illustration of a cut-paper collage: a navy, cream and red streamliner coming off a stone viaduct towards the viewer, a railway circular with a round seal and a red approval stamp, a route map and a sepia photo of a viaduct in front of a rust sun, pale mountains with a river and a dark pine forest.",
+    usedOn: ["/"],
+  },
+  {
+    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/slag-city.ts) — home Featured Work, top-right card.
+    id: "featured-slag-city",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/featured/featured-slag-city.svg",
+    width: 1240,
+    height: 620,
+    alt: "Illustration of a cut-paper collage: a charcoal and navy foundry skyline with smokestacks, a blast furnace, a rust brick block and a conveyor truss before a rust sun, a torn district map, glowing slag running into dark water, and a lone pine.",
+    usedOn: ["/"],
+  },
+  {
+    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/campfire-board.ts) — home Featured Work, bottom-right card.
+    id: "featured-campfire-board",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/featured/featured-campfire-board.svg",
+    width: 1240,
+    height: 640,
+    alt: "Illustration of a cut-paper collage: a planning board on an easel with a hand-drawn map and pinned, scribbled paper notes, a campfire in a ring of stones between two wooden chairs, a mug, a lake, hills, pines and a low sunset circle.",
+    usedOn: ["/"],
   },
 ];

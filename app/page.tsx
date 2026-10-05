@@ -38,8 +38,8 @@ export default function Home() {
       <Hero />
 
       {/*
-        FeaturedWork (TKT-75, Design.md §7.1): section#work-featured on paper-2 — three taped work
-        cards (TeachSpark large + RailCite/Velora), metrics picked per §7.1.
+        FeaturedWork (TASK-133, Design.md §7.1, Dev-127): section#work-featured on paper-2 — the
+        three-product showcase (RailCite anchor · Slag City · Campfire Board), each Explore → /projects?product=<id>.
       */}
       <FeaturedWork />
 

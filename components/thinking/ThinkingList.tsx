@@ -1,3 +1,4 @@
+import { NewTabHint } from "@/components/common/NewTabHint";
 import Link from "next/link";
 import type { Essay } from "@/data/schema";
 import { getProject } from "@/data/projects";
@@ -91,8 +92,9 @@ export function ThinkingList({ essays }: ThinkingListProps) {
                           <p className="essay-meta">
                             <span>{essay.readingMinutes} min read</span>
                             {related ? (
-                              <Link href={`/work/${related.slug}`} className="essay-meta-rel focus-ring">
+                              <Link href={`/work/${related.slug}`} target="_blank" rel="noopener noreferrer" className="essay-meta-rel focus-ring">
                                 Related project: {related.name} →
+                                <NewTabHint />
                               </Link>
                             ) : null}
                             {essay.draft ? <DraftTag /> : null}

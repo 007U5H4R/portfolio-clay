@@ -25,6 +25,7 @@
  * Each test title carries the literal `@EVAL-0xx` token so it surfaces in `playwright test --list`.
  */
 import { test, expect } from "./fixtures";
+import { isSystem } from "./case-study-system";
 import { DEV_ROUTES } from "./routes";
 import { STATIC_ROUTES } from "@/app/sitemap";
 import { projects } from "@/data/projects";
@@ -56,7 +57,8 @@ for (const route of ROUTES) {
 // column went unchecked — and overflowed at 390px on 5 case studies (ArtifactGrid, DES-002 → QA-007),
 // caught only by an UNTAGGED case-study test that no EVAL id counted. Every deep-dive case study now
 // runs the same no-overflow assertion with the chapter view open, under the EVAL-008 gate.
-const DEEP_DIVE_ROUTES = projects.filter((p) => p.overview.deepDive).map((p) => `/work/${p.slug}`);
+// TASK-130: case-study-system pages have no Deep dive tab (the default sweep above covers them).
+const DEEP_DIVE_ROUTES = projects.filter((p) => p.overview.deepDive && !isSystem(p.slug)).map((p) => `/work/${p.slug}`);
 for (const route of DEEP_DIVE_ROUTES) {
   test(`@EVAL-008 responsive: no horizontal overflow in Deep dive · ${route}`, { tag: "@EVAL-008" }, async ({
     page,

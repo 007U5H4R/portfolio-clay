@@ -30,8 +30,8 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-013e9480281a",
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-af6bf22cf18c",
     "dependsOn": [
       "profile",
       "experience",
@@ -82,7 +82,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-09-29",
-    "profileVersion": "v1-fbe1fd0289c3",
+    "profileVersion": "v1-963d41cf9003",
     "dependsOn": [
       "projects"
     ],
@@ -121,8 +121,8 @@
       "Tell me about RailCite.",
       "What certifications does he have?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-2942837e9504",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-65827b07653b",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -165,8 +165,8 @@
       "Tell me about TeachSpark.",
       "What is his product thinking process?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-4af78bd04cd3",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-c3d8c555ea4c",
     "dependsOn": [
       "impact",
       "experience",
@@ -248,8 +248,8 @@
       "How does he evaluate an AI product?",
       "Walk me through a specific project."
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-521d12c97afb",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-57dfea8be962",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -288,8 +288,8 @@
       "Tell me about TeachSpark.",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-8b752689c163",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-0bcd887fa2e3",
     "dependsOn": [
       "project:railcite"
     ],
@@ -324,8 +324,8 @@
       "How does he evaluate an AI product?",
       "What did he learn when an assumption failed?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-559a8f95ebc1",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-3253d6cd62ba",
     "dependsOn": [
       "project:teachspark",
       "thinking"
@@ -361,8 +361,8 @@
       "Tell me about TeachSpark.",
       "How does he evaluate an AI product?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-8b752689c163",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-0bcd887fa2e3",
     "dependsOn": [
       "project:railcite"
     ],
@@ -399,8 +399,8 @@
       "What did he learn when an assumption failed?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-0d661af52f7a",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-aa3d703d9bf7",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -436,8 +436,8 @@
       "What impact has he created?",
       "What enterprise programs has he worked on?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-2ce092edeca6",
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-fa0a4f01074c",
     "dependsOn": [
       "experience",
       "profile"
@@ -471,8 +471,8 @@
       "What enterprise programs has he worked on?",
       "What is his educational background?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-ab2d2d4e1fe4",
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-e820bfc00fa5",
     "dependsOn": [
       "experience",
       "profile",
@@ -693,8 +693,8 @@
       "What is his product thinking process?",
       "Tell me about Velora."
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-c2bd77e02dfc",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-d51e4888ef4b",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -734,8 +734,8 @@
       "What did he learn when an assumption failed?",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-a2f2ca957fdb",
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-cc23f458b9d6",
     "dependsOn": [
       "knowledge",
       "project:railcite",
@@ -802,8 +802,8 @@
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-9bea316c6151",
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-a1b7188c0aae",
     "dependsOn": [
       "profile"
     ],

@@ -17,9 +17,11 @@ test("@EVAL-002 recruiter path: / → /projects → /work/teachspark all resolve
   const home = await page.goto("/", { waitUntil: "load" });
   expect(home?.status(), "/ must be 200").toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("AI-native products");
-  // The live leg of the path is navigable by click: the home page links to the case study today
-  // (the /work grid that also links to it is TKT-16 — asserted in the fixme below).
-  await expect(page.locator('a[href="/work/teachspark"]').first()).toBeVisible();
+  // The live leg of the path is navigable by click. TASK-133: the home Featured Work Explore links go to
+  // the Portfolio deep link (`/projects?product=<id>`, spec §12), no longer straight to a case study, so
+  // hop 1 is / → /projects (a featured Explore; the hero's "View my work" goes there too), and hop 2
+  // below is /projects → /work/teachspark.
+  await expect(page.locator('a[href^="/projects?product="]').first()).toBeVisible();
 
   // TKT-101: the project index is /projects (the hero's "View my work" CTA); /work is the Experience page.
   const work = await page.goto("/projects", { waitUntil: "load" });

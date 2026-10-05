@@ -1,15 +1,31 @@
 /**
- * TKT-75 (TC-147 step 1, S75.01 gate) — the featured `ProjectCard` + `FeaturedWork` render the
- * `data/projects.ts` records verbatim (D7): name, tagline, tags, statusLabel, and each chosen
- * metric's value / label / kind / asOf. Exactly one `a` per card, `aria-label` = name,
- * `href="/work/<slug>"`; ≤ 2 fasteners per card; section decorations = 4.
+ * TKT-75 (TC-147 step 1, S75.01 gate) — `ProjectCard` renders the `data/projects.ts` records verbatim
+ * (D7): name, tagline, tags, statusLabel, and each chosen metric's value / label / kind / asOf.
+ * Exactly one `a` per card, `aria-label` = name, `href="/work/<slug>"`; ≤ 2 fasteners per card.
+ * TASK-133: the home Featured Work no longer uses `ProjectCard` (its tests: FeaturedWork.test.tsx);
+ * the TKT-75 metric picks live here now, so the card keeps its coverage.
  */
 import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { FEATURED, FEATURED_METRICS, FeaturedWork, featuredMetrics } from "@/components/projects/FeaturedWork";
+import type { Metric, Project } from "@/data/schema";
 import { railcite, teachspark, velora } from "@/data/projects";
 import { formatAsOf } from "@/lib/format";
+
+/** The TKT-75 metric picks by label (Design.md §7.1, Dev-01), looked up in the data — never retyped. */
+const FEATURED_METRICS: Readonly<Record<string, readonly string[]>> = {
+  teachspark: ["Teachers joined", "Activated", "Median time saved"],
+  railcite: ["Documents indexed", "Invented citations"],
+  velora: ["Products in nine days"],
+};
+
+function featuredMetrics(project: Project): Metric[] {
+  return (FEATURED_METRICS[project.slug] ?? []).map((label) => {
+    const metric = project.metrics.find((m) => m.label === label);
+    if (!metric) throw new Error(`${project.slug} has no metric labelled "${label}"`);
+    return metric;
+  });
+}
 
 const text = (el: Element | null | undefined) => el?.textContent ?? "";
 
@@ -18,7 +34,10 @@ describe("ProjectCard (featured)", () => {
     const { container } = render(<ProjectCard project={teachspark} metrics={featuredMetrics(teachspark)} size="large" />);
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(1);
-    expect(links[0]?.getAttribute("aria-label")).toBe("TeachSpark");
+    // TASK-130: the case study opens in a new tab, and the name says so.
+    expect(links[0]?.getAttribute("aria-label")).toBe("TeachSpark (opens in a new tab)");
+    expect(links[0]?.getAttribute("target")).toBe("_blank");
+    expect(links[0]?.getAttribute("rel")).toContain("noopener");
     expect(links[0]?.getAttribute("href")).toBe("/work/teachspark");
     expect(container.querySelectorAll("a, button")).toHaveLength(1);
     // EXE-5 CSS-only VT name on the anchor.
@@ -61,10 +80,7 @@ describe("ProjectCard (featured)", () => {
     expect(featuredMetrics(teachspark).map((m) => m.value)).toEqual(["17", "8 (47%)", "37.5 min"]);
     expect(featuredMetrics(railcite).map((m) => m.value)).toEqual(["5,760", "0"]);
     expect(featuredMetrics(velora).map((m) => m.value)).not.toContain("10/10");
-    for (const [slug, labels] of Object.entries(FEATURED_METRICS)) {
-      expect(FEATURED.map((p) => p.slug)).toContain(slug);
-      expect(labels.length).toBeGreaterThan(0);
-    }
+    for (const labels of Object.values(FEATURED_METRICS)) expect(labels.length).toBeGreaterThan(0);
   });
 
   it("omits the metrics row when no rows are chosen", () => {
@@ -77,33 +93,5 @@ describe("ProjectCard (featured)", () => {
     expect(container.querySelectorAll("[data-fastener]").length).toBeLessThanOrEqual(2);
     const link = screen.getByRole("link");
     expect(within(link).getByText("Read the case study →").getAttribute("data-hand")).toBe("cta");
-  });
-});
-
-describe("FeaturedWork", () => {
-  it("renders 3 cards in rank order linking to their case studies", () => {
-    const { container } = render(<FeaturedWork />);
-    const section = container.querySelector("section#work-featured");
-    expect(section).not.toBeNull();
-    const links = [...section!.querySelectorAll("a")];
-    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/work/teachspark", "/work/railcite", "/work/velora"]);
-    expect(links.map((a) => a.getAttribute("aria-label"))).toEqual(["TeachSpark", "RailCite", "Nuptis → Velora"]);
-  });
-
-  it("counts exactly 4 decorations (torn · annotation · flow sketch · sticky) and ≤ 2 fasteners per card", () => {
-    const { container } = render(<FeaturedWork />);
-    const section = container.querySelector("section#work-featured")!;
-    const decor = [...section.querySelectorAll("[data-decor]")].map((el) => el.getAttribute("data-decor"));
-    expect(decor.sort()).toEqual(["annotation", "sketch", "sticky", "torn"]);
-    for (const card of section.querySelectorAll('[data-paper="card"]')) {
-      expect(card.querySelectorAll("[data-fastener]").length).toBeLessThanOrEqual(2);
-    }
-  });
-
-  it("quotes RailCite's insight verbatim in the annotation", () => {
-    const { container } = render(<FeaturedWork />);
-    const quote = container.querySelector('[data-decor="annotation"]');
-    expect(text(quote)).toContain("The feature is a citation. The product is trust.");
-    expect(quote?.getAttribute("aria-hidden")).toBe("true");
   });
 });

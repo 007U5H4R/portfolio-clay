@@ -11,17 +11,26 @@
 export interface NavItem {
   label: string;
   href: string;
+  /**
+   * TASK-135 (Tushar 2026-09-29): a hidden tab is kept here but not rendered in the header. The page
+   * itself stays built, public and in the sitemap. To show a tab again, delete its `hidden: true`.
+   */
+  hidden?: boolean;
 }
 
-export const navItems: NavItem[] = [
+/** Every tab the site has, including hidden ones: the single place to switch a tab back on. */
+export const allNavItems: NavItem[] = [
   { label: "Home", href: "/" },
   // TKT-101 (Tushar 2026-09-26): "Work" → "Experience" (the collage timeline at /work); the project
   // index moved to its own "Projects" tab at /projects — six items (Design.md §11 Dev-90).
   { label: "Experience", href: "/work" },
   // TASK-116 (Tushar 2026-09-28): the tab reads "Portfolio"; the route stays /projects (spec §1).
   { label: "Portfolio", href: "/projects" },
-  { label: "Thinking", href: "/thinking" },
+  { label: "Thinking", href: "/thinking", hidden: true }, // TASK-135: hidden, page kept
   { label: "About", href: "/about" },
-  { label: "Playground", href: "/playground" }, // D8 — remove this line to return to four items
+  { label: "Playground", href: "/playground", hidden: true }, // TASK-135: hidden, page kept (was D8)
   { label: "Certifications", href: "/certifications" }, // TKT-102 (Tushar 2026-09-26)
 ];
+
+/** The tabs the header renders: `allNavItems` minus the hidden ones. */
+export const navItems: NavItem[] = allNavItems.filter((item) => !item.hidden);

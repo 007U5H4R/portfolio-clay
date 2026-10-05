@@ -157,7 +157,7 @@ The route tests cover the brief's list:
 
 1. **Files changed:** see "Files".
 2. **VoicePlayer component:** `components/ai/voice/TushkyVoicePlayer.tsx`: `TushkyVoicePlayer`, `TushkyVoiceProvider` and `useVoiceEntry`.
-   - Props are `{messageId, question, answerText, faqId?, cachedAudioUrl?, cachedDurationMs?}`, not UI§37's `speechText`, because the server recomputes the speech (brief §3.3; Dev-129).
+   - Props are `{messageId, question, answerText, faqId?, cachedAudioUrl?, cachedDurationMs?}`, not UI§37's `speechText`, because the server recomputes the speech (brief §3.3; Dev-134).
    - It renders inside the answer bubble between the text and the sources (UI§1, §20).
 3. **Playback states:** `idle`, `loading` (shown as "pending", the pressed idle look, for its first 150 ms, UI§21), `playing`, `paused`, `ended`, `error`, and `resting` (quota).
 4. **Visual styling:** one block in `app/globals.css` (TASK-134), using paper tokens and `color-mix` only (EVAL-020 passes).
@@ -207,7 +207,7 @@ The text answer is never touched. Errors are never cached. No provider message r
 ## Brief §3: what was corrected, and how
 
 1. **No live Gemini text:** "Gemini text answer" = the answer the site already produces (FAQ cache → local index). No text-generation path was built.
-2. **Static site:** the route is the first server function. `scripts/assert-static.ts` is now a tested pure `checkStatic()`: pages must be prerendered, and only `/api/tushky/speech` and `/api/dev/tushky-voice` may be dynamic. **Design.md §11 Dev-128.**
+2. **Static site:** the route is the first server function. `scripts/assert-static.ts` is now a tested pure `checkStatic()`: pages must be prerendered, and only `/api/tushky/speech` and `/api/dev/tushky-voice` may be dynamic. **Design.md §11 Dev-133.**
 3. **Abuse prevention:** the pipeline was lifted into `lib/ask/pipeline.ts#createTushkyPipeline`, which the drawer and the route both import. It needs no browser-only code. The answer depends only on the question: history only affects follow-up chips. So nothing but the ≤ 300-character question is sent.
 4. **Rate limiting:** in-memory token bucket, per instance, documented as such. The upgrade is proposed, not added.
 5. **Key:** read from `GEMINI_API_KEY` in exactly one module (`lib/tushky-voice/tts-client.ts`; TASK-123's offline refresh script also reads it). No `NEXT_PUBLIC_` variant anywhere (unit-tested). Not in logs, errors or responses (unit-tested).
@@ -268,7 +268,7 @@ A separate review pass (read-only, after the first full implementation) found fi
 - Safari/iOS playback (the unlock clip follows the standard pattern; only Chromium was run);
 - that Google's 3.8 Interactions reply for TTS carries audio under `steps[].content[]`, per the SDK types. The client also accepts an SDK-style `output_audio`.
 
-## Judgement calls (recorded in Design.md §11 Dev-128 / Dev-129 where visual)
+## Judgement calls (recorded in Design.md §11 Dev-133 / Dev-134 where visual)
 
 - **FHIR → "fire", not letters.** The brief's example said letters. HL7, the standard's owner, says it is pronounced "fire", and recruiters in healthcare would hear letters as a mistake. It's one line in `pronunciations.json` if Tushar prefers letters.
 - **FAQ audio metadata in a separate `faq-audio.json`,** not inside `faq.json` entries (V§29). It carries the same fields, and TASK-123's refresh script and the audio script never rewrite each other's file.
@@ -288,7 +288,7 @@ A separate review pass (read-only, after the first full implementation) found fi
 - **The rate limit and runtime cache are per server instance** (no KV). A distributed client can exceed the nominal rate across instances. Upgrade: Vercel Firewall rule or Upstash/Vercel KV.
 - **Live answers are sent as 24 kHz WAV** (≈ 48 kB/s, roughly 2–3 MB for today's longer answers). The 1,200-character speech cap keeps audio under Vercel's 4.5 MB response limit. Switching the route to Gemini's native MP3 would cut it by about 8x (`format: "mp3"` in `speech-route.ts`), but the brief asked for WAV.
 - **No streaming:** the first sound waits for the whole clip (a unary call).
-- **The sync merge was not done.** The brief's `git merge origin/m-009-redesign` was blocked by this session's permission policy. `origin/m-009-redesign` (a03780b, TASK-133) is not merged into this branch. TASK-133 used Dev-127, so this task uses **Dev-128/129**; recheck the numbering when merging.
+- **Sync merge:** at first the brief's `git merge origin/m-009-redesign` was blocked by this session's permission policy. It was done on 2026-10-05 at Tushar's request (`e6c6e1a`, including TASK-133, the case-study journal and the hero intro video). `m-009-redesign` had used Dev-127…132 in the meantime, so this task's rows are **Dev-133 and Dev-134**. The commits below that mention Dev-128/129 predate the renumbering.
 - **Browser version:** e2e ran on Chromium 141 rather than Playwright 1.63's pinned Chromium 153 (CDN blocked). Worth one local re-run on the Mac.
 
 ## Files
@@ -332,7 +332,7 @@ A separate review pass (read-only, after the first full implementation) found fi
 - `scripts/assert-static.ts`: the allow-list and a tested `checkStatic()`
 - `tests/unit/csp.test.ts`
 - `tests/e2e/routes.json`: `/dev/tushky-voice` in the dev list
-- `Design.md` §11: Dev-128, Dev-129
+- `Design.md` §11: Dev-133, Dev-134
 - `HANDOFF.md`: shipped-table row
 
 ## Commits

@@ -105,25 +105,32 @@ test("TKT-106 main itself never lags; only its last child does", async ({ page }
   }
 });
 
-test("TKT-106 a keyboard-focused hero CTA is never hidden under the Featured Work sheet", async ({ page }) => {
+// Tushar 2026-10-05: the intro video now closes the hero, so the control nearest the Featured Work sheet
+// is its Play button. The CTA row sits ≈ 700 px above the tear, out of the 200 px slide-over zone.
+test("TKT-106 a keyboard-focused hero control (the intro video's Play) is never hidden under the Featured Work sheet", async ({ page }) => {
   test.skip(width(page) !== 1440, "measured at w1440");
   await page.goto("/", { waitUntil: "load" });
   const vh = page.viewportSize()!.height;
-  const { sheetDocTop } = await geometry(page, "#work-featured");
+  const play = page.locator(".hero-intro").getByRole("button", { name: /^Play / });
+  // At the top of the page the tear is far below the viewport, so the hero is unlagged.
+  const playDocY = await play.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return r.top + r.height / 2 + window.scrollY;
+  });
   await page.keyboard.press("Tab"); // keyboard modality, so the programmatic focus below is :focus-visible
-  // Tear at 35 % of the viewport: the hero is fully lagged (200 px) and its CTA row sits under the sheet.
-  await scrollToY(page, sheetDocTop - vh * 0.35);
-  const cta = page.locator(".hero-cta-row").getByRole("link", { name: /Ask Tushky/ }); // TKT-108 renamed the secondary CTA
-  expect(await page.locator(".hero").evaluate((el) => getComputedStyle(el).translate)).toBe("0px 200px");
-  await cta.evaluate((el) => (el as HTMLElement).focus({ preventScroll: true }));
-  await expect(cta).toBeFocused();
+  // The Play button's resting centre at 30 % of the viewport: the tear has risen into view, the hero lags.
+  await scrollToY(page, playDocY - vh * 0.3);
+  const lagY = await page.locator(".hero").evaluate((el) => parseFloat(getComputedStyle(el).translate.split(" ")[1] ?? "0"));
+  expect(lagY, "the hero is lagging at this scroll").toBeGreaterThan(0);
+  await play.evaluate((el) => (el as HTMLElement).focus({ preventScroll: true }));
+  await expect(play).toBeFocused();
   await expect.poll(() => page.locator(".hero").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-  const topmostIsCta = await cta.evaluate((el) => {
+  const topmostIsPlay = await play.evaluate((el) => {
     const r = el.getBoundingClientRect();
     const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
     return !!hit && el.contains(hit);
   });
-  expect(topmostIsCta, "the focused CTA is the topmost element at its centre").toBe(true);
+  expect(topmostIsPlay, "the focused Play button is the topmost element at its centre").toBe(true);
 });
 
 for (const route of ["/", "/about"]) {

@@ -4,10 +4,13 @@
  *     (EXE-5 plain-navigation fallback).
  *   • JavaScript disabled → all content and navigation links are present and readable in the
  *     static HTML, in reading order.
- * Both live now for home → /work/teachspark. The missing-hero-image placeholder path is fixme'd
+ * Both live now for /projects → /work/teachspark (TASK-133: the home Featured Work Explore links go to
+ * the Portfolio deep link, so the card → case-study hop starts on /projects, whose default product
+ * sheet links to TeachSpark's case study). The missing-hero-image placeholder path is fixme'd
  * until the media component ships (TKT-18/19).
  */
 import { test, expect } from "./fixtures";
+import { openCaseStudy } from "./case-study-system";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
@@ -20,14 +23,14 @@ test("@EVAL-015 VT off: card → case study lands on the identical end state", {
   test.skip(width(page) !== 390 && width(page) !== 1440, "runs at 390 and 1440 (EVAL-015)");
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/", { waitUntil: "load" });
+  await page.goto("/projects", { waitUntil: "load" });
 
   const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback runs").toBeFalsy();
 
-  await page.locator('a[href="/work/teachspark"]').first().click();
-  await page.waitForURL("**/work/teachspark");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  // TASK-130: the case study opens in a new tab.
+  const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
 });
 
 test("@EVAL-015 JS off: static HTML carries content and navigation links", { tag: "@EVAL-015" }, async ({
