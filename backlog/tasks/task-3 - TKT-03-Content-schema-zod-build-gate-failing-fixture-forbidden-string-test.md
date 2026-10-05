@@ -3,10 +3,10 @@ id: TASK-3
 title: >-
   TKT-03: Content schema + zod build gate + failing fixture + forbidden-string
   test
-status: In Progress
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:22'
-updated_date: '2026-09-16 02:45'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:5'
@@ -44,3 +44,9 @@ Source: tickets.md § TKT-03.
 - [ ] #5 `data/projects.ts` contains the TeachSpark record at card fidelity migrated from TKT-01's literal and passes the gate.
 - [ ] #6 `pnpm test` green; `pnpm eval` regressed with no Critical change.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered in full. data/schema.ts, scripts/validate-content.ts (wired into the 'prebuild' script), tests/fixtures/invalid-project.fixture.ts, evals/results/content-gate-proof.txt and the forbidden-string test/scripts all exist in the repo; the status was just never flipped from In Progress to Done.
+<!-- SECTION:NOTES:END -->

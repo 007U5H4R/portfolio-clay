@@ -1,9 +1,10 @@
 ---
 id: TASK-1.6
 title: 'TSK-06: One ProjectCard + ViewTransitionLink + stub /work/teachspark'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:1'
@@ -29,3 +30,9 @@ ordinal: 55000
 - [ ] #1 TKT-01 AC 6 in full; transition 450ms `cubic-bezier(.77,0,.175,1)`; reduced motion -> plain navigation.
 - [ ] #2 `/work` placeholder route renders "Work - coming in this build" (so the hero CTA is never dead).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-01 (Done). components/projects/ProjectCard.tsx exists and /work/teachspark went past the stub to a full case study under TKT-28 (Done); this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

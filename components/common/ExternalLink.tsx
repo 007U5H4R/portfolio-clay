@@ -20,7 +20,7 @@ export interface ExternalLinkProps
  */
 export function ExternalLink({ href, children, className, ...rest }: ExternalLinkProps) {
   const classes = [
-    "inline-flex items-center gap-[2px] text-accent underline underline-offset-2 focus-ring rounded-[2px]",
+    "inline-flex items-center gap-[2px] text-rust underline underline-offset-2 focus-ring rounded-[2px]",
     className,
   ]
     .filter(Boolean)

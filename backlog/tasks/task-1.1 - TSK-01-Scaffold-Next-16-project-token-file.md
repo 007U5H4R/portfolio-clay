@@ -1,9 +1,10 @@
 ---
 id: TASK-1.1
 title: 'TSK-01: Scaffold Next 16 project + token file'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:12'
 labels:
   - P0
   - 'sp:1'
@@ -33,3 +34,9 @@ ordinal: 50000
 - [ ] #5 pnpm store / caches on E Drive.
 - [ ] #6 `lib/site.ts` exports `resumeAvailable: false` and the resume href/label pair (PB5).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-01 (Done). Scaffold + token file exist (app/globals.css, scripts/tokens-check.ts, lib/site.ts with resumeAvailable); this sub-task was never closed when its parent shipped.
+<!-- SECTION:NOTES:END -->

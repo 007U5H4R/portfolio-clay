@@ -1,0 +1,100 @@
+[
+  {
+    "name": "minScore",
+    "expected": 0.9,
+    "actual": 0.85,
+    "values": [
+      0.85,
+      0.86,
+      0.85
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "error",
+    "url": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.95,
+    "actual": 0.69,
+    "values": [
+      0.69,
+      0.69,
+      0.69
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "seo",
+    "auditId": "categories",
+    "level": "error",
+    "url": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app/"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 2500,
+    "actual": 3921.7529999999997,
+    "values": [
+      3921.7529999999997,
+      3824.002,
+      3988.385
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "error",
+    "url": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app/",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.9,
+    "actual": 0.89,
+    "values": [
+      0.89,
+      0.87,
+      0.89
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "error",
+    "url": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app/work/teachspark"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.95,
+    "actual": 0.66,
+    "values": [
+      0.66,
+      0.66,
+      0.66
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "seo",
+    "auditId": "categories",
+    "level": "error",
+    "url": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app/work/teachspark"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 2500,
+    "actual": 3360.0205,
+    "values": [
+      3360.0205,
+      3233.946,
+      3467.3379999999997
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "error",
+    "url": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app/work/teachspark",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  }
+]

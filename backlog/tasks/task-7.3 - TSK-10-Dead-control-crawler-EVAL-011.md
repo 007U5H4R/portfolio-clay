@@ -1,9 +1,10 @@
 ---
 id: TASK-7.3
 title: 'TSK-10: Dead-control crawler (EVAL-011)'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:2'
@@ -28,3 +29,9 @@ ordinal: 59000
 - [ ] #1 TKT-07 AC 4; route list comes from `app/sitemap.ts` when TKT-06 has landed, else from a static `tests/e2e/routes.json` (the crawler must not wait on the visual gate - PB1).
 - [ ] #2 Report lists every control checked; whitelist file for intentionally external targets; runs at 390 and 1440 (mobile menu controls included).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-07 (Done). tests/e2e/crawler.ts + tests/e2e/eval-011-dead-controls.spec.ts (EVAL-011) exist; this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

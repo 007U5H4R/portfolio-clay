@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import { ClayButton } from "@/components/clay/ClayButton";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
+import { Annotation, Sketch } from "@/components/paper";
 import type { SourceRef, ThinkingChain } from "@/data/schema";
 import { ThinkingNode } from "./ThinkingNode";
 
@@ -10,10 +10,11 @@ export interface ShowTheThinkingProps {
   /** The project's 8-node reasoning chain, or `[]` for a thin project (AC 1). */
   chain: ThinkingChain;
   /** Resolves each node's `source` id to its declared `SourceRef` (label rendered, never `ref`). */
-  sources: SourceRef[];
+  sources: readonly SourceRef[];
 }
 
 const PANEL_ID = "show-the-thinking-panel";
+const HEADING_ID = "show-the-thinking-heading";
 
 // Same SSR-safe "mounted yet?" read Reveal.tsx uses (components/interactions/Reveal.tsx) — the
 // server/first-paint snapshot is false and never changes again after the first client commit, so
@@ -26,30 +27,26 @@ function useMounted(): boolean {
 }
 
 /**
- * ShowTheThinking (TKT-21; technical-plan.md §B M-004, Design.md §3 "ShowTheThinking" + §4
- * "Show-the-thinking node reveal", tickets.md TKT-21) — the portfolio's signature interaction: a
- * user-triggered, never-auto-playing reveal of the 8-node reasoning chain below chapter 08.
+ * ShowTheThinking (TKT-83 re-skin of TKT-21; Design.md §7.3 "Show the thinking", §8 row, §3.3
+ * planned count 2) — the portfolio's signature interaction: a user-triggered, never-auto-playing
+ * reveal of the 8-node reasoning chain below the last chapter, now on paper: a nested
+ * `section.thinking` (its own EVAL-018 unit) with an sr-only `h2`, the secondary paper button
+ * "Show the thinking ↓" (`aria-expanded`), the `Annotation` "the chain, start to finish" and the
+ * dashed chain `Sketch` — exactly the two counted decorations — beside 42 px ivory medallions,
+ * pinned Inter label tags, Inter 15 px text and rust source links (`ThinkingNode`).
  *
- * Accessibility pattern chosen (technical-plan.md §B M-004 TKT-21, documented here per that
- * ticket's instruction to pick one and document it): the `<ol>` is **always in the DOM**, in
- * source order, before the toggle is ever opened — this is the Reveal pattern (animation is an
- * enhancement layered on top of real content, never a JS-off content-hider), not a
- * conditionally-rendered panel. The `.thinking-nodes` class that visually collapses it
- * (`visibility:hidden` in app/globals.css — removed from the accessibility tree and tab order,
- * same technique `.reveal` uses) is applied only **after mount** (`useMounted`, mirroring
- * Reveal.tsx), so with JavaScript disabled the class is never added and every node renders fully
- * visible immediately — nothing is ever permanently hidden from a no-JS reader.
+ * Accessibility pattern (unchanged from TKT-21, documented there): the `<ol>` is **always in the
+ * DOM**, in source order, before the toggle is ever opened — the Reveal pattern, not a
+ * conditionally-rendered panel. The `.thinking-nodes` class that visually collapses the chain
+ * (`visibility:hidden`, app/globals.css — removed from the accessibility tree and tab order) is
+ * applied only **after mount** (`useMounted`), so with JavaScript disabled every node renders fully
+ * visible. It now sits on the `.chain` wrapper so the sketch collapses with the nodes. Because the
+ * collapsed nodes leave the accessibility tree, the toggle's name carries a `VisuallyHidden` summary
+ * ("8-step reasoning chain, expand to read").
  *
- * Because the collapsed nodes are removed from the accessibility tree while JS is controlling
- * them, the toggle's accessible name carries a `VisuallyHidden` summary ("8-step reasoning chain,
- * expand to read") so a screen-reader user still knows the chain exists before opening it — the
- * "VisuallyHidden summary keeps AT discoverability" option named in the ticket, rather than an
- * `aria-describedby` region (kept inside the button's own label; no extra id wiring needed).
- *
- * Never auto-plays (AC: "never auto-plays") — `open` starts `false` and only a click/Enter/Space
- * on the toggle changes it. Focus is never moved: it stays on the toggle after opening (AC 4),
- * matching the ticket's explicit "focus remains on the toggle after open" — unlike AskPanel/
- * MobileMenu, this is not a modal, so there is nothing to trap or return focus from.
+ * Never auto-plays — `open` starts `false` and only a click/Enter/Space on the toggle changes it.
+ * Focus stays on the toggle after opening (a disclosure, not a modal). The reveal itself is CSS:
+ * 220 ms opacity, 120 ms/node stagger via `--i`; all at once, opacity only, under reduced motion.
  */
 export function ShowTheThinking({ chain, sources }: ShowTheThinkingProps) {
   const mounted = useMounted();
@@ -60,25 +57,36 @@ export function ShowTheThinking({ chain, sources }: ShowTheThinkingProps) {
 
   const sourceLabel = (id: string): string => sources.find((s) => s.id === id)?.label ?? id;
 
-  const listClasses = ["mt-[var(--space-6)] flex flex-col", mounted ? "thinking-nodes" : ""]
-    .filter(Boolean)
-    .join(" ");
+  const chainClasses = ["chain", mounted ? "thinking-nodes" : ""].filter(Boolean).join(" ");
 
   return (
-    <div className="mt-[var(--space-8)]">
-      <ClayButton
-        variant="secondary"
-        aria-expanded={open}
-        aria-controls={PANEL_ID}
-        onClick={() => setOpen((current) => !current)}
-      >
-        Show the thinking ↓ <VisuallyHidden>— 8-step reasoning chain, expand to read</VisuallyHidden>
-      </ClayButton>
-      <ol id={PANEL_ID} data-open={open ? "" : undefined} className={listClasses}>
-        {chain.map((node, index) => (
-          <ThinkingNode key={node.stage} node={node} index={index} sourceLabel={sourceLabel(node.source)} />
-        ))}
-      </ol>
-    </div>
+    <section id="show-the-thinking" aria-labelledby={HEADING_ID} className="thinking">
+      <h2 id={HEADING_ID} className="sr-only">
+        Show the thinking
+      </h2>
+      <div className="thinking-head">
+        <button
+          type="button"
+          className="think-btn focus-ring"
+          aria-expanded={open}
+          aria-controls={PANEL_ID}
+          onClick={() => setOpen((current) => !current)}
+        >
+          Show the thinking <span aria-hidden="true">{open ? "↑" : "↓"}</span>
+          <VisuallyHidden>— 8-step reasoning chain, expand to read</VisuallyHidden>
+        </button>
+        <Annotation size="lg" rotate={-1.5}>
+          the chain, start to finish
+        </Annotation>
+      </div>
+      <div id={PANEL_ID} data-open={open ? "" : undefined} className={chainClasses}>
+        <Sketch variant="chain" />
+        <ol>
+          {chain.map((node, index) => (
+            <ThinkingNode key={node.stage} node={node} index={index} sourceLabel={sourceLabel(node.source)} />
+          ))}
+        </ol>
+      </div>
+    </section>
   );
 }

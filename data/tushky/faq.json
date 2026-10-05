@@ -1,0 +1,812 @@
+[
+  {
+    "id": "who-is-tushar",
+    "category": "profile",
+    "question": "Who is Tushar?",
+    "aliases": [
+      "Tell me about Tushar",
+      "Who is Tushar Pathak?",
+      "Give me an overview of Tushar",
+      "Introduce Tushar",
+      "Tell me about him"
+    ],
+    "answer": "Tushar Pathak is a Senior Product Manager with 7+ years across product, cloud, data and AI. He has worked on enterprise platforms at Godrej, Quantiphi, Shellkode and now American Express, and he builds AI products himself and tests them with real users: TeachSpark and RailCite are the two flagships. Before product, he was a researcher and is a co-inventor on a granted Indian patent for a portable biosensor. In his own words, he turns messy problems into AI-native products people actually use. Woof woof 🐾",
+    "sources": [
+      {
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "label": "Experience",
+        "href": "/work"
+      },
+      {
+        "label": "Portfolio",
+        "href": "/projects"
+      }
+    ],
+    "followUps": [
+      "What products has Tushar built?",
+      "What is his current role?",
+      "What are his strongest skills?"
+    ],
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-af6bf22cf18c",
+    "dependsOn": [
+      "profile",
+      "experience",
+      "projects",
+      "credentials"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "products-built",
+    "category": "products",
+    "question": "What products has Tushar built?",
+    "aliases": [
+      "Which products has Tushar built?",
+      "What products have you built?",
+      "What has Tushar built?",
+      "What has Tushar shipped?",
+      "What have you shipped",
+      "Show me your projects",
+      "What have you made"
+    ],
+    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Tegaki, Pratyasa, Dino Arcade and a cinematic portfolio. Cubicle, a multi-agent “AI team” from a team buildathon, is built but not launched. Campfire Board, a local-first, multi-project dashboard for the AI build workflow and a personal fork of Backlog.md, is built as a local tool. Slag City, an original arcade beat-'em-up that runs in the browser, is live.",
+    "sources": [
+      {
+        "label": "TeachSpark",
+        "href": "/work/teachspark"
+      },
+      {
+        "label": "RailCite",
+        "href": "/work/railcite"
+      },
+      {
+        "label": "Nuptis → Velora",
+        "href": "/work/velora"
+      },
+      {
+        "label": "Campfire Board",
+        "href": "/work/campfire-board"
+      },
+      {
+        "label": "Slag City",
+        "href": "/work/slag-city"
+      }
+    ],
+    "followUps": [
+      "Tell me about TeachSpark.",
+      "Tell me about RailCite.",
+      "What AI experience does he have?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-963d41cf9003",
+    "dependsOn": [
+      "projects"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "ai-experience",
+    "category": "ai",
+    "question": "What AI experience does he have?",
+    "aliases": [
+      "What AI products has he worked on?",
+      "What AI products have you worked on?",
+      "What AI products has Tushar built?",
+      "What is his AI experience?",
+      "What AI experience does Tushar have?",
+      "Tell me about his AI work",
+      "Tell me about your AI work"
+    ],
+    "answer": "Both hands-on and enterprise. He built TeachSpark solo: Claude with structured outputs, vision on teacher-sent photos and a second QC pass, delivering worksheets and question papers over WhatsApp. He also built RailCite solo, a retrieval system over Indian Railways circulars (Voyage-3 embeddings, pgvector, 5,760 documents as of 15 Sep 2026) with a validator that drops any answer whose citations don't resolve. He worked on Cubicle, a multi-agent “AI team” built in a team buildathon, which is built but not launched. At American Express he is driving Devin GenAI adoption on the MARS platform, and his programs at Quantiphi included Generative AI initiatives.",
+    "sources": [
+      {
+        "label": "TeachSpark — What I built",
+        "href": "/work/teachspark#05-what-i-built"
+      },
+      {
+        "label": "RailCite — What I built",
+        "href": "/work/railcite#05-what-i-built"
+      },
+      {
+        "label": "Experience",
+        "href": "/work"
+      }
+    ],
+    "followUps": [
+      "How does he evaluate an AI product?",
+      "Tell me about RailCite.",
+      "What certifications does he have?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-65827b07653b",
+    "dependsOn": [
+      "project:teachspark",
+      "project:railcite",
+      "project:cubicle",
+      "experience",
+      "knowledge"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "impact",
+    "category": "impact",
+    "question": "What impact has he created?",
+    "aliases": [
+      "What impact have you created?",
+      "What impact has Tushar created?",
+      "What impact has Tushar had?",
+      "What results has Tushar delivered?",
+      "What results have you delivered",
+      "Show me your numbers",
+      "What outcomes has he achieved?"
+    ],
+    "answer": "Here are the numbers, with their caveats attached. At American Express he owns the roadmap for 35+ Accounts Receivable capabilities, 180+ user stories across four Agile teams, with a 30% cut in feature delivery cycle time (self-reported). TeachSpark's first-week pilot (snapshot 24 Aug 2026, test handsets excluded) brought 17 teachers onto WhatsApp, activated 8, and saved a median 37.5 minutes each, by their own report. RailCite keeps 5,760 government documents searchable (as of 15 Sep 2026) with zero invented citations, enforced by construction rather than measured on a sample.",
+    "sources": [
+      {
+        "label": "Impact",
+        "href": "/about#impact"
+      },
+      {
+        "label": "TeachSpark — Outcome",
+        "href": "/work/teachspark#07-outcome"
+      },
+      {
+        "label": "RailCite — Outcome",
+        "href": "/work/railcite#07-outcome"
+      }
+    ],
+    "followUps": [
+      "What is his current role?",
+      "Tell me about TeachSpark.",
+      "What is his product thinking process?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-c3d8c555ea4c",
+    "dependsOn": [
+      "impact",
+      "experience",
+      "project:teachspark",
+      "project:railcite"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "strongest-skills",
+    "category": "skills",
+    "question": "What are his strongest skills?",
+    "aliases": [
+      "What are Tushar's strongest skills?",
+      "Strongest product skills",
+      "What are your strengths",
+      "What are you best at",
+      "What is Tushar best at?",
+      "What are your core competencies"
+    ],
+    "answer": "Three stand out. First, discovery and hypothesis framing: confidence-tagged PRDs and assumption tables, written before any code. Second, AI product design where trust is the feature, like RailCite's cite-or-refuse design, TeachSpark's QC pass and honest instrumentation. Third, enterprise delivery at scale: roadmaps across four Agile teams at American Express, and program governance on GCP and AWS. The full product, AI, technology and execution skill clusters are on the About page.",
+    "sources": [
+      {
+        "label": "Capabilities",
+        "href": "/about#capabilities"
+      },
+      {
+        "label": "RailCite",
+        "href": "/work/railcite"
+      },
+      {
+        "label": "TeachSpark — Evaluation",
+        "href": "/work/teachspark#06-evaluation"
+      }
+    ],
+    "followUps": [
+      "What is his product thinking process?",
+      "What enterprise programs has he worked on?",
+      "What cloud experience does he have?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-ea7682386db7",
+    "dependsOn": [
+      "skills",
+      "experience",
+      "knowledge"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "product-thinking",
+    "category": "thinking",
+    "question": "What is his product thinking process?",
+    "aliases": [
+      "Show me his product thinking process.",
+      "How do you approach product discovery?",
+      "How does Tushar approach product discovery?",
+      "How does Tushar think about products?",
+      "How do you validate ideas",
+      "How do you do user research"
+    ],
+    "answer": "He works through six steps: Problem, Insight, Bet, Build, Evaluate and Impact. He starts from a real person in a specific moment, such as a railway inspector defending a demurrage decision or a Sanskrit teacher's evenings, and writes the hypothesis down with its confidence before building. He designs the failure mode on purpose: in RailCite, refusing to answer is a success state, not an error. He reports the honest number: after excluding his own test handsets, TeachSpark's activated teachers fell from 10 to 8, and he published the 8. And when the evidence says kill it, he does. Nuptis was killed on day seven.",
+    "sources": [
+      {
+        "label": "Velora — Discovery",
+        "href": "/work/velora#03-discovery"
+      },
+      {
+        "label": "TeachSpark — Evaluation",
+        "href": "/work/teachspark#06-evaluation"
+      },
+      {
+        "label": "Thinking notes",
+        "href": "/thinking"
+      }
+    ],
+    "followUps": [
+      "What did he learn when an assumption failed?",
+      "How does he evaluate an AI product?",
+      "Walk me through a specific project."
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-57dfea8be962",
+    "dependsOn": [
+      "thinking",
+      "knowledge",
+      "project:teachspark",
+      "project:velora"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "project-walkthrough",
+    "category": "project",
+    "question": "Walk me through a specific project.",
+    "aliases": [
+      "Show me your most technical project.",
+      "What is Tushar's most technical project?",
+      "What is your hardest build",
+      "Which project is the most complex"
+    ],
+    "answer": "Let's walk through RailCite, his most technical build. The problem: a Chief Commercial Inspector has to defend a demurrage or wharfage decision by citing the right railway circular, and one wrong or superseded citation costs the inspector credibility. The build: a Next.js and Supabase/pgvector RAG pipeline that OCRs scanned circulars in a nightly crawl, retrieves passages above a calibrated 0.32 threshold, and makes Claude either answer with citations or refuse, validating every citation before display. The result: it runs live with 5,760 documents and 14,406 chunks (as of 15 Sep 2026).",
+    "sources": [
+      {
+        "label": "RailCite",
+        "href": "/work/railcite"
+      },
+      {
+        "label": "RailCite — Problem",
+        "href": "/work/railcite#02-problem"
+      },
+      {
+        "label": "RailCite — Evaluation",
+        "href": "/work/railcite#06-evaluation"
+      }
+    ],
+    "followUps": [
+      "How does he evaluate an AI product?",
+      "Tell me about TeachSpark.",
+      "What products has Tushar built?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-0bcd887fa2e3",
+    "dependsOn": [
+      "project:railcite"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "teachspark",
+    "category": "products",
+    "question": "Tell me about TeachSpark.",
+    "aliases": [
+      "What is TeachSpark?",
+      "Explain TeachSpark",
+      "TeachSpark"
+    ],
+    "answer": "TeachSpark is a WhatsApp bot Tushar built solo in August 2026 for time-poor Indian K–12 teachers. It started with one real teacher, his mother, who teaches Sanskrit. Instead of doing the task for teachers, it teaches the reusable AI skill: a teacher makes a differentiated worksheet herself in about two minutes, sees the time she saved, and comes back for the next skill. The idea is “capability, not dependency.” The first-week pilot (snapshot 24 Aug 2026, test handsets excluded) brought 17 teachers on, activated 8, and saved a median 37.5 self-reported minutes each. It runs as a live pilot on a Twilio sandbox; uptime after 9 Sep 2026 is unverified.",
+    "sources": [
+      {
+        "label": "TeachSpark",
+        "href": "/work/teachspark"
+      },
+      {
+        "label": "TeachSpark — Product bet",
+        "href": "/work/teachspark#04-product-bet"
+      },
+      {
+        "label": "TeachSpark — Outcome",
+        "href": "/work/teachspark#07-outcome"
+      }
+    ],
+    "followUps": [
+      "Tell me about RailCite.",
+      "How does he evaluate an AI product?",
+      "What did he learn when an assumption failed?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-3253d6cd62ba",
+    "dependsOn": [
+      "project:teachspark",
+      "thinking"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "railcite",
+    "category": "products",
+    "question": "Tell me about RailCite.",
+    "aliases": [
+      "What is RailCite?",
+      "Explain RailCite",
+      "RailCite"
+    ],
+    "answer": "RailCite is a trust-first assistant Tushar built solo in Aug–Sep 2026. It helps a Chief Commercial Inspector cite the right Indian Railways rule or circular, without ever inventing a citation. It answers with correctly numbered, dated citations and supersession lineage, or refuses when no passage governs the case, because refusal is designed as a success state. A validator drops any answer whose citations don't resolve, so the live corpus (5,760 documents as of 15 Sep 2026) can grow nightly without the model making one up. His father, a serving Chief Commercial Inspector, and his colleagues were its first users.",
+    "sources": [
+      {
+        "label": "RailCite",
+        "href": "/work/railcite"
+      },
+      {
+        "label": "RailCite — What I built",
+        "href": "/work/railcite#05-what-i-built"
+      },
+      {
+        "label": "railcite.vercel.app",
+        "href": "https://railcite.vercel.app"
+      }
+    ],
+    "followUps": [
+      "Walk me through a specific project.",
+      "Tell me about TeachSpark.",
+      "How does he evaluate an AI product?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-0bcd887fa2e3",
+    "dependsOn": [
+      "project:railcite"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "velora",
+    "category": "products",
+    "question": "Tell me about Velora.",
+    "aliases": [
+      "What is Velora?",
+      "Tell me about Nuptis",
+      "What is Nuptis?",
+      "Tell me about Nuptis and Velora",
+      "Velora"
+    ],
+    "answer": "Nuptis and Velora are two vendor-onboarding products Tushar built solo in one nine-day sprint. Nuptis came first: vendor ops for wedding-planning agencies. He killed it on day seven, when it had no real pilot data, and rebuilt the idea as Velora, a B2B apparel sourcing marketplace where fashion brands and garment manufacturers swipe to connect and matches turn into bids. Both run live on mock data. Velora's Supabase path was built but never run against a real project, and its Trust Scores are authored rather than checked against any government API.",
+    "sources": [
+      {
+        "label": "Nuptis → Velora",
+        "href": "/work/velora"
+      },
+      {
+        "label": "Velora — Outcome",
+        "href": "/work/velora#07-outcome"
+      },
+      {
+        "label": "Nuptis",
+        "href": "/work/nuptis"
+      }
+    ],
+    "followUps": [
+      "What is his product thinking process?",
+      "What did he learn when an assumption failed?",
+      "What products has Tushar built?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-aa3d703d9bf7",
+    "dependsOn": [
+      "project:velora",
+      "project:nuptis",
+      "knowledge"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "current-role",
+    "category": "career",
+    "question": "What is his current role?",
+    "aliases": [
+      "What is Tushar's current role?",
+      "What is your current role",
+      "What is his current job?",
+      "Where does Tushar work now?",
+      "Where does he currently work?",
+      "What does Tushar do now?"
+    ],
+    "answer": "Since June 2026, Tushar has been a Senior Product Manager for Accounts Receivable at American Express (via IntraEdge). He owns the roadmap for Accounts Receivable transaction capabilities as they move from the legacy Triumph platform to the cloud-native MARS microservices platform: 35+ capabilities, 180+ user stories and four Agile teams. He is also driving Devin GenAI adoption across the MARS engineering teams.",
+    "sources": [
+      {
+        "label": "Experience",
+        "href": "/work"
+      },
+      {
+        "label": "About — Experience",
+        "href": "/about#experience"
+      }
+    ],
+    "followUps": [
+      "What is his work experience?",
+      "What impact has he created?",
+      "What enterprise programs has he worked on?"
+    ],
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-fa0a4f01074c",
+    "dependsOn": [
+      "experience",
+      "profile"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "career",
+    "category": "career",
+    "question": "What is his work experience?",
+    "aliases": [
+      "What is Tushar's work experience?",
+      "Walk me through Tushar's career",
+      "What is Tushar's career history?",
+      "Where has Tushar worked?",
+      "How many years of experience does Tushar have?"
+    ],
+    "answer": "7+ years across product, cloud, data and AI, in four roles. He was Assistant Product Manager at Godrej Infotech (2016–2018), owning the Smartnet platform and shipping 12 features in 11 months (self-reported). He then completed an M.Tech in Nanotechnology at NIT Calicut (2022). He was Technical Project Manager in Quantiphi's GCP division (2022–2026), running cloud-native data, API modernization and GenAI programs, then Technical Project Manager in Shellkode's AWS division (2026). Since June 2026 he has been Senior Product Manager for Accounts Receivable at American Express (via IntraEdge).",
+    "sources": [
+      {
+        "label": "Experience",
+        "href": "/work"
+      },
+      {
+        "label": "About — Experience",
+        "href": "/about#experience"
+      }
+    ],
+    "followUps": [
+      "What is his current role?",
+      "What enterprise programs has he worked on?",
+      "What is his educational background?"
+    ],
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-e820bfc00fa5",
+    "dependsOn": [
+      "experience",
+      "profile",
+      "credentials"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "enterprise-programs",
+    "category": "career",
+    "question": "What enterprise programs has he worked on?",
+    "aliases": [
+      "What enterprise programs has Tushar worked on?",
+      "Show enterprise experience",
+      "Tell me about his enterprise work",
+      "What corporate work have you done",
+      "What client programs has Tushar delivered?"
+    ],
+    "answer": "Mostly cloud and data modernization, much of it in healthcare. His case files include moving Pear Health Labs from AWS and Snowflake onto Google Cloud and BigQuery; FHIR reconciliation and a Healthcare Data Engine managed service for LifePoint Health; a Healthcare ML Engine benchmarking study for Google Cloud; Mojix's inventory data pipeline on GCP; a partner-reporting validation pipeline for Telus Health / LifeWorks; and a nurse-scheduling Looker dashboard for Indiana University Health. At American Express he now owns the Accounts Receivable migration from Triumph to the MARS microservices platform, and at Godrej Infotech he owned the Smartnet platform.",
+    "sources": [
+      {
+        "label": "Portfolio — Enterprise",
+        "href": "/projects#enterprise"
+      },
+      {
+        "label": "Experience",
+        "href": "/work"
+      }
+    ],
+    "followUps": [
+      "What cloud experience does he have?",
+      "What is his current role?",
+      "What impact has he created?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-5c219d21798e",
+    "dependsOn": [
+      "enterprise",
+      "experience"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "cloud-experience",
+    "category": "cloud",
+    "question": "What cloud experience does he have?",
+    "aliases": [
+      "What cloud experience does Tushar have?",
+      "What is his cloud experience?",
+      "What GCP experience does Tushar have?",
+      "What AWS experience does Tushar have?"
+    ],
+    "answer": "Both Google Cloud and AWS. From 2022 to 2026 he was a Technical Project Manager in Quantiphi's GCP division, working on DynamoDB-to-Cloud Spanner migrations, SQL Server transformation frameworks, a HIPAA-compliant healthcare data migration and a GCP capability-building program. In 2026 he moved to Shellkode's AWS division. His case files include moving Pear Health Labs from AWS and Snowflake onto Google Cloud and BigQuery. He earned Google Cloud's Professional Cloud Architect certification (2024) and AWS Certified Solutions Architect – Associate (2023), and received the Google Cloud Partner All-Star award for Delivery Excellence (2024).",
+    "sources": [
+      {
+        "label": "Experience",
+        "href": "/work"
+      },
+      {
+        "label": "Portfolio — Enterprise",
+        "href": "/projects#enterprise"
+      },
+      {
+        "label": "Certifications",
+        "href": "/certifications"
+      }
+    ],
+    "followUps": [
+      "What certifications does he have?",
+      "What enterprise programs has he worked on?",
+      "What AI experience does he have?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-2be29c3078f7",
+    "dependsOn": [
+      "experience",
+      "enterprise",
+      "certifications",
+      "credentials"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "certifications",
+    "category": "credentials",
+    "question": "What certifications does he have?",
+    "aliases": [
+      "What certifications does Tushar have?",
+      "What are his certifications?",
+      "Show his certifications",
+      "Is Tushar certified?",
+      "Does he have any certifications?"
+    ],
+    "answer": "His Credly profile lists 22 badges, earned between 2022 and 2025. The newest is Google Cloud's Generative AI Leader certification (2025), alongside 2025 credentials from the Project Management Institute and Scaled Agile. Earlier ones include Google Cloud's Professional Cloud Architect, Data Engineer and Machine Learning Engineer certifications; AWS Solutions Architect – Associate and Machine Learning – Specialty; Scrum.org's PSM I and PSPO I; and Google Cloud skill badges on RAG and Vertex AI. Every card on the Certifications page links to its own Credly credential.",
+    "sources": [
+      {
+        "label": "Certifications",
+        "href": "/certifications"
+      }
+    ],
+    "followUps": [
+      "What cloud experience does he have?",
+      "What AI experience does he have?",
+      "What is his educational background?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-55f188511841",
+    "dependsOn": [
+      "certifications"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "research-background",
+    "category": "research",
+    "question": "What is his research background?",
+    "aliases": [
+      "What is your research background?",
+      "What is Tushar's research background?",
+      "Tell me about your patent",
+      "Tell me about Tushar's patent",
+      "What are his published papers?"
+    ],
+    "answer": "Before product management, Tushar did research at NIT Calicut, where he earned an M.Tech in Nanotechnology (2022). He is a co-inventor, second of five, on granted Indian patent IN 429867: a low-cost portable electrochemical biosensor for rapid endotoxin detection. The work is published as a 2025 Langmuir paper on a point-of-care sepsis-biomarker aptasensor, and he also has a 2023 Soft Matter paper on topological phases in nanoparticle monolayers. The patent is owned by NIT–Calicut, and the device is a research prototype, not an approved diagnostic.",
+    "sources": [
+      {
+        "label": "Research",
+        "href": "/about#research"
+      },
+      {
+        "label": "Pratyasa",
+        "href": "/work/pratyasa"
+      },
+      {
+        "label": "Langmuir 2025 (DOI)",
+        "href": "https://doi.org/10.1021/acs.langmuir.5c00784"
+      }
+    ],
+    "followUps": [
+      "What is his educational background?",
+      "Who is Tushar?",
+      "What products has Tushar built?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-69a54130f812",
+    "dependsOn": [
+      "credentials",
+      "knowledge"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "why-pm",
+    "category": "profile",
+    "question": "What makes Tushar a product manager?",
+    "aliases": [
+      "Why are you a product manager",
+      "What qualifies you as a PM",
+      "Why should I hire you as a PM",
+      "Why should I hire Tushar?"
+    ],
+    "answer": "7+ years across product and delivery: Godrej Smartnet, Quantiphi's GCP programs, Shellkode, and now Senior Product Manager at American Express. Add a habit of building the thing himself to test the idea. He writes the hypothesis before the feature, publishes smaller honest numbers over bigger fake ones, and designs refusal as a success state when trust is the product.",
+    "sources": [
+      {
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "label": "Thinking notes",
+        "href": "/thinking"
+      },
+      {
+        "label": "Portfolio",
+        "href": "/projects"
+      }
+    ],
+    "followUps": [
+      "What is his product thinking process?",
+      "What impact has he created?",
+      "What are his strongest skills?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-57fcaf993a47",
+    "dependsOn": [
+      "knowledge",
+      "experience"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "assumption-failed",
+    "category": "thinking",
+    "question": "What did he learn when an assumption failed?",
+    "aliases": [
+      "What did you learn when an assumption failed?",
+      "What did Tushar learn when an assumption failed?",
+      "Tell me about a failed assumption",
+      "When has Tushar been wrong about a product?",
+      "When have you been wrong about a product"
+    ],
+    "answer": "Three moments. When he added a test flag to TeachSpark and excluded his own handsets the day before submission, activated teachers dropped from 10 to 8 and median time saved fell from 37.5 minutes to 30, and he shipped the smaller, honest number. On the vendor-onboarding work he killed Nuptis on day seven, when it had no real pilot data, and rebuilt it as Velora. And RailCite taught him that staleness is a correctness bug, not a missing feature; he recalibrated its retrieval threshold from 0.45 to 0.32 against real queries.",
+    "sources": [
+      {
+        "label": "TeachSpark — Evaluation",
+        "href": "/work/teachspark#06-evaluation"
+      },
+      {
+        "label": "Velora — Outcome",
+        "href": "/work/velora#07-outcome"
+      },
+      {
+        "label": "RailCite — Evaluation",
+        "href": "/work/railcite#06-evaluation"
+      }
+    ],
+    "followUps": [
+      "How does he evaluate an AI product?",
+      "What is his product thinking process?",
+      "Tell me about Velora."
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-d51e4888ef4b",
+    "dependsOn": [
+      "knowledge",
+      "project:teachspark",
+      "project:velora",
+      "project:railcite"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "evaluate-ai",
+    "category": "ai",
+    "question": "How does he evaluate an AI product?",
+    "aliases": [
+      "How do you evaluate an AI product?",
+      "How does Tushar evaluate an AI product?",
+      "How does Tushar evaluate AI?",
+      "How do you test an AI product",
+      "How do you measure AI quality"
+    ],
+    "answer": "He defines what “good” means before building, then measures against it. RailCite's retrieval threshold was calibrated on 5 relevant and 3 irrelevant queries, every citation is validated so any uncited claim is dropped, and refusal is treated as a success state. Its citation validity is 100% by construction, a structural guarantee rather than a measured score. TeachSpark ran phase-by-phase QA gates with 32 event types of pilot instrumentation, and he excluded his own test handsets before reporting activation.",
+    "sources": [
+      {
+        "label": "RailCite — Evaluation",
+        "href": "/work/railcite#06-evaluation"
+      },
+      {
+        "label": "RailCite — What I built",
+        "href": "/work/railcite#05-what-i-built"
+      },
+      {
+        "label": "TeachSpark — Evaluation",
+        "href": "/work/teachspark#06-evaluation"
+      }
+    ],
+    "followUps": [
+      "Walk me through a specific project.",
+      "What did he learn when an assumption failed?",
+      "What AI experience does he have?"
+    ],
+    "updatedAt": "2026-09-29",
+    "profileVersion": "v1-cc23f458b9d6",
+    "dependsOn": [
+      "knowledge",
+      "project:railcite",
+      "project:teachspark"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "education",
+    "category": "credentials",
+    "question": "What is his educational background?",
+    "aliases": [
+      "What is Tushar's educational background?",
+      "What is Tushar's education?",
+      "Where did Tushar study?",
+      "What degrees does Tushar have?"
+    ],
+    "answer": "Tushar holds an M.Tech in Nanotechnology from the National Institute of Technology Calicut (2022). His research there, on biosensors and nanoparticle monolayers, led to papers in Langmuir and Soft Matter and a granted patent for a portable electrochemical biosensor. Before that, he earned a B.E. in Mechanical Engineering from Bhilai Institute of Technology, Durg (2016).",
+    "sources": [
+      {
+        "label": "Experience — Education",
+        "href": "/work"
+      },
+      {
+        "label": "Research",
+        "href": "/about#research"
+      }
+    ],
+    "followUps": [
+      "What is his research background?",
+      "What is his work experience?",
+      "What certifications does he have?"
+    ],
+    "updatedAt": "2026-09-28",
+    "profileVersion": "v1-7bfb33fc0bd4",
+    "dependsOn": [
+      "credentials"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "contact",
+    "category": "contact",
+    "question": "How can I contact Tushar?",
+    "aliases": [
+      "How do I contact Tushar?",
+      "How can I reach Tushar?",
+      "How do I get in touch with Tushar?",
+      "What is Tushar's email?",
+      "Can I get Tushar's resume?"
+    ],
+    "answer": "Email is best: Tushar_Pathak@outlook.com. You can also find him on LinkedIn. His résumé is available on request, so just ask for it by email. Woof woof 🐾 I'll be right here if you want to sniff around his work some more.",
+    "sources": [
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "LinkedIn",
+        "href": "https://www.linkedin.com/in/pathaktushar"
+      }
+    ],
+    "followUps": [
+      "Who is Tushar?",
+      "What products has Tushar built?"
+    ],
+    "updatedAt": "2026-10-05",
+    "profileVersion": "v1-a1b7188c0aae",
+    "dependsOn": [
+      "profile"
+    ],
+    "reviewed": false
+  }
+]

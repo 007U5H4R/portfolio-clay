@@ -32,20 +32,26 @@ function useMounted(): boolean {
 }
 
 /**
- * Section-reveal leaf (technical-plan.md §B S05.02, Design.md §4 "section reveal" row). Fires
+ * Section-reveal leaf (technical-plan.md §B S05.02, Design.md §8 "Section reveal" row). Fires
  * once via `IntersectionObserver` at `threshold` (default 0.2), then disconnects — `data-revealed`
- * marks the fired state.
+ * marks the fired state. The motion is opacity 0 → 1 + `translateY(12px)` → none, never a scale
+ * (TSK-33 restyle; `.reveal` in app/globals.css).
  *
  * The `.reveal` class (and therefore the pre-reveal hidden state) is applied only **after mount**,
  * never in the server-rendered markup. So with JavaScript disabled the class is never added and
  * children render at their natural, fully visible styles (EVAL-015) — no `<noscript>` needed.
  *
+ * Accessibility (TKT-90d, A11Y-1): the pre-reveal state is visual only (opacity + translate +
+ * `pointer-events: none`), so the content is ALWAYS in the accessibility tree and a screen-reader
+ * user jumping by heading reaches it on load. Focus entering the wrapper (`focusin`, React's
+ * bubbling `onFocus`) marks it revealed for good, so keyboard users never land on invisible content.
+ *
  * Reduced motion is handled entirely in CSS (`app/globals.css` — the global 1ms transition-duration
  * rule plus a `.reveal`-specific `transition-property: opacity` override, A6), not here: this
- * component only ever toggles `data-revealed`.
+ * component only ever toggles `data-revealed` (the reduced-motion rule also shows `.reveal` at once).
  */
 export function Reveal(props: RevealProps) {
-  const { index = 0, threshold = DEFAULT_THRESHOLD, className, style, children, ...rest } = props;
+  const { index = 0, threshold = DEFAULT_THRESHOLD, className, style, children, onFocus, ...rest } = props;
   const ref = useRef<HTMLDivElement>(null);
   const mounted = useMounted();
   const [revealed, setRevealed] = useState(false);
@@ -71,7 +77,17 @@ export function Reveal(props: RevealProps) {
   const mergedStyle = { ...style, "--stagger-index": index } as CSSProperties;
 
   return (
-    <div ref={ref} data-revealed={revealed ? "" : undefined} className={classes} style={mergedStyle} {...rest}>
+    <div
+      ref={ref}
+      data-revealed={revealed ? "" : undefined}
+      className={classes}
+      style={mergedStyle}
+      onFocus={(event) => {
+        setRevealed(true);
+        onFocus?.(event);
+      }}
+      {...rest}
+    >
       {children}
     </div>
   );

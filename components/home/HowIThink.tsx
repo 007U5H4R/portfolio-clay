@@ -1,60 +1,62 @@
-"use client";
+import { caseStudyLinkAttrs } from "@/lib/case-study-link";
+import { NewTabHint } from "@/components/common/NewTabHint";
+import type { CSSProperties } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { Container } from "@/components/layout/Container";
+import { DraftTag, Hand, Pin, Sheet, TornEdge } from "@/components/paper";
+import { MediaGate } from "@/components/paper/MediaGate";
+import { AnimatedJourneyPath } from "@/components/motion/journey/AnimatedJourneyPath";
+import { ProductThinkingJourney } from "@/components/motion/journey/ProductThinkingJourney";
+import { RadialReveal } from "@/components/motion/journey/RadialReveal";
+import { StageRoll } from "@/components/motion/journey/StageRoll";
+import { stagePin, type StageId } from "@/lib/stages";
+import { deckle } from "./deckle";
+import { HowIThinkCollage } from "./HowIThinkCollage";
 
 /**
- * HowIThink (home section, TKT-13; technical-plan.md §B S13.02/S13.03, Design.md §3 "How I Think").
+ * HowIThink — home section "A product journey, not a process." (TKT-76, Design.md §7.1; mockup
+ * docs/redesign-mockups/m-009/home.html `.think`). Server component.
  *
- * Six `ClayTile` (utility tier) disclosure buttons in a row (≥1024) / stack (<1024), one per
- * framework stage, each keyed to its own `tone` (Law of Similarity — one stage, one colour,
- * everywhere the stage is referenced). Clicking (or Enter/Space on) a tile reveals a single shared
- * card below the row holding that stage's real, sourced example — quote, attribution, and a link
- * into the case study that proves it. Only one stage is open at a time; opening a second closes the
- * first. `Escape` closes without moving focus off the tile; a `pointerdown` outside the module also
- * closes it.
+ * Six pinned ivory stage cards (`Sheet variant="card"` + `Pin`, alternating −0.8° / +0.6°, odd cards
+ * offset 28 px) laid over the dashed journey-curve `Sketch`. Every card is static: Caveat numeral
+ * (`data-hand="label"`), h3 stage, the DRAFT principle with its `DraftTag`, the VERIFIED example as a
+ * `data-hand="quote"` blockquote + `cite`, and one link pill into the case-study chapter that proves
+ * it. The M-008 expand / arrow-key disclosure is gone — the quote is always visible, and the
+ * pills are the section's only focus stops (TC-148).
  *
- * `ClayTile` only ever renders a `<div>` (no polymorphic `as`, unlike `ClayCard`), and its `utility`
- * tier structurally forbids `interactive` (Design.md §2 / D1 — a utility surface has no press
- * state). Each tile is therefore wrapped in a real `<button>` that owns focus/click/keyboard
- * handling — the same "div carries the visual, a wrapping control owns focus" pattern `ClayTile`'s
- * own docstring already uses for the card-tier interactive tiles (`components/hero/FloatingTiles`).
- * The only hover effect on the tile itself is the principle line's text-colour shift (Design.md §3:
- * "200ms, desktop only") — never a shadow/lift, which utility tier doesn't have.
+ * Decorations (Design.md §3.3, EVAL-018): `torn` + the collage backdrop + the journey `sketch` = 3 at
+ * ≥ 1025. The sketch is mounted through `MediaGate min={1025}`, so it is absent from the DOM ≤ 1024
+ * (count 2 at 390) — the cards reflow to 3 / 2 / 1 columns there and the curve would no longer
+ * connect them.
  *
- * Motion deviation (documented, same reasoning as `AskPortfolio`'s TKT-10 report): the plan named
- * `m.div layout` for the expand/collapse, but Design.md §4's own "How-I-Think stage expand" row
- * specifies a plain CSS transition (`ease-out`, 200ms) — and `layout` animations need `domMax`,
- * which `LazyMotionRoot` deliberately does not load (A6 bundle budget). A CSS `grid-template-rows`
- * transition on the shared expand region gives the same in-place height change without the extra
- * bundle weight; `motion-reduce:transition-none` collapses it to instant, matching the table's
- * reduced-motion mapping exactly.
+ * TKT-99 (Tushar direction 2026-09-26, how-i-think-target.png; Design.md §11 Dev-41): each card is a
+ * deckled, torn-edge sheet (seeded `clip-path` layers — shade, rim, face — behind the content — the card's own
+ * material, `aria-hidden`, not a decoration), the quote sits on a tinted torn slip with a washi-tape
+ * strip (CSS on the blockquote; the cite stays plain below it), the DraftTag is the compact two-line
+ * form, the numeral is terracotta italic, and the pill is a paper button with an arrow glyph. The
+ * collage behind the cards is ONE `data-decor="collage"` object (`HowIThinkCollage`).
  *
- * Every `principle` line is unsigned-off editorial framing (see `data/thinking-framework.ts`'s
- * header), so it always renders the same "Draft" badge `AnswerView` already established for DRAFT
- * Ask copy — one visual convention for "this line is DRAFT", reused rather than re-invented.
+ * Round 2 (Tushar 2026-09-26): Higgsfield collage crops, wider cards, a bolder pin-to-pin path, and
+ * each card's torn silhouette carries a ~1.5 px navy ink outline (`.hit-paper-ink`: the rim outline
+ * on a box 1.5 px larger, behind the rim — no CSS filter), so it separates from the collage.
+ *
+ * TKT-110 (Tushar's choreography spec 2026-09-26; Design.md §11 Dev-70…Dev-72): the section plays
+ * once as a paper-unrolling sequence — the collage revealed centre-out (`RadialReveal`), then the
+ * journey line (`AnimatedJourneyPath`, now drawn ABOVE the cards, pin to pin) and the six banners
+ * (`StageRoll`) one after another, ~7.6 s, driven by `ProductThinkingJourney`
+ * (`components/motion/journey/*`). It replaces the generic `Reveal` stagger. SSR / no-JS / reduced
+ * motion render the final composition; see those files for the a11y and CLS rules.
+ *
+ * Copy: stage label, principle, quote and attribution are rendered verbatim from
+ * `data/thinking-framework.ts` (D7); the project name is resolved server-side in `app/page.tsx`.
  */
-import {
-  CircleAlert,
-  Dice5,
-  FlaskConical,
-  Hammer,
-  Lightbulb,
-  TrendingUp,
-  type LucideIcon,
-} from "lucide-react";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { Icon } from "@/components/common/Icon";
-import { ClayTile } from "@/components/clay/ClayTile";
-import { ClayCard } from "@/components/clay/ClayCard";
-import { ClayPill } from "@/components/clay/ClayPill";
-import { Section } from "@/components/layout/Section";
-import { SectionHeading } from "@/components/layout/SectionHeading";
-import type { Tone } from "@/components/clay/tiers";
-import type { StageId } from "@/lib/stages";
 
 export interface HowIThinkStage {
   id: StageId;
   label: string;
+  /** DRAFT editorial framing (data/thinking-framework.ts header) — always rendered with a `DraftTag`. */
   principle: string;
-  tone: Tone;
   example: {
     quote: string;
     attribution: string;
@@ -69,167 +71,94 @@ export interface HowIThinkProps {
   stages: HowIThinkStage[];
 }
 
-const STAGE_ICON: Record<StageId, LucideIcon> = {
-  problem: CircleAlert,
-  insight: Lightbulb,
-  bet: Dice5,
-  build: Hammer,
-  evaluate: FlaskConical,
-  impact: TrendingUp,
+/**
+ * TKT-110 paper physics (Tushar's choreography spec §11, Design.md §11 Dev-70): each banner's final
+ * rotation, and the extra tilt it starts its roll from (spec §4: ±1–2°), interpolated to 0 as it
+ * unrolls. Slightly uneven on purpose — handmade, still sequential.
+ */
+const PAPER: Record<StageId, { rotate: number; tilt: number }> = {
+  problem: { rotate: -0.5, tilt: -1.6 },
+  insight: { rotate: 0.35, tilt: 1.3 },
+  bet: { rotate: -0.25, tilt: -1.2 },
+  build: { rotate: 0.4, tilt: 1.8 },
+  evaluate: { rotate: -0.35, tilt: -1.4 },
+  impact: { rotate: 0.3, tilt: 1.5 },
 };
 
-const PANEL_ID = "how-i-think-panel";
-
-function DraftBadge() {
-  return (
-    <span className="inline-flex items-center rounded-[var(--radius-utility)] bg-butter/50 px-[var(--space-2)] py-[2px] text-caption font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink">
-      Draft
-    </span>
-  );
-}
+/** Torn outline pair per card: the pale rim, then the cream face inset inside it (TKT-99). */
+const edgesFor = (index: number) => ({
+  rim: deckle(101 + index * 7, { across: 14, down: 26, depthX: 3, depthY: 0.9 }),
+  face: deckle(211 + index * 7, { across: 14, down: 26, depthX: 3.2, depthY: 0.9, insetX: 2.4, insetY: 0.7 }),
+  /** The quote slip's torn outline, read by `.hit-slip::before` as `--slip-edge`. */
+  slip: { "--slip-edge": deckle(307 + index * 5, { across: 10, down: 8, depthX: 3, depthY: 4 }) } as CSSProperties,
+});
 
 export function HowIThink({ stages }: HowIThinkProps) {
-  const [openId, setOpenId] = useState<StageId | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const listRef = useRef<HTMLOListElement>(null);
-
-  const openStage = stages.find((stage) => stage.id === openId) ?? null;
-
-  // Outside-click closes the expanded card (S13.02 gate).
-  useEffect(() => {
-    if (!openId) return;
-    const onPointerDown = (event: PointerEvent) => {
-      const target = event.target as Node | null;
-      if (!target) return;
-      if (listRef.current?.contains(target)) return;
-      if (document.getElementById(PANEL_ID)?.contains(target)) return;
-      setOpenId(null);
-    };
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [openId]);
-
-  const focusTileAt = (index: number) => {
-    const count = stages.length;
-    const next = ((index % count) + count) % count;
-    setActiveIndex(next);
-    const button = listRef.current?.querySelectorAll<HTMLButtonElement>("button[data-stage-trigger]")[next];
-    button?.focus();
-  };
-
-  const onTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    switch (event.key) {
-      case "ArrowRight":
-      case "ArrowDown":
-        event.preventDefault();
-        focusTileAt(index + 1);
-        break;
-      case "ArrowLeft":
-      case "ArrowUp":
-        event.preventDefault();
-        focusTileAt(index - 1);
-        break;
-      case "Escape":
-        // Collapse without moving focus off the tile (S13.02 gate).
-        setOpenId(null);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const toggleStage = (id: StageId) => {
-    setOpenId((current) => (current === id ? null : id));
-  };
-
   return (
-    <Section id="how-i-think" aria-labelledby="how-i-think-heading">
-      <SectionHeading
-        id="how-i-think-heading"
-        eyebrow="Process"
-        title="How I think"
-        lead="Six stages I return to on every product, each grounded in one real, sourced example."
-        className="mb-[var(--space-8)]"
-      />
-
-      <ol
-        ref={listRef}
-        className="relative flex flex-col gap-[var(--space-4)] pl-[var(--space-6)] before:absolute before:left-[var(--space-2)] before:top-[var(--space-2)] before:bottom-[var(--space-2)] before:w-px before:bg-ink-3 before:content-[''] lg:flex-row lg:flex-wrap lg:gap-[var(--space-3)] lg:pl-0 lg:before:inset-x-0 lg:before:bottom-[-14px] lg:before:top-auto lg:before:left-0 lg:before:h-px lg:before:w-auto"
-      >
-        {stages.map((stage, index) => {
-          const isOpen = stage.id === openId;
-          const StageIcon = STAGE_ICON[stage.id];
-
-          return (
-            <li key={stage.id} className="relative">
-              <button
-                type="button"
-                data-stage-trigger
-                aria-expanded={isOpen}
-                aria-controls={PANEL_ID}
-                tabIndex={index === activeIndex ? 0 : -1}
-                onClick={() => {
-                  setActiveIndex(index);
-                  toggleStage(stage.id);
-                }}
-                onFocus={() => setActiveIndex(index)}
-                onKeyDown={(event) => onTriggerKeyDown(event, index)}
-                className="group block rounded-[var(--radius-utility)] text-left focus-ring"
-              >
-                {/* Design.md §3 spec's literal "~160px wide"; ClayTile's discrete sizes are
-                    40/56/120/140/180 (components/clay/ClayTile.tsx) — 140 is the nearest without
-                    widening that shared primitive's size union out of this ticket's scope.
-                    `!h-auto` relaxes ClayTile's square default so the icon/label/principle stack
-                    can grow the box (same relaxed-aspect idiom as `components/hero/FloatingTiles`),
-                    while width stays pinned at the fixed 140px (Design.md wants fixed-width tiles
-                    in a row, not stretched-to-fill). */}
-                <ClayTile
-                  tier="utility"
-                  tone={stage.tone}
-                  size={140}
-                  className="!h-auto flex-col items-start gap-[var(--space-2)] p-[var(--space-4)] text-left"
-                >
-                  <Icon icon={StageIcon} size={24} />
-                  <span className="text-[length:var(--text-body)] font-bold text-ink">{stage.label}</span>
-                  <span className="text-caption leading-snug text-ink-2 transition-colors duration-200 ease-[var(--ease-hover)] motion-reduce:transition-none [@media(hover:hover)]:group-hover:text-ink">
-                    {stage.principle}
-                  </span>
-                </ClayTile>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-
-      <div className="flex items-center gap-[var(--space-2)] pt-[var(--space-3)] lg:pt-[var(--space-6)]">
-        <DraftBadge />
-        <span className="text-caption text-ink-3">Principle lines are my own framing, not yet signed off.</span>
-      </div>
-
-      <div
-        id={PANEL_ID}
-        className="grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none"
-        style={{ gridTemplateRows: openStage ? "1fr" : "0fr" }}
-      >
-        <div className="overflow-hidden">
-          {openStage ? (
-            <ClayCard
-              tier="card"
-              tone={openStage.tone}
-              padding="card"
-              className="mt-[var(--space-6)] flex flex-col items-start gap-[var(--space-3)]"
-            >
-              <blockquote className="max-w-[65ch] text-[length:var(--text-lead)] text-ink">
-                “{openStage.example.quote}”
-              </blockquote>
-              <p className="text-caption text-ink-2">— {openStage.example.attribution}</p>
-              <ClayPill variant="link" href={openStage.example.href}>
-                {`See how I tested this in ${openStage.example.projectName}`}
-              </ClayPill>
-            </ClayCard>
-          ) : null}
+    <section id="how-i-think" className="hit" aria-labelledby="how-i-think-heading">
+      <TornEdge fill="paper" />
+      <Container className="hit-wrap">
+        <div className="hit-head">
+          <div>
+            <p className="hit-eyebrow">How I think</p>
+            <h2 id="how-i-think-heading" className="hit-h2">
+              A product journey, not a process.
+            </h2>
+          </div>
+          <p className="hit-lead">
+            From ambiguity to impact — six stages I return to on every product, each grounded in one real, sourced
+            example.
+          </p>
         </div>
-      </div>
-    </Section>
+
+        <ProductThinkingJourney className="hit-journey" stageIds={stages.map((s) => s.id)}>
+          <RadialReveal>
+            <HowIThinkCollage />
+          </RadialReveal>
+          <MediaGate min={1025}>
+            <AnimatedJourneyPath className="hit-path" />
+          </MediaGate>
+          <ol className="hit-stages">
+            {stages.map((stage, index) => {
+              const edges = edgesFor(index);
+              return (
+              <li key={stage.id} className="hit-stage" data-stage={stage.id} style={edges.slip}>
+                <StageRoll index={index} startTilt={PAPER[stage.id].tilt} className="hit-reveal">
+                  <Sheet as="article" variant="card" rotate={PAPER[stage.id].rotate} className="hit-card">
+                    <Pin tone={stagePin[stage.id]} />
+                    <span className="hit-paper" aria-hidden="true">
+                      <span className="hit-paper-shade" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-ink" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-rim" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-face" style={{ clipPath: edges.face }} />
+                    </span>
+                    <Hand kind="label" className="hit-num">
+                      {String(index + 1).padStart(2, "0")}
+                    </Hand>
+                    <h3 className="hit-h3">{stage.label}</h3>
+                    <DraftTag className="hit-draft">
+                      {"Draft — "}
+                      <span className="hit-draft-line">pending sign-off</span>
+                    </DraftTag>
+                    <p className="hit-principle">{stage.principle}</p>
+                    <div className="hit-quote">
+                      <Hand kind="quote" as="blockquote" cite={stage.example.attribution} className="hit-slip">
+                        {`“${stage.example.quote}”`}
+                      </Hand>
+                    </div>
+                    <Link href={stage.example.href} className="hit-pill focus-ring" {...caseStudyLinkAttrs(stage.example.href)}>
+                      <span>{`See how I tested this in ${stage.example.projectName}`}</span>
+                      <NewTabHint href={stage.example.href} />
+                      <ArrowRight className="hit-pill-arrow" aria-hidden="true" focusable="false" size={18} strokeWidth={1.8} />
+                    </Link>
+                  </Sheet>
+                </StageRoll>
+              </li>
+              );
+            })}
+          </ol>
+        </ProductThinkingJourney>
+      </Container>
+    </section>
   );
 }

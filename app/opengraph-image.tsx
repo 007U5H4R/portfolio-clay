@@ -11,7 +11,7 @@ export default async function Image() {
     eyebrow: site.tagline,
     title: `${hero.headline.before}${hero.headline.highlight}${hero.headline.after}`,
     subtitle: site.title,
-    tone: "lavender",
-    avatar: true,
+    caption: "the desk where most of it happens",
+    poster: true,
   });
 }

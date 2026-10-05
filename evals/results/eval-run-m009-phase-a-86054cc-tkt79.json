@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.2.0-86054cc",
+  "label": "eval-run-m009-phase-a-86054cc-tkt79",
+  "provenance": {
+    "version": "0.2.0",
+    "commit": "86054ccf7c022c6eb44e13718368a2910179316c",
+    "branch": "m009/tkt-79",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 27.0.0",
+    "timestamp": "2026-09-25T14:07:16.680Z",
+    "baseUrl": "http://127.0.0.1:3000",
+    "evalCasesSha256": "a3cf2580ff8f98a70918ad41d2c28dbc19128f49891a2914f2b01e5f618cd177",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 22,
+    "passed": 1,
+    "failed": 2,
+    "skipped": 19,
+    "manual": 0
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "FAIL",
+      "informational": true,
+      "envCaveat": "Local Chromium runs under swiftshader (software rendering, no GPU); perf scores are an environment artifact, informational only — real perf gate is production + TKT-49 (A14/F5/EV2). Thresholds unchanged.",
+      "measured": {
+        "/": {
+          "mobile": [
+            82,
+            100,
+            100,
+            100
+          ],
+          "desktop": [
+            99,
+            100,
+            100,
+            100
+          ]
+        },
+        "/work": {
+          "mobile": [
+            80,
+            100,
+            100,
+            100
+          ],
+          "desktop": [
+            99,
+            100,
+            100,
+            100
+          ]
+        },
+        "/work/teachspark": {
+          "mobile": [
+            82,
+            100,
+            100,
+            100
+          ],
+          "desktop": [
+            99,
+            100,
+            100,
+            100
+          ]
+        },
+        "/about": {
+          "mobile": [
+            82,
+            100,
+            100,
+            100
+          ],
+          "desktop": [
+            99,
+            100,
+            100,
+            100
+          ]
+        }
+      },
+      "threshold": [
+        90,
+        95,
+        95,
+        95
+      ],
+      "details": "4 routes × mobile+desktop, median of 3 (informational — swiftshader)",
+      "artifacts": [
+        "/Volumes/E Drive/Dev/Code/Claude/Portfolio-m009-tkt-79/.lighthouseci/mobile",
+        "/Volumes/E Drive/Dev/Code/Claude/Portfolio-m009-tkt-79/.lighthouseci/desktop"
+      ]
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "FAIL",
+      "informational": true,
+      "envCaveat": "first-load JS budget is deterministic and REAL (over-budget → TKT-14/49 perf levers, F5/A14/EV2); LCP is swiftshader-affected (informational). Non-gating locally; thresholds unchanged.",
+      "measured": {
+        "jsKbGzip": 158.6,
+        "lcpMs": 4062,
+        "cls": 0.0317
+      },
+      "threshold": {
+        "jsKbGzip": 180,
+        "lcpMs": 2500,
+        "cls": 0.05
+      },
+      "details": "first-load JS 158.6 kB gz (budget 180), LCP(mobile) 4062 ms, CLS(mobile) 0.0317",
+      "artifacts": [
+        "/Volumes/E Drive/Dev/Code/Claude/Portfolio-m009-tkt-79/.lighthouseci/mobile"
+      ]
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-018",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "164 specs, 82 runs across w1024/w1440/w390/w768 · 23 routes × 2 widths · 292 units · max 4/4 per unit · 0 unparked hit(s) · 0 parked · 0 stale park(s)",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-019",
+      "priority": "high",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-020",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-021",
+      "priority": "high",
+      "category": "content-integrity",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-022",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    }
+  ],
+  "criticalFailures": [],
+  "playwrightUnexpected": [],
+  "regressions": [
+    {
+      "id": "EVAL-004",
+      "kind": "lighthouse",
+      "detail": "/work mobile[0] 86→80 (−6)"
+    },
+    {
+      "id": "EVAL-004",
+      "kind": "lighthouse",
+      "detail": "/about mobile[0] 86→82 (−4)"
+    }
+  ],
+  "improvements": [],
+  "runtimeMs": 411800,
+  "baseline": "evals/results/baseline-m009-tracer.json"
+}

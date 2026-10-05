@@ -1,9 +1,10 @@
 ---
 id: TASK-34.5
 title: 'TSK-29: cinematic-portfolio (cinematic-portfolio)'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P2
   - 'sp:1'
@@ -33,3 +34,9 @@ Chapters: Context (recruiters ask "who is Tushar Pathak?"), Bet (film as backdro
 - [ ] #2 Stats "7+ · 40+ · 180+ · 30%" attributed to the resume and marked self-reported if shown.
 - [ ] #3 Cross-link to `/playground`.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-54 (Done). The cinematic-portfolio project record exists in data/projects.ts and renders through the shared /work/[slug] case-study template; this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

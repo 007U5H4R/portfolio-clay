@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { Manrope, Caveat } from "next/font/google";
+import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
 import { knowledge } from "@/data/knowledge";
+import faqData from "@/data/tushky/faq.json";
+import type { FaqEntry } from "@/lib/ask/faq";
+import { freshFaqIds } from "@/lib/ask/faq-versions";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
-import { Footer } from "@/components/layout/Footer";
+import { BandFooter } from "@/components/layout/BandFooter";
 import { AskProvider } from "@/components/ai/AskProvider";
+import { SmoothScroll } from "@/components/interactions/SmoothScroll";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
 // plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
@@ -17,19 +21,41 @@ const PANEL_PROMPTS = knowledge
   .filter((entry) => entry.surface.includes("panel"))
   .map((entry) => entry.prompt);
 
-// Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com).
-// The CSS variables are mapped into @theme's --font-display / --font-hand in globals.css.
-const manrope = Manrope({
+// TASK-123 (FAQ-cache spec §51): which curated Ask Tushky answers still match the canonical data,
+// decided here at build time by hashing that data on the server. Only these ids reach the client; a
+// stale entry is never served and falls through to the index (the prebuild gate prints it too).
+const FAQ_FRESH_IDS = freshFaqIds(faqData as FaqEntry[]);
+
+// Self-hosted at build by next/font/google (no runtime request to fonts.googleapis.com — the TP9 CSP
+// `font-src 'self'` stays untouched; S13). The CSS variables are mapped into @theme's --font-display /
+// --font-body / --font-hand in globals.css (Design.md §2.2). Fraunces is the variable font with the
+// `opsz` + `SOFT` axes (per-role `font-variation-settings`); Inter is body/UI; Caveat is the hand.
+// `preload: false` (TKT-92): the fonts are discovered from the inlined CSS (next.config.ts
+// `inlineCss`) at first layout instead of via <link rel=preload>, so they no longer compete with the
+// LCP image and hold the first frame. `display: swap` + next/font's metric-adjusted fallback keep the
+// swap shift small (CLS ≤ 0.03 measured, gate 0.05).
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: "variable",
+  axes: ["opsz", "SOFT"],
   display: "swap",
-  variable: "--font-manrope",
+  preload: false,
+  variable: "--font-fraunces",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  preload: false,
+  variable: "--font-inter",
 });
 
 const caveat = Caveat({
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["400", "600"],
   display: "swap",
+  preload: false,
   variable: "--font-caveat",
 });
 
@@ -47,19 +73,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${manrope.variable} ${caveat.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}>
       <body>
         {/*
           AskProvider is hoisted here (from app/page.tsx, TKT-10) so the deterministic Ask provider
           and the global slide-over AskPanel are shared across every route: the header AskAIButton and
-          the MobileMenu Ask row (both inside <Header/>) open the same panel. AskPanel itself is a lazy
+          the Home launcher open the same panel. AskPanel itself is a lazy
           chunk mounted only after the first open (EVAL-005), so this hoist does not add it to first-load.
         */}
-        <AskProvider panelPrompts={PANEL_PROMPTS}>
+        {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
+        <SmoothScroll />
+        <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
           <SkipLink />
           <Header />
           <main id="main">{children}</main>
-          <Footer />
+          <BandFooter />
         </AskProvider>
         {/*
           Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less. QA-005 fix — these

@@ -10,6 +10,6 @@ export default async function Image() {
     title: "Senior Product Manager. Product Thinker · AI Builder · Problem Solver.",
     subtitle:
       "The career arc from enterprise programs to AI-native products — the experience, capabilities, and proof behind it.",
-    tone: "lavender",
+    caption: "coffee first. then the roadmap.",
   });
 }

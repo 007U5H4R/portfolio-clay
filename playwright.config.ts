@@ -5,6 +5,9 @@ import { defineConfig, devices } from "@playwright/test";
 // base URL keeps the production-build webServer so `pnpm test:e2e` and `pnpm eval` work offline.
 const baseURL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 const isLocalBaseURL = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(baseURL);
+// TASK-128: the local server listens on PW_BASE_URL's port (default 3000), so parallel runs can each
+// pick a free port (PW_BASE_URL=http://127.0.0.1:<port>) instead of sharing :3000.
+const localPort = isLocalBaseURL ? new URL(baseURL).port || "3000" : "3000";
 
 /**
  * Playwright config (technical-plan.md §A9 / §B S07.01).
@@ -27,9 +30,12 @@ export default defineConfig({
   // Cap workers even outside CI: running all 4 viewport projects fully parallel with no cap
   // causes host resource contention on this machine — `browserContext.close` trace-write races
   // that surface as spurious cross-project timeouts/`toBeTruthy()` failures (M-003 QA gate,
-  // docs/reports/M003-qa.md / TC-051-fix.md). workers:2 still reproduced failures on this host;
-  // only workers:1 was reliably green across repeated full runs. Never disables a test.
-  workers: 1,
+  // docs/reports/M003-qa.md / TC-051-fix.md). In M-003 workers:2 still reproduced failures on this
+  // host; only workers:1 was reliably green across repeated full runs. EXE-20 re-trialled 2 on the
+  // M-009 merged branch (docs/reports/INTEGRATION-ABC.md): run A failed the timing-sensitive
+  // CopyButton revert test (passes 3/3 at 1 worker), so the default stays 1. `PW_WORKERS=2` opts in
+  // for a faster local run. Never disables a test.
+  workers: Number(process.env.PW_WORKERS ?? 1),
   reporter: [
     ["list"],
     ["json", { outputFile: ".eval/playwright.json" }],
@@ -64,9 +70,14 @@ export default defineConfig({
   ...(isLocalBaseURL
     ? {
         webServer: {
-          command: "pnpm start",
-          url: "http://127.0.0.1:3000",
-          reuseExistingServer: true,
+          // Always start THIS worktree's build, never reuse a server that is already listening.
+          // Several worktrees and sessions share this Mac, and `reuseExistingServer: true` silently
+          // tested another worktree's build on :3000 (2026-09-28: ~30 false failures and blank
+          // screenshots in a full gate). A taken port now fails loudly; choose a free one with
+          // PW_BASE_URL.
+          command: `pnpm exec next start -p ${localPort}`,
+          url: `http://127.0.0.1:${localPort}`,
+          reuseExistingServer: false,
           timeout: 120_000,
         },
       }

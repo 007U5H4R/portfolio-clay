@@ -1,9 +1,10 @@
 ---
 id: TASK-1.2
 title: 'TSK-02: Avatar asset pipeline: cutout -> WebP + poster'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:12'
 labels:
   - P0
   - 'sp:1'
@@ -31,3 +32,9 @@ ordinal: 51000
 - [ ] #3 Visual check: hair/beard edge clean, <=3 supporting objects retained (laptop, plant, books).
 - [ ] #4 Provenance line appended to `content/media/avatar/candidates/README.md`.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — obsolete. The photo-derived avatar pipeline (cutout/WebP/poster) this task built was removed by decision S14 ('the clay avatar assets and AvatarScene system are removed') and physically deleted in TKT-89/TASK-84 dead-code removal; no public/avatar directory exists in the repo. M-009's hero uses an illustrated character (S14/EV4), not a photo avatar.
+<!-- SECTION:NOTES:END -->

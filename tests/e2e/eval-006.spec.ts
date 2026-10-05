@@ -1,8 +1,8 @@
 /**
  * eval-006.spec.ts (technical-plan.md §B S09.02, `@EVAL-006`) — axe-core WCAG 2.1 AA sweep over
  * every public route at 390 and 1440 (0 critical/serious); the QA-only `/dev/*` boards are added
- * when ALLOW_DEV_ROUTES is set (its own start command). Open MobileMenu / AskPanel axe states are
- * covered where those components exist (MobileMenu in tracer.spec; AskPanel arrives at TKT-10 and
+ * when ALLOW_DEV_ROUTES is set (its own start command). The 390 header tab strip / AskPanel axe states are
+ * covered where those components exist (the tab strip in tracer.spec; AskPanel arrives at TKT-10 and
  * is fixme'd below).
  *
  * TKT-48 (QA precedent: TKT-47's EVAL-008 fix): the route list is DERIVED from the same sources
@@ -18,6 +18,7 @@
  */
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
+import { isSystem } from "./case-study-system";
 import { DEV_ROUTES } from "./routes";
 import { STATIC_ROUTES } from "@/app/sitemap";
 import { projects } from "@/data/projects";
@@ -51,7 +52,8 @@ test.fixme("@EVAL-006 axe clean with the AskPanel open (TKT-10)", { tag: "@EVAL-
 // until "Deep dive" is selected (TC-076). A heading-order check against the default 30-sec view
 // would trivially pass regardless of the fix, so this guard is meaningless without opening it first.
 const DEEP_DIVE_SLUGS = new Set(
-  projects.filter((p) => p.category === "personal" && p.overview.deepDive).map((p) => p.slug),
+  // TASK-130: slugs on the case-study system have no tabs — everything is in the DOM already.
+  projects.filter((p) => p.category === "personal" && p.overview.deepDive && !isSystem(p.slug)).map((p) => p.slug),
 );
 
 // CF-3 (M-007 carry-forward, QA-003 regression guard): axe's `wcag2a`/`wcag2aa`/`wcag21aa` tags do
@@ -69,7 +71,7 @@ for (const route of PUBLIC_ROUTES) {
     test.skip(width(page) !== 1440, "heading-order is a document-structure check — run once per route");
     // QA-004 (TKT-48 follow-up): `/work` previously skipped h1→h3 (page h1 followed directly by the
     // ProjectCard h3s, no intervening h2). Fixed by adding an sr-only "Personal builds" h2 heading
-    // the personal-builds region in app/work/page.tsx, so this route is now enforced like every
+    // the personal-builds region in app/work/page.tsx (now app/projects/page.tsx, TKT-101), so this route is now enforced like every
     // other. (Was a tracked `test.fixme` from the CF-3 batch; see docs/reports/carry-forwards.md.)
     await page.goto(route, { waitUntil: "load" });
     const slug = route.startsWith("/work/") ? route.slice("/work/".length) : undefined;

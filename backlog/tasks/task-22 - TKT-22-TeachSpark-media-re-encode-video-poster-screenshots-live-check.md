@@ -1,13 +1,15 @@
 ---
 id: TASK-22
 title: 'TKT-22: TeachSpark media: re-encode video + poster + screenshots + live check'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-27 06:22'
 labels:
   - P1
   - 'sp:2'
   - media
+  - on-hold
 milestone: m-4
 dependencies:
   - TASK-1
@@ -37,3 +39,11 @@ Source: tickets.md § TKT-22.
 - [ ] #3 Live status checked with date; result written to `content/media/teachspark/SOURCES.md` and reflected in `data/projects.ts` status copy (TKT-28 consumes).
 - [ ] #4 No sandbox join code visible in any frame or screenshot (manual frame check; note the manual step in SOURCES.md).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — TeachSpark has no real product video/screenshots yet (no content/media/teachspark directory). Dependency: Tushar (live product access/recording approval) or an agent recording session against the live sandbox. Status left as To Do.
+
+On hold by Tushar 2026-09-27 (verbatim: "I will record the demo media later on. You can put that ticket on hold"). Does not block the M-009 release (EXE-24).
+<!-- SECTION:NOTES:END -->

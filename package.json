@@ -12,7 +12,6 @@
     "test": "vitest run",
     "test:e2e": "dotenv -e .env.tooling -- playwright test",
     "tokens:check": "tsx scripts/tokens-check.ts",
-    "media:avatar": "tsx scripts/avatar.ts",
     "media:video": "echo 'media:video not yet implemented (TKT-02)' && exit 1",
     "eval": "dotenv -e .env.tooling -- tsx scripts/eval.ts",
     "predeploy": "tsx scripts/predeploy-check.ts"
@@ -21,6 +20,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "culori": "^4.0.2",
+    "lenis": "^1.3.26",
     "lucide-react": "1.46.0",
     "motion": "13.3.0",
     "next": "16.3.5",

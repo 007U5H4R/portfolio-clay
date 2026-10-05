@@ -61,3 +61,66 @@ export const CANONICAL_TERMS: readonly string[] = Object.keys(SYNONYMS);
 export function canonicalise(token: string): string | undefined {
   return LOOKUP.get(stripPunct(token));
 }
+
+/* ── FAQ cache vocabulary (TASK-123, Tushar's FAQ-cache spec §47–48 / §55 / §59) ─────────────────────
+ *
+ * The FAQ matcher is deliberately NARROWER than the index matcher above. The index drops unknown words
+ * and scores keyword overlap; the FAQ matcher KEEPS every word and only accepts an exact match on the
+ * whole set, so an extra idea in the question ("What did Tushar LEARN from TeachSpark?") never lands on
+ * a broader cached answer ("Tell me about TeachSpark"). These tables only make harmless wording
+ * differences equal. Extend them with evidence, never to raise the hit rate at the cost of precision.
+ */
+
+/** Every way a visitor refers to Tushar. They all become one token, so "he", "Tushar" and "you" are equal. */
+export const FAQ_SUBJECT_TERMS: ReadonlySet<string> = new Set([
+  "tushar", "tushars", "pathak", "pathaks", "he", "him", "his", "himself", "you", "your", "yours", "yourself",
+]);
+
+/** Filler words that carry no meaning for the match ("Can you tell me about…", "Which…", "Show me…"). */
+export const FAQ_STOPWORDS: ReadonlySet<string> = new Set([
+  "a", "an", "the", "of", "to", "in", "on", "for", "at", "me", "us", "i", "id", "please", "tell", "about",
+  "what", "which", "can", "could", "would", "will", "do", "does", "did", "is", "are", "am", "be", "been",
+  "has", "have", "had", "give", "show", "share", "list", "some", "any", "hey", "hi", "hello", "tushky",
+  "know", "like", "want", "let", "lets", "quick", "quickly", "briefly", "so", "really",
+]);
+
+/**
+ * Words that point back into the conversation (§55 "what about that one?", §56 "What was hardest about
+ * it?"). A question containing one is never answered from the cache — it goes to the answer path with
+ * the conversation history instead. "he / his / him" are NOT here: on this site they always mean Tushar.
+ */
+export const FAQ_CONTEXT_WORDS: ReadonlySet<string> = new Set([
+  "it", "its", "itself", "that", "this", "these", "those", "they", "them", "their", "theirs", "there",
+  "same", "former", "latter", "previous", "above", "earlier", "else", "more", "one", "ones",
+]);
+
+/** Openers that make a question lean on the previous turn ("what about RailCite?" after "impact?"). */
+export const FAQ_CONTEXT_OPENERS: readonly string[] = ["what about", "how about", "and", "also", "then", "why not"];
+
+/**
+ * Private or sensitive topics (§55). The site does not answer them (no phone, no location — see
+ * `site.showLocation`), and the cache must never try.
+ */
+export const FAQ_SENSITIVE_WORDS: ReadonlySet<string> = new Set([
+  "salary", "ctc", "compensation", "phone", "mobile", "whatsapp number", "address", "dob", "birthday", "age",
+  "married", "wife", "religion", "caste", "located", "location", "visa", "passport", "notice",
+]);
+
+/** Exact paraphrases only (after plural stripping). Each row: canonical ← variants. */
+const FAQ_EQUIVALENT_ROWS: Record<string, readonly string[]> = {
+  built: ["build", "builds", "building", "built", "shipped", "ship", "made", "created", "create"],
+  certification: ["certification", "certificate", "cert", "credential"],
+  strongest: ["strongest", "top", "best", "core", "key"],
+  skill: ["skill", "strength", "competencie", "competency"],
+};
+
+const FAQ_EQUIVALENTS: ReadonlyMap<string, string> = (() => {
+  const m = new Map<string, string>();
+  for (const [canonical, variants] of Object.entries(FAQ_EQUIVALENT_ROWS)) for (const v of variants) m.set(v, canonical);
+  return m;
+})();
+
+/** Map one FAQ content token to its canonical paraphrase (or itself). */
+export function faqEquivalent(token: string): string {
+  return FAQ_EQUIVALENTS.get(token) ?? token;
+}

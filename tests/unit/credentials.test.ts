@@ -49,6 +49,20 @@ describe("data/credentials (TKT-42)", () => {
     expect(byId.get("be-bitd")).toMatchObject({ year: "2016" });
   });
 
+  it("the NIT research bullet (TKT-101 r2) stays consistent with the papers + patent records", () => {
+    const research = education.find((e) => e.id === "mtech-nitc")!.highlights!.find((h) => h.startsWith("Published research"))!;
+    // journals named in the bullet exist in `papers`
+    for (const journal of ["Langmuir", "Soft Matter"]) {
+      expect(research).toContain(journal);
+      expect(papers.some((p) => p.journal.startsWith(journal)), journal).toBe(true);
+    }
+    // the patent it mentions is the granted NIT–Calicut one, and it is a portable electrochemical biosensor
+    expect(research).toMatch(/granted patent for a portable electrochemical biosensor/);
+    expect(patent.granted).toBeTruthy();
+    expect(patent.patentee).toBe("NIT–Calicut");
+    expect(patent.title.toLowerCase()).toContain("portable electrochemical biosensor");
+  });
+
   it("carries no DOB/phone PII patterns anywhere in the module", () => {
     const text = JSON.stringify([awards, patent, papers, education, languages, researchDisclaimer]);
     expect(text).not.toMatch(/\b(0?[1-9]|[12]\d|3[01])[/\-.](0?[1-9]|1[0-2])[/\-.](19|20)\d{2}\b/);

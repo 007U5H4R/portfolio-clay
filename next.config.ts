@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { portfolioEntries } from "./data/portfolio";
+import { buildCsp, providersInUse } from "./lib/csp";
 
 // Security headers (decision TP9). This is a fully static site (TP1 — no SSR, no middleware,
 // no per-request rendering), so a script nonce is not available; the CSP below is the pragmatic
@@ -18,20 +20,12 @@ import type { NextConfig } from "next";
 // `*.vercel-insights.com` connect-src is needed. `va.vercel-scripts.com` is used only for the
 // local-dev debug script (`getMode() === "development"`, i.e. `next dev`) and is allowlisted on
 // `script-src` for that case even though it isn't exercised by the production build.
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "media-src 'self'",
-  "font-src 'self'",
-  "connect-src 'self'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
+//
+// The directive list itself lives in `lib/csp.ts` (unit-tested). TASK-122: `frame-src` is derived
+// from the video providers `data/portfolio.ts` actually uses — the privacy-enhanced YouTube host,
+// plus `player.vimeo.com` only while some product uses Vimeo. Only after the viewer presses play,
+// one player at a time; nothing else may frame.
+const CSP = buildCsp(providersInUse(portfolioEntries));
 
 const SECURITY_HEADERS = [
   { key: "Content-Security-Policy", value: CSP },
@@ -54,6 +48,15 @@ const nextConfig: NextConfig = {
   // Do not auto-generate AGENTS.md / CLAUDE.md into the repo root (Next 16 default);
   // this repo keeps its own docs and a surgical commit surface.
   agentRules: false,
+  // TKT-92 (EXE-17): inline the CSS as a <style> so the first frame is not held behind a pending
+  // render-blocking stylesheet. Paired with `preload: false` on the three next/font families
+  // (app/layout.tsx): with both, the hero/opener LCP image paints before the fonts and JS finish, so
+  // Lighthouse's simulated LCP stops charging them to LCP. Either change alone does not move the
+  // metric (docs/reports/TKT-92.md). Cost: the CSS also rides in the RSC payload (HTML ≈ +17 kB br)
+  // and pages don't share a cached stylesheet on first load. CSP already allows inline styles (TP9).
+  experimental: {
+    inlineCss: true,
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [390, 768, 1024, 1440, 1920],

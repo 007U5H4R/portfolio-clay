@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.2.0-1941383",
+  "label": "eval-run-preview-m009-tracer-1941383",
+  "provenance": {
+    "version": "0.2.0",
+    "commit": "194138391e0a98d2676103bd5cf5836416c78b72",
+    "branch": "m-009-redesign",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 27.0.0",
+    "timestamp": "2026-09-25T05:39:23.140Z",
+    "baseUrl": "https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app",
+    "evalCasesSha256": "a3cf2580ff8f98a70918ad41d2c28dbc19128f49891a2914f2b01e5f618cd177",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 22,
+    "passed": 16,
+    "failed": 0,
+    "skipped": 2,
+    "manual": 4
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "PASS",
+      "details": "20 specs, 9 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "SKIP",
+      "informational": true,
+      "envCaveat": "Local Chromium runs under swiftshader (software rendering, no GPU); perf scores are an environment artifact, informational only — real perf gate is production + TKT-49 (A14/F5/EV2). Thresholds unchanged.",
+      "measured": {},
+      "threshold": [
+        90,
+        95,
+        95,
+        95
+      ],
+      "details": "base-url mode: run `pnpm exec lhci autorun` against the preview per docs/eval.md",
+      "artifacts": []
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "SKIP",
+      "informational": true,
+      "envCaveat": "first-load JS budget is deterministic and REAL (over-budget → TKT-14/49 perf levers, F5/A14/EV2); LCP is swiftshader-affected (informational). Non-gating locally; thresholds unchanged.",
+      "measured": {
+        "jsKbGzip": null,
+        "lcpMs": null,
+        "cls": null
+      },
+      "threshold": {
+        "jsKbGzip": 180,
+        "lcpMs": 2500,
+        "cls": 0.05
+      },
+      "details": "base-url mode: run `pnpm exec lhci autorun` against the preview per docs/eval.md",
+      "artifacts": []
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "276 specs, 115 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "84 specs, 23 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "344 specs, 333 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "212 specs, 51 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "PASS",
+      "details": "76 specs, 19 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "PASS",
+      "details": "vitest eval-012 pass",
+      "artifacts": [
+        ".eval/vitest.json"
+      ]
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "PASS",
+      "details": "validate-content OK · 0 hits in 213 files (incl. .next bundle) · fixture proof present (non-zero build, 3 issues)",
+      "artifacts": [
+        "evals/results/content-gate-proof.txt"
+      ]
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "PASS",
+      "details": "28 specs, 1 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "PASS",
+      "details": "44 specs, 19 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "PASS",
+      "details": "0 forbidden/PII strings · 0 high/critical deps (audit-level high; ignoreGhsas accepted-risks respected) · all TP9 headers present"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "PASS",
+      "details": "tags: seo unit pass, eval-017 spec pass (40 specs, 10 runs across w1024/w1440/w390/w768); inspector rendering MANUAL (TKT-51)",
+      "artifacts": [
+        ".eval/vitest.json",
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-018",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "100 specs, 47 runs across w1024/w1440/w390/w768 · 23 routes × 2 widths · 168 units · max 3/4 per unit · 0 unparked hit(s) · 2 parked · 0 stale park(s)",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-019",
+      "priority": "high",
+      "category": "functional",
+      "status": "PASS",
+      "details": "28 specs, 9 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-020",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "vitest eval-020 pass",
+      "artifacts": [
+        ".eval/vitest.json"
+      ]
+    },
+    {
+      "id": "EVAL-021",
+      "priority": "high",
+      "category": "content-integrity",
+      "status": "PASS",
+      "details": "vitest eval-021 pass; automated scope: provenance, alt-naming and forbidden-string checks; the 'depicts no evidence' checklist is manual",
+      "artifacts": [
+        ".eval/vitest.json"
+      ]
+    },
+    {
+      "id": "EVAL-022",
+      "priority": "high",
+      "category": "design",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    }
+  ],
+  "criticalFailures": [],
+  "playwrightUnexpected": [],
+  "regressions": [],
+  "improvements": [
+    {
+      "id": "EVAL-008",
+      "kind": "status",
+      "detail": "FAIL → PASS"
+    }
+  ],
+  "runtimeMs": 1264804,
+  "baseline": "evals/results/baseline-v1.json"
+}

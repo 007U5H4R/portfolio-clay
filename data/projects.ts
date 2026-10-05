@@ -4,6 +4,7 @@ import {
   Cloud,
   Film,
   Gamepad2,
+  Hammer,
   Handshake,
   Landmark,
   MessageSquareText,
@@ -12,6 +13,7 @@ import {
   PenLine,
   Search,
   ShieldCheck,
+  SquareKanban,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -43,6 +45,8 @@ const ICONS: Record<string, LucideIcon> = {
   Landmark,
   Cloud,
   Network,
+  SquareKanban,
+  Hammer,
 };
 
 /** Resolve a project's `icon` name to a lucide component (falls back to the message icon). */
@@ -62,7 +66,7 @@ const EMPTY_CHAPTERS: Project["chapters"] = [
 ];
 
 /**
- * TeachSpark — the flagship full case study (featured rank 1, large; TKT-28, M-005). Every chapter
+ * TeachSpark — the flagship full case study (TKT-28, M-005; featured rank 1 + large until TASK-133). Every chapter
  * body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.1 + AUDIT §4 — nothing is
  * invented. Canonical pilot metrics use the Final-PRD snapshot 2026-08-24 (test handsets excluded);
  * the conflicting 2026-08-26 pitch snapshot is deliberately NOT mixed in (§8.1 "Choose one date").
@@ -81,8 +85,7 @@ export const teachspark: Project = {
   status: "pilot",
   statusLabel: "Live pilot (Twilio sandbox) — uptime after 2026-09-09 unverified",
   statusAsOf: "2026-09-09",
-  featured: 1,
-  gridSize: "large",
+  gridSize: "medium",
   icon: "MessageSquareText",
   role: "Solo build",
   dates: { start: "2026-08" },
@@ -521,7 +524,7 @@ export const teachspark: Project = {
 };
 
 /**
- * RailCite — the second featured full case study (featured rank 2, medium; TKT-29, M-005). Every
+ * RailCite — the home Featured Work anchor (featured rank 1, large — TASK-133; was rank 2, medium; TKT-29, M-005). Every
  * chapter body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.2 + AUDIT §5 —
  * nothing is invented. Corpus figures follow the decided **"live, with as-of date"** policy: the
  * live count (5,760 docs / 14,406 chunks) is dated 2026-09-15 from `/api/stats`, and the Final-PRD
@@ -544,8 +547,8 @@ export const railcite: Project = {
   status: "live",
   statusLabel: "Live",
   statusAsOf: "2026-09-15",
-  featured: 2,
-  gridSize: "medium",
+  featured: 1,
+  gridSize: "large",
   icon: "ShieldCheck",
   role: "Solo build",
   dates: { start: "2026-08", end: "2026-09" },
@@ -985,7 +988,7 @@ export const railcite: Project = {
 };
 
 /**
- * Nuptis → Velora — the third featured full case study (featured rank 3, medium; TKT-30, M-005).
+ * Nuptis → Velora — a full case study (TKT-30, M-005; featured rank 3 until TASK-133).
  * The Nuptis→Velora arc (S3) is carried by the display `name` while the route/slug is `velora`;
  * Velora is the surviving product and the page frames the kill/pivot as its spine. Every chapter
  * body, metric, artifact and thinking node traces to CONTENT_INVENTORY §8.5 (+ §8.4 pivot, §1.4/§1.5
@@ -1010,7 +1013,6 @@ export const velora: Project = {
   status: "live",
   statusLabel: "Live (mock data)",
   statusAsOf: "2026-09-15",
-  featured: 3,
   gridSize: "medium",
   icon: "Handshake",
   role: "Solo build",
@@ -2819,6 +2821,102 @@ export const cinematicPortfolio: Project = {
   ],
 };
 
+/**
+ * Campfire Board (TASK-124). A local-first dashboard — a personal fork of Backlog.md (MrLesk/Backlog.md,
+ * MIT) — so the credit to Backlog.md and its authors is part of the record, never implied away. It runs
+ * on the owner's machine only: no live URL. Its GitHub repo 007U5H4R/pm-dashboard was made public at
+ * Tushar's request (2026-09-28) → `github` + repoPublic:true, so the Portfolio shows the GitHub action.
+ * Every field traces to the Campfire README / docs (CONTENT_INVENTORY §8.12, `docs/trace/campfire-board.md`).
+ * No users, metrics or outcomes are recorded there, so none are claimed. Card depth, like the thin five.
+ */
+export const campfireBoard: Project = {
+  slug: "campfire-board",
+  name: "Campfire Board",
+  tagline:
+    "A local-first, multi-project management dashboard for the AI build workflow — a personal fork of Backlog.md.",
+  category: "personal",
+  tags: ["Kanban", "Gantt", "Local-first"],
+  filters: ["experiments"],
+  status: "prototype",
+  statusLabel: "Built · local tool",
+  featured: 3, // TASK-133: home Featured Work, bottom-right
+  gridSize: "small",
+  icon: "SquareKanban",
+  role: "Personal fork",
+  dates: { start: "2026-09" },
+  duration: "Sep 2026",
+  links: {
+    github: "https://github.com/007U5H4R/pm-dashboard",
+    repoPublic: true,
+  },
+  hero: {},
+  metrics: [],
+  overview: {
+    thirtySecond: [
+      "A personal fork of Backlog.md reshaped into a cross-project command centre: every project stays a self-contained folder of Markdown files, and one dashboard, launched locally in Chrome, renders them all — the operational home for a 10-stage build workflow, from Product Discovery through Deployment.",
+      "It adds a multi-project switcher, a Kanban board with an Execution / Workflow toggle, an hours-axis Execution Gantt with dependency arrows, a statistics view and an in-app artifacts viewer, all served from a single Bun-compiled local binary with the web UI embedded — nothing to deploy, so there is no hosted product link. Backlog.md is by Alex Gavrilescu and contributors (MIT licence); Campfire inherits its Markdown-native, agent-first philosophy.",
+    ],
+    deepDive: false,
+  },
+  chapters: EMPTY_CHAPTERS,
+  thinking: [],
+  learnings: [],
+  sources: [
+    { id: "CF-README", label: "Campfire Board README", ref: "CF/README.md (intro, Highlights, How it works, Credits & license)", inventory: "§8.12" },
+    { id: "CF-PILOT", label: "Campfire Board pilot checklist", ref: "CF/docs/pilot-checklist.md (2026-09-06)", inventory: "§8.12" },
+  ],
+};
+
+/**
+ * Slag City (TASK-129). An original arcade beat-'em-up that runs in the browser — one complete stage,
+ * live at slag-city.vercel.app (HTTP 200, checked 2026-09-29). Its GitHub repo 007U5H4R/slag-city was
+ * made public at Tushar's request (2026-09-29) → `github` + repoPublic:true. Every field traces to the
+ * Slag City README / Discovery PRD / deploy notes (CONTENT_INVENTORY §8.13, `docs/trace/slag-city.md`).
+ * No story character is named (the final boss shares a name with a well-known TV villain). The game has
+ * no AI features. The art-generation credit is deliberately left out of the public copy (Tushar, 2026-09-29).
+ * No users, metrics or outcomes are recorded, so none are claimed. Card depth.
+ */
+export const slagCity: Project = {
+  slug: "slag-city",
+  name: "Slag City",
+  tagline:
+    "An original arcade beat-'em-up that runs in your browser — one complete stage, on a desktop cabinet or a phone.",
+  category: "personal",
+  tags: ["Phaser 3", "Beat-'em-up", "Browser game"],
+  filters: ["experiments"],
+  status: "live",
+  statusLabel: "Live · browser game",
+  statusAsOf: "2026-09-29",
+  featured: 2, // TASK-133: home Featured Work, top-right
+  gridSize: "small",
+  icon: "Hammer",
+  role: "Owner · personal build",
+  dates: { start: "2026-09" },
+  duration: "Sep 2026",
+  links: {
+    live: "https://slag-city.vercel.app",
+    github: "https://github.com/007U5H4R/slag-city",
+    repoPublic: true,
+  },
+  hero: {},
+  metrics: [],
+  overview: {
+    thirtySecond: [
+      "A side-scrolling brawler built the way a coin-op cabinet behaves: attract mode, insert coin, fight, a 10-second continue countdown, and initials on the hi-score table. It is one complete stage — a three-boss gauntlet, with a story told in an eight-slide intro and the boss dialogue — playable on a desktop in a simulated cabinet or on a phone with on-screen controls. Coins are free. It started where Dino Arcade stops: that emulator is fine for private play but cannot be published, so the goal was a publishable beat-'em-up with wholly original IP.",
+      "Built with Phaser 3, TypeScript and Vite, and deployed on Vercel. The game logic is a pure TypeScript core with a seeded RNG, so recorded input replays are hashed in tests and a behaviour change fails a golden; keyboard, gamepad and touch feed one input frame. Audio is synthesised in the browser with Web Audio.",
+    ],
+    deepDive: false,
+  },
+  chapters: EMPTY_CHAPTERS,
+  thinking: [],
+  learnings: [],
+  sources: [
+    { id: "SC-README", label: "Slag City README", ref: "SC/README.md (header, intro, Highlights, How it works, Credits & license)", inventory: "§8.13" },
+    { id: "SC-DISCOVERY", label: "Slag City Discovery PRD", ref: "SC/Discovery-PRD.md §1 (2026-09-05)", inventory: "§8.13" },
+    { id: "SC-DEPLOY", label: "Slag City deploy notes", ref: "SC/docs/deploy/DEPLOY.md (LIVE 2026-09-16)", inventory: "§8.13" },
+  ],
+};
+
 /* ── professional experience entries (TKT-15, §2.3) ────────────────────────────────
  * `category:'professional'`: the schema forbids `links.live`, `demoVideo` and `featured` on these,
  * so corporate work can never imply a public product (Solution-PRD §5). Status is neutral
@@ -2933,13 +3031,15 @@ export const godrejSmartnet: Project = {
 };
 
 /**
- * The full 14-record collection (TKT-15): 11 personal builds + 3 professional-experience entries.
- * Featured trio (rank 1/2/3): TeachSpark (large) · RailCite · Nuptis → Velora. Exactly one
- * `gridSize:'large'` (teachspark). `generateStaticParams` builds a `/work/<slug>` page for the 11
+ * The full 16-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129):
+ * 13 personal builds + 3 professional-experience entries.
+ * Featured trio (rank 1/2/3, TASK-133): RailCite (large, the anchor) · Slag City · Campfire Board. Exactly one
+ * `gridSize:'large'` (railcite). TeachSpark and Nuptis → Velora stay on the Portfolio page and in `/work`. `generateStaticParams` builds a `/work/<slug>` page for the 13
  * personal builds only; professional entries render inline on `/work` (TKT-17), no case-study page.
  */
 export const projects: Project[] = [
-  // personal builds (11) — featured trio first, then the rest
+  // personal builds (13) — the M-005 case studies first, then the deep dives, then the card-depth builds
+  // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129)
   teachspark,
   railcite,
   velora,
@@ -2951,6 +3051,8 @@ export const projects: Project[] = [
   tegaki,
   dinoArcadePwa,
   cinematicPortfolio,
+  campfireBoard,
+  slagCity,
   // professional experience (3)
   marsArModernization,
   cloudModernizationPrograms,

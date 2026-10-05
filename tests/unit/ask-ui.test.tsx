@@ -53,9 +53,11 @@ describe("EvidenceLinks", () => {
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(2);
 
-    const internal = screen.getByRole("link", { name: /RailCite$/ });
+    // TASK-130: a case-study source opens in a new tab and says so in its name.
+    const internal = screen.getByRole("link", { name: /^RailCite\s*\(opens in a new tab\)/ });
     expect(internal).toHaveAttribute("href", "/work/railcite");
-    expect(internal).not.toHaveAttribute("target");
+    expect(internal).toHaveAttribute("target", "_blank");
+    expect(internal.getAttribute("rel")).toContain("noopener");
 
     const external = screen.getByRole("link", { name: /railcite\.vercel\.app/ });
     expect(external).toHaveAttribute("href", "https://railcite.vercel.app");

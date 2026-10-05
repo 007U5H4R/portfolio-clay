@@ -29,6 +29,27 @@ interface Rule {
   re: RegExp;
   /** Categories this rule applies to (default: all). */
   only?: Category[];
+  /** A credential-claim rule — not applied on `CREDENTIAL_SURFACES` (TKT-102). */
+  credentialClaim?: boolean;
+}
+
+/**
+ * TKT-102 (Tushar 2026-09-26): the `/certifications` surfaces may name PMP / SAFe — both are now
+ * Credly-verified credentials (individual credential URLs in `data/certifications.ts`), which retires
+ * CONTENT_INVENTORY §4.6's "banner-only claim" reason for THOSE files only. Everywhere else (awards,
+ * bios, about, experience, …) the credential-claim ban stands unchanged. Paths are POSIX, relative
+ * to the scan root; the bundle entry covers the prerendered `/certifications` HTML.
+ */
+export const CREDENTIAL_SURFACES: readonly RegExp[] = [
+  /^data\/certifications\.ts$/,
+  /^components\/certifications\//,
+  /^app\/certifications\//,
+  /^\.next\/server\/app\/certifications(\.html|\/)/,
+];
+
+export function isCredentialSurface(relPath: string): boolean {
+  const posix = relPath.split("\\").join("/");
+  return CREDENTIAL_SURFACES.some((re) => re.test(posix));
 }
 
 const TEXT_EXT = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".css", ".json", ".md", ".svg", ".txt", ".html"]);
@@ -96,7 +117,11 @@ export const RESUME_PII_PATTERNS: ReadonlyArray<{ name: string; re: RegExp }> = 
 /** Base pattern rules (A3 rule 5). Sandbox codes are added at runtime from the local file. */
 function baseRules(): Rule[] {
   return [
-    ...TITLE_CREDENTIAL_PATTERNS.map((p) => ({ name: p.name, re: p.re })),
+    ...TITLE_CREDENTIAL_PATTERNS.map((p) => ({
+      name: p.name,
+      re: p.re,
+      credentialClaim: p.name === "PMP" || p.name === "SAFe cert",
+    })),
     { name: "DOB", re: PII_PATTERNS.DOB },
     { name: "phone +91", re: /\+91[\s-]?\d{5}[\s-]?\d{5}/, only: ["data", "content"] },
     { name: "phone 10-digit", re: /\b\d{10}\b/, only: ["data", "content"] },
@@ -222,8 +247,10 @@ export function scan(opts: ScanOptions = {}): ScanResult {
       filesScanned++;
 
       const lines = text.split("\n");
+      const credentialSurface = isCredentialSurface(relative(cwd, file));
       for (const rule of rules) {
         if (rule.only && !rule.only.includes(spec.category)) continue;
+        if (rule.credentialClaim && credentialSurface) continue;
         lines.forEach((line, i) => {
           const m = rule.re.exec(line);
           if (m) hits.push({ file: relative(cwd, file), line: i + 1, pattern: rule.name, match: m[0] });

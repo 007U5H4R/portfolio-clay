@@ -5,18 +5,25 @@
  * Covers the automated tracer eval cases and folds in every Playwright check deferred by
  * TSK-02/04/05/06:
  *   @EVAL-008 — responsive screenshot pack (8 files) + noOverflow + minTargets (both routes)
- *   @EVAL-006 — axe (wcag2.1 AA) at 390 & 1440 on both routes + on the open MobileMenu
+ *   @EVAL-006 — axe (wcag2.1 AA) at 390 & 1440 on both routes + on the 390 header tab strip
  *   @EVAL-010 — reduced-motion: card hover does not translate, header transition collapses
  *   @EVAL-015 — View-Transition fallback (EXE-5 plain navigation, identical end state) + no-JS
  *               static HTML content
- * plus hero frame ladder (S05.02), tile offsets (S05.03), header compaction (S04.03),
- * NavPill (S04.04), MobileMenu focus-trap/Esc (S04.05), SkipLink (S04.02),
- * AskAIButton tab-order (S04.06), resume placeholder + /resume.pdf 404 (E-13).
+ * plus hero frame ladder (S05.02), tile offsets (S05.03), the one-height header + ink underline
+ * (TKT-71 / D12 — replacing the S04.03 compaction and S04.04 active-pill checks), no menu button
+ * (S04.05, TASK-112), SkipLink (S04.02), AskAIButton tab-order (S04.06), resume placeholder +
+ * /resume.pdf 404 (E-13).
  */
 import { test, expect } from "./fixtures";
+import { openCaseStudy } from "./case-study-system";
+// The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
+// JPEGs for `next/image`, which Playwright's TypeScript transform cannot load.
+import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
-const AVATAR_ALT = /Clay illustration of Tushar Pathak/;
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
+// TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`); `hero-desk` survives only as the
+// clip's `poster` attribute.
+const HERO_BANNER_ALT = ILLUSTRATIONS.find((entry) => entry.id === "hero-banner")!.alt;
 
 const ROUTES = [
   { path: "/", label: "home" },
@@ -57,83 +64,45 @@ for (const route of ROUTES) {
 }
 
 // ---------------------------------------------------------------------------
-// S05.02 — hero avatar frame is responsive and column-capped (<= breakpoint ladder).
-// EXE-6 visual-gate decision: AvatarStage uses w-full max-w-[cap], so rendered width
-// is min(breakpoint cap, grid column width), not the exact cap. Design-fidelity check
-// (not an EVAL-008 overflow/target criterion), so intentionally untagged.
+// S14/D10 (TSK-37/TSK-38; banner since TKT-93) — the paper hero's banner image is visible,
+// alt-sourced from the manifest, and responsive (positive width at every project width).
+// Design-fidelity check (not an EVAL-008 overflow/target criterion), so intentionally untagged.
+// Replaces the old M-008 avatar-scene cap-ladder assertion (deleted with the hero motion system at
+// TSK-38).
 // ---------------------------------------------------------------------------
-test("hero avatar frame is responsive and column-capped (<= breakpoint ladder)", async ({
+test("hero banner illustration is visible, alt-sourced from the manifest, and responsive", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "load" });
   const w = width(page);
-  // Breakpoint cap ladder = AvatarStage's max-w rungs (EXE-9 rebalance: 200/300/480/520). Rendered
-  // width is min(cap, grid column width), so this is the upper bound only.
-  const cap = w >= 1440 ? 520 : w >= 1024 ? 480 : w >= 768 ? 300 : 200;
-  const img = page.getByRole("img", { name: AVATAR_ALT });
-  // Let layout settle before measuring geometry (M-004 QA: this measurement flaked under host load
-  // when it read boundingBox() before hydration/fonts had finished, not from a stale assertion) —
-  // wait for the element to be visible, the load event, and web fonts (they can reflow the grid),
-  // then scroll it into view so it isn't mid-transition off-screen.
+  const img = page.getByRole("img", { name: HERO_BANNER_ALT });
   await expect(img).toBeVisible();
   await page.waitForLoadState("load");
   await page.evaluate(() => document.fonts.ready);
   await img.scrollIntoViewIfNeeded();
-  // Substantial-focal-element floor — the EXE-9 hero-rebalance contract. Widening the avatar track
-  // to 42fr and letting the content column shrink (min-w-0) + trimming the lg headline clamp frees
-  // the avatar from the old min-content squeeze (it used to collapse to ~252px at 1024). The floors
-  // assert it now reads as a balanced focal element (~349px @1024, ~474px @1440 measured) — kept as a
-  // responsive contract with margin, not a fixed-px pin, so it guards against a regression back to the
-  // squeezed 35fr layout without being brittle to sub-pixel/font-metric drift.
-  const focalFloor = w >= 1440 ? 420 : w >= 1024 ? 320 : null;
-  // Retry the read+assert together (Playwright's retrying toPass, not a one-shot getBoundingClientRect)
-  // so a transient mid-layout read under host load is retried instead of failing the whole run.
   await expect(async () => {
     const box = await img.boundingBox();
-    expect(box, "avatar image must be laid out").toBeTruthy();
-    expect(box!.width, `hero frame width at ${w} must be positive`).toBeGreaterThan(0);
-    expect(
-      box!.width,
-      `hero frame width at ${w} = ${box!.width}, must not exceed cap ${cap} (+1px tolerance)`,
-    ).toBeLessThanOrEqual(cap + 1);
-    if (focalFloor !== null) {
-      expect(
-        box!.width,
-        `hero frame width at ${w} = ${box!.width}, must remain a substantial focal element (>= ${focalFloor})`,
-      ).toBeGreaterThanOrEqual(focalFloor);
-    }
+    expect(box, "hero banner must be laid out").toBeTruthy();
+    expect(box!.width, `hero banner width at ${w} must be positive`).toBeGreaterThan(0);
   }).toPass({ timeout: 6000 });
 });
 
 // ---------------------------------------------------------------------------
-// S05.03 — hero floating tiles asymmetric offset ladder (-24 / 0 / +24 at lg+).
-// Design-fidelity check (not an EVAL-008 criterion), so intentionally untagged.
+// S14/D10 (TSK-37) — the paper hero's two CTAs are present with the correct targets. Replaces the
+// old M-008 proof-tile offset-ladder assertion (the tile stack was deleted at TSK-38).
 // ---------------------------------------------------------------------------
-test("hero floating tiles use the asymmetric offset ladder at lg+", async ({
-  page,
-}) => {
-  test.skip(width(page) < 1024, "tiles are a single column below lg (offsets only apply at lg+)");
+// TKT-108 (Tushar 2026-09-26): the primary targets `/projects` (TKT-101's route) and the secondary is
+// "Ask Tushky", still `#ask`, described by its "My AI portfolio assistant" caption.
+test("hero CTAs are present and target /projects and #ask", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
-  // Let layout settle before measuring vertical offsets (M-004 QA: this ladder comparison flaked
-  // under host load, reading y-positions mid-reflow, not from a stale assertion) — wait for each
-  // tile to be visible, the load event, and web fonts, then retry the y-position read+compare
-  // together instead of a one-shot getBoundingClientRect.
-  const tileLabels = ["AI Products", "People", "Progress"] as const;
-  for (const label of tileLabels) {
-    await expect(page.getByText(label, { exact: true })).toBeVisible();
-  }
-  await page.waitForLoadState("load");
-  await page.evaluate(() => document.fonts.ready);
-  await expect(async () => {
-    const y = async (label: string) => {
-      const box = await page.getByText(label, { exact: true }).boundingBox();
-      expect(box, `tile "${label}" must be laid out`).toBeTruthy();
-      return box!.y;
-    };
-    const [ai, people, progress] = [await y("AI Products"), await y("People"), await y("Progress")];
-    expect(ai, `AI Products (${ai}) should sit above People (${people})`).toBeLessThan(people);
-    expect(people, `People (${people}) should sit above Progress (${progress})`).toBeLessThan(progress);
-  }).toPass({ timeout: 6000 });
+  const primary = page.getByRole("link", { name: "View my work →" });
+  await expect(primary).toBeVisible();
+  await expect(primary).toHaveAttribute("href", "/projects");
+
+  const secondary = page.getByRole("link", { name: "Ask Tushky" });
+  await expect(secondary).toBeVisible();
+  await expect(secondary).toHaveAttribute("href", "#ask");
+  await expect(secondary).toHaveAccessibleDescription("My AI portfolio assistant");
 });
 
 // ---------------------------------------------------------------------------
@@ -147,7 +116,8 @@ test("reduced motion collapses card hover lift and header transition", { tag: "@
   await withReducedMotion(page);
   await page.goto("/", { waitUntil: "load" });
 
-  const card = page.locator('a[href="/work/teachspark"]');
+  // TASK-133: the home Featured Work card's one link is its Explore button (→ /projects?product=<id>).
+  const card = page.locator('a[href^="/projects?product="]').first();
   await card.scrollIntoViewIfNeeded();
   const before = await card.boundingBox();
   await card.hover();
@@ -178,18 +148,17 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
 }) => {
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/", { waitUntil: "load" });
+  // TASK-133: home no longer links straight to a case study; the card → case-study hop is the
+  // Portfolio sheet's case-study link (TeachSpark is the default product on /projects).
+  await page.goto("/projects", { waitUntil: "load" });
 
   const hasVT = await page.evaluate(() => typeof document.startViewTransition === "function");
   expect(hasVT, "startViewTransition must be absent so the EXE-5 fallback path runs").toBeFalsy();
 
-  await page.locator('a[href="/work/teachspark"]').click();
-  await page.waitForURL("**/work/teachspark");
-
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
-  // Case-study header media is present (the ClayFrame VT target + its placeholder media).
-  await expect(page.locator('[style*="project-teachspark"]')).toBeVisible();
-  await expect(page.getByText("Hero media coming")).toBeVisible();
+  // TASK-130: the case study opens in a new tab and lands on the same end state.
+  const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.locator('[style*="project-teachspark"]')).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -199,8 +168,8 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
 // threshold: compacting shrank the sticky header 28px, which clamped scrollY back under the
 // threshold, which un-compacted it — an infinite render loop (React #185 "Maximum update depth
 // exceeded"), rendered as Next's default error page instead of the case study. Only reproduced in
-// the production build, at w768, under reduced motion. The fix is hysteresis on useScrollY
-// (lib/motion.ts) — see docs/reports/F6-debug.md. This asserts the navigation raises NO page error
+// the production build, at w768, under reduced motion. The fix was hysteresis on the scroll
+// hook (deleted with the compaction at TKT-71 / D12 — the header no longer changes height) — see docs/reports/F6-debug.md. This asserts the navigation raises NO page error
 // and lands on the real case study, at every width, so the loop cannot silently return.
 // ---------------------------------------------------------------------------
 test("F6: card -> case study nav does not trip a render loop (React #185)", { tag: "@EVAL-015" }, async ({
@@ -213,13 +182,15 @@ test("F6: card -> case study nav does not trip a render loop (React #185)", { ta
 
   await noViewTransitions(page);
   await withReducedMotion(page);
-  await page.goto("/", { waitUntil: "load" });
+  // TASK-133: the card → case-study hop starts on /projects (home links to the Portfolio deep link).
+  await page.goto("/projects", { waitUntil: "load" });
 
-  await page.locator('a[href="/work/teachspark"]').click();
-  await page.waitForURL("**/work/teachspark");
+  const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
+  study.on("pageerror", (err) => pageErrors.push(err.message));
+  await study.reload({ waitUntil: "load" });
 
   // The real case study renders (not Next's "This page couldn't load" error boundary)...
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
   // ...and no update-depth / render loop was thrown during the navigation.
   const loopErrors = pageErrors.filter(
     (m) => m.includes("Maximum update depth") || m.includes("#185"),
@@ -245,8 +216,12 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
   try {
     const p = await context.newPage();
     await p.goto("/", { waitUntil: "domcontentloaded" });
+    // TKT-101: the nav's "Work" tab is now "Experience" (/work) + "Projects" (/projects); TASK-116 renamed it "Portfolio".
     await expect(
-      p.locator('nav[aria-label="Primary"] a', { hasText: "Work" }).first(),
+      p.locator('nav[aria-label="Primary"] a[href="/work"]', { hasText: "Experience" }).first(),
+    ).toHaveCount(1);
+    await expect(
+      p.locator('nav[aria-label="Primary"] a[href="/projects"]', { hasText: "Portfolio" }).first(),
     ).toHaveCount(1);
     await expect(p.getByRole("heading", { level: 1 })).toContainText("AI-native products");
 
@@ -258,82 +233,55 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
 });
 
 // ---------------------------------------------------------------------------
-// S04.03 — header compaction 96 -> 68 with backdrop blur
+// TKT-71 / D12 — the header keeps one ~72 px height and a constant 10 px blur; scrolling only
+// turns the hairline on (the S04.03 96→68 compaction is deleted). Full matrix: layout.spec.ts.
 // ---------------------------------------------------------------------------
-test("header compacts 96 -> 68 with a backdrop blur on scroll", async ({ page }) => {
-  test.skip(width(page) !== 1440, "compaction geometry measured at w1440");
+test("header keeps one height with a constant blur; scrolling only adds the hairline", async ({ page }) => {
+  test.skip(width(page) !== 1440, "header geometry measured at w1440 (all widths in layout.spec.ts)");
   await page.goto("/", { waitUntil: "load" });
   const header = page.locator("header").first();
 
   const restBox = await header.boundingBox();
-  expect(restBox!.height, `rest height ${restBox!.height} should be ~96`).toBeGreaterThanOrEqual(94);
-  expect(restBox!.height).toBeLessThanOrEqual(98);
+  expect(restBox!.height, `rest height ${restBox!.height} should be ~72`).toBeGreaterThanOrEqual(70);
+  expect(restBox!.height).toBeLessThanOrEqual(74);
   const restFilter = await header.evaluate((el) => {
     const s = getComputedStyle(el);
     return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter");
   });
-  expect(["none", ""], `rest backdrop-filter was "${restFilter}"`).toContain(restFilter);
+  expect(restFilter, `rest backdrop-filter was "${restFilter}"`).toContain("blur(10px)");
+  await expect(header).not.toHaveAttribute("data-scrolled");
 
-  // Scroll past the threshold; retry until the client `useScrollY` listener has hydrated and the
-  // 250 ms compaction transition has settled (avoids a fixed sleep racing hydration).
   await page.evaluate(() => window.scrollTo(0, 240));
-  await expect(async () => {
-    await page.evaluate(() => window.scrollTo(0, 240));
-    const compactBox = await header.boundingBox();
-    expect(
-      compactBox!.height,
-      `compact height ${compactBox!.height} should be ~68`,
-    ).toBeGreaterThanOrEqual(66);
-    expect(compactBox!.height).toBeLessThanOrEqual(70);
-    const compactFilter = await header.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter");
-    });
-    expect(compactFilter, `compact backdrop-filter was "${compactFilter}"`).toContain("blur(12px)");
-  }).toPass({ timeout: 6000 });
+  await expect(header).toHaveAttribute("data-scrolled", "");
+  const scrolledBox = await header.boundingBox();
+  expect(Math.abs(scrolledBox!.height - restBox!.height), "height must not change on scroll").toBeLessThanOrEqual(1);
 });
 
 // ---------------------------------------------------------------------------
-// S04.04 — NavPill sits behind the active nav link
+// TKT-71 — the active nav link is marked current and draws the ink-stroke underline
+// (the S04.04 active-link pill is deleted).
 // ---------------------------------------------------------------------------
-test("active nav link is marked current and shows the NavPill", async ({ page }) => {
-  test.skip(width(page) < 1024, "primary nav is visible at md+ (measured at desktop widths)");
+test("active nav link is marked current and shows the ink underline", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
-  const active = page.locator('nav[aria-label="Primary"] a[aria-current="page"]');
+  const nav = page.locator('header nav[aria-label="Primary"]').first();
+  const active = nav.locator('a[aria-current="page"]');
   await expect(active).toHaveText("Home");
-  await expect(active.locator('span[aria-hidden="true"]').first()).toBeVisible();
+  await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
+  await expect(nav.locator('a[href="/work"] svg.ink-underline')).toHaveCSS("opacity", "0");
 });
 
 // ---------------------------------------------------------------------------
-// S04.05 — MobileMenu: opens, traps focus, Esc closes & restores focus, axe clean
+// S04.05 → TASK-112 — no MobileMenu any more: the header carries the tabs at 390, axe clean
 // ---------------------------------------------------------------------------
-test("mobile menu opens, traps focus, closes on Esc and restores focus (axe clean)", {
+test("no menu button at 390; the header tab strip is axe clean", {
   tag: "@EVAL-006",
 }, async ({ page, axe }) => {
-  test.skip(width(page) !== 390, "mobile menu is the w390 navigation");
+  test.skip(width(page) !== 390, "the phone-width header");
   await page.goto("/", { waitUntil: "load" });
-
-  const toggle = page.locator('button[aria-label="Open menu"]');
-  await expect(toggle).toBeVisible();
-
-  const dialog = page.locator('dialog[aria-label="Site navigation"]');
-  // Retry the click until it registers — the onClick handler only exists after hydration.
-  await expect(async () => {
-    await toggle.click();
-    await expect(dialog).toBeVisible({ timeout: 1000 });
-  }).toPass({ timeout: 6000 });
-
-  await axe(page);
-
-  const focusInside = await page.evaluate(() => {
-    const d = document.querySelector('dialog[aria-label="Site navigation"]');
-    return !!(d && document.activeElement && d.contains(document.activeElement));
-  });
-  expect(focusInside, "focus must move inside the modal dialog").toBeTruthy();
-
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
-  await expect(page.locator('button[aria-label="Open menu"]')).toBeFocused();
+  await expect(page.locator("header").getByRole("button", { name: /menu/i })).toHaveCount(0);
+  await expect(page.locator("dialog")).toHaveCount(0);
+  await expect(page.locator('header nav[aria-label="Primary"]')).toBeVisible();
+  await axe(page, { include: "header" });
 });
 
 // ---------------------------------------------------------------------------
@@ -354,10 +302,10 @@ test("skip link is the first tab stop and targets #main", async ({ page }) => {
 // the M-001 tracer's aria-disabled "coming in this build" state was removed here).
 // ---------------------------------------------------------------------------
 test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page }) => {
-  test.skip(width(page) !== 1440, "Ask AI button is desktop-only (hidden on mobile)");
+  test.skip(width(page) !== 1440, "checked once at w1440 (the 390 trigger is covered in eval-007)");
   await page.goto("/", { waitUntil: "load" });
-  // Scope to the visible desktop control (the closed MobileMenu <dialog> holds a hidden duplicate).
-  const ask = page.locator("header button").filter({ hasText: "Ask AI" }).filter({ visible: true }).first();
+  // The 44 px icon-only ghost named by aria-label (TKT-71, S21).
+  const ask = page.locator("header").getByRole("button", { name: "Ask AI" });
   await expect(ask).toBeVisible();
   await expect(ask).not.toHaveAttribute("aria-disabled", "true");
   await ask.focus();
@@ -372,11 +320,10 @@ test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page 
 test("resume placeholder points at /contact#resume and /resume.pdf is 404", async ({ page }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
-  // Hero resume CTA is the first /contact#resume link in <main> (the FinalCTA carries a second one
-  // since TKT-14, and the MobileMenu's closed <dialog> holds a hidden duplicate) — scope to the hero.
-  const resume = page
-    .locator('main a[href="/contact#resume"]', { hasText: "Resume — updating" })
-    .first();
+  // Since TKT-72 the home page's in-page résumé control is the band footer's résumé circle (the
+  // TKT-73 hero carries no résumé CTA and the old closing-CTA section is gone; since TASK-112 the
+  // band is the only résumé control on every page) — scope to the band. Its name comes from resumeAction().
+  const resume = page.locator('footer.band a[href="/contact#resume"][aria-label="Resume — updating"]');
   await expect(resume).toBeVisible();
   const res = await page.request.get("/resume.pdf");
   expect(res.status(), "/resume.pdf must 404 while resumeAvailable=false").toBe(404);

@@ -1,13 +1,15 @@
 ---
 id: TASK-24
 title: 'TKT-24: Nuptis + Velora media: recorded demos + posters'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-27 06:22'
 labels:
   - P1
   - 'sp:2'
   - media
+  - on-hold
 milestone: m-4
 dependencies:
   - TASK-1
@@ -34,3 +36,11 @@ Source: tickets.md § TKT-24.
 - [ ] #2 `SOURCES.md` per slug with URL + date.
 - [ ] #3 Mock-data nature stated in the caption data (status "Live (mock data)").
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — Nuptis + Velora have no recorded demos/posters yet (no content/media directories for either). Dependency: Tushar (these flows involve app sign-in/role-select — needs his go-ahead or a demo account) or an agent recording session against the live URLs. Status left as To Do.
+
+On hold by Tushar 2026-09-27 (verbatim: "I will record the demo media later on. You can put that ticket on hold"). Does not block the M-009 release (EXE-24).
+<!-- SECTION:NOTES:END -->

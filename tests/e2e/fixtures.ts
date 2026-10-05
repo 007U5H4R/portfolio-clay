@@ -14,10 +14,13 @@
  *   noViewTransitions — delete document.startViewTransition before any script runs, forcing the
  *                       EXE-5 plain-navigation fallback (EVAL-015).
  *   keyboardOnly      — press Tab `opts.tabs` times and, after each, assert the focus-visible
- *                       element wears the shared 3px solid accent ring (EVAL-007).
+ *                       element wears the shared 2px solid rust ring (EVAL-007).
  *   consoleErrors     — opt-in collector: any console.error or uncaught page error during a test
  *                       that destructures this fixture fails that test at teardown (A12: no silent
  *                       client errors).
+ *   saveData          — opt-in (TSK-37, EVAL-019 Save-Data mode): stubs `navigator.connection` to
+ *                       `{ saveData: true }` on the whole context before any page script runs, so
+ *                       `HeroClip` takes its poster-only branch (Design.md §5.3.1).
  */
 import { test as base, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -54,11 +57,58 @@ interface TracerFixtures {
   noViewTransitions: PageCheck;
   keyboardOnly: KeyboardOnlyCheck;
   consoleErrors: string[];
+  saveData: void;
+}
+
+/**
+ * TKT-90d (A11Y-1): `Reveal` content is always in the accessibility tree but sits at opacity 0 until
+ * it scrolls into view, and axe's color-contrast rule then measures a near-invisible blend. Audit
+ * the page as a reader sees it: scroll every not-yet-revealed `.reveal` into view, wait until each
+ * is revealed and fully opaque, then restore the scroll position. Nothing is excluded from axe.
+ */
+async function revealForAudit(page: Page): Promise<void> {
+  // `.reveal` is only added after hydration — let the client settle first, or the class can land
+  // mid-scan (seen at w390 on /about).
+  await page.waitForLoadState("networkidle").catch(() => {});
+  const scrollY = await page.evaluate(() => window.scrollY);
+  // Element handles, not `.all()` locators: `:not([data-revealed])` re-resolves as items fire.
+  const pending = await page.locator(".reveal:not([data-revealed])").elementHandles();
+  for (const el of pending) await el.scrollIntoViewIfNeeded();
+  await page.waitForFunction(
+    () =>
+      Array.from(document.querySelectorAll(".reveal")).every(
+        (el) => el.hasAttribute("data-revealed") && getComputedStyle(el).opacity === "1",
+      ),
+    null,
+    { timeout: 10_000 },
+  );
+  // TKT-110: the How I think choreography keeps its cards rolled / content faded until it plays.
+  // Same rule as `.reveal`: walk every stage into view and wait for the board to finish (≈ 7.6 s).
+  for (const el of await page.locator("[data-journey-armed] [data-journey-stage]").elementHandles()) {
+    await el.scrollIntoViewIfNeeded();
+  }
+  await page.waitForFunction(() => document.querySelector("[data-journey-armed]") === null, null, { timeout: 20_000 });
+  // TASK-113: arm-then-reveal entrances (`data-armed` → `data-in`: /contact, Home Ask Tushky) start at
+  // opacity 0 — same rule: walk each into view, wait for `data-in`, then for its CSS transitions to end.
+  for (const el of await page.locator("[data-armed]:not([data-in])").elementHandles()) {
+    await el.scrollIntoViewIfNeeded();
+  }
+  await page.waitForFunction(() => document.querySelector("[data-armed]:not([data-in])") === null, null, { timeout: 10_000 });
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a instanceof CSSTransition)
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
+  await page.evaluate((y) => window.scrollTo(0, y), scrollY);
 }
 
 export const test = base.extend<TracerFixtures>({
   axe: async ({}, provide) => {
     await provide(async (page, opts) => {
+      await revealForAudit(page);
       let builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]);
       if (opts?.include) builder = builder.include(opts.include);
       const results = await builder.analyze();
@@ -170,7 +220,7 @@ export const test = base.extend<TracerFixtures>({
       // comparison is exact regardless of rgb()/oklch() serialisation across Chromium versions.
       const accent = await page.evaluate(() => {
         const probe = document.createElement("span");
-        probe.style.color = "var(--color-accent)";
+        probe.style.color = "var(--color-rust)";
         probe.style.position = "absolute";
         probe.style.opacity = "0";
         probe.style.pointerEvents = "none";
@@ -198,9 +248,9 @@ export const test = base.extend<TracerFixtures>({
         });
         if (!info) continue; // no focus-visible target at this stop (e.g. a container) — skip
         const where = `tab ${i + 1} → <${info.tag}> "${info.name}"`;
-        expect(info.outlineWidth, `${where}: focus ring must be 3px`).toBe("3px");
+        expect(info.outlineWidth, `${where}: focus ring must be 2px`).toBe("2px");
         expect(info.outlineStyle, `${where}: focus ring must be solid`).toBe("solid");
-        expect(info.outlineColor, `${where}: focus ring must be the accent colour`).toBe(accent);
+        expect(info.outlineColor, `${where}: focus ring must be the rust colour`).toBe(accent);
       }
     });
   },
@@ -225,6 +275,16 @@ export const test = base.extend<TracerFixtures>({
     expect(errors, `app console/JS errors captured during the test:\n${errors.join("\n")}`).toEqual(
       [],
     );
+  },
+
+  saveData: async ({ context }, provide) => {
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, "connection", {
+        configurable: true,
+        value: { saveData: true },
+      });
+    });
+    await provide();
   },
 });
 

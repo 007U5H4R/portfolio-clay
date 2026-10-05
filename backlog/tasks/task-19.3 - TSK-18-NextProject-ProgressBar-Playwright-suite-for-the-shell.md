@@ -1,9 +1,10 @@
 ---
 id: TASK-19.3
 title: 'TSK-18: NextProject + ProgressBar + Playwright suite for the shell'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P1
   - 'sp:1'
@@ -27,3 +28,9 @@ ordinal: 67000
 <!-- AC:BEGIN -->
 - [ ] #1 TKT-19 AC 6; `tests/e2e/case-study.spec.ts` covers all 11 slugs (render, axe, anchors, VT fallback).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-19 (Done). components/case-study/NextProject.tsx and components/interactions/ProgressBar.tsx exist with tests (tests/unit/ProgressBar.test.tsx); this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

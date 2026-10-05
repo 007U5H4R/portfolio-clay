@@ -5,12 +5,15 @@
  * diffs against a baseline, and writes evals/results/<label>.json WITHOUT ever overwriting a file.
  *
  * Layers (each gated by --only):
- *   Vitest      → EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit)
- *   Playwright  → EVAL-002, 006, 007, 008, 010, 011, 014, 017 (tags on served HTML)
+ *   Vitest      → EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit),
+ *                 EVAL-020 (paper token gate), EVAL-021 (illustration provenance) — M-009, EV3
+ *   Playwright  → EVAL-002, 006, 007, 008, 010, 011, 014, 015, 017 (tags on served HTML),
+ *                 EVAL-018 (decoration budget), EVAL-019 (hero once-and-hold) — M-009, EV3
  *   Lighthouse  → EVAL-004 (median category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget)
  *   Content gate→ EVAL-013 (validate-content + forbidden-strings + fixture proof)
  *   Security    → EVAL-016 (forbidden-strings --bundle + pnpm audit + TP9 headers when --base-url)
- *   Manual      → EVAL-001, 003, 009, and the EVAL-017 inspector sub-result (recorded, not executed)
+ *   Manual      → EVAL-001, 003, 009, 022 (mockup fidelity, M-009), and the EVAL-017 / EVAL-021
+ *                 manual sub-results (recorded, not executed)
  *
  * Flags:
  *   --label <name>      output basename (evals/results/<name>.json); default eval-run-<version>-<sha>
@@ -51,9 +54,10 @@ const THRESHOLDS = {
 const LH_REGRESSION_PTS = 3;
 const JS_REGRESSION_KB = 10;
 
-const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017"];
-const VITEST_CASES = ["EVAL-012", "EVAL-017"];
-const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009"];
+// M-009 (evaluation-plan.md §8.7 / EV3): EVAL-018/019 Playwright, EVAL-020/021 Vitest, EVAL-022 manual.
+const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019"];
+const VITEST_CASES = ["EVAL-012", "EVAL-017", "EVAL-020", "EVAL-021"];
+const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009", "EVAL-022"];
 const METRIC_CASES = ["EVAL-004", "EVAL-005"]; // diffed by metric, not status-flip
 
 type Status = "PASS" | "FAIL" | "SKIP" | "MANUAL";
@@ -62,6 +66,12 @@ interface EvalCaseDef {
   id: string;
   priority: string;
   category: string;
+  /** Present when only part of the case is automated (EVAL-017, EVAL-021); echoed into `details`. */
+  automated_scope?: string;
+}
+/** Suffix for `details` when a case has a manual sub-result, so a run JSON never implies full automation. */
+function scopeNote(def: EvalCaseDef): string {
+  return def.automated_scope ? `; automated scope: ${def.automated_scope}` : "";
 }
 interface ResultCase {
   id: string;
@@ -189,11 +199,66 @@ function nextVersionFromLockfile(): string {
 interface PwTest {
   projectName: string;
   status: string; // expected | unexpected | flaky | skipped
+  /** Runtime annotations (`test.info().annotations.push`) — EVAL-018 writes its per-unit table here. */
+  annotations?: { type: string; description?: string }[];
 }
 interface PwSpec {
   title: string;
   tags: string[];
   tests: PwTest[];
+}
+
+/**
+ * EVAL-018 `details` (TSK-35 / TC-129): the per-unit counts the spec pushed as `eval-018` annotations,
+ * summarised so the run JSON carries real numbers, never just "N failing". The full per-unit table
+ * stays in `.eval/playwright.json` (the case's artifact).
+ */
+function eval018Details(specs: PwSpec[]): string {
+  type Row = { unit: string; count: number };
+  type Hit = { rule: string; unit: string };
+  type Table = { route: string; width: number; units: Row[]; violations: Hit[]; parked: Hit[]; stale: unknown[] };
+  const tables: Table[] = [];
+  for (const sp of specs) {
+    if (!(sp.tags ?? []).includes("EVAL-018")) continue;
+    for (const t of sp.tests) {
+      for (const a of t.annotations ?? []) {
+        if (a.type !== "eval-018" || !a.description) continue;
+        try {
+          tables.push(JSON.parse(a.description) as Table);
+        } catch {
+          /* a malformed annotation is not a result — ignore it here; the test itself already failed or passed on its assertions */
+        }
+      }
+    }
+  }
+  if (tables.length === 0) return "no eval-018 annotations (tests skipped or not run)";
+  const routes = new Set(tables.map((t) => t.route));
+  const units = tables.reduce((n, t) => n + t.units.length, 0);
+  const maxCount = Math.max(0, ...tables.flatMap((t) => t.units.map((u) => u.count)));
+  const byRule: Record<string, number> = {};
+  let parked = 0;
+  let stale = 0;
+  const failingRoutes = new Set<string>();
+  for (const t of tables) {
+    const parkedKeys = new Set(t.parked.map((p) => `${p.rule}|${p.unit}`));
+    for (const v of t.violations) {
+      if (parkedKeys.has(`${v.rule}|${v.unit}`)) continue;
+      byRule[v.rule] = (byRule[v.rule] ?? 0) + 1;
+      failingRoutes.add(t.route);
+    }
+    parked += t.parked.length;
+    stale += t.stale.length;
+  }
+  const unparked = Object.values(byRule).reduce((a, b) => a + b, 0);
+  const rules = Object.entries(byRule)
+    .sort()
+    .map(([r, n]) => `${r} ${n}`)
+    .join(", ");
+  return (
+    `${routes.size} routes × ${new Set(tables.map((t) => t.width)).size} widths · ${units} units · max ${maxCount}/4 per unit · ` +
+    `${unparked} unparked hit(s)${rules ? ` (${rules})` : ""} · ${parked} parked · ${stale} stale park(s)` +
+    (failingRoutes.size > 0 ? ` · failing routes: ${[...failingRoutes].sort().join(", ")}` : "")
+  );
 }
 function collectSpecs(node: { specs?: PwSpec[]; suites?: unknown[] }, acc: PwSpec[] = []): PwSpec[] {
   for (const s of node.specs ?? []) acc.push(s);
@@ -613,9 +678,20 @@ async function main(): Promise<void> {
         details: `tags: seo unit ${unit}, eval-017 spec ${spec.status.toLowerCase()} (${spec.details}); inspector rendering MANUAL (TKT-51)`,
         artifacts: [".eval/vitest.json", ".eval/playwright.json"],
       });
+    } else if (VITEST_CASES.includes(def.id)) {
+      // Generic Vitest mapping (M-009 EVAL-020/021): the unit file is tests/unit/eval-0xx.test.ts.
+      const st = vitestFileStatus(vf, def.id.toLowerCase());
+      cases.push({
+        ...base,
+        status: st === "absent" ? "SKIP" : st === "pass" ? "PASS" : "FAIL",
+        details: (st === "absent" ? `unit test ${def.id.toLowerCase()} not built yet (M-009 Stage 7)` : `vitest ${def.id.toLowerCase()} ${st}`) + scopeNote(def),
+        artifacts: [".eval/vitest.json"],
+      });
     } else if (PLAYWRIGHT_CASES.includes(def.id)) {
       const r = playwrightStatus(specs, def.id);
-      cases.push({ ...base, status: r.status, details: r.details, artifacts: [".eval/playwright.json"] });
+      // EVAL-018 appends the real per-unit summary from the spec's annotations (TC-129: never a bare count).
+      const extra = def.id === "EVAL-018" && r.status !== "SKIP" ? ` · ${eval018Details(specs)}` : "";
+      cases.push({ ...base, status: r.status, details: r.details + extra + scopeNote(def), artifacts: [".eval/playwright.json"] });
     } else if (MANUAL_CASES.includes(def.id)) {
       cases.push({ ...base, status: "MANUAL", details: "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability" });
     } else {

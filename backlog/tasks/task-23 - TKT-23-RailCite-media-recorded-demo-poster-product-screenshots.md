@@ -1,13 +1,15 @@
 ---
 id: TASK-23
 title: 'TKT-23: RailCite media: recorded demo + poster + product screenshots'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-27 06:22'
 labels:
   - P1
   - 'sp:2'
   - media
+  - on-hold
 milestone: m-4
 dependencies:
   - TASK-1
@@ -37,3 +39,11 @@ Source: tickets.md § TKT-23.
 - [ ] #3 No JWT/session token, email, or personal data visible in any frame.
 - [ ] #4 If auth blocks recording, document the exact blocker and ship poster-only ("Demo coming").
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — RailCite has no recorded demo/poster/screenshots yet (no content/media/railcite directory); only the mascot exists per the ticket's own note. Dependency: Tushar (live product access) or an agent recording session against railcite.vercel.app. Status left as To Do.
+
+On hold by Tushar 2026-09-27 (verbatim: "I will record the demo media later on. You can put that ticket on hold"). Does not block the M-009 release (EXE-24).
+<!-- SECTION:NOTES:END -->

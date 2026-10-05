@@ -1,13 +1,15 @@
 ---
 id: TASK-25
 title: 'TKT-25: Bhakti-Vilas media: recorded demo + UI screenshots'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-27 06:22'
 labels:
   - P2
   - 'sp:2'
   - media
+  - on-hold
 milestone: m-4
 dependencies:
   - TASK-1
@@ -34,3 +36,11 @@ Source: tickets.md § TKT-25.
 - [ ] #2 Screenshots in `content/media/bhakti-vilas/` + `SOURCES.md`.
 - [ ] #3 No real phone number typed or visible.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — Bhakti-Vilas has no recorded demo/UI screenshots yet (no content/media/bhakti-vilas directory). Dependency: Tushar (fake phone+OTP login flow — needs his confirmation this is safe to automate) or an agent recording session against the live URL. Status left as To Do.
+
+On hold by Tushar 2026-09-27 (verbatim: "I will record the demo media later on. You can put that ticket on hold"). Does not block the M-009 release (EXE-24).
+<!-- SECTION:NOTES:END -->

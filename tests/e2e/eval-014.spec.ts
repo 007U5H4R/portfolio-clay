@@ -3,7 +3,7 @@
  * matrix, exercised via the QA-only `/dev/video` fixture board.
  *
  * `/dev/video` only renders under an `ALLOW_DEV_ROUTES=1` build (TP1: dev-route gating resolves at
- * build time) — exactly the `primitives.spec.ts` / `ask-inline.spec.ts` pattern. Every test here
+ * build time) — exactly the `paper-board.spec.ts` / `ask-inline.spec.ts` pattern. Every test here
  * SKIPs (never fails) on a plain build via the `gotoDev` guard below; run the real assertions with
  * `ALLOW_DEV_ROUTES=1 pnpm build && ALLOW_DEV_ROUTES=1 pnpm test:e2e --grep 'eval-014|video'`.
  *

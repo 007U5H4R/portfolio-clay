@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.2.0-6366c7b",
+  "label": "eval-run-tkt87",
+  "provenance": {
+    "version": "0.2.0",
+    "commit": "6366c7bae4d511d24f574480332dd4bb28307f61",
+    "branch": "m009/tkt-87",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 27.0.0",
+    "timestamp": "2026-09-25T12:12:28.266Z",
+    "baseUrl": "http://127.0.0.1:3000",
+    "evalCasesSha256": "a3cf2580ff8f98a70918ad41d2c28dbc19128f49891a2914f2b01e5f618cd177",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 22,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 17,
+    "manual": 0
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "PASS",
+      "details": "24 specs, 11 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "76 specs, 21 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "PASS",
+      "details": "80 specs, 20 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "PASS",
+      "details": "validate-content OK · 0 hits in 220 files (incl. .next bundle) · fixture proof present (non-zero build, 3 issues)",
+      "artifacts": [
+        "evals/results/content-gate-proof.txt"
+      ]
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-018",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "104 specs, 49 runs across w1024/w1440/w390/w768 · 23 routes × 2 widths · 206 units · max 4/4 per unit · 0 unparked hit(s) · 2 parked · 0 stale park(s)",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-019",
+      "priority": "high",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-020",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-021",
+      "priority": "high",
+      "category": "content-integrity",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-022",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    }
+  ],
+  "criticalFailures": [],
+  "playwrightUnexpected": [],
+  "regressions": [],
+  "improvements": [],
+  "runtimeMs": 127607,
+  "baseline": "evals/results/baseline-v1.json"
+}

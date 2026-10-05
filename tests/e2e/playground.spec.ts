@@ -1,101 +1,123 @@
 /**
- * playground.spec.ts (TKT-44, M-006) — the `/playground` hero + 4-tile grid.
+ * playground.spec.ts (TKT-88 · TSK-45, TC-169; Design.md §7.7, §3.3, §11 Dev-07/Dev-08) — the paper
+ * `/playground`: TKT-95's scene opener → opener copy → bench board → band.
  *
  * Runs in all four viewport projects (w390/w768/w1024/w1440, playwright.config.ts):
- *   AC1 — 4 tiles, copy from CONTENT_INVENTORY §6, NEVER Slag City / Mock Interview / Game.
- *   AC2 — each tile is an external link (`target=_blank rel=noopener`), accessible name includes
- *         "opens in new tab", ≥44×44, visible focus ring.
- *   AC3 — (covered by the global EVAL-011 crawler sweep once `/playground` is in
- *         tests/e2e/routes.json's `static` list — see eval-011-dead-controls.spec.ts) the 4 live
- *         URLs resolve HEAD 200-399. This file adds its own direct check of the same 4 URLs so the
- *         result is legible without cross-referencing the crawler's JSON report.
- *   AC4 — axe clean; no overflow at 390/768/1024/1440.
- *   a11y scar guard (post-TKT-43) — every tile title is reachable as a level-2 heading, with no
- *         skipped heading level (h1 → h2, no h3 in between).
- * Plus the screenshot pack (TDD gate item 7).
+ *   TC-169.1 — 4 experiment cards, titles/taglines from `data/projects.ts`; NEVER Slag City / Mock
+ *              Interview / Game (CONTENT_INVENTORY §6 exclusions).
+ *   TC-169.2 — each live link: `target=_blank`, `rel` contains `noopener`, sr-only "(opens in new tab)";
+ *              the 4 URLs resolve (EVAL-011 — also swept by the global crawler).
+ *   TC-169.3 — no tone/status line, no Caveat notebook sheet (Dev-07); quiet close not built (D9).
+ *   TC-169.4 — EVAL-018 unit counts: opener 3 · bench 3 (at 390 and 1440).
+ *   TC-169.5 — board 12-col > 1024, 6-col ≤ 1024, 1-col ≤ 640; no overflow at any width.
+ *   plus ≥44 targets + focus ring, heading outline h1 → h2 → h3, axe at 390/1440, screenshot pack.
  */
+import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { cinematicPortfolio, dinoArcadePwa, pratyasa, tegaki } from "@/data/projects";
 
-const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
+const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
-// Fixed order + tone, mirrors components/playground/PlaygroundGrid.tsx's ENTRIES exactly.
-const TILES = [
-  { project: pratyasa, tone: "butter" },
-  { project: tegaki, tone: "peach" },
-  { project: dinoArcadePwa, tone: "blush" },
-  { project: cinematicPortfolio, tone: "mint" },
-] as const;
+// Fixed order — mirrors components/playground/PlaygroundGrid.tsx's ENTRIES.
+const EXPERIMENTS = [pratyasa, tegaki, dinoArcadePwa, cinematicPortfolio] as const;
 
-// Playwright's `toContainText` string form is case-INsensitive, so a bare "Game" would false-
-// positive against dino-arcade-pwa's own legitimate lowercase "no game data ships or uploads"
-// tagline — a case-sensitive whole-word regex avoids that collision. "ROM/BIOS" (the excluded
-// detail as a compound phrase) does not collide with dino-arcade-pwa's own legitimate "BYO-ROM"
-// framing (CONTENT_INVENTORY §6: BYO-ROM is the real product's load-bearing description;
-// "ROM/BIOS files" is the excluded Game project's internal detail, never this one's).
+// Case-sensitive whole-word "Game" (dino-arcade-pwa's tagline legitimately says "no game data");
+// "ROM/BIOS" is the excluded Game project's detail, not dino-arcade-pwa's "BYO-ROM" framing.
 const FORBIDDEN_PATTERNS: (string | RegExp)[] = ["Slag City", "Mock Interview", /\bGame\b/, "ROM/BIOS"];
 
-// ---------------------------------------------------------------------------
-// PlaygroundHero — h1 verbatim.
-// ---------------------------------------------------------------------------
-test("PlaygroundHero renders the verbatim headline", async ({ page }) => {
+test("opener: eyebrow + verbatim h1 under the scene opener", async ({ page }) => {
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
   await page.goto("/playground", { waitUntil: "load" });
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Small experiments. Big questions.",
-  );
+  const main = page.locator("#main");
+  await expect(main.locator('[data-opener="scene-playground"]')).toHaveCount(1);
+  await expect(main.getByRole("heading", { level: 1 })).toHaveText("Small experiments. Big questions.");
+  await expect(main.locator(".pg-eyebrow").first()).toHaveText("Playground·Four live experiments");
 });
 
-// ---------------------------------------------------------------------------
-// PlaygroundGrid — exactly 4 tiles, §6 copy, no excluded-project text anywhere on the page.
-// ---------------------------------------------------------------------------
-test("PlaygroundGrid renders exactly the 4 sanctioned tiles with their live URL + tagline, no excluded projects", async ({
-  page,
-}) => {
+test("TC-169.1 bench renders exactly the 4 sanctioned experiments from data, no excluded projects", async ({ page }) => {
   test.skip(width(page) !== 1440, "content/count is viewport-independent; checked once at w1440");
   await page.goto("/playground", { waitUntil: "load" });
 
-  const main = page.locator("#main");
-  const tiles = main.locator("ul > li > a");
-  await expect(tiles).toHaveCount(4);
+  const bench = page.locator("section#experiments");
+  const cards = bench.locator("article[data-paper]");
+  await expect(cards).toHaveCount(4);
 
-  for (const { project } of TILES) {
-    expect(project.links.live, `${project.slug} must carry a links.live URL`).toBeTruthy();
-    const tile = main.locator(`a[href="${project.links.live}"]`);
-    await expect(tile).toBeVisible();
-    await expect(tile).toContainText(project.name);
-    await expect(tile).toContainText(project.tagline);
+  for (const [i, project] of EXPERIMENTS.entries()) {
+    const card = cards.nth(i);
+    await expect(card.getByRole("heading", { level: 3 })).toHaveText(project.name);
+    await expect(card).toContainText(project.tagline);
+    await expect(card.locator('[data-hand="label"]')).toHaveText(String(i + 1).padStart(2, "0"));
   }
 
+  const main = page.locator("#main");
   for (const bad of FORBIDDEN_PATTERNS) {
     await expect(main).not.toContainText(bad);
   }
 });
 
-// ---------------------------------------------------------------------------
-// External-link a11y: target/rel, accessible name includes "opens in new tab", ≥44×44.
-// ---------------------------------------------------------------------------
-test("every tile is a real external link: target=_blank, rel=noopener, accessible name includes 'opens in new tab'", async ({
-  page,
-}) => {
+test("TC-169.2 every live link opens in a new tab with rel=noopener and an sr-only note", async ({ page }) => {
   test.skip(width(page) !== 1440, "link attributes are viewport-independent; checked once at w1440");
   await page.goto("/playground", { waitUntil: "load" });
 
-  // Scoped to #main: cinematic-portfolio's live URL is also linked elsewhere on the page (the
-  // Footer's "Previous portfolio" ExternalLink reuses the same href) — unscoped, the two would
-  // collide under Playwright's strict-mode single-element resolution.
-  const main = page.locator("#main");
-  for (const { project } of TILES) {
-    const tile = main.locator(`a[href="${project.links.live}"]`);
-    await expect(tile).toHaveAttribute("target", "_blank");
-    const rel = await tile.getAttribute("rel");
-    expect(rel, `${project.slug} tile rel must include noopener`).toContain("noopener");
-    await expect(tile).toHaveAccessibleName(/opens in new tab/i);
-
-    const box = await tile.boundingBox();
-    expect(box?.width ?? 0, `${project.slug} tile width`).toBeGreaterThanOrEqual(44);
-    expect(box?.height ?? 0, `${project.slug} tile height`).toBeGreaterThanOrEqual(44);
+  // Scoped to the bench: cinematic-portfolio's URL may also be linked from the band.
+  const bench = page.locator("section#experiments");
+  await expect(bench.locator("a[href]")).toHaveCount(4);
+  for (const project of EXPERIMENTS) {
+    const link = bench.locator(`a[href="${project.links.live}"]`);
+    await expect(link).toHaveCount(1);
+    await expect(link).toHaveAttribute("target", "_blank");
+    expect(await link.getAttribute("rel"), `${project.slug} rel`).toContain("noopener");
+    await expect(link.locator(".sr-only")).toHaveText("(opens in new tab)");
+    await expect(link).toHaveAccessibleName(/opens in new tab/i);
+    await expect(link).toContainText(project.links.live!);
   }
+});
+
+test("TC-169.3 no tone/status line, no notebook sheet, no quiet close (Dev-07, D9)", async ({ page }) => {
+  test.skip(width(page) !== 1440, "structure is viewport-independent; checked once at w1440");
+  await page.goto("/playground", { waitUntil: "load" });
+  const main = page.locator("#main");
+  await expect(main).not.toContainText("tone:");
+  await expect(main.locator('[data-paper="notebook"]')).toHaveCount(0);
+  await expect(main).not.toContainText("small on purpose");
+  // The bench is the last section in <main>: the band (layout) is the closing CTA.
+  await expect(main.locator("section").last()).toHaveAttribute("id", "experiments");
+});
+
+test("heading outline: h1 → h2 'Experiments' → one h3 per card", async ({ page }) => {
+  test.skip(width(page) !== 1440, "heading structure is viewport-independent; checked once at w1440");
+  await page.goto("/playground", { waitUntil: "load" });
+  const main = page.locator("#main");
+  await expect(main.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(main.getByRole("heading", { level: 2 })).toHaveText(["Experiments"]);
+  await expect(main.getByRole("heading", { level: 3 })).toHaveText(EXPERIMENTS.map((p) => p.name));
+});
+
+test("TC-169.4 EVAL-018 unit counts: opener copy 3 · bench 3", { tag: "@EVAL-018" }, async ({ page }) => {
+  test.skip(width(page) !== 390 && width(page) !== 1440, "EVAL-018 is measured at 390 and 1440");
+  await page.goto("/playground", { waitUntil: "load" });
+  const counts = await page.evaluate(() => {
+    const own = (unit: Element | null) =>
+      unit
+        ? Array.from(unit.querySelectorAll("[data-decor]")).filter(
+            (d) => d.parentElement?.closest("section, header, footer") === unit,
+          ).length
+        : -1;
+    return {
+      opener: own(document.querySelector("section.pg-opener")),
+      bench: own(document.querySelector("section#experiments")),
+    };
+  });
+  expect(counts).toEqual({ opener: 3, bench: 3 });
+});
+
+test("TC-169.5 board columns: 12 > 1024 · 6 ≤ 1024 · 1 ≤ 640", async ({ page }) => {
+  await page.goto("/playground", { waitUntil: "load" });
+  const cols = await page
+    .locator(".pg-board")
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
+  const w = width(page);
+  expect(cols, `board columns at ${w}`).toBe(w > 1024 ? 12 : w > 640 ? 6 : 1);
 });
 
 test("min-target sweep (≥44×44) and visible focus ring", async ({ page, minTargets, keyboardOnly }) => {
@@ -106,55 +128,16 @@ test("min-target sweep (≥44×44) and visible focus ring", async ({ page, minTa
   }
 });
 
-// ---------------------------------------------------------------------------
-// a11y regression guard (TKT-43 scar): tile titles must be real, reachable level-2 headings, not
-// just h3-styled spans — and the outline must go h1 -> h2 with nothing skipped in between.
-// ---------------------------------------------------------------------------
-test("every tile title is reachable as a level-2 heading, with no skipped heading level", async ({
-  page,
-}) => {
-  test.skip(width(page) !== 1440, "heading structure is viewport-independent; checked once at w1440");
-  await page.goto("/playground", { waitUntil: "load" });
-
-  const main = page.locator("#main");
-  await expect(main.getByRole("heading", { level: 1 })).toHaveText(
-    "Small experiments. Big questions.",
-  );
-
-  const tileHeadings = main.getByRole("heading", { level: 2 });
-  await expect(tileHeadings).toHaveCount(4);
-  for (const { project } of TILES) {
-    await expect(tileHeadings.filter({ hasText: project.name })).toHaveCount(1);
+test("@EVAL-011 the 4 live experiment URLs resolve (HEAD 200-399)", { tag: "@EVAL-011" }, async ({ page }) => {
+  test.skip(width(page) !== 1440, "external resolution checked once at w1440");
+  for (const project of EXPERIMENTS) {
+    const url = project.links.live!;
+    const res = await page.request.head(url).catch(() => page.request.get(url));
+    expect(res.status(), `${project.slug} live URL ${url} must resolve HEAD/GET 200-399`).toBeGreaterThanOrEqual(200);
+    expect(res.status()).toBeLessThan(400);
   }
-
-  // No h3 (or deeper) anywhere on the page — h1 -> h2 is the whole outline here.
-  await expect(main.getByRole("heading", { level: 3 })).toHaveCount(0);
 });
 
-// ---------------------------------------------------------------------------
-// AC3 — the 4 live URLs resolve (HEAD 200-399). Direct check alongside the global EVAL-011
-// crawler sweep (which now also covers /playground via tests/e2e/routes.json).
-// ---------------------------------------------------------------------------
-test(
-  "@EVAL-011 the 4 live experiment URLs resolve (HEAD 200-399)",
-  { tag: "@EVAL-011" },
-  async ({ page }) => {
-    test.skip(width(page) !== 1440, "external resolution checked once at w1440");
-    for (const { project } of TILES) {
-      const url = project.links.live!;
-      const res = await page.request.head(url).catch(() => page.request.get(url));
-      expect(
-        res.status(),
-        `${project.slug} live URL ${url} must resolve HEAD/GET 200-399`,
-      ).toBeGreaterThanOrEqual(200);
-      expect(res.status()).toBeLessThan(400);
-    }
-  },
-);
-
-// ---------------------------------------------------------------------------
-// No-overflow (all 4 widths) + responsive screenshot pack.
-// ---------------------------------------------------------------------------
 test("/playground · no-overflow + screenshot", async ({ page, noOverflow }) => {
   await page.goto("/playground", { waitUntil: "load" });
   await noOverflow(page);
@@ -165,9 +148,6 @@ test("/playground · no-overflow + screenshot", async ({ page, noOverflow }) => 
   });
 });
 
-// ---------------------------------------------------------------------------
-// axe wcag2.1 AA at 390 & 1440.
-// ---------------------------------------------------------------------------
 test("/playground · axe wcag2.1 AA", { tag: "@EVAL-006" }, async ({ page, axe }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "axe runs at 390 and 1440");
   await page.goto("/playground", { waitUntil: "load" });

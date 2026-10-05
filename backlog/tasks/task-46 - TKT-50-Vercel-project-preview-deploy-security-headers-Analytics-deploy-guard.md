@@ -6,7 +6,7 @@ title: >-
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 12:19'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:2'
@@ -48,3 +48,9 @@ Source: tickets.md § TKT-50.
 - [ ] #7 Rollback path documented in `docs/deploy.md`.
 - [ ] #8 Pre-deploy check script has a unit test for each failure mode.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — Vercel production project/preview deploy, security headers, Analytics and deploy guard are not set up (no .vercel project, only a local vercel.json); it also depends on the still-open media tickets (TASK-22/23/24). Dependency: Tushar (release/deploy call + real product media). Status left as Blocked (already).
+<!-- SECTION:NOTES:END -->

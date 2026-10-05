@@ -1,9 +1,10 @@
 ---
 id: TASK-34.1
 title: 'TSK-25: Token Toli (token-toli) - discovery-only page'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P2
   - 'sp:1'
@@ -34,3 +35,9 @@ Discovery-framed page: Context, Problem, Discovery (three named-respondent quote
 - [ ] #3 Team "44 interviews" attributed to the team PRD, not Tushar.
 - [ ] #4 Respondent count shown as "11 named respondents" only (explicit count MISSING -> no total).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-54 (Done). The token-toli project record exists in data/projects.ts and renders through the shared /work/[slug] case-study template; this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

@@ -24,6 +24,8 @@ const PROJECT_SLUGS = [
   "tegaki",
   "dino-arcade-pwa",
   "cinematic-portfolio",
+  "campfire-board",
+  "slag-city",
 ] as const;
 
 const ROUTE_SET = routes({ projectSlugs: PROJECT_SLUGS });
@@ -55,7 +57,8 @@ const S9_HREFS = [
   "/work/railcite#07-outcome",
   "/about",
   "/work",
-  "/work?filter=enterprise", // §9 `?tab=enterprise` reconciled to E-2 canonical `?filter=`
+  "/projects", // TKT-101: the project index moved from /work (the "Work" evidence link → "Projects")
+  "/projects#enterprise", // §9 `?tab=enterprise` → E-2 `?filter=` → TASK-116: the Portfolio enterprise section
   "/about#capabilities",
 ];
 
@@ -85,8 +88,18 @@ describe("lib/anchors routes()", () => {
     expect(resolves("/work/does-not-exist", ROUTE_SET)).toBe(false);
   });
 
+  it("the retired filter hrefs no longer resolve; the Portfolio deep link does (TASK-116)", () => {
+    expect(resolves("/projects?filter=ai", ROUTE_SET)).toBe(false);
+    expect(resolves("/work?filter=ai", ROUTE_SET)).toBe(false);
+    expect(resolves("/work?filter=enterprise", ROUTE_SET)).toBe(false);
+    for (const slug of PROJECT_SLUGS) expect(resolves(`/projects?product=${slug}`, ROUTE_SET)).toBe(true);
+    expect(resolves("/projects?product=vendor-passport", ROUTE_SET)).toBe(false);
+    expect(resolves("/projects#enterprise", ROUTE_SET)).toBe(true);
+  });
+
   it("exposes the documented page anchors", () => {
     expect(PAGE_ANCHORS.about).toContain("experience");
     expect(PAGE_ANCHORS.contact).toContain("resume");
+    expect(PAGE_ANCHORS.projects).toEqual(["products", "enterprise"]);
   });
 });

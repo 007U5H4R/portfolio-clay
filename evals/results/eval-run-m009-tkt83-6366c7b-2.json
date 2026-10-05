@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "runId": "eval-run-0.2.0-6366c7b",
+  "label": "eval-run-m009-tkt83-6366c7b",
+  "provenance": {
+    "version": "0.2.0",
+    "commit": "6366c7bae4d511d24f574480332dd4bb28307f61",
+    "branch": "m009/tkt-83",
+    "dirty": true,
+    "node": "v26.7.0",
+    "pnpm": "11.25.0",
+    "next": "16.3.5",
+    "os": "darwin 27.0.0",
+    "timestamp": "2026-09-25T11:58:07.961Z",
+    "baseUrl": "http://127.0.0.1:3000",
+    "evalCasesSha256": "a3cf2580ff8f98a70918ad41d2c28dbc19128f49891a2914f2b01e5f618cd177",
+    "config": {
+      "viewports": [
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "lighthouseRuns": 3,
+      "thresholds": {
+        "lighthouse": [
+          90,
+          95,
+          95,
+          95
+        ],
+        "lcpMs": 2500,
+        "cls": 0.05,
+        "jsKb": 180,
+        "axe": "0 critical/serious"
+      }
+    }
+  },
+  "totals": {
+    "cases": 22,
+    "passed": 4,
+    "failed": 1,
+    "skipped": 16,
+    "manual": 1
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-002",
+      "priority": "critical",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-003",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "MANUAL",
+      "details": "human / inspector review — see evals/results/gate-tracer + test-cases.md traceability"
+    },
+    {
+      "id": "EVAL-004",
+      "priority": "critical",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-005",
+      "priority": "high",
+      "category": "performance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-006",
+      "priority": "critical",
+      "category": "design",
+      "status": "PASS",
+      "details": "300 specs, 127 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-007",
+      "priority": "critical",
+      "category": "design",
+      "status": "FAIL",
+      "details": "1 failing: @EVAL-007 ChapterNav · Tab reaches every link with the focus ring; aria-current tracks the visible chapter; click scrolls to the anchor (TC-161 steps 2–3) [w1024]",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-008",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-009",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-010",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "220 specs, 54 runs across w1024/w1440/w390/w768",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-011",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-012",
+      "priority": "critical",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-013",
+      "priority": "critical",
+      "category": "content-integrity",
+      "status": "PASS",
+      "details": "validate-content OK · 0 hits in 220 files (incl. .next bundle) · fixture proof present (non-zero build, 3 issues)",
+      "artifacts": [
+        "evals/results/content-gate-proof.txt"
+      ]
+    },
+    {
+      "id": "EVAL-014",
+      "priority": "medium",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-015",
+      "priority": "medium",
+      "category": "reliability",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-016",
+      "priority": "high",
+      "category": "security",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-017",
+      "priority": "high",
+      "category": "product-acceptance",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-018",
+      "priority": "high",
+      "category": "design",
+      "status": "PASS",
+      "details": "124 specs, 61 runs across w1024/w1440/w390/w768 · 24 routes × 2 widths · 238 units · max 4/4 per unit · 0 unparked hit(s) · 2 parked · 0 stale park(s)",
+      "artifacts": [
+        ".eval/playwright.json"
+      ]
+    },
+    {
+      "id": "EVAL-019",
+      "priority": "high",
+      "category": "functional",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-020",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-021",
+      "priority": "high",
+      "category": "content-integrity",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    },
+    {
+      "id": "EVAL-022",
+      "priority": "high",
+      "category": "design",
+      "status": "SKIP",
+      "details": "excluded by --only"
+    }
+  ],
+  "criticalFailures": [
+    "EVAL-007",
+    "PLAYWRIGHT-SUITE (1 failing: @EVAL-007 ChapterNav · Tab reaches every link with the focus ring; aria-current tracks the visible chapter; click scrolls to the anchor (TC-161 steps 2–3) [w1024])"
+  ],
+  "playwrightUnexpected": [
+    "@EVAL-007 ChapterNav · Tab reaches every link with the focus ring; aria-current tracks the visible chapter; click scrolls to the anchor (TC-161 steps 2–3) [w1024]"
+  ],
+  "regressions": [],
+  "improvements": [],
+  "runtimeMs": 220607,
+  "baseline": "evals/results/baseline-v1.json"
+}

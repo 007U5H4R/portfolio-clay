@@ -21,6 +21,8 @@
  * `lockBackground()` — same responsibility, effect-shaped. Deviation noted in docs/reports/TKT-11.md.)
  */
 
+import { stopSmoothScroll } from "@/lib/smooth-scroll";
+
 /** Background regions inerted while a modal panel is open. The panel itself is mounted OUTSIDE these. */
 const BACKGROUND_SELECTORS = ["#main", "header", "footer"] as const;
 
@@ -35,6 +37,8 @@ export function lockBackground(): () => void {
   const html = document.documentElement;
   const previousOverflow = html.style.overflow;
   html.style.overflow = "hidden";
+  // Lenis (TKT-94) would otherwise keep smoothing the page behind the modal; no-op when not mounted.
+  const releaseScroll = stopSmoothScroll();
 
   const inerted: HTMLElement[] = [];
   for (const selector of BACKGROUND_SELECTORS) {
@@ -53,6 +57,7 @@ export function lockBackground(): () => void {
     if (restored) return;
     restored = true;
     html.style.overflow = previousOverflow;
+    releaseScroll();
     for (const el of inerted) el.removeAttribute("inert");
   };
 }

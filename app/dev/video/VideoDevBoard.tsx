@@ -25,30 +25,35 @@
  */
 import type { ReactNode } from "react";
 import { DemoVideo, type DemoVideoData } from "@/components/projects/DemoVideo";
+import { illustration } from "@/lib/illustrations";
+
+// TKT-90a: the QA poster is the home hero poster from the illustration manifest (the clay avatar is retired).
+const HERO_POSTER = illustration("hero-desk");
+const POSTER_SRC = HERO_POSTER.publicSrc ?? "/media/illustrations/hero-poster.webp";
 
 const NO_VIDEO_POSTER = {
-  src: "/avatar/avatar.webp",
-  alt: "Placeholder poster image reused from the site avatar for this QA fixture",
-  width: 1800,
-  height: 2250,
+  src: POSTER_SRC,
+  alt: HERO_POSTER.alt,
+  width: HERO_POSTER.width,
+  height: HERO_POSTER.height,
   kind: "image" as const,
 };
 
 const VALID_FIXTURE: DemoVideoData = {
   src: "/dev-fixtures/video/valid.mp4",
-  poster: "/avatar/avatar.webp",
+  poster: POSTER_SRC,
   durationSec: 12,
 };
 
 const ERROR_404_FIXTURE: DemoVideoData = {
   src: "/dev-fixtures/video/missing.mp4",
-  poster: "/avatar/avatar.webp",
+  poster: POSTER_SRC,
   durationSec: 9,
 };
 
 const ERROR_THROTTLED_FIXTURE: DemoVideoData = {
   src: "/dev-fixtures/video/throttled.mp4",
-  poster: "/avatar/avatar.webp",
+  poster: POSTER_SRC,
   durationSec: 20,
 };
 
@@ -63,8 +68,8 @@ function Fixture({
 }) {
   return (
     <section data-fixture={fixture} className="flex flex-col gap-[var(--space-3)]">
-      <h2 className="text-h3 text-ink">{title}</h2>
-      <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-[var(--radius-clay-sm)] shadow-[var(--shadow-clay-rest)]">
+      <h2 className="text-h3 text-navy">{title}</h2>
+      <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-[var(--radius-paper)] shadow-[var(--shadow-paper)]">
         {children}
       </div>
     </section>
@@ -73,9 +78,9 @@ function Fixture({
 
 export function VideoDevBoard() {
   return (
-    <main className="min-h-screen bg-bg px-[var(--gutter-mobile)] py-[var(--space-9)] text-ink md:px-[var(--gutter-tablet)]">
+    <main className="min-h-screen bg-paper px-[var(--gutter-mobile)] py-[var(--space-9)] text-navy md:px-[var(--gutter-tablet)]">
       <header className="mb-[var(--space-8)]">
-        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-3">
+        <p className="text-caption uppercase tracking-[var(--tracking-eyebrow)] text-ink-soft">
           Dev board · QA only
         </p>
         <h1 className="text-h2">DemoVideo states (EVAL-014)</h1>

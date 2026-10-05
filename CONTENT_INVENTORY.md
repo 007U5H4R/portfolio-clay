@@ -36,6 +36,8 @@ Consumed by: `Solution-PRD.md` (content requirements), the ticketing stage (one 
 | `PT` | `/Volumes/E Drive/Dev/Code/Claude/Patent/` (Pratyasa) |
 | `DN` | `/Volumes/E Drive/Dev/Code/Claude/dino-arcade-pwa/` |
 | `CN` | `/Volumes/E Drive/Dev/Code/Claude/portfolio/cinematic/` |
+| `CF` | `/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/` (Campfire Board; added TASK-124, 2026-09-28) |
+| `SC` | `/Volumes/E Drive/Dev/Code/Claude/Slag City/` (Slag City; added TASK-129, 2026-09-29; read-only) |
 | `DL` | `/Users/tushar/Downloads/Documents/` |
 | `MEM` | `/Users/tushar/.claude/projects/-Volumes-E-Drive-Dev-Code-Claude-portfolio/memory/cinematic-portfolio-build.md` |
 
@@ -282,7 +284,7 @@ Status vocabulary: **VERIFIED** (quoted/derived from a cited artifact) · **DRAF
 
 ---
 
-## 8. Case-study source packs (11)
+## 8. Case-study source packs (13)
 
 Field order per pack: slug · name · tagline · category tags · status · role · dates · live URL · repo · stack (verified) · problem · users (quoted) · Show-the-Thinking chain · metrics (dated) · artifacts (path + dimensions) · video · learnings · authorship · MISSING.
 
@@ -503,6 +505,38 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Learnings:** Higgsfield plan gating, refunds on failed render, start_image vs reference (`CN/ledger.md`; memory `higgsfield-mcp-gotchas.md`).
 - **Authorship:** built with Claude Code.
 - **MISSING:** LinkedIn Post Inspector / opengraph.xyz human check never recorded (`MEM`).
+
+### 8.12 `campfire-board` (added TASK-124, 2026-09-28)
+
+- **Name / tagline:** Campfire Board — "A local-first, multi-project management dashboard for the AI build workflow." (`CF/README.md`, header)
+- **Credit (load-bearing):** "Campfire Board is a personal fork of [Backlog.md](https://github.com/MrLesk/Backlog.md) reshaped into a cross-project command centre" and "Campfire Board is a fork of Backlog.md by Alex Gavrilescu and contributors, and inherits its Markdown-native, agent-first philosophy. Licensed under the MIT License." (`CF/README.md`, intro + Credits & license). The site says "a personal fork of Backlog.md" — never implies Tushar wrote Backlog.md.
+- **Tags:** Kanban · Gantt · Local-first · **Status:** Built · local tool — "all served from a single local binary"; "one dashboard you launch locally in Chrome"; served at a loopback address (`CF/README.md`). No live URL.
+- **Role:** "a personal fork" (`CF/README.md`). No other authorship line in the README/docs.
+- **Dates:** baseline recorded 2026-09-06 (`CF/docs/BUILD.md`); pilot checklist run 2026-09-06 (`CF/docs/pilot-checklist.md`). → "Sep 2026".
+- **Repo:** `https://github.com/007U5H4R/pm-dashboard` — made **public** at Tushar's request (2026-09-28) → `repoPublic: true`.
+- **Stack / how it works (`CF/README.md`):** Bun-compiled CLI serving a React + Tailwind single-page app, web UI embedded in the binary ("nothing to deploy"); storage is Markdown files under each project's `backlog/` folder.
+- **Features (`CF/README.md` Highlights):** multi-project switcher (`projects.json` manifest) · Kanban board with an Execution / Workflow toggle · hours-axis Execution Gantt with dependency arrows · Workflow view of the 10 build-workflow stages · Statistics · Artifacts (Markdown / sandboxed HTML / PDF rendered in-app) · light & dark themes.
+- **Evaluation:** pilot checklist (2026-09-06) validated project switching, scripted ticket moves and cross-project isolation at the scripted/API level against two throwaway scratch projects (`CF/docs/pilot-checklist.md`). Not used on the site.
+- **Video:** launch pitch `youtu.be/K_-510L6e7g` ("Campfire Board launch") and demo `youtu.be/DkxDQji3dz8` ("Campfire Board demo"), both public and embeddable per Tushar (2026-09-28). README also links a 66-second launch film in the repo.
+- **Metrics / users:** none recorded — publish none.
+- **MISSING:** painted cover art · users/usage · lesson-learnt · a product link (by design: a local tool).
+
+### 8.13 `slag-city` (added TASK-129, 2026-09-29)
+
+- **Name / tagline:** Slag City — "An original arcade beat-'em-up that runs in your browser." (`SC/README.md`, header line). The README styles the name "SLAG CITY"; the site uses title case, as the YouTube titles do.
+- **What it is (`SC/README.md` intro):** "a side-scrolling brawler built the way a coin-op cabinet behaves: attract mode, insert coin, fight, continue countdown, initials on the hi-score table"; "It is one complete stage … playable on a desktop in a simulated cabinet or on a phone with on-screen controls. Coins are free."
+- **Features (`SC/README.md` header + Highlights):** "Coin-op loop · Three-boss gauntlet · Story with a twist · Keyboard, gamepad & touch · Deterministic core"; "a 10-second CONTINUE countdown"; "an eight-slide intro and a twist delivered in the boss dialogue".
+- **Names (load-bearing):** the README names the story's characters, and the final boss shares a name with a well-known Indian TV villain. The site names **no** story character (Tushar, 2026-09-29).
+- **AI:** the game has **no AI features** — the README describes none (its "gang AI" in the Solution PRD is ordinary enemy-behaviour code). Its **art** is AI-generated: "Character and background art was generated with Higgsfield and processed through the repo's atlas pipeline" (`SC/README.md`, Credits & license) — stated in the overview. No robot or AI imagery on the cover.
+- **Why it exists (`SC/Discovery-PRD.md` §1, 2026-09-05):** the Dino Arcade emulator "is fine for private use and cannot be published"; the goal is "a publishable, eventually commercial, *original* arcade beat-'em-up … with wholly original IP".
+- **Tags:** Phaser 3 · Beat-'em-up · Browser game · **Status:** Live — "🚀 LIVE 2026-09-16 — https://slag-city.vercel.app" (`SC/docs/deploy/DEPLOY.md`); HTTP 200 re-checked 2026-09-29 (Tushar; TASK-129 implementer).
+- **Role:** "the owner" throughout the Discovery PRD / HANDOFF; no other authorship line → "Owner · personal build".
+- **Dates:** Discovery + Solution PRDs 2026-09-05; first commits 2026-09-06; live 2026-09-16; last commit 2026-09-17 → "Sep 2026".
+- **Repo:** `https://github.com/007U5H4R/slag-city` — private at deploy ("PRIVATE — make public when ready", `SC/docs/deploy/DEPLOY.md`), made **public** at Tushar's request (2026-09-29; GitHub API 200 unauthenticated) → `repoPublic: true`.
+- **Stack / how it works (`SC/README.md`):** Phaser 3, TypeScript, Vite, deployed on Vercel; `src/core` is pure, deterministic game logic with a seeded RNG, and recorded input replays are hashed in tests; keyboard, gamepad and touch are OR-ed into one `InputFrame`; audio is synthesised with Web Audio (no sound files).
+- **Video:** launch pitch `youtu.be/1xvj8j79Svs` ("slag city launch") and demo `youtu.be/tc4QDVl8NJM` ("SlagCity demo enhanced"), channel "The Purposeful PM", public and embeddable per Tushar's oEmbed check (2026-09-29).
+- **Metrics / users:** none recorded — publish none. (Optional Mixpanel funnel exists but no numbers are recorded.)
+- **MISSING:** users/usage · lesson-learnt · "the USPTO/EUIPO clearance is an open **owner gate**" for the working title (`SC/docs/deploy/DEPLOY.md` → `docs/legal/title-check.md`; not a site claim).
 
 ---
 

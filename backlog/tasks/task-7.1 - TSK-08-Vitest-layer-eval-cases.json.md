@@ -1,9 +1,10 @@
 ---
 id: TASK-7.1
 title: 'TSK-08: Vitest layer + eval-cases.json'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:1'
@@ -28,3 +29,9 @@ ordinal: 57000
 - [ ] #1 Vitest config (jsdom + node projects); schema tests from TKT-03 run here.
 - [ ] #2 `evals/eval-cases.json` authored; `format.ts` helpers tested.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-07 (Done). evals/eval-cases.json and the Vitest layer exist; this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

@@ -1,9 +1,10 @@
 ---
 id: TASK-1.7
 title: 'TSK-07: Screenshots at four widths + minimal pnpm eval + baseline-v1.json'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:1'
@@ -31,3 +32,9 @@ ordinal: 56000
 - [ ] #1 TKT-01 AC 7 and 8 in full; runner exits non-zero on axe critical/serious or horizontal overflow.
 - [ ] #2 JSON schema of the result file is the one TKT-07 will extend (version, commit, branch, timestamp, cases[], totals).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — delivered under parent TKT-01 (Done). evals/results/baseline-v1.json exists and is still referenced as the pre-redesign eval baseline (decision EV6); this sub-task was never closed.
+<!-- SECTION:NOTES:END -->

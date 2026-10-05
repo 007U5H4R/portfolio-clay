@@ -39,3 +39,9 @@ Replacing or altering the live cinematic site or the old one-pager · publishing
 - Claymorphism can read "senior" rather than "toy" (mitigated by design tiers and a critique stage).
 - A generated avatar can be recognisably Tushar (mitigated by identity-referenced generation and his sign-off — confirmed 2026-09-15).
 - Private repos will eventually be made public or live demos are proof enough (mitigated by hiding code links until visibility flips).
+
+## 9. M-009 addendum — why a third visual identity (2026-09-24)
+Problem-level only; the solution is `Solution-PRD.md` §12.
+- **What changed.** The product (routes, content model, truth rules, audiences, success criteria §7) is unchanged and proven: M-001–M-007 are merged, the QA gate passed. What failed is the *presentation*: the claymorphism read as a UI kit rather than a person, and the M-008 "WoW" pass (aurora mesh, glow, claymorphic bust with pose swaps) pushed it toward generic-SaaS spectacle. Tushar's 2026-09-23 master prompt names the missing quality: *"A more human approach to an AI-driven world"* — a portfolio that feels authored, tactile and editorial, where the illustration carries personality and the typography carries the argument.
+- **Evidence.** Tushar's rejection of the M-008 direction in favour of the illustrated mockups (home approved "this is very good", the other seven pages accepted without change notes on 2026-09-24); the M-008 preview's first-load JS at 191 kB against a 180 kB budget (EXE-11, provisional) — the motion system was costing performance without buying credibility.
+- **Assumption to watch.** An illustrated, paper-collage identity can read "Senior PM, premium" rather than "scrapbook" or "children's book". Mitigation is the same shape as the clay-tier rule: a mechanical annotation budget and flat text zones (Solution-PRD §12, decision S15), plus the Stage-8 critique.

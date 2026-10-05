@@ -1,9 +1,10 @@
 ---
 id: TASK-49
 title: 'TKT-53: Production deployment + verification + monitoring + release provenance'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:13'
 labels:
   - P0
   - 'sp:3'
@@ -40,3 +41,9 @@ Source: tickets.md § TKT-53.
 - [ ] #6 Release provenance recorded.
 - [ ] #7 Monitoring note answers "how would we know at 3 AM": Vercel error/latency dashboards + a weekly `pnpm eval` cron against production (GitHub Actions) proposed and either enabled or explicitly deferred.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): Still relevant — production deployment/verification/monitoring/release provenance has not happened (no live production Vercel deployment found). Blocked on TASK-8 (resume PDF) and TASK-46 (Vercel setup), both themselves waiting on Tushar. Dependency: Tushar (release call). Moved to Blocked to match its blocking dependencies.
+<!-- SECTION:NOTES:END -->

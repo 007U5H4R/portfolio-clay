@@ -73,12 +73,168 @@ Every field is generated from real execution output — nothing is hand-entered.
 
 | Layer | Command | Cases |
 |-------|---------|-------|
-| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit) |
-| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017 |
+| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`), EVAL-021 (illustration provenance, `tests/unit/eval-021.test.ts`) |
+| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`), 019 (hero once-and-hold, `tests/e2e/eval-019.spec.ts`) |
 | Lighthouse CI | `lhci autorun` mobile + desktop, median of 3 | EVAL-004 (category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget) |
 | Content gate | `validate-content` + `forbidden-strings` + fixture proof | EVAL-013 |
 | Security | `forbidden-strings --bundle` + `pnpm audit` + TP9 headers (`--base-url`) | EVAL-016 |
 | Manual | recorded, not executed (`status: MANUAL`) | EVAL-001, 003, 009, and the EVAL-017 inspector sub-result |
+
+## EVAL-020 — paper token gate (M-009, S12/D2)
+
+`tests/unit/eval-020.test.ts` (TC-122, TC-123). `scripts/eval.ts` maps it by file name (generic
+Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-020` status is this file's pass/fail.
+
+| Part | Checks | Threshold |
+|------|--------|-----------|
+| 1 | `scripts/tokens-check.ts` stdout starts `13/13 tokens round-trip OK`, exit 0 | 13/13 |
+| 2 | `app/globals.css` defines exactly the 13 paper `--color-*` names (paper … kraft) | 13 |
+| 3 | No colour literal (`#hex`, `rgb(`/`rgba(`, `hsl(`/`hsla(`, `oklch(`, `oklab(`) in `app/**`, `components/**`, `lib/**` (`.ts/.tsx/.css`) outside the allow-list `app/globals.css` + `lib/og.tsx` | 0 |
+| 4 | No retired clay name (`bg surface lavender ink ink-2 ink-3 accent accent-deep mint sky blush peach butter`) as a Tailwind utility (`bg-/text-/border-/divide-/fill-/stroke-/outline-/ring-/from-/via-/to-/decoration-/placeholder-/shadow-/accent-` + name, variants and `/opacity` included) or as `var(--color-<name>)` / `--color-<name>:` in `app/**`, `components/**`, `lib/**` | 0 |
+| 5 | Positive control: the same scanner functions over `tests/fixtures/retired-tokens.fixture.txt` find exactly its 5 planted hits and none of its decoys | 5 |
+
+- **Comment-stripping rule.** The literal scan (part 3) runs after `//` and `/* */` comments are
+  blanked out (string literals kept, line numbers preserved). A comment is not a colour, and the hex
+  regex otherwise matches error-code references like `React #185` (`Header.tsx`, `lib/motion.ts`).
+  The retired-name scan (part 4) is **not** comment-stripped: a stale token name in a comment is
+  still dead code.
+- **No English-word allow-list.** The retired-name regex is prefix-anchored, so copy ("surface"),
+  tone prop values (`tone="mint"`, enum values — technical-plan F1-11) and paper names with a retired
+  stem (`text-ink-soft`) cannot match; the fixture's decoy lines prove it.
+- **Allow-list changes** are limited to the two files above (TKT-78 owns `lib/og.tsx`). Anything
+  else needing a literal defines a `color-mix()` custom property in `globals.css` instead.
+- **Clay leftovers (final state, TKT-89 S89.02 + TKT-90a).** The non-colour clay tokens (`--radius-clay*`,
+  `--shadow-clay-*`, `--gradient-clay-volume`, `--radius-utility`, `--shadow-utility`) are outside this
+  gate's colour scope; TKT-89 deleted the unused ones and TKT-90a migrates the last consumers
+  (`DemoVideo`, `SkipLink`, `app/not-found.tsx`, `/dev/video`) to `--radius-paper`/`--shadow-paper` and
+  deletes the rest, gated by `grep -rn "components/clay\|ClayButton\|toneClass\|radius-clay\|shadow-clay\|/avatar/" app components lib tests` → 0.
+
+```bash
+pnpm test -- eval-020                          # the unit file on its own
+pnpm eval --only EVAL-020 --skip-build         # through the harness → evals/results/<label>.json
+```
+
+## EVAL-021 — illustration provenance (M-009, S20; TKT-73 S73.04)
+
+`tests/unit/eval-021.test.ts` (TC-138, TC-142). `scripts/eval.ts` maps it by file name (generic
+Vitest mapping, `VITEST_CASES`), so the run JSON's `EVAL-021` status is this file's pass/fail. The
+automated scope covers provenance, alt-naming and forbidden-string checks; the "depicts no
+metric/logo/product UI/claim" checklist is manual (Stage 8, filed at
+`evals/results/eval-021-<sha>.md` — the TKT-90c draft is `evals/results/eval-021-ff806f5.md`: 10 assets,
+5 clean, 5 flagged ⚠ for Stage-8 calls with recommendations, 0 ✗; manual status `PENDING` until Stage 8
+ticks it).
+
+| Part | Checks | Threshold |
+|------|--------|-----------|
+| 1 | Every file under `content/media/illustrations/**` (excluding `README.md`, `manifest.ts`; `reference/` included) has exactly one manifest entry, and vice versa | 0 orphans either way |
+| 2 | Every manifest `id` has a `README.md` provenance row (§6.2 columns) with every cell non-empty | 10/10 (the nine §6.1 ids + `hero-banner`, Dev-23) |
+| 3 | Every `alt` starts with `Illustration of ` / `Animated illustration of ` (scenes, poster, clip) or `Illustration reference sheet` (the reference kind); `character-sheet-b.usedOn` is `[]` | 0 mismatches |
+| 4 | Every filename + alt passes `scripts/forbidden-strings.ts` `contentForbiddenHits` and `PII_PATTERNS` | 0 hits |
+| 5 | Every `publicSrc` file exists under `public/`; `content/media/illustrations/hero-desk.webp` and `public/media/illustrations/hero-poster.webp` have equal sha256 (E-18) | byte-identical |
+| 6 | Positive control: the same `check()` function run over the two one-sided fixtures in `tests/fixtures/illustrations-onesided/` (an extra file with no manifest entry; a manifest entry with no file) | ≥ 1 finding each |
+
+- `check(dir, entries, readme)` is a pure function exported from the test file so it can run against
+  both the real tree (0 findings) and each fixture (≥ 1 finding) without duplicating the rules.
+- Ten manifest ids: Design.md §6.1's nine plus `hero-banner` (the 3168×1344 outpaint of `hero-desk`,
+  Dev-21/Dev-23, the `/` LCP image). `hero-clip-mask.png` under `public/media/illustrations/` is a mask
+  for the clip, not an illustration, so it has no manifest row by design (it is not under
+  `content/media/illustrations/`, so rule 1 does not see it). `lib/illustrations.ts` re-exports `ILLUSTRATION_IDS`
+  and adds `sceneImage(id)` — static `next/image` imports of the six scenes for intrinsic size +
+  AVIF/WebP (§6.4). The hero poster and clip are served as-is from `public/media/illustrations/` via
+  `illustration(id).publicSrc`.
+
+```bash
+pnpm test -- eval-021                          # the unit file on its own
+pnpm eval --only EVAL-021 --skip-build         # through the harness → evals/results/<label>.json
+```
+
+## EVAL-019 — hero once-and-hold (M-009, S14/D10/TP13; TKT-73 S73.07)
+
+`tests/e2e/eval-019.spec.ts` (tag `@EVAL-019`; TC-139 step 1, TC-140, TC-141, TC-142) with the
+`saveData` fixture in `tests/e2e/fixtures.ts`. Runs on `/` at **w390 and w1440** only (w768/w1024
+skip with the reason; the case's `viewport` is ["390","1440"]). `scripts/eval.ts` maps it through the
+generic Playwright branch. The component under test is `components/hero/HeroClip.tsx` (the state
+machine of decision TP13) inside `components/hero/Hero.tsx` (Design.md §5.2 markup).
+
+| Mode / part | How the spec produces it | Expected |
+|---|---|---|
+| default | the w1440 project (fine pointer, `reducedMotion: "no-preference"`) | `video[data-hero-clip]` with `autoplay muted playsinline preload="metadata" poster="/media/illustrations/hero-poster.webp" aria-hidden="true" tabindex="-1"`, **no** `loop`/`controls`, sources webm → mp4; `ended` ≤ **4 000 ms** after navigation (measured in-page with `performance.now()` on the `ended` event); over the next 3 s — with a scroll, a dispatched `visibilitychange` and a `resize` — `currentTime` sampled every 250 ms never decreases and the element stays `paused`/`ended`; the held frame is screenshotted to `docs/screenshots/m-009/tracer/hero-end-1440.png` (eyeballed against `animation/export/hero-end.webp` — a pixel diff would flake on codec differences, TC-141 note) |
+| reduced motion | `test.use({ reducedMotion: "reduce" })`, both widths | 0 `<video>` after load + 2 s; poster `<img>` visible |
+| touch / coarse pointer | the w390 project (`hasTouch: true`, `isMobile: true`) | 0 `<video>` |
+| Save-Data | the `saveData` fixture (`context.addInitScript` → `navigator.connection = { saveData: true }`), both widths | 0 `<video>` |
+| autoplay rejected | `addInitScript` overriding `HTMLMediaElement.prototype.play` to reject (`NotAllowedError`) | 0 `<video>` after 2 s — the video unmounts, the poster is the error state |
+| SSR | `request.get("/")`, no JavaScript | exactly one banner `<img>` (TKT-93 / Dev-21: the static-imported 3168×1344 `hero-banner` is the LCP image) with `fetchpriority="high"`, `loading="eager"`, `width="3168" height="1344"`, `sizes="100vw"`, alt byte-equal to `illustration("hero-banner").alt`; **0** poster `<img>` (the poster is only the clip's `poster` attribute); **0** `<video` in the HTML |
+| registration (TKT-93) | the w1440 project resizes to 1024 / 1440 / 1920 | the mounted `video[data-hero-clip]` bounding box equals `CLIP_REGISTRATION` (`components/hero/registration.ts`: left 11.4268 % · top 0.4464 % · width 77.2525 % · height 97.3071 % of `.scene-banner-canvas`) within **±2 px** per edge; the canvas covers the `.scene-banner` box (no gap); the slot keeps the clip's 1280/684 aspect |
+| clip mask (TKT-93) | CSS on `.hero-clip` (`app/globals.css` TKT-93 block) | `mask-image: url("/media/illustrations/hero-clip-mask.png")` stretched `100% 100%` over the registered slot, so only the character moves over the still banner; it is asserted indirectly by the registration row (a slot drift would show the mask edge) and eyeballed in the held-frame screenshot |
+| caps | `fs.statSync` on `public/media/illustrations/` | webm ≤ 204 800 B · mp4 ≤ 358 400 B · poster ≤ 122 880 B |
+
+Every measured value (ended ms, the currentTime samples, the post-hold state, per-mode video counts,
+byte sizes) is pushed into `test.info().annotations` (type `eval-019`) so `.eval/playwright.json`
+carries the evidence. "After hydration" for the poster-only modes = `load` + a 2 s settle (TC-140
+steps 2–4); the default-mode test shows hydration lands well inside that window (the clip has *ended*).
+
+**Static guards.** `HeroClip.tsx` carries a file-scoped ESLint `no-restricted-syntax` configuration
+comment (`.currentTime =`, `.load(`, `loop`, `visibilitychange`, `addEventListener("change"`) and
+`tests/unit/hero-clip.test.tsx` greps the source for the same list from outside the file, plus the
+jsdom state machine (TC-140 step 5, TC-141 step 5): reduced-motion/coarse/Save-Data → no `<video>`;
+default → the exact attribute set, `play()` called once, a re-render with flipped signals never
+remounts or replays; `play()` rejected or an `error` event → unmounted; and (TKT-93) the registration
+percentages are derived from the measured placement (scale 1.912, x 362, y 6), never typed in. The hero
+decoration count (4 since TKT-93: torn edge, underline sketch, hand-sub annotation, postmark sketch)
+is EVAL-018's job (`/` hero unit).
+
+```bash
+pnpm test -- hero-clip                                                            # the jsdom state machine
+pnpm test:e2e --project=w1440 --project=w390 tests/e2e/eval-019.spec.ts           # the matrix (server up or auto-started)
+pnpm eval --only EVAL-019 --skip-build                                            # through the harness
+```
+
+## EVAL-018 — decoration budget (M-009, S15/EV5/D6/TP12)
+
+`tests/e2e/eval-018.spec.ts` (tag `@EVAL-018`; TC-127, TC-129) with the in-page collector in
+`tests/e2e/eval-018-lib.ts`. It implements `Design.md` §3.2 verbatim on every route — `routes.json`
+static + every `/work/<slug>` (`lib/anchors.ts` `ALL_PROJECT_SLUGS`) + every `/thinking/<slug>`
+(`data/writing.ts`) + `/definitely-missing` (the 404 page) + `/dev/primitives` — at **w390 and w1440**
+only (w768/w1024 skip with the reason). `scripts/eval.ts` maps it through the generic Playwright
+branch and appends the real per-unit summary from the spec's `eval-018` annotations to `details`.
+
+| Rule | What the collector measures | Threshold |
+|------|-----------------------------|-----------|
+| `budget` | Counting units = the page `<header>`, every `<section>`, the page `<footer>`. Every `[data-decor]` belongs to its **nearest ancestor** unit (`el.closest("section, header, footer")` — a nested chapter owns its own; D6). `data-fastener` / `data-paper` never count. | ≤ 4 per unit |
+| `caveat` | Every `p, h1–h6, li, td, th, dt, dd` whose computed `font-family` matches `/Caveat/i` must sit inside `[data-decor]` or `[aria-hidden="true"]`, **or** under a `data-hand` ∈ `{quote, cta, label}` within its §3.4 limit **and placement**: `quote` ≤ 240 chars **and** a cite — a `<cite>`, a `[data-cite]`, or text starting `Source:` (sr-only counts) — inside its closest `[data-paper]` or `blockquote` (for a `blockquote`/span hand with no paper, its parent, so the `Hand` `<cite>` sibling and the BandFooter tagline's sr-only `Source:` sibling pass); `cta` ≤ 6 words, no placement rule; `label` ≤ 3 words, digits only as a 2-digit numeral, **and** a `[data-paper]` ancestor. | 0 |
+| `flat` | `[data-flat] [data-decor]` is empty (`data-hand="quote"` inside a flat zone is content, allowed). | 0 |
+| `hidden` | `[data-decor="sticky" \| "annotation" \| "note"]` and any `[data-decor="sketch"]` with text carry `aria-hidden="true"`. | 0 |
+
+Each route test pushes a per-unit table (`unit`, `count`, `decor[]`, `caveatViolations`,
+`flatViolations`, `hiddenViolations`) plus the violations into `test.info().annotations` (type
+`eval-018`), so `.eval/playwright.json` is the evidence and the assertion message prints the table.
+
+**Parked hits (decision TP12).** `tests/e2e/eval-018-parked.json` = `[{ route, unit, rule, reason,
+ticket }]` (unit labels as the collector prints them: `section#id`, `section[aria-labelledby="…"]`,
+`section:nth(n)`, `header`, `footer`). A hit whose route + unit + rule match an entry is reported
+`PARKED` (annotation; the test passes); an unmatched hit fails; an entry that matches nothing on its
+route fails too (stale-park guard, so a park cannot outlive its fix). `/` and `/dev/primitives` never
+carry entries; a `@EVAL-018` test also rejects unknown routes/rules and entries without a reason and a
+`TKT-` ticket. Thresholds are never lowered — parking is scoped to sections the design has not
+reached. The file must be `[]` by TKT-90 (TC-175). **Final state (M-009 Phase D, TKT-90c): `[]`** — every
+route, including `/about` (the last park, closed by TKT-86/87), passes with no parked hit.
+
+**Controls.** The untagged test `violating fixture fails all four rules` runs the collector on
+`/dev/primitives?violate=1` (a raw-markup section, `app/dev/primitives/ViolateFixture.tsx`) and
+asserts each rule reports ≥ 1 hit and that the §3.4 placement hits (a Caveat `label` outside any
+`[data-paper]`, a `quote` with no cite) are both reported — it never counts as a case failure. Removing the `@EVAL-018` tag
+makes `pnpm exec tsx scripts/eval-cases.ts --check-specs` fail naming EVAL-018 (negative control).
+`/dev/primitives` 404s on a plain build (its tests **skip**); build with `ALLOW_DEV_ROUTES=1` to run
+the board, the fixture and `tests/e2e/paper-drawin.spec.ts` (TC-128 draw-in checks).
+
+```bash
+# one route, both measured widths (the server must already be up, or Playwright starts `pnpm start`)
+pnpm test:e2e --project=w390 --project=w1440 tests/e2e/eval-018.spec.ts --grep "@EVAL-018 /about "
+# the whole case through the harness
+pnpm eval --only EVAL-018 --skip-build
+# board + fixture + draw-ins (dev route)
+ALLOW_DEV_ROUTES=1 pnpm build && pnpm test:e2e --project=w390 --project=w1440 tests/e2e/eval-018.spec.ts tests/e2e/paper-drawin.spec.ts
+```
 
 ## Local performance is informational (EVAL-004 / EVAL-005)
 
@@ -121,14 +277,16 @@ The full control inventory (ok/warn/dead) is written to `.eval/dead-controls.jso
 ## Dev routes
 
 `/dev/*` pages only exist under `ALLOW_DEV_ROUTES=1` (the CI QA job). On a plain `pnpm test:e2e` /
-`pnpm eval` they 404, and their `@primitives` specs **SKIP** (never FAIL) — see `primitives.spec.ts`
-and `layout.spec.ts`.
+`pnpm eval` they 404, and their `@primitives` specs **SKIP** (never FAIL) — see `paper-board.spec.ts`
+(renamed from `primitives.spec.ts` in TKT-89 S89.02) and `layout.spec.ts`.
 
 ## Adding a new evaluation case
 
 1. Add the case to `evals/eval-cases.json` (id, priority, category, `automated`, `runner`, …). The
-   loader (`scripts/eval-cases.ts`) enforces 17-unique-ids and the automation↔runner invariant, so
-   update its counts/mappings if you change the catalogue shape.
+   loader (`scripts/eval-cases.ts`) enforces `CASE_COUNT` unique ids (22 since the M-009 addendum,
+   `evaluation-plan.md` §8) and the automation↔runner invariant, so update its count/mappings if you
+   change the catalogue shape. A Playwright-automated id whose spec is not built yet goes in
+   `DEFERRED_SPECS` with the ticket that owns it, so `--check-specs` stays honest.
 2. Author the runner: a `@EVAL-0xx`-tagged Playwright spec, a Vitest test, or an LHCI assertion.
 3. Map the id in `scripts/eval.ts` (add it to the relevant `*_CASES` array) so the orchestrator
    reads its status from the right layer.

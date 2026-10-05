@@ -1,9 +1,10 @@
 ---
 id: TASK-1.3
 title: 'TSK-03: Minimal clay primitives for the slice'
-status: To Do
+status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
+updated_date: '2026-09-26 09:12'
 labels:
   - P0
   - 'sp:1'
@@ -32,3 +33,9 @@ ordinal: 52000
 - [ ] #3 Focus ring 3px accent / 3px offset on every interactive primitive.
 - [ ] #4 Min 44x44 on `ClayButton`.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-26 triage (orchestrator for Tushar): No longer needed — obsolete. The clay primitive system (ClayCard/ClayButton/ClayTile/ClayFrame/ClayIcon) this task started was completed later under TKT-04 (Done) then removed entirely per decision S11/S12 (13 clay tokens swapped 1:1 for paper tokens) and TKT-89/TASK-84 + TKT-90a/TASK-85 dead-code removal ('retire residual clay'). No components/clay directory exists in the repo.
+<!-- SECTION:NOTES:END -->

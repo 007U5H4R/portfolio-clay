@@ -9,6 +9,7 @@ import { join } from "node:path";
 import {
   checkFeaturedVideos,
   checkForbiddenStrings,
+  featuredVideos,
   checkResume,
   runPredeployChecks,
   scanResumePii,
@@ -181,42 +182,37 @@ describe("checkResume (PB5: resumeAvailable / PII invariant)", () => {
   });
 });
 
-describe("checkFeaturedVideos (PB4: production-only)", () => {
-  it("does NOT fail a non-production run even with all videos missing", () => {
-    const dir = tmp();
-    expect(checkFeaturedVideos(dir, "preview")).toEqual([]);
-    expect(checkFeaturedVideos(dir, undefined)).toEqual([]);
+describe("checkFeaturedVideos (PB4: production-only — featured pitch-video ids, Tushar 2026-10-05)", () => {
+  const yt = (videoId: string) => ({ provider: "youtube" as const, videoId });
+  const none = [{ slug: "a" }, { slug: "b" }, { slug: "c" }];
+
+  it("does NOT fail a non-production run even with every pitch video missing", () => {
+    expect(checkFeaturedVideos("preview", none)).toEqual([]);
+    expect(checkFeaturedVideos(undefined, none)).toEqual([]);
   });
 
-  it("FAILS in production when a featured video is missing", () => {
-    const dir = tmp();
-    const issues = checkFeaturedVideos(dir, "production");
-    expect(issues).toHaveLength(3);
-    expect(issues.every((i) => i.code === "video-missing")).toBe(true);
-    expect(issues.map((i) => i.message).join("\n")).toMatch(/teachspark\.mp4/);
-    expect(issues.map((i) => i.message).join("\n")).toMatch(/railcite\.mp4/);
-    expect(issues.map((i) => i.message).join("\n")).toMatch(/velora\.mp4/);
-  });
-
-  it("FAILS in production when a featured video exceeds 4 MB", () => {
-    const dir = tmp();
-    mkdirSync(join(dir, "public", "video"), { recursive: true });
-    writeFileSync(join(dir, "public", "video", "teachspark.mp4"), Buffer.alloc(4 * 1024 * 1024 + 1));
-    writeFileSync(join(dir, "public", "video", "railcite.mp4"), Buffer.alloc(1024));
-    writeFileSync(join(dir, "public", "video", "velora.mp4"), Buffer.alloc(1024));
-    const issues = checkFeaturedVideos(dir, "production");
+  it("FAILS in production when a featured product has no pitch video", () => {
+    const issues = checkFeaturedVideos("production", [{ slug: "a", pitchVideo: yt("nI3EqDXd5Io") }, { slug: "b" }]);
     expect(issues).toHaveLength(1);
-    expect(issues[0]?.code).toBe("video-too-large");
-    expect(issues[0]?.message).toMatch(/teachspark\.mp4/);
+    expect(issues[0]?.code).toBe("video-missing");
+    expect(issues[0]?.message).toMatch(/featured product b/);
   });
 
-  it("PASSES in production when all videos exist and are within budget", () => {
-    const dir = tmp();
-    mkdirSync(join(dir, "public", "video"), { recursive: true });
-    for (const name of ["teachspark", "railcite", "velora"]) {
-      writeFileSync(join(dir, "public", "video", `${name}.mp4`), Buffer.alloc(1024));
-    }
-    expect(checkFeaturedVideos(dir, "production")).toEqual([]);
+  it("FAILS in production when a pitch video id is not valid for its provider", () => {
+    const issues = checkFeaturedVideos("production", [
+      { slug: "a", pitchVideo: yt("too-short") },
+      { slug: "b", pitchVideo: { provider: "vimeo", videoId: "nI3EqDXd5Io" } },
+    ]);
+    expect(issues.map((i) => i.code)).toEqual(["video-invalid", "video-invalid"]);
+  });
+
+  it("PASSES in production when every featured product has a valid pitch video", () => {
+    expect(checkFeaturedVideos("production", [{ slug: "a", pitchVideo: yt("nI3EqDXd5Io") }, { slug: "b", pitchVideo: { provider: "vimeo", videoId: "123456789" } }])).toEqual([]);
+  });
+
+  it("checks the live featured trio, and today's data passes in production", () => {
+    expect(featuredVideos().map((f) => f.slug)).toEqual(["railcite", "slag-city", "campfire-board"]);
+    expect(checkFeaturedVideos("production")).toEqual([]);
   });
 });
 
@@ -268,10 +264,15 @@ describe("checkForbiddenStrings (delegates to scripts/forbidden-strings.ts)", ()
 });
 
 describe("runPredeployChecks (integration)", () => {
-  it("PASSES against the real repo's current clean state (no resume.pdf, no videos, non-production)", () => {
+  it("PASSES against the real repo's current clean state (no resume.pdf, non-production)", () => {
     const result = runPredeployChecks({ cwd: process.cwd(), vercelEnv: "test-non-production" });
     expect(result.issues, JSON.stringify(result.issues, null, 2)).toEqual([]);
     expect(result.ok).toBe(true);
+  });
+
+  it("PASSES against the real repo at VERCEL_ENV=production (the release gate)", () => {
+    const result = runPredeployChecks({ cwd: process.cwd(), vercelEnv: "production" });
+    expect(result.issues, JSON.stringify(result.issues, null, 2)).toEqual([]);
   });
 
   it("aggregates every failing check", () => {
@@ -281,6 +282,7 @@ describe("runPredeployChecks (integration)", () => {
     const result = runPredeployChecks({ cwd: dir, vercelEnv: "production" });
     expect(result.ok).toBe(false);
     const codes = result.issues.map((i) => i.code).sort();
-    expect(codes).toEqual(["forbidden-string", "video-missing", "video-missing", "video-missing"].sort());
+    // the featured pitch videos are real data (not the temp tree), so PB4 passes here
+    expect(codes).toEqual(["forbidden-string"]);
   });
 });

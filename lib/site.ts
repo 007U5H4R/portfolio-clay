@@ -15,8 +15,11 @@ export const site = {
   github: "https://github.com/007U5H4R",
   priorSite: "https://tushar-pathak.vercel.app/",
   resumeAvailable: false as boolean,
-  /** The only place this alt string lives (EVAL-013 alt rule) — every avatar <img> derives it from here. */
-  avatarAlt: "Clay illustration of Tushar Pathak at a laptop",
+  /**
+   * Whether the band footer's © bar shows "Bengaluru, India" (Design.md §4.2, TKT-72). Default
+   * `false`: flip to true once Tushar confirms — HANDOFF §6. One edit; `BandFooter` reads it.
+   */
+  showLocation: false as boolean,
 };
 
 export interface ResumeAction {
@@ -35,5 +38,23 @@ export function resumeAction(): ResumeAction {
     href: "/contact#resume",
     download: false,
     note: "Sanitised resume coming — email me for a copy",
+  };
+}
+
+/**
+ * The `/contact` card's résumé link (TASK-113, Tushar's contact spec 2026-09-27 §13). Same single
+ * flag as `resumeAction()` (PB5): once `site.resumeAvailable` flips true it is that download
+ * ("Resume ↓", `resumeAction().href`). Until then it is never unfinished-state copy — it asks for
+ * the résumé by email ("Resume — available on request", a `mailto:` with a subject line).
+ */
+export function contactResumeLink(): ResumeAction {
+  if (site.resumeAvailable) {
+    const { href } = resumeAction();
+    return { label: "Resume ↓", href, download: true };
+  }
+  return {
+    label: "Resume — available on request",
+    href: `mailto:${site.email}?subject=${encodeURIComponent("Resume request")}`,
+    download: false,
   };
 }

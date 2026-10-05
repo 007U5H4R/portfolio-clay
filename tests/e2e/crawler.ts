@@ -326,6 +326,7 @@ export async function observeButtonEffect(
   page: Page,
   handle: ElementHandle<Element>,
 ): Promise<{ changed: boolean; how: string }> {
+  await closeStrayDialogs(page, handle);
   const before = await handle.evaluate((el) => {
     (window as unknown as { __mut: number }).__mut = 0;
     const mo = new MutationObserver((muts) => {
@@ -338,6 +339,7 @@ export async function observeButtonEffect(
       characterData: true,
     });
     (window as unknown as { __mo: MutationObserver }).__mo = mo;
+    (window as unknown as { __crawlDoc: boolean }).__crawlDoc = true;
     return {
       url: location.href,
       historyLength: history.length,
@@ -366,6 +368,7 @@ export async function observeButtonEffect(
           historyLength: history.length,
           dialogs: document.querySelectorAll("dialog[open]").length,
           mut: (window as unknown as { __mut: number }).__mut ?? 0,
+          sameDocument: (window as unknown as { __crawlDoc?: boolean }).__crawlDoc === true,
           // aria-* re-read against the same element is not reliable after DOM churn, so we compare
           // the values we captured pre-click below using the element handle instead.
           _p: [prevExpanded, prevPressed, prevSelected],
@@ -373,7 +376,7 @@ export async function observeButtonEffect(
       },
       { prevExpanded: before.expanded, prevPressed: before.pressed, prevSelected: before.selected },
     )
-    .catch(() => ({ url: before.url, historyLength: before.historyLength, dialogs: before.dialogs, mut: 0, _p: [] }));
+    .catch(() => ({ url: before.url, historyLength: before.historyLength, dialogs: before.dialogs, mut: 0, sameDocument: false, _p: [] }));
 
   // Re-read the element's aria-* (handle may still be attached).
   const ariaAfter = await handle
@@ -391,7 +394,12 @@ export async function observeButtonEffect(
   // `urlChanged` above is still true, correctly counting it as an observable effect — but does
   // NOT navigate anywhere and must not trigger `goBack()`, which would instead pop the crawler's
   // own prior real navigation and corrupt the rest of the crawl.
-  const realNavigation = after.historyLength > before.historyLength || stripHash(after.url) !== stripHash(before.url);
+  // TASK-116: a same-document, same-path `history.replaceState` that only rewrites the query (the
+  // Portfolio carousel's `?product=` sync) is not a navigation either — going back would leave the route.
+  const samePathReplace =
+    after.sameDocument && after.historyLength === before.historyLength && new URL(after.url).pathname === new URL(before.url).pathname;
+  const realNavigation =
+    after.historyLength > before.historyLength || (stripHash(after.url) !== stripHash(before.url) && !samePathReplace);
   const dialogOpened = after.dialogs > before.dialogs;
   const ariaToggled =
     ariaAfter.expanded !== before.expanded ||
@@ -419,6 +427,20 @@ export async function observeButtonEffect(
     changed,
     how: changed ? reasons.join(", ") : clickError ? `no change (${clickError})` : "no observable effect",
   };
+}
+
+/** Load `url#hash` in a scratch tab and report whether element `#hash` attaches within 5 s. */
+async function hashMountsInBrowser(page: Page, url: string, hash: string): Promise<boolean> {
+  const probe = await page.context().newPage();
+  try {
+    await probe.goto(`${url}#${hash}`, { waitUntil: "load", timeout: 15_000 });
+    await probe.waitForFunction((h) => !!document.getElementById(h), hash, { timeout: 5_000 });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    await probe.close().catch(() => {});
+  }
 }
 
 // --------------------------------------------------------------------------- classify one control
@@ -533,7 +555,11 @@ export async function classifyControl(
         return { ...base, kind: "internal-link", target: cls.path, verdict: "dead", detail: `HTTP ${res.status}` };
       }
       // 200: if it carries a hash, that id must exist on the target page.
-      if (cls.hash && !bodyHasId(res.body, cls.hash)) {
+      // TKT-90d: an id the static HTML lacks may be mounted client-side by the hash itself (the
+      // case-study deep-dive chapters `#01-context`… open on load when the URL points inside them —
+      // OverviewToggle, TP8). Only call it dead if a real browser load of the full URL never
+      // attaches the id either; the id must still exist, so a genuinely wrong anchor stays dead.
+      if (cls.hash && !bodyHasId(res.body, cls.hash) && !(await hashMountsInBrowser(page, url, cls.hash))) {
         return {
           ...base,
           kind: "internal-link",
@@ -599,7 +625,28 @@ export async function crawlControls(page: Page, opts: CrawlOptions): Promise<Con
     if (r) results.push(r);
     await handle.dispose().catch(() => {});
   }
+  if (!opts.scope) await closeStrayDialogs(page);
   return results;
+}
+
+/**
+ * Close every open dialog that does not contain `keep` (the control about to be tested). A lazily
+ * mounted dialog — the Ask Tushky drawer loads on first use and the Home launcher cards open it
+ * (TKT-113) — can open after observeButtonEffect's 500 ms window, so its Esc restore never runs
+ * and the drawer then intercepts every later click on the route.
+ */
+export async function closeStrayDialogs(page: Page, keep?: ElementHandle<Element>): Promise<void> {
+  for (let i = 0; i < 3; i++) {
+    const stray = await page
+      .evaluate(
+        (el) => [...document.querySelectorAll("dialog[open]")].some((d) => !el || !d.contains(el)),
+        keep ?? null,
+      )
+      .catch(() => false);
+    if (!stray) return;
+    await page.keyboard.press("Escape").catch(() => {});
+    await page.waitForTimeout(400);
+  }
 }
 
 /** Stable de-dupe key so the same link seen in header+footer or across passes counts once. */
