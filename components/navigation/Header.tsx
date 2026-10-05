@@ -31,6 +31,13 @@ export function Header() {
     <header data-site-header="" className="site-header">
       <HeaderScroll />
       <SecretTrigger />
+      {/* M-010 T4 (TASK-145.1): the paper strip — decorative layers behind the real HTML (paper-cut-2 §172–§176). */}
+      <span className="header-paper" aria-hidden="true">
+        <span className="header-paper-sheet" />
+        <span className="header-scrap header-scrap-graph" />
+        <span className="header-scrap header-scrap-rust" />
+        <span className="header-scrap header-scrap-kraft" />
+      </span>
       <Container className="site-header-row">
         <Link href="/" aria-label={`${site.name} — home`} className="header-brand focus-ring">
           <Monogram />
@@ -55,10 +62,15 @@ export function Header() {
               <span className="max-sm:sr-only">Let&apos;s </span>
               <span className="max-sm:capitalize">connect</span>
             </span>
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true" className="header-pill-arrow">
+              →
+            </span>
           </Link>
           <AskAIButton />
-          <ThemeToggle />
+          {/* The theme switch sits on its own paper chip (TASK-145.1); the control inside is unchanged. */}
+          <span className="header-chip">
+            <ThemeToggle />
+          </span>
         </div>
       </Container>
     </header>

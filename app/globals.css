@@ -12571,3 +12571,410 @@ html[data-theme-vt]::view-transition-group(root) {
   border-radius: 10px;
   background: var(--color-navy);
 }
+
+/* ==================================================================================================
+   M-010 T4 (TASK-145.1) · paper-cut nav — paper-cut-2 §169–§210. Unlayered, grouped, tokens only.
+   Layers (back to front): backing scraps → main paper strip (.header-paper-sheet) → paper tabs
+   (.header-nav-link::before) → terracotta active layer (.hn-strip) → labels. Every extra layer is a
+   pseudo-element or an absolutely positioned decorative span, so no layout box changes size (QA-010
+   spacing and the 108 / 72 px header heights are untouched). Shadows come from --shadow-ink.
+   ================================================================================================== */
+.site-header {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+.site-header[data-scrolled] {
+  border-bottom-color: transparent;
+}
+.header-paper {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow-x: clip;
+  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 14%, transparent))
+    drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 10%, transparent));
+}
+.site-header[data-scrolled] .header-paper {
+  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent))
+    drop-shadow(0 8px 10px color-mix(in oklab, var(--shadow-ink) 16%, transparent));
+}
+.header-paper-sheet {
+  position: absolute;
+  inset: 0 0 -5px 0;
+  background:
+    var(--grain-a) 0 0 / 7px 7px,
+    var(--grain-b) 3px 4px / 11px 11px,
+    var(--color-ivory);
+  /* hand-cut lower edge: a few small steps, never a straight rule */
+  clip-path: polygon(
+    0 0, 100% 0, 100% calc(100% - 3px), 94% calc(100% - 1px), 81% 100%, 67% calc(100% - 2px), 52% calc(100% - 1px),
+    38% 100%, 23% calc(100% - 2px), 9% calc(100% - 1px), 0 calc(100% - 3px)
+  );
+}
+.header-scrap {
+  position: absolute;
+  bottom: -9px;
+  height: 11px;
+  border-radius: 2px;
+}
+.header-scrap-graph {
+  left: 4%;
+  width: 90px;
+  transform: rotate(-1.2deg);
+  background:
+    repeating-linear-gradient(0deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(90deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
+    color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
+}
+.header-scrap-rust {
+  right: 12%;
+  width: 70px;
+  transform: rotate(0.9deg);
+  background: color-mix(in oklab, var(--color-rust) 70%, var(--color-ivory));
+}
+.header-scrap-kraft {
+  left: 46%;
+  width: 56px;
+  transform: rotate(-0.6deg);
+  background: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
+}
+.header-scrap-kraft {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .header-scrap-kraft {
+    display: block;
+  }
+}
+
+/* identity: the monogram sits on its own small paper card */
+.header-monogram {
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 22%, transparent), 0 3px 5px -2px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
+  transform: rotate(-2deg);
+}
+
+/* paper tabs: the card is a pseudo-element that overhangs the hit area (no width change) */
+.header-nav-link {
+  isolation: isolate;
+}
+.header-nav-link::before {
+  content: "";
+  position: absolute;
+  inset: 5px -6px;
+  z-index: -2;
+  border-radius: 7px;
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 16%, transparent), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
+  transition: transform 160ms var(--ease-hover), box-shadow 160ms var(--ease-hover);
+}
+.header-nav-link:nth-child(odd)::before {
+  transform: rotate(-0.5deg);
+}
+.header-nav-link:nth-child(even)::before {
+  transform: rotate(0.4deg);
+}
+.header-nav-link:hover::before {
+  transform: translateY(-1px) rotate(0deg);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent), 0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+}
+.header-nav-link[aria-current="page"]::before {
+  background: color-mix(in oklab, var(--color-terracotta) 12%, var(--color-ivory));
+}
+.hn-strip {
+  position: absolute;
+  z-index: -1;
+  left: -3px;
+  right: -3px;
+  bottom: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--color-terracotta);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+  transform: scaleX(0) rotate(-0.8deg);
+  transform-origin: left center;
+  transition: transform 220ms var(--ease-hover);
+  pointer-events: none;
+}
+.header-nav-link:hover .hn-strip {
+  transform: scaleX(0.5) rotate(-0.8deg);
+}
+.header-nav-link[aria-current="page"] .hn-strip,
+.header-nav-link[aria-current="page"]:hover .hn-strip {
+  transform: scaleX(1) rotate(-0.8deg);
+}
+
+/* Connect CTA: a navy paper layer with a lifted ivory-edge top and a contact shadow */
+.header-pill {
+  background: var(--color-navy);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
+    0 5px 8px -3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+}
+.header-pill-arrow {
+  display: inline-block;
+}
+.header-pill:hover {
+  transform: translateY(-1px) rotate(-0.4deg);
+}
+
+/* theme control: its own paper chip (the switch inside is unchanged) */
+.header-chip {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  isolation: isolate;
+}
+.header-chip::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  border-radius: 12px;
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 20%, transparent), 0 3px 6px -3px color-mix(in oklab, var(--shadow-ink) 25%, transparent);
+  transform: rotate(0.8deg);
+}
+
+/* the right-edge scroll fade must match the paper strip, not the page */
+@media (max-width: 1439px) {
+  .header-tabs::after {
+    background: linear-gradient(to right, color-mix(in srgb, var(--color-ivory) 0%, transparent), var(--color-ivory));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-nav-link::before,
+  .hn-strip,
+  .header-pill:hover {
+    transition: none;
+  }
+  .header-nav-link:hover::before,
+  .header-pill:hover {
+    transform: none;
+  }
+}
+/* end M-010 T4 nav */
+
+/* ==================================================================================================
+   M-010 T4 (TASK-145.3) · footer ocean — three seamless wave tracks at three speeds, the paper ship
+   rocking between the mid and front layers. One tile = max(100vw, 900px); a track is two tiles wide
+   and travels exactly one tile (translateX -50%), so the loop has no seam. transform only; reduced
+   motion is a still frame. The strip is a sibling of .band-body: the footer text keeps its terracotta
+   backing, so no contrast pair changes. Art: public/footer-ocean/* (docs/briefs/TASK-145-art.md).
+   ================================================================================================== */
+.band-ocean {
+  --ocean-tile: max(100vw, 900px);
+  position: relative;
+  height: calc(var(--ocean-tile) * 0.125 + 24px);
+  overflow: hidden;
+  background: var(--color-terracotta);
+  contain: paint;
+}
+.ocean-track {
+  position: absolute;
+  left: 0;
+  width: calc(var(--ocean-tile) * 2);
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  background-position: 0 100%;
+  will-change: transform;
+  animation: ocean-drift var(--ocean-dur) linear infinite;
+}
+.ocean-back {
+  --ocean-dur: 140s;
+  bottom: calc(var(--ocean-tile) * 0.052);
+  height: calc(var(--ocean-tile) * 0.0333);
+  background-image: url("/footer-ocean/wave-back.webp");
+  opacity: 0.9;
+}
+.ocean-mid {
+  --ocean-dur: 90s;
+  bottom: calc(var(--ocean-tile) * 0.022);
+  height: calc(var(--ocean-tile) * 0.0611);
+  background-image: url("/footer-ocean/wave-mid.webp");
+}
+.ocean-front {
+  --ocean-dur: 55s;
+  bottom: 0;
+  height: calc(var(--ocean-tile) * 0.0867);
+  background-image: url("/footer-ocean/wave-front.webp");
+  filter: drop-shadow(0 -3px 4px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
+}
+[data-theme="dark"] .ocean-back {
+  background-image: url("/footer-ocean/wave-back-dark.webp");
+}
+[data-theme="dark"] .ocean-mid {
+  background-image: url("/footer-ocean/wave-mid-dark.webp");
+}
+[data-theme="dark"] .ocean-front {
+  background-image: url("/footer-ocean/wave-front-dark.webp");
+}
+.ocean-ship-wrap {
+  position: absolute;
+  left: 62%;
+  bottom: calc(var(--ocean-tile) * 0.046);
+  width: clamp(84px, 11vw, 170px);
+  aspect-ratio: 640 / 767;
+  animation: ocean-sail 70s ease-in-out infinite alternate;
+}
+.ocean-ship {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url("/footer-ocean/ship-light.webp") center bottom / contain no-repeat;
+  transform-origin: 50% 92%;
+  filter: drop-shadow(0 4px 4px color-mix(in oklab, var(--shadow-ink) 25%, transparent));
+  animation: ocean-rock 6s ease-in-out infinite;
+}
+[data-theme="dark"] .ocean-ship {
+  background-image: url("/footer-ocean/ship-dark.webp");
+}
+@keyframes ocean-drift {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes ocean-sail {
+  from {
+    transform: translate3d(-18vw, 0, 0);
+  }
+  to {
+    transform: translate3d(14vw, 0, 0);
+  }
+}
+@keyframes ocean-rock {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2.2deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(2.2deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ocean-track,
+  .ocean-ship-wrap,
+  .ocean-ship {
+    animation: none;
+    will-change: auto;
+  }
+}
+/* end M-010 T4 footer ocean */
+
+/* ==================================================================================================
+   M-010 T4 (TASK-145.4) · section dividers — three paper ridges at every `TornEdge` (paper-cut-2 §170–§232).
+   The tear is no longer a single zig-zag: back (cream) → mid (kraft) → front (the section's own fill) are
+   smooth hand-cut ridges drawn in code (components/paper/sketch-paths.ts RIDGE_PATHS; variants hills /
+   ridge / dunes chosen per fill in TornEdge). Box size, fill utilities and the TKT-106 section lag are
+   untouched (no CLS, no pointer events). The back and mid layers add a small vertical drift of their own
+   under the same scroll-driven-animation guard; it stops when scrolling stops, and reduced motion gets a
+   still divider. Dark twins come from the tokens (ivory / kraft flip), shadows from --shadow-ink.
+   ================================================================================================== */
+[data-decor="torn"] {
+  --ridge-back: color-mix(in oklab, var(--color-kraft) 22%, var(--color-ivory));
+  --ridge-mid: color-mix(in oklab, var(--color-kraft) 60%, var(--color-ivory));
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 -1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+    drop-shadow(0 -4px 5px color-mix(in oklab, var(--shadow-ink) 8%, transparent));
+}
+[data-decor="torn"] .torn-back {
+  fill: var(--ridge-back);
+}
+[data-decor="torn"] .torn-mid {
+  fill: var(--ridge-mid);
+}
+[data-theme="dark"] [data-decor="torn"] {
+  --ridge-back: color-mix(in oklab, var(--color-kraft) 45%, var(--color-ivory));
+  --ridge-mid: color-mix(in oklab, var(--color-kraft) 80%, var(--color-paper));
+}
+@keyframes ridge-back-drift {
+  from {
+    translate: 0 5px;
+  }
+  to {
+    translate: 0 -3px;
+  }
+}
+@keyframes ridge-mid-drift {
+  from {
+    translate: 0 3px;
+  }
+  to {
+    translate: 0 -2px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-decor="torn"] .torn-back {
+      animation: ridge-back-drift linear both;
+      animation-timeline: view(block);
+      animation-range: cover;
+    }
+    [data-decor="torn"] .torn-mid {
+      animation: ridge-mid-drift linear both;
+      animation-timeline: view(block);
+      animation-range: cover;
+    }
+  }
+}
+/* end M-010 T4 dividers */
+
+/* ==================================================================================================
+   M-010 T4 (TASK-145.5) · global depth scale — paper-cut-2 §233–§265. ONE scale, six rungs, each a contact
+   shadow (small, close, darker) plus an ambient one (wide, soft, negative spread), always cast from
+   --shadow-ink (navy in light; the deep `paper` navy in dark — never a navy glow, never #000). `--depth-w`
+   raises the weight in dark (Design.md §13.3: ambient up, rim added). 0 flat page · 1 embossed print ·
+   2 resting card · 3 raised / mounted · 4 floating focal · 5 foreground object. `--depth-drop-N` is the
+   same rung as a `filter` for transparent art (illustrations, cut-outs). The legacy `--shadow-paper`,
+   `--shadow-paper-hover` and `--shadow-sticky` tokens are remapped onto the scale, so every existing paper
+   surface (21 consumers) joins it without touching its component. Tokens only (EVAL-020).
+   ================================================================================================== */
+:root,
+[data-theme="dark"] {
+  --depth-w: 1;
+  --depth-rim: inset 0 0 0 0 transparent;
+  --depth-0: 0 0 0 0 transparent;
+  --depth-1: 0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(10% * var(--depth-w)), transparent);
+  --depth-2: 0 1px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent),
+    0 8px 16px -10px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
+  --depth-3: 0 2px 3px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent),
+    0 14px 26px -14px color-mix(in oklab, var(--shadow-ink) calc(32% * var(--depth-w)), transparent);
+  --depth-4: 0 3px 5px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent),
+    0 22px 38px -16px color-mix(in oklab, var(--shadow-ink) calc(38% * var(--depth-w)), transparent);
+  --depth-5: 0 5px 8px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent),
+    0 32px 52px -20px color-mix(in oklab, var(--shadow-ink) calc(44% * var(--depth-w)), transparent);
+  --depth-drop-2: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent));
+  --depth-drop-3: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent));
+  --depth-drop-4: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent));
+  --shadow-paper: var(--depth-rim), var(--depth-2);
+  --shadow-paper-hover: var(--depth-rim), var(--depth-4);
+  --shadow-sticky: var(--depth-3);
+}
+[data-theme="dark"] {
+  --depth-w: 1.7;
+  --depth-rim: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 9%, transparent);
+}
+/* images: a mounted illustration is a raised cut-out on the page */
+.illustration-img {
+  filter: var(--depth-drop-3);
+}
+.illustration-bleed .illustration-img {
+  filter: none; /* full-bleed scenes are the page's layer, not a cut-out on it */
+}
+/* header pieces sit on the same rungs */
+.header-nav-link::before,
+.header-chip::before,
+.header-monogram {
+  box-shadow: var(--depth-1), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
+}
+/* end M-010 T4 depth */
