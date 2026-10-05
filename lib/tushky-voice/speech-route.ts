@@ -76,15 +76,48 @@ function errorResponse(code: SpeechErrorCode, status = STATUS[code], headers: Re
 
 type Parsed = { ok: true; question: string; messageId: string; answerHash: string; faqId?: string } | { ok: false; code: SpeechErrorCode };
 
+/** Read at most `cap` bytes of the body; a chunked body with no Content-Length is cut off, not buffered whole. */
+async function readCapped(request: Request, cap: number): Promise<Uint8Array | "too-large" | "unreadable"> {
+  if (!request.body) return new Uint8Array(0);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > cap) {
+        void reader.cancel().catch(() => undefined);
+        return "too-large";
+      }
+      chunks.push(value);
+    }
+  } catch {
+    return "unreadable"; // e.g. the client disconnected mid-body
+  }
+  const out = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out;
+}
+
 async function parse(request: Request): Promise<Parsed> {
   const { maxRequestBytes, maxQuestionChars } = TUSHKY_VOICE.limits;
-  if (!(request.headers.get("content-type") ?? "").toLowerCase().includes("application/json")) {
-    return { ok: false, code: "unsupported-media-type" };
-  }
+  // Exactly application/json: a "simple" type such as `text/plain; x="application/json"` would let any
+  // other site make visitors' browsers POST here without a CORS preflight. With a strict type, a
+  // cross-site fetch needs a preflight, which fails (the route sends no CORS headers).
+  const mime = (request.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
+  if (mime !== "application/json") return { ok: false, code: "unsupported-media-type" };
+  if (request.headers.get("sec-fetch-site") === "cross-site") return { ok: false, code: "invalid-request" };
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (declared > maxRequestBytes) return { ok: false, code: "payload-too-large" };
-  const raw = await request.arrayBuffer();
-  if (raw.byteLength > maxRequestBytes) return { ok: false, code: "payload-too-large" };
+  const raw = await readCapped(request, maxRequestBytes);
+  if (raw === "too-large") return { ok: false, code: "payload-too-large" };
+  if (raw === "unreadable") return { ok: false, code: "invalid-request" };
   let body: unknown;
   try {
     body = JSON.parse(new TextDecoder().decode(raw));

@@ -224,6 +224,31 @@ describe("audio manager", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it("survives React Strict Mode's dev cleanup/setup: dispose → activate → Listen still plays", async () => {
+    const { m } = manager();
+    m.dispose();
+    m.activate();
+    m.listen("1", request("answer"));
+    await flush();
+    expect(m.get("1").status).toBe("playing");
+  });
+
+  it("a broken pre-generated file is ONE failure (element error + rejected play → one Failed event)", async () => {
+    class BrokenAudio extends FakeAudio {
+      override play() {
+        if (this.src.startsWith("blob:silent")) return Promise.resolve();
+        queueMicrotask(() => this.dispatchEvent(new Event("error")));
+        return Promise.reject(Object.assign(new Error("no source"), { name: "NotSupportedError" }));
+      }
+    }
+    const events: string[] = [];
+    const m = new TushkyAudioManager({ createAudio: () => new BrokenAudio() as unknown as HTMLAudioElement, onEvent: (name) => events.push(name) });
+    m.listen("1", request("faq answer", "Who is Tushar?", "/tushky/audio/faq/missing.mp3"));
+    await flush();
+    expect(m.get("1").status).toBe("error");
+    expect(events.filter((e) => e === "Failed")).toHaveLength(1);
+  });
+
   it("a network failure is an error, not a crash", async () => {
     const { m } = manager(vi.fn(async () => Promise.reject(new TypeError("offline"))));
     m.listen("1", request("answer"));
@@ -285,6 +310,29 @@ describe("TushkyVoicePlayer", () => {
     await flush();
     expect(screen.getByText(/Couldn’t find my voice this time/)).toBeInTheDocument();
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /Try again/ }));
+  });
+
+  it("Try again keeps focus in the strip: it lands on the (loading) main control, not <body>", async () => {
+    let second: (r: Response) => void = () => {};
+    const fetchImpl = vi
+      .fn()
+      .mockImplementationOnce(async () => new Response(JSON.stringify({ code: "voice-unavailable" }), { status: 502 }))
+      .mockImplementationOnce(() => new Promise<Response>((r) => (second = r)));
+    renderPlayer(fetchImpl);
+    const main = screen.getByRole("button", { name: "Listen to Tushky's answer" });
+    main.focus();
+    fireEvent.click(main);
+    await flush();
+    const retry = screen.getByRole("button", { name: /Try again/ });
+    expect(document.activeElement).toBe(retry);
+    fireEvent.click(retry);
+    await flush();
+    const loadingMain = screen.getByRole("button", { name: "Listen to Tushky's answer" });
+    expect(loadingMain).toHaveAttribute("aria-disabled", "true");
+    expect(document.activeElement).toBe(loadingMain);
+    second(wavResponse());
+    await flush();
+    expect(document.activeElement).toBe(loadingMain);
   });
 
   it("never steals focus: after the visitor moves on, a later state change leaves focus alone", async () => {

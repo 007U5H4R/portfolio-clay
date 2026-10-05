@@ -143,6 +143,43 @@ describe("abuse prevention: never an arbitrary-text TTS endpoint (§54–56, bri
   });
 });
 
+describe("cross-site and body hardening", () => {
+  it("only an exact application/json type is accepted (a 'simple' type would skip the CORS preflight)", async () => {
+    const { d, synthesize } = deps();
+    for (const type of ['text/plain; x="application/json"', "text/plain", "application/jsonx", "multipart/form-data"]) {
+      expect((await handleSpeechRequest(post(whoBody(), { contentType: type }), d)).status).toBe(415);
+    }
+    expect((await handleSpeechRequest(post(whoBody(), { contentType: "application/json; charset=utf-8" }), d)).status).toBe(200);
+    expect(synthesize).toHaveBeenCalledTimes(1);
+  });
+
+  it("a browser-marked cross-site request is refused", async () => {
+    const { d } = deps();
+    const req = new Request("http://localhost/api/tushky/speech", {
+      method: "POST",
+      headers: { "content-type": "application/json", "sec-fetch-site": "cross-site" },
+      body: JSON.stringify(whoBody()),
+    });
+    expect((await handleSpeechRequest(req, d)).status).toBe(400);
+  });
+
+  it("a chunked body with no Content-Length is cut off at the cap, and a broken body is a 400, not a 500", async () => {
+    const { d } = deps();
+    const stream = (chunks: number, fail = false) =>
+      new ReadableStream<Uint8Array>({
+        pull(controller) {
+          if (fail) return controller.error(new Error("client went away"));
+          if (chunks-- <= 0) return controller.close();
+          controller.enqueue(new Uint8Array(1024).fill(32));
+        },
+      });
+    const chunked = (body: ReadableStream<Uint8Array>) =>
+      new Request("http://localhost/api/tushky/speech", { method: "POST", headers: { "content-type": "application/json" }, body, duplex: "half" } as RequestInit);
+    expect((await handleSpeechRequest(chunked(stream(100)), d)).status).toBe(413);
+    expect((await handleSpeechRequest(chunked(stream(1, true)), d)).status).toBe(400);
+  });
+});
+
 describe("rate limiting (§53)", () => {
   it("returns 429 with Retry-After once a client's bucket is empty; other clients are unaffected", async () => {
     let now = 1_000_000;

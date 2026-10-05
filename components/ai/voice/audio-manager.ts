@@ -347,6 +347,10 @@ export class TushkyAudioManager {
   }
 
   private fail(messageId: string, code: string): void {
+    // One failure, one state change and one "Failed" event (a broken file fires both `error` and a
+    // rejected `play()`).
+    const current = this.get(messageId).status;
+    if (current === "error" || current === "resting") return;
     clearTimeout(this.record(messageId).slowTimer);
     if (this.activeId === messageId) this.audio?.pause();
     this.set(messageId, { status: isRestingError(code) ? "resting" : "error", slow: false });
@@ -401,6 +405,14 @@ export class TushkyAudioManager {
     for (const url of this.blobs.values()) URL.revokeObjectURL(url);
     this.blobs.clear();
     for (const listener of this.listeners) listener();
+  }
+
+  /**
+   * (Re)arm the manager. The provider calls it on mount: React Strict Mode runs effects
+   * setup → cleanup → setup in dev, and the cleanup's `dispose()` must not leave a dead manager.
+   */
+  activate(): void {
+    this.disposed = false;
   }
 
   dispose(): void {

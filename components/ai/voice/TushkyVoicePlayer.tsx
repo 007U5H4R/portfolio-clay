@@ -55,7 +55,12 @@ export function TushkyVoiceProvider({ open, children }: { open: boolean; childre
     manager.pauseActive();
   }, [pathname, manager]);
 
-  useEffect(() => () => manager.dispose(), [manager]);
+  // Strict Mode (dev) runs this setup → cleanup → setup: re-arm on every setup, so the manager kept
+  // in state is never left disposed.
+  useEffect(() => {
+    manager.activate();
+    return () => manager.dispose();
+  }, [manager]);
 
   return <VoiceContext.Provider value={manager}>{children}</VoiceContext.Provider>;
 }
@@ -166,7 +171,9 @@ export function TushkyVoicePlayer({ messageId, question, answerText, faqId, cach
   useEffect(() => {
     const strip = stripRef.current;
     if (!strip || !focusInside.current || strip.contains(document.activeElement)) return;
-    const target = strip.querySelector<HTMLElement>("button:not([aria-disabled='true'])") ?? strip;
+    // An aria-disabled button (Listen while loading) is still focusable, so it counts; the strip itself
+    // is the last resort and carries tabIndex -1 in every state.
+    const target = strip.querySelector<HTMLElement>("button") ?? strip;
     target.focus();
   }, [view]);
 
@@ -199,7 +206,7 @@ export function TushkyVoicePlayer({ messageId, question, answerText, faqId, cach
 
   if (status === "error") {
     return (
-      <div {...focusProps} className="tk-voice" data-state="error" role="group" aria-label="Tushky's voice">
+      <div {...focusProps} tabIndex={-1} className="tk-voice" data-state="error" role="group" aria-label="Tushky's voice">
         <p className="tk-voice-msg">
           Couldn’t find my voice this time <span aria-hidden="true">🐾</span>
         </p>
@@ -252,6 +259,7 @@ export function TushkyVoicePlayer({ messageId, question, answerText, faqId, cach
   return (
     <div
       {...focusProps}
+      tabIndex={-1}
       className="tk-voice"
       data-state={view}
       data-summary={isSummary ? "" : undefined}
