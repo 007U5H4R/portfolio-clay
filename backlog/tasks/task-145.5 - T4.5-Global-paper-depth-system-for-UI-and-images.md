@@ -1,9 +1,10 @@
 ---
 id: TASK-145.5
 title: T4.5 Global paper depth system for UI and images
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 18:07'
+updated_date: '2026-10-05 23:11'
 labels:
   - P2
 dependencies: []
