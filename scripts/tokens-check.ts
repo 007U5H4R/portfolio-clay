@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { oklch, formatHex } from "culori";
+import { oklch, formatHex, wcagContrast } from "culori";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GLOBALS = resolve(HERE, "../app/globals.css");
@@ -67,6 +67,59 @@ function blockRange(css: string, header: string): [number, number] {
   const start = css.indexOf(header);
   if (start < 0) return [-1, -1];
   return [start, css.indexOf("}", start)];
+}
+
+
+// Contrast table (WCAG 2.x AA; never lowered, EV2): [foreground token, background token, minimum, where it is used].
+// Evaluated in BOTH themes from the authoritative hex above, because the dark theme redefines the same names by
+// role (D13) — a pair that passes in light can fail in dark and vice versa. 4.5 = text, 3 = large text / UI.
+const PAIRS: ReadonlyArray<[string, string, number, string]> = [
+  ["navy", "paper", 4.5, "body text on the page"],
+  ["navy", "ivory", 4.5, "text on cards / sheets / inputs"],
+  ["navy", "paper-2", 4.5, "text on alternate sections"],
+  ["navy-2", "paper", 4.5, "secondary text"],
+  ["navy-2", "ivory", 4.5, "secondary text on cards"],
+  ["navy-2", "paper-2", 4.5, "secondary text on alternate sections"],
+  ["ink-soft", "paper", 4.5, "captions, meta, placeholders"],
+  ["ink-soft", "ivory", 4.5, "captions on cards"],
+  ["ink-soft", "paper-2", 4.5, "captions on alternate sections"],
+  ["rust", "paper", 4.5, "links, numerals"],
+  ["rust", "paper-2", 3, "rust on alternate sections — large (≥ 17 px) or bold only, Design.md §2.1 (light is 4.30)"],
+  ["rust", "ivory", 4.5, "links on cards"],
+  ["ivory", "rust", 4.5, "primary button label"],
+  ["ivory", "navy", 4.5, "nav pill / navy-filled control label"],
+  ["ivory", "terracotta", 4.5, "band text"],
+  ["forest", "paper", 4.5, "positive metrics"],
+  ["forest", "ivory", 4.5, "positive metrics on cards"],
+  ["green-2", "paper-2", 4.5, "kickers, tags"],
+  ["green-2", "ivory", 4.5, "kickers on cards"],
+  ["terracotta", "paper-2", 4.5, "draft tags, hover deepening"],
+  ["navy", "note", 4.5, "sticky-note text"],
+  ["navy-2", "note", 4.5, "secondary text on stickies"],
+  ["navy", "kraft", 4.5, "kraft tag text"],
+  ["steel", "paper", 3, "ruled lines, badge borders (non-text)"],
+  ["steel", "ivory", 3, "ruled lines on cards (non-text)"],
+];
+// Band accents are role-dependent (globals.css --band-accent / --band-dim): light uses note / kraft on terracotta,
+// dark uses paper (4.5) and note (3, the 40–72 px heading line) on the light terracotta fill.
+const BAND_PAIRS = {
+  light: [["note", "terracotta", 4.5, "band italic word, © tagline"], ["kraft", "terracotta", 3, "band heading line 2"]],
+  dark: [["paper", "terracotta", 4.5, "band italic word, © tagline"], ["note", "terracotta", 3, "band heading line 2"], ["paper", "terracotta", 3, "band focus ring"]],
+} as const;
+
+function contrastFailures(): { checked: number; failures: string[] } {
+  const failures: string[] = [];
+  let checked = 0;
+  for (const block of BLOCKS) {
+    const hex = (name: string) => block.tokens[`--color-${name}`] as string;
+    const rows = [...PAIRS, ...BAND_PAIRS[block.name]];
+    for (const [fg, bg, min, where] of rows) {
+      checked += 1;
+      const ratio = wcagContrast(hex(fg), hex(bg));
+      if (ratio < min) failures.push(`[${block.name}] ${fg} on ${bg} = ${ratio.toFixed(2)}:1 < ${min} (${where})`);
+    }
+  }
+  return { checked, failures };
 }
 
 function escapeRegExp(s: string): string {
@@ -147,6 +200,9 @@ function check(): void {
     summary.push(block.name === "light" ? `${ok}/${total} tokens round-trip OK` : `${ok}/${total} dark tokens round-trip OK`);
   }
 
+  const contrast = contrastFailures();
+  summary.push(`${contrast.checked - contrast.failures.length}/${contrast.checked} contrast pairs AA (light + dark)`);
+  failures.push(...contrast.failures);
   console.log(summary.join("\n"));
   if (failures.length > 0) {
     console.error(failures.join("\n"));
