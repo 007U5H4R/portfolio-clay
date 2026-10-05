@@ -459,3 +459,48 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** Tushar's About-hero spec (TASK-117, `docs/redesign-mockups/m-009/tushar-2026-09-28/about-hero-spec.md`) says: "Remove all visible public labels such as DRAFT — PENDING SIGN-OFF. Do not show draft status anywhere in this section." D7/S18 had required a `DraftTag` on unsigned-off copy.
 **Decision.** In the `/about` hero only, the three `DraftTag`s are removed — Tushar's own copy in his spec is his sign-off for that section. D7/S18 still apply everywhere else (e.g. the band's hiring line keeps its tag). New Polaroid illustration `polaroid-sunrise` (Higgsfield `gpt_image_2_5`, job `0d16b793-6b6f-47dc-a460-03e3eef3eb87`, 2.75 credits). Design.md §11 Dev-105–107.
 **Rejected.** Hiding the draft state with CSS (a hidden label is still a claim in the DOM).
+
+## S22 · Dark mode is added; supersedes S19 — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** S19 kept the site light-only because the illustrations were daylight scenes, and said to revisit "only with a separate illustration set". Tushar's M-010 specs (`docs/specs/m-010/dark-mode.md`, `toggle.md`) ask for a full dark theme, and M-010 generates exactly that set: a matched dark variant of every scene.
+**Decision.** Light and dark themes. Resolution order: saved explicit choice → `prefers-color-scheme` → light. Only an explicit choice is persisted. Dark art is generated, never produced with CSS filters.
+**Rejected.** Keeping S19 (contradicts the specs); dark mode via inverted or filtered art (S19's own objection still holds for that).
+
+## S23 · The art direction becomes a 3D paper-cut diorama system — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** `paper-cut-2.md` unifies every scene, the chrome and the depth rules into one layered-paper language. The gouache scenes and collage sprites came from M-009.
+**Decision.** Paper-cut replaces the gouache scenes on every tab, light and dark. Each tab keeps its meaning (spec §64: the goal is coherence, not "make every image 3D paper"). S20 stands: art stays decorative, carries provenance and never carries evidence.
+**Rejected.** Mixing paper-cut chrome with gouache scenes (two languages on one page).
+
+## S24 · The Home hero becomes a paper-cut still; clip A is retired — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** The hero carried the locked gouache character and clip A (S14, EVAL-019). Converting the clip too would cost about 150+ video credits and reopen the likeness gate twice.
+**Decision.** Tushar: "convert hero into paper-cut character but don't animate it or make a clip, just a still image". The hero is a paper-cut still that keeps the character's likeness. `HeroClip`, the clip files and the clip half of EVAL-019 are retired; Stage 3 rewrites EVAL-019 as a still-banner LCP check. The YouTube intro video (Dev-132) is unaffected. T1 pilots this scene first.
+**Rejected.** Keeping the gouache hero (two styles on Home); a paper-cut clip (cost, likeness risk).
+
+## S25 · One theme system serves both specs — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** `dark-mode.md` and `toggle.md` each describe theme state, persistence and flash prevention; `toggle.md` warns against "a duplicate competing theme implementation".
+**Decision.** One mechanism: `data-theme="light|dark"` on `<html>`, set by an inline pre-paint script, tokens redefined per theme in `app/globals.css`, one storage key (`portfolio-theme`). The toggle is a control over that state, built in T2 with the dark-mode work.
+**Rejected.** Building the toggle and dark mode as separate tracks (they would each grow their own state).
+
+## S26 · M-010 reaches production in one release at the end — accepted (Tushar, 2026-10-05)
+**Context.** Production went live on 2026-10-05 (PR #7). Mid-milestone states would look unfinished, e.g. dark mode before the dark art exists.
+**Decision.** Every track lands on `m-009-redesign` and its preview. Production gets one M-010 release after T5, on Tushar's approval. Until then production is not touched at all, including fixes outside M-010 such as the Next 16.3.6 security patch (Tushar 2026-10-05: "dont touch the production now. Everything needs to be done in Preview only").
+**Rejected.** Release per track (visitors see mixed states); two milestone releases (Tushar chose one).
+
+## S27 · The business card ships without Apple Wallet — accepted (Tushar, 2026-10-05)
+**Context.** A signed `.pkpass` needs an Apple Developer Program membership and a Pass Type ID certificate. Tushar has neither.
+**Decision.** `/card` ships with the paper-cut card, flip, QR and a vCard "Save contact". The design keeps the Wallet slot so it can be added later without a redesign.
+**Rejected.** Building server-side signing now (blocked); a fake Wallet button (dishonest).
+
+## S28 · Section dividers replace the torn edges; the decoration budget is unchanged — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** `paper-cut-2.md` §170–232 adds layered ridge dividers with parallax between sections. EVAL-018 caps decoration per section, and the site already has torn edges with slow-drift parallax.
+**Decision.** The ridge divider takes the torn edge's place, so the count stays the same; EVAL-018 stays binding as written. Parallax uses transforms only and switches off under reduced motion.
+**Rejected.** Adding dividers on top of the torn edges (over-decoration, spec §219).
+
+## S29 · The Paper Trail cursor is desktop-only and lazy — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** `cursor.md` adds a custom cursor plus a hold-and-drag trail. EVAL-005 binds 180 kB gz on `/`.
+**Decision.** Mounted only for `(pointer: fine)` and no reduced motion, via a dynamic import after hydration; never on touch; native cursors stay on text fields and in exclusion zones.
+**Rejected.** A global always-on cursor (budget, accessibility).
+
+## S30 · Gummy Lab lives on its own lazy `/lab` route — accepted (Tushar, 2026-10-05: \"Everything else is approved\")
+**Context.** `gummy-bear.md` needs Three.js, React Three Fiber and Rapier, far beyond the home budget, and is an optional Easter egg (P3).
+**Decision.** `/lab`, reached by 5 quick clicks on the name or the TP monogram, loads its 3D stack only on that route. The bear is modelled in Blender (Blender MCP, installed 2026-10-05) and exported as GLB. `/lab` is excluded from the nav and the sitemap, with `noindex`.
+**Rejected.** An overlay on the current page (would pull the 3D stack into every route).

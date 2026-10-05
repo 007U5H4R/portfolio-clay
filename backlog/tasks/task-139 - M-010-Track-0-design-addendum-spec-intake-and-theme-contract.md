@@ -1,0 +1,21 @@
+---
+id: TASK-139
+title: 'M-010 Track 0: design addendum, spec intake and theme contract'
+status: In Progress
+assignee: []
+created_date: '2026-10-05 11:50'
+updated_date: '2026-10-05 11:51'
+labels:
+  - P1
+milestone: m-9
+dependencies: []
+priority: high
+type: task
+ordinal: 189000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Stage 2/4 addendum: reverse Design.md S19 (no dark mode), adopt the paper-cut art direction, define the data-theme token contract and per-track Dev-id ranges; specs saved to docs/specs/m-010/
+<!-- SECTION:DESCRIPTION:END -->
