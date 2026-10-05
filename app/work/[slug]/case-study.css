@@ -172,7 +172,16 @@
   color: var(--color-navy-2);
   white-space: nowrap;
 }
-.csx-badge-glyph { font-size: 12px; line-height: 1; }
+.csx-badge-glyph {
+  font-size: 12px;
+  line-height: 1;
+  /* "◐" (U+25D0) is in none of the web fonts' latin subsets, and on macOS/iOS the generic default
+     (Helvetica) lacks it too, so Chrome ran a whole-system fallback search for it on every case study
+     (Linux CI passes because DejaVu Sans has it). Naming the family Chrome found, Hiragino Sans, second
+     skips the search with identical pixels; elsewhere it is absent and the stack falls through.
+     Same fix as `.hero-btn-spark`; guard: tests/e2e/fallback-glyphs.spec.ts. */
+  font-family: var(--font-inter), "Hiragino Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
 .csx-badge[data-kind="measured"] .csx-badge-glyph { color: var(--color-forest); }
 .csx-badge[data-kind="self-reported"] .csx-badge-glyph { color: var(--color-terracotta); }
 .csx-badge[data-kind="structural"] .csx-badge-glyph { color: var(--color-navy-2); }
@@ -1121,7 +1130,11 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="teachspark"] .csx-learning { border-radius: 3px; border-left: 6px solid var(--color-forest); }
 .csx[data-theme="teachspark"] .csx-learning[data-i="2"] { border-left-color: var(--color-rust); }
 .csx[data-theme="teachspark"] .csx-learning[data-i="3"] { border-left-color: var(--color-note); }
-.ts-scribble-end { right: 16px; bottom: -40px; transform: rotate(-3deg); color: var(--color-rust); }
+.ts-scribble-end {
+  right: 16px; bottom: -40px; transform: rotate(-3deg); color: var(--color-rust);
+  /* "✓" (U+2713) is outside Caveat's latin subset; Lucida Grande supplies it on macOS/iOS (see .csx-badge-glyph). */
+  font-family: var(--font-caveat), "Lucida Grande", "Segoe Print", "Bradley Hand", cursive;
+}
 @media (max-width: 1023px) { .ts-scribble-end { display: none; } }
 
 /* Pivot hero (spec §49): the killed first bet sits struck behind the product that survived. */
