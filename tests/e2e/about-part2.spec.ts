@@ -3,7 +3,7 @@
  * sections in the browser: order, the EVAL-018 unit counts, the real links, the facts from data, and the
  * About ↔ Experience split (the résumé record lives on `/work`).
  *
- *   @EVAL-018 — unit counts hero 4 · chapters 2 · career 2 · research-values 2 · recognition 2 · CTA 1 at 390
+ *   @EVAL-018 — unit counts hero 4 · chapters 2 · career 2 · research-values 2 · recognition 2 · testimonials 1 · CTA 1 at 390
  *               and 1440; every text-bearing decoration is aria-hidden.
  *   @EVAL-011 — the patent link and the DOI link resolve to their records; "DOI pending" is Inter; the CTA
  *               buttons land on the existing Experience and Certifications tabs.
@@ -25,7 +25,7 @@ async function ownedDecor(page: Page, selector: string): Promise<string[]> {
   );
 }
 
-test("@EVAL-018 unit counts: hero 4 · chapters 2 · career 2 · research-values 2 · recognition 2 · CTA 1", {
+test("@EVAL-018 unit counts: hero 4 · chapters 2 · career 2 · research-values 2 · recognition 2 · testimonials 1 · CTA 1", {
   tag: "@EVAL-018",
 }, async ({ page }) => {
   test.skip(!MEASURED.includes(width(page)), "EVAL-018 is measured at w390 and w1440");
@@ -35,11 +35,12 @@ test("@EVAL-018 unit counts: hero 4 · chapters 2 · career 2 · research-values
   expect(await ownedDecor(page, "section#career")).toEqual(["torn", "sketch"]);
   expect(await ownedDecor(page, "section#research-values")).toEqual(["torn", "annotation"]);
   expect(await ownedDecor(page, "section#recognition")).toEqual(["torn", "annotation"]);
+  expect(await ownedDecor(page, "section#testimonials")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#about-cta")).toEqual(["collage"]);
   for (const el of await page.locator("main [data-decor]").all()) await expect(el).toHaveAttribute("aria-hidden", "true");
 });
 
-test("page order: opener → hero → chapters → career → research + values → recognition → CTA → band", async ({ page }) => {
+test("page order: opener → hero → chapters → career → research + values → recognition → testimonials → CTA → band", async ({ page }) => {
   test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
   await page.goto("/about", { waitUntil: "load" });
   const order = await page.evaluate(() =>
@@ -47,7 +48,7 @@ test("page order: opener → hero → chapters → career → research + values 
       el.tagName === "FOOTER" ? "band" : el.id || el.getAttribute("data-opener") || el.getAttribute("aria-labelledby"),
     ),
   );
-  expect(order).toEqual(["scene-about", "about-hero-heading", "chapters", "career", "research-values", "recognition", "about-cta", "band"]);
+  expect(order).toEqual(["scene-about", "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta", "band"]);
 });
 
 test("@EVAL-011 the dark strip: See full experience → /work, View certifications → /certifications", {

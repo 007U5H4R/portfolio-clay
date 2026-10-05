@@ -11911,9 +11911,7 @@ html.lenis body {
   .rcx-body {
     background: var(--color-paper);
   }
-  .rcx-wrap.rcx-wrap {
-    padding-bottom: clamp(36px, 4vw, 56px);
-  }
+
   .rcx-list {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -11963,11 +11961,137 @@ html.lenis body {
     }
   }
 
+  /* ---- In their words (testimonials) ---- */
+  .tsx-body {
+    background: var(--color-paper-2);
+  }
+  .tsx-wrap.tsx-wrap {
+    padding-block: clamp(14px, 1.6vw, 24px) clamp(36px, 4vw, 56px);
+  }
+  .tsx-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(22px, 2.4vw, 32px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tsx-slot {
+    display: grid;
+    min-width: 0;
+  }
+  .tsx-card.paper-sheet {
+    display: grid;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    filter: var(--ab-shadow);
+  }
+  .tsx-card > .paper-fastener {
+    z-index: 3;
+  }
+  .tsx-paper {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 20px;
+    height: 100%;
+    padding: 30px 26px 26px;
+    background-color: var(--ab-cream);
+    background-image: var(--ab-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: url("/media/portfolio/decor/tear-wide-a.svg") 0 0 / 100% 100% no-repeat;
+    mask: url("/media/portfolio/decor/tear-wide-a.svg") 0 0 / 100% 100% no-repeat;
+  }
+  .tsx-paper[data-tint="note"] {
+    background-color: color-mix(in oklab, var(--color-ivory) 62%, var(--color-note));
+  }
+  .tsx-paper[data-tint="blue"] {
+    background-color: color-mix(in oklab, var(--color-ivory) 84%, var(--color-steel));
+    -webkit-mask-image: url("/media/portfolio/decor/tear-wide-b.svg");
+    mask-image: url("/media/portfolio/decor/tear-wide-b.svg");
+  }
+  .tsx-paper[data-tint="sage"] {
+    background-color: color-mix(in oklab, var(--color-ivory) 84%, var(--color-green-2));
+  }
+  .tsx-quote {
+    position: relative;
+    margin: 0;
+    padding-top: 30px;
+  }
+  .tsx-quote::before {
+    content: "“";
+    content: "“" / "";
+    position: absolute;
+    top: -14px;
+    left: -4px;
+    font-family: var(--font-display);
+    font-size: 64px;
+    line-height: 1;
+    color: var(--color-rust);
+  }
+  .tsx-quote p {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 1.45vw, 21px);
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--color-navy);
+  }
+  .tsx-by {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .tsx-initials {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-navy-2);
+    color: var(--color-ivory);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .tsx-who {
+    display: grid;
+    gap: 2px;
+  }
+  .tsx-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+  .tsx-role,
+  .tsx-rel {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--color-navy-2);
+  }
+  .tsx-rel {
+    color: var(--color-ink-soft);
+  }
+  .tsx-more {
+    margin-top: clamp(20px, 2.4vw, 28px);
+    font-size: 15px;
+  }
+  @media (min-width: 900px) {
+    .tsx-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   /* ---- the dark Experience strip (closes the page) ---- */
   .acx {
     position: relative;
     padding-bottom: clamp(150px, 12vw, 200px);
-    background: var(--color-paper);
+    background: var(--color-paper-2);
   }
   .acx-strip {
     position: relative;
@@ -12137,11 +12261,13 @@ html.lenis body {
 /* The research links sit on paper-2, where rust text is < 4.5:1 at 14 px: terracotta (6.1:1) instead.
    Unlayered so it beats `ExternalLink`'s `text-rust` utility. */
 .rvx-doi,
-.rvx-patent-link {
+.rvx-patent-link,
+.tsx-more-link {
   color: var(--color-terracotta);
 }
 .chx-rv.reveal,
-.rvx-rv.reveal {
+.rvx-rv.reveal,
+.tsx-rv.reveal {
   transition-delay: calc(var(--stagger-index) * 90ms);
 }
 @media (prefers-reduced-motion: no-preference) {

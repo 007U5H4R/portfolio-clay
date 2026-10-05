@@ -4,6 +4,7 @@ import { AboutHero } from "@/components/about/AboutHero";
 import { CareerContexts } from "@/components/about/CareerContexts";
 import { Recognition } from "@/components/about/Recognition";
 import { ResearchValues } from "@/components/about/ResearchValues";
+import { Testimonials } from "@/components/about/Testimonials";
 import { ThreeChapters } from "@/components/about/ThreeChapters";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { buildMetadata } from "@/lib/seo";
@@ -23,7 +24,8 @@ export const metadata: Metadata = buildMetadata({
  * about four to five viewports, readable in a minute:
  *
  *   scene opener (TASK-114, every tab) → hero → Three Chapters → Career Across Contexts →
- *   Research + What Drives Me → Recognition → the dark Experience / Certifications strip → band.
+ *   Research + What Drives Me → Recognition → In their words (three LinkedIn recommendations) →
+ *   the dark Experience / Certifications strip → band.
  *
  * WHAT he did — employer-by-employer roles, dates, bullets, scope and self-reported outcomes, skills,
  * education — lives on `/work` (Experience); the badges on `/certifications`. About only references them.
@@ -39,6 +41,7 @@ export default function AboutPage() {
       <CareerContexts />
       <ResearchValues />
       <Recognition />
+      <Testimonials />
       <AboutCta />
     </>
   );

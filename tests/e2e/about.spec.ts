@@ -132,7 +132,7 @@ test("entrance: with motion allowed the chapters, thread and artifacts settle vi
   test.skip(width(page) !== 1440, "entrance timing is width-independent; checked at 1440");
   await page.goto("/about", { waitUntil: "load" });
   await revealAll(page);
-  for (const sel of [".chx-rv", ".crx-strip", ".rvx-rv", ".rcx-rv"]) {
+  for (const sel of [".chx-rv", ".crx-strip", ".rvx-rv", ".rcx-rv", ".tsx-rv"]) {
     const els = page.locator(sel);
     const n = await els.count();
     for (let i = 0; i < n; i++) {
