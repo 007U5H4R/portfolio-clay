@@ -156,3 +156,49 @@ Approve §12 · confirm the footer credit line (S16: keep TP10 "Built with curio
 4. **Stage 6** — `technical-plan.md`, `test-cases.md`, Campfire milestone + tickets.
 5. **Stage 7** — Phase 0 tracer: tokens + fonts + header + band footer + hero (scene, video, poster) on `/`, Lighthouse measured, **Tushar's visual gate on the Vercel preview**; Phase A home complete + OG; Phase B work + case-study template (all 11 slugs) + thinking/essay; Phase C about, playground, contact, 404; Phase D redesign QA, dead-code removal (clay primitives, aurora, avatar system), `Design.md` deviations, PWA sync.
 6. **Stages 8–10** critique against the mockups → review + eval run → security → `QA-report.md` addendum. **Stage 11** merge `m-009-redesign → main`; production remains gated on Tushar's inputs.
+
+## 13. M-010 · Paper-cut system, dark mode and delight features — solution addendum (2026-10-05, approved 2026-10-05)
+
+Source: six specs from Tushar, 2026-10-05, saved verbatim in `docs/specs/m-010/` (`paper-cut-2.md`, `dark-mode.md`, `toggle.md`, `cursor.md`, `card-updated.md`, `gummy-bear.md`, plus `toggle-reference.png`, the toggle's visual acceptance target). Sequencing plan approved the same day: `~/.claude/plans/i-want-to-add-immutable-raccoon.md`. Campfire: milestone `m-9`, tickets TASK-139…146. Decisions S22–S30.
+
+### 13.1 Goal
+Move the site from gouache illustration + paper collage to one coherent **3D paper-cut / layered-paper diorama** system, in a light and a **dark** theme, and add three optional delights: a semantic paper cursor, a paper-cut digital business card, and a hidden physics game. Everything M-009 guarantees (content provenance, tests, evals, budgets, accessibility, static prerender) stays.
+
+### 13.2 Approach (what changes, what stays)
+| Layer | M-009 (production since 2026-10-05) | M-010 |
+|---|---|---|
+| Scene art | Gouache/pencil scenes + collage sprites (Higgsfield) | Paper-cut dioramas per tab, each in a light and a matched dark variant (S23) |
+| Home hero | Locked gouache character + clip A (plays once, holds) | A **paper-cut still** of the character; clip A and `HeroClip` are retired; no hero animation (S24) |
+| Theme | Single paper theme, no toggle (S19) | Light + dark, system preference first, saved choice wins, no flash; paper-cut toggle (S22, S25) |
+| Chrome | Paper header, torn edges, terracotta band | Paper-cut nav, section dividers with gentle parallax (they replace the torn edges, not add to them), footer ocean + ship, global depth rules (S23, S28) |
+| New surfaces | — | `/card` business card (no Apple Wallet, S27); desktop-only cursor + paper trail (S29); hidden `/lab` game behind a 5-click trigger (S30) |
+| Content, data, evals | `data/*.ts`, zod gate, `pnpm eval` | Unchanged; art never carries evidence (S20 stands) |
+
+### 13.3 Scope (one milestone, M-010, tracks per the plan)
+T0 this addendum + theme contract (TASK-139) → T1 paper-cut style lock on the **hero scene** as the pilot (TASK-140; Tushar's style gate) → T2 theme system: dark mode + toggle (TASK-141) → T3 every tab's scene, light + dark together (TASK-144) → T4 nav, dividers + parallax, footer ocean, depth pass (TASK-145) → T5 `/card` (TASK-146). Side lanes: T2b cursor (TASK-142, after T1) and T2c gummy `/lab` (TASK-143, after T0).
+
+### 13.4 Out of scope
+Apple Wallet `.pkpass` (needs an Apple Developer account; the card keeps a slot for it) · any hero animation or clip · runtime Higgsfield calls (all art is generated at build time and committed) · new content, metrics or claims · CSS-filter "dark versions" of rich art (spec: dark art is generated, not inverted).
+
+### 13.5 Success criteria (in addition to §8 and §12.6; thresholds are never lowered)
+- Every tab's scene exists in light and dark, in one paper-cut language, judged side by side at the T1 and T3 gates; the hero still matches the character sheet's likeness in paper-cut form.
+- Theme: no wrong-theme flash on a hard reload with a saved choice; first visit follows `prefers-color-scheme`; the toggle works by keyboard and screen reader; WCAG AA contrast in both themes (EVAL-006 runs in both).
+- Budgets: EVAL-005 ≤ 180 kB gz first-load JS on `/` (cursor lazy and fine-pointer only; `/lab` never in the home bundle) · EVAL-018 decoration budget unchanged · CLS < 0.05 in both themes and across theme switches.
+- Reduced motion: parallax, cursor trail, ocean and card flip all degrade to static.
+- Mobile: no horizontal scroll at 375 and 768 in both themes; the cursor never mounts on touch.
+
+### 13.6 Risks & mitigations
+| Risk | Mitigation |
+|---|---|
+| Paper-cut loses the character's likeness | T1 pilots the hero first; nothing else is generated until Tushar approves the style |
+| Dark variants drift from their light scene | Generate each pair in one pass with the light image as reference; side-by-side QA (paper-cut-2 §153) |
+| Credit overrun (608 cr on 2026-10-05) | Per-track estimate shown before spending; at most 2 regenerations per asset without approval |
+| Theme flash / hydration mismatch | Inline pre-paint script sets `data-theme`; tokens switch by attribute; covered by a Playwright test |
+| One big release at the end | Every track merges to the branch and preview with its own full e2e; production diff is reviewed as one release (S26) |
+| 8 GB Mac | One heavy local session at a time; gummy can run in a cloud session |
+
+### 13.7 Dependencies on Tushar
+Style gate at T1 · scene gate at T3 · the toggle reference (received) · final release approval (S26).
+
+### 13.8 Delivery plan
+Per §13.3. Every track: ticket → build on the branch → full e2e + gates → preview → Tushar's look. Production: one release after T5 (S26).
