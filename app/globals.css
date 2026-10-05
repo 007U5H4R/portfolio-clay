@@ -12205,3 +12205,189 @@ html.lenis body {
   }
 }
 /* end TASK-136 */
+
+/*
+  ThemeToggle (TASK-141; toggle.md §25–§41; Design.md §13.2/§13.3) — the paper-cut Light/Dark capsule in the
+  header cluster. Tokens only (EVAL-020). The two generated scenes are `background-image` layers (no CSS
+  filter anywhere — EVAL-026); the inactive half is dimmed by a `--color-paper` veil, the active half sits
+  forward with a lighter rim. State comes from `[data-theme]` alone, so it is right on the first paint.
+  Desktop: both halves (112 × 44). Below 640: the active scene only (56 × 44). Box reserved: no layout shift.
+*/
+.theme-toggle {
+  position: relative;
+  flex: none;
+  width: 112px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 160ms var(--ease-hover);
+}
+.tt-window {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-paper-2);
+  /* the cut: a 2 px paper rim, an inset shadow, and the sheet's own paper shadow */
+  box-shadow:
+    inset 0 0 0 2px var(--color-ivory),
+    inset 0 2px 5px color-mix(in oklab, var(--color-navy) 28%, transparent),
+    var(--shadow-paper);
+  transition: box-shadow 200ms ease;
+}
+.tt-scene {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: var(--radius-pill);
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  transition: transform 400ms var(--ease-hover);
+}
+.tt-scene-light {
+  left: 3px;
+  right: 50%;
+  border-radius: 999px 0 0 999px;
+  background-image: url("/theme-toggle/light-scene.webp");
+  background-position: 18% 50%;
+}
+.tt-scene-dark {
+  left: 50%;
+  right: 3px;
+  border-radius: 0 999px 999px 0;
+  background-image: url("/theme-toggle/dark-scene.webp");
+  background-position: 18% 50%;
+}
+.tt-veil {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  background: color-mix(in oklab, var(--color-paper) 52%, transparent);
+  transition: opacity 400ms var(--ease-hover);
+}
+.tt-veil-light {
+  left: 3px;
+  right: 50%;
+  border-radius: 999px 0 0 999px;
+}
+.tt-veil-dark {
+  left: 50%;
+  right: 3px;
+  border-radius: 0 999px 999px 0;
+}
+.tt-seam {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: calc(50% - 1px);
+  width: 2px;
+  background: var(--color-ivory);
+  box-shadow: 0 0 2px color-mix(in oklab, var(--color-navy) 30%, transparent);
+}
+/* Active half: forward (no veil, art nudged 2 px), the other half veiled. */
+:root:not([data-theme="dark"]) .tt-veil-light,
+[data-theme="dark"] .tt-veil-dark {
+  opacity: 0;
+}
+:root:not([data-theme="dark"]) .tt-veil-dark,
+[data-theme="dark"] .tt-veil-light {
+  opacity: 1;
+}
+:root:not([data-theme="dark"]) .tt-scene-light {
+  transform: translateX(2px);
+}
+[data-theme="dark"] .tt-scene-dark {
+  transform: translateX(-2px);
+}
+.theme-toggle:hover {
+  transform: translateY(-1px);
+}
+.theme-toggle:hover .tt-window {
+  box-shadow:
+    inset 0 0 0 2px var(--color-ivory),
+    inset 0 2px 5px color-mix(in oklab, var(--color-navy) 28%, transparent),
+    var(--shadow-paper-hover);
+}
+.theme-toggle:active {
+  transform: translateY(1px);
+}
+@media (max-width: 639px) {
+  .theme-toggle {
+    width: 56px;
+  }
+  /* One capsule, the active scene only: the other half collapses to nothing. */
+  .tt-seam {
+    display: none;
+  }
+  :root:not([data-theme="dark"]) .tt-scene-light,
+  :root:not([data-theme="dark"]) .tt-veil-light {
+    right: 3px;
+    border-radius: 999px;
+  }
+  :root:not([data-theme="dark"]) .tt-scene-dark,
+  :root:not([data-theme="dark"]) .tt-veil-dark {
+    display: none;
+  }
+  [data-theme="dark"] .tt-scene-dark,
+  [data-theme="dark"] .tt-veil-dark {
+    left: 3px;
+    border-radius: 999px;
+  }
+  [data-theme="dark"] .tt-scene-light,
+  [data-theme="dark"] .tt-veil-light {
+    display: none;
+  }
+  .tt-veil {
+    opacity: 0 !important;
+  }
+  .tt-scene-light,
+  .tt-scene-dark {
+    background-position: 22% 50%;
+    transform: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .tt-window,
+  .tt-scene,
+  .tt-veil {
+    transition: none;
+  }
+  .theme-toggle:hover,
+  .theme-toggle:active {
+    transform: none;
+  }
+  .tt-scene {
+    transform: none !important;
+  }
+}
+
+/* Theme art twins (S23, EV9; dark-mode.md §41–§45): the inactive rendition is `display: none` — never fetched while
+   lazy, absent from the accessibility tree — and the swap is by this selector, never a CSS filter. */
+:root:not([data-theme="dark"]) [data-theme-art="dark"],
+[data-theme="dark"] [data-theme-art="light"] {
+  display: none;
+}
+
+/*
+  Theme switch (dark-mode.md §46/§47): while `useTheme` marks the root `data-theme-switching` (~360 ms,
+  never under reduced motion) the colour-bearing properties ease; nothing else is touched and the mark is
+  gone before the next interaction. Selective by property, never `transition: all`.
+*/
+html[data-theme-vt]::view-transition-group(root) {
+  animation-duration: 240ms;
+  animation-timing-function: ease;
+}
+[data-theme-switching],
+[data-theme-switching] *,
+[data-theme-switching] *::before,
+[data-theme-switching] *::after {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke, opacity !important;
+  transition-duration: 240ms !important;
+  transition-timing-function: ease !important;
+  transition-delay: 0s !important;
+}

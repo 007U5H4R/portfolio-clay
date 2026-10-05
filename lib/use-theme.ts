@@ -26,17 +26,31 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
-/** Apply a theme to the page. `animate` marks the root for the short, selective colour transition. */
+/**
+ * Apply a theme to the page. An explicit toggle (`animate`) cross-fades the whole page through the View
+ * Transitions API when the browser has it (one 240 ms dissolve — this is what swaps the paired art without a
+ * filter and without a layout jump, dark-mode.md §43); otherwise the root is marked `data-theme-switching` for
+ * the short selective colour transition. Reduced motion: neither, the theme simply changes.
+ */
 function apply(theme: Theme, animate: boolean) {
   const el = root();
   if (!el || el.dataset.theme === theme) return;
-  if (animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    el.dataset.themeSwitching = "";
-    clearTimeout(switchTimer);
-    switchTimer = setTimeout(() => delete el.dataset.themeSwitching, SWITCH_MS);
+  const commit = () => {
+    el.dataset.theme = theme;
+    emit();
+  };
+  const still = !animate || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (still) return commit();
+  if (typeof document.startViewTransition === "function") {
+    el.dataset.themeVt = "";
+    const vt = document.startViewTransition(commit);
+    void vt.finished.finally(() => delete el.dataset.themeVt);
+    return;
   }
-  el.dataset.theme = theme;
-  emit();
+  el.dataset.themeSwitching = "";
+  clearTimeout(switchTimer);
+  switchTimer = setTimeout(() => delete el.dataset.themeSwitching, SWITCH_MS);
+  commit();
 }
 
 /** The toggle's click handler: persist the explicit choice, then apply it. */
