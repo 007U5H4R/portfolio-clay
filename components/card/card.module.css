@@ -310,8 +310,8 @@
   margin: 2.2cqw 0 0;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: 3.1cqw;
-  letter-spacing: 0.2em;
+  font-size: max(14px, 3.3cqw);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-navy-2);
 }
@@ -319,8 +319,8 @@
   margin: 2.2cqw 0 0;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: 2.5cqw;
-  letter-spacing: 0.22em;
+  font-size: max(14px, 2.9cqw);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-ink-soft);
 }
@@ -384,7 +384,7 @@
   color: var(--color-ivory);
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: max(13px, 3.4cqw);
+  font-size: max(14px, 3.4cqw);
   letter-spacing: 0.04em;
   text-decoration: none;
   box-shadow: -1px 2px 3px color-mix(in oklab, var(--shade) 30%, transparent);
@@ -407,7 +407,7 @@
   color: var(--c-ink);
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: max(13px, 3.3cqw);
+  font-size: max(14px, 3.3cqw);
   letter-spacing: 0.04em;
   text-decoration: underline;
   text-decoration-color: var(--color-steel);
