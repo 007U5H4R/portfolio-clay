@@ -10,7 +10,9 @@
  * first-load JS payload for that route, however the bundler chose to split it.
  *
  * Usage:
- *   tsx scripts/bundle-budget.ts [--route /] [--budget 180] [--json]
+ *   tsx scripts/bundle-budget.ts [--route /] [--budget 180] [--json] [--forbid <marker,…>]
+ * `--forbid` (EVAL-027, EV10) additionally scans every resolved first-load chunk for the marker
+ * strings and exits 1 on a hit (also in `--json` mode, as `forbiddenHits`).
  * Human mode prints `first-load JS (/) = NN.N kB gz (budget 180)` and exits 1 when over budget.
  * `--json` prints a machine-readable object and always exits 0 (the eval orchestrator gates).
  */
@@ -30,6 +32,7 @@ function arg(flag: string): string | undefined {
 const route = arg("--route") ?? "/";
 const budgetKb = Number(arg("--budget") ?? BUDGET_KB_DEFAULT);
 const asJson = process.argv.includes("--json");
+const forbidden = (arg("--forbid") ?? "").split(",").map((m) => m.trim()).filter(Boolean);
 
 /** Map a route path to its prerendered HTML file under `.next/server/app`. */
 function htmlFileForRoute(r: string): string {
@@ -103,6 +106,14 @@ for (const rel of excludedRefs) {
 }
 const excludedGzipKb = Number((excludedGzip / 1024).toFixed(1));
 
+const forbiddenHits: { marker: string; file: string }[] = [];
+if (forbidden.length > 0) {
+  for (const rel of uniqueRefs) {
+    const text = readFileSync(resolve(NEXT_DIR, rel), "utf8");
+    for (const marker of forbidden) if (text.includes(marker)) forbiddenHits.push({ marker, file: rel });
+  }
+}
+
 const gzipKb = totalGzip / 1024;
 const rawKb = totalRaw / 1024;
 const overBudget = gzipKb > budgetKb;
@@ -118,6 +129,7 @@ if (asJson) {
       firstLoadJsRawKb: Number(rawKb.toFixed(1)),
       budgetKb,
       overBudget,
+      forbiddenHits,
       chunks,
       excludedNoModuleChunks: excludedRefs.length,
       excludedNoModuleGzipKb: excludedGzipKb,
@@ -130,7 +142,8 @@ const excludedNote =
   excludedRefs.length > 0
     ? ` (excl. ${excludedRefs.length} noModule polyfill chunk${excludedRefs.length > 1 ? "s" : ""} = ${excludedGzipKb} kB gz that module browsers never download)`
     : "";
+for (const hit of forbiddenHits) console.error(`bundle-budget: forbidden marker "${hit.marker}" in ${hit.file}`);
 console.log(
   `first-load JS (${route}) = ${gzipKb.toFixed(1)} kB gz (budget ${budgetKb}) — ${uniqueRefs.length} chunks, ${rawKb.toFixed(1)} kB raw${excludedNote}`,
 );
-process.exit(overBudget ? 1 : 0);
+process.exit(overBudget || forbiddenHits.length > 0 ? 1 : 0);
