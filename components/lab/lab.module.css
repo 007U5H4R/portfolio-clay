@@ -1,0 +1,494 @@
+/*
+ * Gummy Lab's own stylesheet (TASK-143, S30): a CSS module that only the /lab chunk set loads, so no
+ * game style rides in app/globals.css. Role tokens only (Design.md §13, D13) — the lab follows the
+ * site's light/dark theme by construction. Cream / peach / blush in light, a dusk plum in dark.
+ */
+.root {
+  --lab-top: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory));
+  --lab-mid: color-mix(in oklab, var(--color-rust) 14%, var(--color-ivory));
+  --lab-bottom: color-mix(in oklab, var(--color-rust) 30%, var(--color-ivory));
+  --lab-ink: var(--color-navy);
+  --lab-card: color-mix(in oklab, var(--color-ivory) 82%, transparent);
+  --lab-line: color-mix(in oklab, var(--color-navy) 16%, transparent);
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  color: var(--lab-ink);
+  font-family: var(--font-body);
+  background: linear-gradient(180deg, var(--lab-top), var(--lab-mid) 55%, var(--lab-bottom));
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.root[data-theme-mode="tp"] {
+  --lab-top: color-mix(in oklab, var(--color-note) 55%, var(--color-ivory));
+}
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+.canvasWrap canvas {
+  display: block;
+  touch-action: none;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+.layer > * {
+  pointer-events: auto;
+}
+
+/* ---- chrome: Back + mute ------------------------------------------------------------------ */
+.chrome {
+  position: absolute;
+  inset: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) auto max(12px, env(safe-area-inset-left));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 3;
+}
+.chrome > * {
+  pointer-events: auto;
+}
+.back,
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--radius-pill);
+  background: var(--lab-card);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--lab-ink);
+  font: 600 14px/1 var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 260ms var(--ease-hover), background 200ms;
+}
+.back:hover,
+.iconBtn:hover {
+  background: color-mix(in oklab, var(--color-ivory) 96%, transparent);
+}
+.back:active,
+.iconBtn:active,
+.play:active,
+.ghost:active {
+  transform: scale(1.06, 0.9);
+}
+.back:focus-visible,
+.iconBtn:focus-visible,
+.play:focus-visible,
+.ghost:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 2px;
+}
+.iconBtn {
+  padding: 0;
+  width: 44px;
+}
+.iconBtn[aria-pressed="true"] {
+  background: color-mix(in oklab, var(--color-rust) 18%, var(--color-ivory));
+}
+.chromeRight {
+  display: flex;
+  gap: 8px;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font: 400 1.5rem/1.2 var(--font-hand);
+  color: var(--color-ink-soft);
+}
+
+/* ---- HUD ---------------------------------------------------------------------------------- */
+.hud {
+  position: absolute;
+  inset: calc(max(12px, env(safe-area-inset-top)) + 56px) max(16px, env(safe-area-inset-right)) auto max(16px, env(safe-area-inset-left));
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: 12px;
+  pointer-events: none;
+  z-index: 2;
+}
+.hudItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.hudItem:nth-child(2) {
+  align-items: center;
+}
+.hudItem:nth-child(3) {
+  align-items: flex-end;
+}
+.hudLabel {
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.hudValue {
+  font: 600 clamp(1.4rem, 1.1rem + 1.4vw, 2rem)/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--lab-ink);
+}
+.combo[data-hot="true"] {
+  color: var(--color-rust);
+}
+.pause {
+  pointer-events: auto;
+}
+.hudTime {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---- danger / countdown / toasts / banners ------------------------------------------------- */
+.center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 28%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.count {
+  font: 600 clamp(4rem, 3rem + 6vw, 7rem)/1 var(--font-display);
+  color: var(--color-rust);
+  animation: pop 700ms var(--ease-hover);
+}
+.danger {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-rust) 88%, var(--color-ivory));
+  color: var(--color-ivory);
+  font: 600 14px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  animation: pulse 600ms ease-in-out infinite alternate;
+}
+.dangerTime {
+  font: 600 1.6rem/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-rust);
+}
+.banner {
+  font: 400 1.7rem/1.1 var(--font-hand);
+  color: var(--color-terracotta);
+  animation: pop 900ms var(--ease-hover);
+}
+.toasts {
+  position: absolute;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  z-index: 4;
+  width: min(92vw, 360px);
+}
+.toast {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--lab-line);
+  border-radius: 14px;
+  background: var(--color-ivory);
+  box-shadow: var(--shadow-paper);
+  animation: toast 3600ms var(--ease-reveal) forwards;
+}
+.toastTitle {
+  display: block;
+  font: 600 12px/1.2 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+}
+.toastBody {
+  display: block;
+  margin-top: 2px;
+  font: 400 14px/1.35 var(--font-body);
+  color: var(--lab-ink);
+}
+.power {
+  position: absolute;
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+  pointer-events: none;
+}
+.powerChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--lab-line);
+  background: var(--lab-card);
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  animation: pop 600ms var(--ease-hover);
+}
+.hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14%;
+  text-align: center;
+  font: 400 1.6rem/1.1 var(--font-hand);
+  color: var(--color-terracotta);
+  pointer-events: none;
+  animation: pop 700ms var(--ease-hover);
+  z-index: 2;
+}
+
+/* ---- intro / paused / results cards -------------------------------------------------------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: calc(max(12px, env(safe-area-inset-top)) + 64px) 20px max(24px, env(safe-area-inset-bottom));
+  text-align: center;
+  z-index: 2;
+  pointer-events: none;
+}
+.screen > * {
+  pointer-events: auto;
+}
+.micro {
+  margin: 0;
+  font: 400 1.7rem/1 var(--font-hand);
+  color: var(--color-terracotta);
+}
+.title {
+  margin: 0;
+  font: 600 clamp(2.6rem, 1.6rem + 5vw, 5.2rem)/0.95 var(--font-display);
+  letter-spacing: var(--tracking-hero);
+  color: var(--lab-ink);
+}
+.sub {
+  margin: 0;
+  font: 500 clamp(1rem, 0.9rem + 0.5vw, 1.25rem)/1.3 var(--font-body);
+  color: var(--color-navy-2);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  padding: 8px 12px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--radius-pill);
+  background: var(--lab-card);
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+.keys {
+  margin: 0;
+  font: 400 14px/1.4 var(--font-body);
+  color: var(--color-ink-soft);
+}
+.play {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-rust);
+  color: var(--color-ivory);
+  font: 600 16px/1 var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-paper);
+  transition: transform 300ms var(--ease-hover);
+}
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--radius-pill);
+  background: var(--lab-card);
+  color: var(--lab-ink);
+  font: 600 14px/1 var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 300ms var(--ease-hover);
+}
+.results {
+  margin: auto;
+  width: min(92vw, 420px);
+  padding: 22px 20px;
+  border: 1px solid var(--lab-line);
+  border-radius: 22px;
+  background: var(--color-ivory);
+  box-shadow: var(--shadow-paper-hover);
+  animation: pop 700ms var(--ease-hover);
+}
+.resultsScore {
+  margin: 4px 0 0;
+  font: 600 clamp(3rem, 2.2rem + 4vw, 4.5rem)/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+.status {
+  margin: 8px 0 0;
+  font: 400 1.6rem/1.1 var(--font-hand);
+  color: var(--color-terracotta);
+}
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 16px;
+  margin: 16px 0;
+  padding: 0;
+  text-align: left;
+}
+.stat dt {
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.stat dd {
+  margin: 4px 0 0;
+  font: 600 1.25rem/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+.newBest {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-note);
+  color: var(--color-navy);
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.fallback {
+  margin: auto;
+  width: min(92vw, 460px);
+  padding: 24px 22px;
+  border: 1px solid var(--lab-line);
+  border-radius: 22px;
+  background: var(--color-ivory);
+  box-shadow: var(--shadow-paper);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+.fallback p {
+  margin: 0;
+  font: 400 16px/1.45 var(--font-body);
+  color: var(--color-navy-2);
+}
+
+/* ---- motion -------------------------------------------------------------------------------- */
+@keyframes pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.08, 0.96); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.06, 0.97); }
+}
+@keyframes toast {
+  0% { transform: translateY(14px) scale(0.96); opacity: 0; }
+  10% { transform: translateY(0) scale(1.02, 0.98); opacity: 1; }
+  16% { transform: scale(1); }
+  88% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .count,
+  .banner,
+  .results,
+  .powerChip,
+  .hint,
+  .danger {
+    animation: none;
+  }
+  .toast {
+    animation: toast-fade 3600ms linear forwards;
+  }
+  .back,
+  .iconBtn,
+  .play,
+  .ghost {
+    transition: none;
+  }
+  .back:active,
+  .iconBtn:active,
+  .play:active,
+  .ghost:active {
+    transform: none;
+  }
+}
+@keyframes toast-fade {
+  0% { opacity: 0; }
+  8% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (max-width: 480px) {
+  .hud {
+    gap: 6px;
+  }
+}

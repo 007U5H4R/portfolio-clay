@@ -1,0 +1,132 @@
+/*
+ * Gummy Lab entry/exit overlay (TASK-143.2, gummy-bear.md §9, §10, §36–37). A plain DOM layer on
+ * <body> that outlives the route change, so the portfolio visibly becomes the lab (and back). Paper
+ * tokens only. Loaded lazily with `transition.ts`; the home page does not pay for it until click 3.
+ */
+[data-gummy-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483001;
+  overflow: hidden;
+  pointer-events: all;
+  --gt-cream: color-mix(in oklab, var(--color-kraft) 38%, var(--color-ivory));
+  --gt-peach: color-mix(in oklab, var(--color-rust) 30%, var(--color-ivory));
+  --gt-pink: color-mix(in oklab, var(--color-rust) 18%, var(--color-note));
+  --gt-orange: color-mix(in oklab, var(--color-rust) 75%, var(--color-note));
+  transition: opacity 520ms var(--ease-reveal);
+}
+[data-gummy-overlay][data-settling] {
+  opacity: 0;
+  pointer-events: none;
+}
+.gt-wash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, var(--gt-cream), var(--gt-peach) 70%, var(--gt-pink));
+  clip-path: circle(0 at var(--gt-x, 50%) var(--gt-y, 40px));
+  animation: gt-wash 760ms var(--ease-vt) forwards;
+}
+[data-gummy-overlay="exit"] .gt-wash {
+  clip-path: circle(150vmax at 50% 50%);
+  animation: gt-fade-in 320ms ease-out forwards;
+}
+.gt-name {
+  position: fixed;
+  display: flex;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  line-height: 1.1;
+  white-space: nowrap;
+  transform-origin: 0 50%;
+  animation: gt-name 940ms var(--ease-vt) forwards;
+}
+.gt-name span {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(160deg, var(--gt-orange), var(--gt-pink) 60%, var(--gt-orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-rust) 50%, transparent));
+  animation: gt-letter 900ms var(--ease-hover) forwards;
+  animation-delay: calc(var(--i) * 28ms);
+}
+.gt-vortex {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 90vmax;
+  height: 90vmax;
+  margin: -45vmax 0 0 -45vmax;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--gt-orange), var(--gt-pink), var(--gt-cream), var(--gt-peach), var(--gt-orange));
+  opacity: 0;
+  animation: gt-vortex 900ms var(--ease-vt) forwards;
+}
+.gt-tp {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  color: var(--color-rust);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--color-rust) 50%, transparent));
+}
+.gt-tp[data-play] {
+  animation: gt-tp 900ms var(--ease-vt) forwards;
+}
+.gt-bright {
+  position: absolute;
+  inset: 0;
+  background: var(--color-paper);
+  opacity: 0;
+}
+.gt-bright[data-play] {
+  animation: gt-fade-in 420ms ease-in forwards;
+}
+@keyframes gt-wash {
+  to { clip-path: circle(150vmax at var(--gt-x, 50%) var(--gt-y, 40px)); }
+}
+@keyframes gt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes gt-name {
+  0% { transform: translate(0, 0) scale(1, 1); opacity: 1; }
+  35% { transform: translate(0, 0) scale(1.4, 0.8); }
+  100% { transform: translate(var(--gt-dx, 0), var(--gt-dy, 0)) scale(var(--gt-s, 6), calc(var(--gt-s, 6) * 1.6)); opacity: 0; }
+}
+@keyframes gt-letter {
+  0% { transform: scaleY(1) translateY(0); }
+  45% { transform: scaleY(1.9) translateY(2px); }
+  100% { transform: scaleY(0.6) translateY(14px); }
+}
+@keyframes gt-vortex {
+  0% { transform: scale(0.05) rotate(0deg); opacity: 0; }
+  35% { opacity: 0.95; }
+  100% { transform: scale(1.1) rotate(540deg); opacity: 0.9; }
+}
+@keyframes gt-tp {
+  0% { transform: translate(var(--gt-x0), var(--gt-y0)) scale(0.2); opacity: 0; }
+  35% { transform: translate(var(--gt-x0), var(--gt-y0)) scale(2.4); opacity: 1; }
+  100% { transform: translate(var(--gt-x1), var(--gt-y1)) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gt-wash,
+  [data-gummy-overlay="exit"] .gt-wash {
+    clip-path: none;
+    opacity: 0;
+    animation: gt-fade-in 180ms ease-out forwards;
+  }
+  .gt-name,
+  .gt-vortex,
+  .gt-tp { display: none; }
+  .gt-bright[data-play] { animation-duration: 160ms; }
+  [data-gummy-overlay] { transition-duration: 200ms; }
+}
