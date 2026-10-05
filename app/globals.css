@@ -114,6 +114,9 @@
   (EVAL-020: no second literal). Consumers arrive with the paper primitives (TKT-70…).
 */
 :root {
+  /* Shadow colour: the ink in light, the deep `paper` navy in dark (never a light glow, §13.3) */
+  --shadow-ink: var(--color-navy);
+
   /* Hairlines and rules */
   --line: color-mix(in oklab, var(--color-navy) 12%, transparent);
   --line-strong: color-mix(in oklab, var(--color-navy) 16%, transparent); /* list row rules */
@@ -188,6 +191,8 @@
   --shadow-paper: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 9%, transparent), 0 1px 2px color-mix(in oklab, var(--color-paper) 40%, transparent), 0 10px 24px -12px color-mix(in oklab, var(--color-paper) 45%, transparent);
   --shadow-paper-hover: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 9%, transparent), 0 2px 3px color-mix(in oklab, var(--color-paper) 40%, transparent), 0 22px 40px -18px color-mix(in oklab, var(--color-paper) 65%, transparent);
   --shadow-sticky: 0 8px 14px -8px color-mix(in oklab, var(--color-paper) 60%, transparent);
+
+  --shadow-ink: var(--color-paper);
 
   --band-accent: var(--color-paper);
   --band-dim: var(--color-note);
@@ -829,7 +834,7 @@ body::before {
     background:
       radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
       var(--color-rust);
-    box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 35%, transparent);
+    box-shadow: 0 2px 3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
   }
   .paper-pin[data-tone="forest"] {
     background:
@@ -4073,7 +4078,7 @@ html.lenis body {
   text-transform: uppercase;
   color: var(--color-navy-2);
   box-shadow:
-    0 1px 2px color-mix(in oklab, var(--color-navy) 14%, transparent),
+    0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
     0 6px 12px -8px color-mix(in oklab, var(--color-navy) 25%, transparent);
   rotate: -1.2deg;
 }
@@ -4093,7 +4098,7 @@ html.lenis body {
   background:
     radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
     var(--color-rust);
-  box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 35%, transparent);
+  box-shadow: 0 2px 3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
 }
 .node:nth-child(3n) .node-lab::before {
   background:
@@ -4681,7 +4686,7 @@ html.lenis body {
     right: clamp(-12px, -1vw, -4px);
     z-index: 1;
     rotate: 5deg;
-    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--color-navy) 22%, transparent));
+    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
   }
   .cx-stamp {
     --perf: 3.5px;
@@ -4822,7 +4827,7 @@ html.lenis body {
     font-size: 16px;
     font-weight: 500;
     line-height: 1.25;
-    box-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 8%, transparent);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
   }
   .cx-btn-secondary:hover {
     border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
@@ -5084,7 +5089,7 @@ html.lenis body {
     left: 40%;
     bottom: -4%;
     width: 32%;
-    filter: drop-shadow(0 8px 10px color-mix(in oklab, var(--color-navy) 16%, transparent));
+    filter: drop-shadow(0 8px 10px color-mix(in oklab, var(--shadow-ink) 16%, transparent));
   }
   .cx-cup-saucer {
     fill: var(--color-ivory);
@@ -5682,7 +5687,7 @@ html.lenis body {
     border-radius: 16px;
     background: var(--color-ivory);
     box-shadow:
-      0 1px 0 color-mix(in oklab, var(--color-navy) 6%, transparent),
+      0 1px 0 color-mix(in oklab, var(--shadow-ink) 6%, transparent),
       0 8px 14px -10px color-mix(in oklab, var(--color-navy) 30%, transparent);
     font-family: var(--font-body);
     font-size: 15px; /* EVAL-008 floor 14 px */
@@ -5894,7 +5899,7 @@ html.lenis body {
   /* --- the paper --- */
   .ask-panel {
     color: var(--color-navy);
-    filter: drop-shadow(-16px 0 40px color-mix(in oklab, var(--color-navy) 16%, transparent));
+    filter: drop-shadow(-16px 0 40px color-mix(in oklab, var(--shadow-ink) 16%, transparent));
   }
   /* A strip of paper past the right edge, so the -4 px settle never shows a gap. */
   .ask-panel::after {
@@ -5978,11 +5983,11 @@ html.lenis body {
     border: 1px solid color-mix(in oklab, var(--color-navy) 16%, transparent);
     background: var(--color-ivory);
     color: var(--color-navy);
-    box-shadow: 0 2px 6px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
     transition: box-shadow 180ms var(--ease-hover), transform 180ms var(--ease-hover);
   }
   .tk-close:hover {
-    box-shadow: 0 4px 10px color-mix(in oklab, var(--color-navy) 18%, transparent);
+    box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 18%, transparent);
   }
   /* chat mode: a small header with the avatar (spec §16) */
   .tk-head[data-compact] {
@@ -6009,7 +6014,7 @@ html.lenis body {
     background: color-mix(in oklab, var(--color-note) 60%, var(--color-ivory));
     box-shadow:
       0 0 0 2px var(--color-ivory),
-      0 2px 6px color-mix(in oklab, var(--color-navy) 16%, transparent);
+      0 2px 6px color-mix(in oklab, var(--shadow-ink) 16%, transparent);
   }
   .tk-avatar img {
     display: block;
@@ -6048,7 +6053,7 @@ html.lenis body {
     display: block;
     width: auto;
     height: 124px;
-    filter: drop-shadow(0 4px 6px color-mix(in oklab, var(--color-navy) 14%, transparent));
+    filter: drop-shadow(0 4px 6px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
   }
   .ask-panel[data-open] .tk-mascot {
     animation: tk-mascot-in 420ms 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -6067,7 +6072,7 @@ html.lenis body {
     position: relative;
     padding: 14px 10px 10px;
     background: color-mix(in oklab, var(--color-note) 78%, var(--color-ivory));
-    box-shadow: 0 3px 8px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    box-shadow: 0 3px 8px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
     transform: rotate(1.5deg);
   }
   .tk-note-tape {
@@ -6092,7 +6097,7 @@ html.lenis body {
     border-radius: 18px;
     border: 1px solid color-mix(in oklab, var(--color-navy) 8%, transparent);
     background: var(--color-ivory);
-    box-shadow: 0 4px 12px color-mix(in oklab, var(--color-navy) 9%, transparent);
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--shadow-ink) 9%, transparent);
   }
   .tk-intro-title {
     display: flex;
@@ -6141,7 +6146,7 @@ html.lenis body {
     border-radius: 15px;
     border: 1px solid color-mix(in oklab, var(--color-navy) 10%, transparent);
     background: var(--color-ivory);
-    box-shadow: 0 1px 3px color-mix(in oklab, var(--color-navy) 8%, transparent);
+    box-shadow: 0 1px 3px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
     font-size: 15px;
     line-height: 1.3;
     color: var(--color-navy);
@@ -6202,7 +6207,7 @@ html.lenis body {
     .tk-card:hover {
       transform: translateY(-1px);
       border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
-      box-shadow: 0 4px 10px color-mix(in oklab, var(--color-navy) 12%, transparent);
+      box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
     }
     .tk-card:hover .tk-card-arrow {
       transform: translateX(3px);
@@ -6240,7 +6245,7 @@ html.lenis body {
     border-radius: 6px 18px 18px 18px;
     border: 1px solid color-mix(in oklab, var(--color-navy) 9%, transparent);
     background: var(--color-ivory);
-    box-shadow: 0 2px 8px color-mix(in oklab, var(--color-navy) 8%, transparent);
+    box-shadow: 0 2px 8px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
   }
   .tk-bubble {
     font-size: 15px;
@@ -6364,7 +6369,7 @@ html.lenis body {
     border-radius: 18px;
     border: 1.5px solid color-mix(in oklab, var(--color-navy) 30%, transparent);
     background: var(--color-ivory);
-    box-shadow: 0 2px 6px color-mix(in oklab, var(--color-navy) 8%, transparent);
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
   }
   .tk-field:focus-within {
     border-color: var(--color-navy);
@@ -6577,7 +6582,7 @@ html.lenis body {
     background-image: repeating-linear-gradient(115deg, transparent 0 7px, color-mix(in oklab, var(--color-kraft) 7%, transparent) 7px 8px);
     box-shadow:
       0 1px 0 color-mix(in oklab, var(--color-ivory) 80%, transparent) inset,
-      0 2px 6px color-mix(in oklab, var(--color-navy) 9%, transparent),
+      0 2px 6px color-mix(in oklab, var(--shadow-ink) 9%, transparent),
       0 8px 18px -10px color-mix(in oklab, var(--color-terracotta) 30%, transparent);
     color: var(--color-navy);
   }
@@ -6884,7 +6889,7 @@ html.lenis body {
     background:
       radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--color-terracotta) 10%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
       linear-gradient(172deg, color-mix(in oklab, var(--color-kraft) 62%, var(--color-ivory)), color-mix(in oklab, var(--color-kraft) 80%, var(--color-rust) 6%));
-    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--color-navy) 14%, transparent));
+    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
   }
   .cert-title-tape {
     position: absolute;
@@ -7030,8 +7035,8 @@ html.lenis body {
     place-items: center;
     width: 140px;
     aspect-ratio: 1;
-    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 12%, transparent))
-      drop-shadow(0 8px 10px color-mix(in oklab, var(--color-navy) 14%, transparent));
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+      drop-shadow(0 8px 10px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
   }
   .cert-badge-paper {
     position: absolute;
@@ -7082,8 +7087,8 @@ html.lenis body {
     position: absolute;
     inset: 0;
     z-index: -1;
-    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 12%, transparent))
-      drop-shadow(0 10px 12px color-mix(in oklab, var(--color-navy) 12%, transparent));
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+      drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) 12%, transparent));
   }
   .cert-paper-rim,
   .cert-paper-face {
@@ -7200,7 +7205,7 @@ html.lenis body {
     margin-left: -11px;
     border-radius: 50%;
     background: radial-gradient(circle at 36% 34%, color-mix(in oklab, var(--color-ivory) 65%, var(--pin)) 0 3px, var(--pin) 4px);
-    box-shadow: 0 3px 4px color-mix(in oklab, var(--color-navy) 30%, transparent);
+    box-shadow: 0 3px 4px color-mix(in oklab, var(--shadow-ink) 30%, transparent);
   }
   .cert-sticky-text {
     font-size: 25px;
@@ -7239,16 +7244,16 @@ html.lenis body {
     opacity: 1;
   }
   .cert-link:focus-visible .cert-paper {
-    filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--color-navy) 12%, transparent))
-      drop-shadow(0 18px 20px color-mix(in oklab, var(--color-navy) 18%, transparent));
+    filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+      drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
   }
   @media (hover: hover) {
     .cert-link:hover .cert-corner {
       opacity: 1;
     }
     .cert-link:hover .cert-paper {
-      filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--color-navy) 12%, transparent))
-        drop-shadow(0 18px 20px color-mix(in oklab, var(--color-navy) 18%, transparent));
+      filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+        drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
     }
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -7326,7 +7331,7 @@ html.lenis body {
     position: absolute;
     display: block;
     height: auto;
-    filter: drop-shadow(0 4px 6px color-mix(in oklab, var(--color-navy) 12%, transparent));
+    filter: drop-shadow(0 4px 6px color-mix(in oklab, var(--shadow-ink) 12%, transparent));
   }
   .cert-scrap-sage {
     top: 26%;
@@ -7815,7 +7820,7 @@ html.lenis body {
     background:
       radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--color-kraft) 30%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
       linear-gradient(172deg, color-mix(in oklab, var(--color-note) 86%, var(--color-rust)), color-mix(in oklab, var(--color-note) 80%, var(--color-kraft)));
-    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--color-navy) 14%, transparent));
+    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
   }
   .ct-title-text {
     display: block;
@@ -8013,7 +8018,7 @@ html.lenis body {
     background: radial-gradient(circle, var(--pin) 0 9px, var(--color-ivory) 10px);
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-navy) 22%, transparent),
-      0 2px 4px color-mix(in oklab, var(--color-navy) 22%, transparent);
+      0 2px 4px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
   }
 
   /* the deckled card: transparent Sheet over two torn layers (rim + cream face) */
@@ -8032,8 +8037,8 @@ html.lenis body {
     position: absolute;
     inset: 0;
     z-index: -1;
-    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 12%, transparent))
-      drop-shadow(0 10px 12px color-mix(in oklab, var(--color-navy) 13%, transparent));
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+      drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) 13%, transparent));
   }
   .ct-paper-rim,
   .ct-paper-face {
@@ -8080,7 +8085,7 @@ html.lenis body {
     font-weight: 500;
     color: var(--color-navy);
     background: color-mix(in oklab, var(--color-note) 70%, var(--color-ivory));
-    box-shadow: 0 2px 4px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    box-shadow: 0 2px 4px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
     rotate: 1.2deg;
   }
   .ct-city-pin {
@@ -9230,7 +9235,7 @@ html.lenis body {
     display: block;
     width: auto;
     height: 150px;
-    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--color-navy) 18%, transparent));
+    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
   }
   /* the page edge the paws rest on */
   .hat-mascot::after {
@@ -9308,7 +9313,7 @@ html.lenis body {
   /* --- right: the notebook (spec §8, §9) --- */
   .hat-panel {
     min-width: 0;
-    filter: drop-shadow(0 14px 22px color-mix(in oklab, var(--color-navy) 14%, transparent));
+    filter: drop-shadow(0 14px 22px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
   }
   .paper-sheet[data-paper="notebook"].hat-notebook {
     height: 100%;
@@ -9358,7 +9363,7 @@ html.lenis body {
     border-radius: 20px;
     border: 1.5px solid color-mix(in oklab, var(--color-navy) 24%, transparent);
     background: var(--color-ivory);
-    box-shadow: 0 3px 10px color-mix(in oklab, var(--color-navy) 9%, transparent);
+    box-shadow: 0 3px 10px color-mix(in oklab, var(--shadow-ink) 9%, transparent);
   }
   .hat-composer:focus-within {
     border-color: var(--color-navy);
@@ -9436,7 +9441,7 @@ html.lenis body {
     border-radius: 18px;
     border: 1px solid color-mix(in oklab, var(--color-navy) 10%, transparent);
     background: var(--color-ivory);
-    box-shadow: 0 2px 6px color-mix(in oklab, var(--color-navy) 8%, transparent);
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
     font-size: 15px;
     line-height: 1.35;
     color: var(--color-navy);
@@ -10073,7 +10078,7 @@ html.lenis body {
     background: color-mix(in oklab, var(--color-navy) 62%, transparent);
     box-shadow:
       0 0 0 6px color-mix(in oklab, var(--color-ivory) 18%, transparent),
-      0 12px 26px color-mix(in oklab, var(--color-navy) 38%, transparent);
+      0 12px 26px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
     transition: translate 160ms var(--ease-hover), background-color 160ms var(--ease-hover);
   }
   .pf-play svg {
@@ -10125,7 +10130,7 @@ html.lenis body {
     background:
       radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 35%, transparent) 0, transparent 42%),
       var(--color-rust);
-    box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 35%, transparent);
+    box-shadow: 0 2px 3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
   }
   .pf-stage-error {
     z-index: 2;
@@ -10254,7 +10259,7 @@ html.lenis body {
     text-transform: uppercase;
     letter-spacing: -0.02em;
     color: var(--color-note);
-    text-shadow: 2px 2px 0 var(--color-rust), 4px 4px 0 var(--color-navy);
+    text-shadow: 2px 2px 0 var(--color-rust), 4px 4px 0 var(--shadow-ink);
   }
   .pf-cover[data-lettering="serif"] .pf-cover-name {
     font-style: italic;
@@ -10302,7 +10307,7 @@ html.lenis body {
     border-radius: 2px;
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-navy) 28%, transparent),
-      0 2px 3px color-mix(in oklab, var(--color-navy) 25%, transparent);
+      0 2px 3px color-mix(in oklab, var(--shadow-ink) 25%, transparent);
   }
   .pf-cover-line {
     flex: 1;
@@ -10856,7 +10861,7 @@ html.lenis body {
     scroll-snap-align: start;
     rotate: var(--pf-tilt);
     box-shadow:
-      0 1px 1px color-mix(in oklab, var(--color-navy) 18%, transparent),
+      0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
       0 9px 14px -6px color-mix(in oklab, var(--color-terracotta) 36%, transparent);
     transition: translate 200ms var(--ease-hover), box-shadow 200ms var(--ease-hover);
   }
@@ -10868,7 +10873,7 @@ html.lenis body {
   .pf-thumb:hover {
     translate: 0 -4px;
     box-shadow:
-      0 2px 2px color-mix(in oklab, var(--color-navy) 16%, transparent),
+      0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
       0 16px 20px -8px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
   }
   .pf-thumb:hover .pf-cover-name {
@@ -10881,7 +10886,7 @@ html.lenis body {
   .pf-thumb[aria-selected="true"] {
     translate: 0 -8px;
     box-shadow:
-      0 2px 2px color-mix(in oklab, var(--color-navy) 16%, transparent),
+      0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
       0 22px 24px -10px color-mix(in oklab, var(--color-terracotta) 44%, transparent);
   }
   .pf-thumb[aria-selected="true"]::after {
@@ -10905,7 +10910,7 @@ html.lenis body {
     background:
       radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 35%, transparent) 0, transparent 42%),
       var(--color-steel);
-    box-shadow: 0 3px 4px color-mix(in oklab, var(--color-navy) 35%, transparent);
+    box-shadow: 0 3px 4px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
     pointer-events: none;
   }
   .pf-thumb[aria-selected="true"] .pf-cover-line {
@@ -11070,7 +11075,7 @@ html.lenis body {
     background-image: var(--pf-fibers);
     background-size: 420px 420px;
     border-radius: 3px 6px 3px 3px;
-    box-shadow: 0 1px 1px color-mix(in oklab, var(--color-navy) 12%, transparent);
+    box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
     rotate: -1.1deg;
   }
   /* the sheet's paper */
@@ -11082,7 +11087,7 @@ html.lenis body {
     background-size: 420px 420px;
     border-radius: 2px;
     box-shadow:
-      0 1px 1px color-mix(in oklab, var(--color-navy) 10%, transparent),
+      0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
       0 8px 14px -8px color-mix(in oklab, var(--color-terracotta) 22%, transparent);
     transition: box-shadow 180ms var(--ease-hover);
   }
@@ -11105,7 +11110,7 @@ html.lenis body {
   }
   .pf-case.paper-sheet:hover::after {
     box-shadow:
-      0 1px 1px color-mix(in oklab, var(--color-navy) 10%, transparent),
+      0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
       0 14px 20px -10px color-mix(in oklab, var(--color-terracotta) 28%, transparent);
   }
   /* the folder tab: a neutral "Case file 0N" stamp — says nothing factual */
@@ -11480,7 +11485,7 @@ html.lenis body {
   .abh-piece {
     position: absolute;
     height: auto;
-    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--color-navy) 10%, transparent));
+    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--shadow-ink) 10%, transparent));
   }
   .abh-sketches {
     top: -1%;
@@ -12050,7 +12055,7 @@ html.lenis body {
     border-radius: 6px;
     font-size: 16px;
     font-weight: 600;
-    box-shadow: 0 2px 0 color-mix(in oklab, var(--color-navy) 60%, transparent);
+    box-shadow: 0 2px 0 color-mix(in oklab, var(--shadow-ink) 60%, transparent);
     transition:
       translate 180ms ease,
       box-shadow 180ms ease;

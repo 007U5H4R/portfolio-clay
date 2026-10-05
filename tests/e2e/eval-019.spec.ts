@@ -125,7 +125,8 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
   expect(darkTwins, "exactly one dark twin <img>").toHaveLength(1);
   expect(darkTwins[0], "the dark twin is lazy").toMatch(/\bloading="lazy"/);
   expect(darkTwins[0], "the dark twin is never a high-priority candidate").not.toMatch(/\bfetchpriority="high"/i);
-  expect(darkTwins[0]).toMatch(/\bdata-theme-art="dark"/);
+  // the hook sits on the <picture> (narrow art direction) that wraps each twin's <img>
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="dark"/);
   const banner = banners[0]!;
   // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML attribute
   // names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM check below
@@ -135,7 +136,7 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
   expect(banner).toMatch(/\bwidth="3168"/);
   expect(banner).toMatch(/\bheight="1344"/);
   expect(banner).toMatch(/\bsizes="100vw"/);
-  expect(banner).toMatch(/\bdata-theme-art="light"/);
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="light"/);
   const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
   const alt = /\balt="([^"]*)"/.exec(banner)?.[1] ?? "";
   expect(alt).toBe(escape(BANNER.alt));

@@ -6,7 +6,8 @@
  *                   reload after toggling · a runtime system flip with and without a saved choice.
  *   history       — an `addInitScript` MutationObserver on <html data-theme> proves the attribute takes exactly
  *                   ONE value for the life of a document (set by the pre-paint script; React never rewrites it).
- *   head order    — the served HTML carries the inline theme script before the first stylesheet / style tag.
+ *   head order    — the served HTML carries the inline theme script in <head>, before <body> (Next hoists its inlined
+ *                   <style> above it — Dev-146); a measured guard proves it ran before the first paint.
  *   storage       — a plain visit writes nothing (only an explicit toggle persists); key `portfolio-theme`.
  *   hydration     — 0 hydration warnings on the console in every scenario.
  */
@@ -22,8 +23,10 @@ const skipUnmeasured = (page: Page) => test.skip(!MEASURED.includes(width(page))
 async function instrument(page: Page, seed?: "light" | "dark") {
   await page.addInitScript(
     ({ seed: s, key }) => {
-      const w = window as unknown as { __themeHistory: (string | null)[]; __storageWrites: string[] };
+      const w = window as unknown as { __themeHistory: (string | null)[]; __themeAt: number[]; __firstPaint: number; __storageWrites: string[] };
       w.__themeHistory = [];
+      w.__themeAt = [];
+      w.__firstPaint = -1;
       w.__storageWrites = [];
       if (s && !sessionStorage.getItem("__seeded")) {
         localStorage.setItem(key, s);
@@ -35,16 +38,33 @@ async function instrument(page: Page, seed?: "light" | "dark") {
         if (k === key) w.__storageWrites.push(v);
         return orig.call(this, k, v);
       };
-      new MutationObserver(() => w.__themeHistory.push(document.documentElement.getAttribute("data-theme"))).observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ["data-theme"],
-      });
+      // The init script runs before <html> exists on a navigation: wait for it, then watch it (its own attributes
+      // are set by the parser at creation; `data-theme` is the only one we filter on).
+      const watch = (el: Element) =>
+        new MutationObserver(() => {
+          w.__themeHistory.push(el.getAttribute("data-theme"));
+          w.__themeAt.push(performance.now());
+        }).observe(el, { attributes: true, attributeFilter: ["data-theme"] });
+      if (document.documentElement) watch(document.documentElement);
+      else {
+        const boot = new MutationObserver(() => {
+          if (document.documentElement) {
+            boot.disconnect();
+            watch(document.documentElement);
+          }
+        });
+        boot.observe(document, { childList: true });
+      }
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries()) if (e.name === "first-paint" && w.__firstPaint < 0) w.__firstPaint = e.startTime;
+      }).observe({ type: "paint", buffered: true });
     },
     { seed, key: KEY },
   );
 }
 
 const history = (page: Page) => page.evaluate(() => (window as unknown as { __themeHistory: string[] }).__themeHistory);
+const timing = (page: Page) => page.evaluate(() => ({ at: (window as unknown as { __themeAt: number[] }).__themeAt, paint: (window as unknown as { __firstPaint: number }).__firstPaint }));
 const writes = (page: Page) => page.evaluate(() => (window as unknown as { __storageWrites: string[] }).__storageWrites);
 const theme = (page: Page) => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
 
@@ -78,6 +98,10 @@ for (const sc of SCENARIOS) {
     const h = await history(page);
     test.info().annotations.push({ type: "eval-023", description: `${sc.name} @${width(page)}: history=${JSON.stringify(h)}` });
     expect(h, "data-theme history").toEqual([sc.expected]);
+    const t = await timing(page);
+    test.info().annotations.push({ type: "eval-023", description: `${sc.name} @${width(page)}: theme set at ${t.at[0]?.toFixed(1)} ms, first paint at ${t.paint.toFixed(1)} ms` });
+    expect(t.paint, "a first paint was observed").toBeGreaterThan(0);
+    expect(t.at[0], "the theme was set before the first paint (no flash)").toBeLessThan(t.paint);
     expect(await writes(page), "a plain visit writes nothing").toEqual([]);
     expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe(sc.seed ?? null);
     expect(hydration, "hydration warnings").toEqual([]);
@@ -121,16 +145,13 @@ test("@EVAL-023 a runtime system flip is followed with no saved choice and ignor
   expect(await theme(page), "an explicit choice ignores the system").toBe("dark");
 });
 
-test("@EVAL-023 the served HTML sets the theme in an inline script before the first stylesheet", async ({ page, request }) => {
+test("@EVAL-023 the served HTML sets the theme in an inline <head> script, before <body>", async ({ page, request }) => {
   skipUnmeasured(page);
   test.skip(width(page) !== 1440, "the served HTML is viewport-independent; checked once");
   const html = await (await request.get("/")).text();
   const head = html.slice(html.indexOf("<head"), html.indexOf("</head>"));
-  const script = head.indexOf("portfolio-theme");
-  const firstSheet = head.search(/<link[^>]+rel="stylesheet"|<style/);
-  expect(script, "inline theme script in <head>").toBeGreaterThan(-1);
-  expect(firstSheet, "the page has a stylesheet or style tag in <head>").toBeGreaterThan(-1);
-  expect(script, "theme script precedes every stylesheet").toBeLessThan(firstSheet);
-  expect(head.slice(0, script)).not.toMatch(/<link[^>]+stylesheet/);
+  expect(head.indexOf("portfolio-theme"), "inline theme script in <head> (before <body>)").toBeGreaterThan(-1);
+  expect(html.indexOf("portfolio-theme")).toBeLessThan(html.indexOf("<body"));
+  expect(/<script>[^<]*portfolio-theme[^<]*<\/script>/.test(head), "it is an inline script, not a file").toBe(true);
   expect(html).toMatch(/<html[^>]*lang="en"/);
 });

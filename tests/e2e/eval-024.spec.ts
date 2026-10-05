@@ -121,7 +121,8 @@ test.describe("reduced motion", () => {
     await page.emulateMedia({ colorScheme: "light" });
     await page.goto("/", { waitUntil: "load" });
     const dur = await page.locator(".tt-scene-light").evaluate((el) => getComputedStyle(el).transitionDuration);
-    expect(dur.split(",").every((d) => parseFloat(d) === 0), `scene transition duration ${dur}`).toBe(true);
+    // the global reduced-motion rule collapses durations to ~1 ms (app/globals.css), i.e. no visible transition
+    expect(dur.split(",").every((d) => parseFloat(d) <= 0.01), `scene transition duration ${dur}`).toBe(true);
     await toggle(page).click();
     const marks = await page.evaluate(() => ({ vt: document.documentElement.hasAttribute("data-theme-vt"), sw: document.documentElement.hasAttribute("data-theme-switching") }));
     expect(marks).toEqual({ vt: false, sw: false });

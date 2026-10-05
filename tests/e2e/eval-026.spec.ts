@@ -5,8 +5,9 @@
  *
  *   CLS            — the sum of layout shifts across the switch is < 0.05 (buffered `layout-shift` observer);
  *   height         — `scrollHeight` before and after each switch differs by ≤ 1 px (no layout jump);
- *   no CSS filter  — computed `filter: none` on every img / picture / video / iframe / canvas / [data-scene] in
- *                    dark mode (rich art is swapped by matched file, never inverted — dark-mode.md §42);
+ *   no CSS filter  — no tone filter (invert / brightness / hue-rotate …; only a cut-out's own `drop-shadow()` is allowed)
+ *                    on any img / picture / video / iframe / canvas / [data-scene] in dark mode — rich art is swapped
+ *                    by matched file, never converted (dark-mode.md §42);
  *   footer         — the band keeps its terracotta token (`.band-body` background = the live `--color-terracotta`);
  *   console        — 0 errors.
  */
@@ -40,10 +41,17 @@ async function flip(page: Page, to: "light" | "dark", viaDom = false) {
   await page.waitForTimeout(450); // the 240 ms dissolve + settle
 }
 
+/**
+ * Tone filters on art are forbidden (dark-mode.md §42: invert / brightness / hue-rotate …). A `drop-shadow()` is
+ * the cut-out's own paper shadow, not a conversion of the art, so it is allowed — anything else is a failure.
+ */
 async function filtered(page: Page) {
   return page.evaluate(() =>
     [...document.querySelectorAll("img, picture, video, iframe, canvas, [data-scene]")]
-      .filter((el) => getComputedStyle(el).filter !== "none")
+      .filter((el) => {
+        const f = getComputedStyle(el).filter;
+        return f !== "none" && f.replace(/drop-shadow\((?:[^()]|\([^()]*\))*\)/g, "").trim() !== "";
+      })
       .map((el) => `${el.tagName.toLowerCase()}${el.className ? "." + String(el.className).split(" ")[0] : ""}: ${getComputedStyle(el).filter}`),
   );
 }
