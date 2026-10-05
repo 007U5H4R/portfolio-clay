@@ -17,12 +17,17 @@ import { frameSources, type VideoProvider } from "./video-providers";
  * `/tushky/audio/faq/`, plus `blob:` for speech fetched from `POST /api/tushky/speech` and played from
  * a Blob URL (and the silent clip that unlocks playback on iOS). The POST itself is same-origin, which
  * `connect-src 'self'` already allows. Nothing else changes.
+ *
+ * `opts.wasm` (TASK-143): the `/lab` variant adds `'wasm-unsafe-eval'` to `script-src` and changes nothing else.
  */
-export function buildCsp(usedProviders: Iterable<VideoProvider>): string {
+export function buildCsp(usedProviders: Iterable<VideoProvider>, opts: { wasm?: boolean } = {}): string {
   const frameSrc = frameSources(["youtube", ...usedProviders]);
+  // TASK-143 (Gummy Lab, S30): ONLY `/lab` may compile WebAssembly (the Rapier physics engine). The
+  // token is `'wasm-unsafe-eval'` — never `'unsafe-eval'`: it permits compiling wasm, not eval()/new Function().
+  const scriptSrc = ["'self'", "'unsafe-inline'", ...(opts.wasm ? ["'wasm-unsafe-eval'"] : []), "https://va.vercel-scripts.com"].join(" ");
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+    `script-src ${scriptSrc}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",

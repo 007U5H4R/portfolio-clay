@@ -1,5 +1,13 @@
 import type { ElementType, ReactNode } from "react";
 
+/**
+ * Props the polymorphic shell passes down. A bare `ElementType` is the union of every intrinsic
+ * element — and `@react-three/fiber` (the lazy /lab game) augments JSX with three.js elements whose
+ * `children` is `never`, which breaks that union. Narrowing to the props we actually pass keeps it
+ * a DOM-tag-or-component type (type-only; no runtime change).
+ */
+type DomShellProps = { className?: string; children?: ReactNode; [attr: `data-${string}`]: string | undefined };
+
 export interface ProseProps {
   children: ReactNode;
   /** Render as a different element (e.g. "article") when the context needs it. */
@@ -14,7 +22,7 @@ export interface ProseProps {
  * `[&_a]` style descendant prose without a plugin.
  */
 export function Prose({ children, as, className }: ProseProps) {
-  const Component = (as ?? "div") as ElementType;
+  const Component = (as ?? "div") as ElementType<DomShellProps>;
   const classes = [
     "max-w-[68ch] text-[length:var(--text-body)] leading-relaxed text-navy-2 [&_p+p]:mt-5 [&_a]:underline [&_a]:text-rust",
     className,

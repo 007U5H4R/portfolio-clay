@@ -26,10 +26,13 @@ import { buildCsp, providersInUse } from "./lib/csp";
 // from the video providers `data/portfolio.ts` actually uses — the privacy-enhanced YouTube host,
 // plus `player.vimeo.com` only while some product uses Vimeo. Only after the viewer presses play,
 // one player at a time; nothing else may frame.
-const CSP = buildCsp(providersInUse(portfolioEntries));
+const USED_PROVIDERS = providersInUse(portfolioEntries);
+const CSP = buildCsp(USED_PROVIDERS);
+// TASK-143: the hidden /lab route runs Rapier (WebAssembly), so it alone carries `'wasm-unsafe-eval'`.
+const LAB_CSP = buildCsp(USED_PROVIDERS, { wasm: true });
 
-const SECURITY_HEADERS = [
-  { key: "Content-Security-Policy", value: CSP },
+const securityHeaders = (csp: string) => [
+  { key: "Content-Security-Policy", value: csp },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
@@ -44,7 +47,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/(.*)", headers: SECURITY_HEADERS }];
+    // Every route except `/lab` gets the base policy; `/lab` gets the same policy plus wasm. Two
+    // rules never match one path, so the browser never intersects two policies.
+    return [
+      { source: "/((?!lab$).*)", headers: securityHeaders(CSP) },
+      { source: "/lab", headers: securityHeaders(LAB_CSP) },
+    ];
   },
   // Do not auto-generate AGENTS.md / CLAUDE.md into the repo root (Next 16 default);
   // this repo keeps its own docs and a surgical commit surface.

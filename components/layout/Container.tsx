@@ -1,5 +1,13 @@
 import type { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 
+/**
+ * Props the polymorphic shell passes down. A bare `ElementType` is the union of every intrinsic
+ * element — and `@react-three/fiber` (the lazy /lab game) augments JSX with three.js elements whose
+ * `children` is `never`, which breaks that union. Narrowing to the props we actually pass keeps it
+ * a DOM-tag-or-component type (type-only; no runtime change).
+ */
+type DomShellProps = { className?: string; children?: ReactNode; [attr: `data-${string}`]: string | undefined };
+
 type ContainerOwnProps<E extends ElementType> = {
   as?: E | undefined;
   className?: string | undefined;
@@ -19,7 +27,7 @@ const baseClass =
 
 export function Container<E extends ElementType = "div">(props: ContainerProps<E>) {
   const { as, className, children, ...rest } = props;
-  const Component = (as ?? "div") as ElementType;
+  const Component = (as ?? "div") as ElementType<DomShellProps>;
   const classes = [baseClass, className].filter(Boolean).join(" ");
 
   return (
