@@ -51,10 +51,10 @@ describe("Featured Work data", () => {
     expect(featuredPresentation["campfire-board"]?.line).toBeUndefined();
   });
 
-  it("states each proof point's kind: the 5,760 is measured and dated, the 0 is structural", () => {
+  it("marks each proof point honestly and briefly: the measured 5,760 is dated, the structural 0 is 'by construction'", () => {
     const [docs, zero] = featuredCards()[0]!.metrics;
-    expect(metricKindNote(docs!)).toBe("Measured · as of 15 Sep 2026");
-    expect(metricKindNote(zero!)).toBe("Structural · by construction");
+    expect(metricKindNote(docs!)).toBe("as of 15 Sep 2026");
+    expect(metricKindNote(zero!)).toBe("by construction");
   });
 });
 

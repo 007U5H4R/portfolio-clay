@@ -16,7 +16,7 @@
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
  * TASK-133: `featured-<slug>`, the three hand-authored cut-paper collages on the home Featured Work cards
- * (scripts/portfolio-art/featured/, public-only).
+ * (scripts/portfolio-art/featured/, public-only; full-card compositions since the fidelity pass).
  */
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
@@ -360,9 +360,9 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     kind: "scene",
     file: "",
     publicSrc: "/media/illustrations/featured/featured-railcite.svg",
-    width: 1000,
-    height: 1040,
-    alt: "Illustration of a cut-paper collage: a navy, cream and red streamliner crossing a stone viaduct over a river, below a railway circular with a round stamp, ruled lines and a red approval stamp, a station map with a red route line, a small evidence slip with a green check, pines and a rust sun.",
+    width: 1450,
+    height: 1000,
+    alt: "Illustration of a cut-paper collage: a navy, cream and red streamliner coming off a stone viaduct towards the viewer, a railway circular with a round seal and a red approval stamp, a route map and a sepia photo of a viaduct in front of a rust sun, pale mountains with a river and a dark pine forest.",
     usedOn: ["/"],
   },
   {
@@ -371,9 +371,9 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     kind: "scene",
     file: "",
     publicSrc: "/media/illustrations/featured/featured-slag-city.svg",
-    width: 1000,
-    height: 860,
-    alt: "Illustration of a cut-paper collage: a charcoal foundry skyline with smokestacks, a blast furnace and a crane before a rust sun, a torn district map, a forge hammer on a slag heap with a glowing run-off, dark water, and an arcade ticket stub with a blank token.",
+    width: 1240,
+    height: 620,
+    alt: "Illustration of a cut-paper collage: a charcoal and navy foundry skyline with smokestacks, a blast furnace, a rust brick block and a conveyor truss before a rust sun, a torn district map, glowing slag running into dark water, and a lone pine.",
     usedOn: ["/"],
   },
   {
@@ -382,9 +382,9 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     kind: "scene",
     file: "",
     publicSrc: "/media/illustrations/featured/featured-campfire-board.svg",
-    width: 1000,
-    height: 860,
-    alt: "Illustration of a cut-paper collage: a planning board on an easel with three columns of pinned, scribbled paper notes and a small bar-chart slip, a campfire in a ring of stones, one wooden chair with a mug, pines, a lake and an orange sun.",
+    width: 1240,
+    height: 640,
+    alt: "Illustration of a cut-paper collage: a planning board on an easel with a hand-drawn map and pinned, scribbled paper notes, a campfire in a ring of stones between two wooden chairs, a mug, a lake, hills, pines and a low sunset circle.",
     usedOn: ["/"],
   },
 ];
