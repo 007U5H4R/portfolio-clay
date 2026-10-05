@@ -10247,10 +10247,11 @@ html.lenis body {
    below the first screen). Reuses the portfolio player's screen (`.pf-stage-screen` 16:9, `.pf-play`,
    `.pf-player`). The print is content paper with one tape fastener: the decoration count is unchanged. */
 @layer components {
+  /* 560 px keeps the h1 + CTAs within one scroll at >= 768 (Dev-39) with the print above them. */
   .hero-intro {
     justify-self: center;
-    width: min(100%, 720px);
-    margin-top: clamp(22px, 2.6vw, 38px);
+    width: min(100%, 560px);
+    margin-top: clamp(22px, 2.4vw, 34px);
   }
   .hero-intro-print {
     display: block;
