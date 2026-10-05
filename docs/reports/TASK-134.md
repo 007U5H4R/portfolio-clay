@@ -229,6 +229,12 @@ The text answer is never touched. Errors are never cached. No provider message r
 | `eval-011` dead controls; `playground` live URLs (w1440) | they HEAD external sites (Credly, `*.vercel.app`, GitHub Pages), and every one returns **403 from the egress proxy** |
 | `lenis` PageDown/Space scroll (w1440) | a timing flake under `PW_WORKERS=2`: re-run alone it **passed 3/3** (`--repeat-each 3`) |
 
+**Re-run after the sync merge (2026-10-05, merged build, `PW_WORKERS=2`):**
+
+- **Totals:** 1,352 passed, 8 failed, 1,688 skipped in 25.8 min. The voice spec passed 36/36 again.
+- **Same seven as before:** `eval-014` ×1, `portfolio-video` ×4, `eval-011` dead controls ×1 and `playground` live URLs ×1, all needing ffmpeg or blocked external hosts. Lenis passed this time.
+- **One new failure, `eval-019` "static HTML carries the banner `<img fetchpriority=high>` and no `<video>`" (w1440).** The test finds a `pf-stage-poster` image where it expects none. It **fails identically on a clean `origin/m-009-redesign` (`e6c6e1a`) build**, checked in a separate worktree. So it is a base-branch failure, most likely from PR #6's hero intro video, and not caused by this branch.
+
 All eight need a re-run on Tushar's Mac (network + ffmpeg) before merge. No voice or drawer test failed: `ask-voice` 36/36 and `ask-panel` 0 failures.
 
 ## Independent review
