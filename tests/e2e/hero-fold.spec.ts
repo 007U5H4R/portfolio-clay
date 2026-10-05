@@ -23,29 +23,31 @@ import { expectCopyWithinOneScroll, expectWholeScene, scrollToY } from "./hero-s
 const HERO_BANNER_ALT = ILLUSTRATIONS.find((e) => e.id === "hero-banner")!.alt;
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
-test("@EVAL-001 w390: the 5-second-test elements and the hand line sit in the first viewport", async ({ page }) => {
+// Tushar 2026-10-05 (Design.md §11 Dev-132): his intro video sits right after the eyebrow line at every
+// width, so on phones the h1, hand line and CTAs move below the first screen. The first viewport keeps the
+// header name, the eyebrow title, the banner desk and the video; the rest is at most one scroll away.
+test("@EVAL-001 w390: name, title, desk and the intro video sit in the first viewport; h1 + CTAs one scroll away", async ({ page }) => {
   test.skip(width(page) !== 390, "the first-viewport rule applies < 768 only (TKT-96, Dev-39)");
   await page.goto("/", { waitUntil: "load" });
   const vh = page.viewportSize()!.height;
   const elements = {
     name: page.locator("header .header-name"),
     title: page.getByText(hero.eyebrow.text, { exact: true }),
-    value: page.locator("h1#hero-h"),
-    hand: page.locator(".hero-hand-sub"),
     // The banner img is inside a cover-cropped canvas that may overflow its box; the visible desk is the box.
     desk: page.locator(".hero-banner figure.scene-banner").filter({ has: page.getByAltText(HERO_BANNER_ALT) }),
-    work: page.getByRole("link", { name: "View my work →" }),
-    ask: page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" }),
+    video: page.locator(".hero-intro").getByRole("button", { name: `Play ${hero.introVideo.title}` }),
   };
   for (const [label, locator] of Object.entries(elements)) {
     await expect(locator, label).toBeVisible();
     const box = (await locator.boundingBox())!;
     expect(box.y, `${label} top inside the first viewport`).toBeGreaterThanOrEqual(0);
-    // Text and CTAs must be wholly above the fold; the banner only needs to be on screen.
+    // Text and the Play button must be wholly above the fold; the banner only needs to be on screen.
     const bottom = label === "desk" ? box.y : box.y + box.height;
     expect(bottom, `${label} (${Math.round(box.y)}–${Math.round(box.y + box.height)}) within ${vh}px`).toBeLessThanOrEqual(vh);
   }
-  await expect(elements.value).toContainText("AI-native products");
+  await expect(page.locator(".hero-hand-sub")).toBeVisible();
+  await expect(page.locator("h1#hero-h")).toContainText("AI-native products");
+  await expectCopyWithinOneScroll(page);
 });
 
 test("@EVAL-001 ≥ 768: the banner shows the whole scene and the h1 + CTAs are one scroll away", async ({ page }) => {

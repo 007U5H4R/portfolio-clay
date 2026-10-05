@@ -10242,14 +10242,16 @@ html.lenis body {
   }
 }
 /* end TKT-108 */
-/* Tushar 2026-10-05 · the intro video in the hero: a taped photo print centred under the CTA row
-   (every width), reusing the portfolio player's screen (`.pf-stage-screen` 16:9, `.pf-play`,
-   `.pf-player`). The print is content paper with one tape fastener, so the decoration count is unchanged. */
+/* Tushar 2026-10-05 · the intro video in the hero: a taped photo print right after the eyebrow line,
+   above the h1 (every width — Tushar's call, Design.md §11 Dev-132; on phones it moves the h1 and CTAs
+   below the first screen). Reuses the portfolio player's screen (`.pf-stage-screen` 16:9, `.pf-play`,
+   `.pf-player`). The print is content paper with one tape fastener: the decoration count is unchanged. */
 @layer components {
+  /* 560 px keeps the h1 + CTAs within one scroll at >= 768 (Dev-39) with the print above them. */
   .hero-intro {
     justify-self: center;
-    width: min(100%, 720px);
-    margin-top: clamp(34px, 4.2vw, 60px);
+    width: min(100%, 560px);
+    margin-top: clamp(22px, 2.4vw, 34px);
   }
   .hero-intro-print {
     display: block;
@@ -10260,20 +10262,6 @@ html.lenis body {
     position: absolute;
     left: calc(50% - var(--pf-play) / 2);
     top: calc(50% - var(--pf-play) / 2);
-  }
-  /* TKT-106: the Featured Work sheet slides up to 200 px (phones 120 px) over the hero's foot. Keep that
-     zone clear of the video so the sheet never covers the print; with no lag there is nothing to clear. */
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      .hero-copy:has(.hero-intro) {
-        padding-bottom: 216px;
-      }
-      @media (max-width: 767px) {
-        .hero-copy:has(.hero-intro) {
-          padding-bottom: 136px;
-        }
-      }
-    }
   }
 }
 /* end hero intro video */
