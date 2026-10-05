@@ -696,5 +696,21 @@ The spec is §5.2–§5.4. Summary of what is decided: a **21:9 paper-cut still*
 
 T1 uses **Dev-136** (§11: the still, the retired clip files, the `darkFile` manifest field, the alt change); Dev-137 … Dev-139 are reserved for T1 follow-ups (a regenerated asset after the style gate, the OG source moving off `hero-poster.webp`). A track that runs out of ids stops and asks; ids are never borrowed across ranges, so parallel branches cannot collide.
 
+### 13.5b T4 decisions (TASK-145; Dev-170 … Dev-183)
+- **Dev-170** The nav keeps the TASK-112 layout (no hamburger): the "tablet + mobile menu" of paper-cut-2 §208 is the existing scrollable tab strip, restyled as paper tabs.
+- **Dev-171** Every nav paper layer is a pseudo-element or an absolutely positioned decorative span overhanging the hit areas — no box changes size, so QA-010 spacing, the 72 / 108 px header heights and CLS are untouched.
+- **Dev-172** The theme switch sits on a separate paper chip (`.header-chip`); the component inside is unchanged.
+- **Dev-173** The header is an opaque ivory paper sheet (hand-cut lower edge, three backing scraps); the translucent `--header-bg` + backdrop blur are retired for the header.
+- **Dev-174** Footer art reused from the first agent's 8 generations (job ids in `docs/briefs/TASK-145-art.md`); no regeneration. Dividers are code-drawn SVG ridges — 0 Higgsfield credits, 0 asset bytes.
+- **Dev-175** The ocean is a sibling strip below `.band-body`, never behind the text: the footer's contrast pairs are unchanged.
+- **Dev-176** Wave tracks tile at `max(100vw, 900px)`, are two tiles wide and travel exactly one tile (seamless); speeds 140 / 90 / 55 s back→front; the ship rocks (6 s) and drifts between the mid and front layers. Transform only; reduced motion is a still frame.
+- **Dev-177** `TornEdge` renders three paths (back cream, mid kraft, front = the section fill) in the same 44 / 46 px box; variants `hills` / `ridge` / `dunes` default by fill, so the 19 call sites are untouched. `data-decor`, `aria-hidden` and the box are unchanged.
+- **Dev-178** Divider parallax = the existing TKT-106 section lag plus a per-layer vertical drift (back 8 px, mid 5 px, front 0) on a `view()` timeline; it stops with the scroll; reduced motion gets none.
+- **Dev-179** One six-rung depth scale (`--depth-0…5`, contact + ambient, cast from `--shadow-ink`; `--depth-w` 1.7 and an inset rim in dark). The legacy `--shadow-paper`, `--shadow-paper-hover` and `--shadow-sticky` are remapped onto it.
+- **Dev-180** `.illustration-img` takes `--depth-drop-3` (a raised cut-out); full-bleed scenes (`.illustration-bleed`) are exempt.
+- **Dev-181** T4 CSS lives in five commented blocks at the end of `globals.css` (nav, footer ocean, dividers, depth) to keep the T3 merge trivial.
+- **Dev-182** `tests/e2e/t4-shots.spec.ts` is an opt-in (`T4_SHOTS=1`) evidence spec for EVAL-031 T4.
+- **Dev-183** Anti-hang: provenance recovered from Higgsfield history in one call; no external wait over 5 minutes; builds and Playwright run under the heavy-gate lock.
+
 ### 13.6 Decision D13 (recorded in `decisions.md`)
 The dark theme redefines the 13 tokens by **role, not by colour name** (§13.1): `navy` is ink and is ivory in dark. Rejected: 13 new `--color-*-dark` names (breaks EVAL-020's "exactly 13", doubles every component's class list) and `dark:` variants (S25, S19's own objection to scattered theme branches). Cost: a surface *filled* with `navy` or `kraft` flips meaning, so §13.1's two rules and the "kraft is a fill only" rule are part of the contract, and T2 must audit every `bg-navy` and `text-kraft` use.
