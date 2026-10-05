@@ -62,7 +62,6 @@ const DEFERRED_SPECS: Record<string, string> = {
   "EVAL-024": "theme toggle accessibility — TASK-141 (theme system)",
   "EVAL-026": "theme-switch stability — TASK-141 (theme system)",
   "EVAL-028": "cursor gating + mobile both themes — TASK-142 (Paper Trail cursor)",
-  "EVAL-029": "/card — TASK-146 (business card)",
   "EVAL-030": "/lab — TASK-143 (Gummy Lab)",
 };
 

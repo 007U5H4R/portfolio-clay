@@ -69,7 +69,9 @@
   display: grid;
   justify-items: center;
   gap: var(--space-5);
-  padding-block: var(--space-9) var(--space-10);
+  /* the band footer slides over the last section's bottom ~lag (200px, 120px < 768) + its 46px torn edge:
+     keep every control clear of that strip */
+  padding-block: var(--space-9) 180px;
   perspective: 1200px;
 }
 
@@ -83,6 +85,7 @@
 
 @media (min-width: 768px) {
   .stage { width: 400px; }
+  .scene { padding-bottom: 270px; }
 }
 @media (min-width: 1280px) {
   .stage { width: 420px; }
@@ -423,6 +426,8 @@
 
 /* ---------- flip button ---------- */
 .flip {
+  position: relative;
+  z-index: 2;
   min-height: 44px;
   min-width: 44px;
   padding: 0 var(--space-5);

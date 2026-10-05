@@ -11,7 +11,7 @@ import { writing } from "@/data/writing";
  * is a *link-validation* set for authored copy, not a "page exists" set, so it isn't reused here.)
  */
 // TKT-101: `/projects` (the project index, moved from `/work`); `/work` is now the Experience page. TKT-102 adds /certifications.
-export const STATIC_ROUTES = ["/", "/work", "/projects", "/about", "/thinking", "/playground", "/contact", "/certifications"] as const;
+export const STATIC_ROUTES = ["/", "/work", "/projects", "/about", "/thinking", "/playground", "/contact", "/certifications", "/card"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();

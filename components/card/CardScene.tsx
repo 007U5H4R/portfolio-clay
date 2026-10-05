@@ -21,17 +21,22 @@ export function CardScene({ url }: { url: string }) {
   const raf = useRef(0);
   const timer = useRef<number | undefined>(undefined);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const reducedRef = useRef(false);
 
   // Track prefers-reduced-motion live.
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => dispatch({ type: "motion", reduced: mq.matches });
+    const sync = () => {
+      reducedRef.current = mq.matches;
+      dispatch({ type: "motion", reduced: mq.matches });
+    };
     sync();
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
 
   const setVars = useCallback((nx: number, ny: number) => {
+    if (reducedRef.current) return; // tilt is off under reduced motion (§34)
     cancelAnimationFrame(raf.current);
     raf.current = requestAnimationFrame(() => {
       const el = rootRef.current;
