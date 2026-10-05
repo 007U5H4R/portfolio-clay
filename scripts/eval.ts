@@ -6,14 +6,17 @@
  *
  * Layers (each gated by --only):
  *   Vitest      → EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit),
- *                 EVAL-020 (paper token gate), EVAL-021 (illustration provenance) — M-009, EV3
+ *                 EVAL-020 (paper token gate), EVAL-021 (illustration provenance) — M-009, EV3;
+ *                 EVAL-025 (dark-art pairing), EVAL-027 (bundle isolation, needs the build) — M-010, EV7
  *   Playwright  → EVAL-002, 006, 007, 008, 010, 011, 014, 015, 017 (tags on served HTML),
- *                 EVAL-018 (decoration budget), EVAL-019 (hero once-and-hold) — M-009, EV3
+ *                 EVAL-018 (decoration budget), EVAL-019 (hero still LCP; was once-and-hold until S24) — M-009, EV3;
+ *                 EVAL-023 (theme resolution), 024 (toggle a11y), 026 (theme-switch stability),
+ *                 028 (cursor gating + mobile), 029 (/card), 030 (/lab) — M-010, EV7
  *   Lighthouse  → EVAL-004 (median category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget)
  *   Content gate→ EVAL-013 (validate-content + forbidden-strings + fixture proof)
  *   Security    → EVAL-016 (forbidden-strings --bundle + pnpm audit + TP9 headers when --base-url)
- *   Manual      → EVAL-001, 003, 009, 022 (mockup fidelity, M-009), and the EVAL-017 / EVAL-021
- *                 manual sub-results (recorded, not executed)
+ *   Manual      → EVAL-001, 003, 009, 022 (mockup fidelity, M-009), 031 (paper-cut style gates, M-010),
+ *                 and the EVAL-017 / 021 / 024 / 025 / 029 / 030 manual sub-results (recorded, not executed)
  *
  * Flags:
  *   --label <name>      output basename (evals/results/<name>.json); default eval-run-<version>-<sha>
@@ -55,9 +58,10 @@ const LH_REGRESSION_PTS = 3;
 const JS_REGRESSION_KB = 10;
 
 // M-009 (evaluation-plan.md §8.7 / EV3): EVAL-018/019 Playwright, EVAL-020/021 Vitest, EVAL-022 manual.
-const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019"];
-const VITEST_CASES = ["EVAL-012", "EVAL-017", "EVAL-020", "EVAL-021"];
-const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009", "EVAL-022"];
+// M-010 (evaluation-plan.md §9.8 / EV7): EVAL-023/024/026/028/029/030 Playwright, EVAL-025/027 Vitest, EVAL-031 manual.
+const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019", "EVAL-023", "EVAL-024", "EVAL-026", "EVAL-028", "EVAL-029", "EVAL-030"];
+const VITEST_CASES = ["EVAL-012", "EVAL-017", "EVAL-020", "EVAL-021", "EVAL-025", "EVAL-027"];
+const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009", "EVAL-022", "EVAL-031"];
 const METRIC_CASES = ["EVAL-004", "EVAL-005"]; // diffed by metric, not status-flip
 
 type Status = "PASS" | "FAIL" | "SKIP" | "MANUAL";
@@ -679,12 +683,12 @@ async function main(): Promise<void> {
         artifacts: [".eval/vitest.json", ".eval/playwright.json"],
       });
     } else if (VITEST_CASES.includes(def.id)) {
-      // Generic Vitest mapping (M-009 EVAL-020/021): the unit file is tests/unit/eval-0xx.test.ts.
+      // Generic Vitest mapping (M-009 EVAL-020/021, M-010 EVAL-025/027): the unit file is tests/unit/eval-0xx.test.ts.
       const st = vitestFileStatus(vf, def.id.toLowerCase());
       cases.push({
         ...base,
         status: st === "absent" ? "SKIP" : st === "pass" ? "PASS" : "FAIL",
-        details: (st === "absent" ? `unit test ${def.id.toLowerCase()} not built yet (M-009 Stage 7)` : `vitest ${def.id.toLowerCase()} ${st}`) + scopeNote(def),
+        details: (st === "absent" ? `unit test ${def.id.toLowerCase()} not built yet (its milestone's Stage 7)` : `vitest ${def.id.toLowerCase()} ${st}`) + scopeNote(def),
         artifacts: [".eval/vitest.json"],
       });
     } else if (PLAYWRIGHT_CASES.includes(def.id)) {

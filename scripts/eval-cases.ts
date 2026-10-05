@@ -7,12 +7,13 @@
  * Invariants enforced (fail loudly — a bad case file must never run silently):
  *   1. The file parses against the zod schema (every field validated, unknown fields rejected).
  *   2. Exactly CASE_COUNT cases, ids EVAL-001 … EVAL-0<CASE_COUNT>, each unique
- *      (17 at Stage 6; 22 since the M-009 evaluation addendum, evaluation-plan.md §8 / EV3).
+ *      (17 at Stage 6; 22 since the M-009 evaluation addendum, evaluation-plan.md §8 / EV3;
+ *      31 since the M-010 addendum, evaluation-plan.md §9 / EV7).
  *   3. Every `automated: true` case names a real automated runner (a runner mapping exists);
  *      every `automated: false` case is runner "manual".
  *
  * CLI:
- *   tsx scripts/eval-cases.ts                → validates and prints `22 cases OK · 18 automated · 4 manual`
+ *   tsx scripts/eval-cases.ts                → validates and prints `31 cases OK · 26 automated · 5 manual`
  *   tsx scripts/eval-cases.ts --check-specs  → additionally asserts every Playwright-automated EVAL
  *                                              id (except those explicitly deferred to a later ticket)
  *                                              has a `@EVAL-0xx`-tagged spec under tests/e2e/.
@@ -27,8 +28,11 @@ const ROOT = process.cwd();
 const EVAL_CASES_PATH = resolve(ROOT, "evals/eval-cases.json");
 const E2E_DIR = resolve(ROOT, "tests/e2e");
 
-/** Number of cases the catalogue must hold: EVAL-001 … EVAL-017 (Stage 6) + EVAL-018 … 022 (M-009, EV3). */
-const CASE_COUNT = 22;
+/**
+ * Number of cases the catalogue must hold: EVAL-001 … EVAL-017 (Stage 6) + EVAL-018 … 022 (M-009, EV3)
+ * + EVAL-023 … 031 (M-010, EV7). EVAL-019 was rewritten in place for the still hero (S24) — same id.
+ */
+const CASE_COUNT = 31;
 
 /** Runners that actually execute a case (i.e. constitute a "runner mapping" for an automated case). */
 const AUTOMATED_RUNNERS = [
@@ -48,8 +52,19 @@ const AUTOMATED_RUNNERS = [
  * primitives' `[data-decor]` contract (EVAL-018 → TSK-35, tests/e2e/eval-018.spec.ts) and the hero
  * video (EVAL-019 → TSK-37, tests/e2e/eval-019.spec.ts). Empty again since TSK-37; add an entry
  * only for a case whose spec is genuinely pending, and remove it when the spec lands.
+ *
+ * M-010 (evaluation-plan.md §9.8 / EV7): the Playwright rows below are deferred until their track
+ * builds the surface they measure. EVAL-019 is NOT deferred — its spec exists and still measures the
+ * clip until TASK-140 replaces the hero and rewrites the spec in the same change.
  */
-const DEFERRED_SPECS: Record<string, string> = {};
+const DEFERRED_SPECS: Record<string, string> = {
+  "EVAL-023": "theme resolution + no-flash — TASK-141 (theme system)",
+  "EVAL-024": "theme toggle accessibility — TASK-141 (theme system)",
+  "EVAL-026": "theme-switch stability — TASK-141 (theme system)",
+  "EVAL-028": "cursor gating + mobile both themes — TASK-142 (Paper Trail cursor)",
+  "EVAL-029": "/card — TASK-146 (business card)",
+  "EVAL-030": "/lab — TASK-143 (Gummy Lab)",
+};
 
 const EvalCaseSchema = z
   .object({
