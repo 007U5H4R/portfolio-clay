@@ -10,8 +10,8 @@ describe("card flip state (TASK-146.3, EVAL-029)", () => {
   });
 
   it("label names the action for the current side (§23)", () => {
-    expect(flipLabel("front")).toBe("Show Tushar Pathak contact and links");
-    expect(flipLabel("back")).toBe("Show the front of Tushar Pathak's business card");
+    expect(flipLabel("front")).toBe("Flip card: show Tushar Pathak contact and links");
+    expect(flipLabel("back")).toBe("Flip card: show the front of Tushar Pathak's business card");
   });
 
   it("tilt is ignored (neutral) while reduced motion is on", () => {

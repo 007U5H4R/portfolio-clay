@@ -21,6 +21,6 @@ export function flipReducer(state: FlipState, action: FlipAction): FlipState {
 /** The accessible name of the flip button: it names what pressing does (§23). */
 export function flipLabel(side: Side): string {
   return side === "front"
-    ? "Show Tushar Pathak contact and links"
-    : "Show the front of Tushar Pathak's business card";
+    ? "Flip card: show Tushar Pathak contact and links"
+    : "Flip card: show the front of Tushar Pathak's business card";
 }

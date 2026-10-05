@@ -1,0 +1,470 @@
+/*
+ * /card — the paper-cut business card (TASK-146, Dev-185…189). Role tokens only (Design.md §13, D13):
+ * the same 13 `--color-*` names, values swap under [data-theme="dark"], and the card follows with no
+ * colour literal here. Card-local `--c-*` props are mixes of those tokens, defined once per theme.
+ * Motion is transform/opacity only; pointer/touch movement arrives as --nx/--ny in [-1, 1].
+ */
+
+/* ---------- theme-local paper palette ---------- */
+.scene {
+  --nx: 0;
+  --ny: 0;
+  --amp: 3px; /* parallax px per unit of --k at full deflection */
+  --tilt-max: 5deg;
+
+  /* light: warm ivory sheet, blue-grey ranges, muted green land */
+  --c-card: var(--color-ivory);
+  --c-ink: var(--color-navy);
+  --c-far: color-mix(in oklab, var(--color-steel) 42%, var(--color-ivory));
+  --c-peak: color-mix(in oklab, var(--color-steel) 72%, var(--color-paper));
+  --c-mid: color-mix(in oklab, var(--color-green-2) 62%, var(--color-steel) 38%);
+  --c-shore: color-mix(in oklab, var(--color-forest) 85%, var(--color-navy) 15%);
+  --c-water: color-mix(in oklab, var(--color-steel) 68%, var(--color-ivory));
+  --c-land: color-mix(in oklab, var(--color-forest) 62%, var(--color-green-2) 38%);
+  --c-ripple: color-mix(in oklab, var(--color-steel) 40%, var(--color-ivory));
+  --c-sun: var(--color-kraft);
+  --shade: var(--color-navy); /* shadow ink (dark: paper, never ivory) */
+  --shade-a: 0.34;
+  --lit: color-mix(in oklab, var(--color-ivory) 70%, transparent);
+  --tex: url("/card/paper-light.webp");
+  --tex-blend: multiply;
+  --tex-o: 0.5;
+  --qr-paper: var(--color-ivory);
+  --qr-ink: var(--color-navy);
+  --edge-1: color-mix(in oklab, var(--color-ivory) 82%, var(--color-kraft));
+  --edge-2: color-mix(in oklab, var(--color-ivory) 66%, var(--color-kraft));
+  --edge-3: color-mix(in oklab, var(--color-ivory) 50%, var(--color-kraft));
+  --ground: var(--color-paper-2);
+}
+
+:global([data-theme="dark"]) .scene {
+  /* dark is its own art direction (§15, §58), not an inversion: navy ranges, dark green land, cream moon */
+  --c-card: var(--color-ivory);
+  --c-far: color-mix(in oklab, var(--color-steel) 62%, var(--color-paper));
+  --c-peak: color-mix(in oklab, var(--color-steel) 34%, var(--color-paper));
+  --c-mid: color-mix(in oklab, var(--color-green-2) 44%, var(--color-paper));
+  --c-shore: color-mix(in oklab, var(--color-forest) 30%, var(--color-paper));
+  --c-water: color-mix(in oklab, var(--color-steel) 24%, var(--color-paper));
+  --c-land: color-mix(in oklab, var(--color-forest) 48%, var(--color-paper));
+  --c-ripple: color-mix(in oklab, var(--color-steel) 50%, var(--color-paper));
+  --c-sun: color-mix(in oklab, var(--color-navy) 88%, var(--color-kraft));
+  --shade: var(--color-paper);
+  --shade-a: 0.55;
+  --lit: color-mix(in oklab, var(--color-navy) 30%, transparent);
+  --tex: url("/card/paper-dark.webp");
+  --tex-blend: soft-light;
+  --tex-o: 0.5;
+  /* QR stays dark-on-light in dark mode: the panel takes the ink token, the modules the paper token */
+  --qr-paper: var(--color-navy);
+  --qr-ink: var(--color-paper);
+  --edge-1: color-mix(in oklab, var(--color-ivory) 80%, var(--color-steel));
+  --edge-2: color-mix(in oklab, var(--color-ivory) 62%, var(--color-steel));
+  --edge-3: color-mix(in oklab, var(--color-ivory) 45%, var(--color-steel));
+  --ground: var(--color-paper-2);
+}
+
+/* ---------- the scene: perspective, paper sheet, size ---------- */
+.scene {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-5);
+  padding-block: var(--space-9) var(--space-10);
+  perspective: 1200px;
+}
+
+.stage {
+  position: relative;
+  width: clamp(280px, 100vw - 48px, 340px);
+  aspect-ratio: 420 / 680;
+  container-type: inline-size;
+  contain: layout style;
+}
+
+@media (min-width: 768px) {
+  .stage { width: 400px; }
+}
+@media (min-width: 1280px) {
+  .stage { width: 420px; }
+}
+
+/* ground shadow: contact + ambient, separate from the 3D object (§28) */
+.shadow {
+  position: absolute;
+  inset: 4% 3% -2% 3%;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--shade) 55%, transparent);
+  opacity: 0.55;
+  filter: blur(18px);
+  transform: translate3d(-3%, 3%, 0) scale(0.96);
+  transition: transform 0.4s var(--ease-hover), opacity 0.4s var(--ease-hover);
+  pointer-events: none;
+}
+.scene:hover .shadow,
+.scene:focus-within .shadow {
+  opacity: 0.7;
+  transform: translate3d(-5%, 5%, 0) scale(1);
+}
+
+.lift {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.35s var(--ease-hover);
+}
+.scene:hover .lift { transform: translate3d(0, -6px, 0); }
+
+.scene[data-flipping="true"] .lift { animation: lift 1150ms cubic-bezier(0.3, 0.1, 0.25, 1) both; }
+.scene[data-flipping="true"] .shadow { animation: lift-shadow 1150ms cubic-bezier(0.3, 0.1, 0.25, 1) both; }
+
+@keyframes lift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  16% { transform: translate3d(0, -14px, 40px) scale(1.02); }
+  78% { transform: translate3d(0, -14px, 40px) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes lift-shadow {
+  0% { opacity: 0.55; transform: translate3d(-3%, 3%, 0) scale(0.96); }
+  16% { opacity: 0.4; transform: translate3d(-7%, 7%, 0) scale(1.06); }
+  78% { opacity: 0.4; transform: translate3d(-7%, 7%, 0) scale(1.06); }
+  100% { opacity: 0.55; transform: translate3d(-3%, 3%, 0) scale(0.96); }
+}
+
+/* resting pose + pointer tilt: the whole card as one object (§6, §50) */
+.tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(1.5deg - var(--ny) * var(--tilt-max)))
+    rotateY(calc(-2.5deg + var(--nx) * var(--tilt-max))) rotateZ(-1deg);
+  transition: transform 0.18s ease-out;
+}
+/* the back rests flat so the QR is never skewed (§9, §57) */
+.scene[data-side="back"] .tilt {
+  transform: rotateX(calc(var(--ny) * var(--tilt-max) * -0.6)) rotateY(calc(var(--nx) * var(--tilt-max) * 0.6));
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 850ms cubic-bezier(0.22, 0.9, 0.24, 1) 170ms;
+  cursor: pointer;
+  --u: 1cqw; /* one design unit = card width / 100 */
+}
+.scene[data-side="back"] .card { transform: rotateY(180deg); }
+
+/* ---------- physical thickness: stacked sheets behind the face (§20, §44) ---------- */
+.edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 7px;
+  background: var(--edge-1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 0 0 0.5px color-mix(in oklab, var(--shade) 30%, transparent);
+  pointer-events: none;
+}
+.edge[data-e="1"] { transform: translate3d(0, 0, -1.5px); }
+.edge[data-e="2"] { transform: translate3d(0, 0, -3px); background: var(--edge-2); }
+.edge[data-e="3"] { transform: translate3d(0, 0, -4.5px); background: var(--edge-3); }
+
+/* ---------- faces ---------- */
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--c-card);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 0.5px 0 color-mix(in oklab, var(--shade) 35%, transparent),
+    -1px 2px 3px color-mix(in oklab, var(--shade) 30%, transparent),
+    -8px 16px 28px -10px color-mix(in oklab, var(--shade) 40%, transparent);
+  color: var(--c-ink);
+}
+.back { transform: rotateY(180deg) translateZ(6px); }
+
+/* fine paper grain over the whole face, under the type (§19) */
+.texture {
+  position: absolute;
+  inset: 0;
+  background-image: var(--tex);
+  background-size: 360px 360px;
+  mix-blend-mode: var(--tex-blend);
+  opacity: var(--tex-o);
+  pointer-events: none;
+}
+
+/* ---------- art ---------- */
+.defs { position: absolute; }
+.art { position: absolute; inset: 0; pointer-events: none; }
+
+.layer {
+  position: absolute;
+  inset: -20px; /* BLEED: layers overshoot so parallax never shows a gap */
+  transform: translate3d(
+    calc(var(--nx) * var(--k) * var(--amp) * -1),
+    calc(var(--ny) * var(--k) * var(--amp) * -1),
+    0
+  );
+  transition: transform 0.18s ease-out;
+  will-change: transform;
+  /* contact shadow (tight, low) + ambient (soft, grows with z): light upper right, shadow lower left (§52) */
+  filter:
+    drop-shadow(-0.6px 0.9px 0.4px color-mix(in oklab, var(--shade) calc(var(--shade-a) * 100%), transparent))
+    drop-shadow(calc(var(--z) * -0.07px) calc(var(--z) * 0.11px) calc(var(--z) * 0.14px)
+      color-mix(in oklab, var(--shade) calc(var(--shade-a) * 55%), transparent));
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  background-color: var(--c-far);
+  background-image: var(--tex);
+  background-size: 300px 300px;
+  background-blend-mode: var(--tex-blend);
+}
+[data-layer="far"] .sheet { background-color: var(--c-far); background-size: 420px; }
+[data-layer="peak"] .sheet { background-color: var(--c-peak); background-size: 300px; background-position: 60px 20px; }
+[data-layer="mid"] .sheet { background-color: var(--c-mid); background-size: 360px; background-position: 120px 90px; }
+[data-layer="shore"] .sheet { background-color: var(--c-shore); background-size: 260px; }
+[data-layer="water"] .sheet { background-color: var(--c-water); background-size: 480px; background-position: 30px 60px; }
+[data-layer="land"] .sheet { background-color: var(--c-land); background-size: 280px; background-position: 200px 10px; }
+[data-layer="ripples"] .sheet { background-color: var(--c-ripple); background-size: 320px; }
+[data-layer="back-far"] .sheet { background-color: var(--c-far); background-size: 420px; }
+[data-layer="back-near"] .sheet { background-color: var(--c-land); background-size: 300px; }
+
+.sun {
+  position: absolute;
+  left: calc(20px + 330 * (100% - 40px) / 420);
+  top: calc(20px + 118 * (100% - 40px) / 680);
+  width: calc(80 * (100% - 40px) / 420);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background-color: var(--c-sun);
+  background-image: var(--tex);
+  background-size: 200px;
+  background-blend-mode: var(--tex-blend);
+}
+
+.boat {
+  position: absolute;
+  left: calc(20px + 305 * (100% - 40px) / 420);
+  top: calc(20px + 548 * (100% - 40px) / 680);
+  width: calc(58 * (100% - 40px) / 420);
+  translate: -50% -100%;
+}
+.boat img { display: block; width: 100%; height: auto; }
+.boatShadow {
+  position: absolute;
+  left: calc(20px + 308 * (100% - 40px) / 420);
+  top: calc(20px + 549 * (100% - 40px) / 680);
+  width: calc(64 * (100% - 40px) / 420);
+  height: calc(7 * (100% - 40px) / 680);
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--shade) 38%, var(--c-water));
+  opacity: 0.8;
+}
+
+/* ---------- front type ---------- */
+.type {
+  position: absolute;
+  left: 8.6cqw;
+  top: 7.4cqw;
+  right: 8cqw;
+  display: grid;
+  gap: 0;
+  transform: translate3d(
+    calc(var(--nx) * var(--k) * var(--amp) * -0.5),
+    calc(var(--ny) * var(--k) * var(--amp) * -0.5),
+    0
+  );
+  transition: transform 0.18s ease-out;
+}
+.mono {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 7.4cqw;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.type .mono { margin-bottom: 33cqw; }
+.name {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 6.4cqw;
+  letter-spacing: 0.1em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.role {
+  margin: 2.2cqw 0 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 3.1cqw;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+}
+.micro {
+  margin: 2.2cqw 0 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 2.5cqw;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+/* dynamic light: a large soft highlight moved by transform, clipped by the face (§51) */
+.sheen {
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(circle at 50% 50%, var(--lit) 0%, transparent 38%);
+  opacity: 0.55;
+  transform: translate3d(calc(22% + var(--nx) * 18%), calc(-22% + var(--ny) * 14%), 0);
+  transition: transform 0.25s ease-out;
+  pointer-events: none;
+}
+
+/* ---------- back ---------- */
+.backBody {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 3.4cqw;
+  padding: 9cqw 8cqw 6cqw;
+}
+.qrPanel {
+  width: 46cqw;
+  padding: 3cqw;
+  background-color: var(--qr-paper);
+  border-radius: 3px;
+  /* a raised sheet: tiny paper thickness, edge shadow, the QR itself stays flat (§57) */
+  box-shadow:
+    0 0 0 0.5px color-mix(in oklab, var(--shade) 35%, transparent),
+    1px 1px 0 var(--edge-2),
+    2px 2px 0 var(--edge-3),
+    -3px 5px 8px -2px color-mix(in oklab, var(--shade) 45%, transparent);
+  transform: translate3d(calc(var(--nx) * 2px), calc(var(--ny) * 2px), 0);
+  transition: transform 0.18s ease-out;
+}
+.qr { display: block; width: 100%; height: auto; }
+.qrBg { fill: var(--qr-paper); }
+.qrInk { fill: var(--qr-ink); }
+
+.pocket {
+  margin: 1cqw 0 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 5.4cqw;
+  line-height: 1.15;
+  text-align: center;
+}
+.save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(44px, 11cqw);
+  padding-inline: 7cqw;
+  border-radius: 999px;
+  background: var(--color-rust);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: max(13px, 3.4cqw);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  box-shadow: -1px 2px 3px color-mix(in oklab, var(--shade) 30%, transparent);
+}
+.save:hover { background: var(--color-terracotta); }
+.links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 3cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+}
+.links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: var(--c-ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: max(13px, 3.3cqw);
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-decoration-color: var(--color-steel);
+  text-underline-offset: 4px;
+}
+.links a:hover { text-decoration-color: var(--color-rust); }
+.back .mono { position: absolute; left: 50%; bottom: 3.6cqw; translate: -50% 0; font-size: 5cqw; opacity: 0.7; display: none; }
+
+/* focus is always visible (§23) */
+.save:focus-visible,
+.links a:focus-visible,
+.flip:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 3px;
+}
+
+/* ---------- flip button ---------- */
+.flip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-soft);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-caption);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.flip:hover { color: var(--color-navy); }
+
+/* ---------- touch: smaller envelope, no sheen cost (§59, §60) ---------- */
+@media (pointer: coarse) {
+  .scene { --amp: 2px; --tilt-max: 3deg; }
+  .sheen { display: none; }
+}
+
+/* ---------- reduced motion: static depth stays, 3D and pointer motion go, crossfade (§34, §61) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .scene { perspective: none; }
+  .lift, .tilt, .card, .layer, .type, .sheen, .qrPanel, .shadow {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .sheen { display: none; }
+  .edge { display: none; }
+  .face {
+    transition: opacity 0.25s linear;
+    box-shadow:
+      1px 1px 0 var(--edge-1),
+      2px 2px 0 var(--edge-2),
+      3px 3px 0 var(--edge-3),
+      -8px 16px 28px -10px color-mix(in oklab, var(--shade) 40%, transparent);
+  }
+  .front { opacity: 1; }
+  .back { transform: none; opacity: 0; }
+  .scene[data-side="back"] .front { opacity: 0; }
+  .scene[data-side="back"] .back { opacity: 1; }
+}
