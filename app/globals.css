@@ -12919,3 +12919,56 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end M-010 T4 dividers */
+
+/* ==================================================================================================
+   M-010 T4 (TASK-145.5) · global depth scale — paper-cut-2 §233–§265. ONE scale, six rungs, each a contact
+   shadow (small, close, darker) plus an ambient one (wide, soft, negative spread), always cast from
+   --shadow-ink (navy in light; the deep `paper` navy in dark — never a navy glow, never #000). `--depth-w`
+   raises the weight in dark (Design.md §13.3: ambient up, rim added). 0 flat page · 1 embossed print ·
+   2 resting card · 3 raised / mounted · 4 floating focal · 5 foreground object. `--depth-drop-N` is the
+   same rung as a `filter` for transparent art (illustrations, cut-outs). The legacy `--shadow-paper`,
+   `--shadow-paper-hover` and `--shadow-sticky` tokens are remapped onto the scale, so every existing paper
+   surface (21 consumers) joins it without touching its component. Tokens only (EVAL-020).
+   ================================================================================================== */
+:root,
+[data-theme="dark"] {
+  --depth-w: 1;
+  --depth-rim: inset 0 0 0 0 transparent;
+  --depth-0: 0 0 0 0 transparent;
+  --depth-1: 0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(10% * var(--depth-w)), transparent);
+  --depth-2: 0 1px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent),
+    0 8px 16px -10px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
+  --depth-3: 0 2px 3px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent),
+    0 14px 26px -14px color-mix(in oklab, var(--shadow-ink) calc(32% * var(--depth-w)), transparent);
+  --depth-4: 0 3px 5px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent),
+    0 22px 38px -16px color-mix(in oklab, var(--shadow-ink) calc(38% * var(--depth-w)), transparent);
+  --depth-5: 0 5px 8px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent),
+    0 32px 52px -20px color-mix(in oklab, var(--shadow-ink) calc(44% * var(--depth-w)), transparent);
+  --depth-drop-2: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent));
+  --depth-drop-3: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent));
+  --depth-drop-4: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent));
+  --shadow-paper: var(--depth-rim), var(--depth-2);
+  --shadow-paper-hover: var(--depth-rim), var(--depth-4);
+  --shadow-sticky: var(--depth-3);
+}
+[data-theme="dark"] {
+  --depth-w: 1.7;
+  --depth-rim: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 9%, transparent);
+}
+/* images: a mounted illustration is a raised cut-out on the page */
+.illustration-img {
+  filter: var(--depth-drop-3);
+}
+.illustration-bleed .illustration-img {
+  filter: none; /* full-bleed scenes are the page's layer, not a cut-out on it */
+}
+/* header pieces sit on the same rungs */
+.header-nav-link::before,
+.header-chip::before,
+.header-monogram {
+  box-shadow: var(--depth-1), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
+}
+/* end M-010 T4 depth */

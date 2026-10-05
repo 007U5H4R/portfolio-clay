@@ -38,7 +38,6 @@ export function TornEdge({ fill = "paper", variant, className }: TornEdgeProps) 
   return (
     <svg
       data-decor="torn"
-      data-ridge={variant ?? DEFAULT_VARIANT[fill]}
       aria-hidden="true"
       viewBox={TORN_VIEWBOX}
       preserveAspectRatio="none"
