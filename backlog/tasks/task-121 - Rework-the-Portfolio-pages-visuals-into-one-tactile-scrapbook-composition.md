@@ -1,11 +1,11 @@
 ---
 id: TASK-121
 title: Rework the Portfolio page's visuals into one tactile scrapbook composition
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-28 08:20'
-updated_date: '2026-09-28 09:31'
+updated_date: '2026-10-05 15:40'
 labels:
   - P1
   - m-009
@@ -25,4 +25,6 @@ Tushar 2026-09-28: TASK-116's structure is right but it still reads as web UI. R
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged into m-009-redesign 2026-09-28 (762ea58). Gates: tsc/lint/tokens OK; 641 unit tests; 262+107 e2e (7 load flakes cleared on rerun); /projects 166.1 kB gz. Only TeachSpark has painted art (0.75 credits); Higgsfield's daily limit blocked the other 10, which have CSS covers. Still open: the painted covers (~2.5 credits); Tushar to confirm Vendor Passport data, Velora's category and the status wording.
+
+2026-10-05 backlog tidy: status set to Done — the work above merged on 2026-09-28 (762ea58); the remaining cover art was finished by TASK-127.
 <!-- SECTION:NOTES:END -->
