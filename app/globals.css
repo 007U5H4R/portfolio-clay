@@ -874,9 +874,8 @@ body::before {
    (paper) as the banner's bottom edge → three taped polaroids pinned onto the scene's blank papers
    (TKT-111) + a postmark top-right → the centred copy block (eyebrow, Fraunces h1 + rust
    underline, Caveat hand line, support, CTAs). `.scene-banner*` is the reusable banner (TKT-95 uses it
-   on every page); `.hero-*` is home-only. Registration percentages arrive as `--clip-*` inline vars
-   from components/hero/registration.ts (one source); the mask is an alpha PNG (see
-   content/media/illustrations/README.md). Tokens / derived values only (EVAL-020). */
+   on every page); `.hero-*` is home-only. The hero is a still (S24 — the clip, its `--clip-*` slot and
+   its mask were retired in TASK-140). Tokens / derived values only (EVAL-020). */
 @layer components {
   .hero {
     position: relative;
@@ -948,29 +947,6 @@ body::before {
     left: 0;
     z-index: 1;
     margin: 0;
-  }
-
-  /* --- The clip: registered on the canvas (`--clip-*`), masked to the character, over the banner --- */
-  .hero-clip-slot {
-    position: absolute;
-    top: var(--clip-top);
-    left: var(--clip-left);
-    width: var(--clip-width);
-    height: var(--clip-height);
-    z-index: 1;
-    pointer-events: none;
-  }
-  .hero-clip {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    /* Feathered alpha mask, stretched to the clip's box (1:1 with the 1280×684 frame). Unprefixed only —
-       Lightning CSS adds the -webkit- form itself and drops a hand-written pair (see the header block). */
-    mask-image: url("/media/illustrations/hero-clip-mask.png");
-    mask-size: 100% 100%;
-    mask-repeat: no-repeat;
   }
 
   /* --- Banner furniture: torn bottom edge, polaroids, postmark --- */

@@ -48,6 +48,7 @@ interface ManifestLike {
   id: string;
   kind: string;
   file: string;
+  darkFile?: string;
   publicSrc?: string;
   alt: string;
   usedOn: string[];
@@ -107,7 +108,8 @@ export function check(dir: string, entries: ManifestLike[], readme: string): Fin
 
   // Rule 1 — every on-disk file (excluding README.md, manifest.ts) has exactly one manifest entry, and vice versa.
   const filesOnDisk = new Set(listFiles(dir, new Set(["README.md", "manifest.ts"])));
-  const filesInManifest = new Set(entries.map((e) => e.file).filter((f) => f.length > 0));
+  // `darkFile` (TASK-140, EVAL-025): a paired dark rendition lives on the same entry as its light twin.
+  const filesInManifest = new Set(entries.flatMap((e) => [e.file, e.darkFile ?? ""]).filter((f) => f.length > 0));
   for (const f of filesOnDisk) {
     if (!filesInManifest.has(f)) findings.push({ rule: "orphan-file", detail: f });
   }
@@ -166,7 +168,6 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
       [
         "character-sheet-b",
         "hero-banner",
-        "hero-clip",
         "hero-desk",
         "polaroid-sunrise",
         ...PRODUCT_COVER_IDS,
@@ -184,7 +185,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(32);
+    expect(ILLUSTRATIONS.length).toBe(31);
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -284,13 +285,15 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     }
   });
 
-  it("hero-banner is the 3168×1344 outpaint with the Dev-23 alt, used on / (TKT-93)", () => {
+  it("hero-banner is the 3168×1344 paper-cut still (light + dark twin) with the Dev-136 alt, used on / (TASK-140)", () => {
     const banner = ILLUSTRATIONS.find((e) => e.id === "hero-banner")!;
     expect(banner.file).toBe("hero-banner.webp");
+    expect(banner.darkFile).toBe("hero-banner-dark.webp");
     expect([banner.width, banner.height]).toEqual([3168, 1344]);
     expect(banner.alt).toBe(
-      "Illustration of Tushar at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, and books titled Product Thinking, AI & Society, System Thinking and A Better Tomorrow.",
+      "Illustration of Tushar in layered paper-cut at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, a mountain photo, and a stack of books.",
     );
+    expect(ILLUSTRATIONS.some((e) => e.id === ("hero-clip" as string)), "clip A is retired (S24)").toBe(false);
     expect(banner.usedOn).toEqual(["/"]);
     // The three polaroid scenes declare the home route too (they render there as decorative crops).
     for (const id of ["scene-work", "scene-about", "scene-playground"]) {

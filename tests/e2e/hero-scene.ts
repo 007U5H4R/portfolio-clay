@@ -6,7 +6,8 @@
  * through its importers.
  */
 import { expect, type Page } from "@playwright/test";
-import { BANNER_SIZE } from "@/components/hero/registration";
+/** The home banner's pixel grid (manifest `hero-banner`; was `components/hero/registration.ts` before S24). */
+const BANNER_SIZE = { width: 3168, height: 1344 } as const;
 
 export const SCENE_TOLERANCE_PX = 2;
 
