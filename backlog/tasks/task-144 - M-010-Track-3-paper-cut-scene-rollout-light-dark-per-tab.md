@@ -1,9 +1,10 @@
 ---
 id: TASK-144
 title: 'M-010 Track 3: paper-cut scene rollout, light + dark per tab'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 15:17'
 labels:
   - P1
 milestone: m-9

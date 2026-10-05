@@ -1,9 +1,10 @@
 ---
 id: TASK-142
 title: 'M-010 Track 2b: Paper Trail cursor (desktop only)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 15:17'
 labels:
   - P2
 milestone: m-9

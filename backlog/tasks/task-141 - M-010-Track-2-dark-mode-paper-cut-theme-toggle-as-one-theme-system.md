@@ -1,9 +1,10 @@
 ---
 id: TASK-141
 title: 'M-010 Track 2: dark mode + paper-cut theme toggle as one theme system'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 15:17'
 labels:
   - P1
 milestone: m-9
