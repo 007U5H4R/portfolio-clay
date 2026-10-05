@@ -34,3 +34,12 @@ describe("data/hero · TKT-108 copy", () => {
     }
   });
 });
+
+describe("data/hero · intro video (Tushar 2026-10-05)", () => {
+  it("is Tushar's YouTube intro, a valid id the click-to-load player accepts", async () => {
+    const { isValidVideoId } = await import("@/lib/video-providers");
+    expect(hero.introVideo).toMatchObject({ provider: "youtube", videoId: "ZwlfSraVNr8" });
+    expect(isValidVideoId(hero.introVideo.provider, hero.introVideo.videoId)).toBe(true);
+    expect(hero.introVideo.title.length).toBeGreaterThanOrEqual(8);
+  });
+});
