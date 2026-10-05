@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 19:10'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:2'
@@ -16,8 +16,6 @@ dependencies:
   - TASK-35
   - TASK-43
   - TASK-44
-  - TASK-45
-  - TASK-46
   - TASK-47
 priority: high
 type: task

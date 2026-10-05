@@ -4,13 +4,12 @@ title: 'TSK-08: Vitest layer + eval-cases.json'
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:13'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:1'
 milestone: m-1
-dependencies:
-  - TASK-3
+dependencies: []
 parent_task_id: TASK-7
 priority: high
 type: task

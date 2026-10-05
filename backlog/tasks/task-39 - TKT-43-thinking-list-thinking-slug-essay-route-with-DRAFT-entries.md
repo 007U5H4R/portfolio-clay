@@ -4,14 +4,13 @@ title: 'TKT-43: /thinking list + /thinking/[slug] essay route with DRAFT entries
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 06:59'
+updated_date: '2026-10-05 13:36'
 labels:
   - P2
   - 'sp:3'
   - thinking
 milestone: m-5
 dependencies:
-  - TASK-3
   - TASK-5
   - TASK-6
 priority: medium

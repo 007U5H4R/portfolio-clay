@@ -6,7 +6,7 @@ title: >-
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:12'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:3'
@@ -30,7 +30,6 @@ dependencies:
   - TASK-40
   - TASK-41
   - TASK-42
-  - TASK-22
 priority: high
 type: task
 ordinal: 45000

@@ -4,13 +4,12 @@ title: 'TSK-03: Minimal clay primitives for the slice'
 status: Blocked
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-26 09:12'
+updated_date: '2026-10-05 13:35'
 labels:
   - P0
   - 'sp:1'
 milestone: m-0
-dependencies:
-  - TASK-1.1
+dependencies: []
 parent_task_id: TASK-1
 priority: high
 type: task

@@ -4,14 +4,13 @@ title: 'TKT-09: Ask knowledge data + AnswerProvider + LocalKnowledgeProvider + t
 status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
-updated_date: '2026-09-16 09:10'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:5'
   - ask
 milestone: m-2
 dependencies:
-  - TASK-3
   - TASK-7
 priority: high
 type: feature
