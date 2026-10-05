@@ -76,7 +76,7 @@ test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({
   await page.goto("/", { waitUntil: "load" });
 
   const ordered = [
-    page.getByAltText(HERO_BANNER_ALT),
+    page.getByAltText(HERO_BANNER_ALT).filter({ visible: true }),
     page.locator("h1"),
     page.getByRole("link", { name: "View my work →" }),
     page.locator("#work-featured-heading"),
@@ -253,7 +253,7 @@ test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) 
   test.skip(![390, 1440].includes(width(page)), "EVAL-001 is scored at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
   if (width(page) === 1440) {
-    await expect(page.getByAltText(HERO_BANNER_ALT)).toBeVisible();
+    await expect(page.getByAltText(HERO_BANNER_ALT).filter({ visible: true })).toBeVisible();
     await expectWholeScene(page);
     await expectCopyWithinOneScroll(page);
     await expect(page.locator("h1#hero-h")).toContainText("AI-native products");
@@ -266,7 +266,7 @@ test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) 
   const elements = {
     name: page.locator("header .header-name"),
     title: page.getByText(hero.eyebrow.text, { exact: true }),
-    desk: page.getByAltText(HERO_BANNER_ALT),
+    desk: page.getByAltText(HERO_BANNER_ALT).filter({ visible: true }),
     video: page.locator(".hero-intro").getByRole("button", { name: `Play ${hero.introVideo.title}` }),
   };
   for (const [label, locator] of Object.entries(elements)) {
