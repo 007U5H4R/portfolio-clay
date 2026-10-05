@@ -1,9 +1,10 @@
 ---
 id: TASK-145
 title: 'M-010 Track 4: paper-cut chrome (nav, dividers, footer ocean, depth)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 18:07'
 labels:
   - P2
 milestone: m-9
