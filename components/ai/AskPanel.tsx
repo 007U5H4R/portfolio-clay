@@ -196,6 +196,7 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
       // No `display` on the <dialog> itself (the UA `dialog:not([open])` rule must keep it hidden);
       // the flex column lives on `.tk-paper`.
       className="ask-panel"
+      data-no-trail=""
       data-mode={chatting ? "chat" : "empty"}
       onCancel={(event) => {
         event.preventDefault(); // Esc takes the same animated close path as the button / backdrop

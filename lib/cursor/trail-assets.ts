@@ -21,6 +21,14 @@ export function themeFor(value: string | null | undefined): TrailTheme {
   return isTrailTheme(value) ? value : "default";
 }
 
+/** Project slug → trail theme (data-cursor-theme on a project's own surface). */
+export function themeForSlug(slug: string): TrailTheme {
+  if (slug === "railcite") return "railcite";
+  if (slug === "slag-city") return "slag-city";
+  if (slug === "campfire-board") return "campfire";
+  return "default";
+}
+
 export function trailSrc(name: string): string {
   return `${TRAIL_BASE}${name}.svg`;
 }

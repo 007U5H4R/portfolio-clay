@@ -180,6 +180,7 @@ export function DemoVideo({
     <div
       ref={containerRef}
       data-video-state={phase}
+      data-no-trail=""
       className={["relative h-full w-full overflow-hidden bg-ivory", className].filter(Boolean).join(" ")}
     >
       {intent ? (
@@ -207,6 +208,7 @@ export function DemoVideo({
           <button
             type="button"
             aria-label={`Play demo: ${name}`}
+            data-cursor="PLAY ▶"
             onClick={handlePlayClick}
             className={`${PAPER_BUTTON} h-14 w-14`}
           >

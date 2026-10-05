@@ -25,6 +25,7 @@ export function HeroAskLink({ className, describedBy, children }: { className?: 
       className={className}
       aria-describedby={describedBy}
       aria-haspopup="dialog"
+      data-cursor="WOOF 🐾"
       aria-expanded={panelOpen}
       onClick={onClick}
     >
