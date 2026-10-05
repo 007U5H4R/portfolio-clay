@@ -21,8 +21,11 @@ import { knowledge } from "@/data/knowledge";
 import { Icon } from "@/components/common/Icon";
 import { DraftTag } from "@/components/paper/DraftTag";
 import { Hand } from "@/components/paper/Hand";
+import { faqIdOf, isSpeakable } from "@/lib/ask/pipeline";
+import type { FaqAudioRecord } from "@/lib/tushky-voice/faq-audio";
 import type { ChatTurn } from "./AskProvider";
 import { Paw } from "./Paw";
+import { TushkyVoicePlayer, useVoiceEntry } from "./voice/TushkyVoicePlayer";
 import { CATEGORY_ICONS, TUSHKY_SUGGESTIONS, followUpsFor, followUpsForPrompts, type FollowUp } from "./ask-tushky-data";
 
 const MASCOT = illustration("tushky");
@@ -189,20 +192,29 @@ function FollowUps({ items, onAsk }: { items: FollowUp[]; onAsk: (label: string,
   );
 }
 
+/** TASK-134: fresh pre-generated FAQ clips, by FAQ id (lib/tushky-voice/faq-audio.ts). */
+export type FaqAudioMap = ReadonlyMap<string, Pick<FaqAudioRecord, "url" | "durationMs">>;
+const NO_FAQ_AUDIO: FaqAudioMap = new Map();
+
 function TushkyTurn({
   turn,
   isLast,
   answered,
+  faqAudio,
   onAsk,
   onRetry,
 }: {
   turn: Extract<ChatTurn, { role: "tushky" }>;
   isLast: boolean;
   answered: ReadonlySet<string>;
+  faqAudio: FaqAudioMap;
   onAsk: (label: string, query: string) => void;
   onRetry: (turnId: number) => void;
 }) {
   const { status, answer } = turn;
+  const messageId = String(turn.id);
+  // TASK-134 (UI spec §14): the avatar's one small cue while this answer is speaking.
+  const speaking = useVoiceEntry(messageId).status === "playing";
   let body;
   if (status === "loading") {
     body = (
@@ -231,10 +243,24 @@ function TushkyTurn({
     // derives them from the knowledge entry, as before. Both render identically.
     const followUps = answer.suggestedFollowUps ?? followUpsFor(matched, answered);
     const draft = answer.draft ?? answer.matched.some((id) => DRAFT_IDS.has(id));
+    // TASK-134: the voice strip sits between the answer and its sources (UI spec §1 / §20). A refusal
+    // or an empty answer gets no strip (brief §3.3).
+    const faqId = faqIdOf(answer);
+    const clip = faqId ? faqAudio.get(faqId) : undefined;
     body = (
       <>
         {draft ? <DraftTag /> : null}
         <p className="tk-answer-text">{answer.text}</p>
+        {isSpeakable(answer) ? (
+          <TushkyVoicePlayer
+            messageId={messageId}
+            question={turn.query}
+            answerText={answer.text}
+            faqId={faqId}
+            cachedAudioUrl={clip?.url}
+            cachedDurationMs={clip?.durationMs}
+          />
+        ) : null}
         <Sources answer={answer} />
         {isLast ? <FollowUps items={followUps} onAsk={onAsk} /> : null}
       </>
@@ -253,8 +279,12 @@ function TushkyTurn({
       data-role="tushky"
       data-msg={status}
       data-source={answer?.kind === "answer" ? (answer.sourceType ?? "local-index") : undefined}
+      data-speaking={speaking ? "" : undefined}
     >
-      <TushkyAvatar size={32} className="tk-turn-avatar" />
+      <span className="tk-turn-avatar-wrap">
+        <TushkyAvatar size={32} className="tk-turn-avatar" />
+        <span aria-hidden="true" className="tk-speaking-marks" />
+      </span>
       <div className="tk-bubble">
         <span className="sr-only">Tushky: </span>
         {body}
@@ -265,10 +295,12 @@ function TushkyTurn({
 
 export function ChatConversation({
   messages,
+  faqAudio = NO_FAQ_AUDIO,
   onAsk,
   onRetry,
 }: {
   messages: ChatTurn[];
+  faqAudio?: FaqAudioMap | undefined;
   onAsk: (label: string, query: string) => void;
   onRetry: (turnId: number) => void;
 }) {
@@ -293,6 +325,7 @@ export function ChatConversation({
             turn={m}
             isLast={m.id === lastId}
             answered={answered}
+            faqAudio={faqAudio}
             onAsk={onAsk}
             onRetry={onRetry}
           />

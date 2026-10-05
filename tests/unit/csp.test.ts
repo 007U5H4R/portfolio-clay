@@ -9,6 +9,8 @@ import { portfolioEntries } from "@/data/portfolio";
  * TASK-122 — the CSP stays tight while it admits the video players (video-embed spec §9, §18).
  * Fails on `frame-src *`, on any `youtube.com/embed` (the tracking host) anywhere in the policy or
  * the app source, and on ANY change to a directive other than frame-src.
+ *
+ * TASK-134 extends `media-src` by exactly `blob:` for Ask Tushky's voice (and pins it below).
  */
 function directives(csp: string): Map<string, string> {
   return new Map(
@@ -37,7 +39,8 @@ const UNRELATED = {
   "script-src": "'self' 'unsafe-inline' https://va.vercel-scripts.com",
   "style-src": "'self' 'unsafe-inline'",
   "img-src": "'self' data: blob:",
-  "media-src": "'self'",
+  // TASK-134: Ask Tushky's voice plays same-origin FAQ clips and Blob URLs of fetched speech.
+  "media-src": "'self' blob:",
   "font-src": "'self'",
   "connect-src": "'self'",
   "frame-ancestors": "'none'",
@@ -77,6 +80,20 @@ describe("served CSP (next.config.ts headers)", () => {
     expect(keys).toEqual(
       expect.arrayContaining(["X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy", "Strict-Transport-Security", "Permissions-Policy"]),
     );
+  });
+});
+
+describe("TASK-134 voice playback", () => {
+  it("media-src admits same-origin audio and Blob URLs, and nothing else", async () => {
+    const d = directives(await servedCsp());
+    expect(d.get("media-src")).toBe("'self' blob:");
+    expect(d.get("media-src")).not.toMatch(/\*|data:|https?:/);
+  });
+
+  it("the speech POST is same-origin: connect-src stays 'self' only; frame-src is untouched", async () => {
+    const d = directives(await servedCsp());
+    expect(d.get("connect-src")).toBe("'self'");
+    expect(d.get("frame-src")).toBe("https://www.youtube-nocookie.com");
   });
 });
 
