@@ -225,6 +225,18 @@ production comes from `main`, which is not part of this branch, and the release 
 PB4 gate in `scripts/predeploy-check.ts` (it needs the case-study MP4s at `VERCEL_ENV=production`;
 HANDOFF.md). There is no Vercel CLI or token in this session.
 
+## Follow-up: "In their words" testimonials (TASK-137, 2026-10-05)
+
+Tushar sent his LinkedIn recommendations (17 received, 11 public) and chose three for About: Jay Mundhara,
+Shivali Sharma and Sumeet Chaurasia; only recommendations public on LinkedIn are used; the "Read all" link
+goes to his LinkedIn recommendations tab. New `section#testimonials` between Recognition and the Experience
+strip: `data/testimonials.ts` (full texts verbatim + the shown fragments, unit-asserted as substrings),
+`components/about/Testimonials.tsx`, `.tsx-*` styles in the TASK-136 block. No photos (initials), no
+screenshots, no third-party contact details; quotes with typos and the hidden ones are not used. EVAL-018 = 1
+(torn). Ticket: `backlog/tasks/task-137 …`. Checks: typecheck, lint, tokens 13/13, 874 unit tests, build,
+About e2e (about, about-part2, EVAL-018/008, parallax stacking) 120 passed / 0 failed. `/about` is now
+5,311 px tall at 1440 (8,402 at 390).
+
 ## Commits
 
 - `a1828ba` docs: add Tushar's About redesign spec, reference and cloud brief (TASK-136) — the base (brief) commit, not this session’s
