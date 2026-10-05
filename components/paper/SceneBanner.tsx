@@ -98,7 +98,11 @@ export function SceneBanner({ id, priority = false, focalX = 0.5, focalY, sizes 
  * none — removed from the accessibility tree too, so a screen reader gets the one alt once).
  */
 function ThemedImage({ id, theme, alt, sizes, priority, narrow }: { id: StaticIllustrationId; theme: "light" | "dark"; alt: string; sizes: string; priority: boolean; narrow: SceneBannerNarrow | undefined }) {
-  const source = theme === "dark" ? (darkSceneImage(id) ?? sceneImage(id)) : sceneImage(id);
+  const dark = darkSceneImage(id);
+  const source = theme === "dark" ? (dark ?? sceneImage(id)) : sceneImage(id);
+  // The hook exists only on a PAIRED scene: an unpaired one (no dark art yet, T3) shows its single light scene in
+  // both themes and must never be hidden by the `[data-theme-art]` rules.
+  const art = dark ? theme : undefined;
   if (narrow === undefined) {
     return (
       <Image
@@ -111,11 +115,11 @@ function ThemedImage({ id, theme, alt, sizes, priority, narrow }: { id: StaticIl
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         className="scene-banner-img"
-        data-theme-art={theme}
+        data-theme-art={art}
       />
     );
   }
-  return <ArtDirectedImage source={source} theme={theme} alt={alt} sizes={sizes} narrow={narrow} priority={priority} />;
+  return <ArtDirectedImage source={source} theme={theme} art={art} alt={alt} sizes={sizes} narrow={narrow} priority={priority} />;
 }
 
 /**
@@ -125,7 +129,7 @@ function ThemedImage({ id, theme, alt, sizes, priority, narrow }: { id: StaticIl
  * so a priority banner preloads each rendition itself, split by `media` — a phone never fetches the
  * wide scene and a desktop never fetches the crop.
  */
-function ArtDirectedImage({ source, theme, alt, sizes, narrow, priority }: { source: ReturnType<typeof sceneImage>; theme: "light" | "dark"; alt: string; sizes: string; narrow: SceneBannerNarrow; priority: boolean }) {
+function ArtDirectedImage({ source, theme, art, alt, sizes, narrow, priority }: { source: ReturnType<typeof sceneImage>; theme: "light" | "dark"; art: "light" | "dark" | undefined; alt: string; sizes: string; narrow: SceneBannerNarrow; priority: boolean }) {
   const common = { alt, loading: priority ? ("eager" as const) : ("lazy" as const), decoding: "async" as const };
   const { props: wide } = getImageProps({ ...common, src: source, sizes });
   const narrowFile = theme === "dark" && narrow.darkSrc ? narrow.darkSrc : narrow.src;
@@ -137,7 +141,7 @@ function ArtDirectedImage({ source, theme, alt, sizes, narrow, priority }: { sou
     preload(wide.src, { as: "image", imageSrcSet: wide.srcSet, imageSizes: sizes, fetchPriority: "high", media: WIDE_MEDIA });
   }
   return (
-    <picture data-theme-art={theme} className="scene-banner-picture">
+    <picture data-theme-art={art} className="scene-banner-picture">
       <source media={NARROW_MEDIA} srcSet={narrowSrcSet} sizes={narrow.sizes} width={narrow.width} height={narrow.height} />
       <img {...wide} alt={alt} fetchPriority={priority ? "high" : undefined} className="scene-banner-img scene-banner-img--narrow-crop" />
     </picture>

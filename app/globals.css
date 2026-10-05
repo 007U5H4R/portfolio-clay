@@ -12391,3 +12391,46 @@ html[data-theme-vt]::view-transition-group(root) {
   transition-timing-function: ease !important;
   transition-delay: 0s !important;
 }
+
+/*
+  Dark pass (TASK-141.5; Design.md §13.1 rule 2): a surface *filled* with `navy` flips to light ink in dark, and
+  `kraft` is a fill only. The next-project band therefore takes the card tone (`ivory`, the lifted navy) with
+  `navy` (light ink) text, and its kraft text/focus ring becomes `ink-soft` / `rust` — AA in both themes
+  (tokens-check pairs navy/ivory, ink-soft/ivory, rust/ivory). Unlayered: beats the component layer.
+*/
+[data-theme="dark"] .cs-next {
+  color: var(--color-navy);
+  background-image: linear-gradient(var(--color-ivory), var(--color-ivory));
+}
+[data-theme="dark"] .cs-next-h {
+  color: var(--color-navy);
+}
+[data-theme="dark"] .cs-next-eyebrow,
+[data-theme="dark"] .cs-next .cs-next-note {
+  color: var(--color-ink-soft);
+}
+[data-theme="dark"] .cs-next-link:focus-visible {
+  outline-color: var(--color-rust);
+}
+
+/*
+  Credential badges are third-party artwork on a white canvas (Design.md §12.4 — never regenerated). On the light
+  theme `multiply` lets that canvas take the card tone; on a dark card it would multiply to near-black and bury the
+  logo. In dark the badge sits on its own *light* paper disc (`navy` is the light ink value there), so `multiply`
+  still gives the cream tone and the credential stays legible. The drop shadow falls from `paper`, not `navy`.
+*/
+[data-theme="dark"] .cert-badge-paper {
+  background:
+    radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--color-kraft) 24%, transparent) 0 1px, transparent 1.5px) 0 0 / 8px 9px,
+    var(--color-navy);
+}
+[data-theme="dark"] .cert-badge {
+  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-paper) 40%, transparent))
+    drop-shadow(0 8px 10px color-mix(in oklab, var(--color-paper) 55%, transparent));
+}
+[data-theme="dark"] .certm-badge {
+  mix-blend-mode: normal; /* the badge carries its own light backing (multiply would take the dark card) */
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--color-navy);
+}

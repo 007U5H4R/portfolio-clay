@@ -76,6 +76,16 @@ async function roundTrip(page: Page, route: string, opts: { viaDom?: boolean; be
   const h1 = await height(page);
   expect(await filtered(page), `${route}: filtered media in dark`).toEqual([]);
   expect(await bandTerracottaIntact(page), `${route}: band terracotta token in dark`).not.toBe(false);
+  // Regression (TASK-141): a scene without a dark twin must still render in dark — the `[data-theme-art]` hide rules
+  // may only ever touch a PAIRED scene's inactive twin.
+  expect(
+    await page.evaluate(() =>
+      [...document.querySelectorAll("figure[data-illustration]")]
+        .filter((f) => ![...f.querySelectorAll("img")].some((i) => i.getBoundingClientRect().width > 0))
+        .map((f) => f.getAttribute("data-illustration")),
+    ),
+    `${route}: scene figures with no visible image in dark`,
+  ).toEqual([]);
   await flip(page, "light", opts.viaDom);
   const h2 = await height(page);
   const shift = (await cls(page)) - c0;
