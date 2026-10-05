@@ -285,7 +285,16 @@ test("@EVAL-019 static HTML carries the banner <img fetchpriority=high> and no <
   // + the optimizer srcset); the poster is no longer an <img> anywhere in the page.
   const banners = imgTags.filter((tag) => tag.includes("hero-banner"));
   expect(banners, "exactly one banner <img>").toHaveLength(1);
-  expect(imgTags.filter((tag) => tag.includes("hero-poster")), "the poster is not rendered as an <img> (it is the clip's poster attribute)").toHaveLength(0);
+  // The clip's poster is its `poster` attribute, never an <img>. Since Dev-132 the same illustration is
+  // also the intro video's click-to-load poster: one lazy <img class="pf-stage-poster"> below the fold,
+  // so it can never compete with the banner for LCP.
+  const posterImgs = imgTags.filter((tag) => tag.includes("hero-poster"));
+  expect(posterImgs.length, "at most the intro video's poster renders the illustration as an <img>").toBeLessThanOrEqual(1);
+  for (const tag of posterImgs) {
+    expect(tag, "the only poster <img> is the intro print's").toMatch(/\bclass="pf-stage-poster"/);
+    expect(tag, "the intro print's poster is lazy, never an LCP candidate").toMatch(/\bloading="lazy"/);
+    expect(tag).not.toMatch(/\bfetchpriority="high"/i);
+  }
   const banner = banners[0]!;
   // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML
   // attribute names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM
