@@ -3,10 +3,10 @@ id: TASK-144.5
 title: >-
   T3.5 Integrate scenes: responsive renditions, manifest, theme swap,
   optimization
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-05 15:17'
-updated_date: '2026-10-05 18:08'
+updated_date: '2026-10-05 19:50'
 labels:
   - P1
 dependencies: []
