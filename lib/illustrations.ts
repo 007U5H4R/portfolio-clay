@@ -9,6 +9,7 @@ import sceneContact from "@/content/media/illustrations/scene-contact.jpg";
 import sceneExperience from "@/content/media/illustrations/scene-experience.jpg";
 import sceneCertifications from "@/content/media/illustrations/scene-certifications.jpg";
 import heroBanner from "@/content/media/illustrations/hero-banner.webp";
+import heroBannerDark from "@/content/media/illustrations/hero-banner-dark.webp";
 
 export type { Illustration, IllustrationKind } from "@/content/media/illustrations/manifest";
 export type IllustrationId = Illustration["id"];
@@ -32,6 +33,20 @@ const SCENE_IMAGES: Record<StaticIllustrationId, StaticImageData> = {
   "scene-certifications": sceneCertifications,
   "hero-banner": heroBanner,
 };
+
+/**
+ * The matched dark-theme twins (S23, EV9; manifest `darkFile`): one static import per paired id, identical pixel
+ * size to its light twin (EVAL-025). Ids without an entry have no dark art yet (T3 adds them) and render the
+ * light scene in both themes.
+ */
+const DARK_SCENE_IMAGES: Partial<Record<StaticIllustrationId, StaticImageData>> = {
+  "hero-banner": heroBannerDark,
+};
+
+/** The dark twin's static import, or `undefined` when the scene has no dark art yet. */
+export function darkSceneImage(id: StaticIllustrationId): StaticImageData | undefined {
+  return DARK_SCENE_IMAGES[id];
+}
 
 /** The static image import for a scene / banner id — pass to `next/image`'s `src`. */
 export function sceneImage(id: StaticIllustrationId): StaticImageData {

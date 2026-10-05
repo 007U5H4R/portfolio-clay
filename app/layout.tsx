@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
+import { themeInitScript } from "@/lib/theme";
 import { knowledge } from "@/data/knowledge";
 import faqData from "@/data/tushky/faq.json";
 import type { FaqEntry } from "@/lib/ask/faq";
@@ -73,7 +74,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}
+      // The pre-paint script below sets data-theme before first paint; React never writes it (S25), so
+      // the only server/client difference is this one attribute on <html> — nowhere else.
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Theme pre-paint (Design.md §13.2, S25): first child of <head>, ahead of every stylesheet. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         {/*
           AskProvider is hoisted here (from app/page.tsx, TKT-10) so the deterministic Ask provider

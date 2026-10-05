@@ -570,3 +570,9 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** The full e2e on `m-009-redesign` (`2e07182`, built 19:50) ended 1327 passed / 1 failed: `[w1440] how-i-think.spec.ts:132 @EVAL-010 cards unroll one at a time` saw 0 `[data-roll="rolling"]` within 5 s. That run overlapped the T1 agent's work on the same host.
 **Decision.** Treated as environmental. Evidence: the trace shows the assertion's polls stalling for 3.7 s (1951381 → 1955104) while the roll sequence (1.4 s radial + 6 × 750 ms) ran between samples, ending in `buildReveal` with cards `settled`; no file under `components/motion/journey` or the home section changed in the 36 commits, and the `.jr-roll` CSS block is byte-identical (moved only); the same spec passed in T1's full run (1328 / 0) on the same journey code. Isolated re-run (`--project=w1440 --repeat-each=3`, gate lock held, 21:53): **3 passed / 0 failed**.
 **Rejected.** Loosening the test's 5 s window (would hide a real stall); re-running the full suite again before pushing (the T1 run already covers this code).
+
+## T2-D1 · Theme toggle as a single switch with two generated scenes; page-level view-transition dissolve — accepted (TASK-141, 2026-10-05, on Tushar's behalf per EXE-26)
+**Context.** toggle.md §10 plans eight art layers, two radios and a per-image crossfade; EV9 forbids filters; one image fetched before load (EVAL-019).
+**Decision.** One `role="switch"` capsule over two generated scenes (Dev-141), the hero twin lazy + hidden with an idle warm-up (Dev-142), a 240 ms View-Transition dissolve for the switch (Dev-143).
+**Rejected.** Eight Higgsfield layers (cost and halo risk for a 112×44 control); crossfading two visible images (would fetch both before load).
+**Consequence.** Dark visitors fetch the light hero once; the labelled two-panel toggle is deferred (Playground variant). Track ids Dev-140…145.

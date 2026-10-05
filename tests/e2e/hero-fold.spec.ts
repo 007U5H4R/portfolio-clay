@@ -54,7 +54,7 @@ test("@EVAL-001 ≥ 768: the banner shows the whole scene and the h1 + CTAs are 
   test.skip(width(page) < 768, "the whole-scene rule applies ≥ 768 (TKT-96, Dev-39)");
   await page.goto("/", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.getByAltText(HERO_BANNER_ALT)).toBeVisible();
+  await expect(page.getByAltText(HERO_BANNER_ALT).filter({ visible: true })).toBeVisible();
   await expectWholeScene(page);
   // A 1920 desktop too (the projects stop at 1440): the box has no max-height cap any more.
   if (width(page) === 1440) {
