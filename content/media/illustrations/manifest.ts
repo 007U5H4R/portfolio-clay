@@ -19,11 +19,12 @@
  * (scripts/portfolio-art/featured/, public-only; full-card compositions since the fidelity pass).
  */
 
-export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
+export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot"; // "clip": no entry ships since S24 retired clip A, kept for the alt-prefix table
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
+  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
-  file: string;          // relative to content/media/illustrations/ (source rendition)
+  file: string;          // relative to content/media/illustrations/ (source rendition; the LIGHT rendition when `darkFile` is set)
+  darkFile?: string;     // TASK-140 (S23, EV9, EVAL-025): the paired dark-theme rendition — same entry, same alt, identical pixel size
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
   width: number; height: number;
   alt: string;           // MUST start with "Illustration of" (scenes/poster), "Animated illustration of" (clip) or "Tushky, " (mascot); ≥ 8 chars (schema)
@@ -39,29 +40,22 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1280,
     height: 684,
     alt: "Illustration of Tushar at a warm desk — laptop, notebook, books, a plant, a lamp, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
-    // TKT-93: no longer rendered as an <img>; ships as the clip's `poster` attribute on `/` (Design.md §5.2).
+    // TKT-93: never an <img> on `/`. TASK-140 (S24) retired the clip it was the poster of; it now survives only as the
+    // OG image's source (`lib/og.tsx` OG_POSTER_PATH) and the intro video's dev board — retire with the OG re-skin.
     usedOn: ["/"],
   },
   {
-    // TKT-93 (Dev-23 / EXE-15): the 21:9 outpaint of `hero-desk` — the full-bleed home banner and the
-    // LCP image; the clip is registered on it (components/hero/registration.ts). Static import via
-    // lib/illustrations.ts (`sceneImage("hero-banner")`) so next/image emits AVIF/WebP + srcset.
+    // TASK-140 (S24 / Dev-136): the home banner is now a paper-cut STILL (Higgsfield `gpt_image_2_5`, light + dark twin,
+    // 2688×1152 masters → 3168×1344 renditions). The full-bleed home banner and the LCP image; no clip. Static import via
+    // lib/illustrations.ts (`sceneImage("hero-banner")`) so next/image emits AVIF/WebP + srcset. `darkFile` is the matched
+    // evening twin (identical size, one shared alt) — T2 (TASK-141) wires it to `data-theme`.
     id: "hero-banner",
     kind: "scene",
     file: "hero-banner.webp",
+    darkFile: "hero-banner-dark.webp",
     width: 3168,
     height: 1344,
-    alt: "Illustration of Tushar at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, and books titled Product Thinking, AI & Society, System Thinking and A Better Tomorrow.",
-    usedOn: ["/"],
-  },
-  {
-    id: "hero-clip",
-    kind: "clip",
-    file: "",
-    publicSrc: "/media/illustrations/hero-animation.webm",
-    width: 1280,
-    height: 684,
-    alt: "Animated illustration of Tushar thinking at his desk and turning a pen — plays once.",
+    alt: "Illustration of Tushar in layered paper-cut at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, a mountain photo, and a stack of books.",
     usedOn: ["/"],
   },
   {

@@ -1,9 +1,10 @@
 ---
 id: TASK-140
 title: 'M-010 Track 1: paper-cut style lock pilot (one scene, light + dark)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-05 11:51'
+updated_date: '2026-10-05 14:21'
 labels:
   - P1
 milestone: m-9

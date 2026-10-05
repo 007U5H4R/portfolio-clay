@@ -2,14 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { HeroAskLink } from "@/components/hero/HeroAskLink";
-import { HeroClip } from "@/components/hero/HeroClip";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
-import { clipSlotStyle } from "@/components/hero/registration";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { SceneBanner } from "@/components/paper/SceneBanner";
 import { hero } from "@/data/hero";
-import { illustration, sceneImage, type SceneId } from "@/lib/illustrations";
+import { sceneImage, type SceneId } from "@/lib/illustrations";
 
 /**
  * The h1 in its three reference lines (TKT-108): `data/hero.ts` splits the headline where Tushar's
@@ -22,15 +20,7 @@ const H1_LINES = [hero.headline.before.trim(), hero.headline.highlight.trim(), h
 const HAND_MARK = "problems.";
 const [HAND_HEAD = "", HAND_TAIL = ""] = hero.handLine.text.split(HAND_MARK);
 
-const POSTER = illustration("hero-desk");
-const CLIP = illustration("hero-clip");
-/** The mp4 is the second rendition of the same clip (Design.md §5.2 source order webm → mp4). */
-const CLIP_MP4 = CLIP.publicSrc!.replace(/\.webm$/, ".mp4");
-
-/**
- * The intro video's poster: the /contact scene's 4:3 character crop (Tushar by the window, waving). Not
- * the hero clip's poster (`hero-desk`), which EVAL-019 keeps out of the page as an <img> (TKT-93).
- */
+/** The intro video's poster: the /contact scene's 4:3 character crop (Tushar by the window, waving). */
 const INTRO_POSTER = "/media/illustrations/scene-contact-mobile.webp";
 
 /** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
@@ -73,10 +63,9 @@ const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
 
 /**
  * Home hero (Design.md §5 modes/lifecycle + §11 Dev-21/Dev-23; decisions S14 / D10 / TP13 / EXE-15;
- * TKT-93). Server component. Order: the full-bleed `SceneBanner` (the 3168×1344 outpaint — the LCP
- * `<img>` in the static HTML in every mode) with `HeroClip` mounting the once-and-hold `<video>` in
- * default mode inside a slot registered on the banner's pixel grid (components/hero/registration.ts)
- * and masked to the character, the polaroids and the postmark — the image layer; then the paper sheet
+ * TKT-93; S24 / TASK-140 / Dev-136). Server component. Order: the full-bleed `SceneBanner` (the paper-cut
+ * still, 3168×1344 — the LCP `<img>` in the static HTML in every mode; no clip, no `<video>`), the
+ * polaroids and the postmark — the image layer; then the paper sheet
  * (TKT-96): a paper `TornEdge` as its top edge over the banner's bottom, and the centred copy block —
  * every string verbatim from `data/hero.ts` (D7), h1 in Fraunces (EXE-15). At ≥ 768 the banner shows
  * the whole 3168×1344 scene; as the page scrolls the image layer moves at half speed and the sheet
@@ -92,11 +81,7 @@ export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-banner">
-        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} sizes="100vw" narrow={BANNER_NARROW}>
-          <div className="hero-clip-slot" style={clipSlotStyle()}>
-            <HeroClip poster={POSTER.publicSrc!} webm={CLIP.publicSrc!} mp4={CLIP_MP4} />
-          </div>
-        </SceneBanner>
+        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} sizes="100vw" narrow={BANNER_NARROW} />
 
         <div className="hero-polaroids" aria-hidden="true">
           {POLAROIDS.map((polaroid) => (

@@ -544,3 +544,9 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** Stage 3 (`evaluation-plan.md` §9, EVAL-019 rewrite, EVAL-023…031, EV7–EV11) asked for sign-off and for one content call: EVAL-029 applies the EVAL-013 PII rule, so the `/card` vCard has no phone number.
 **Decision.** Stage 3 is signed off as written. The vCard keeps name, title, email and the public links only; no phone number, since the site has never published one.
 **Rejected.** Adding a phone number (new personal data on a public site, never sourced in `data/`).
+
+## D13 · The dark theme redefines the same 13 tokens by role, not by colour name — accepted (Stage 4 slim, 2026-10-05, on Tushar's behalf per EXE-26)
+**Context.** S25 fixes one mechanism (`data-theme`, tokens redefined per theme); EVAL-020 requires exactly 13 `--color-*` names, each defined once per theme. The 13 names are light-theme colour names (`navy` is the ink, `ivory` the card).
+**Decision.** Dark keeps the names and swaps the values by role (`Design.md` §13.1): `navy` is warm ivory text, `ivory` the lifted navy card, `paper` deep navy `#0B1530`, `note` a dark mustard card, `kraft` a fill only. Shadows are redefined from `paper`, never `black`. Every pair in §13.1 clears WCAG AA (computed).
+**Rejected.** Thirteen new `-dark` names (breaks EVAL-020, doubles class lists); `dark:` variants (scatters the theme across components, S25).
+**Consequence.** A surface filled with `navy` or `kraft` flips meaning; T2 audits every `bg-navy` / `text-kraft` use against the two rules in §13.1.

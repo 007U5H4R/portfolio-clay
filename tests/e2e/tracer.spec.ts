@@ -21,8 +21,7 @@ import { openCaseStudy } from "./case-study-system";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
-// TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`); `hero-desk` survives only as the
-// clip's `poster` attribute.
+// TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`; a paper-cut still since S24).
 const HERO_BANNER_ALT = ILLUSTRATIONS.find((entry) => entry.id === "hero-banner")!.alt;
 
 const ROUTES = [

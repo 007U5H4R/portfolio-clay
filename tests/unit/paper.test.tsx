@@ -499,9 +499,8 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     const section = md.slice(md.indexOf("### 6.3"), md.indexOf("### 6.4"));
     const rows = [...section.matchAll(/^\| `([a-z0-9-]+)`[^|]*\| (.+) \|$/gm)];
     const alts = new Map(rows.map(([, id, cell]) => [id as string, (cell as string).replace(/ \([^)]*\)$/, "")]));
-    const dev23 = /\| Dev-23 \| New manifest entry `hero-banner`[^|]*?with alt "([^"]+)"/.exec(md);
-    if (!dev23) throw new Error("Design.md §11 Dev-23 must fix the `hero-banner` alt");
-    alts.set("hero-banner", dev23[1]!);
+    // TASK-140 (Dev-136): `hero-banner` is the paper-cut still; its alt is the §6.3 row (Dev-23's gouache alt is history).
+    if (!alts.has("hero-banner")) throw new Error("Design.md §6.3 must fix the `hero-banner` alt (TASK-140)");
     // Dev-62 (TKT-104 r2) supersedes Dev-48's `tushky` alt (mascot v2) and adds `tushky-avatar`.
     const dev62 = /\| Dev-62 \| Manifest entry `tushky` v2[^|]*?with alt "([^"]+)"[^|]*?new manifest entry `tushky-avatar`[^|]*?with alt "([^"]+)"/.exec(md);
     if (!dev62) throw new Error("Design.md §11 Dev-62 must fix the `tushky` v2 and `tushky-avatar` alts (TKT-104 r2)");
@@ -514,9 +513,9 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     return alts;
   };
 
-  it("the manifest has the thirty-two design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + the twelve TASK-127 product covers + TASK-129 `cover-slag-city` + the three TASK-133 `featured-<slug>` collages, all in §6.3) with the exact Design.md alt strings", () => {
+  it("the manifest has the thirty-one design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + the twelve TASK-127 product covers + TASK-129 `cover-slag-city` + the three TASK-133 `featured-<slug>` collages, all in §6.3) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(32);
+    expect(alts.size).toBe(31);
     for (const id of ["scene-experience", "scene-certifications", "polaroid-sunrise", "cover-teachspark", "cover-railcite", "cover-campfire-board", "cover-slag-city", "featured-railcite", "featured-slag-city", "featured-campfire-board"]) expect(alts.has(id), `Design.md §6.3 must fix the ${id} alt`).toBe(true);
     expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));
