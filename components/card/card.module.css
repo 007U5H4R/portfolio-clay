@@ -38,16 +38,24 @@
 }
 
 :global([data-theme="dark"]) .scene {
-  /* dark is its own art direction (§15, §58), not an inversion: navy ranges, dark green land, cream moon */
+  /* dark is its own art direction (§15, §58), not an inversion: blue-grey ranges stepping lighter to darker
+     toward the viewer, muted forest-green land, navy water, cream moon. In dark the role tokens swap (navy is
+     the cream ink, forest/green-2/steel are the lifted values, kraft is a dark brown fill), and the soft-light
+     paper grain plus the layer shade pull every sheet down, so the recipes lean on steel + a little cream for
+     the ranges and on kraft (warm, desaturating) for the greens. Measured on the 1440 render, adjacent layers
+     sit 8+ L* apart: far > peak > mid > shore, land > water, ripples a faint step above the water. */
   --c-card: var(--color-ivory);
-  --c-far: color-mix(in oklab, var(--color-steel) 62%, var(--color-paper));
-  --c-peak: color-mix(in oklab, var(--color-steel) 34%, var(--color-paper));
-  --c-mid: color-mix(in oklab, var(--color-green-2) 44%, var(--color-paper));
-  --c-shore: color-mix(in oklab, var(--color-forest) 30%, var(--color-paper));
-  --c-water: color-mix(in oklab, var(--color-steel) 24%, var(--color-paper));
-  --c-land: color-mix(in oklab, var(--color-forest) 48%, var(--color-paper));
-  --c-ripple: color-mix(in oklab, var(--color-steel) 50%, var(--color-paper));
+  --c-far: color-mix(in oklab, color-mix(in oklab, var(--color-navy) 54%, var(--color-steel)) 88%, var(--color-kraft));
+  --c-peak: color-mix(in oklab, color-mix(in oklab, var(--color-navy) 29%, var(--color-steel)) 88%, var(--color-kraft));
+  --c-mid: color-mix(in oklab, var(--color-green-2) 50%, var(--color-kraft));
+  --c-shore: color-mix(in oklab, var(--color-forest) 24%, var(--color-kraft));
+  --c-water: color-mix(in oklab, var(--color-steel) 50%, var(--color-paper));
+  --c-land: color-mix(in oklab, color-mix(in oklab, var(--color-forest) 50%, var(--color-kraft)) 76%, var(--color-paper));
+  --c-ripple: color-mix(in oklab, var(--color-navy) 30%, var(--c-water));
   --c-sun: color-mix(in oklab, var(--color-navy) 88%, var(--color-kraft));
+  /* the back's edge layers keep the original dark recipe (approved); only the front was re-cut */
+  --c-back-far: color-mix(in oklab, var(--color-steel) 62%, var(--color-paper));
+  --c-back-near: color-mix(in oklab, var(--color-forest) 48%, var(--color-paper));
   --shade: var(--color-paper);
   --shade-a: 0.55;
   --lit: color-mix(in oklab, var(--color-navy) 30%, transparent);
@@ -237,8 +245,8 @@
 [data-layer="water"] .sheet { background-color: var(--c-water); background-size: 480px; background-position: 30px 60px; }
 [data-layer="land"] .sheet { background-color: var(--c-land); background-size: 280px; background-position: 200px 10px; }
 [data-layer="ripples"] .sheet { background-color: var(--c-ripple); background-size: 320px; }
-[data-layer="back-far"] .sheet { background-color: var(--c-far); background-size: 420px; }
-[data-layer="back-near"] .sheet { background-color: var(--c-land); background-size: 300px; }
+[data-layer="back-far"] .sheet { background-color: var(--c-back-far, var(--c-far)); background-size: 420px; }
+[data-layer="back-near"] .sheet { background-color: var(--c-back-near, var(--c-land)); background-size: 300px; }
 
 .sun {
   position: absolute;
