@@ -10257,6 +10257,10 @@ html.lenis body {
     display: block;
     box-shadow: var(--shadow-paper);
   }
+  /* the 4:3 crop in a 16:9 frame: keep his face and the wave */
+  .hero-intro-poster {
+    object-position: 50% 18%;
+  }
   .hero-intro-screen.pf-stage-screen > .pf-play {
     --pf-play: clamp(56px, 6vw, 80px);
     position: absolute;

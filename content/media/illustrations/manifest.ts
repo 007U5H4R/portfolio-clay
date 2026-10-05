@@ -116,7 +116,8 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 3168,
     height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
     alt: "Illustration of Tushar standing by a window next to a tall leafy plant, a terracotta coffee mug in one hand, the other raised in a friendly wave.",
-    usedOn: ["/contact"],
+    // "/" — its 4:3 character crop (`scene-contact-mobile.webp`) is the hero intro video's poster (Dev-132).
+    usedOn: ["/contact", "/"],
   },
   {
     // TASK-114 (Design.md §11 Dev-103): the `/work` Experience opener — a new Higgsfield `gpt_image_2_5`
