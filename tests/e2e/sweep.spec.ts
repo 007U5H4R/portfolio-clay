@@ -183,16 +183,15 @@ for (const { slug, kind } of PAIR_SLUGS) {
     const mockPng = await fullPagePng(await mockCtx.newPage(), MOCKUP, true);
     await mockCtx.close();
     const routePng = await fullPagePng(page, `/work/${slug}`, false);
-    // The mockup draws the chapters under the toggle, so the rich pair adds the route with "Deep
-    // dive" open as a third column; the thin slug has no deep dive (labelled "Deep dive coming").
-    const deepPng = kind === "rich" ? await fullPagePng(page, `/work/${slug}`, false, true) : null;
+    // TASK-130: the route is now the one-pager (no Deep dive to open), shown beside the §7.3 mockup.
+    const deepPng: Buffer | null = null;
 
     // Compose side by side in a scratch page; each column is scaled to ≤ 720 px so a 1440 pair
     // stays under Chromium's 16 384 px screenshot bound.
     const col = Math.min(w, 720);
     const cols: [string, Buffer][] = [
       [`mockup · case-study.html @ ${w}`, mockPng],
-      [`route · /work/${slug} (${kind}, default 30-sec) @ ${w}`, routePng],
+      [`route · /work/${slug} (${kind}, TASK-130 one-pager) @ ${w}`, routePng],
       ...(deepPng ? ([[`route · /work/${slug} (deep dive open) @ ${w}`, deepPng]] as [string, Buffer][]) : []),
     ];
     const ctx = await browser.newContext({ viewport: { width: (col + 16) * cols.length + 16, height: 800 }, isMobile: false, hasTouch: false });

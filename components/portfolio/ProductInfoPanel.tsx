@@ -1,5 +1,6 @@
 "use client";
 
+import { NewTabHint } from "@/components/common/NewTabHint";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
 import { Pin, Sheet, Tape } from "@/components/paper";
@@ -106,12 +107,20 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
           );
         })}
       </ul>
-      <Link href={product.caseStudyHref} className="pf-action pf-case-link focus-ring" data-action="case">
+      {/* TASK-130: the case study opens in a new tab (Tushar, 2026-09-29). */}
+      <Link
+        href={product.caseStudyHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="pf-action pf-case-link focus-ring"
+        data-action="case"
+      >
         <span className="pf-action-icon" aria-hidden="true">
           <BookOpen aria-hidden="true" focusable="false" strokeWidth={1.75} />
         </span>
         <span className="pf-action-label">
           Read the case study <span aria-hidden="true">→</span>
+          <NewTabHint />
         </span>
       </Link>
     </Sheet>

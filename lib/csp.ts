@@ -12,6 +12,11 @@ import { frameSources, type VideoProvider } from "./video-providers";
  *   - no `'self'`: nothing on the site frames a same-origin page, and every route already sends
  *     `frame-ancestors 'none'` + `X-Frame-Options: DENY`, so a same-origin frame would be refused.
  *   - never `*`, never `https://www.youtube.com` (the tracking-cookie host).
+ *
+ * media-src (TASK-134, Ask Tushky's voice): `'self'` for the pre-generated FAQ clips under
+ * `/tushky/audio/faq/`, plus `blob:` for speech fetched from `POST /api/tushky/speech` and played from
+ * a Blob URL (and the silent clip that unlocks playback on iOS). The POST itself is same-origin, which
+ * `connect-src 'self'` already allows. Nothing else changes.
  */
 export function buildCsp(usedProviders: Iterable<VideoProvider>): string {
   const frameSrc = frameSources(["youtube", ...usedProviders]);
@@ -20,7 +25,7 @@ export function buildCsp(usedProviders: Iterable<VideoProvider>): string {
     "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
-    "media-src 'self'",
+    "media-src 'self' blob:",
     `frame-src ${frameSrc.join(" ")}`,
     "font-src 'self'",
     "connect-src 'self'",

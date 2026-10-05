@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { HeroAskLink } from "@/components/hero/HeroAskLink";
 import { HeroClip } from "@/components/hero/HeroClip";
+import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
 import { clipSlotStyle } from "@/components/hero/registration";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
@@ -146,6 +147,20 @@ export function Hero() {
         <Container className="hero-copy">
           <p className="hero-eyebrow">{hero.eyebrow.text}</p>
 
+          {/* Tushar 2026-10-05: his intro video, right after the eyebrow line (every width) — a taped
+              print on the sheet. The click-to-load player (TASK-122): nothing loads from YouTube until
+              Play is pressed. */}
+          <div className="hero-intro">
+            <Sheet variant="photo" rotate={-0.6} className="hero-intro-print">
+              <Tape side="c" />
+              <ProductMediaPlayer
+                media={hero.introVideo}
+                className="pf-stage-screen hero-intro-screen"
+                fallbackPoster={<Image src={POSTER.publicSrc!} alt="" fill sizes="(min-width: 640px) 560px, 92vw" className="pf-stage-poster" />}
+              />
+            </Sheet>
+          </div>
+
           <h1 id="hero-h" className="hero-h1">
             <span className="hero-h1-line">{H1_LINES[0]}</span>{" "}
             <span className="hero-h1-line">{H1_LINES[1]}</span>{" "}
@@ -190,6 +205,7 @@ export function Hero() {
               </span>
             </div>
           </div>
+
         </Container>
       </section>
     </section>

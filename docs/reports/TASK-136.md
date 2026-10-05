@@ -3,7 +3,7 @@
 Cloud session, branch `cloud/task-136` (from `m-009-redesign` @ `7631448` + the brief commit `a1828ba`).
 Spec: `docs/redesign-mockups/m-009/tushar-2026-09-29/about-redesign-spec.md`; reference
 `about-redesign-reference.jpg` (followed for composition, not for its placeholder facts); brief
-`docs/briefs/TASK-136.md`. Design record: Design.md §3.3, §7.2, §7.4 and **§11 Dev-129** (numbered Dev-128 until the merge with `m-009-redesign`, where TASK-133 had already taken Dev-128).
+`docs/briefs/TASK-136.md`. Design record: Design.md §3.3, §7.2, §7.4 and **§11 Dev-135** (renumbered from Dev-128 → Dev-129 → Dev-135 as upstream merges took those numbers).
 
 About now has five areas under the site's `scene-about` opener: **hero → Three Chapters → Career Across
 Contexts → Research + What Drives Me → Recognition**, closed by a **dark strip to Experience and

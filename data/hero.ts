@@ -12,6 +12,8 @@
  * schema is introduced in TKT-03 this literal migrates into that schema world unchanged.
  */
 
+import type { VideoProvider } from "@/lib/video-providers";
+
 export type CopyStatus = "VERIFIED" | "DRAFT";
 
 export interface HeroTile {
@@ -38,6 +40,8 @@ export interface HeroCopy {
   support: { text: string; source: string; status: CopyStatus };
   tagline: { text: string; source: string; status: CopyStatus };
   tiles: readonly HeroTile[];
+  /** Tushar's intro video, played in the hero by the click-to-load `ProductMediaPlayer` (TASK-122 rules). */
+  introVideo: { provider: VideoProvider; videoId: string; title: string; source: string };
 }
 
 /** Where TKT-108's copy comes from: Tushar's own hero copy, quoted verbatim from his reference image. */
@@ -94,4 +98,10 @@ export const hero = {
       status: "VERIFIED",
     },
   ],
+  introVideo: {
+    provider: "youtube",
+    videoId: "ZwlfSraVNr8",
+    title: "Tushar Pathak intro video",
+    source: "Tushar 2026-10-05: https://youtu.be/ZwlfSraVNr8, on Home in the hero",
+  },
 } as const satisfies HeroCopy;

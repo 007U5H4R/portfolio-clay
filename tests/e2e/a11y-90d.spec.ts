@@ -23,12 +23,6 @@ const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const STAGES = ["Problem", "Insight", "Bet", "Build", "Evaluate", "Impact"] as const;
 
 /** Case-study artifacts render in the Deep dive view (the Overview is the default). */
-async function openDeepDive(page: Page, slug: string): Promise<void> {
-  const res = await page.goto(`/work/${slug}`, { waitUntil: "load" });
-  expect(res?.status(), `/work/${slug} must be 200`).toBe(200);
-  await page.getByRole("radio", { name: "Deep dive" }).click();
-  await expect(page.locator("section#deep")).toBeAttached();
-}
 
 test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () => {
   test("/ How I think: the six stage h3s have accessible names before scrolling", async ({ page }) => {
@@ -81,25 +75,5 @@ test("A11Y-2 the disclosure's '+' marker is not read aloud (/work, TASK-136)", a
   expect(await summary.ariaSnapshot()).toContain("+");
 });
 
-test("A11Y-3 the insight opening-quote glyph is not read aloud (/work/teachspark)", async ({ page }) => {
-  test.skip(width(page) !== 1440, "runs once at w1440");
-  await openDeepDive(page, "teachspark");
-  const figure = page.locator("figure.artifact-insight, .artifact-insight").first();
-  await expect(figure).toBeAttached();
-  // The glyph surfaced as a bare `text: “` node ahead of the blockquote; the quote's own
-  // punctuation inside the blockquote is content and stays.
-  const bareGlyph = /^\s*- text: "?“"?\s*$/m;
-  const fixed = await figure.ariaSnapshot();
-  await page.addStyleTag({ content: '.artifact-insight::before { content: "“" !important; }' });
-  const plain = await figure.ariaSnapshot();
-  expect(fixed).not.toMatch(bareGlyph);
-  expect(plain).toMatch(bareGlyph);
-});
-
-test("A11Y-4 the decision 'Why:' label is followed by a real space (/work/teachspark)", async ({ page }) => {
-  test.skip(width(page) !== 1440, "runs once at w1440");
-  await openDeepDive(page, "teachspark");
-  const why = page.locator(".dec-why");
-  expect(await why.count()).toBeGreaterThan(0);
-  for (const text of await why.allTextContents()) expect(text).toMatch(/^Why: \S/);
-});
+// TASK-130: A11Y-3 / A11Y-4 checked the deep-dive artifact cards on /work/teachspark; the one-pager no
+// longer renders them (Dev-130). Their components are still covered by tests/unit/artifacts.test.tsx.

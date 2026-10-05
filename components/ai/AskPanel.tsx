@@ -30,10 +30,14 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { track } from "@vercel/analytics";
 import { durations, useReducedMotionSafe } from "@/lib/motion";
 import { lockBackground } from "@/lib/focus";
-import { FaqCacheProvider, type FaqEntry, type FaqLookupEvent } from "@/lib/ask/faq";
+import type { FaqEntry, FaqLookupEvent } from "@/lib/ask/faq";
+import { createTushkyPipeline } from "@/lib/ask/pipeline";
+import { freshFaqAudio, type FaqAudioManifest } from "@/lib/tushky-voice/faq-audio";
 import faqData from "@/data/tushky/faq.json";
+import faqAudioData from "@/data/tushky/faq-audio.json";
 import { useAskChat, useAskContext } from "./AskProvider";
 import { ChatComposer, ChatConversation, TushkyEmptyState, TushkyHeader } from "./AskTushky";
+import { TushkyVoiceProvider } from "./voice/TushkyVoicePlayer";
 
 export interface AskPanelProps {
   /**
@@ -48,6 +52,8 @@ export interface AskPanelProps {
 
 /** The curated FAQ (TASK-123). Imported here, so it ships in the lazy drawer chunk only (EVAL-005). */
 const FAQ = faqData as FaqEntry[];
+/** TASK-134: pre-generated FAQ audio metadata (voice spec §29); only records still current are played. */
+const FAQ_AUDIO = faqAudioData as FaqAudioManifest;
 
 /**
  * §62: cache effectiveness through the site's existing Vercel Analytics custom events (the project has
@@ -71,10 +77,12 @@ const CLOSE_MS = Math.min(durations.panel, 280);
 export function AskPanel({ faqFreshIds }: AskPanelProps) {
   const { provider, panelOpen, closePanel, triggerRef, pendingAsk, clearPendingAsk } = useAskContext();
   // TASK-123: the FAQ cache answers first; a miss falls through to the context's provider (the index).
+  // TASK-134: built by the same `createTushkyPipeline` the speech route uses to recompute an answer.
   const faqProvider = useMemo(
-    () => new FaqCacheProvider(FAQ, provider, { fresh: faqFreshIds, onLookup: trackLookup }),
+    () => createTushkyPipeline(FAQ, provider, { fresh: faqFreshIds, onLookup: trackLookup }),
     [provider, faqFreshIds],
   );
+  const faqAudio = useMemo(() => freshFaqAudio(FAQ, FAQ_AUDIO, faqFreshIds), [faqFreshIds]);
   const { messages, isGenerating, ask, retry, reset } = useAskChat(faqProvider);
   const reduced = useReducedMotionSafe();
 
@@ -203,17 +211,20 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
         if (trigger?.isConnected) trigger.focus();
       }}
     >
-      <div className="tk-paper">
-        <TushkyHeader compact={chatting} generating={isGenerating} onClose={closePanel} />
-        <div ref={scrollRef} data-lenis-prevent="" className="tk-scroll">
-          {chatting ? (
-            <ChatConversation messages={messages} onAsk={onAsk} onRetry={retry} />
-          ) : (
-            <TushkyEmptyState onAsk={onAsk} />
-          )}
+      {/* TASK-134: one audio manager per drawer; closing the drawer stops and forgets all audio. */}
+      <TushkyVoiceProvider open={panelOpen}>
+        <div className="tk-paper">
+          <TushkyHeader compact={chatting} generating={isGenerating} onClose={closePanel} />
+          <div ref={scrollRef} data-lenis-prevent="" className="tk-scroll">
+            {chatting ? (
+              <ChatConversation messages={messages} faqAudio={faqAudio} onAsk={onAsk} onRetry={retry} />
+            ) : (
+              <TushkyEmptyState onAsk={onAsk} />
+            )}
+          </div>
+          <ChatComposer value={value} onChange={setValue} onSubmit={onSubmit} inputRef={inputRef} />
         </div>
-        <ChatComposer value={value} onChange={setValue} onSubmit={onSubmit} inputRef={inputRef} />
-      </div>
+      </TushkyVoiceProvider>
     </dialog>
   );
 }

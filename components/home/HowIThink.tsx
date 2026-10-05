@@ -1,3 +1,5 @@
+import { caseStudyLinkAttrs } from "@/lib/case-study-link";
+import { NewTabHint } from "@/components/common/NewTabHint";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -144,8 +146,9 @@ export function HowIThink({ stages }: HowIThinkProps) {
                         {`“${stage.example.quote}”`}
                       </Hand>
                     </div>
-                    <Link href={stage.example.href} className="hit-pill focus-ring">
+                    <Link href={stage.example.href} className="hit-pill focus-ring" {...caseStudyLinkAttrs(stage.example.href)}>
                       <span>{`See how I tested this in ${stage.example.projectName}`}</span>
+                      <NewTabHint href={stage.example.href} />
                       <ArrowRight className="hit-pill-arrow" aria-hidden="true" focusable="false" size={18} strokeWidth={1.8} />
                     </Link>
                   </Sheet>

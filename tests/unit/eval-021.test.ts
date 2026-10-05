@@ -253,7 +253,9 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
       expect(cover.file, cover.id).toBe(""); // public-only; the source is scripts/portfolio-art/scenes/
       expect(cover.publicSrc, cover.id).toBe(`/media/illustrations/covers/${cover.id}.svg`);
       expect([cover.width, cover.height], cover.id).toEqual([1600, 900]);
-      expect(cover.usedOn, cover.id).toEqual(["/projects"]);
+      // TASK-130: a cover may also be its own product's case-study poster (`/work/<slug>`), nowhere else.
+      expect(cover.usedOn[0], cover.id).toBe("/projects");
+      expect(cover.usedOn.slice(1).every((route) => route === `/work/${cover.id.replace(/^cover-/, "")}`), cover.id).toBe(true);
       const svg = readFileSync(join(PUBLIC_DIR, cover.publicSrc!.replace(/^\//, "")), "utf8");
       expect(Buffer.byteLength(svg), `${cover.id} bytes`).toBeLessThanOrEqual(40_000);
       expect(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">'), cover.id).toBe(true);
