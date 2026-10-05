@@ -10,18 +10,24 @@
  *      fail CLOSED — never skip — when the binary itself cannot be found).
  *   2. `site.resumeAvailable === true` without a resume.pdf present to back it (the flag must
  *      never claim a resume exists that isn't there).
- *   3. Any of `public/video/{teachspark,railcite,velora}.mp4` missing or >4 MB, but **only**
- *      when `VERCEL_ENV === 'production'` (PB4 — previews may ship without them).
+ *   3. A featured product (`data/projects.ts` `featured` ranks) without a pitch video — a valid
+ *      `pitchVideo` provider + id in `data/portfolio.ts` — but **only** when
+ *      `VERCEL_ENV === 'production'` (PB4 — previews may ship without them). Tushar 2026-10-05: the
+ *      videos live on YouTube (TASK-122), so PB4 checks the ids, no longer local MP4s.
  *   4. Any forbidden-string hit (delegates to `scripts/forbidden-strings.ts`'s `scan()`).
  *
  * Pure checks are exported and unit-tested (`tests/unit/predeploy.test.ts`); `main()` only runs
  * as a CLI (`pnpm predeploy` / `tsx scripts/predeploy-check.ts`), following the same
  * export-pure-function + CLI-guard pattern as `forbidden-strings.ts` and `validate-content.ts`.
  */
-import { existsSync, statSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { site } from "@/lib/site";
+import { projects } from "@/data/projects";
+import { portfolioEntries } from "@/data/portfolio";
+import type { VideoMediaEntry } from "@/data/schema";
+import { isValidVideoId } from "@/lib/video-providers";
 import { RESUME_PII_PATTERNS, readSandboxCodes, scan } from "./forbidden-strings";
 
 export interface PredeployIssue {
@@ -41,8 +47,6 @@ export interface PredeployResult {
   issues: PredeployIssue[];
 }
 
-const FEATURED_VIDEOS = ["teachspark", "railcite", "velora"] as const;
-const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
 
 // CR-005 / CR-008 (Stage 9) + SEC-001 (Stage 10): the PII rules live ONCE, in
 // `scripts/forbidden-strings.ts` (already imported here, so no `tests/**` dependency) — this file
@@ -111,25 +115,38 @@ export function checkResume(cwd: string, opts: CheckResumeOptions = {}): Predepl
   return [];
 }
 
-/** Failure mode 3: featured videos present and ≤4 MB — production only (PB4). */
-export function checkFeaturedVideos(cwd: string, vercelEnv: string | undefined): PredeployIssue[] {
+/** A featured product and the pitch video its portfolio entry carries (if any). */
+export interface FeaturedVideo {
+  slug: string;
+  pitchVideo?: Pick<VideoMediaEntry, "provider" | "videoId"> | undefined;
+}
+
+/** The live featured trio (rank order) joined to `data/portfolio.ts` `pitchVideo`. */
+export function featuredVideos(): FeaturedVideo[] {
+  return projects
+    .filter((project) => project.featured)
+    .sort((a, b) => (a.featured ?? 0) - (b.featured ?? 0))
+    .map((project) => ({
+      slug: project.slug,
+      pitchVideo: portfolioEntries.find((entry) => entry.slug === project.slug)?.pitchVideo,
+    }));
+}
+
+/** Failure mode 3: every featured product has a valid pitch video id — production only (PB4). */
+export function checkFeaturedVideos(vercelEnv: string | undefined, featured: readonly FeaturedVideo[] = featuredVideos()): PredeployIssue[] {
   if (vercelEnv !== "production") return [];
 
   const issues: PredeployIssue[] = [];
-  for (const name of FEATURED_VIDEOS) {
-    const path = join(cwd, "public", "video", `${name}.mp4`);
-    if (!existsSync(path)) {
+  for (const { slug, pitchVideo } of featured) {
+    if (!pitchVideo) {
       issues.push({
         code: "video-missing",
-        message: `public/video/${name}.mp4 is missing (required at VERCEL_ENV=production, PB4)`,
+        message: `featured product ${slug} has no pitchVideo in data/portfolio.ts (required at VERCEL_ENV=production, PB4)`,
       });
-      continue;
-    }
-    const size = statSync(path).size;
-    if (size > MAX_VIDEO_BYTES) {
+    } else if (!isValidVideoId(pitchVideo.provider, pitchVideo.videoId)) {
       issues.push({
-        code: "video-too-large",
-        message: `public/video/${name}.mp4 is ${size} bytes, exceeds the 4 MB limit (PB4)`,
+        code: "video-invalid",
+        message: `featured product ${slug}: "${pitchVideo.videoId}" is not a valid ${pitchVideo.provider} id (PB4)`,
       });
     }
   }
@@ -165,7 +182,7 @@ export function runPredeployChecks(opts: PredeployOptions = {}): PredeployResult
 
   const issues = [
     ...checkResume(cwd),
-    ...checkFeaturedVideos(cwd, vercelEnv),
+    ...checkFeaturedVideos(vercelEnv),
     ...checkForbiddenStrings(cwd),
   ];
 
