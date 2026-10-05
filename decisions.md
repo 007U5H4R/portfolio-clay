@@ -550,3 +550,9 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Decision.** Dark keeps the names and swaps the values by role (`Design.md` §13.1): `navy` is warm ivory text, `ivory` the lifted navy card, `paper` deep navy `#0B1530`, `note` a dark mustard card, `kraft` a fill only. Shadows are redefined from `paper`, never `black`. Every pair in §13.1 clears WCAG AA (computed).
 **Rejected.** Thirteen new `-dark` names (breaks EVAL-020, doubles class lists); `dark:` variants (scatters the theme across components, S25).
 **Consequence.** A surface filled with `navy` or `kraft` flips meaning; T2 audits every `bg-navy` / `text-kraft` use against the two rules in §13.1.
+
+## T2-D1 · Theme toggle as a single switch with two generated scenes; page-level view-transition dissolve — accepted (TASK-141, 2026-10-05, on Tushar's behalf per EXE-26)
+**Context.** toggle.md §10 plans eight art layers, two radios and a per-image crossfade; EV9 forbids filters; one image fetched before load (EVAL-019).
+**Decision.** One `role="switch"` capsule over two generated scenes (Dev-141), the hero twin lazy + hidden with an idle warm-up (Dev-142), a 240 ms View-Transition dissolve for the switch (Dev-143).
+**Rejected.** Eight Higgsfield layers (cost and halo risk for a 112×44 control); crossfading two visible images (would fetch both before load).
+**Consequence.** Dark visitors fetch the light hero once; the labelled two-panel toggle is deferred (Playground variant). Track ids Dev-140…145.
