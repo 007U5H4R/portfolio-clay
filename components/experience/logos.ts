@@ -25,7 +25,7 @@ export const ORG_LOGOS: Record<string, OrgLogo> = {
   quantiphi: { src: "/media/logos/quantiphi.webp", alt: "Quantiphi", width: 510, height: 95 },
   godrej: { src: "/media/logos/godrej.svg", alt: "Godrej", width: 398, height: 192 },
   "mtech-nitc": { src: "/media/logos/nit-calicut.svg", alt: "National Institute of Technology Calicut", width: 275, height: 335 },
-  "be-bitd": { src: "/media/logos/bit-durg.webp", alt: "Bhilai Institute of Technology, Durg", width: 412, height: 408 },
+  "be-bitd": { src: "/media/logos/bit-durg.webp", alt: "Bhilai Institute of Technology, Durg", width: 420, height: 420 },
 };
 
 /** Cloud-platform marks used inside the (aria-hidden) collage doodles — decorative there, so `alt=""`. */
