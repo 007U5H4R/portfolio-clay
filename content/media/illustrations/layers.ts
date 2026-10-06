@@ -37,7 +37,7 @@ export interface LayeredScene {
 export const LAYERED_SCENES = [
   {
     id: "hero-home",
-    alt: "Illustration of Tushar in layered paper-cut at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, framed pictures and a stack of books.",
+    alt: "Illustration of Tushar in layered paper-cut at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, a mountain photo, and a stack of books.",
     width: 2400,
     height: 1029,
     mobileWidth: 1280,

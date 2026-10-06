@@ -34,9 +34,9 @@ export function SceneOpener({ id, priority = false, tornFill = "paper" }: SceneO
   return (
     <section className="scene-opener" data-opener={id}>
       {isLayered(id) ? (
-        // M-011 P2: the opener's frame is the box CSS gives it (app/globals.css `.scene-opener [data-paper-scene]`); the
-        // layers cover it on the focal point, exactly as the single image did.
-        <PaperParallaxScene id={id} priority={priority} focal={{ x: OPENER_FOCAL_X[id] }} />
+        // M-011 P2: the opener's frame is the home hero's — the scene's own ratio ≥ 768, a 4:3 cover crop on the focal point
+        // below (TKT-107's rule, now carried by the scene root's aspect-ratio).
+        <PaperParallaxScene id={id} priority={priority} focal={{ x: OPENER_FOCAL_X[id] }} narrowAspect="4 / 3" />
       ) : (
         <SceneBanner id={id} focalX={OPENER_FOCAL_X[id]} priority={priority} sizes="100vw" narrow={openerNarrow(id)} />
       )}

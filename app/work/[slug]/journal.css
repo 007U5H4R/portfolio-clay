@@ -726,7 +726,7 @@
 .jx-dn-ticket[data-n="3"] { right: 2%; top: 24%; transform: rotate(-4deg); max-width: 150px; }
 @media (prefers-reduced-motion: no-preference) {
   .jx-dn-scene .jx-dn-screen { animation: dn-power 900ms steps(6, end) 300ms both; }
-  @keyframes dn-power { from { filter: brightness(0.2) saturate(0.4); } }
+  @keyframes dn-power { from { opacity: 0.3; } } /* M-011: opacity, not a filter (EVAL-036) */
 }
 
 /* The rail: an arcade power cable with a pixel progress light. Markers: arcade tokens. */

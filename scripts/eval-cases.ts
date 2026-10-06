@@ -62,8 +62,6 @@ const AUTOMATED_RUNNERS = [
  * the spec in the same change; remove the entry then.
  */
 const DEFERRED_SPECS: Record<string, string> = {
-  "EVAL-036": "M-011 P6 — contact scene (after TASK-143/150 commit)",
-  "EVAL-038": "M-011 P6 — sailboat visibility (style gates are manual per track)",
 };
 
 const EvalCaseSchema = z

@@ -31,8 +31,7 @@ import { ILLUSTRATIONS, type Illustration } from "@/content/media/illustrations/
 
 const MEASURED_WIDTHS = [390, 1440];
 const SETTLE_MS = 2000;
-const BANNER_CAP_BYTES = 350 * 1024;
-const CONTENT_DIR = resolve(process.cwd(), "content/media/illustrations");
+const BANNER_CAP_BYTES = 240 * 1024;
 const MEDIA_DIR = resolve(process.cwd(), "public/media/illustrations");
 const entry = (id: Illustration["id"]): Illustration => {
   const found = ILLUSTRATIONS.find((e) => e.id === id);
@@ -66,7 +65,7 @@ async function expectStill(page: Page, mode: string) {
   note("eval-019", `${mode} @${width(page)}: ${videos} <video> in the hero, ${clipHooks} [data-hero-clip]`);
   expect(videos, `${mode}: no <video> in the hero`).toBe(0);
   expect(clipHooks, `${mode}: no [data-hero-clip]`).toBe(0);
-  await expect(page.getByAltText(BANNER.alt).filter({ visible: true })).toHaveCount(1);
+  await expect(page.getByRole("img", { name: BANNER.alt })).toHaveCount(1);
 }
 
 // ---------------------------------------------------------------------------
@@ -116,33 +115,32 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
   expect(markupOnly, "no clip hook in the SSR HTML").not.toContain("data-hero-clip");
 
   const imgTags = markupOnly.match(/<img\b[^>]*>/g) ?? [];
-  const bannerTags = imgTags.filter((tag) => tag.includes("hero-banner"));
-  // TASK-141 (S23/EV9): the markup carries the active (light) banner plus its matched dark twin — the twin lazy,
-  // never high-priority, hidden by `[data-theme]` CSS — so exactly one of each, never two of either.
-  const banners = bannerTags.filter((tag) => !tag.includes("hero-banner-dark"));
-  const darkTwins = bannerTags.filter((tag) => tag.includes("hero-banner-dark"));
-  expect(banners, "exactly one light banner <img>").toHaveLength(1);
-  expect(darkTwins, "exactly one dark twin <img>").toHaveLength(1);
-  expect(darkTwins[0], "the dark twin is lazy").toMatch(/\bloading="lazy"/);
-  expect(darkTwins[0], "the dark twin is never a high-priority candidate").not.toMatch(/\bfetchpriority="high"/i);
-  // the hook sits on the <picture> (narrow art direction) that wraps each twin's <img>
+  // M-011 P1: the hero banner is the layered `hero-home` scene — four layers per theme, each an `<img>`. The markup carries
+  // the light set plus the matched dark set: only the light `bg` is eager + high priority (the LCP element), the dark twins
+  // are lazy and never high-priority, hidden by `[data-theme-art]` CSS. The scene's one alt sits once on its `role="img"` root.
+  const heroTags = imgTags.filter((tag) => tag.includes("paper-world/hero-home"));
+  const lightTags = heroTags.filter((tag) => !tag.includes("-dark"));
+  const darkTags = heroTags.filter((tag) => tag.includes("-dark"));
+  expect(lightTags, "four light layer <img>s").toHaveLength(4);
+  expect(darkTags, "four dark layer <img>s").toHaveLength(4);
+  for (const tag of darkTags) {
+    expect(tag, "a dark twin is lazy").toMatch(/\bloading="lazy"/);
+    expect(tag, "a dark twin is never a high-priority candidate").not.toMatch(/\bfetchpriority="high"/i);
+  }
   expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="dark"/);
-  const banner = banners[0]!;
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="light"/);
+  const highs = heroTags.filter((tag) => /\bfetchpriority="high"/i.test(tag));
+  expect(highs, "exactly one high-priority hero image").toHaveLength(1);
+  const banner = highs[0]!;
   // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML attribute
   // names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM check below
   // confirms `img.fetchPriority === "high"` where it matters.
-  expect(banner).toMatch(/\bfetchpriority="high"/i);
+  expect(banner).toContain("hero-home-bg.webp");
   expect(banner).toMatch(/\bloading="eager"/);
-  expect(banner).toMatch(/\bwidth="3168"/);
-  expect(banner).toMatch(/\bheight="1344"/);
-  expect(banner).toMatch(/\bsizes="100vw"/);
-  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="light"/);
+  expect(banner).toMatch(/\bwidth="2400"/);
+  expect(banner).toMatch(/\bheight="1029"/);
   const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-  const alt = /\balt="([^"]*)"/.exec(banner)?.[1] ?? "";
-  expect(alt).toBe(escape(BANNER.alt));
-  // One alt per twin in the markup; only the active twin is rendered (the other is display:none — removed from
-  // the accessibility tree), so a screen reader hears it once (checked live below).
-  expect(markupOnly.split(escape(BANNER.alt)).length - 1, "alt string once per twin in the rendered markup").toBe(2);
+  expect(markupOnly.split(escape(BANNER.alt)).length - 1, "the scene alt once in the rendered markup (on its role=img root)").toBe(1);
 
   // Intro-video rule (TASK-138), kept verbatim: its poster is lazy and never a high-priority candidate.
   for (const tag of imgTags.filter((t) => /\bclass="[^"]*pf-stage-poster/.test(t))) {
@@ -152,8 +150,8 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
 
   // Live DOM at w1440: the parsed attribute + the LCP-relevant IDL property.
   await page.goto("/", { waitUntil: "load" });
-  const img = page.getByAltText(BANNER.alt).filter({ visible: true });
-  await expect(img).toHaveCount(1);
+  await expect(page.getByRole("img", { name: BANNER.alt })).toHaveCount(1);
+  const img = page.locator('[data-paper-scene="hero-home"] img[src$="hero-home-bg.webp"], [data-paper-scene="hero-home"] img[src$="hero-home-bg-mobile.webp"]').first();
   await expect(img).toHaveAttribute("fetchpriority", "high");
   expect(await img.evaluate((el: HTMLImageElement) => el.fetchPriority)).toBe("high");
   await expect(img).toHaveAttribute("loading", "eager");
@@ -162,13 +160,13 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
 // ---------------------------------------------------------------------------
 // One hero image fetched before the load event; the inactive (dark) twin is never requested.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 exactly one hero banner image is fetched before load; the dark twin is warmed only after idle", async ({ page }) => {
+test("@EVAL-019 only the hero's own light layers are fetched before load; the dark twin is warmed only after idle", async ({ page }) => {
   skipUnmeasured(page);
   const before = new Set<string>();
   let loaded = false;
   const all = new Set<string>();
   page.on("request", (req) => {
-    if (!req.url().includes("hero-banner")) return;
+    if (!req.url().includes("paper-world/hero-home")) return;
     all.add(req.url());
     if (!loaded) before.add(req.url());
   });
@@ -177,7 +175,8 @@ test("@EVAL-019 exactly one hero banner image is fetched before load; the dark t
   });
   await page.goto("/", { waitUntil: "load" });
   note("eval-019", `hero banner requests before load @${width(page)}: ${[...before].join(" | ")}`);
-  expect(before.size, "one hero banner URL requested before load").toBe(1);
+  expect(before.size, "the hero's own light layers requested before load (bg + subject eager, fg + details in view; EXE-50)").toBeGreaterThanOrEqual(2);
+  expect(before.size).toBeLessThanOrEqual(4);
   expect([...before].some((u) => u.includes("dark")), "the dark twin is not fetched before load").toBe(false);
   // dark-mode.md §44: after the page is idle the opposite-theme twin is preloaded, so the first switch is instant.
   await expect.poll(() => [...all].some((u) => u.includes("dark")), { timeout: 8000, message: "the dark twin is warmed after idle" }).toBe(true);
@@ -194,12 +193,11 @@ test("@EVAL-019 no clip files ship and every banner rendition stays inside its c
   expect(clipFiles, "clip A is retired (S24)").toEqual([]);
   expect(ILLUSTRATIONS.some((e) => (e.id as string) === "hero-clip"), "no hero-clip manifest entry").toBe(false);
 
-  const renditions = [
-    resolve(CONTENT_DIR, BANNER.file),
-    resolve(CONTENT_DIR, BANNER.darkFile ?? "missing-dark-twin"),
-    resolve(MEDIA_DIR, "hero-banner-mobile.webp"),
-    resolve(MEDIA_DIR, "hero-banner-dark-mobile.webp"),
-  ];
+  // M-011: the banner is the layered `hero-home` scene — every layer file (4 per theme, desktop + mobile) inside the layer cap
+  // (EVAL-034 holds the full integrity set).
+  const dir = resolve(process.cwd(), "public/media/paper-world/hero-home");
+  const renditions = readdirSync(dir).filter((f) => f.endsWith(".webp")).map((f) => resolve(dir, f));
+  expect(renditions, "16 hero-home layer files").toHaveLength(16);
   for (const file of renditions) {
     expect(existsSync(file), `${file} exists`).toBe(true);
     const bytes = statSync(file).size;

@@ -88,9 +88,9 @@ async function roundTrip(page: Page, route: string, opts: { viaDom?: boolean; be
   // may only ever touch a PAIRED scene's inactive twin.
   expect(
     await page.evaluate(() =>
-      [...document.querySelectorAll("figure.scene-banner[data-illustration]")]
+      [...document.querySelectorAll("figure.scene-banner[data-illustration], [data-paper-scene]")]
         .filter((f) => ![...f.querySelectorAll("img")].some((i) => i.getBoundingClientRect().width > 0))
-        .map((f) => f.getAttribute("data-illustration")),
+        .map((f) => f.getAttribute("data-illustration") ?? f.getAttribute("data-paper-scene")),
     ),
     `${route}: scene figures with no visible image in dark`,
   ).toEqual([]);

@@ -1,3 +1,4 @@
+import { OceanGate } from "@/components/layout/OceanGate";
 import Link from "next/link";
 import { BandVerb } from "@/components/layout/BandVerb";
 import { Container } from "@/components/layout/Container";
@@ -114,6 +115,7 @@ export function BandFooter() {
           <span className="ocean-ship" />
         </span>
         <span className="ocean-track ocean-front" />
+        <OceanGate />
       </div>
     </footer>
   );

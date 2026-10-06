@@ -1,13 +1,13 @@
 /**
  * hero-scene.ts (TKT-96, Tushar direction 2026-09-26, Design.md §11 Dev-39) — the ≥ 768 home-hero rule
- * shared by hero-fold.spec.ts and home.spec.ts: the banner shows the whole 3168×1344 scene (box height
- * = width × 1344/3168 ± 2 px, the canvas equals the box — nothing cropped), and the h1 + both CTAs are
+ * shared by hero-fold.spec.ts and home.spec.ts: the banner shows the whole 2400×1029 layered scene (box height
+ * = width × 1029/2400 ± 2 px, the canvas equals the box — nothing cropped), and the h1 + both CTAs are
  * reached by scrolling at most one viewport. Not a spec file (no `.spec`), so Playwright only runs it
  * through its importers.
  */
 import { expect, type Page } from "@playwright/test";
 /** The home banner's pixel grid (manifest `hero-banner`; was `components/hero/registration.ts` before S24). */
-const BANNER_SIZE = { width: 3168, height: 1344 } as const;
+const BANNER_SIZE = { width: 2400, height: 1029 } as const;
 
 export const SCENE_TOLERANCE_PX = 2;
 
@@ -22,7 +22,8 @@ export async function bannerRects(page: Page): Promise<{ box: Rect; canvas: Rect
       const r = el.getBoundingClientRect();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
     };
-    return { box: rect(".hero-banner .scene-banner"), canvas: rect(".hero-banner .scene-banner-canvas") };
+    // The layered scene root IS the frame (its layers overflow it only by the bleed, under overflow: hidden).
+    return { box: rect(".hero-banner [data-paper-scene]"), canvas: rect(".hero-banner [data-paper-scene]") };
   });
 }
 

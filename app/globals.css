@@ -988,16 +988,6 @@ body::before {
       --banner-h: 66vw;
     }
   }
-  /* M-011 P2: a layered opener is a frame of the same height (cover crop on the focal point, Design.md §14.4). */
-  .scene-opener [data-paper-scene] {
-    aspect-ratio: auto;
-    height: clamp(220px, 32vw, 460px);
-  }
-  @media (max-width: 767px) {
-    .scene-opener [data-paper-scene] {
-      height: 66vw;
-    }
-  }
   .scene-opener-torn {
     position: absolute;
     right: 0;
@@ -12818,7 +12808,6 @@ html[data-theme-vt]::view-transition-group(root) {
   bottom: 0;
   height: calc(var(--ocean-tile) * 0.0867);
   background-image: url("/footer-ocean/wave-front.webp");
-  filter: drop-shadow(0 -3px 4px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
 }
 [data-theme="dark"] .ocean-back {
   background-image: url("/footer-ocean/wave-back-dark.webp");
@@ -12843,7 +12832,6 @@ html[data-theme-vt]::view-transition-group(root) {
   height: 100%;
   background: url("/footer-ocean/ship-light.webp") center bottom / contain no-repeat;
   transform-origin: 50% 92%;
-  filter: drop-shadow(0 4px 4px color-mix(in oklab, var(--shadow-ink) 25%, transparent));
   animation: ocean-rock 6s ease-in-out infinite;
 }
 [data-theme="dark"] .ocean-ship {
@@ -12878,6 +12866,27 @@ html[data-theme-vt]::view-transition-group(root) {
     animation: none;
     will-change: auto;
   }
+}
+/* M-011 P6 (TASK-161, spec §15 / §24, EXE-54) · the ocean obeys the performance rules and the one light:
+   - no `filter` on an animated element (it was re-applied every frame on the compositor — the TASK-143 scar): the front
+     wave's upward drop-shadow (cast up, against §14.2) is gone, the ship's shadow is a static paper-coloured ellipse
+     under the hull, cast toward the bottom-right, that sails with it;
+   - the loops run only while OceanGate marks the strip live (on screen, tab visible, not covered by an overlay). */
+.ocean-ship-wrap::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 18%;
+  bottom: -1%;
+  width: 70%;
+  height: 5%;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--shadow-ink) 30%, transparent);
+  translate: 6% 40%;
+  pointer-events: none;
+}
+.band-ocean:not([data-live]) :is(.ocean-track, .ocean-ship-wrap, .ocean-ship) {
+  animation-play-state: paused;
 }
 /* end M-010 T4 footer ocean */
 
@@ -13041,31 +13050,81 @@ html[data-theme-vt]::view-transition-group(root) {
    property (compositor); the shadow swaps with the state and is never transitioned (transform/opacity only,
    TASK-155). Shadows cast bottom-right from --shadow-ink (§14.2). Colours and shapes stay each family's own.
    ================================================================================================== */
-@layer components {
+/* (unlayered on purpose: some families, e.g. .think-btn, are unlayered upstream) */
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
+  box-shadow: var(--depth-1);
+  transition:
+    translate 160ms cubic-bezier(0.3, 0.7, 0.4, 1.4),
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover {
+  transform: none;
+  translate: 0 -1px;
+  box-shadow: var(--depth-2);
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
+  translate: 0 1px;
+  box-shadow: var(--depth-0);
+}
+@media (prefers-reduced-motion: reduce) {
   :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
-    box-shadow: var(--depth-1);
-    transition:
-      translate 160ms cubic-bezier(0.3, 0.7, 0.4, 1.4),
-      background-color 160ms ease,
-      border-color 160ms ease;
+    transition: none;
   }
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover {
-    transform: none;
-    translate: 0 -1px;
-    box-shadow: var(--depth-2);
-  }
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover,
   :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
-    translate: 0 1px;
-    box-shadow: var(--depth-0);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
-      transition: none;
-    }
-    :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover,
-    :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
-      translate: none;
-    }
+    translate: none;
   }
 }
+
+/* M-011 P4 (TASK-160, spec §22–§23, EXE-53) · skills as paper tags, the experience rail as a paper strip.
+   Unlayered overrides of the TKT-86 / TKT-101 rules above; markup and copy are untouched (D7). */
+.acap-sheet .acap-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 8px;
+  padding-top: 8px;
+}
+.acap-sheet .acap-list li {
+  padding: 5px 14px 5px 24px;
+  border-radius: 3px 12px 12px 3px;
+  background: var(--mat-cream);
+  color: var(--color-navy);
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: var(--depth-side), var(--depth-1);
+}
+.acap-sheet .acap-list li:nth-child(4n + 2) {
+  background: var(--mat-kraft);
+}
+.acap-sheet .acap-list li:nth-child(3n + 1) {
+  rotate: -0.8deg;
+}
+.acap-sheet .acap-list li:nth-child(3n + 2) {
+  rotate: 0.7deg;
+}
+/* the punched hole at the tag's tied end replaces the hand-drawn tick */
+.acap-sheet .acap-list li::before,
+.acap-sheet .acap-list[data-tick="forest"] li::before {
+  top: calc(50% - 3px);
+  left: 9px;
+  width: 6px;
+  height: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-ivory);
+  box-shadow: inset 1px 1px 0 var(--mat-side);
+  rotate: none;
+}
+@media (min-width: 768px) {
+  .ct-list.ct-list::before {
+    width: 10px;
+    margin-left: -4px;
+    border-left: 0;
+    border-radius: 2px;
+    background: var(--mat-kraft);
+    box-shadow: var(--depth-side), var(--depth-1);
+  }
+}
+/* end M-011 P4 */
 /* end M-011 P3 */
