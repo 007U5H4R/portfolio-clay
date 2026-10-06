@@ -187,7 +187,7 @@ describe("TASK-118 · the band headline's cycling italic verb", () => {
       "IntersectionObserver",
       class {
         constructor(cb: IOCallback) {
-          ioCallback = cb;
+          ioCallback ??= cb; // the first observer is the verb cycler's; OceanGate (M-011) creates a later one
         }
         observe() {}
         disconnect() {}

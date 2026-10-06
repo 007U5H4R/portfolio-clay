@@ -13,7 +13,8 @@ export function OceanGate() {
   useEffect(() => {
     const ocean = document.querySelector<HTMLElement>("[data-band-ocean]");
     const footer = ocean?.closest("footer");
-    if (!ocean) return;
+    // Reduced motion has no loop to gate (the CSS removes the animations); no observer is created for it.
+    if (!ocean || typeof IntersectionObserver === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     let visible = false;
     const sync = () => {
       const live = visible && document.visibilityState !== "hidden" && !footer?.hasAttribute("inert");
