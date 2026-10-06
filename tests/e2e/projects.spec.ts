@@ -288,11 +288,12 @@ test("@EVAL-008 /projects has no horizontal overflow and ≥44 targets", { tag: 
 test("@EVAL-018 /projects: one scene img; decoration counts products 2 / enterprise 2", { tag: ["@EVAL-018", "@EVAL-013"] }, async ({ page }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "counts asserted at the two boundary widths");
   await page.goto("/projects", { waitUntil: "load" });
-  // T3 (TASK-144.5): one VISIBLE scene img (its dark twin is in the markup, `display: none`).
-  await expect(page.locator('img[src*="scene-work"]:visible, img[srcset*="scene-work"]:visible')).toHaveCount(1);
-  const img = page.locator('[data-opener="scene-work"] img:visible');
-  await expect(img).toHaveCount(1);
-  expect((await img.getAttribute("alt"))?.length ?? 0).toBeGreaterThan(20);
+  // M-011 P2: one VISIBLE layered scene — three layer imgs for the active theme (the dark set is `display: none`),
+  // one `role="img"` root carrying the alt.
+  await expect(page.locator('[data-opener="scene-work"] [data-paper-scene="scene-work"]')).toHaveCount(1);
+  await expect(page.locator('[data-opener="scene-work"] img:visible')).toHaveCount(3);
+  const root = page.locator('[data-opener="scene-work"] [data-paper-scene]');
+  expect(((await root.getAttribute("aria-label")) ?? "").length).toBeGreaterThan(20);
   const counts = await page.evaluate(() => {
     const unitOf = (el: Element) => el.closest("section, footer");
     const count = (selector: string) => {
