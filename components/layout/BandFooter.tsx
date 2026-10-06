@@ -92,6 +92,14 @@ export function BandFooter() {
                     </svg>
                   </a>
                 </li>
+                {/* TASK-166: the digital business card (/card) — Tushar 2026-10-06: link it from the footer */}
+                <li>
+                  <Link href="/card" aria-label="Digital business card" className="focus-ring">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm.6 1.6v10.8h16.8V6.6H3.6zM6 9h5v1.6H6V9zm0 3.2h5v1.6H6v-1.6zm8.5-3.2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM12 16.2c.3-1.4 1.3-2.2 2.5-2.2s2.2.8 2.5 2.2H12z" />
+                    </svg>
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

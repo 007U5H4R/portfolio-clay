@@ -149,13 +149,20 @@ describe("TC-136 · conditionals follow their single sources", () => {
   it("every social circle carries an aria-label; external ones open safely", async () => {
     const { container } = await renderBand();
     const circles = Array.from(container.querySelectorAll(".band-social a"));
-    expect(circles).toHaveLength(3);
+    expect(circles).toHaveLength(4); // LinkedIn, GitHub, résumé, digital card (TASK-166)
     for (const a of circles) expect(a.getAttribute("aria-label")).toBeTruthy();
     for (const name of ["LinkedIn", "GitHub"]) {
       const link = screen.getByRole("link", { name });
       expect(link.getAttribute("target")).toBe("_blank");
       expect(link.getAttribute("rel")).toMatch(/noopener/);
     }
+  });
+
+  it("TASK-166: the digital business card circle links to /card in the same tab", async () => {
+    await renderBand();
+    const card = screen.getByRole("link", { name: "Digital business card" });
+    expect(card.getAttribute("href")).toBe("/card");
+    expect(card.hasAttribute("target")).toBe(false);
   });
 });
 

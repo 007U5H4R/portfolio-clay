@@ -12,7 +12,7 @@
  *   TC-T4-06  theme switch swaps the ocean art to the dark twins without moving the page (scrollHeight ±1)
  *   TC-T4-07  the whole ship (mast tip, flag, sails) fits inside the ocean strip at 375 / 768 / 1440 / 1920 (TASK-150)
  *   TC-T4-08  the ocean's rendering is skipped while it is off-screen and resumes in view (TASK-155)
- *   TC-T4-09  ≥ 1024: the boat sails to and fro inside the sea lane and never touches the footer text (TASK-164)
+ *   TC-T4-09  ≥ 1024: the boat sails out and back (never mirrored) inside the sea lane and never touches the footer text (TASK-164)
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
@@ -146,10 +146,15 @@ test.describe("T4 chrome", () => {
           const s = ship();
           return { x: s.left, hit: hit(s) };
         };
-        return { from: at(0), there: at(0.48), turned: at(0.5), back: at(0.98) };
+        // alternate: iteration 1 sails out (0 → 1), iteration 2 sails back along the same path (1 → 2)
+        const points = { from: at(0), there: at(0.999), back: at(1.5), home: at(1.999) };
+        anim.currentTime = dur * 1.5;
+        const mirroredOnReturn = getComputedStyle(wrap).transform.startsWith("matrix(-1");
+        return { points, mirroredOnReturn };
       });
-      for (const [k, v] of Object.entries(r)) expect(v.hit, `ship over text at ${k} @${w}`).toBe(false);
-      expect(r.there.x - r.from.x, `the boat actually travels @${w}`).toBeGreaterThan(40);
+      for (const [k, v] of Object.entries(r.points)) expect(v.hit, `ship over text at ${k} @${w}`).toBe(false);
+      expect(r.points.there.x - r.points.from.x, `the boat actually travels @${w}`).toBeGreaterThan(40);
+      expect(r.mirroredOnReturn, `the boat is never mirrored @${w}`).toBe(false);
     }
   });
 
