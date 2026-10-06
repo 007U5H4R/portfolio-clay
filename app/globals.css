@@ -12948,21 +12948,31 @@ html[data-theme-vt]::view-transition-group(root) {
   --depth-w: 1;
   --depth-rim: inset 0 0 0 0 transparent;
   --depth-0: 0 0 0 0 transparent;
-  --depth-1: 0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(10% * var(--depth-w)), transparent);
-  --depth-2: 0 1px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent),
-    0 8px 16px -10px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
-  --depth-3: 0 2px 3px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent),
-    0 14px 26px -14px color-mix(in oklab, var(--shadow-ink) calc(32% * var(--depth-w)), transparent);
-  --depth-4: 0 3px 5px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent),
-    0 22px 38px -16px color-mix(in oklab, var(--shadow-ink) calc(38% * var(--depth-w)), transparent);
-  --depth-5: 0 5px 8px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent),
-    0 32px 52px -20px color-mix(in oklab, var(--shadow-ink) calc(44% * var(--depth-w)), transparent);
-  --depth-drop-2: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
-    drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent));
-  --depth-drop-3: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
-    drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent));
-  --depth-drop-4: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
-    drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent));
+  --depth-1: 1px 1px 1px color-mix(in oklab, var(--shadow-ink) calc(10% * var(--depth-w)), transparent),
+    2px 3px 4px -2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent);
+  --depth-2: 1px 2px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent),
+    4px 8px 16px -10px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
+  --depth-3: 1px 2px 3px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent),
+    7px 14px 26px -14px color-mix(in oklab, var(--shadow-ink) calc(32% * var(--depth-w)), transparent);
+  --depth-4: 2px 3px 5px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent),
+    11px 22px 38px -16px color-mix(in oklab, var(--shadow-ink) calc(38% * var(--depth-w)), transparent);
+  --depth-5: 3px 5px 8px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent),
+    16px 32px 52px -20px color-mix(in oklab, var(--shadow-ink) calc(44% * var(--depth-w)), transparent);
+  --depth-drop-2: drop-shadow(1px 2px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(3px 6px 8px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent));
+  --depth-drop-3: drop-shadow(1px 2px 1px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(5px 10px 12px color-mix(in oklab, var(--shadow-ink) calc(18% * var(--depth-w)), transparent));
+  --depth-drop-4: drop-shadow(1px 3px 2px color-mix(in oklab, var(--shadow-ink) calc(14% * var(--depth-w)), transparent))
+    drop-shadow(9px 18px 20px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent));
+  --depth-drop-5: drop-shadow(2px 4px 3px color-mix(in oklab, var(--shadow-ink) calc(16% * var(--depth-w)), transparent))
+    drop-shadow(14px 28px 30px color-mix(in oklab, var(--shadow-ink) calc(20% * var(--depth-w)), transparent));
+  /* M-011 (EXE-45): parallax factor per rung — the same six rungs drive scene-layer motion (Design.md §14.3-14.4) */
+  --par-0: 0;
+  --par-1: 0.05;
+  --par-2: 0.12;
+  --par-3: 0.22;
+  --par-4: 0.4;
+  --par-5: 0.6;
   --shadow-paper: var(--depth-rim), var(--depth-2);
   --shadow-paper-hover: var(--depth-rim), var(--depth-4);
   --shadow-sticky: var(--depth-3);
@@ -12985,3 +12995,31 @@ html[data-theme-vt]::view-transition-group(root) {
   box-shadow: var(--depth-1), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
 }
 /* end M-010 T4 depth */
+
+/* ==================================================================================================
+   M-011 (TASK-156.1, EXE-40) · material tier — SURFACE-ONLY tokens (Design.md §14.1). Never a text colour; text on a
+   material uses a role token and every such pair is in `tokens:check` (both themes). Not @theme tokens, so the
+   13-role count is unchanged. Dark twins are navy-family, never black. Values are written by
+   `pnpm tokens:check --write` from scripts/tokens-check.ts.
+   ================================================================================================== */
+/* M-011 mat:light */
+:root {
+  --mat-bg: oklch(0.944 0.022 76.53);
+  --mat-cream: oklch(0.917 0.038 83.027);
+  --mat-kraft: oklch(0.684 0.105 61.702);
+  --mat-terra-1: oklch(0.469 0.132 35.711);
+  --mat-terra-2: oklch(0.522 0.137 37.796);
+  --mat-terra-3: oklch(0.565 0.142 40.048);
+  --mat-side: oklch(0.392 0.09 39.084);
+}
+/* M-011 mat:dark */
+[data-theme="dark"] {
+  --mat-bg: oklch(0.22 0.055 265.44);
+  --mat-cream: oklch(0.289 0.062 263.947);
+  --mat-kraft: oklch(0.414 0.047 63.439);
+  --mat-terra-1: oklch(0.38 0.101 35.775);
+  --mat-terra-2: oklch(0.422 0.109 35.345);
+  --mat-terra-3: oklch(0.46 0.115 36.272);
+  --mat-side: oklch(0.174 0.045 265.672);
+}
+/* end M-011 material tier */

@@ -29,19 +29,20 @@ export function PaperParallaxScene({ id, priority = false, focal, className }: P
     "--focal-x": unit(focal?.x),
     "--focal-y": unit(focal?.y),
   } as CSSProperties;
+  // One bleed for every layer, so all `object-fit: cover` boxes have the same shape and scale (the layers register at rest).
+  const bleed = Math.max(...scene.layers.map((l) => bleedPx(l.layer, l.depth)));
   return (
     <div role="img" aria-label={scene.alt} data-paper-scene={id} className={[styles.root, className].filter(Boolean).join(" ")} style={style}>
       {scene.layers.map((l) => (
-        <Layer key={l.layer} scene={scene} layer={l} priority={priority} />
+        <Layer key={l.layer} scene={scene} layer={l} priority={priority} bleed={bleed} />
       ))}
       <SceneMotion />
     </div>
   );
 }
 
-function Layer({ scene, layer, priority }: { scene: ReturnType<typeof layeredScene>; layer: SceneLayer; priority: boolean }) {
+function Layer({ scene, layer, priority, bleed }: { scene: ReturnType<typeof layeredScene>; layer: SceneLayer; priority: boolean; bleed: number }) {
   const par = DEPTHS.indexOf(layer.depth);
-  const bleed = bleedPx(layer.layer, layer.depth);
   const style = {
     "--par": `var(--par-${par}, ${layer.depth})`,
     "--rng-p": `${pointerRangePx(layer.depth)}px`,
@@ -72,7 +73,7 @@ function Picture({ scene, file, theme, eager, high }: { scene: ReturnType<typeof
         alt=""
         aria-hidden="true"
         loading={eager ? "eager" : "lazy"}
-        decoding={eager ? "sync" : "async"}
+        decoding="async"
         fetchPriority={high ? "high" : undefined}
         draggable={false}
         className={styles.img}

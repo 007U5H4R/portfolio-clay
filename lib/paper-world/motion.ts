@@ -71,7 +71,6 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
   const write = (root: HTMLElement) => {
     root.style.setProperty("--pp-x", fmt(pos[0]!));
     root.style.setProperty("--pp-y", fmt(pos[1]!));
-    if (mode) root.dataset.ppMode = mode;
   };
   const writeAll = () => seen.forEach(write);
   const stop = () => {
@@ -119,11 +118,16 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
     if (seen.size === 0 || doc.visibilityState === "hidden") return;
     setMode("orientation");
     const raw = [(e.gamma ?? 0) / TILT_MAX, ((e.beta ?? 45) - 45) / TILT_MAX];
+    let moved = false;
     for (let i = 0; i < 2; i++) {
       lp[i] = lp[i]! + ALPHA * (clamp(raw[i]!) - lp[i]!);
-      tgt[i] = lp[i]!;
+      // Sensor jitter below the spring's own rest threshold must not wake the loop on a phone lying still.
+      if (Math.abs(lp[i]! - tgt[i]!) >= 2 * REST_POS) {
+        tgt[i] = lp[i]!;
+        moved = true;
+      }
     }
-    wake();
+    if (moved) wake();
   };
   const onVisibility = () => {
     if (doc.visibilityState === "hidden") stop();
@@ -147,6 +151,7 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
         const el = target as HTMLElement;
         if (isIntersecting) {
           seen.add(el);
+          if (mode) el.dataset.ppMode = mode;
           write(el);
         } else seen.delete(el);
       }
@@ -194,6 +199,8 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
         roots.delete(root);
         seen.delete(root);
         io?.unobserve(root);
+        if (seen.size === 0) stop();
+        syncOrientation();
         if (roots.size === 0) {
           watching = false;
           reducedMq.removeEventListener("change", decide);

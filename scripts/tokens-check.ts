@@ -57,9 +57,33 @@ const AUTHORITATIVE_DARK: Record<string, string> = {
   "--color-kraft": "#6B5B3C",
 };
 
+// Material tier — Design.md §14.1 (M-011, EXE-40): surface-only tokens, plain custom properties (not @theme).
+const MATERIAL: Record<string, string> = {
+  "--mat-bg": "#F5EBDD",
+  "--mat-cream": "#F0E2C8",
+  "--mat-kraft": "#C88A52",
+  "--mat-terra-1": "#96381F",
+  "--mat-terra-2": "#A94728",
+  "--mat-terra-3": "#B9532D",
+  "--mat-side": "#6D321E",
+};
+const MATERIAL_DARK: Record<string, string> = {
+  "--mat-bg": "#0E1934",
+  "--mat-cream": "#1B2A4A",
+  "--mat-kraft": "#5E4630",
+  "--mat-terra-1": "#6E2A18",
+  "--mat-terra-2": "#7E3320",
+  "--mat-terra-3": "#8C3C26",
+  "--mat-side": "#070F24",
+};
+
 const BLOCKS = [
-  { name: "light", header: "@theme {", tokens: AUTHORITATIVE },
-  { name: "dark", header: '[data-theme="dark"] {', tokens: AUTHORITATIVE_DARK },
+  { name: "light", header: "@theme {", tokens: AUTHORITATIVE, mat: MATERIAL },
+  { name: "dark", header: '[data-theme="dark"] {', tokens: AUTHORITATIVE_DARK, mat: MATERIAL_DARK },
+] as const;
+const MAT_BLOCKS = [
+  { name: "light", header: "/* M-011 mat:light */\n:root {", tokens: MATERIAL },
+  { name: "dark", header: '/* M-011 mat:dark */\n[data-theme="dark"] {', tokens: MATERIAL_DARK },
 ] as const;
 
 /** [start, end) of a rule body: from its header to the first closing brace (these blocks hold no nested rules). */
@@ -107,12 +131,35 @@ const BAND_PAIRS = {
   dark: [["paper", "terracotta", 4.5, "band italic word, © tagline"], ["note", "terracotta", 3, "band heading line 2"], ["paper", "terracotta", 3, "band focus ring"]],
 } as const;
 
+// Text on a material (Design.md §14.1): [foreground role token, material, minimum, where it is used]. Per theme because the
+// roles flip in dark (navy = ivory ink). `mat-terra-3` carries no text (ivory on it is 4.53, too close to the line).
+const MAT_PAIRS = {
+  light: [
+    ["navy", "mat-bg", 4.5, "text on scene paper"],
+    ["navy", "mat-cream", 4.5, "text on cream cards / labels"],
+    ["ink-soft", "mat-cream", 4.5, "captions on cream"],
+    ["navy", "mat-kraft", 4.5, "text on kraft tags"],
+    ["ivory", "mat-terra-1", 4.5, "label on deep terracotta"],
+    ["ivory", "mat-terra-2", 4.5, "label on mid terracotta"],
+    ["terracotta", "mat-cream", 4.5, "accent text on cream"],
+  ],
+  dark: [
+    ["navy", "mat-bg", 4.5, "text on scene paper"],
+    ["navy", "mat-cream", 4.5, "text on cream cards / labels"],
+    ["ink-soft", "mat-cream", 4.5, "captions on cream"],
+    ["navy", "mat-kraft", 4.5, "text on kraft tags"],
+    ["navy", "mat-terra-1", 4.5, "label on deep terracotta"],
+    ["navy", "mat-terra-2", 4.5, "label on mid terracotta"],
+    ["terracotta", "mat-cream", 4.5, "accent text on cream"],
+  ],
+} as const;
+
 function contrastFailures(): { checked: number; failures: string[] } {
   const failures: string[] = [];
   let checked = 0;
   for (const block of BLOCKS) {
-    const hex = (name: string) => block.tokens[`--color-${name}`] as string;
-    const rows = [...PAIRS, ...BAND_PAIRS[block.name]];
+    const hex = (name: string) => (name.startsWith("mat-") ? block.mat[`--${name}`] : block.tokens[`--color-${name}`]) as string;
+    const rows = [...PAIRS, ...BAND_PAIRS[block.name], ...MAT_PAIRS[block.name]];
     for (const [fg, bg, min, where] of rows) {
       checked += 1;
       const ratio = wcagContrast(hex(fg), hex(bg));
@@ -166,8 +213,26 @@ function write(): void {
     }
     css = css.slice(0, a) + body + css.slice(b);
   }
+  for (const block of MAT_BLOCKS) {
+    const [a, b] = blockRange(css, block.header);
+    if (a < 0) {
+      console.error(`tokens:check --write: material ${block.name} block not found in globals.css`);
+      process.exit(1);
+    }
+    let body = css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const re = lineRegExp(token);
+      if (!re.test(body)) {
+        console.error(`tokens:check --write: token ${token} not found in the material ${block.name} block`);
+        process.exit(1);
+      }
+      body = body.replace(re, `$1${oklchFor(hex)}`);
+      count += 1;
+    }
+    css = css.slice(0, a) + body + css.slice(b);
+  }
   writeFileSync(GLOBALS, css);
-  console.log(`wrote ${count} oklch colour tokens to app/globals.css (light + dark)`);
+  console.log(`wrote ${count} oklch colour tokens to app/globals.css (light + dark, roles + materials)`);
 }
 
 function check(): void {
@@ -198,6 +263,19 @@ function check(): void {
       }
     }
     summary.push(block.name === "light" ? `${ok}/${total} tokens round-trip OK` : `${ok}/${total} dark tokens round-trip OK`);
+  }
+
+  for (const block of MAT_BLOCKS) {
+    let ok = 0;
+    const [a, b] = blockRange(css, block.header);
+    const body = a < 0 ? "" : css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const m = body.match(new RegExp(`${escapeRegExp(token)}:\\s*(oklch\\([^)]*\\))`));
+      const back = m?.[1] ? formatHex(m[1]) : undefined;
+      if (back && back.toUpperCase() === hex.toUpperCase()) ok += 1;
+      else failures.push(`[mat-${block.name}] ${token}: ${m?.[1] ?? "no oklch() value found"} ≠ ${hex.toUpperCase()}`);
+    }
+    summary.push(`${ok}/${Object.keys(block.tokens).length} ${block.name} material tokens round-trip OK`);
   }
 
   const contrast = contrastFailures();

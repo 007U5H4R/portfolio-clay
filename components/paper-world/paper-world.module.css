@@ -13,7 +13,7 @@
   overflow: hidden;
   width: 100%;
   aspect-ratio: var(--ps-ar);
-  background: var(--mat-bg, var(--color-paper, #f5ebdd));
+  background: var(--mat-bg);
 }
 
 .layer {
@@ -24,6 +24,11 @@
   inset: calc(var(--bleed) * -1);
   translate: calc(var(--pp-x, 0) * var(--rng)) calc(var(--pp-y, 0) * var(--rng));
   pointer-events: none;
+}
+
+/* Only while a scene is in view and moving does the layer get its own compositor layer (set by paperMotion). */
+.root[data-pp-mode] .layer {
+  will-change: translate;
 }
 
 @media (max-width: 1023px) {
@@ -84,10 +89,10 @@
   padding: 0 18px;
   border: 0;
   border-radius: 6px;
-  background: var(--mat-cream, #f0e2c8);
+  background: var(--mat-cream);
   color: var(--color-navy);
   font: 600 0.875rem/1.2 var(--font-sans, system-ui, sans-serif);
-  box-shadow: 2px 2px 0 var(--mat-side, #6d321e), 1px 2px 2px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  box-shadow: 2px 2px 0 var(--mat-side), 1px 2px 2px color-mix(in oklab, var(--color-navy) 30%, transparent);
   cursor: pointer;
 }
 
