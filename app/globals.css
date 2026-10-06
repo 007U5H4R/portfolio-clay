@@ -7999,6 +7999,14 @@ html.lenis body {
     height: auto;
     max-height: 132px;
   }
+  [data-theme="dark"] .ct-logo-img {
+    /* Dark cards would bury dark marks (Quantiphi, Shellkode, NIT Calicut): each logo gets its own light
+       paper label. `navy` is the light ink value in dark (D13), the same move as .cert-badge-paper (TASK-153). */
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: var(--color-navy);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+  }
   .ct-logo-type {
     font-family: var(--font-display);
     font-size: 26px;

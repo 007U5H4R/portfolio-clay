@@ -81,15 +81,23 @@ describe("/work Experience page (TKT-101)", () => {
     });
   });
 
-  it("logos are content with the organisation's name as alt; no official file → the name set in type", () => {
+  it("logos are content with the organisation's name as alt; every organisation shows its official mark", () => {
     const { container } = render(<ExperiencePage />);
     const alts = Array.from(container.querySelectorAll<HTMLImageElement>(".ct-logo img")).map((img) => img.alt);
-    expect(alts).toEqual(["American Express", "Godrej", "National Institute of Technology Calicut"]);
+    expect(alts).toEqual([
+      "American Express",
+      "Shellkode",
+      "Quantiphi",
+      "Godrej",
+      "National Institute of Technology Calicut",
+      "Bhilai Institute of Technology, Durg",
+    ]);
     for (const img of Array.from(container.querySelectorAll<HTMLImageElement>(".ct-logo img"))) {
-      expect(img.getAttribute("src")).toMatch(/^\/media\/logos\/[a-z-]+\.svg$/);
+      // Wikimedia SVGs, or the raster files Tushar supplied (TASK-153) — always from the logos folder.
+      expect(img.getAttribute("src")).toMatch(/^\/media\/logos\/[a-z-]+\.(svg|webp)$/);
     }
-    const typed = Array.from(container.querySelectorAll(".ct-logo-type")).map((el) => el.getAttribute("aria-label"));
-    expect(typed).toEqual(["Shellkode", "Quantiphi Analytics Solutions Pvt. Ltd.", "Bhilai Institute of Technology"]);
+    // No organisation falls back to its name set in type any more.
+    expect(container.querySelectorAll(".ct-logo-type")).toHaveLength(0);
   });
 
   it("EVAL-018: Work = note · annotation · collage (3); Education = torn · note · annotation · collage (4)", () => {
