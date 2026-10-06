@@ -4,3 +4,4 @@ Masters: `Portfolio-illustration/illustrations/paper-world/<scene>/` (README.md 
 | Manifest id | Layers (depth) | Source scene | Credits | Task |
 |---|---|---|---|---|
 | scene-work | bg .05, mid .22, fg .40 (light + dark) | portfolio, origami-miniature composite (S32) | 8 | TASK-158.1 |
+| scene-certifications | bg .05, mid .22, fg .40 (light + dark) | certifications, origami-miniature composite (S32) | 9 | TASK-158.2 |
