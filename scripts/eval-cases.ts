@@ -62,12 +62,6 @@ const AUTOMATED_RUNNERS = [
  * the spec in the same change; remove the entry then.
  */
 const DEFERRED_SPECS: Record<string, string> = {
-  "EVAL-032": "M-011 P0/P1 — PaperParallaxScene + paperMotion",
-  "EVAL-033": "M-011 P0 — gyro permission chip",
-  "EVAL-035": "M-011 P1 — layered home hero loading",
-  "EVAL-036": "M-011 P6 — contact scene (after TASK-143/150 commit)",
-  "EVAL-037": "M-011 P3 — paper cards/buttons + material tokens",
-  "EVAL-038": "M-011 P6 — sailboat visibility (style gates are manual per track)",
 };
 
 const EvalCaseSchema = z

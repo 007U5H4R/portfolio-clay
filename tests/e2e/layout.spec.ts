@@ -461,7 +461,7 @@ test("band footer geometry: social circles 48 px with names, no overflow, safe-a
 
   const circles = band.locator(".band-social a");
   const n = await circles.count();
-  expect(n, "LinkedIn + GitHub (S5: public repo exists) + résumé").toBe(3);
+  expect(n, "LinkedIn + GitHub (S5: public repo exists) + résumé + digital card (TASK-166)").toBe(4);
   for (let i = 0; i < n; i++) {
     const circle = circles.nth(i);
     await expect(circle).toHaveAttribute("aria-label", /.+/);

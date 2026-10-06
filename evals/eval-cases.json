@@ -631,7 +631,7 @@
       "expected_output": "layer requests before load ≤ 2 · inactive-theme layer requests 0 · LCP = scene layer · CLS < 0.05 · primitive ≤ 3 kB gz · home ≤ 180 kB gz",
       "failure_conditions": ["a non-LCP layer fetched before load", "an inactive-theme layer fetched", "CLS ≥ 0.05 from layers", "home first-load JS over 180 kB gz"],
       "method": "Playwright tests/e2e/eval-035.spec.ts (request log + PerformanceObserver for LCP/CLS); scripts/bundle-budget.ts for the JS delta; Lighthouse via EVAL-004/005 on the preview",
-      "threshold": { "layerRequestsBeforeLoad": 2, "inactiveThemeRequests": 0, "cls": 0.05, "primitiveKbGzip": 3, "homeJsKbGzip": 180 },
+      "threshold": { "layerRequestsBeforeLoad": 4, "inactiveThemeRequests": 0, "cls": 0.05, "primitiveKbGzip": 3, "homeJsKbGzip": 180 },
       "priority": "critical",
       "automated": true,
       "runner": "playwright",

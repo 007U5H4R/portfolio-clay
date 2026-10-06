@@ -34,7 +34,7 @@ test("@EVAL-001 w390: name, title, desk and the intro video sit in the first vie
     name: page.locator("header .header-name"),
     title: page.getByText(hero.eyebrow.text, { exact: true }),
     // The banner img is inside a cover-cropped canvas that may overflow its box; the visible desk is the box.
-    desk: page.locator(".hero-banner figure.scene-banner").filter({ has: page.getByAltText(HERO_BANNER_ALT) }),
+    desk: page.locator(".hero-banner [data-paper-scene]"),
     video: page.locator(".hero-intro").getByRole("button", { name: `Play ${hero.introVideo.title}` }),
   };
   for (const [label, locator] of Object.entries(elements)) {
@@ -54,7 +54,7 @@ test("@EVAL-001 ≥ 768: the banner shows the whole scene and the h1 + CTAs are 
   test.skip(width(page) < 768, "the whole-scene rule applies ≥ 768 (TKT-96, Dev-39)");
   await page.goto("/", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.getByAltText(HERO_BANNER_ALT).filter({ visible: true })).toBeVisible();
+  await expect(page.getByRole("img", { name: HERO_BANNER_ALT })).toBeVisible();
   await expectWholeScene(page);
   // A 1920 desktop too (the projects stop at 1440): the box has no max-height cap any more.
   if (width(page) === 1440) {
@@ -74,8 +74,8 @@ async function paperOverImage(page: Page, paperSel: string, imageSel: string): P
 }
 
 const LAYERS = [
-  { route: "/", paper: ".hero-sheet", image: ".hero-banner .scene-banner", animated: ".hero-banner" },
-  { route: "/projects", paper: ".scene-opener-torn", image: ".scene-opener .scene-banner", animated: ".scene-opener .scene-banner" },
+  { route: "/", paper: ".hero-sheet", image: ".hero-banner [data-paper-scene]", animated: ".hero-banner" },
+  { route: "/projects", paper: ".scene-opener-torn", image: ".scene-opener [data-paper-scene]", animated: ".scene-opener [data-paper-scene]" },
 ] as const;
 
 for (const { route, paper, image, animated } of LAYERS) {
@@ -152,80 +152,79 @@ test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async (
 });
 
 /**
- * Polaroid placement (TKT-111, Dev-80 — Tushar 2026-09-26: "move polaroids to blank canvases behind").
- * Replaces the TKT-98 corkboard guard: the corkboard is clean since TKT-105, so the rule is now that each
- * polaroid lies inside its blank paper's box (measured on hero-banner.webp, in 3168×1344 canvas px, ± a
- * small margin for the tilt), and none overlaps the character's face or the book titles. Measured at
- * rest (scroll 0) on the rendered (rotated) rects, as fractions of the banner canvas (`.scene-banner-canvas`
- * — the box itself ≥ 768, the 4:3 crop's full-scene canvas < 768). < 768 (Tushar 2026-09-26: "yes show
- * polaroids there too") only the papers ≥ 80 % inside the crop carry one: the large cream sheet is ≈ 18 %
- * inside, so its polaroid must be hidden, and every visible polaroid must also lie inside the crop box.
+ * Polaroid placement (TKT-111, Dev-80 — Tushar 2026-09-26: "move polaroids to blank canvases behind"; re-registered to the
+ * layered hero by M-011 P1, EXE-51). Each polaroid lies inside its blank paper's box (measured on the layered `bg`, in its
+ * 2400×1029 art units) and none overlaps the character's face or the book titles. The art sits in the scene frame as
+ * `object-fit: cover` boxes inset by the scene's shared bleed (30 px) centred on focal x 0.49, so an art point (u, v) lands at
+ * x = −b + (W + 2b − 2400·s)·0.49 + u·s, y = −b + v·s with s = (H + 2b) / 1029 (W × H the frame). Measured at rest (scroll 0) on the
+ * rendered (rotated) rects. < 768 the frame is the 16:10 crop: only papers ≥ 80 % inside it carry a polaroid, the large cream sheet
+ * does not, and the postmark stays clear of the face and of every visible polaroid.
  */
 test("hero polaroids sit on the banner's blank papers, clear of the face and the book titles", async ({ page }) => {
-  const W = 3168;
-  const H = 1344;
-  const box = (x0: number, x1: number, y0: number, y1: number) => ({ l: x0 / W, r: x1 / W, t: y0 / H, b: y1 / H });
+  const BLEED = 30;
+  const FX = 0.49;
+  const box = (x0: number, x1: number, y0: number, y1: number) => ({ x0, x1, y0, y1 });
   const papers = [
-    { name: "tall cream sheet", ...box(765, 1165, 60, 665) },
-    { name: "yellow note", ...box(2058, 2368, 58, 335) },
-    { name: "large cream sheet", ...box(2382, 2745, 100, 495) },
+    { name: "tall cream sheet", ...box(574, 878, 42, 456) },
+    { name: "yellow note", ...box(1542, 1774, 46, 254) },
+    { name: "large cream sheet", ...box(1784, 2066, 72, 360) },
   ];
   const keepClear = [
-    { name: "character's face", ...box(1400, 1730, 170, 610) },
-    { name: "book titles", ...box(430, 910, 940, 1260) },
+    { name: "character's face", ...box(1062, 1248, 168, 480) },
+    { name: "book titles", ...box(300, 636, 612, 840) },
   ];
-  const tol = { x: 4 / W, y: 8 / H };
+  const tol = 6;
   const widths = width(page) === 1440 ? [1024, 1440, 1920] : width(page) === 390 ? [390, 414] : [width(page)];
   for (const w of widths) {
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto("/", { waitUntil: "load" });
     await scrollToY(page, 0);
-    const { all, crop, stamp } = await page.evaluate(() => {
-      const canvas = document.querySelector(".hero-banner .scene-banner-canvas")!.getBoundingClientRect();
-      const box = document.querySelector(".hero-banner .scene-banner")!.getBoundingClientRect();
-      const frac = (r: DOMRect) => ({
-        l: (r.left - canvas.left) / canvas.width,
-        r: (r.right - canvas.left) / canvas.width,
-        t: (r.top - canvas.top) / canvas.height,
-        b: (r.bottom - canvas.top) / canvas.height,
-      });
+    const { frame, all, stamp } = await page.evaluate(() => {
+      const r = (el: Element) => {
+        const q = el.getBoundingClientRect();
+        return { l: q.left, r: q.right, t: q.top, b: q.bottom };
+      };
       return {
-        crop: frac(box),
-        stamp: frac(document.querySelector(".hero-stamp")!.getBoundingClientRect()),
-        all: [...document.querySelectorAll(".hero-polaroid")].map((el) => ({
-          shown: getComputedStyle(el).display !== "none",
-          ...frac(el.getBoundingClientRect()),
-        })),
+        frame: r(document.querySelector(".hero-banner [data-paper-scene]")!),
+        stamp: r(document.querySelector(".hero-stamp")!),
+        all: [...document.querySelectorAll(".hero-polaroid")].map((el) => ({ shown: getComputedStyle(el).display !== "none", ...r(el) })),
       };
     });
+    const W = frame.r - frame.l;
+    const H = frame.b - frame.t;
+    const s = (H + 2 * BLEED) / 1029;
+    const ox = -BLEED + (W + 2 * BLEED - 2400 * s) * FX;
+    const px = (u: number) => frame.l + ox + u * s;
+    const py = (v: number) => frame.t - BLEED + v * s;
+    const inPx = (z: { x0: number; x1: number; y0: number; y1: number }) => ({ l: px(z.x0), r: px(z.x1), t: py(z.y0), b: py(z.y1) });
     expect(all, `w${w}: one polaroid per blank paper`).toHaveLength(papers.length);
-    // A paper carries a visible polaroid iff ≥ 80 % of its width is inside the crop (always, ≥ 768).
-    const expectedShown = papers.map((pp) => (Math.min(pp.r, crop.r) - Math.max(pp.l, crop.l)) / (pp.r - pp.l) >= 0.8);
-    expect(all.map((p) => p.shown), `w${w}: visible polaroids (crop ${(crop.l * 100).toFixed(1)}–${(crop.r * 100).toFixed(1)} %)`).toEqual(expectedShown);
+    // A paper carries a visible polaroid iff ≥ 80 % of its width is inside the frame (always, ≥ 768).
+    const expectedShown = papers.map((pp) => {
+      const q = inPx(pp);
+      return (Math.min(q.r, frame.r) - Math.max(q.l, frame.l)) / (q.r - q.l) >= 0.8;
+    });
+    expect(all.map((p) => p.shown), `w${w}: visible polaroids`).toEqual(expectedShown);
     if (w < 768) {
-      const face = keepClear[0]!;
+      const face = inPx(keepClear[0]!);
       const onFace = stamp.l < face.r && stamp.r > face.l && stamp.t < face.b && stamp.b > face.t;
       expect(onFace, `w${w}: the postmark stays clear of the character's face`).toBe(false);
+      expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 16:10 crop`).toEqual([true, true, false]);
     }
-    if (w < 768) expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 4:3 crop`).toEqual([true, true, false]);
     all.forEach((p, i) => {
       if (!p.shown) return;
-      const paper = papers[i]!;
-      const at = `w${w}: polaroid ${i + 1} [${(p.l * 100).toFixed(1)}–${(p.r * 100).toFixed(1)} % × ${(p.t * 100).toFixed(1)}–${(p.b * 100).toFixed(1)} %]`;
-      expect(p.l, `${at} starts inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.l - tol.x);
-      expect(p.r, `${at} ends inside the ${paper.name}`).toBeLessThanOrEqual(paper.r + tol.x);
-      expect(p.t, `${at} tops inside the ${paper.name}`).toBeGreaterThanOrEqual(paper.t - tol.y);
-      expect(p.b, `${at} bottoms inside the ${paper.name}`).toBeLessThanOrEqual(paper.b + tol.y);
-      expect(p.l >= crop.l - tol.x && p.r <= crop.r + tol.x, `${at} stays inside the crop`).toBe(true);
+      const paper = inPx(papers[i]!);
+      const at = `w${w}: polaroid ${i + 1} [${p.l.toFixed(0)}–${p.r.toFixed(0)} × ${p.t.toFixed(0)}–${p.b.toFixed(0)}]`;
+      expect(p.l, `${at} starts inside the ${papers[i]!.name}`).toBeGreaterThanOrEqual(paper.l - tol);
+      expect(p.r, `${at} ends inside the ${papers[i]!.name}`).toBeLessThanOrEqual(paper.r + tol);
+      expect(p.t, `${at} tops inside the ${papers[i]!.name}`).toBeGreaterThanOrEqual(paper.t - tol);
+      expect(p.b, `${at} bottoms inside the ${papers[i]!.name}`).toBeLessThanOrEqual(paper.b + tol);
+      expect(p.l >= frame.l - tol && p.r <= frame.r + tol, `${at} stays inside the frame`).toBe(true);
       for (const zone of keepClear) {
-        const overlaps = p.l < zone.r && p.r > zone.l && p.t < zone.b && p.b > zone.t;
-        expect(overlaps, `${at} overlaps the ${zone.name}`).toBe(false);
+        const z = inPx(zone);
+        expect(p.l < z.r && p.r > z.l && p.t < z.b && p.b > z.t, `${at} overlaps the ${zone.name}`).toBe(false);
       }
       // < 768 the postmark is shrunk and moved clear of every visible polaroid (TKT-111 r3).
-      if (w < 768) {
-        const hit = p.l < stamp.r && p.r > stamp.l && p.t < stamp.b && p.b > stamp.t;
-        expect(hit, `${at} overlaps the postmark [${(stamp.l * 100).toFixed(1)}–${(stamp.r * 100).toFixed(1)} % × ${(stamp.t * 100).toFixed(1)}–${(stamp.b * 100).toFixed(1)} %]`).toBe(false);
-      }
+      if (w < 768) expect(p.l < stamp.r && p.r > stamp.l && p.t < stamp.b && p.b > stamp.t, `${at} overlaps the postmark`).toBe(false);
     });
   }
 });

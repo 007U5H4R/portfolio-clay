@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
@@ -5,8 +6,9 @@ import { HeroAskLink } from "@/components/hero/HeroAskLink";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
-import { SceneBanner } from "@/components/paper/SceneBanner";
+import { PaperParallaxScene } from "@/components/paper-world/PaperParallaxScene";
 import { hero } from "@/data/hero";
+import { layeredScene, sceneBleedPx } from "@/content/media/illustrations/layers";
 import { darkSceneImage, sceneImage, type SceneId } from "@/lib/illustrations";
 
 /**
@@ -29,26 +31,6 @@ const INTRO_POSTER = "/media/illustrations/intro-poster.webp";
 
 /** The character stands at ≈ 49 % of the banner's width — the crop keeps him centred (EXE-15 prototype). */
 const BANNER_FOCAL_X = 0.49;
-/**
- * Narrow-screen rendition of the banner (TKT-92r2, mobile LCP): < 768 the 4:3 box shows only the scene's
- * x 0.2072–0.7728 (box 100vw × 75vw over a 176.8vw canvas at focal 0.49 — vw-proportional, so the same
- * at every narrow width; a classic scrollbar only narrows it). The crop is x 640–2464 of 3168 (that
- * region plus ≈ 0.5 % a side), full height, 1824×1344 — provenance in
- * content/media/illustrations/README.md. `sizes` is a density cap, not the displayed width (≈ 102vw):
- * `54vw` keeps the image at about the pixels-per-CSS-px the full banner gets today (its `100vw` covers
- * a 177vw-wide canvas), so a 412 px / DPR 1.75 phone takes the 390w rendition (≈ half the bytes of
- * today's 768w full scene) instead of a sharper but heavier crop.
- */
-const BANNER_NARROW = {
-  src: "/media/illustrations/hero-banner-mobile.webp",
-  darkSrc: "/media/illustrations/hero-banner-dark-mobile.webp",
-  width: 1824,
-  height: 1344,
-  left: 640 / 3168,
-  span: 1824 / 3168,
-  sizes: "54vw",
-} as const;
-
 /**
  * Three taped polaroids pinned onto the banner's blank papers (Dev-21, Dev-80 — Tushar 2026-09-26,
  * TKT-111): crops of existing scenes, decorative (`alt=""`, group `aria-hidden` — Dev-23), rotations
@@ -86,9 +68,10 @@ export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-banner">
-        <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} sizes="100vw" narrow={BANNER_NARROW} />
+        {/* M-011 P1: the banner is the layered Paper World scene (four layers, light + dark twins); < 768 a 16:10 cover crop on the focal point (wide enough that the tall paper and the yellow note both fit with their polaroids). */}
+        <PaperParallaxScene id="hero-home" priority focal={{ x: BANNER_FOCAL_X }} narrowAspect="16 / 10" />
 
-        <div className="hero-polaroids" aria-hidden="true">
+        <div className="hero-polaroids" aria-hidden="true" style={{ "--b": `${sceneBleedPx(layeredScene("hero-home"))}px` } as CSSProperties}>
           {POLAROIDS.map((polaroid) => (
             <Sheet key={polaroid.id} variant="photo" rotate={polaroid.rotate} className="hero-polaroid">
               <Tape side={polaroid.tape} />

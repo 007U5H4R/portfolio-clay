@@ -12,6 +12,7 @@
 import { test, expect } from "./fixtures";
 // The manifest directly — `lib/illustrations.ts` statically imports the JPEGs (see about.spec.ts).
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
+import { LAYERED_SCENES } from "@/content/media/illustrations/layers";
 
 const OPENERS: readonly { route: string; id: string }[] = [
   { route: "/work", id: "scene-experience" }, // TASK-114 (Dev-103): its own scene; the pinboard moved to /projects (TKT-101)
@@ -32,26 +33,27 @@ for (const { route, id } of OPENERS) {
     const first = page.locator("main#main > *").first();
     await expect(first).toHaveAttribute("data-opener", id);
 
-    // T3 (TASK-144.5): the opener holds a light and a dark twin; the active theme's one is the visible image (the
-    // other is `display: none`, `eval-025-scenes.spec.ts`), and it is the one that carries the LCP attributes.
-    await expect(first.locator("img")).toHaveCount(2);
+    // M-011 P2: the opener is a layered scene — one `role="img"` root carrying the manifest alt, every layer `alt=""` +
+    // `aria-hidden`; each layer has a light and a dark twin, the active theme's set is the visible one and its `bg` is the
+    // LCP image (eager, high priority; the rest lazy).
+    const layers = LAYERED_SCENES.find((l) => l.id === id)!.layers.length;
+    const root = first.locator("[data-paper-scene]");
+    await expect(root).toHaveAttribute("role", "img");
+    await expect(root).toHaveAttribute("aria-label", alt);
+    expect(await root.evaluate((el) => el.closest('[aria-hidden="true"]') === null)).toBe(true);
+    await expect(first.locator("img")).toHaveCount(layers * 2);
     const img = first.locator("img:visible");
-    await expect(img).toHaveCount(1);
-    await expect(img).toHaveAttribute("alt", alt);
-    await expect(img).toHaveAttribute("fetchpriority", "high");
-    await expect(img).toHaveAttribute("loading", "eager");
-    expect(await img.evaluate((el) => el.closest('[aria-hidden="true"]') === null)).toBe(true);
+    await expect(img).toHaveCount(layers);
+    const bg = first.locator("picture[data-theme-art]:visible img").first();
+    await expect(bg).toHaveAttribute("fetchpriority", "high");
+    await expect(bg).toHaveAttribute("loading", "eager");
+    for (const el of await img.all()) await expect(el).toHaveAttribute("alt", "");
 
     const decor = await first.locator("[data-decor]").evaluateAll((els) => els.map((el) => el.getAttribute("data-decor")));
     expect(decor).toEqual(["torn"]);
 
-    const box = (await first.locator(".scene-banner").boundingBox())!;
-    const canvas = (await first.locator(".scene-banner-canvas").boundingBox())!;
+    const box = (await root.boundingBox())!;
     expect(box.height).toBeGreaterThan(0);
-    expect(canvas.x).toBeLessThanOrEqual(box.x + 0.5);
-    expect(canvas.y).toBeLessThanOrEqual(box.y + 0.5);
-    expect(canvas.x + canvas.width).toBeGreaterThanOrEqual(box.x + box.width - 0.5);
-    expect(canvas.y + canvas.height).toBeGreaterThanOrEqual(box.y + box.height - 0.5);
 
     const h1 = (await page.getByRole("heading", { level: 1 }).first().boundingBox())!;
     expect(h1.y).toBeGreaterThanOrEqual(box.y + box.height);

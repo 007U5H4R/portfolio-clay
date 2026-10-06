@@ -10,6 +10,7 @@
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
+import { LAYERED_SCENES } from "@/content/media/illustrations/layers";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const MEASURED = [390, 1440];
@@ -39,8 +40,10 @@ for (const { route, id } of ROUTES) {
       );
       await page.goto(route, { waitUntil: "load" });
       await expect.poll(() => page.evaluate(() => document.documentElement.getAttribute("data-theme"))).toBe(theme);
-      const fig = page.locator(`figure.scene-banner[data-illustration="${id}"]`);
-      // The inactive twin is lazy; the active one decodes at load. Wait for the active one to have pixels.
+      // M-011 P2: a layered scene — every layer has a light and a dark twin; the inactive set is `display: none` and lazy.
+      const fig = page.locator(`[data-paper-scene="${id}"]`);
+      const layerCount = LAYERED_SCENES.find((l) => l.id === id)!.layers.length;
+      // The active set decodes at load. Wait for it to have pixels.
       await expect
         .poll(() => fig.evaluate((el) => [...el.querySelectorAll("img")].some((img) => img.naturalWidth > 0 && img.getBoundingClientRect().width > 0)), { timeout: 15_000 })
         .toBe(true);
@@ -48,23 +51,24 @@ for (const { route, id } of ROUTES) {
         [...el.querySelectorAll("img")].map((img) => ({
           art: img.closest("[data-theme-art]")?.getAttribute("data-theme-art") ?? null,
           shown: getComputedStyle(img.closest("[data-theme-art]") ?? img).display !== "none" && img.getBoundingClientRect().width > 0,
-          src: decodeURIComponent(img.currentSrc),
-          natural: img.naturalWidth,
+          src: decodeURIComponent(img.currentSrc || img.src),
           filter: getComputedStyle(img).filter,
           alt: img.getAttribute("alt"),
         })),
       );
-      expect(imgs.length, "two twins in the markup").toBe(2);
+      expect(imgs.length, "a light and a dark twin per layer in the markup").toBe(layerCount * 2);
       const visible = imgs.filter((i) => i.shown);
-      expect(visible.length, "exactly one twin visible").toBe(1);
-      const [on] = visible;
-      expect(on!.art, "the active theme's twin").toBe(theme);
-      expect(on!.filter, "no CSS filter on art").toBe("none");
-      const mobile = width(page) < 768;
-      expect(on!.src, "rendition file").toContain(`${id}${theme === "dark" ? "-dark" : ""}${mobile ? "-mobile" : ""}`);
-      if (theme === "light") expect(on!.src, "light is never the dark file").not.toContain("-dark");
-      expect(imgs.map((i) => i.alt).every((a) => a === ILLUSTRATIONS.find((e) => e.id === id)!.alt), "one shared alt").toBe(true);
-      expect(imgs.filter((i) => !i.shown).length, "the other twin is hidden").toBe(1);
+      expect(visible.length, "exactly one twin per layer visible").toBe(layerCount);
+      for (const on of visible) {
+        expect(on.art, "the active theme's twin").toBe(theme);
+        expect(on.filter, "no CSS filter on art").toBe("none");
+        const mobile = width(page) < 768;
+        expect(on.src, "rendition file").toMatch(new RegExp(`${id}-[a-z]+${theme === "dark" ? "-dark" : ""}${mobile ? "-mobile" : ""}\\.webp$`));
+        if (theme === "light") expect(on.src, "light is never the dark file").not.toContain("-dark");
+      }
+      expect(imgs.every((i) => i.alt === ""), "layers are alt-less; the root carries the one alt").toBe(true);
+      await expect(fig).toHaveAttribute("aria-label", ILLUSTRATIONS.find((e) => e.id === id)!.alt);
+      expect(imgs.filter((i) => !i.shown).length, "the other twins are hidden").toBe(layerCount);
     });
   }
 }

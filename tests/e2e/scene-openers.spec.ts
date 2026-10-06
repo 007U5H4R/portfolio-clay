@@ -1,6 +1,6 @@
 /**
  * TKT-103 → TKT-107 (Tushar 2026-09-26: "make the images of all the tabs same height and width similiar
- * to Home tab"; Design.md §11 Dev-40 → Dev-95). Every page scene is a 21:9 outpaint (3168×1344, the home
+ * to Home tab"; Design.md §11 Dev-40 → Dev-95). Every page scene is a 21:9 layered scene (3168×1344, the home
  * banner's ratio) and every opener uses the home banner's box:
  *  - ≥ 768: the whole scene at full width — box height = width ÷ `--scene-ar` (± 2 px) and the canvas
  *    equals the box on all four edges (nothing cropped, nothing letterboxed) — TKT-103's rule, now ≥ 768;
@@ -15,7 +15,7 @@ import { writing } from "@/data/writing";
 import { OPENER_FOCAL_X } from "@/components/paper/scene-opener-frames";
 
 const TOLERANCE_PX = 2;
-const HOME_RATIO = 3168 / 1344;
+const HOME_RATIO = 2400 / 1029; // M-011: the layered scenes' own ratio (was the 3168×1344 outpaints)
 const OPENERS = [
   { route: "/projects", id: "scene-work" } /* TKT-101 moved the scene-work opener to /projects */,
   { route: "/thinking", id: "scene-thinking" },
@@ -34,7 +34,7 @@ async function measure(page: Page, box: string, canvas: string) {
       const banner = document.querySelector(boxSel!) as HTMLElement | null;
       const cv = document.querySelector(canvasSel!);
       if (!banner || !cv) return null;
-      const [w, h] = getComputedStyle(banner).getPropertyValue("--scene-ar").split("/").map(Number);
+      const [w, h] = getComputedStyle(banner).getPropertyValue("--ps-ar").split("/").map(Number);
       const b = banner.getBoundingClientRect();
       const c = cv.getBoundingClientRect();
       return {
@@ -57,10 +57,10 @@ const edges = (box: Rect, canvas: Rect) => ({
 for (const { route, id } of OPENERS) {
   test(`TKT-107 ${route} opener is the home banner's box (21:9 whole scene ≥ 768, 4:3 focal crop < 768)`, async ({ page }) => {
     await page.goto(route, { waitUntil: "load" });
-    const m = await measure(page, ".scene-opener .scene-banner", ".scene-opener .scene-banner-canvas");
+    const m = await measure(page, ".scene-opener [data-paper-scene]", ".scene-opener [data-paper-scene]");
     expect(m, `${route} renders a scene opener`).not.toBeNull();
     const { ratio, box, canvas } = m!;
-    expect(Math.abs(ratio - HOME_RATIO), `${id} is a 21:9 outpaint (--scene-ar ${ratio.toFixed(4)})`).toBeLessThan(0.001);
+    expect(Math.abs(ratio - HOME_RATIO), `${id} is a 21:9 layered scene (--ps-ar ${ratio.toFixed(4)})`).toBeLessThan(0.001);
     const wide = (page.viewportSize()?.width ?? 0) >= 768;
 
     if (wide) {
@@ -79,7 +79,7 @@ for (const { route, id } of OPENERS) {
       expect(focal, `${id} focal point inside the box`).toBeGreaterThan(box.x + box.w * 0.25);
       expect(focal, `${id} focal point inside the box`).toBeLessThan(box.x + box.w * 0.75);
       // The narrow rendition covers the part of the canvas the box shows (no blank strip at either side).
-      const img = await page.locator(".scene-opener .scene-banner-img:visible").boundingBox();
+      const img = await page.locator(".scene-opener [data-paper-scene] img:visible").first().boundingBox();
       expect(img!.x).toBeLessThanOrEqual(box.x + 0.5);
       expect(img!.x + img!.width).toBeGreaterThanOrEqual(box.x + box.w - 0.5);
     }
@@ -100,11 +100,11 @@ test("TKT-107 every opener's box is the home banner's height at 768 / 1024 / 144
   for (const width of [768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/", { waitUntil: "load" });
-    const home = await measure(page, ".hero-banner .scene-banner", ".hero-banner .scene-banner-canvas");
+    const home = await measure(page, ".hero-banner [data-paper-scene]", ".hero-banner [data-paper-scene]");
     expect(home, "home renders its banner").not.toBeNull();
     for (const { route } of OPENERS) {
       await page.goto(route, { waitUntil: "load" });
-      const m = await measure(page, ".scene-opener .scene-banner", ".scene-opener .scene-banner-canvas");
+      const m = await measure(page, ".scene-opener [data-paper-scene]", ".scene-opener [data-paper-scene]");
       expect(m, `${route} renders a scene opener`).not.toBeNull();
       expect(Math.abs(m!.box.h - home!.box.h), `${width}px ${route}: opener ${m!.box.h.toFixed(1)} vs home ${home!.box.h.toFixed(1)}`).toBeLessThanOrEqual(TOLERANCE_PX);
       expect(Math.abs(m!.box.w - home!.box.w), `${width}px ${route}: same full-bleed width`).toBeLessThanOrEqual(TOLERANCE_PX);

@@ -107,7 +107,7 @@ export function check(dir: string, entries: ManifestLike[], readme: string): Fin
   const findings: Finding[] = [];
 
   // Rule 1 — every on-disk file (excluding README.md, manifest.ts) has exactly one manifest entry, and vice versa.
-  const filesOnDisk = new Set(listFiles(dir, new Set(["README.md", "manifest.ts"])));
+  const filesOnDisk = new Set(listFiles(dir, new Set(["README.md", "manifest.ts", "layers.ts"])));
   // `darkFile` (TASK-140, EVAL-025): a paired dark rendition lives on the same entry as its light twin.
   const filesInManifest = new Set(entries.flatMap((e) => [e.file, e.darkFile ?? ""]).filter((f) => f.length > 0));
   for (const f of filesOnDisk) {
