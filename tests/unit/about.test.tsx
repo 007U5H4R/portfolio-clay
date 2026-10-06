@@ -47,7 +47,7 @@ describe("/about (TASK-136)", () => {
     const { container } = render(<AboutPage />);
     expect((container.firstElementChild as HTMLElement).getAttribute("data-opener")).toBe("scene-about");
     const ids = Array.from(container.querySelectorAll(":scope > section")).map((s) => s.id || s.getAttribute("aria-labelledby"));
-    expect(ids).toEqual([null, "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta"]);
+    expect(ids).toEqual([null, "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-card", "about-cta"]);
     const headings = Array.from(container.querySelectorAll("h1, h2")).map((h) => h.textContent);
     expect(headings).toEqual([
       "A builder who connects deep tech to real-world impact.",
@@ -57,6 +57,7 @@ describe("/about (TASK-136)", () => {
       "Curiosity, impact and continuous learning.",
       "A few milestones along the way.",
       "In their words.",
+      "Keep me in your pocket.",
       ABOUT_CTA.title,
     ]);
   });

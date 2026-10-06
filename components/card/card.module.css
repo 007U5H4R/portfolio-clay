@@ -99,6 +99,11 @@
   .stage { width: 420px; }
 }
 
+/* embedded in a page that supplies its own spacing (e.g. /about) */
+.scene.compact {
+  padding-block: var(--space-5) var(--space-4);
+}
+
 /* ground shadow: contact + ambient, separate from the 3D object (§28) */
 .shadow {
   position: absolute;
