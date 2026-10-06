@@ -13,11 +13,17 @@ import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { CenterText, Chrome, Hint, Hud, Intro, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
+import { GUMMY_URL } from "./gummy-url";
 import type { LabRuntime } from "./runtime";
 import { webglAvailable } from "./webgl";
 import styles from "./lab.module.css";
 
 const GameScene = dynamic(() => import("./GameScene"), { ssr: false });
+
+// TASK-155: the lab's boot was a serial chain (LabApp chunk -> GameScene chunk -> rapier wasm init -> only then the
+// GLB fetch, inside Suspense). Start the GLB fetch now so it warms the HTTP cache in parallel with the engine chunks;
+// three's loader then reads it from cache instead of starting the download after the physics init.
+if (typeof window !== "undefined") void fetch(GUMMY_URL).catch(() => undefined);
 
 /** Elements of the portfolio chrome that must not be reachable while the lab covers the page. */
 const CHROME_SELECTOR = "header[data-site-header], footer, a[href='#main']";
@@ -93,15 +99,11 @@ export default function LabApp() {
     store.getState().send("DISCOVER");
     runtime.engine.discover();
   }, [runtime, store]);
-  useEffect(() => {
-    if (!runtime || asset === "loading") return;
-    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), 500);
-    return () => window.clearTimeout(t);
-  }, [runtime, store, asset]);
+  // TASK-155: the intro never waits on the GLB (the bear shows its procedural fallback body until the model lands),
+  // so a slow network no longer holds the intro for up to the old 9 s guard.
   useEffect(() => {
     if (!runtime) return;
-    // Never strand the visitor behind a stalled asset: show the intro after a while regardless.
-    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), 9000);
+    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), 500);
     return () => window.clearTimeout(t);
   }, [runtime, store]);
 

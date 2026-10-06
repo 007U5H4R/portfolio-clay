@@ -23,7 +23,8 @@ import { GummyController } from "./gummy-controller";
 import { PHYSICS_DT } from "./physics-step";
 import { useRuntime } from "./runtime";
 
-export const GUMMY_URL = "/lab/gummy.glb";
+import { GUMMY_URL } from "./gummy-url";
+export { GUMMY_URL };
 
 interface Prepared {
   root: Object3D;
@@ -113,7 +114,7 @@ export function Gummy() {
   const rt = useRuntime();
   return (
     <GummyBoundary onFail={() => rt.onAsset("failed")} fallback={<GummyBody model="fallback" />}>
-      <Suspense fallback={null}>
+      <Suspense fallback={<GummyBody model="fallback" />}>
         <GummyFromAsset />
       </Suspense>
     </GummyBoundary>
