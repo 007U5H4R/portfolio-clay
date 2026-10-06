@@ -105,13 +105,16 @@ export const papers: ResearchPaper[] = [
   },
   {
     id: "soft-matter-2023",
-    // authors: MISSING (§4.7 — RESUME lists the title only)
+    authors: "Bhattacharjee, K.; Vaidya, S. S.; Pathak, T.; Shimpi, J. R.; Prasad, B. L. V.",
     title:
-      "Topological Phases in Nanoparticle Monolayers: Why Crystalline, Hexatic, and Isotropic-Fluid Phases Coexist at the Same Temperature",
+      "Topological phases in nanoparticle monolayers: can crystalline, hexatic, and isotropic-fluid phases coexist in the same monolayer?",
     journal: "Soft Matter, RSC",
     year: "2023",
-    // doi: MISSING — never fabricate; Research.tsx renders "DOI pending".
-    source: "RESUME Paper Publications — DOI + author list MISSING",
+    volumeIssue: "19(38)",
+    doi: "10.1039/d3sm00290j",
+    doiHref: "https://doi.org/10.1039/d3sm00290j",
+    source:
+      "DOI supplied by Tushar 2026-10-06 (TASK-163); title, authors and volume taken verbatim from its Crossref record (Soft Matter 19(38), 7271–7280) with Tushar's approval — replaces the RESUME's paraphrased title",
   },
 ];
 

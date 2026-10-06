@@ -30,8 +30,8 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-05",
-    "profileVersion": "v1-af6bf22cf18c",
+    "updatedAt": "2026-10-06",
+    "profileVersion": "v1-86bebba25241",
     "dependsOn": [
       "profile",
       "experience",
@@ -471,8 +471,8 @@
       "What enterprise programs has he worked on?",
       "What is his educational background?"
     ],
-    "updatedAt": "2026-10-05",
-    "profileVersion": "v1-e820bfc00fa5",
+    "updatedAt": "2026-10-06",
+    "profileVersion": "v1-b5952c288025",
     "dependsOn": [
       "experience",
       "profile",
@@ -545,8 +545,8 @@
       "What enterprise programs has he worked on?",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-2be29c3078f7",
+    "updatedAt": "2026-10-06",
+    "profileVersion": "v1-e58cf6bef1b5",
     "dependsOn": [
       "experience",
       "enterprise",
@@ -616,8 +616,8 @@
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-04739892b7a9",
+    "updatedAt": "2026-10-06",
+    "profileVersion": "v1-92700cdd9cd8",
     "dependsOn": [
       "credentials",
       "knowledge"
@@ -769,8 +769,8 @@
       "What is his work experience?",
       "What certifications does he have?"
     ],
-    "updatedAt": "2026-09-28",
-    "profileVersion": "v1-7bfb33fc0bd4",
+    "updatedAt": "2026-10-06",
+    "profileVersion": "v1-112b90bedf47",
     "dependsOn": [
       "credentials"
     ],

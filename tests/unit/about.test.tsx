@@ -144,7 +144,8 @@ describe("/about (TASK-136)", () => {
       expect(research.textContent).toContain(paper.title);
       if (paper.doiHref) expect(research.querySelector(`a[href="${paper.doiHref}"]`)).not.toBeNull();
     }
-    expect(research.textContent).toContain("DOI pending"); // Soft Matter's DOI is recorded as MISSING
+    expect(research.textContent).not.toContain("DOI pending"); // both papers now carry a real DOI (TASK-163)
+    expect(research.querySelector('a[href="https://doi.org/10.1039/d3sm00290j"]')).not.toBeNull();
     expect(research.textContent).not.toMatch(/044152784/); // the résumé's SL No. is never the patent number
     // spec §23: not an education block
     expect(research.textContent).not.toMatch(/B\.E\.|M\.Tech|CGPA|Bhilai|Institute of Technology/);
