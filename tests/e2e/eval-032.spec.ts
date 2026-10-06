@@ -183,7 +183,7 @@ test.describe("@EVAL-032 reduced motion", () => {
     const frames = await page.evaluate((cs) => (window as unknown as { __pw: PwRecord }).__pw.raf.filter((r) => cs.some((c) => r.stack.includes(c))).length, chunks);
     expect(frames, "parallax rAF registrations under reduced motion").toBe(0);
     // Complete at rest: every visible layer image decoded (lazy layers loaded because the scene is in view).
-    await page.waitForFunction((sel) => [...document.querySelectorAll(`${sel} img`)].filter((i) => i.offsetParent !== null).every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0), SCENE);
+    await page.waitForFunction((sel) => [...document.querySelectorAll<HTMLElement>(`${sel} img`)].filter((i) => i.offsetParent !== null).every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0), SCENE);
     // Scroll depth is off too: the depth wrapper carries no animation.
     const animated = await page.locator(`${SCENE} [data-layer] > div`).evaluateAll((els) => els.filter((e) => getComputedStyle(e).animationName !== "none").length);
     expect(animated).toBe(0);
