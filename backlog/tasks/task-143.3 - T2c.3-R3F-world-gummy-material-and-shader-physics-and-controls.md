@@ -1,9 +1,10 @@
 ---
 id: TASK-143.3
 title: 'T2c.3 R3F world, gummy material and shader, physics and controls'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:24'
+updated_date: '2026-10-06 14:36'
 labels:
   - P2
 dependencies: []
