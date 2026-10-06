@@ -1,0 +1,75 @@
+/* M-011 Paper World — PaperParallaxScene (Design.md §14.4). Layers move by `translate` only: the pointer/tilt
+   offset on `.layer` (from --pp-x/--pp-y, written by lib/paper-world/motion.ts), the scroll-depth offset on the
+   `.depth` wrapper (CSS scroll timeline), so neither overwrites the other. No scroll listener, no layout property. */
+.root {
+  --par-0: 0;
+  --par-1: 0.05;
+  --par-2: 0.12;
+  --par-3: 0.22;
+  --par-4: 0.4;
+  --par-5: 0.6;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: var(--ps-ar);
+  background: var(--mat-bg, var(--color-paper, #f5ebdd));
+}
+
+.layer {
+  /* Offset in px = pointer range × factor (tablet and narrower: halved); tilt uses the per-layer maximum. */
+  --k: 1;
+  --rng: calc(var(--par) * var(--rng-p) * var(--k));
+  position: absolute;
+  inset: calc(var(--bleed) * -1);
+  translate: calc(var(--pp-x, 0) * var(--rng)) calc(var(--pp-y, 0) * var(--rng));
+  pointer-events: none;
+}
+
+@media (max-width: 1023px) {
+  .layer {
+    --k: 0.5;
+  }
+}
+
+.root[data-pp-mode="orientation"] .layer {
+  --rng: var(--rng-o);
+}
+
+.depth {
+  position: absolute;
+  inset: 0;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .depth {
+      animation: depth-shift linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes depth-shift {
+  from {
+    translate: 0 calc(var(--par) * -12px);
+  }
+  to {
+    translate: 0 calc(var(--par) * 12px);
+  }
+}
+
+.picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focal-x, 50%) var(--focal-y, 50%);
+  user-select: none;
+}
