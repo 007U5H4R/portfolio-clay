@@ -3,7 +3,7 @@
  * split out of eval-030.spec.ts so they run on the default launch. Neither block touches WebGL; under
  * that file's SwiftShader flags every page composites in software GL, and leaving a page blocked on
  * compositor teardown (`LayerTreeHost::~LayerTreeHost`) for 10–80 s on a loaded host, which timed
- * them out (EXE-48). The canvas path stays in eval-030.spec.ts.
+ * them out (EXE-49). The canvas path stays in eval-030.spec.ts.
  */
 import { test, expect } from "./fixtures";
 import { BRAND, MONOGRAM, enterLab, rapidClicks } from "./lab-helpers";

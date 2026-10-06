@@ -21,7 +21,7 @@ For Tushar · 2026-10-06 · branch `m-009-redesign` · **preview only, productio
 - **EXE-34 (T3):** passed. **No case-study scenes**: case studies open on their own product hero, so the scene would never be seen. Tushky's scene is kept in the library but not shipped.
 - **EXE-35 (T5, T2c, T4):** passed. T5's dark front was re-tuned once (it was navy-on-navy). The card title stays "Senior Product Manager", taken from your data rather than the spec's unsourced "AI Product Manager". `/lab` alone gets `wasm-unsafe-eval` in its CSP (physics engine).
 - **EXE-37 (security):** no Critical, High or Medium findings; 3 Lows fixed.
-- **EXE-48 (Gummy Lab fix):** see below.
+- **EXE-49 (Gummy Lab fix):** see below.
 
 ## Gummy Lab fix (TASK-143)
 The two remaining `/lab` failures (canvas never sizing, ESC not exiting) had one cause. The footer's never-ending animations (ocean + rotating verb) kept running underneath the full-screen lab and starved its 3D start-up. The footer is no longer rendered on `/lab`; you can't see it there anyway. A regression test asserts nothing animates under the lab. Two test-harness fixes came with it: the hidden-route and trigger tests no longer run with software 3D rendering they don't need, and the leak check counts live render loops instead of a frame-rate-dependent rate.
@@ -37,8 +37,10 @@ The two remaining `/lab` failures (canvas never sizing, ESC not exiting) had one
 - Intro-video poster and the About band's mini-collage are still watercolour, not paper-cut.
 
 ## Open, outside M-010
+- **Gummy Lab start-up time over the network:** on the live preview the intro screen appears about 12 s after `/lab` opens (download + 3D/physics start-up). It works, but it's slow. It belongs to TASK-155 (no-lag), not this fix.
+- **Lenis smooth scroll** runs one animation frame on every page even when idle (TASK-155 perf lane, noted in EXE-49).
 - **TASK-149:** every page view preloads all tabs' hero scenes through route prefetch (from M-009, likely on production too). Fix after the release; it falls under the new no-lag rule (TASK-155).
 - TASK-150 (footer sailboat clipped), TASK-152–155 and M-011 (TASK-151) are being handled in parallel sessions.
 
 ## Evidence
-Final gate (quiet machine, `m010/lab-fix@3d4f334`): typecheck ✓, lint 0 errors, check-specs 38 OK, tokens 55/55 AA, build ✓, unit 1057 ✓, full e2e 1678 passed / 3 failed. The 3 (w1440 lab tests) were resolved by test-only fixes, then rerun: w1440 29/0, lab-page block ×2 on all four projects 64/0 (EXE-48). Gate #2 had 26 failures. Preview deploy: PREVIEW_DEPLOY.
+Final gate (quiet machine, `m010/lab-fix@3d4f334`): typecheck ✓, lint 0 errors, check-specs 38 OK, tokens 55/55 AA, build ✓, unit 1057 ✓, full e2e 1678 passed / 3 failed. The 3 (w1440 lab tests) were resolved by test-only fixes, then rerun: w1440 29/0, lab-page block ×2 on all four projects 64/0 (EXE-49). Gate #2 had 26 failures. Preview deploy: `9eb416e` → `dpl_89ihL6mqVVLZM3shpUgkGUN9AHXX` READY (alias `portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app`). Checked live with a GPU (Apple M1, Metal): 5 clicks open `/lab` in canvas mode, canvas full size, no footer under it, ESC returns home in 3.95 s (about 2 s of that is the designed exit animation), 0 console errors.
