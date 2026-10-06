@@ -66,4 +66,40 @@ describe("createClickDetector", () => {
     d.reset();
     expect(d.click(200).step).toBe(1);
   });
+
+  describe("rebase(): a route change is not clicking time (TASK-143)", () => {
+    it("click 1 navigates inner page -> home slowly: the window restarts when the route commits", () => {
+      const d = createClickDetector();
+      d.click(0); // on /about: navigates home, which takes 6 s to commit on a slow device
+      d.rebase(6000);
+      const out = [6100, 6700, 7300, 7900].map((t) => d.click(t));
+      expect(out.map((o) => o.step)).toEqual([2, 3, 4, 5]);
+      expect(out.at(-1)?.triggered).toBe(true);
+    });
+
+    it("without a rebase the same slow navigation expires the sequence (the bug)", () => {
+      const d = createClickDetector();
+      d.click(0);
+      expect(d.click(6100).step).toBe(1);
+    });
+
+    it("rebasing keeps the clicks counted but restarts the 3.5 s window from the commit", () => {
+      const d = createClickDetector();
+      [0, 100].forEach((t) => d.click(t));
+      d.rebase(5000);
+      [5100, 5200].forEach((t) => d.click(t));
+      expect(d.click(5000 + 3500).triggered).toBe(true); // 3.5 s after the commit
+      const e = createClickDetector();
+      [0, 100].forEach((t) => e.click(t));
+      e.rebase(5000);
+      [5100, 5200].forEach((t) => e.click(t));
+      expect(e.click(5000 + 3501).triggered).toBe(false);
+    });
+
+    it("is a no-op with no clicks (nothing to restart)", () => {
+      const d = createClickDetector();
+      d.rebase(1000);
+      expect(d.click(1100).step).toBe(1);
+    });
+  });
 });

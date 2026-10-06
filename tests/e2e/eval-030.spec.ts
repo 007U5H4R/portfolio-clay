@@ -44,7 +44,11 @@ async function rapidClicks(page: Page, selector: string, n = 5, gap = 70) {
   // Wait until the trigger has hydrated: a click before that is (correctly) not counted.
   await page.waitForSelector("html[data-gummy-trigger='ready']", { timeout: 20_000 });
   for (let i = 0; i < n; i += 1) {
-    await page.locator(selector).first().click({ delay: 10 });
+    // A raw mouse click at the element's centre, not `locator.click()`: Playwright's actionability checks
+    // wait for animation frames, so on a host whose compositor crawls (software WebGL) each click took
+    // 0.6–2.5 s and the harness, not the page, decided whether 5 clicks fit in 3.5 s.
+    const box = (await page.locator(selector).first().boundingBox())!;
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2, { delay: 10 });
     if (i < n - 1) await page.waitForTimeout(gap);
   }
 }
@@ -76,6 +80,28 @@ async function loseRun(page: Page) {
     rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
   });
   await page.waitForSelector("[data-lab-state='RESULTS']", { timeout: 60_000 });
+}
+
+/**
+ * Park the bear at rest on the right end of S1, the lowest static platform (clear of its spring pad and
+ * of the HUD, above the danger zone), and wait until it is settled. On a slow host the run clock keeps ticking while frames crawl,
+ * so a step that starts wherever the previous one left the bear (often the floor, 1.2 s from game
+ * over) races the danger timer instead of testing its own control.
+ */
+async function settleOnTopPlatform(page: Page) {
+  await page.evaluate(() => {
+    const rb = window.__gummyLab!.rt.bearBody.current!;
+    rb.setTranslation({ x: -1.95, y: -2.2, z: 0 }, true);
+    rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
+  });
+  await page.waitForFunction(
+    () => {
+      const b = window.__gummyLab!.rt.bear;
+      return b.grounded && Math.abs(b.y + 2.73) < 0.3 && Math.abs(b.vx) < 0.15 && Math.abs(b.vy) < 0.15;
+    },
+    null,
+    { timeout: 30_000 },
+  );
 }
 
 const bear = (page: Page) =>
@@ -349,15 +375,14 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     test.skip(info.project.name === "w390", "pointer controls on the desktop project; touch is covered separately");
     await openGame(page);
     await startRun(page);
-    await page.waitForFunction(() => window.__gummyLab!.rt.bear.grounded, null, { timeout: 40_000 });
-    await page.waitForTimeout(500);
+    await settleOnTopPlatform(page);
     let b = await bear(page);
     // tap → bounce
     await page.mouse.move(b.px, b.py);
     await page.mouse.down();
     await page.mouse.up();
     await page.waitForFunction((y0) => window.__gummyLab!.rt.bear.y > y0 + 0.3, b.y, { timeout: 5000 });
-    await page.waitForFunction(() => window.__gummyLab!.rt.bear.grounded, null, { timeout: 15_000 });
+    await settleOnTopPlatform(page);
     // drag → the bear follows the pointer (spring, not a teleport)
     b = await bear(page);
     await page.mouse.move(b.px, b.py);
@@ -371,12 +396,13 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(dragged.x).toBeLessThan(b.x - 0.2);
     await page.mouse.up();
     // keyboard: nudge + bounce + pause
-    await page.waitForFunction(() => window.__gummyLab!.rt.bear.grounded, null, { timeout: 30_000 });
+    await settleOnTopPlatform(page);
     const k0 = await bear(page);
     await page.keyboard.down("ArrowRight");
     await page.waitForTimeout(400);
     await page.keyboard.up("ArrowRight");
-    expect((await bear(page)).x).toBeGreaterThan(k0.x);
+    // Forces run per fixed physics step, so a 400 ms hold moves the bear right at any frame rate.
+    expect((await bear(page)).x).toBeGreaterThan(k0.x + 0.05);
     await page.keyboard.press("p");
     expect(await labState(page)).toBe("PAUSED");
     await page.keyboard.press("p");

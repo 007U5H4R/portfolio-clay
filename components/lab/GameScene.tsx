@@ -12,6 +12,7 @@ import { Driver } from "./Driver";
 import { Gummy } from "./Gummy";
 import { Pickups } from "./Pickups";
 import { Particles } from "./Particles";
+import { PHYSICS_DT } from "./physics-step";
 import { RuntimeContext, useRuntime, type LabRuntime } from "./runtime";
 import { Stage } from "./Stage";
 
@@ -56,7 +57,7 @@ function World() {
   const paused = rt.store((s) => s.state === "PAUSED");
   return (
     <Suspense fallback={null}>
-      <Physics gravity={[0, GRAVITY, 0]} paused={paused} timeStep={1 / 60} interpolate>
+      <Physics gravity={[0, GRAVITY, 0]} paused={paused} timeStep={PHYSICS_DT} interpolate>
         <Arena />
         <Pickups />
         <Gummy />
