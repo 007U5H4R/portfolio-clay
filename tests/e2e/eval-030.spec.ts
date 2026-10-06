@@ -15,11 +15,10 @@
  */
 import { test, expect } from "./fixtures";
 import type { Page, TestInfo } from "@playwright/test";
+import { BRAND, enterLab, rapidClicks, waitLab } from "./lab-helpers";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"] } });
 
-const BRAND = "[data-site-header] .header-brand";
-const MONOGRAM = "[data-site-header] .header-monogram";
 const heavy = (info: TestInfo) => info.project.name === "w1440" || info.project.name === "w390";
 
 interface LabHandle {
@@ -40,29 +39,6 @@ declare global {
   }
 }
 
-async function rapidClicks(page: Page, selector: string, n = 5, gap = 70) {
-  // Wait until the trigger has hydrated: a click before that is (correctly) not counted.
-  await page.waitForSelector("html[data-gummy-trigger='ready']", { timeout: 20_000 });
-  for (let i = 0; i < n; i += 1) {
-    // A raw mouse click at the element's centre, not `locator.click()`: Playwright's actionability checks
-    // wait for animation frames, so on a host whose compositor crawls (software WebGL) each click took
-    // 0.6–2.5 s and the harness, not the page, decided whether 5 clicks fit in 3.5 s.
-    const box = (await page.locator(selector).first().boundingBox())!;
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2, { delay: 10 });
-    if (i < n - 1) await page.waitForTimeout(gap);
-  }
-}
-
-async function enterLab(page: Page, selector = BRAND) {
-  await page.goto("/");
-  await page.waitForLoadState("load");
-  await rapidClicks(page, selector);
-  await page.waitForURL("**/lab", { timeout: 15_000 });
-  await waitLab(page);
-}
-
-/** The lab has mounted (canvas or fallback), not just the static loading shell. */
-const waitLab = (page: Page) => page.waitForSelector("[data-lab]:not([data-lab='loading'])", { timeout: 30_000 });
 const labMode = (page: Page) => page.locator("[data-lab]").first().getAttribute("data-lab");
 const labState = (page: Page) => page.locator("[data-lab-state]").first().getAttribute("data-lab-state");
 
@@ -135,129 +111,51 @@ async function installRafProbe(page: Page) {
     };
   });
 }
+/**
+ * The most rAF loops alive at once over `ms` (each live loop always has exactly one pending request).
+ * A request *rate* tracks the frame rate, not the loop count: under SwiftShader a cold home page renders
+ * at ~1 fps and the same page after an exit at 60 fps, so one Lenis loop read as "32 → 61/s" (TASK-143).
+ */
+const rafLoops = async (page: Page, ms = 1000) =>
+  page.evaluate(
+    (window_ms) =>
+      new Promise<number>((resolve) => {
+        let max = window.__raf!.pending();
+        const t = setInterval(() => (max = Math.max(max, window.__raf!.pending())), 25);
+        setTimeout(() => {
+          clearInterval(t);
+          resolve(max);
+        }, window_ms);
+      }),
+    ms,
+  );
+
 const rafRate = async (page: Page, ms = 1000) => {
   const before = await page.evaluate(() => window.__raf!.calls);
   await page.waitForTimeout(ms);
   return (await page.evaluate(() => window.__raf!.calls)) - before;
 };
 
-test.describe("@EVAL-030 hidden, not broken", () => {
-  test("@EVAL-030 /lab is 200 with noindex and is not disallowed in robots.txt", async ({ request }) => {
-    const res = await request.get("/lab");
-    expect(res.status()).toBe(200);
-    expect(await res.text()).toMatch(/<meta name="robots" content="noindex[^"]*"/);
-    const robots = await (await request.get("/robots.txt")).text();
-    expect(robots).not.toMatch(/Disallow:\s*\/lab/i);
-    expect(robots).toMatch(/Allow:\s*\//);
-  });
-
-  test("@EVAL-030 /lab is in no sitemap entry", async ({ request }) => {
-    const xml = await (await request.get("/sitemap.xml")).text();
-    expect(xml).toContain("<loc>");
-    expect(xml).not.toMatch(/\/lab(<|\/|\?)/);
-  });
-
-  test("@EVAL-030 no route links to /lab (0 a[href=\"/lab\"]) — static HTML of every sitemap URL", async ({ request }) => {
-    const xml = await (await request.get("/sitemap.xml")).text();
-    const paths = Array.from(xml.matchAll(/<loc>([^<]+)<\/loc>/g)).map((m) => new URL(m[1]!).pathname);
-    expect(paths.length).toBeGreaterThan(8);
-    for (const path of ["/", ...paths, "/lab"]) {
-      const html = await (await request.get(path)).text();
-      expect(html, `${path} links to /lab`).not.toMatch(/href="\/lab(["?#/])/);
-    }
-  });
-
-  test("@EVAL-030 no rendered nav/footer link to /lab (live DOM)", async ({ page }) => {
-    for (const path of ["/", "/projects", "/about", "/contact"]) {
-      await page.goto(path);
-      await page.waitForLoadState("load");
-      expect(await page.locator('a[href="/lab"]').count(), path).toBe(0);
-    }
-  });
-
-  test("@EVAL-030 only /lab may compile wasm (CSP) and it never allows unsafe-eval", async ({ request }) => {
-    const lab = (await request.head("/lab")).headers()["content-security-policy"] ?? "";
-    const home = (await request.head("/")).headers()["content-security-policy"] ?? "";
-    expect(lab).toContain("'wasm-unsafe-eval'");
-    expect(home).not.toContain("wasm-unsafe-eval");
-    expect(lab).not.toContain("'unsafe-eval'");
-    expect(home).not.toContain("'unsafe-eval'");
-  });
-});
-
-test.describe("@EVAL-030 secret trigger", () => {
-  test("@EVAL-030 5 rapid clicks on the name open /lab", async ({ page, consoleErrors }) => {
-    await enterLab(page);
-    expect(new URL(page.url()).pathname).toBe("/lab");
-    expect(consoleErrors).toEqual([]);
-  });
-
-  test("@EVAL-030 5 rapid clicks on the TP monogram open /lab", async ({ page }) => {
-    await enterLab(page, MONOGRAM);
-    expect(new URL(page.url()).pathname).toBe("/lab");
-  });
-
-  test("@EVAL-030 5 rapid clicks from an inner page still open /lab (the sequence survives the first navigation)", async ({ page }) => {
-    await page.goto("/about");
-    await page.waitForLoadState("load");
-    await rapidClicks(page, BRAND, 5, 150);
-    await page.waitForURL("**/lab", { timeout: 15_000 });
-  });
-
-  test("@EVAL-030 4 clicks do nothing", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("load");
-    await rapidClicks(page, BRAND, 4);
-    await page.waitForTimeout(1800);
-    expect(new URL(page.url()).pathname).toBe("/");
-    expect(await page.locator("[data-gummy-overlay]").count()).toBe(0);
-  });
-
-  test("@EVAL-030 a slow sequence (5 clicks over > 3.5 s) does nothing", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("load");
-    await rapidClicks(page, BRAND, 5, 1000);
-    await page.waitForTimeout(1500);
-    expect(new URL(page.url()).pathname).toBe("/");
-  });
-
-  test("@EVAL-030 a pause resets the counter (4 clicks, wait out the window, 1 click)", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("load");
-    await rapidClicks(page, BRAND, 4);
-    await page.waitForTimeout(3800);
-    await rapidClicks(page, BRAND, 1);
-    await page.waitForTimeout(1500);
-    expect(new URL(page.url()).pathname).toBe("/");
-  });
-
-  test("@EVAL-030 the per-click hints are opacity/transform/filter/spacing only", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("load");
-    const css = await page.evaluate(async () => {
-      const rules: string[] = [];
-      for (const sheet of Array.from(document.styleSheets)) {
-        try {
-          const walk = (list: CSSRuleList) => {
-            for (const r of Array.from(list)) {
-              if (r instanceof CSSKeyframesRule && /^gl-/.test(r.name)) rules.push(r.cssText);
-              else if ("cssRules" in r) walk((r as CSSGroupingRule).cssRules);
-            }
-          };
-          walk(sheet.cssRules);
-        } catch {
-          /* cross-origin sheet */
-        }
-      }
-      return rules.join("\n");
-    });
-    expect(css).toContain("gl-wobble");
-    // No layout-driving properties inside the hint keyframes.
-    expect(css).not.toMatch(/\b(width|height|top|left|margin|padding)\s*:/);
-  });
-});
-
 test.describe("@EVAL-030 the lab page", () => {
+  // Each test's own waits add up to ~75 s (entry 15 s + mount 30 s + exit 15 s + overlay 15 s); the 30 s
+  // default test budget cut them off under SwiftShader, where entering alone took 17 s (TASK-143, EXE-48).
+  // The step waits are unchanged; this only stops the default budget overriding them (cf. gameplay: 150 s).
+  test.beforeEach(() => test.setTimeout(90_000));
+  // TASK-143: the footer's infinite animations (T4 ocean, band verb) kept compositing under the opaque
+  // lab and starved its WebGL boot (canvas unsized for 90 s, ESC exit 130 s late under SwiftShader).
+  test("@EVAL-030 nothing of the portfolio animates under the lab (no band footer on /lab)", async ({ page }) => {
+    await page.goto("/lab");
+    await page.waitForSelector("[data-lab]");
+    expect(await page.locator("footer.band, [data-band-ocean]").count()).toBe(0);
+    const under = await page.evaluate(() =>
+      document.getAnimations().filter((a) => {
+        const t = (a.effect as KeyframeEffect | null)?.target;
+        return a.effect?.getTiming().iterations === Infinity && !t?.closest("[data-lab]");
+      }).length,
+    );
+    expect(under).toBe(0);
+  });
+
   test("@EVAL-030 renders a canvas, or a labelled fallback with the Back link — never blank", async ({ page }, info) => {
     await page.goto("/lab");
     await waitLab(page);
@@ -578,8 +476,8 @@ test.describe("@EVAL-030 no leaks across enter/exit cycles", () => {
     await page.goto("/");
     await page.waitForLoadState("load");
     await page.waitForTimeout(2500); // let load-time work (cursor chunk, smooth scroll) settle
-    const baseline = await rafRate(page);
-    const rates: number[] = [];
+    const baseline = await rafLoops(page);
+    const loops: number[] = [];
     for (let cycle = 0; cycle < 3; cycle += 1) {
       await rapidClicks(page, BRAND, 5, 70);
       await page.waitForURL("**/lab", { timeout: 15_000 });
@@ -596,12 +494,12 @@ test.describe("@EVAL-030 no leaks across enter/exit cycles", () => {
       await page.waitForURL((u) => u.pathname === "/", { timeout: 20_000 });
       await page.waitForSelector("[data-gummy-overlay]", { state: "detached", timeout: 15_000 });
       await page.waitForTimeout(1800);
-      rates.push(await rafRate(page));
+      loops.push(await rafLoops(page));
     }
-    info.annotations.push({ type: "eval-030-raf", description: `baseline ${baseline}/s; after exit ${rates.join(", ")}/s` });
-    for (const [i, r] of rates.entries()) {
-      // A surviving R3F loop would add every frame (tens per second); allow a small tolerance for idle timers.
-      expect(r, `after exit ${i + 1}: rAF requests/s ${r} vs baseline ${baseline}`).toBeLessThanOrEqual(baseline + 8);
+    info.annotations.push({ type: "eval-030-raf", description: `baseline ${baseline} loop(s); after exit ${loops.join(", ")}` });
+    for (const [i, n] of loops.entries()) {
+      // A surviving R3F loop is one more live rAF loop than the portfolio runs on its own.
+      expect(n, `after exit ${i + 1}: ${n} live rAF loops vs baseline ${baseline}`).toBeLessThanOrEqual(baseline);
     }
     expect(consoleErrors).toEqual([]);
   });
