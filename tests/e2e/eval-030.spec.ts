@@ -258,6 +258,21 @@ test.describe("@EVAL-030 secret trigger", () => {
 });
 
 test.describe("@EVAL-030 the lab page", () => {
+  // TASK-143: the footer's infinite animations (T4 ocean, band verb) kept compositing under the opaque
+  // lab and starved its WebGL boot (canvas unsized for 90 s, ESC exit 130 s late under SwiftShader).
+  test("@EVAL-030 nothing of the portfolio animates under the lab (no band footer on /lab)", async ({ page }) => {
+    await page.goto("/lab");
+    await page.waitForSelector("[data-lab]");
+    expect(await page.locator("footer.band, [data-band-ocean]").count()).toBe(0);
+    const under = await page.evaluate(() =>
+      document.getAnimations().filter((a) => {
+        const t = (a.effect as KeyframeEffect | null)?.target;
+        return a.effect?.getTiming().iterations === Infinity && !t?.closest("[data-lab]");
+      }).length,
+    );
+    expect(under).toBe(0);
+  });
+
   test("@EVAL-030 renders a canvas, or a labelled fallback with the Back link — never blank", async ({ page }, info) => {
     await page.goto("/lab");
     await waitLab(page);
