@@ -111,6 +111,25 @@ async function installRafProbe(page: Page) {
     };
   });
 }
+/**
+ * The most rAF loops alive at once over `ms` (each live loop always has exactly one pending request).
+ * A request *rate* tracks the frame rate, not the loop count: under SwiftShader a cold home page renders
+ * at ~1 fps and the same page after an exit at 60 fps, so one Lenis loop read as "32 → 61/s" (TASK-143).
+ */
+const rafLoops = async (page: Page, ms = 1000) =>
+  page.evaluate(
+    (window_ms) =>
+      new Promise<number>((resolve) => {
+        let max = window.__raf!.pending();
+        const t = setInterval(() => (max = Math.max(max, window.__raf!.pending())), 25);
+        setTimeout(() => {
+          clearInterval(t);
+          resolve(max);
+        }, window_ms);
+      }),
+    ms,
+  );
+
 const rafRate = async (page: Page, ms = 1000) => {
   const before = await page.evaluate(() => window.__raf!.calls);
   await page.waitForTimeout(ms);
@@ -453,8 +472,8 @@ test.describe("@EVAL-030 no leaks across enter/exit cycles", () => {
     await page.goto("/");
     await page.waitForLoadState("load");
     await page.waitForTimeout(2500); // let load-time work (cursor chunk, smooth scroll) settle
-    const baseline = await rafRate(page);
-    const rates: number[] = [];
+    const baseline = await rafLoops(page);
+    const loops: number[] = [];
     for (let cycle = 0; cycle < 3; cycle += 1) {
       await rapidClicks(page, BRAND, 5, 70);
       await page.waitForURL("**/lab", { timeout: 15_000 });
@@ -471,12 +490,12 @@ test.describe("@EVAL-030 no leaks across enter/exit cycles", () => {
       await page.waitForURL((u) => u.pathname === "/", { timeout: 20_000 });
       await page.waitForSelector("[data-gummy-overlay]", { state: "detached", timeout: 15_000 });
       await page.waitForTimeout(1800);
-      rates.push(await rafRate(page));
+      loops.push(await rafLoops(page));
     }
-    info.annotations.push({ type: "eval-030-raf", description: `baseline ${baseline}/s; after exit ${rates.join(", ")}/s` });
-    for (const [i, r] of rates.entries()) {
-      // A surviving R3F loop would add every frame (tens per second); allow a small tolerance for idle timers.
-      expect(r, `after exit ${i + 1}: rAF requests/s ${r} vs baseline ${baseline}`).toBeLessThanOrEqual(baseline + 8);
+    info.annotations.push({ type: "eval-030-raf", description: `baseline ${baseline} loop(s); after exit ${loops.join(", ")}` });
+    for (const [i, n] of loops.entries()) {
+      // A surviving R3F loop is one more live rAF loop than the portfolio runs on its own.
+      expect(n, `after exit ${i + 1}: ${n} live rAF loops vs baseline ${baseline}`).toBeLessThanOrEqual(baseline);
     }
     expect(consoleErrors).toEqual([]);
   });
