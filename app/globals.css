@@ -1014,44 +1014,49 @@ body::before {
     inset: 0;
     z-index: 3;
     pointer-events: none;
+    container-type: inline-size;
+    /* M-011 P1: the polaroids are registered to the layered scene's own pixel grid. One scene pixel = `--cpx`:
+       the layers are `object-fit: cover` boxes inset by −`--b` (the scene's shared bleed, set by Hero.tsx) on a
+       frame `--hh` tall, so the art is scaled to (`--hh` + 2b) / 1029 and centred on `--fx` horizontally
+       (Design.md §14.4 Bleed). ≥ 768 the frame is the scene's own ratio; < 768 it is the 4:3 crop. */
+    --hh: calc(100cqw * 1029 / 2400);
+    --fx: 0.49;
+    --cpx: calc((var(--hh) + 2 * var(--b, 0px)) / 1029);
+    --ox: calc(var(--b, 0px) * -1 + (100cqw + 2 * var(--b, 0px) - 2400 * var(--cpx)) * var(--fx));
+    --oy: calc(var(--b, 0px) * -1);
   }
-  /* TKT-111 (Dev-80, Tushar 2026-09-26): each polaroid is pinned onto one of the banner's blank papers,
-     inside it with a margin. Everything is in banner-canvas pixels (`--cpx` = one of the 3168 px of the
-     scene; ≥ 768 the box IS the whole canvas and `.hero-banner` is an inline-size container — TKT-96),
-     so the photos track their papers at every width. Measured paper boxes on hero-banner.webp
-     (x0–x1 × y0–y1): tall cream 765–1165 × 60–665, yellow note 2058–2368 × 58–335, large cream
-     2382–2745 × 100–495. A polaroid is W wide and W + 12 tall (12 / 12 / 36 padding, square photo). */
+  /* Measured on the pilot's hero-home bg (2400 × 1029): tall cream sheet 574–878 × 42–456, yellow note
+     1542–1774 × 46–254, large cream sheet 1784–2066 × 72–360. A polaroid is W wide and W + 9 tall
+     (9 / 9 / 27 padding, square photo), inset inside its paper below the paper's own tape. */
   .hero-polaroid {
-    --cpx: calc(100cqw / 3168);
-    --ox: 0px;
     position: absolute;
-    top: calc(var(--y) * var(--cpx));
+    top: calc(var(--oy) + var(--y) * var(--cpx));
     left: calc(var(--ox) + var(--x) * var(--cpx));
     width: calc(var(--w) * var(--cpx));
-    padding: calc(12 * var(--cpx)) calc(12 * var(--cpx)) calc(36 * var(--cpx));
+    padding: calc(9 * var(--cpx)) calc(9 * var(--cpx)) calc(27 * var(--cpx));
   }
   .hero-polaroid .paper-tape {
-    top: calc(-14 * var(--cpx));
+    top: calc(-10 * var(--cpx));
     width: calc(var(--w) * 0.34 * var(--cpx));
-    height: calc(30 * var(--cpx));
+    height: calc(22 * var(--cpx));
   }
-  /* tall cream sheet: 340 wide, x 795–1135, y 145–497 (below the sheet's own tape) */
+  /* tall cream sheet */
   .hero-polaroid:nth-child(1) {
-    --x: 795;
-    --y: 145;
-    --w: 340;
+    --x: 596;
+    --y: 100;
+    --w: 260;
   }
-  /* yellow note: 210 wide, x 2103–2313, y 92–314 */
+  /* yellow note */
   .hero-polaroid:nth-child(2) {
-    --x: 2103;
-    --y: 92;
-    --w: 210;
+    --x: 1575;
+    --y: 72;
+    --w: 165;
   }
-  /* large cream sheet: 290 wide, x 2418–2708, y 150–452 */
+  /* large cream sheet */
   .hero-polaroid:nth-child(3) {
-    --x: 2418;
-    --y: 150;
-    --w: 290;
+    --x: 1818;
+    --y: 106;
+    --w: 215;
   }
   .hero-polaroid-img {
     display: block;
@@ -1061,22 +1066,16 @@ body::before {
     object-fit: cover;
     border-radius: 2px;
   }
-  /* < 768 (Tushar 2026-09-26: "yes show polaroids there too"): the same canvas units on the 4:3
-     art-directed crop — the canvas is the box's height tall (75vw) and 3168/1344 × that wide, its left
-     edge at 50 % − 0.49 × its width (`.scene-banner-canvas`, focal 0.49; TKT-92r2). The crop shows
-     canvas x ≈ 656–2448: the tall cream sheet and the yellow note are wholly inside, the large cream
-     sheet only ≈ 18 % (x 2382–2448 of 2382–2745), under the 80 % rule — its polaroid is hidden. */
+  /* < 768: the scene frame is a 4:3 cover crop on the focal point (x ≈ 504–1872 of 2400 shows): the tall
+     cream sheet and the yellow note are wholly inside; the large cream sheet is not — its polaroid is hidden. */
   @media (max-width: 767px) {
-    .hero-polaroid {
-      --cpx: calc(75vw / 1344);
-      --ox: calc(50% - 0.49 * 3168 * var(--cpx));
+    .hero-polaroids {
+      --hh: calc(100cqw * 0.75);
     }
     .hero-polaroid:nth-child(3) {
       display: none;
     }
-    /* The postmark shrinks to 88 px and drops just below the yellow note's polaroid (paper bottom ≈ canvas
-       y 335 → 75vw × 340/1344 ≈ 19vw), still top-right and right of the character's face (TKT-111 r3).
-       Scoped under `.hero-banner` so it outranks the base `.hero-stamp` rule further down. */
+    /* The postmark shrinks to 88 px and drops below the yellow note's polaroid, top-right (TKT-111 r3). */
     .hero-banner .hero-stamp {
       top: 19vw;
       right: 8px;
@@ -5310,9 +5309,6 @@ html.lenis body {
   @media (min-width: 768px) {
     .hero-banner {
       container-type: inline-size;
-    }
-    .hero-banner .scene-banner {
-      --banner-h: calc(100cqw / (var(--scene-ar, 3168 / 1344)));
     }
   }
   /* Full-bleed opaque paper below the torn edge (the edge's own 44 px stay transparent above the tear). */

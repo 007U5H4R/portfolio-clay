@@ -13,6 +13,15 @@
   overflow: hidden;
   width: 100%;
   aspect-ratio: var(--ps-ar);
+}
+
+@media (max-width: 767px) {
+  .root {
+    aspect-ratio: var(--ps-ar-narrow, var(--ps-ar));
+  }
+}
+
+.root {
   background: var(--mat-bg);
 }
 

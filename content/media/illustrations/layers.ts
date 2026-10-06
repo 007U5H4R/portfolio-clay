@@ -79,3 +79,6 @@ export const maxShiftPx = (layer: LayerName, depth: Depth) =>
 
 /** Bleed: the layer box is inset by −(max shift + 4 px) so no edge ever shows. */
 export const bleedPx = (layer: LayerName, depth: Depth) => Math.ceil(maxShiftPx(layer, depth)) + 4;
+
+/** The one bleed every layer of a scene shares (the largest any layer needs), so all layers scale alike at rest. */
+export const sceneBleedPx = (scene: LayeredScene) => Math.max(...scene.layers.map((l) => bleedPx(l.layer, l.depth)));

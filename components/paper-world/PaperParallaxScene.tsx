@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { bleedPx, layerSrc, layeredScene, DEPTHS, ORIENTATION_PX, pointerRangePx, type LayeredSceneId, type SceneLayer } from "@/content/media/illustrations/layers";
+import { layerSrc, layeredScene, sceneBleedPx, DEPTHS, ORIENTATION_PX, pointerRangePx, type LayeredSceneId, type SceneLayer } from "@/content/media/illustrations/layers";
 import { SceneMotion } from "./SceneMotion";
 import styles from "./paper-world.module.css";
 
@@ -9,6 +9,8 @@ export interface PaperParallaxSceneProps {
   priority?: boolean | undefined;
   /** Focal point as fractions of the frame (default 0.5, 0.5) — the crop when the box is not the art's aspect. */
   focal?: { x?: number; y?: number } | undefined;
+  /** Narrow-screen frame (< 768 px) as a CSS aspect ratio, e.g. `4 / 3` — a cover crop on the focal point. */
+  narrowAspect?: string | undefined;
   className?: string | undefined;
 }
 
@@ -22,15 +24,16 @@ const unit = (n: number | undefined) => `${Math.round(Math.min(1, Math.max(0, n 
  * (app/globals.css `[data-theme-art]`) and lazy, so it is never fetched; light is the eager/LCP rendition, as in
  * SceneBanner. The client island `SceneMotion` only registers the root with `paperMotion`.
  */
-export function PaperParallaxScene({ id, priority = false, focal, className }: PaperParallaxSceneProps) {
+export function PaperParallaxScene({ id, priority = false, focal, narrowAspect, className }: PaperParallaxSceneProps) {
   const scene = layeredScene(id);
   const style = {
     "--ps-ar": `${scene.width} / ${scene.height}`,
     "--focal-x": unit(focal?.x),
     "--focal-y": unit(focal?.y),
+    ...(narrowAspect ? { "--ps-ar-narrow": narrowAspect } : {}),
   } as CSSProperties;
   // One bleed for every layer, so all `object-fit: cover` boxes have the same shape and scale (the layers register at rest).
-  const bleed = Math.max(...scene.layers.map((l) => bleedPx(l.layer, l.depth)));
+  const bleed = sceneBleedPx(scene);
   return (
     <div role="img" aria-label={scene.alt} data-paper-scene={id} className={[styles.root, className].filter(Boolean).join(" ")} style={style}>
       {scene.layers.map((l) => (
