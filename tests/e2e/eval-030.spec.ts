@@ -142,6 +142,10 @@ const rafRate = async (page: Page, ms = 1000) => {
 };
 
 test.describe("@EVAL-030 hidden, not broken", () => {
+  // These never touch WebGL: run them on the default launch. Under the file's SwiftShader flags every
+  // page composites in software GL and leaving a page blocks on compositor teardown for 10–80 s on a
+  // loaded host (traced: LayerTreeHost::~LayerTreeHost), which timed them out (TASK-143, EXE-39).
+  test.use({ launchOptions: { args: [] } });
   test("@EVAL-030 /lab is 200 with noindex and is not disallowed in robots.txt", async ({ request }) => {
     const res = await request.get("/lab");
     expect(res.status()).toBe(200);
@@ -186,6 +190,10 @@ test.describe("@EVAL-030 hidden, not broken", () => {
 });
 
 test.describe("@EVAL-030 secret trigger", () => {
+  // These never touch WebGL: run them on the default launch. Under the file's SwiftShader flags every
+  // page composites in software GL and leaving a page blocks on compositor teardown for 10–80 s on a
+  // loaded host (traced: LayerTreeHost::~LayerTreeHost), which timed them out (TASK-143, EXE-39).
+  test.use({ launchOptions: { args: [] } });
   test("@EVAL-030 5 rapid clicks on the name open /lab", async ({ page, consoleErrors }) => {
     await enterLab(page);
     expect(new URL(page.url()).pathname).toBe("/lab");
