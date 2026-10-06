@@ -1,0 +1,30 @@
+# Brief — M-011 P2 art (TASK-158.1–158.6): layered paper scenes for every tab, light + dark
+
+You make **art assets only** (no app code). Worktree for encoded output: `/Volumes/E Drive/Dev/Code/Claude/Portfolio-m011-p2art` (branch `m011/p2-art`). Masters go outside the repo in `/Volumes/E Drive/Dev/Code/Claude/Portfolio-illustration/illustrations/paper-world/<scene>/`. Never push, never deploy.
+
+## The proven method (pilot, EXE-46) — follow it exactly
+Read first: `/Volumes/E Drive/Dev/Code/Claude/Portfolio-illustration/illustrations/paper-world/pilot-home/README.md` and `PROMPTS.md` (the pilot), `Design.md` §14.5 and §14.7 in this worktree (`grep -n '^### 14.5' Design.md`), `docs/specs/m-011/paper-world.md` §07, §12–13, §31 only.
+1. **One approved composite per scene per theme** is the source of every layer. Existing approved composites (2688×1152 PNG): `/Volumes/E Drive/Dev/Code/Claude/Portfolio-illustration/illustrations/paper-cut/<scene>/<scene>-light.png` and `-dark.png` for `about, experience, contact, thinking, playground, portfolio, certifications`. Upload each needed composite with Higgsfield `media_upload` (PUT with curl, then `media_confirm`) and use the media id as `image_references`.
+2. **S32 first (158.1 portfolio → manifest id `scene-work`; 158.2 certifications):** make a NEW light composite by image-to-image from the existing light one: keep everything, but replace the blank project boxes / cassette boxes and the empty central cream frame (portfolio) or the blank certificate sleeves (certifications) with small **origami miniatures** — folded paper crane, paper boat, origami rocket, folded house, paper train, origami lightbulb, folded star, paper plane, tiny folded laptop — no text, letters, numbers or logos. Then the dark twin = image-to-image from the NEW light job id with the dark prompt in `paper-cut/prompts/_common.txt` ("DARK PROMPT"). Those two become the composites for layering.
+3. **Plan layers per scene** (3–5, named in depth order: `bg` .05 opaque plate · optional `distant` .12 · `mid`/`subject` .22 · `fg` .40 · optional `details` .60). Look at the composite (downscale to ≤ 1200 px wide with `sips -Z 1200` before viewing). Main subject 30–45 % of frame; where an object overlaps the subject, the occluded layer must be **continued behind** (e.g. the man's body continues below the desk) so parallax never shows a hole.
+4. **Isolate each layer** with an image-to-image edit of the composite (prompt patterns: pilot `PROMPTS.md`): the `bg` plate removes everything in front and fills with continuous wall/sky/floor; other layers keep ONLY their objects at the **same position and scale** on a flat backdrop:
+   - default: solid pure magenta `#FF00FF` → key locally (free): `python3 "/Volumes/E Drive/Dev/.scratch/m011/tools/key.py" <in.png> <out.png>` (run from `/Volumes/E Drive/Dev/.scratch/m011`, not from the download folder).
+   - only when the layer contains grey, pink or purple objects (e.g. the man's grey blazer): solid `#808080` backdrop → Higgsfield `remove_background` (≈ 2.25 cr).
+   - **never** use `remove_background` on dark-theme layers with dark surfaces — it turns them translucent; use magenta + local key.
+   - Check every keyed layer on magenta (`tools/onmagenta.py <in> <out> [x0,y0,x1,y1]`) for holes or fringes.
+5. **Recombine and check**: write `layers.json` / `layers-dark.json` (`[{ "name", "file", "depth", "scale"?, "dx"?, "dy"? }]`, back to front; fix drift with scale/dx/dy in master px), run `python3 tools/composite.py <dir> <out.png> <shift> [layers-dark.json]` at shift 0, −25, +25; make one contact strip per scene and theme in `/Volumes/E Drive/Dev/.scratch/m011/<scene>-strip[-dark].png`. Reject a layer that drifts in perspective, loses likeness, adds text, or shows a seam at ±25.
+6. **Encode**: `python3 tools/encode.py <scene-dir> "/Volumes/E Drive/Dev/Code/Claude/Portfolio-m011-p2art/public/media/paper-world/<manifest-id>" <manifest-id>` (manifest ids: `scene-work`, `scene-certifications`, `scene-experience`, `scene-about`, `scene-contact`, `scene-thinking`, `scene-playground`). Caps (EVAL-034): desktop layer ≤ 240 kB, desktop scene per theme ≤ 520 kB, mobile scene ≤ 300 kB — if over, re-run the encode with a lower quality for that file only and note it.
+7. **Provenance**: per scene `README.md` + `PROMPTS.md` in the masters folder (same table as the pilot: layer, theme, file, job ids, method, light twin, QA verdict), and append rows to `public/media/paper-world/README.md` in the worktree. Commit per scene in the worktree: `feat(m-011): <scene> layered scene art, light + dark (TASK-158.N)`.
+
+## Order and budget
+158.1 portfolio → 158.2 certifications → 158.3 experience → 158.4 about → 158.5 contact → 158.6 thinking + playground.
+Model `gpt_image_2_5`, quality `medium`, resolution `2k`, aspect `21:9`. **Budget for this whole brief: 110 credits.** Check `balance` before starting and after each scene; stop and report if the next scene would cross 110. ≤ 2 regenerations per layer; a layer needing a third stops that scene (record it, move on).
+**One Higgsfield job at a time** (bursts hit 429). Poll with `jobs_wait` (timeout 15 s per call); if a job is not done after 5 minutes, record it and move on.
+
+## Rules
+- Prompts always include the Design.md §14.7 material sentence (paper, upper-left light, shadows bottom-right, never pure black, no gloss/plastic/neon, no text/letters/numbers/logos). The man must stay exactly the locked character (Indian man, short dark swept hair, full dark beard, light grey textured blazer, dark navy tee).
+- Keep the session lean: view images only downscaled; don't read big files whole.
+- Only write in the masters folders, `/Volumes/E Drive/Dev/.scratch/m011/` and the worktree's `public/media/paper-world/`. Don't touch app code, `globals.css` or other worktrees. Never `git stash` anything.
+
+## Report (≤ 350 words)
+Per scene: layers (names/depths), regenerations used, credits, caps met (sizes), strip paths, any rejections and why · total credits and closing balance · commits.
