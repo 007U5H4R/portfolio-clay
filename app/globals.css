@@ -13087,15 +13087,6 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 /* end M-010 T4 depth */
 
-/* TASK-155 off-screen pause — `components/interactions/OffscreenPause.tsx` marks an animated container
-   `data-offscreen` while it is outside the viewport (+200 px); everything animating inside it holds still.
-   `!important` because the animation shorthands it must beat (e.g. `.ocean-track`) carry equal specificity. */
-[data-offscreen],
-[data-offscreen] :is(*, *::before, *::after) {
-  animation-play-state: paused !important;
-}
-/* end TASK-155 off-screen pause */
-
 /* ==================================================================================================
    M-011 (TASK-156.1, EXE-40) · material tier — SURFACE-ONLY tokens (Design.md §14.1). Never a text colour; text on a
    material uses a role token and every such pair is in `tokens:check` (both themes). Not @theme tokens, so the

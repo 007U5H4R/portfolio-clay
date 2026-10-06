@@ -55,14 +55,14 @@ export function SmoothScroll() {
     void import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
       // TASK-155: no `autoRaf` — Lenis's own loop re-queued a rAF every frame for the whole visit, idle or not.
-      // This loop runs only while Lenis is easing (`isScrolling`/`animate.isRunning`) and sleeps otherwise; a wheel
+      // This loop runs only while Lenis is easing (`isScrolling`) and sleeps otherwise; a wheel
       // event (Lenis's own virtual-scroll listener runs first) or a programmatic scrollTo wakes it.
       const lenis = new Lenis({ autoRaf: false });
       let rafId = 0;
       const tick = (time: number) => {
         rafId = 0;
         lenis.raf(time);
-        if (lenis.isScrolling || lenis.animate?.isRunning) rafId = requestAnimationFrame(tick);
+        if (lenis.isScrolling) rafId = requestAnimationFrame(tick);
       };
       const wake = () => {
         if (!rafId) rafId = requestAnimationFrame(tick);
