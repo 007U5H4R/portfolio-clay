@@ -137,6 +137,10 @@ const rafRate = async (page: Page, ms = 1000) => {
 };
 
 test.describe("@EVAL-030 the lab page", () => {
+  // Each test's own waits add up to ~75 s (entry 15 s + mount 30 s + exit 15 s + overlay 15 s); the 30 s
+  // default test budget cut them off under SwiftShader, where entering alone took 17 s (TASK-143, EXE-48).
+  // The step waits are unchanged; this only stops the default budget overriding them (cf. gameplay: 150 s).
+  test.beforeEach(() => test.setTimeout(90_000));
   // TASK-143: the footer's infinite animations (T4 ocean, band verb) kept compositing under the opaque
   // lab and starved its WebGL boot (canvas unsized for 90 s, ESC exit 130 s late under SwiftShader).
   test("@EVAL-030 nothing of the portfolio animates under the lab (no band footer on /lab)", async ({ page }) => {

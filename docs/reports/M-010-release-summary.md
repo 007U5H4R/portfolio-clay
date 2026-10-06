@@ -21,10 +21,10 @@ For Tushar · 2026-10-06 · branch `m-009-redesign` · **preview only, productio
 - **EXE-34 (T3):** passed. **No case-study scenes**: case studies open on their own product hero, so the scene would never be seen. Tushky's scene is kept in the library but not shipped.
 - **EXE-35 (T5, T2c, T4):** passed. T5's dark front was re-tuned once (it was navy-on-navy). The card title stays "Senior Product Manager", taken from your data rather than the spec's unsourced "AI Product Manager". `/lab` alone gets `wasm-unsafe-eval` in its CSP (physics engine).
 - **EXE-37 (security):** no Critical, High or Medium findings; 3 Lows fixed.
-- **EXE-39 (Gummy Lab fix):** see below.
+- **EXE-48 (Gummy Lab fix):** see below.
 
 ## Gummy Lab fix (TASK-143)
-The two remaining `/lab` failures (canvas never sizing, ESC not exiting) had one cause. The footer's never-ending animations (ocean + rotating verb) kept running underneath the full-screen lab and starved its 3D start-up. The footer is no longer rendered on `/lab`; you can't see it there anyway. A regression test asserts nothing animates under the lab.
+The two remaining `/lab` failures (canvas never sizing, ESC not exiting) had one cause. The footer's never-ending animations (ocean + rotating verb) kept running underneath the full-screen lab and starved its 3D start-up. The footer is no longer rendered on `/lab`; you can't see it there anyway. A regression test asserts nothing animates under the lab. Two test-harness fixes came with it: the hidden-route and trigger tests no longer run with software 3D rendering they don't need, and the leak check counts live render loops instead of a frame-rate-dependent rate.
 
 ## Needs your decision before production
 1. **Set `NEXT_PUBLIC_SITE_URL` on Vercel production.** Without it, the card's QR code and vCard point at the preview URL.
@@ -41,4 +41,4 @@ The two remaining `/lab` failures (canvas never sizing, ESC not exiting) had one
 - TASK-150 (footer sailboat clipped), TASK-152–155 and M-011 (TASK-151) are being handled in parallel sessions.
 
 ## Evidence
-Final gate on the pushed tree: GATE_RESULTS. Preview deploy: PREVIEW_DEPLOY.
+Final gate (quiet machine, `m010/lab-fix@3d4f334`): typecheck ✓, lint 0 errors, check-specs 38 OK, tokens 55/55 AA, build ✓, unit 1057 ✓, full e2e 1678 passed / 3 failed. The 3 (w1440 lab tests) were resolved by test-only fixes, then rerun: w1440 29/0, lab-page block ×2 on all four projects 64/0 (EXE-48). Gate #2 had 26 failures. Preview deploy: PREVIEW_DEPLOY.

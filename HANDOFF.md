@@ -23,7 +23,7 @@ Updated 2026-10-06 ~14:30 IST. Main worktree `/Volumes/E Drive/Dev/Code/Claude/P
 1. Ask the other sessions to keep heavy jobs paused (they agreed before the restart: orchestrator portfolio-redesign-wave-analysis, portfolio-illustration-82, teachspark-ee).
 2. ONE full gate in one lock slot, from lab-debug on `m010/lab-fix` rebased onto the current `origin/m-009-redesign`, with the quiet check inside the lock. The command is in this session's transcript: `heavy-gate.sh final-gate zsh -c 'wait-quiet.sh 30; typecheck; lint; check-specs; tokens:check; build; pnpm test; PW_BASE_URL=http://127.0.0.1:3327 pnpm test:e2e'`, logging to `/Volumes/E Drive/Dev/.scratch/m010-final-gate3.log`.
 3. If eval-030 `:428/:474/:559/:590` still fail: trace them like the others (`.eval/trace-stall.mjs`, `.eval/seq-probe.mjs`). Don't raise timeouts (EXE-38).
-4. Green → stash screenshot churn, `git diff --stat origin/m-009-redesign..HEAD`, merge `m010/lab-fix` into `m-009-redesign`, push, verify preview (`/lab` boots + ESC on the live preview), TASK-143 + subtasks → Done, record **EXE-39** (root cause, HideOnLab, test scoping, A/B evidence), fill the release summary, message the paused sessions to resume.
+4. Green → stash screenshot churn, `git diff --stat origin/m-009-redesign..HEAD`, merge `m010/lab-fix` into `m-009-redesign`, push, verify preview (`/lab` boots + ESC on the live preview), TASK-143 + subtasks → Done, record **EXE-48** (root cause, HideOnLab, test scoping, A/B evidence), fill the release summary, message the paused sessions to resume.
 - `/Volumes/E Drive/Dev/.scratch/wait-quiet.sh [min]`: waits for 1-min load < 10 and no headless Chromium.
 
 ## 2. After TASK-143
