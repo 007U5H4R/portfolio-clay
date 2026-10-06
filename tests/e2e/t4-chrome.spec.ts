@@ -10,6 +10,8 @@
  *   TC-T4-04  footer ocean motion is transform-only; reduced motion = no animation anywhere in it
  *   TC-T4-05  every torn edge renders three ridge layers; reduced motion = no ridge animation
  *   TC-T4-06  theme switch swaps the ocean art to the dark twins without moving the page (scrollHeight ±1)
+ *   TC-T4-07  the whole ship (mast tip, flag, sails) fits inside the ocean strip at 375 / 768 / 1440 / 1920 (TASK-150)
+ *   TC-T4-08  the ocean's rendering is skipped while it is off-screen and resumes in view (TASK-155)
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
@@ -84,6 +86,42 @@ test.describe("T4 chrome", () => {
     for (const n of edges) expect(n).toBe(3);
     await page.emulateMedia({ reducedMotion: "reduce" });
     expect(await page.evaluate(() => [...document.querySelectorAll('[data-decor="torn"] path')].reduce((n, el) => n + el.getAnimations().length, 0))).toBe(0);
+  });
+
+  test("TC-T4-07 the ship is never clipped by the ocean strip", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const w of [375, 768, 1440, 1920]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/", { waitUntil: "load" });
+      const geo = await page.evaluate(() => {
+        const o = document.querySelector("footer.band [data-band-ocean]")!.getBoundingClientRect();
+        const s = document.querySelector("footer.band .ocean-ship")!.getBoundingClientRect();
+        return { headroom: s.top - o.top, bottomGap: o.bottom - s.bottom };
+      });
+      // the 4px rock lift happens with motion on; reduced motion is the still frame, so demand more than that
+      expect(geo.headroom, `ship headroom @${w}`).toBeGreaterThanOrEqual(8);
+      expect(geo.bottomGap, `ship bottom @${w}`).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  test("TC-T4-08 the ocean stops rendering off-screen and resumes in view", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const skipped = () =>
+      page.evaluate(
+        () =>
+          new Promise<boolean>((resolve) => {
+            const el = document.querySelector<HTMLElement>("footer.band [data-band-ocean]")!;
+            el.addEventListener("contentvisibilityautostatechange", (e) => resolve((e as Event & { skipped: boolean }).skipped), { once: true });
+          }),
+      );
+    // at the top of the page the strip is far below the fold: its first state event reports skipped
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector("footer.band [data-band-ocean]")!).contentVisibility)).toBe("auto");
+    const inView = skipped();
+    await page.evaluate(() => document.querySelector("footer.band [data-band-ocean]")!.scrollIntoView());
+    expect(await inView).toBe(false);
+    const outOfView = skipped();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    expect(await outOfView).toBe(true);
   });
 
   test("TC-T4-06 dark twins swap in without moving the page", async ({ page }) => {

@@ -42,58 +42,60 @@ body.cursor-dragging {
 #portfolio-cursor[data-mode="tag"] {
   opacity: 1;
 }
-.pc-ring,
-.pc-dot,
+.pc-art,
 .pc-label {
   position: absolute;
   left: 0;
   top: 0;
   pointer-events: none;
 }
-.pc-ring {
-  width: 24px;
-  height: 24px;
-  margin: -12px 0 0 -12px;
-  border: 1.5px solid var(--color-rust);
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-paper) 70%, transparent);
-  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), opacity 120ms linear;
+/* TASK-152: the cardboard arrow (Higgsfield photo cut-out, 2× asset shown at 48px). The card's tip sits
+   3.3px / 3.5px inside the image, so the art is pulled back by exactly that: the tip is the hotspot. */
+.pc-art {
+  --pc-hx: 3.3px;
+  --pc-hy: 3.5px;
+  width: 48px;
+  margin: calc(-1 * var(--pc-hy)) 0 0 calc(-1 * var(--pc-hx));
+  transform-origin: var(--pc-hx) var(--pc-hy);
+  /* TASK-155: the shadow is static (painted once); hover and press move only transform/opacity */
+  filter: drop-shadow(2px 3px 2.5px color-mix(in oklab, var(--shadow-ink, black) 28%, transparent));
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), opacity 120ms linear;
 }
-.pc-dot {
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
-  border-radius: 50%;
-  background: var(--color-navy);
-  box-shadow: 0 0 0 1.5px var(--color-paper);
-  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), opacity 120ms linear;
+.pc-art img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
-#portfolio-cursor[data-mode="link"] .pc-ring {
-  transform: scale(1.7);
+/* over a link the card lifts off the page: a small rise, a tilt and a touch of scale */
+#portfolio-cursor[data-mode="link"] .pc-art {
+  transform: translate(-1px, -2px) rotate(-4deg) scale(1.04);
 }
-#portfolio-cursor[data-mode="link"] .pc-dot {
-  transform: scale(0.75);
+#portfolio-cursor[data-pressed="true"] .pc-art {
+  transform: scale(0.88);
 }
-#portfolio-cursor[data-mode="tag"] .pc-ring,
-#portfolio-cursor[data-mode="tag"] .pc-dot {
+#portfolio-cursor[data-mode="tag"] .pc-art {
   opacity: 0;
 }
-#portfolio-cursor[data-pressed="true"] .pc-ring {
-  transform: scale(0.82);
-}
-#portfolio-cursor[data-paw="true"] .pc-dot {
+/* Tushky's WOOF: a rust paw stamped on the card's tail */
+.pc-art::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  bottom: 8px;
   width: 14px;
   height: 14px;
-  margin: -7px 0 0 -7px;
-  border-radius: 0;
   background: var(--color-rust);
-  box-shadow: none;
   -webkit-mask: var(--pc-paw) center / contain no-repeat;
   mask: var(--pc-paw) center / contain no-repeat;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+#portfolio-cursor[data-paw="true"] .pc-art::after {
+  opacity: 1;
 }
 .pc-label {
   display: none;
-  transform: translate(20px, 18px);
+  transform: translate(40px, 30px);
   padding: 3px 8px 4px;
   background: var(--color-paper);
   color: var(--color-navy);
@@ -108,7 +110,7 @@ body.cursor-dragging {
   display: block;
 }
 #portfolio-cursor[data-flip="true"] .pc-label {
-  transform: translate(calc(-100% - 20px), 18px);
+  transform: translate(calc(-100% - 12px), 30px);
 }
 
 #trail {

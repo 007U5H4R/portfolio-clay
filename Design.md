@@ -724,3 +724,73 @@ T1 uses **Dev-136** (§11: the still, the retired clip files, the `darkFile` man
 
 ### 13.6 Decision D13 (recorded in `decisions.md`)
 The dark theme redefines the 13 tokens by **role, not by colour name** (§13.1): `navy` is ink and is ivory in dark. Rejected: 13 new `--color-*-dark` names (breaks EVAL-020's "exactly 13", doubles every component's class list) and `dark:` variants (S25, S19's own objection to scattered theme branches). Cost: a surface *filled* with `navy` or `kraft` flips meaning, so §13.1's two rules and the "kraft is a fill only" rule are part of the contract, and T2 must audit every `bg-navy` and `text-kraft` use.
+
+## 14. M-011 "Tushar Paper World" tokens and contracts (Stage 4, 2026-10-06 — signed off on Tushar's behalf, EXE-39 / S33; D14)
+
+Source: `docs/specs/m-011/paper-world.md` (§NN), `Solution-PRD.md` §14. This section **extends** §2, §3 and §13; nothing here replaces the 13 role tokens or the theme contract (§13.2, S25 `data-theme`). The approved visual reference is the P1 pilot (§14.8), not an HTML mockup: the deliverable is a motion system on the existing pages, whose evidence is the pilot composites at rest and at ±max shift.
+
+### 14.1 Material tier — surface-only tokens (`--mat-*`, §02; EXE-40)
+Never used as a text colour (EVAL-037). Text on a material uses a role token; every such pair is in `tokens:check` in both themes.
+
+| Token | Spec material / use | Light | Dark (navy-family twin, never black) |
+|---|---|---|---|
+| `--mat-bg` | 01 background paper — page/section fields | `#F5EBDD` | `#0E1934` |
+| `--mat-cream` | 02 cream paper — cards, labels, sheets | `#F0E2C8` | `#1B2A4A` |
+| `--mat-kraft` | 03 kraft — objects, cursor, tags, folds | `#C88A52` | `#5E4630` |
+| `--mat-terra-1` | 04 terracotta — anchors, waves (deep) | `#96381F` | `#6E2A18` |
+| `--mat-terra-2` | 04 terracotta — mid | `#A94728` | `#7E3320` |
+| `--mat-terra-3` | 04 terracotta — light (decoration only, no text) | `#B9532D` | `#8C3C26` |
+| `--mat-side` | 05 dark paper — sidewalls, thickness, inner shadow | `#6D321E` | `#070F24` |
+
+Contrast (WCAG, computed 2026-10-06, `.scratch/m011/tools/aa.py`; to be added to `scripts/tokens-check.ts` PAIRS in P0): light — navy/mat-bg 14.95, navy/mat-cream 13.78, ink-soft/mat-cream 4.81, navy/mat-kraft 6.06, ivory/mat-terra-1 6.82, ivory/mat-terra-2 5.43, terracotta/mat-cream 5.85 · dark — ink/mat-bg 15.03, ink/mat-cream 12.29, ink-soft/mat-cream 6.29, ink/mat-kraft 7.58, ink/mat-terra-1 9.04, ink/mat-terra-2 7.62, terracotta/mat-cream 6.02. `mat-terra-3` carries no text (ivory on it = 4.53, too close to the line). `--color-paper` stays `#F7F1E7` as the page colour (role token); `--mat-bg` is the slightly warmer paper *inside* scenes and section fields, so the two never need to match.
+
+### 14.2 One light (§03)
+Light comes from the upper left at 45°. Consequences, as rules: every cast shadow has **x ≥ 0 and y ≥ 0** (offset x = 0.5 × y); top-left edges may carry a 1 px highlight (`--depth-rim`, already inset top-left in dark), bottom-right edges a `--mat-side` sidewall; generated art is prompted "single warm light from the upper left, shadows toward the bottom right" (prompt prefix §14.7). No component may cast up or left; no glow, no gloss.
+
+### 14.3 Depth levels and elevations (§04–05) — the T4 scale, extended in place (EXE-45)
+`--depth-0…5` **are** PAPER-0…5 (same names, no duplicate scale). P0 changes their offsets to cast bottom-right and adds a parallax factor per rung:
+
+| Elevation | Token | Contact + ambient (light; dark ×`--depth-w` 1.7) | Spec shadow | Parallax factor `--par-N` | Used by |
+|---|---|---|---|---|---|
+| PAPER-0 | `--depth-0` | none | none | 0 | page, text, content (L0/L3) |
+| PAPER-1 | `--depth-1` | `1px 1px 1px` + `2px 3px 4px -2px` | 2–4 px | .05 | embossed prints, labels, scene bg (L1) |
+| PAPER-2 | `--depth-2` | `1px 2px 2px` + `4px 8px 16px -10px` | 4–8 px | .12 | resting cards, buttons, distant layer (L2) |
+| PAPER-3 | `--depth-3` | `1px 2px 3px` + `7px 14px 26px -14px` | 8–14 px | .22 | raised cards, hover, mid/subject (L4) |
+| PAPER-4 | `--depth-4` | `2px 3px 5px` + `11px 22px 38px -16px` | 12–22 px | .40 | foreground objects (L5) |
+| PAPER-5 | `--depth-5` | `3px 5px 8px` + `16px 32px 52px -20px` | 18–30 px | .60 | hero foreground, micro details (L6) |
+
+The spec's levels map onto scene layers as: L0 flat field · L1 `bg` · L2 `distant` · L3 primary content (DOM text — **never moves**) · L4 `mid`/`subject` · L5 `fg` · L6 `details`. `--depth-drop-N` follow the same offsets as filters for transparent art (static, never animated — EVAL-036).
+
+### 14.4 Motion contract (§06, §25–30; EXE-44)
+- **Source:** one module `paperMotion` (client, ≤ 3 kB gz with the scene component) owns pointer, orientation and the spring. It writes two unitless custom properties on each *visible* scene root: `--pp-x`, `--pp-y` ∈ [−1, 1]. Layers compute `translate: calc(var(--pp-x) * var(--range) * var(--par)) …` in CSS. Nothing else writes per frame.
+- **Ranges:** pointer (fine pointer, ≥ 1024 px) — normal ±12 px, foreground (`par ≥ .40`) ±25 px; tablet (768–1023 or coarse pointer with hover) — × 0.5; orientation (§06 mobile) — bg 2, distant 5, subject 9, fg 14, details 18 px max.
+- **Spring (§29):** stiffness 120, damping 20, mass 1 (ζ ≈ 0.91, no overshoot you can see, no shake); input is a target, the spring renders; raw sensor values are low-passed (α 0.15) and clamped to ±25° before targeting. The loop **sleeps** when |Δ| < 0.001 and |v| < 0.01, when no scene is intersecting, and on `visibilitychange` hidden.
+- **Scroll (§30):** stays on CSS scroll-driven animations (`animation-timeline: view()`), transform-only, per layer `translate: 0 calc(var(--scroll-p) * var(--par) * …)` on a wrapper so pointer and scroll compose without one overwriting the other. The banner-level TKT-96 `scene-parallax` keyframes become this per-layer form. Lenis keeps smoothing only. No scroll listeners for parallax; no `preventDefault` anywhere.
+- **Reduced motion (§25):** `prefers-reduced-motion: reduce` → `paperMotion` never attaches listeners; layers sit at rest (`--pp-*` = 0); the composition is designed to read complete at rest (that's the gate image).
+- **Gyro (§28):** iOS-style `requestPermission` only from the chip tap (§14.6); others attach `deviceorientation` while a scene intersects; denied/unavailable → scroll only; touch-drag parallax is out (Solution-PRD §14.3).
+- **Bleed:** each layer box is inset by −(its max shift + 4 px) on every side so no edge ever shows (EVAL-032); art is generated with the scene extended past the frame (or the layer scaled 1.04 at worst).
+
+### 14.5 Scene and asset standard (§07, §13, §31–32)
+- Layer names: `bg | distant | mid | subject | fg | details` (3–5 per scene). Files: `<scene>-<layer>[-dark][-mobile].webp`, e.g. `hero-home-bg.webp`, `hero-home-subject-dark.webp`, `scene-work-fg-mobile.webp`. A per-scene layer manifest entry holds `{ layer, file, darkFile, depth, transform? }` plus the scene's one `alt` (the scene is one image to assistive tech; layers are `alt=""` + `aria-hidden`, the root carries `role="img"` + the alt).
+- Production pipeline (from the pilot): approve one composite per scene per theme → isolate each layer from it by image-to-image edit on a flat backdrop (magenta `#FF00FF` when the layer has no grey/pink/purple, else `#808080` + Higgsfield `remove_background`; dark surfaces always on magenta — the AI matte turns dark wood translucent) → local key with despill (`.scratch/m011/tools/key.py`, to move into `scripts/` in P0) → recombine and check at rest and ±max → WebP q72 at 2400 px (desktop) and 1280 px (mobile).
+- Budgets (EVAL-034/035): desktop layer ≤ 240 kB, desktop scene (one theme) ≤ 520 kB, mobile scene ≤ 300 kB; only the LCP scene's `bg` (+ `subject` on `/`) are eager; everything else lazy + async; inactive theme never fetched.
+- Composition (§13): subject 30–45 % of the frame, large negative space where the page's text sits; no text in art (§31).
+
+### 14.6 Components and contracts (built in P0/P3–P6)
+- `PaperParallaxScene` (`components/paper-world/`) — server-renders the layered `<picture>` stack and the alt; a tiny client island registers the root with `paperMotion`. Props mirror §27 (`layers=[{ depth, src, darkSrc, … }]`, `priority`, `focal`). Replaces `SceneBanner`'s single image; `SceneOpener` keeps its API.
+- **Paper card** (§08): ivory/cream sheet + `--mat-side` sidewall (2 px offset bottom-right) + `--depth-2`; hover (fine pointer) `translateY(-4px)` → `--depth-3`, inner art layer +1–2 px; no glass, no gloss. Applied via `[data-elev]` to the existing classes (`fw-card`, `work-card`, `cx-card`, `cert-*`), not a new card component.
+- **Paper button** (§09): rest PAPER-1, hover PAPER-2 + `translateY(-1px)`, active `translateY(1px)` + PAPER-0 (compress), release springs back (CSS transition 160 ms `cubic-bezier(.3,.7,.4,1.4)` capped). Applied to `hero-btn`, `ask-btn`, `cx-btn`, `cert-cta`, `fw-cta`, `think-btn`.
+- **Icons** (§10): small paper-cut set (kraft/cream, 1 px sidewall, tiny drop), inline SVG paths — no raster icons; the generic icon set is retired screen by screen in P3.
+- **PaperLabel** (§18, EXE-43): kraft tab, Inter 11 px caps, letter-spacing .08em; vocabulary ITERATION 0n · SHIPPED · IN PROGRESS · FIELD NOTE · OBSERVATION · SYSTEM 0n (never "DRAFT"); ≤ 1 per section; decorative ones `aria-hidden`.
+- **Gyro chip** (§28): a small cream paper `<button>` "Move your phone to explore", bottom-left of the hero on touch devices where `requestPermission` exists; ≥ 44 px target; gone after a decision.
+- **Cardboard cursor** (§11, EXE-41): kraft body, cream torn border, `--mat-side` sidewall, `--depth-drop-2`; states scale 1 / hover 1.08 / press 0.88 / spring back; link lifts (−2 px), button shrinks 0.94 and eases 15 % toward the target, project card rotates 3°, external link separates one paper layer 2 px. Inside T2b's existing gate and zones; native cursor hidden only while it is mounted.
+- **Contact scene** (§24): the footer ocean becomes 3 paper wave layers (`--mat-terra-*`, cream edges, `--mat-side` thickness) + the origami sailboat (kraft hull, cream sails) + paper contact cards/social buttons; the boat's whole bounding box sits inside the visible strip at every width (EVAL-038); waves pause off-screen; no filter animation.
+
+### 14.7 Prompt prefix for every M-011 layer (light; dark = §13 dark prompt + "evening")
+"Premium 3D layered cut-paper diorama, matte cardstock with fine fibres and visible edge thickness, origami folds and layered cut-outs, single warm light from the upper left, soft shadows cast toward the bottom right, palette warm ivory #F5EBDD, cream #F0E2C8, kraft #C88A52, terracotta #96381F/#A94728/#B9532D, dark paper #6D321E for thickness, never pure black; no gloss, plastic, glass, neon, photorealism or flat vector; no text, letters, numbers or logos." Layer isolation prompts: see `Portfolio-illustration/illustrations/paper-world/pilot-home/PROMPTS.md`.
+
+### 14.8 P1 pilot (style reference)
+Home hero, light + dark, four layers: `bg` (opaque plate), `subject` (the man, body continued below the desk; transform scale .9, dx 52, dy 150 master px), `fg` (desk, props, lamp, plants, dog — in front of the man, depth .40), `details` (left leaves + torn strip, depth .60). Layer names follow depth order, not the spec example's literal list. Composites at rest and ±25 px: `/Volumes/E Drive/Dev/.scratch/m011/comp-strip.png`, `dcomp-strip.png`. Gate: EXE-46.
+
+### 14.9 Dev-id ranges (M-011; the last M-010 id is Dev-189)
+P0 Dev-190…194 · P1 195…199 · P2 200…209 · P3 210…214 · P4 215…219 · P5 220…222 · P6 223…227 · P7 228…229. Same rule as §13.5: never borrow across ranges.

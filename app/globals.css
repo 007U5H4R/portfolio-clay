@@ -12767,11 +12767,21 @@ html[data-theme-vt]::view-transition-group(root) {
    ================================================================================================== */
 .band-ocean {
   --ocean-tile: max(100vw, 900px);
+  /* TASK-150: the ship art runs edge to edge (mast tip at y=0, 640×767), so the strip must be at least
+     its bottom offset + its height + the 4px rock lift + headroom, or overflow:hidden clips the sail. */
+  --ship-w: clamp(84px, 11vw, 170px);
+  --ship-bottom: calc(var(--ocean-tile) * 0.046);
   position: relative;
-  height: calc(var(--ocean-tile) * 0.125 + 24px);
+  height: max(
+    calc(var(--ocean-tile) * 0.125 + 24px),
+    calc(var(--ship-bottom) + var(--ship-w) * 767 / 640 + 4px + clamp(16px, 2.5vw, 40px))
+  );
   overflow: hidden;
   background: var(--color-terracotta);
   contain: paint;
+  /* TASK-155: skip rendering (and with it the three drift loops and the ship) while the strip is
+     off-screen; the explicit height above keeps the box size, so nothing shifts when it comes back. */
+  content-visibility: auto;
 }
 .ocean-track {
   position: absolute;
@@ -12815,8 +12825,8 @@ html[data-theme-vt]::view-transition-group(root) {
 .ocean-ship-wrap {
   position: absolute;
   left: 62%;
-  bottom: calc(var(--ocean-tile) * 0.046);
-  width: clamp(84px, 11vw, 170px);
+  bottom: var(--ship-bottom);
+  width: var(--ship-w);
   aspect-ratio: 640 / 767;
   animation: ocean-sail 70s ease-in-out infinite alternate;
 }

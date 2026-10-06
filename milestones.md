@@ -191,3 +191,20 @@ M-002 is the fan-out point; M-003, M-004 and M-006 can run as interleaved phases
 - **Risks.** Fonts + illustration + clip blow the JS/LCP budget (tracer measures first; `next/font` subsetting and the motion-system removal are the levers; a budget change is never one — EV6) · Fraunces `opsz`/`SOFT` axes rejected by `next/font` (fallback static Fraunces 500, recorded as a deviation) · the repo-wide token codemod leaves the un-migrated pages looking odd between Phase 0 and Phase C (accepted on the branch; the gate stays 13/13 from the first commit) · `eval-018` sweeps legacy pages before their phase (any legacy Caveat/decoration hit is parked with a reason in the tracer run and fixed in that page's ticket) · scrapbook drift ticket by ticket (§3.3 planned counts are the design of record; Stage 8 verifies) · OG re-skin still needs the avatar poster path until TKT-78 lands (TKT-89 deletes `public/avatar/*` only after TKT-78).
 - **Blockers.** Tushar: hero gate (TKT-74); D8/D9 confirmation (default = accept the mockups); "Bengaluru, India" confirmation; hiring-line copy (non-blocking, DRAFT-tagged).
 - **Notes.** M-009 tickets are `Feature` where they build a paper section, `Task` for gates/QA/hand-off, `Chore` for dead-code removal, `Bug` for the two S18 fixes (carried as tasks inside TKT-84 and TKT-87 with their regression tests). Phase gates (TKT-74/79/85) are small `Task` tickets so the PWA reflects the human checkpoints. IDs: provisional `TKT-69…91` / `TSK-30…47` ↔ native `TASK-64…86` / `TASK-<parent>.k` (Campfire milestone `m-8`, onboarded 2026-09-24 — `tickets.md` §0.4, `backlog/id-map.json`, decision TP11). Test cases `TC-122…177` (`test-cases.md`), plans in `technical-plan.md` §F.
+
+## M-011 · "Tushar Paper World" — layered parallax paper system (Campfire `m-10`; planned 2026-10-06, EXE-39)
+Source: `docs/specs/m-011/paper-world.md`; Solution-PRD §14; evaluation-plan §10; Design.md §14. Planned from the spec like M-010 (TP15): tracks are Campfire tickets, subtasks are cut at each track's kickoff from its § list.
+
+| Track | Ticket | Depends on | Exit (gate) |
+|---|---|---|---|
+| Stages 1–6 + art pilot | TASK-151 | — | EXE-39, EXE-46 |
+| P0 tokens + `PaperParallaxScene` + `paperMotion` | TASK-156 | TASK-151; global CSS after TASK-143/150/155 commit | EVAL-032/033 specs, tokens:check, EVAL-005 |
+| P1 layered Home hero on the running site | TASK-157 | P0 | EVAL-034/035, EXE gate (EVAL-038 P1) |
+| P2 every tab's scene, light + dark, S32 miniatures | TASK-158 | P1 | EVAL-034, EXE gate P2 |
+| P3 paper cards, buttons, icons | TASK-159 | P0 | EVAL-037, EXE gate P3 |
+| P4 notebook About, paper timeline, skills tags | TASK-160 | P3 | EXE gate P4 |
+| (P5 cursor → TASK-152, other session, EXE-47) | TASK-152 | — | §11 check in P7 |
+| P6 contact scene: paper waves + full sailboat | TASK-161 | P0; TASK-143/150/155 footer work committed | EVAL-036/038 |
+| P7 integration gate → preview | TASK-162 | P2, P3, P4, P6, TASK-152 | full gate, preview verified; production stays frozen (S34) |
+
+Critical path: TASK-151 → P0 → P1 → P2 → P7. Credit estimate in technical-plan §G.
