@@ -162,7 +162,7 @@ test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <
 // ---------------------------------------------------------------------------
 // One hero image fetched before the load event; the inactive (dark) twin is never requested.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 exactly one hero banner image is fetched before load; the dark twin is warmed only after idle", async ({ page }) => {
+test("@EVAL-019 exactly one hero banner image is fetched before load; the dark twin is warmed only on theme-toggle intent (TASK-155)", async ({ page }) => {
   skipUnmeasured(page);
   const before = new Set<string>();
   let loaded = false;
@@ -179,8 +179,12 @@ test("@EVAL-019 exactly one hero banner image is fetched before load; the dark t
   note("eval-019", `hero banner requests before load @${width(page)}: ${[...before].join(" | ")}`);
   expect(before.size, "one hero banner URL requested before load").toBe(1);
   expect([...before].some((u) => u.includes("dark")), "the dark twin is not fetched before load").toBe(false);
-  // dark-mode.md §44: after the page is idle the opposite-theme twin is preloaded, so the first switch is instant.
-  await expect.poll(() => [...all].some((u) => u.includes("dark")), { timeout: 8000, message: "the dark twin is warmed after idle" }).toBe(true);
+  // TASK-155: the twin is warmed on INTENT (toggle hover/focus/pointerdown), not on idle — a visitor who never
+  // reaches for the toggle never downloads or decodes the second scene.
+  await page.waitForTimeout(5000);
+  expect([...all].some((u) => u.includes("dark")), "the dark twin is NOT fetched while idle").toBe(false);
+  await page.locator("[data-theme-toggle]:visible").first().hover();
+  await expect.poll(() => [...all].some((u) => u.includes("dark")), { timeout: 8000, message: "the dark twin is warmed on toggle intent" }).toBe(true);
 });
 
 // ---------------------------------------------------------------------------

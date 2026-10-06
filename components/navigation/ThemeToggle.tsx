@@ -2,6 +2,7 @@
 
 import { setTheme, useTheme } from "@/lib/use-theme";
 import { parseTheme } from "@/lib/theme";
+import { warmOppositeThemeArt } from "@/lib/theme-art-warm";
 
 /**
  * ThemeToggle (TASK-141; toggle.md §25–§41, Design.md §13.2, EVAL-024) — the paper-cut Light / Dark switch
@@ -35,6 +36,10 @@ export function ThemeToggle() {
       className="theme-toggle focus-ring"
       data-theme-toggle=""
       onClick={onClick}
+      // TASK-155: warm the opposite-theme scene on intent (idempotent), not on idle.
+      onPointerEnter={warmOppositeThemeArt}
+      onFocus={warmOppositeThemeArt}
+      onPointerDown={warmOppositeThemeArt}
     >
       <span className="tt-window" aria-hidden="true">
         <span className="tt-scene tt-scene-light" />

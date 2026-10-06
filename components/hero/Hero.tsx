@@ -6,7 +6,6 @@ import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { SceneBanner } from "@/components/paper/SceneBanner";
-import { ThemeArtPreload } from "@/components/paper/ThemeArtPreload";
 import { hero } from "@/data/hero";
 import { darkSceneImage, sceneImage, type SceneId } from "@/lib/illustrations";
 
@@ -88,7 +87,6 @@ export function Hero() {
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-banner">
         <SceneBanner id="hero-banner" priority focalX={BANNER_FOCAL_X} sizes="100vw" narrow={BANNER_NARROW} />
-        <ThemeArtPreload />
 
         <div className="hero-polaroids" aria-hidden="true">
           {POLAROIDS.map((polaroid) => (
