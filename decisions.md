@@ -611,3 +611,18 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** Final gate #1 on the fully merged tree (`3ee490f`): typecheck/lint/specs/tokens/build ✓, unit 1051 ✓, e2e 1625 passed / 44 failed. 13 failures were legacy nav/footer specs asserting the pre-T4 design (`svg.ink-underline`, header blur/hairline, footer height including the new ocean strip) — rewritten to T4's design with the invariants kept and limits unchanged (`m010/t4-specs`, 87/0). The other 31 were EVAL-030 `/lab` boot timeouts; the fix agent measured load averages of 33–41 from concurrent work during that window, and an isolated probe on a quiet machine reached the lab's INTRO state with no page errors.
 **Decision.** Re-run the whole gate (#2) only after every lane agent has finished and the machine is quiet, logging load at start and end; its result — not the contaminated one — decides the push.
 **Rejected.** Treating the 31 as flakes without a clean run; raising EVAL-030's timeouts.
+
+## S31 · M-011 "Tushar Paper World" adopts the FULL system in Tushar's spec — accepted (Tushar, 2026-10-06)
+**Context.** Tushar: the generated scenes read as flat paper-cut images, and the Portfolio and Certifications scenes show blank frames (the art left project boxes and certificate sleeves empty because generated art may not contain text; the planned code overlays were never built). He supplied `docs/specs/m-011/paper-world.md`: one physical paper world — material palette (§02), single upper-left light (§03), depth levels and elevations (§04–05), mouse/scroll/gyro parallax via a shared `PaperParallaxScene` (§06–07, §25–30), paper cards, buttons, icons, cursor (§08–11), origami illustration (§12–13), transitions and paper waves (§14–15), notebook About, paper timeline, skills as paper tags, contact scene with a fully visible origami sailboat (§21–24), layered asset standard (§31–32).
+**Decision.** Scope = the whole spec (Tushar chose "Full Paper World system" over layered-scenes-only). It re-opens the palette, contrast pairs, dark mode, cursor and typography: every change keeps the existing gates (EVAL-020 13 tokens or a recorded successor, AA in both themes, EVAL-027 isolation, reduced motion).
+**Rejected.** Layered scenes only; scenes + cards/buttons only (Tushar's choice).
+
+## S32 · Empty frames become origami miniatures — accepted (Tushar, 2026-10-06)
+**Decision.** The Portfolio and Certifications scenes are regenerated with small origami objects on the shelf and wall instead of empty boxes/sleeves; the real project covers and certification badges stay in the page content below the scenes. No text in art (§31).
+**Rejected.** Placing real covers/badges onto the frames in code; both together.
+
+## S33 · M-011 is fully delegated, like M-010 — accepted (Tushar, 2026-10-06)
+**Decision.** Claude takes every M-011 decision, stage sign-off and style gate on Tushar's behalf, recording each as an `EXE-` decision with evidence (as EXE-26). The production release stays NOT delegated.
+
+## S34 · M-011 lands before the single production release — accepted (Tushar, 2026-10-06)
+**Decision.** Finish TASK-143, then build M-011 on preview; production gets M-010 + M-011 together in one release (consistent with S26). Production stays frozen until Tushar's explicit go.
