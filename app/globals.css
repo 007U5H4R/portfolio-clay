@@ -12832,7 +12832,8 @@ html[data-theme-vt]::view-transition-group(root) {
      the lane ends come from --sail-from / --sail-to so desktop can confine the boat to the sea lane. */
   --sail-from: -18vw;
   --sail-to: 14vw;
-  animation: ocean-sail 140s linear infinite;
+  /* ease-in-out per segment; set here, not inside the keyframes, which stay transform-only (TC-T4-04) */
+  animation: ocean-sail 140s ease-in-out infinite;
 }
 .ocean-ship {
   display: block;
@@ -12854,14 +12855,12 @@ html[data-theme-vt]::view-transition-group(root) {
 @keyframes ocean-sail {
   0% {
     transform: translate3d(var(--sail-from), 0, 0) scaleX(1);
-    animation-timing-function: ease-in-out;
   }
   48% {
     transform: translate3d(var(--sail-to), 0, 0) scaleX(1);
   }
   50% {
     transform: translate3d(var(--sail-to), 0, 0) scaleX(-1);
-    animation-timing-function: ease-in-out;
   }
   98% {
     transform: translate3d(var(--sail-from), 0, 0) scaleX(-1);
