@@ -689,3 +689,9 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** While M-011 was being broken down, Tushar opened TASK-152 (cursor as a kraft-cardboard arrow on a torn cream border — the same thing as spec §11) and TASK-155 (site must not lag) in other sessions.
 **Decision.** Drop the planned P5 track; P7 (TASK-162) depends on TASK-152 and checks it against §11's states and spring (EXE-41). M-011's gates include EVAL-004/005 and TASK-155's runtime-smoothness eval (evaluation-plan §10.6). P6 (contact scene) also waits for TASK-155's footer fixes, not only TASK-143/150.
 **Rejected.** A parallel cursor ticket (two sessions editing `components/cursor/`); a second smoothness eval (duplicate owner).
+
+## EXE-48 · P2 scene art passes its style gate (EVAL-038 P2, art half) after one fix round — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** Seven scenes (work, certifications, experience, about, contact, thinking, playground), light + dark, desktop 2400 px + mobile 1280 px, on `m011/p2-art`. The first Opus gate failed 4/14: black cast shadows from key v1, a letter-like mark on the Portfolio house, About fg cutting the man at the waist.
+**Decision.** Fix round: key v2 (shadow-to-ink), paint-out of the mark, About bg + fg regenerated (About fg is at its 2-regen cap). Re-gate 14/14 PASS with notes: Portfolio miniatures sit a little flat; About legs read as "standing in tall grass". Code half gates with TASK-158.7.
+**Rejected.** Regenerating About fg a third time (cap reached); accepting the first gate with notes (black shadows break the one-light rule).
+(Re-added on `m011/p0` from HANDOFF-M011 §6.1; the original commit `666b292` was local-only.)
