@@ -3,10 +3,10 @@ id: TASK-145.3
 title: >-
   T4.3 Build the footer ocean: layered waves, parallax, ship drift, responsive
   and reduced motion
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-05 18:07'
-updated_date: '2026-10-05 21:54'
+updated_date: '2026-10-06 00:48'
 labels:
   - P2
 dependencies: []

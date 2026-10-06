@@ -1,10 +1,10 @@
 ---
 id: TASK-145.4
 title: 'T4.4 Paper ridge parallax dividers: 3-layer default, variants, dark twins'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-05 18:07'
-updated_date: '2026-10-05 23:11'
+updated_date: '2026-10-06 00:48'
 labels:
   - P2
 dependencies: []
