@@ -110,8 +110,10 @@ export const papers: ResearchPaper[] = [
       "Topological Phases in Nanoparticle Monolayers: Why Crystalline, Hexatic, and Isotropic-Fluid Phases Coexist at the Same Temperature",
     journal: "Soft Matter, RSC",
     year: "2023",
-    // doi: MISSING — never fabricate; Research.tsx renders "DOI pending".
-    source: "RESUME Paper Publications — DOI + author list MISSING",
+    doi: "10.1039/d3sm00290j",
+    doiHref: "https://doi.org/10.1039/d3sm00290j",
+    source:
+      "RESUME Paper Publications; DOI supplied by Tushar 2026-10-06 (TASK-163), checked against Crossref: Soft Matter 2023, Bhattacharjee, Vaidya, Pathak, Shimpi, Prasad — author list still MISSING here",
   },
 ];
 

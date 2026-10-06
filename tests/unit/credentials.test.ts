@@ -29,7 +29,7 @@ describe("data/credentials (TKT-42)", () => {
     );
   });
 
-  it("has exactly 2 papers; Langmuir has a resolvable DOI, Soft Matter has none (DOI pending, never fabricated)", () => {
+  it("has exactly 2 papers, each with a resolvable DOI (Soft Matter's supplied by Tushar and checked against Crossref)", () => {
     expect(papers).toHaveLength(2);
     const langmuir = papers.find((p) => p.id === "langmuir-2025");
     const softMatter = papers.find((p) => p.id === "soft-matter-2023");
@@ -37,8 +37,8 @@ describe("data/credentials (TKT-42)", () => {
     expect(langmuir?.doi).toBe("10.1021/acs.langmuir.5c00784");
     expect(langmuir?.doiHref).toBe("https://doi.org/10.1021/acs.langmuir.5c00784");
 
-    expect(softMatter?.doi).toBeUndefined();
-    expect(softMatter?.doiHref).toBeUndefined();
+    expect(softMatter?.doi).toBe("10.1039/d3sm00290j");
+    expect(softMatter?.doiHref).toBe("https://doi.org/10.1039/d3sm00290j");
     expect(softMatter?.authors).toBeUndefined();
   });
 
