@@ -39,7 +39,12 @@ describe("data/credentials (TKT-42)", () => {
 
     expect(softMatter?.doi).toBe("10.1039/d3sm00290j");
     expect(softMatter?.doiHref).toBe("https://doi.org/10.1039/d3sm00290j");
-    expect(softMatter?.authors).toBeUndefined();
+    // Title, authors and volume as published (Crossref record for 10.1039/d3sm00290j; Tushar approved, TASK-163).
+    expect(softMatter?.title).toBe(
+      "Topological phases in nanoparticle monolayers: can crystalline, hexatic, and isotropic-fluid phases coexist in the same monolayer?",
+    );
+    expect(softMatter?.authors).toBe("Bhattacharjee, K.; Vaidya, S. S.; Pathak, T.; Shimpi, J. R.; Prasad, B. L. V.");
+    expect(softMatter?.volumeIssue).toBe("19(38)");
   });
 
   it("has exactly 2 education entries (M.Tech NIT Calicut 2022, B.E. BIT Durg 2016)", () => {

@@ -39,7 +39,7 @@ const PRINCIPLE_ICONS: Record<(typeof PRINCIPLES)[number]["icon"], ReactNode> = 
  *   #research  eyebrow, h2 "From labs to lasting ideas.", "Research shaped how I think." and three compact
  *              artifacts (nanotechnology · the granted patent · the papers), each a taped print with its
  *              caption in HTML. Then the papers as short references (journal, year, title, DOI link or
- *              "DOI pending" — the Soft Matter DOI is recorded as missing, so it is never invented), the
+ *              "DOI pending" when a paper's DOI is missing — never invented; both papers carry one now), the
  *              patent-record link and the rights line verbatim. Not an education block (spec §23).
  *   #values    eyebrow, h2, one paper card with exactly three principles and their icons, beside the
  *              `polaroid-sunrise` print (content paper, manifest alt) and a hand note.
