@@ -22,9 +22,11 @@ evals/results/eval-run-0.2.0-*.json
 # then applied into data/tushky/faq.json with --apply. Never served, never committed.
 data/tushky/faq.candidates.json
 
-# environment (secret-bearing; .env.tooling is committed & secret-free)
-.env
-.env.*.local
+# environment (secret-bearing). Ignore every .env* (incl. .env.local, which `vercel env pull` writes)
+# except the two committed, secret-free files.
+.env*
+!.env.example
+!.env.tooling
 
 # PII / private assets (PB5, EVAL-016) — never committed until sanitised
 public/resume.pdf
