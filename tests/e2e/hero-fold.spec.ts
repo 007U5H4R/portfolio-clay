@@ -157,7 +157,7 @@ test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async (
  * 2400×1029 art units) and none overlaps the character's face or the book titles. The art sits in the scene frame as
  * `object-fit: cover` boxes inset by the scene's shared bleed (30 px) centred on focal x 0.49, so an art point (u, v) lands at
  * x = −b + (W + 2b − 2400·s)·0.49 + u·s, y = −b + v·s with s = (H + 2b) / 1029 (W × H the frame). Measured at rest (scroll 0) on the
- * rendered (rotated) rects. < 768 the frame is the 4:3 crop: only papers ≥ 80 % inside it carry a polaroid, the large cream sheet
+ * rendered (rotated) rects. < 768 the frame is the 16:10 crop: only papers ≥ 80 % inside it carry a polaroid, the large cream sheet
  * does not, and the postmark stays clear of the face and of every visible polaroid.
  */
 test("hero polaroids sit on the banner's blank papers, clear of the face and the book titles", async ({ page }) => {
@@ -208,7 +208,7 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
       const face = inPx(keepClear[0]!);
       const onFace = stamp.l < face.r && stamp.r > face.l && stamp.t < face.b && stamp.b > face.t;
       expect(onFace, `w${w}: the postmark stays clear of the character's face`).toBe(false);
-      expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 4:3 crop`).toEqual([true, true, false]);
+      expect(expectedShown, `w${w}: the large cream sheet is mostly outside the 16:10 crop`).toEqual([true, true, false]);
     }
     all.forEach((p, i) => {
       if (!p.shown) return;

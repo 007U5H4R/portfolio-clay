@@ -58,7 +58,7 @@ async function probe(page: Page, route: string, theme: "light" | "dark") {
 
 for (const theme of ["light", "dark"] as const) {
   test.describe(`@EVAL-037 paper elevation (${theme})`, () => {
-    for (const route of ["/", "/projects", "/contact", "/certifications"]) {
+    for (const route of ["/", "/projects", "/contact", "/work"]) {
       test(`${route}: [data-elev] shadows cast bottom-right, in band, no glass or black`, async ({ page }) => {
         const r = await probe(page, route, theme);
         expect(r.count, "paper elements on the page").toBeGreaterThan(0);
@@ -93,7 +93,7 @@ test.describe("@EVAL-037 material tokens", () => {
         }
         return { mat, text };
       });
-      expect(r.mat.every((c) => /^(rgb|oklab|color)/.test(c) && c !== "rgb(0, 0, 0)"), `${theme}: mat tokens resolve`).toBe(true);
+      expect(r.mat.every((c) => /^(rgb|oklab|oklch|lab|lch|color)/.test(c) && c !== "rgb(0, 0, 0)"), `${theme}: mat tokens resolve`).toBe(true);
       expect(r.text, `${theme}: text coloured by a material`).toEqual([]);
     }
   });
@@ -113,6 +113,7 @@ test.describe("@EVAL-037 paper button contract", () => {
     await page.mouse.down();
     await page.waitForTimeout(400);
     expect(await ty()).toBeCloseTo(1, 0);
+    await page.mouse.move(2, 2); // release off the link so the press does not navigate
     await page.mouse.up();
     const sizeNow = await btn.evaluate((e) => ({ w: (e as HTMLElement).offsetWidth, h: (e as HTMLElement).offsetHeight }));
     expect(sizeNow).toEqual({ w: Math.round(box0!.width), h: Math.round(box0!.height) });

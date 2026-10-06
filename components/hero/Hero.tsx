@@ -69,8 +69,8 @@ export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-banner">
-        {/* M-011 P1: the banner is the layered Paper World scene (four layers, light + dark twins); < 768 a 4:3 cover crop on the focal point. */}
-        <PaperParallaxScene id="hero-home" priority focal={{ x: BANNER_FOCAL_X }} narrowAspect="4 / 3" />
+        {/* M-011 P1: the banner is the layered Paper World scene (four layers, light + dark twins); < 768 a 16:10 cover crop on the focal point (wide enough that the tall paper and the yellow note both fit with their polaroids). */}
+        <PaperParallaxScene id="hero-home" priority focal={{ x: BANNER_FOCAL_X }} narrowAspect="16 / 10" />
         <ThemeArtPreload />
 
         <div className="hero-polaroids" aria-hidden="true" style={{ "--b": `${sceneBleedPx(layeredScene("hero-home"))}px` } as CSSProperties}>

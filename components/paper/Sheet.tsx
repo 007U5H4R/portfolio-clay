@@ -30,7 +30,7 @@ export function Sheet({ as: Component = "div", variant, rotate, stamp, className
   return (
     <Component
       data-paper={variant}
-      data-elev={variant === "photo" || variant === "tag" ? "1" : "2"}
+      data-elev="2"
       className={["paper-sheet", className].filter(Boolean).join(" ")}
       style={rotationStyle(rotate, 0, cap)}
     >
