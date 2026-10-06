@@ -32,7 +32,11 @@ const E2E_DIR = resolve(ROOT, "tests/e2e");
  * Number of cases the catalogue must hold: EVAL-001 … EVAL-017 (Stage 6) + EVAL-018 … 022 (M-009, EV3)
  * + EVAL-023 … 031 (M-010, EV7). EVAL-019 was rewritten in place for the still hero (S24) — same id.
  */
-const CASE_COUNT = 31;
+// 32 rows: EVAL-001…031 plus EVAL-039 (TASK-155). EVAL-032…038 are reserved for the M-011 session's rows; when that
+// branch merges, drop RESERVED_IDS and set CASE_COUNT to 39.
+const CASE_COUNT = 32;
+const MAX_ID = 39;
+const RESERVED_IDS = new Set(["EVAL-032", "EVAL-033", "EVAL-034", "EVAL-035", "EVAL-036", "EVAL-037", "EVAL-038"]);
 
 /** Runners that actually execute a case (i.e. constitute a "runner mapping" for an automated case). */
 const AUTOMATED_RUNNERS = [
@@ -114,8 +118,9 @@ export function loadCases(): EvalCase[] {
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
     throw new Error(`[eval-cases] duplicate ids: ${[...new Set(dupes)].join(", ")}`);
   }
-  for (let i = 1; i <= CASE_COUNT; i++) {
+  for (let i = 1; i <= MAX_ID; i++) {
     const want = `EVAL-${String(i).padStart(3, "0")}`;
+    if (RESERVED_IDS.has(want)) continue;
     if (!unique.has(want)) throw new Error(`[eval-cases] missing id ${want}`);
   }
 

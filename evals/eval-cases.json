@@ -567,6 +567,44 @@
       "accessibility_requirement": null,
       "tags": ["design", "paper-cut", "dark-mode", "likeness", "side-by-side", "human-review", "S23", "S24", "m-010"],
       "related_tickets": ["TASK-140", "TASK-141", "TASK-144", "TASK-145", "TASK-146"]
+    },
+    {
+      "id": "EVAL-039",
+      "feature": "runtime-smoothness",
+      "category": "performance",
+      "input": "Every static route (tests/e2e/routes.json) at w1440 with a 4x CPU throttle (CDP Emulation.setCPUThrottlingRate): cold load, 2.5 s rest, then two scripted top-to-bottom wheel scrolls (the first is warm-up)",
+      "expected_behavior": "The site stays smooth on every tab: after warm-up there is no long animation frame over 200 ms and at most MAX_OVER_50 frames over 50 ms; at rest no time-based CSS animation runs while its target is outside the viewport (the shared off-screen pause, TASK-155; scroll-driven view() animations are exempt, they only advance when scrolled); a page preloads at most one image that applies to the viewport - its own LCP banner, never another tab's hero (TASK-149: react-dom preload() hints were replayed by nav prefetch)",
+      "expected_output": "per route: frames>200ms = 0 · frames>50ms <= MAX_OVER_50 · off-screen running animations = 0 · viewport-matching image preloads <= 1",
+      "failure_conditions": [
+        "any long animation frame over 200 ms after warm-up",
+        "more than MAX_OVER_50 frames over 50 ms on any route",
+        "a time-based CSS animation running outside the viewport at rest",
+        "more than one viewport-matching image preload on a route"
+      ],
+      "method": "Playwright tests/e2e/perf-smoothness.spec.ts (PerformanceObserver long-animation-frame, document.getAnimations(), link[rel=preload][as=image]); baseline/after tables from scripts/perf-probe.ts + Lighthouse",
+      "threshold": "0 frames > 200 ms · <= MAX_OVER_50 frames > 50 ms · 0 off-screen running animations · <= 1 image preload, on 10/10 static routes",
+      "priority": "high",
+      "automated": true,
+      "automated_scope": "route hygiene, trigger timing, exits, fallback, reduced motion and console cleanliness are automated; frame-rate profiling is manual, informational",
+      "runner": "playwright",
+      "viewport": [
+        "1440"
+      ],
+      "accessibility_requirement": null,
+      "tags": [
+        "performance",
+        "scroll",
+        "jank",
+        "animation",
+        "preload",
+        "m-010",
+        "TASK-155",
+        "TASK-149"
+      ],
+      "related_tickets": [
+        "TASK-155",
+        "TASK-149"
+      ]
     }
   ]
 }

@@ -59,7 +59,7 @@ const JS_REGRESSION_KB = 10;
 
 // M-009 (evaluation-plan.md §8.7 / EV3): EVAL-018/019 Playwright, EVAL-020/021 Vitest, EVAL-022 manual.
 // M-010 (evaluation-plan.md §9.8 / EV7): EVAL-023/024/026/028/029/030 Playwright, EVAL-025/027 Vitest, EVAL-031 manual.
-const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019", "EVAL-023", "EVAL-024", "EVAL-026", "EVAL-028", "EVAL-029", "EVAL-030"];
+const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019", "EVAL-023", "EVAL-024", "EVAL-026", "EVAL-028", "EVAL-029", "EVAL-030", "EVAL-039"];
 const VITEST_CASES = ["EVAL-012", "EVAL-017", "EVAL-020", "EVAL-021", "EVAL-025", "EVAL-027"];
 const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009", "EVAL-022", "EVAL-031"];
 const METRIC_CASES = ["EVAL-004", "EVAL-005"]; // diffed by metric, not status-flip
