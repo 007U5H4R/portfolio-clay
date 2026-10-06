@@ -73,3 +73,25 @@
   object-position: var(--focal-x, 50%) var(--focal-y, 50%);
   user-select: none;
 }
+
+/* Gyro permission chip (§28): a cream paper tab, ≥ 44 px target, bottom-left of its scene container. */
+.chip {
+  position: absolute;
+  z-index: 2;
+  left: 16px;
+  bottom: 16px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--mat-cream, #f0e2c8);
+  color: var(--color-navy);
+  font: 600 0.875rem/1.2 var(--font-sans, system-ui, sans-serif);
+  box-shadow: 2px 2px 0 var(--mat-side, #6d321e), 1px 2px 2px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  cursor: pointer;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 3px;
+}

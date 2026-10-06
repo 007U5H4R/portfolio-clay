@@ -66,7 +66,7 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
   const lp = [0, 0];
 
   const ask = () => win.DeviceOrientationEvent?.requestPermission;
-  const wantsGyro = () => !reducedMq.matches && !fineMq.matches && (!ask() || granted);
+  const wantsGyro = () => !reducedMq.matches && !fineMq.matches && !!win.DeviceOrientationEvent && (!ask() || granted);
 
   const write = (root: HTMLElement) => {
     root.style.setProperty("--pp-x", fmt(pos[0]!));
