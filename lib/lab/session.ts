@@ -8,7 +8,8 @@ export const LAB_PATH = "/lab";
 
 /** A same-origin, in-app path that is not the lab itself; anything else collapses to "/". */
 export function safeReturnRoute(value: string | null | undefined): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return "/";
+  // Tab/CR/LF are stripped by URL parsing, so "/\t/evil.example" would resolve off-origin.
+  if (!value || !value.startsWith("/") || value.startsWith("//") || /[\\\t\n\r]/.test(value)) return "/";
   const path = value.split(/[?#]/)[0] ?? "/";
   return path === LAB_PATH || path.startsWith(`${LAB_PATH}/`) ? "/" : value;
 }

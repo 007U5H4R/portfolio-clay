@@ -9,7 +9,7 @@ describe("safeReturnRoute", () => {
     expect(safeReturnRoute("/work/foo?x=1")).toBe("/work/foo?x=1");
   });
   it("falls back to / for anything else", () => {
-    for (const bad of [null, undefined, "", "about", "//evil.example", "https://evil.example", "/\\evil", "/lab", "/lab/", "/lab?x=1"]) {
+    for (const bad of [null, undefined, "", "about", "//evil.example", "https://evil.example", "/\\evil", "/lab", "/lab/", "/lab?x=1", "/\t/evil.example", "/\n/evil.example", "/\r/evil.example", "/\t\t/evil.example"]) {
       expect(safeReturnRoute(bad)).toBe("/");
     }
   });
