@@ -29,13 +29,16 @@ export function mountPaperCursor(): () => void {
   root.dataset.mode = "hidden";
   root.setAttribute("aria-hidden", "true");
   root.style.setProperty("--pc-paw", PAW_MASK);
-  const ring = document.createElement("span");
-  ring.className = "pc-ring";
-  const dot = document.createElement("span");
-  dot.className = "pc-dot";
+  const art = document.createElement("span");
+  art.className = "pc-art";
+  const card = document.createElement("img");
+  card.src = "/cursor/cardboard@2x.webp"; // TASK-152: the cardboard arrow; its tip is the hotspot (cursor.css)
+  card.alt = "";
+  card.draggable = false;
+  art.append(card);
   const label = document.createElement("span");
   label.className = "pc-label";
-  root.append(ring, dot, label);
+  root.append(art, label);
 
   const layer = document.createElement("div");
   layer.id = "trail";

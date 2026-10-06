@@ -7999,6 +7999,14 @@ html.lenis body {
     height: auto;
     max-height: 132px;
   }
+  [data-theme="dark"] .ct-logo-img {
+    /* Dark cards would bury dark marks (Quantiphi, Shellkode, NIT Calicut): each logo gets its own light
+       paper label. `navy` is the light ink value in dark (D13), the same move as .cert-badge-paper (TASK-153). */
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: var(--color-navy);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+  }
   .ct-logo-type {
     font-family: var(--font-display);
     font-size: 26px;
@@ -12723,22 +12731,11 @@ html[data-theme-vt]::view-transition-group(root) {
   transform: translateY(-1px) rotate(-0.4deg);
 }
 
-/* theme control: its own paper chip (the switch inside is unchanged) */
+/* theme control: just the capsule switch — no paper chip behind it (Tushar, 2026-10-06; TASK-154) */
 .header-chip {
   position: relative;
   display: inline-flex;
   flex: none;
-  isolation: isolate;
-}
-.header-chip::before {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  z-index: -1;
-  border-radius: 12px;
-  background: var(--color-paper);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 20%, transparent), 0 3px 6px -3px color-mix(in oklab, var(--shadow-ink) 25%, transparent);
-  transform: rotate(0.8deg);
 }
 
 /* the right-edge scroll fade must match the paper strip, not the page */
@@ -12770,11 +12767,21 @@ html[data-theme-vt]::view-transition-group(root) {
    ================================================================================================== */
 .band-ocean {
   --ocean-tile: max(100vw, 900px);
+  /* TASK-150: the ship art runs edge to edge (mast tip at y=0, 640×767), so the strip must be at least
+     its bottom offset + its height + the 4px rock lift + headroom, or overflow:hidden clips the sail. */
+  --ship-w: clamp(84px, 11vw, 170px);
+  --ship-bottom: calc(var(--ocean-tile) * 0.046);
   position: relative;
-  height: calc(var(--ocean-tile) * 0.125 + 24px);
+  height: max(
+    calc(var(--ocean-tile) * 0.125 + 24px),
+    calc(var(--ship-bottom) + var(--ship-w) * 767 / 640 + 4px + clamp(16px, 2.5vw, 40px))
+  );
   overflow: hidden;
   background: var(--color-terracotta);
   contain: paint;
+  /* TASK-155: skip rendering (and with it the three drift loops and the ship) while the strip is
+     off-screen; the explicit height above keeps the box size, so nothing shifts when it comes back. */
+  content-visibility: auto;
 }
 .ocean-track {
   position: absolute;
@@ -12818,8 +12825,8 @@ html[data-theme-vt]::view-transition-group(root) {
 .ocean-ship-wrap {
   position: absolute;
   left: 62%;
-  bottom: calc(var(--ocean-tile) * 0.046);
-  width: clamp(84px, 11vw, 170px);
+  bottom: var(--ship-bottom);
+  width: var(--ship-w);
   aspect-ratio: 640 / 767;
   animation: ocean-sail 70s ease-in-out infinite alternate;
 }

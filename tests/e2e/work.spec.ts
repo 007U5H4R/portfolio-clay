@@ -39,14 +39,22 @@ test("@EVAL-013 logos: alt = organisation name, and every logo file serves", { t
   test.skip(width(page) !== 1440, "checked once at w1440");
   await page.goto("/work", { waitUntil: "load" });
   const logos = page.locator(".ct-logo img");
-  await expect(logos).toHaveCount(3);
+  await expect(logos).toHaveCount(6);
   const alts = await logos.evaluateAll((els) => els.map((el) => el.getAttribute("alt")));
-  expect(alts).toEqual(["American Express", "Godrej", "National Institute of Technology Calicut"]);
+  expect(alts).toEqual([
+    "American Express",
+    "Shellkode",
+    "Quantiphi",
+    "Godrej",
+    "National Institute of Technology Calicut",
+    "Bhilai Institute of Technology, Durg",
+  ]);
   const srcs = await page.locator(".ct-logo img, .ct-mark").evaluateAll((els) => els.map((el) => el.getAttribute("src")!));
   for (const src of srcs) {
     const res = await request.get(src);
     expect(res.status(), `${src} must serve`).toBe(200);
-    expect(res.headers()["content-type"]).toContain("image/svg+xml");
+    // Wikimedia SVGs, or the WebP files Tushar supplied (TASK-153).
+    expect(res.headers()["content-type"]).toMatch(/image\/(svg\+xml|webp)/);
   }
 });
 
