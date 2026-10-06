@@ -11,6 +11,12 @@ import type Lenis from "lenis";
 
 let instance: Lenis | null = null;
 let stopCount = 0;
+let wake: (() => void) | null = null;
+
+/** SmoothScroll registers the callback that restarts its sleeping rAF loop (TASK-155). */
+export function setLenisWake(next: (() => void) | null): void {
+  wake = next;
+}
 
 /** SmoothScroll registers (or clears, on unmount) the one instance. */
 export function setLenis(next: Lenis | null): void {
@@ -40,7 +46,10 @@ export function stopSmoothScroll(): () => void {
     // The instance may have been destroyed/replaced while the surface was open.
     if (instance !== lenis) return;
     stopCount = Math.max(0, stopCount - 1);
-    if (stopCount === 0) lenis.start();
+    if (stopCount === 0) {
+      lenis.start();
+      wake?.();
+    }
   };
 }
 
@@ -73,6 +82,7 @@ export function scrollToTarget(target: HTMLElement, { immediate = false } = {}):
   // a focus/scrollIntoView in the same frame) and would make the jump fall short.
   lenis.resize();
   lenis.scrollTo(target, { offset, immediate });
+  wake?.();
   if (!target.matches("a[href], button, input, select, textarea, [tabindex]")) {
     target.setAttribute("tabindex", "-1");
   }

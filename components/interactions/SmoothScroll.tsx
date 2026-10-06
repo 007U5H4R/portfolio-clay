@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { scrollToTarget, setLenis } from "@/lib/smooth-scroll";
+import { scrollToTarget, setLenis, setLenisWake } from "@/lib/smooth-scroll";
 
 export const SMOOTH_SCROLL_POINTER_QUERY = "(pointer: fine)";
 export const SMOOTH_SCROLL_REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
@@ -27,7 +27,7 @@ function hashTarget(event: MouseEvent): HTMLElement | null {
  * `app/layout.tsx`. One mount effect decides **once** (the TP13/TP14 pattern — no media-query
  * listeners, a mid-session change never re-decides): only when `(pointer: fine)` matches and
  * `prefers-reduced-motion` does not does it dynamically import Lenis and create one instance with
- * `autoRaf`; otherwise it does nothing and native scroll stays in charge (touch keeps its momentum,
+ * a sleeping rAF loop (TASK-155); otherwise it does nothing and native scroll stays in charge (touch keeps its momentum,
  * reduced motion keeps instant scroll). Smoothing only — no scroll-linked animation.
  *
  * While mounted it also owns same-document hash navigation (hero "Ask my portfolio" → `#ask`, the
@@ -54,8 +54,22 @@ export function SmoothScroll() {
 
     void import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
-      const lenis = new Lenis({ autoRaf: true });
+      // TASK-155: no `autoRaf` — Lenis's own loop re-queued a rAF every frame for the whole visit, idle or not.
+      // This loop runs only while Lenis is easing (`isScrolling`/`animate.isRunning`) and sleeps otherwise; a wheel
+      // event (Lenis's own virtual-scroll listener runs first) or a programmatic scrollTo wakes it.
+      const lenis = new Lenis({ autoRaf: false });
+      let rafId = 0;
+      const tick = (time: number) => {
+        rafId = 0;
+        lenis.raf(time);
+        if (lenis.isScrolling || lenis.animate?.isRunning) rafId = requestAnimationFrame(tick);
+      };
+      const wake = () => {
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      };
+      window.addEventListener("wheel", wake, { passive: true });
       setLenis(lenis);
+      setLenisWake(wake);
       document.addEventListener("click", onClick);
 
       // A hash on load: the browser already jumped natively (under the header) — correct it.
@@ -65,6 +79,9 @@ export function SmoothScroll() {
 
       destroy = () => {
         document.removeEventListener("click", onClick);
+        window.removeEventListener("wheel", wake);
+        cancelAnimationFrame(rafId);
+        setLenisWake(null);
         setLenis(null);
         lenis.destroy();
       };

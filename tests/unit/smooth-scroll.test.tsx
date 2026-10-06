@@ -15,6 +15,8 @@ vi.mock("lenis", () => ({
     start = lenisStart;
     destroy = lenisDestroy;
     scrollTo = vi.fn();
+    raf = vi.fn();
+    isScrolling = false;
   },
 }));
 
@@ -65,7 +67,7 @@ describe("SmoothScroll (TKT-94)", () => {
     const { addEventListener } = mockMatchMedia({ fine: true, reduced: false });
     const { unmount, rerender } = render(<SmoothScroll />);
     await waitFor(() => expect(lenisCtor).toHaveBeenCalledTimes(1));
-    expect(lenisCtor).toHaveBeenCalledWith(expect.objectContaining({ autoRaf: true }));
+    expect(lenisCtor).toHaveBeenCalledWith(expect.objectContaining({ autoRaf: false }));
     rerender(<SmoothScroll />);
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(lenisCtor).toHaveBeenCalledTimes(1);
@@ -74,6 +76,23 @@ describe("SmoothScroll (TKT-94)", () => {
     unmount();
     expect(lenisDestroy).toHaveBeenCalledTimes(1);
     expect(getLenis()).toBeNull();
+  });
+
+  it("runs no rAF loop while idle; a wheel event wakes one frame and it sleeps again (TASK-155)", async () => {
+    mockMatchMedia({ fine: true, reduced: false });
+    const raf = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+      queueMicrotask(() => cb(16));
+      return 1;
+    });
+    const { unmount } = render(<SmoothScroll />);
+    await waitFor(() => expect(getLenis()).not.toBeNull());
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const idleCalls = raf.mock.calls.length;
+    window.dispatchEvent(new Event("wheel"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(raf.mock.calls.length - idleCalls).toBe(1); // isScrolling is false -> the loop does not re-queue
+    unmount();
+    raf.mockRestore();
   });
 
   it("stopSmoothScroll is ref-counted: nested surfaces restart Lenis only after the last closes", async () => {
