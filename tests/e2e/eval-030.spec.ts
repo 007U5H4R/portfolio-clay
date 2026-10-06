@@ -398,11 +398,12 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     // keyboard: nudge + bounce + pause
     await settleOnTopPlatform(page);
     const k0 = await bear(page);
+    // Hold the key until the bear has visibly moved right, not for a fixed time: the controller acts once
+    // per fixed physics step, and a host that renders a frame every few hundred ms (or none for a second)
+    // would otherwise see the whole hold pass between two frames.
     await page.keyboard.down("ArrowRight");
-    await page.waitForTimeout(400);
+    await page.waitForFunction((x0) => window.__gummyLab!.rt.bear.x > x0 + 0.05, k0.x, { timeout: 20_000 });
     await page.keyboard.up("ArrowRight");
-    // Forces run per fixed physics step, so a 400 ms hold moves the bear right at any frame rate.
-    expect((await bear(page)).x).toBeGreaterThan(k0.x + 0.05);
     await page.keyboard.press("p");
     expect(await labState(page)).toBe("PAUSED");
     await page.keyboard.press("p");
