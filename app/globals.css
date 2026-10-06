@@ -988,6 +988,16 @@ body::before {
       --banner-h: 66vw;
     }
   }
+  /* M-011 P2: a layered opener is a frame of the same height (cover crop on the focal point, Design.md §14.4). */
+  .scene-opener [data-paper-scene] {
+    aspect-ratio: auto;
+    height: clamp(220px, 32vw, 460px);
+  }
+  @media (max-width: 767px) {
+    .scene-opener [data-paper-scene] {
+      height: 66vw;
+    }
+  }
   .scene-opener-torn {
     position: absolute;
     right: 0;
@@ -5326,7 +5336,8 @@ html.lenis body {
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: scroll()) {
       .hero-banner,
-      .scene-opener .scene-banner {
+      .scene-opener .scene-banner,
+      .scene-opener [data-paper-scene] {
         animation: scene-parallax linear both;
         animation-timeline: scroll(root block);
         animation-range: 0 100vh;
@@ -12969,8 +12980,11 @@ html[data-theme-vt]::view-transition-group(root) {
   --par-3: 0.22;
   --par-4: 0.4;
   --par-5: 0.6;
-  --shadow-paper: var(--depth-rim), var(--depth-2);
-  --shadow-paper-hover: var(--depth-rim), var(--depth-4);
+  /* M-011 P3 (§08): a paper card is a sheet with a 2 px dark-paper sidewall at its bottom-right edge (--mat-side, sheet
+     thickness) over PAPER-2; hover lifts it to PAPER-3 (the lift itself is each card's own transform). */
+  --depth-side: 2px 2px 0 var(--mat-side);
+  --shadow-paper: var(--depth-rim), var(--depth-side), var(--depth-2);
+  --shadow-paper-hover: var(--depth-rim), var(--depth-side), var(--depth-3);
   --shadow-sticky: var(--depth-3);
 }
 [data-theme="dark"] {
@@ -13019,3 +13033,39 @@ html[data-theme-vt]::view-transition-group(root) {
   --mat-side: oklch(0.174 0.045 265.672);
 }
 /* end M-011 material tier */
+
+/* ==================================================================================================
+   M-011 P3 (TASK-159, Design.md §14.6 "Paper button", §09) · one paper-button contract for the six CTA families
+   (hero-btn, ask-btn, cx-btn, fw-cta, think-btn, hero-ask): rest PAPER-1 · hover PAPER-2 + 1 px lift · press 1 px down
+   + PAPER-0 (compress) · release springs back (160 ms, capped overshoot). The lift is the individual `translate`
+   property (compositor); the shadow swaps with the state and is never transitioned (transform/opacity only,
+   TASK-155). Shadows cast bottom-right from --shadow-ink (§14.2). Colours and shapes stay each family's own.
+   ================================================================================================== */
+@layer components {
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
+    box-shadow: var(--depth-1);
+    transition:
+      translate 160ms cubic-bezier(0.3, 0.7, 0.4, 1.4),
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover {
+    transform: none;
+    translate: 0 -1px;
+    box-shadow: var(--depth-2);
+  }
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
+    translate: 0 1px;
+    box-shadow: var(--depth-0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
+      transition: none;
+    }
+    :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover,
+    :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
+      translate: none;
+    }
+  }
+}
+/* end M-011 P3 */

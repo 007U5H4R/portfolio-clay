@@ -63,7 +63,6 @@ const AUTOMATED_RUNNERS = [
  */
 const DEFERRED_SPECS: Record<string, string> = {
   "EVAL-036": "M-011 P6 — contact scene (after TASK-143/150 commit)",
-  "EVAL-037": "M-011 P3 — paper cards/buttons + material tokens",
   "EVAL-038": "M-011 P6 — sailboat visibility (style gates are manual per track)",
 };
 

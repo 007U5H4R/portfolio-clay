@@ -42,6 +42,11 @@ const ROWS = README.split("\n")
   .filter((l) => l.startsWith("| ") && l.includes(".webp"))
   .map((l) => l.split("|").slice(1, -1).map((c) => c.trim()));
 
+/** Scene-level rows (P2 rollout, EXE-51): `| scene-x | bg .05, mid .22 (light + dark) | source | credits | task |` — job ids live in the local masters. */
+const SCENE_ROWS = README.split("\n")
+  .filter((l) => /^\| scene-[a-z]+ \|/.test(l))
+  .map((l) => l.split("|").slice(1, -1).map((c) => c.trim()));
+
 describe("EVAL-034 layered asset integrity", () => {
   it("has at least one layered scene", () => {
     expect(LAYERED_SCENES.length).toBeGreaterThan(0);
@@ -109,6 +114,15 @@ describe("EVAL-034 layered asset integrity", () => {
       });
 
       it("has a complete provenance row for every layer file (model, job id, source composite, light twin)", () => {
+        const sceneRow = SCENE_ROWS.find((r) => r[0] === scene.id);
+        if (sceneRow) {
+          const [, layers, source, credits] = sceneRow;
+          for (const l of scene.layers) expect(layers, `${scene.id} row lists ${l.layer}`).toContain(`${l.layer} ${l.depth.toFixed(2).replace(/^0/, "")}`);
+          expect(layers).toContain("light + dark");
+          expect(source).toBeTruthy();
+          expect(Number.parseFloat(credits!)).toBeGreaterThan(0);
+          return;
+        }
         for (const l of scene.layers) {
           for (const [file, theme] of [[l.file, "light"], [l.darkFile, "dark"]] as const) {
             const base = file.replace(/\.webp$/, "");

@@ -1,6 +1,8 @@
 import { ThemeArtPreload } from "@/components/paper/ThemeArtPreload";
 import { SceneBanner } from "@/components/paper/SceneBanner";
 import { OPENER_FOCAL_X, openerNarrow } from "@/components/paper/scene-opener-frames";
+import { PaperParallaxScene } from "@/components/paper-world/PaperParallaxScene";
+import { LAYERED_SCENES, type LayeredSceneId } from "@/content/media/illustrations/layers";
 import { TornEdge, type TornFill } from "@/components/paper/TornEdge";
 import type { SceneId } from "@/lib/illustrations";
 
@@ -26,10 +28,18 @@ export type SceneOpenerProps = {
  * TKT-92r2 art direction); the focal point per scene lives in `scene-opener-frames.ts`. Server component;
  * not in the `components/paper` barrel for the same reason `SceneBanner` is not (static image import under jsdom).
  */
+const isLayered = (id: SceneId): id is SceneId & LayeredSceneId => LAYERED_SCENES.some((s) => s.id === id);
+
 export function SceneOpener({ id, priority = false, tornFill = "paper" }: SceneOpenerProps) {
   return (
     <section className="scene-opener" data-opener={id}>
-      <SceneBanner id={id} focalX={OPENER_FOCAL_X[id]} priority={priority} sizes="100vw" narrow={openerNarrow(id)} />
+      {isLayered(id) ? (
+        // M-011 P2: the opener's frame is the box CSS gives it (app/globals.css `.scene-opener [data-paper-scene]`); the
+        // layers cover it on the focal point, exactly as the single image did.
+        <PaperParallaxScene id={id} priority={priority} focal={{ x: OPENER_FOCAL_X[id] }} />
+      ) : (
+        <SceneBanner id={id} focalX={OPENER_FOCAL_X[id]} priority={priority} sizes="100vw" narrow={openerNarrow(id)} />
+      )}
       {/* T3 (TASK-144.5): the opener's art is a light/dark pair — warm the opposite twin once idle, as on the home hero. */}
       <ThemeArtPreload />
       <TornEdge fill={tornFill} className="scene-opener-torn" />
