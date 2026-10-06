@@ -626,3 +626,78 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 
 ## S34 · M-011 lands before the single production release — accepted (Tushar, 2026-10-06)
 **Decision.** Finish TASK-143, then build M-011 on preview; production gets M-010 + M-011 together in one release (consistent with S26). Production stays frozen until Tushar's explicit go.
+
+## EXE-39 · M-011 Stages 1–4 signed off: Solution-PRD §14, evaluation-plan §10, Design.md §14 — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** Tushar delegated every M-011 decision and gate (S33) and asked for the Full-tier chain from the spec (`docs/specs/m-011/paper-world.md`). The spec already carries the problem framing, so discovery is folded into Solution-PRD §14.1 (as M-010 did, TP15).
+**Decision.** Approve Solution-PRD §14 (scope = whole spec per S31, conflicts resolved by EXE-40…45, non-goals incl. no touch-drag parallax and no production release), evaluation-plan §10 (EVAL-032…038, `eval-cases.json` v1.3.0, specs deferred to the tracks that build their surfaces) and Design.md §14 (material tier, one light, the T4 depth scale extended in place, motion contract, asset standard, Dev-190…229). The pilot ran *before* the code tracks because it is the riskiest assumption.
+**Rejected.** A separate Discovery-PRD (would restate the spec); an HTML mockup for Stage 4 (the deliverable is motion on existing pages; the pilot composites at rest and ±max shift are the visual reference).
+
+## EXE-40 · Palette: the 13 role tokens stay; the §02 materials become a surface-only `--mat-*` tier — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** Spec §02 names five materials with hexes; EVAL-020 holds the site to 13 role tokens with 55 AA checks in two themes (D13).
+**Decision.** Keep the 13 roles (text, UI states) unchanged. Add seven material tokens (`--mat-bg, -cream, -kraft, -terra-1/2/3, -side`) in light and navy-family dark, used only for surfaces, fills, sidewalls and art backdrops — never text. Every text/material pair is added to `tokens:check`; all computed pairs pass AA (lowest 4.81 light, 6.02 dark); `mat-terra-3` carries no text (4.53). Dark sidewall `#070F24`, never black.
+**Rejected.** Replacing the role hexes with the spec's (re-opens 55 pairs and every component for a ΔE the eye barely sees); a 14th–20th "role" token (breaks EVAL-020's contract and D13's role logic).
+
+## EXE-41 · Cursor: evolve T2b's Paper Trail into the cardboard cursor — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** §11 asks for one cardboard cursor with physics and states; T2b shipped a pointer + paper trail under EVAL-027/028 with a careful mount gate.
+**Decision.** Keep T2b's gate (fine pointer, no reduced motion, after `load`, idle import, out of first-load JS, exclusion zones) and trail; replace the pointer glyph with the §11 cardboard cursor (states, spring, hover rules); restyle trail scraps in kraft/cream lit from the upper left.
+**Rejected.** A fresh cursor beside T2b (two cursors, two gates); dropping the trail (Tushar approved it in cursor.md and nothing in §11 forbids it).
+
+## EXE-42 · Typography stays Fraunces + Inter + Caveat — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** §16 lists possible display serifs and body sans; §17 a sparing handwritten accent.
+**Decision.** Fraunces is an editorial serif, Inter a neutral sans, Caveat the hand accent (never nav or body) — all within the spec. No font change.
+**Rejected.** Swapping to Instrument Serif/Canela (font bytes, CLS risk and re-gating every page for no stated problem).
+
+## EXE-43 · Annotations are a new PaperLabel, separate from DraftTag, and never say "DRAFT" — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** §18 suggests production marks including "DRAFT"; the site already uses DraftTag ("Draft — pending sign-off") to flag copy awaiting Tushar.
+**Decision.** DraftTag keeps its meaning and look. PaperLabel is decorative (kraft tab, closed vocabulary ITERATION 0n · SHIPPED · IN PROGRESS · FIELD NOTE · OBSERVATION · SYSTEM 0n), ≤ 1 per section, `aria-hidden` unless meaningful.
+**Rejected.** Using "DRAFT" as decoration (a visitor or Tushar could not tell a real pending-sign-off flag from ornament).
+
+## EXE-44 · One motion system: `paperMotion` for pointer/gyro, CSS scroll timelines for scroll, Lenis for smoothing only — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** Today three mechanisms move things (CSS scroll timelines, Lenis, ad-hoc rAF in `/card` and the cursor); §27 asks for one shared `PaperParallaxScene`.
+**Decision.** One client module owns pointer + orientation + one spring loop that sleeps at rest/off-screen/hidden and writes `--pp-x/--pp-y` on visible scene roots; per-layer translation is pure CSS; scroll depth stays on CSS `view()` timelines (off main thread) composed on a wrapper; TKT-96's banner parallax becomes per-layer. Gyro permission only from a chip tap; denied → scroll only. Touch-drag parallax rejected.
+**Rejected.** A JS scroll listener for depth (main-thread cost, fights Lenis); motion/framer springs (library bytes on the first-load path); requesting orientation permission on first touch (spec §28 wants an explicit prompt).
+
+## EXE-45 · The T4 `--depth-0…5` scale *is* PAPER-0…5; it now casts bottom-right and carries a parallax factor — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** T4 built a six-rung scale (Dev-179) casting straight down; §05 defines six elevations with shadow bands and parallax factors; §03 wants every shadow toward the bottom-right.
+**Decision.** Keep the names; set x-offset = 0.5 × y on every rung (and the drop variants); add `--par-0…5` = 0, .05, .12, .22, .40, .60. Spec levels L0–L6 map onto scene layers (Design.md §14.3); DOM text (L3) never moves.
+**Rejected.** A parallel `--paper-elev-*` scale (two scales drift; the handoff said extend, don't duplicate).
+
+## EXE-46 · P1 pilot art passes its style gate (EVAL-038 P1, art half); the code half gates with P0 — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** Riskiest assumption: can Higgsfield produce separable transparent layers that recombine into one scene? Home hero, light + dark, four layers each (bg, subject, fg desk, details), isolated by image-to-image edits from the approved composites. Evidence: `Portfolio-illustration/illustrations/paper-world/pilot-home/README.md`; composites `.scratch/m011/comp-strip.png`, `dcomp-strip.png` at rest and ±25 px.
+**Decision.** PASS on §33: paper, palette, upper-left light, real depth separation, likeness kept, one world in both themes. The method becomes the production pipeline (Design.md §14.5): magenta backdrop + local key by default; `#808080` + `remove_background` only for layers containing grey; never the AI matte on dark surfaces (it made the dark desk translucent — rejected, regenerated once). Bleed is mandatory. Spend 15.25 cr (≤ 25 budget). The gate on the *running* scene (spring feel, seams, LCP) is part of P1's code track.
+**Rejected.** Generating each layer from scratch (layers would not share perspective); full AI-matte pipeline (2.25 cr per layer and fails on dark surfaces).
+
+## EV12 · M-011 evaluation addendum: seven new cases (EVAL-032…038), four reworded, nothing lowered — accepted (Stage 3, on Tushar's behalf, S33, 2026-10-06)
+**Context.** Paper World adds behaviour (parallax, gyro), many more assets per scene and a material system; the TASK-143 boot-time scar showed decoration can starve the page.
+**Decision.** Add EVAL-032 (parallax correctness), 033 (gyro permission/fallback), 034 (layer integrity + byte caps: layer ≤ 240 kB, scene ≤ 520/300 kB), 035 (layer loading + LCP + 3 kB primitive), 036 (no filter/layout keyframes, infinite animations pause off-screen), 037 (material + light consistency in computed styles and tokens:check), 038 (per-track gates + automated sailboat visibility). Specs deferred in `scripts/eval-cases.ts` until each track lands its own.
+**Rejected.** Folding parallax into EVAL-010 (motion) — different failure modes, different owners.
+
+## EV13 · Byte caps are set from the pilot's measured sizes before anything is gated on them — accepted (Stage 3, on Tushar's behalf, S33, 2026-10-06)
+**Context.** The pilot's desk layer encodes to 242 kB at 2400 px (q72); the four light layers total 488 kB.
+**Decision.** Layer cap 240 kB (the desk gets re-encoded/trimmed to fit), scene cap 520 kB desktop, 300 kB mobile — new thresholds, so nothing is lowered.
+**Rejected.** 180 kB per layer (would force 2000 px masters that soften on 1440 @ 1.5×).
+
+## EV14 · Style gates under S33 are run by an Opus reviewer from screenshots, with the sailboat check automated — accepted (Stage 3, on Tushar's behalf, S33, 2026-10-06)
+**Decision.** Each track's EVAL-038 gate is an Opus subagent review against the §33 eight questions and §34 drift list, recorded as an EXE decision with evidence; the "boat fully visible" rule is a Playwright bbox assertion, not an eyeball.
+**Rejected.** Gating by the implementing agent itself (marks its own homework).
+
+## D14 · Paper World tokens extend the design system in place — accepted (Stage 4, on Tushar's behalf, S33, 2026-10-06)
+**Decision.** Design.md §14: `--mat-*` surface tier (EXE-40), one upper-left light, `--depth-*` = PAPER-0…5 + `--par-*` (EXE-45), `paperMotion` contract (EXE-44), §32 asset naming with layer names in depth order, the pilot pipeline, card/button/label/chip/cursor/contact contracts, Dev-190…229.
+**Rejected.** A separate Paper World design document (two sources of truth).
+
+## EXE-47 · No separate M-011 cursor track: TASK-152 builds the cardboard cursor; M-011 adopts TASK-155's latency budget — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** While M-011 was being broken down, Tushar opened TASK-152 (cursor as a kraft-cardboard arrow on a torn cream border — the same thing as spec §11) and TASK-155 (site must not lag) in other sessions.
+**Decision.** Drop the planned P5 track; P7 (TASK-162) depends on TASK-152 and checks it against §11's states and spring (EXE-41). M-011's gates include EVAL-004/005 and TASK-155's runtime-smoothness eval (evaluation-plan §10.6). P6 (contact scene) also waits for TASK-155's footer fixes, not only TASK-143/150.
+**Rejected.** A parallel cursor ticket (two sessions editing `components/cursor/`); a second smoothness eval (duplicate owner).
+
+## EXE-55 · TASK-143 Gummy Lab: one root cause (portfolio animation under the overlay), fixed at the route; EVAL-030 measures what it means — accepted (renumbered from EXE-49 on 2026-10-06: m011/p0 already uses EXE-49…54; on Tushar's behalf, EXE-26, 2026-10-06)
+**Context.** Gate #2 (`9126870`) left 26 e2e failures: 25 in EVAL-030 (`/lab` canvas never sized; ESC "didn't exit") and `lenis.spec.ts:78`. They had been bisected to two merges (T4 → canvas, T5 → ESC). Measured on `next start` under EVAL-030's SwiftShader flags: one 73 s main-thread stall on `/lab`, canvas sized at 93 s, ESC navigating to `/` after 130 s. `document.getAnimations()` on `/lab` showed 11 infinite animations, all in the band footer (5 T4 ocean, 6 band verb) under the opaque lab; with animations paused, canvas 17 s and ESC 2.2 s. So ESC was never broken, and T5 (no lab code) was a timeout threshold, not a cause.
+**Decision.** (1) `HideOnLab` (`app/layout.tsx`) renders no band footer on `/lab`, server HTML included; it's invisible there anyway. EVAL-030 asserts no infinite animation outside `[data-lab]` on `/lab`. (2) EVAL-030's hidden-route and trigger blocks move to `eval-030-entry.spec.ts` on the default launch: under file-wide SwiftShader every page composites in software GL, and leaving a page blocked on `LayerTreeHost::~LayerTreeHost` for 10–80 s (Chrome trace) on a loaded host. Those tests never touch WebGL. (3) The leak check counts live rAF loops, not requests/s: a rate tracks the frame rate (one Lenis loop read 32 → 61/s because a cold SwiftShader home page renders at 1 fps, a warm one at 60). Validated: the portfolio reads 1 loop, an injected leak reads 2.
+**Evidence.** Quiet-machine gate on `m010/lab-fix@3d4f334` (load 6 → 12): typecheck, lint 0 errors, check-specs 38 OK, tokens 55/55 AA, build, unit 1057, full e2e **1678 passed / 3 failed** (all w1440 EVAL-030: power-ups and reduced-motion timeouts, the rate-based leak check). After (3) (`88d299b`, test-only): EVAL-030 w1440 **29 passed / 0 failed**; w390/w768/w1024 74 passed / 1 failed (ESC at w1024: the 30 s *default* test budget expired after entry alone took 17 s under SwiftShader). (4) The lab-page block's test budget becomes 90 s, the sum of its own unchanged step waits, like the gameplay block's 150 s. This **is** a test-budget change: no step wait or assertion moved. Then the lab-page block ×2 on all four projects: **64 passed / 0 failed**. An A/B on `0f2e2ef` vs the fix (w390 trigger/hidden blocks) showed no regression from (1). Gate #2 → this gate: 26 → 0 failures.
+**Rejected.** Raising EVAL-030 timeouts (EXE-38); hiding only the ocean via `:has()` (measured: lab mount 33 s, still past the 30 s wait); a JS off-screen pause for the ocean (TASK-150's `content-visibility:auto` covers off-screen; this covers "covered"); relaxing the leak threshold (the new check is stricter: any extra loop fails).
+**Follow-up (not M-010).** Lenis `autoRaf` runs one rAF every frame on every page even when idle, which matters for TASK-155 (no lag). A cold home page under software GL renders at ~1 fps; real GPUs are unaffected, but it's worth a look in the perf lane.
+
+## EXE-48 · P2 scene art passes its style gate (EVAL-038 P2, art half) after one fix round — accepted (on Tushar's behalf, S33, 2026-10-06)
+**Context.** A Sonnet art lane layered seven scenes in light and dark (branch `m011/p2-art`, 61 cr). The first independent Opus gate failed 4/14. One root cause covered most of them: the local keyer kept darker magenta cast shadows opaque and its despill turned them near-black (Portfolio, Certifications, Contact light; a §03/§33-Q6 violation). The rest were a stray letter-like mark on the Portfolio house and the About foreground cutting the man at the waist.
+**Decision.** `key.py` v2: magenta-hued pixels darker than the backdrop become soft, semi-transparent warm ink (alpha ≤ 0.35, 2 px blur, never black). Existing sources re-keyed; marks painted out; About bg and fg regenerated (About fg is at its 2-regeneration cap); Playground subject dy −60. Re-gate: **14/14 pass** (notes: Portfolio miniatures sit slightly flatter than the pilot; About legs read as standing in tall grass). Fix round 6 cr; P2 art total 67 cr; balance 475.15. Evidence: strips `.scratch/m011/<scene>-strip[-dark].png`, gate crops `.scratch/m011/gate/`, per-scene READMEs in `Portfolio-illustration/illustrations/paper-world/<scene>/`. Process scar: the implementing lane viewed only 2 of 7 strips before reporting; the independent gate (EV14) caught it. Briefs now require viewing every strip.
+**Rejected.** A third About regeneration (cap; no blocker left); per-scene shadow-opacity polish for Portfolio (optional, deferred to the P2 code gate on the running site).

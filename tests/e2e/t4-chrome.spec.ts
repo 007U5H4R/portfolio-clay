@@ -10,6 +10,9 @@
  *   TC-T4-04  footer ocean motion is transform-only; reduced motion = no animation anywhere in it
  *   TC-T4-05  every torn edge renders three ridge layers; reduced motion = no ridge animation
  *   TC-T4-06  theme switch swaps the ocean art to the dark twins without moving the page (scrollHeight ±1)
+ *   TC-T4-07  the whole ship (mast tip, flag, sails) fits inside the ocean strip at 375 / 768 / 1440 / 1920 (TASK-150)
+ *   TC-T4-08  the ocean's rendering is skipped while it is off-screen and resumes in view (TASK-155)
+ *   TC-T4-09  ≥ 1024: the boat sails to and fro inside the sea lane and never touches the footer text (TASK-164)
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
@@ -50,10 +53,13 @@ test.describe("T4 chrome", () => {
     await expect(ocean.locator(".ocean-ship")).toHaveCount(1);
     const geo = await page.evaluate(() => {
       const o = document.querySelector("footer.band [data-band-ocean]")!.getBoundingClientRect();
-      const b = document.querySelector("footer.band .band-bar")!.getBoundingClientRect();
-      return { oceanTop: o.top, barBottom: b.bottom, widthOk: o.width <= document.documentElement.clientWidth + 1 };
+      // the waves (not the strip's transparent sky, which the sea lane shares with the text at ≥ 1024)
+      const waves = document.querySelector("footer.band .ocean-back")!.getBoundingClientRect();
+      // the © bar's own box is empty at ≥ 1024 (display: contents), so measure its text
+      const barBottom = Math.max(...[...document.querySelectorAll("footer.band .band-bar > span")].map((e) => e.getBoundingClientRect().bottom));
+      return { wavesTop: waves.top, barBottom, widthOk: o.width <= document.documentElement.clientWidth + 1 };
     });
-    expect(geo.oceanTop).toBeGreaterThanOrEqual(geo.barBottom - 1);
+    expect(geo.wavesTop).toBeGreaterThanOrEqual(geo.barBottom - 1);
     expect(geo.widthOk).toBe(true);
   });
 
@@ -84,6 +90,67 @@ test.describe("T4 chrome", () => {
     for (const n of edges) expect(n).toBe(3);
     await page.emulateMedia({ reducedMotion: "reduce" });
     expect(await page.evaluate(() => [...document.querySelectorAll('[data-decor="torn"] path')].reduce((n, el) => n + el.getAnimations().length, 0))).toBe(0);
+  });
+
+  test("TC-T4-07 the ship is never clipped by the ocean strip", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const w of [375, 768, 1440, 1920]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/", { waitUntil: "load" });
+      const geo = await page.evaluate(() => {
+        const o = document.querySelector("footer.band [data-band-ocean]")!.getBoundingClientRect();
+        const s = document.querySelector("footer.band .ocean-ship")!.getBoundingClientRect();
+        return { headroom: s.top - o.top, bottomGap: o.bottom - s.bottom };
+      });
+      // the 4px rock lift happens with motion on; reduced motion is the still frame, so demand more than that
+      expect(geo.headroom, `ship headroom @${w}`).toBeGreaterThanOrEqual(8);
+      expect(geo.bottomGap, `ship bottom @${w}`).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  test("TC-T4-08 the ocean stops rendering off-screen and resumes in view", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const skipped = () =>
+      page.evaluate(
+        () =>
+          new Promise<boolean>((resolve) => {
+            const el = document.querySelector<HTMLElement>("footer.band [data-band-ocean]")!;
+            el.addEventListener("contentvisibilityautostatechange", (e) => resolve((e as Event & { skipped: boolean }).skipped), { once: true });
+          }),
+      );
+    // at the top of the page the strip is far below the fold: its first state event reports skipped
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector("footer.band [data-band-ocean]")!).contentVisibility)).toBe("auto");
+    const inView = skipped();
+    await page.evaluate(() => document.querySelector("footer.band [data-band-ocean]")!.scrollIntoView());
+    expect(await inView).toBe(false);
+    const outOfView = skipped();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    expect(await outOfView).toBe(true);
+  });
+
+  test("TC-T4-09 the boat sails to and fro in the sea lane, clear of the footer text", async ({ page }) => {
+    for (const w of [1024, 1280, 1440, 1920]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/", { waitUntil: "load" });
+      await page.evaluate(() => document.querySelector("footer.band [data-band-ocean]")!.scrollIntoView({ block: "end" }));
+      const r = await page.evaluate(() => {
+        const wrap = document.querySelector<HTMLElement>("footer.band .ocean-ship-wrap")!;
+        const anim = wrap.getAnimations().find((a) => (a as CSSAnimation).animationName === "ocean-sail")!;
+        const dur = Number(anim.effect!.getComputedTiming().duration);
+        anim.pause();
+        const text = [...document.querySelectorAll("footer.band :is(.band-eyebrow, .band-h, .band-hire, .band-row, .band-bar > span)")].map((e) => e.getBoundingClientRect());
+        const ship = () => document.querySelector("footer.band .ocean-ship")!.getBoundingClientRect();
+        const hit = (a: DOMRect) => text.some((t) => a.left < t.right && a.right > t.left && a.top < t.bottom && a.bottom > t.top);
+        const at = (f: number) => {
+          anim.currentTime = dur * f;
+          const s = ship();
+          return { x: s.left, hit: hit(s) };
+        };
+        return { from: at(0), there: at(0.48), turned: at(0.5), back: at(0.98) };
+      });
+      for (const [k, v] of Object.entries(r)) expect(v.hit, `ship over text at ${k} @${w}`).toBe(false);
+      expect(r.there.x - r.from.x, `the boat actually travels @${w}`).toBeGreaterThan(40);
+    }
   });
 
   test("TC-T4-06 dark twins swap in without moving the page", async ({ page }) => {

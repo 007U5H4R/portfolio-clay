@@ -3,9 +3,10 @@ id: TASK-143.4
 title: >-
   T2c.4 Gameplay: danger, scoring and combo, power-ups, expressions, audio,
   particles
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:24'
+updated_date: '2026-10-06 14:36'
 labels:
   - P3
 dependencies: []

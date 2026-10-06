@@ -12767,11 +12767,21 @@ html[data-theme-vt]::view-transition-group(root) {
    ================================================================================================== */
 .band-ocean {
   --ocean-tile: max(100vw, 900px);
+  /* TASK-150: the ship art runs edge to edge (mast tip at y=0, 640×767), so the strip must be at least
+     its bottom offset + its height + the 4px rock lift + headroom, or overflow:hidden clips the sail. */
+  --ship-w: clamp(84px, 11vw, 170px);
+  --ship-bottom: calc(var(--ocean-tile) * 0.046);
   position: relative;
-  height: calc(var(--ocean-tile) * 0.125 + 24px);
+  height: max(
+    calc(var(--ocean-tile) * 0.125 + 24px),
+    calc(var(--ship-bottom) + var(--ship-w) * 767 / 640 + 4px + clamp(16px, 2.5vw, 40px))
+  );
   overflow: hidden;
   background: var(--color-terracotta);
   contain: paint;
+  /* TASK-155: skip rendering (and with it the three drift loops and the ship) while the strip is
+     off-screen; the explicit height above keeps the box size, so nothing shifts when it comes back. */
+  content-visibility: auto;
 }
 .ocean-track {
   position: absolute;
@@ -12815,10 +12825,15 @@ html[data-theme-vt]::view-transition-group(root) {
 .ocean-ship-wrap {
   position: absolute;
   left: 62%;
-  bottom: calc(var(--ocean-tile) * 0.046);
-  width: clamp(84px, 11vw, 170px);
+  bottom: var(--ship-bottom);
+  width: var(--ship-w);
   aspect-ratio: 640 / 767;
-  animation: ocean-sail 70s ease-in-out infinite alternate;
+  /* TASK-164: one keyframe set for every width — sail out, turn (mirror), sail back, turn again;
+     the lane ends come from --sail-from / --sail-to so desktop can confine the boat to the sea lane. */
+  --sail-from: -18vw;
+  --sail-to: 14vw;
+  /* ease-in-out per segment; set here, not inside the keyframes, which stay transform-only (TC-T4-04) */
+  animation: ocean-sail 140s ease-in-out infinite;
 }
 .ocean-ship {
   display: block;
@@ -12838,11 +12853,20 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 @keyframes ocean-sail {
-  from {
-    transform: translate3d(-18vw, 0, 0);
+  0% {
+    transform: translate3d(var(--sail-from), 0, 0) scaleX(1);
   }
-  to {
-    transform: translate3d(14vw, 0, 0);
+  48% {
+    transform: translate3d(var(--sail-to), 0, 0) scaleX(1);
+  }
+  50% {
+    transform: translate3d(var(--sail-to), 0, 0) scaleX(-1);
+  }
+  98% {
+    transform: translate3d(var(--sail-from), 0, 0) scaleX(-1);
+  }
+  100% {
+    transform: translate3d(var(--sail-from), 0, 0) scaleX(1);
   }
 }
 @keyframes ocean-rock {
@@ -12863,6 +12887,73 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end M-010 T4 footer ocean */
+
+/* ==================================================================================================
+   TASK-164 · footer sea lane (Tushar 2026-10-06 markup): at ≥ 1024 the band is three columns —
+   left text · an empty sea lane · right text — and both text groups sit low, just above the waves.
+   The ocean is laid over the band's bottom (absolute, transparent, pointer-events none), so the
+   hatch runs behind it with no seam, and the boat sails to and fro inside the lane only. The lane's
+   x-range is computed from the same numbers that size the grid (Container max-width + desktop gutter,
+   right column, lane width), so it cannot drift under the text. Below 1024 nothing changes.
+   ================================================================================================== */
+@media (min-width: 1024px) {
+  .band {
+    --band-max: var(--container-max);
+    --band-right: 19rem;
+    --sea: clamp(240px, 24vw, 400px);
+    --sea-inset: 16px;
+  }
+  .band-body {
+    /* the back wave's crest is 0.0853 × tile above the band's bottom (bottom 0.052 + height 0.0333) */
+    padding-bottom: calc(max(100vw, 900px) * 0.0853 + 8px);
+  }
+  .band-wrap {
+    grid-template-columns: minmax(0, 1fr) var(--sea) var(--band-right);
+    column-gap: 0;
+  }
+  .band-row {
+    grid-column: 3;
+  }
+  /* the © bar splits into its two sides so its rule stops at the lane: the lane stays open sky */
+  .band-bar {
+    display: contents;
+  }
+  .band-bar > span {
+    grid-row: 4;
+    margin-top: 22px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in oklab, var(--on-band) 28%, transparent);
+  }
+  .band-bar > span:first-child {
+    grid-column: 1;
+  }
+  .band-bar > span:not(:first-child) {
+    grid-column: 3;
+    text-align: right;
+  }
+  .band-ocean {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    pointer-events: none;
+  }
+  .ocean-ship-wrap {
+    /* lane left = container's right edge − gutter − right column − lane, plus an inset */
+    left: calc(50% + min(50%, var(--band-max) / 2) - var(--gutter-desktop) - var(--band-right) - var(--sea) + var(--sea-inset));
+    --sail-from: 0px;
+    --sail-to: calc(var(--sea) - 2 * var(--sea-inset) - var(--ship-w));
+    animation-duration: 44s;
+  }
+}
+/* Container widens at Tailwind's 2xl, which this project sets to 1440px (--breakpoint-2xl) */
+@media (min-width: 1440px) {
+  .band {
+    --band-max: var(--container-max-wide);
+  }
+}
+/* end TASK-164 */
 
 /* ==================================================================================================
    M-010 T4 (TASK-145.4) · section dividers — three paper ridges at every `TornEdge` (paper-cut-2 §170–§232).

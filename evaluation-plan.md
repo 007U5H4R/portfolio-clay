@@ -178,3 +178,41 @@ A wrong-theme first paint with a saved choice · a saved choice losing to the OS
 ### 9.8 Runner wiring (what Stage 3 changed in code, what Stage 7 must build)
 - `evals/eval-cases.json` → v1.2.0, 31 cases (EVAL-019 rewritten, 023–031 added, 001/004/005/006/008/009/010/018/020/021/022 reworded); `scripts/eval-cases.ts` `CASE_COUNT` 22 → 31, `DEFERRED_SPECS` lists 023/024/026/028/029/030 with their tracks; `scripts/eval.ts` id lists extended (Playwright 023/024/026/028/029/030 · Vitest 025/027 · Manual 031); `docs/eval.md` layer table updated. Verified: `tsx scripts/eval-cases.ts --check-specs` → `31 cases OK · 26 automated · 5 manual` and `spec coverage OK · 11 Playwright-automated ids tagged · deferred: EVAL-023 … EVAL-030`.
 - Stage 7 builds, per track: TASK-140 rewrites `tests/e2e/eval-019.spec.ts` (still hero) and seeds `tests/unit/eval-025.test.ts` with the first pair; TASK-141 builds the `theme` Playwright fixture, `eval-023/024/026.spec.ts`, the EVAL-006/008/010 theme dimension and the EVAL-020 two-block count; TASK-142 builds `eval-028.spec.ts` and the `--forbid` scan + `eval-027.test.ts`; TASK-143 builds `eval-030.spec.ts` (and the `/lab` row in the `--forbid` scan); TASK-145 retargets `torn-parallax.spec.ts` and the EVAL-018 divider kind; TASK-146 builds `eval-029.spec.ts` with `jsqr` as a devDependency and adds `/card` to both `lighthouserc.*.json`. Each deferred id leaves `DEFERRED_SPECS` in the ticket that lands its spec.
+
+## 10. M-011 addendum — "Tushar Paper World" layered parallax system (Stage 3, 2026-10-06; signed off on Tushar's behalf, EXE-39 / S33)
+
+Consumes `Solution-PRD.md` §14 and `docs/specs/m-011/paper-world.md` (§06–07, §25–30 motion; §26 performance; §31–33 assets and consistency). Decisions EV12–EV14. **Rule of the addendum (same as §8, §9):** every earlier row and threshold carries forward; this section adds seven rows (EVAL-032…038) and rewords four (EVAL-005/006/020/021) to cover layers and material tokens. Nothing is lowered (EV2). Data: `evals/eval-cases.json` v1.3.0.
+
+### 10.1 What changes in what "good" means
+- **Depth is behaviour, not a picture.** A layered scene is only good if it separates under pointer, tilt and scroll *and* never shows a seam, never moves the page, never runs when nobody is looking. Measured mechanically (EVAL-032, EVAL-033).
+- **Assets are a contract.** Each scene is now N files per theme; a missing dark layer, an opaque foreground or an oversized layer is a release bug (EVAL-034), as is loading layers nobody can see (EVAL-035).
+- **One world.** Material, light direction and elevation are checkable in computed styles (EVAL-037); the art-side judgement stays a gate, run per track by an Opus reviewer on Tushar's behalf (EVAL-038).
+- **The TASK-143 scar is a permanent check.** Continuous decoration must pause off-screen and must never animate filters (EVAL-036).
+
+Categories unchanged (EV1). **Still no AI evaluation layer**: layers are generated assets under the content-integrity rules; nothing is generated at runtime.
+
+### 10.2 New cases (EVAL-032…038)
+| ID | Category | What is measured | Method | Threshold | Priority |
+|---|---|---|---|---|---|
+| EVAL-032 | Functional | Parallax correctness: transform-only, factor × range offsets, one listener + one loop that sleeps at rest/off-screen/hidden, reduced motion = still frame with no listeners, no scroll hijack, no edge gap at ±max | Playwright `eval-032.spec.ts` (listener/rAF counters via `addInitScript`, MutationObserver, edge alpha probe) | 0 layout mutations · ±1 px · 1/1 · 0 idle rAF · 0 RM listeners · 0 hijacks · 0 gaps | critical |
+| EVAL-033 | Functional | Gyro: permission only from a tap on the chip; denied/unavailable → silent scroll fallback; listener only in view; never on desktop | Playwright `eval-033.spec.ts` with three `DeviceOrientationEvent` stubs | 0 calls before gesture · 0 errors after denial · 0 desktop listeners | high |
+| EVAL-034 | Content integrity | Layer manifest ↔ files: both themes, §32 names, bg opaque / others transparent and non-empty, equal dimensions, depth on the scale, bleed ≥ max shift, byte caps, provenance rows | Vitest `eval-034.test.ts` (sharp) | 0 gaps · layer ≤ 240 kB · scene ≤ 520 kB (desktop) / ≤ 300 kB (mobile) | high |
+| EVAL-035 | Performance | Layer loading: ≤ 2 layer requests before `load` (LCP scene bg + subject), inactive theme never fetched, lazy elsewhere, LCP = a layer `<img fetchpriority=high>`, CLS < 0.05, primitive ≤ 3 kB gz, home ≤ 180 kB gz | Playwright `eval-035.spec.ts` + `bundle-budget.ts` + LHCI | as listed | critical |
+| EVAL-036 | Performance | No `@keyframes` animating filter/backdrop-filter/box-shadow/layout props; infinite animations paused off-screen, under overlays and in hidden tabs; `/lab` renders no footer scene | Vitest CSS scan + Playwright `getAnimations()` | 0 / 0 / 0 | high |
+| EVAL-037 | Design | Material tokens both themes, never text colour; text/material pairs AA in tokens:check; elevation shadows cast bottom-right within their PAPER band; no glass/gloss/pure black; hover lift / press transform-only | tokens:check + Playwright `eval-037.spec.ts` | 0 failures | high |
+| EVAL-038 | Product acceptance | Per-track style gate (§33 eight questions, §34 drift, likeness, S32 no empty frames) + automated sailboat-fully-visible check at 4 widths × 2 themes | Opus reviewer + Playwright `eval-038.spec.ts` | 6/6 gates · 0 empty frames · 0 clipped | high |
+
+### 10.3 Reworded rows (thresholds unchanged)
+- **EVAL-005** — the home LCP element may be a scene layer; 180 kB gz / LCP 2.5 s / CLS 0.05 unchanged.
+- **EVAL-006** — axe and contrast run in both themes over pages with layered scenes and the gyro chip.
+- **EVAL-020** — the 13 role tokens stay authoritative; `--mat-*` material tokens are a recorded surface-only tier (EXE-40), never a 14th text colour.
+- **EVAL-021** — provenance covers every layer file and names its source composite and light twin.
+
+### 10.4 Release-blocking (added to §4)
+Any motion under reduced motion · a permission prompt without a gesture · scroll hijack · a visible layer seam · home first-load JS > 180 kB gz · a filter keyframe or an off-screen infinite animation · a missing dark layer · an empty frame on Portfolio/Certifications · a cropped sailboat.
+
+### 10.5 Baseline
+`baseline-m011-p0` = the preview at the commit before P0 merges: run EVAL-004/005 (Lighthouse + bundle) and record LCP/CLS/JS for `/`, `/projects`, `/about`, `/contact` in `evals/results/`. Every track compares against it.
+
+### 10.6 Site-wide latency budget (TASK-155, Tushar 2026-10-06) — binding on every M-011 track
+Tushar: "the site must not lag and must have no latency issues." TASK-155 (another session) owns the measurement and a runtime-smoothness eval (no long animation frame > 50 ms during scroll). M-011 adopts it rather than duplicating it: every track's gate runs EVAL-004 (Lighthouse Perf ≥ 90 mobile + desktop), EVAL-005 and the TASK-155 smoothness check on the routes it touches, alongside EVAL-032/035/036. Rules already encoded above: nothing animates off-screen or covered; transform/opacity only; layers lazy, only the page's own LCP image preloaded (TASK-149's route-prefetch preloads are not to be repeated by layers); one rAF loop with spring smoothing; passive listeners.

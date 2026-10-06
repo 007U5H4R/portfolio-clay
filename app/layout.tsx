@@ -13,6 +13,7 @@ import { freshFaqIds } from "@/lib/ask/faq-versions";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
 import { BandFooter } from "@/components/layout/BandFooter";
+import { HideOnLab } from "@/components/layout/HideOnLab";
 import { AskProvider } from "@/components/ai/AskProvider";
 import { OffscreenPause } from "@/components/interactions/OffscreenPause";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
@@ -103,7 +104,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SkipLink />
           <Header />
           <main id="main">{children}</main>
-          <BandFooter />
+          {/* The lab covers the page; its footer animations starved the lab's WebGL boot (TASK-143). */}
+          <HideOnLab>
+            <BandFooter />
+          </HideOnLab>
         </AskProvider>
         {/*
           Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less. QA-005 fix — these

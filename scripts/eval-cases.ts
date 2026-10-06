@@ -30,13 +30,10 @@ const E2E_DIR = resolve(ROOT, "tests/e2e");
 
 /**
  * Number of cases the catalogue must hold: EVAL-001 … EVAL-017 (Stage 6) + EVAL-018 … 022 (M-009, EV3)
- * + EVAL-023 … 031 (M-010, EV7). EVAL-019 was rewritten in place for the still hero (S24) — same id.
+ * + EVAL-023 … 031 (M-010, EV7) + EVAL-032 … 038 (M-011, EV12). EVAL-019 was rewritten in place for the still
+ * hero (S24) — same id.
  */
-// 32 rows: EVAL-001…031 plus EVAL-039 (TASK-155). EVAL-032…038 are reserved for the M-011 session's rows; when that
-// branch merges, drop RESERVED_IDS and set CASE_COUNT to 39.
-const CASE_COUNT = 32;
-const MAX_ID = 39;
-const RESERVED_IDS = new Set(["EVAL-032", "EVAL-033", "EVAL-034", "EVAL-035", "EVAL-036", "EVAL-037", "EVAL-038"]);
+const CASE_COUNT = 39; // EVAL-001 … EVAL-039 (EVAL-039 = M-010 runtime smoothness, TASK-155)
 
 /** Runners that actually execute a case (i.e. constitute a "runner mapping" for an automated case). */
 const AUTOMATED_RUNNERS = [
@@ -60,8 +57,17 @@ const AUTOMATED_RUNNERS = [
  * M-010 (evaluation-plan.md §9.8 / EV7): the Playwright rows below are deferred until their track
  * builds the surface they measure. EVAL-019 is NOT deferred — its spec exists and still measures the
  * clip until TASK-140 replaces the hero and rewrites the spec in the same change.
+ *
+ * M-011 (evaluation-plan.md §10 / EV12): each row is deferred until the track that builds its surface lands
+ * the spec in the same change; remove the entry then.
  */
 const DEFERRED_SPECS: Record<string, string> = {
+  "EVAL-032": "M-011 P0/P1 — PaperParallaxScene + paperMotion",
+  "EVAL-033": "M-011 P0 — gyro permission chip",
+  "EVAL-035": "M-011 P1 — layered home hero loading",
+  "EVAL-036": "M-011 P6 — contact scene (after TASK-143/150 commit)",
+  "EVAL-037": "M-011 P3 — paper cards/buttons + material tokens",
+  "EVAL-038": "M-011 P6 — sailboat visibility (style gates are manual per track)",
 };
 
 const EvalCaseSchema = z
@@ -118,9 +124,8 @@ export function loadCases(): EvalCase[] {
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
     throw new Error(`[eval-cases] duplicate ids: ${[...new Set(dupes)].join(", ")}`);
   }
-  for (let i = 1; i <= MAX_ID; i++) {
+  for (let i = 1; i <= CASE_COUNT; i++) {
     const want = `EVAL-${String(i).padStart(3, "0")}`;
-    if (RESERVED_IDS.has(want)) continue;
     if (!unique.has(want)) throw new Error(`[eval-cases] missing id ${want}`);
   }
 
