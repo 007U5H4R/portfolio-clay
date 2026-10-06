@@ -49,16 +49,16 @@ body.cursor-dragging {
   top: 0;
   pointer-events: none;
 }
-/* TASK-152: the cardboard arrow (Higgsfield photo cut-out, 2× asset shown at 48px). The card's tip sits
-   3.3px / 3.5px inside the image, so the art is pulled back by exactly that: the tip is the hotspot. */
+/* TASK-152: the cardboard arrow (Higgsfield photo cut-out, 96px asset shown at a system-cursor 22px). The
+   card's tip sits 1.5px / 1.6px inside the image, so the art is pulled back by exactly that: the tip is the hotspot. */
 .pc-art {
-  --pc-hx: 3.3px;
-  --pc-hy: 3.5px;
-  width: 48px;
+  --pc-hx: 1.5px;
+  --pc-hy: 1.6px;
+  width: 22px;
   margin: calc(-1 * var(--pc-hy)) 0 0 calc(-1 * var(--pc-hx));
   transform-origin: var(--pc-hx) var(--pc-hy);
   /* TASK-155: the shadow is static (painted once); hover and press move only transform/opacity */
-  filter: drop-shadow(2px 3px 2.5px color-mix(in oklab, var(--shadow-ink, black) 28%, transparent));
+  filter: drop-shadow(1px 1.5px 1.5px color-mix(in oklab, var(--shadow-ink, black) 30%, transparent));
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), opacity 120ms linear;
 }
 .pc-art img {
@@ -80,10 +80,10 @@ body.cursor-dragging {
 .pc-art::after {
   content: "";
   position: absolute;
-  right: 6px;
-  bottom: 8px;
-  width: 14px;
-  height: 14px;
+  right: 2px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
   background: var(--color-rust);
   -webkit-mask: var(--pc-paw) center / contain no-repeat;
   mask: var(--pc-paw) center / contain no-repeat;
@@ -95,7 +95,7 @@ body.cursor-dragging {
 }
 .pc-label {
   display: none;
-  transform: translate(40px, 30px);
+  transform: translate(22px, 20px);
   padding: 3px 8px 4px;
   background: var(--color-paper);
   color: var(--color-navy);
@@ -110,7 +110,7 @@ body.cursor-dragging {
   display: block;
 }
 #portfolio-cursor[data-flip="true"] .pc-label {
-  transform: translate(calc(-100% - 12px), 30px);
+  transform: translate(calc(-100% - 8px), 20px);
 }
 
 #trail {

@@ -1,9 +1,10 @@
 ---
 id: TASK-143.2
 title: 'T2c.2 Secret 5-click entry, /lab route, entry and exit transitions'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:24'
+updated_date: '2026-10-06 14:36'
 labels:
   - P2
 dependencies: []
