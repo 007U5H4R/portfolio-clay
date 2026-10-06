@@ -12975,3 +12975,12 @@ html[data-theme-vt]::view-transition-group(root) {
   box-shadow: var(--depth-1), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
 }
 /* end M-010 T4 depth */
+
+/* TASK-155 off-screen pause — `components/interactions/OffscreenPause.tsx` marks an animated container
+   `data-offscreen` while it is outside the viewport (+200 px); everything animating inside it holds still.
+   `!important` because the animation shorthands it must beat (e.g. `.ocean-track`) carry equal specificity. */
+[data-offscreen],
+[data-offscreen] :is(*, *::before, *::after) {
+  animation-play-state: paused !important;
+}
+/* end TASK-155 off-screen pause */

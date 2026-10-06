@@ -14,6 +14,7 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
 import { BandFooter } from "@/components/layout/BandFooter";
 import { AskProvider } from "@/components/ai/AskProvider";
+import { OffscreenPause } from "@/components/interactions/OffscreenPause";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
 import { PaperCursorGate } from "@/components/cursor/PaperCursorGate";
 
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
         <SmoothScroll />
+        <OffscreenPause />
         {/* Paper Trail cursor (S29, TASK-142): fine pointers only, lazy chunk after load. */}
         <PaperCursorGate />
         <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
