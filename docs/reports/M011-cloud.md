@@ -1,6 +1,6 @@
 # M-011 Paper World — cloud session report (branch `m011/p0`, 2026-10-06)
 
-Production frozen, nothing deployed, no PR, nothing pushed outside `m011/*`. `origin/m-009-redesign` merged at the start and re-checked at the end (already up to date); `origin/m011/p2-art` merged (one README conflict, both sides kept). EXE-48 re-added.
+Production frozen, nothing deployed, no PR, nothing pushed outside `m011/*`. `origin/m-009-redesign` merged at the start and again at the end (it had advanced: TASK-143 release, TASK-163/164; one conflict in `decisions.md`, kept both — upstream's renumbered EXE-55 sits after EXE-54); `origin/m011/p2-art` merged (one README conflict, both sides kept). EXE-48 re-added.
 
 ## Per-track state
 | Track | Ticket | State |
@@ -14,7 +14,10 @@ Production frozen, nothing deployed, no PR, nothing pushed outside `m011/*`. `or
 | P6 contact scene | TASK-161 | **Done (code):** `OceanGate` (loops run only on screen / visible tab / not covered), filters off animated layers, front-wave up-cast shadow removed, no filter keyframes anywhere; EVAL-036 + EVAL-038 (sailboat inside the strip at 390/768/1024/1440, both themes, sail + rock extremes). Waves/boat art = the shipped M-010 art (placeholder, art requests #2/#3). |
 | P7 integration gate → preview | TASK-162 | **Not done**: full gate on a quiet machine, preview push and the §11 cursor check remain. No push to `m-009-redesign` or any preview branch was made. |
 
-## Gates run in this VM (exact counts)
+## Final re-check on the merged tree (after the last `m-009-redesign` merge)
+lint 0 problems · typecheck clean · tokens:check 69/69 AA · vitest **101 files passed, 1 skipped; 1129 tests passed, 4 skipped, 0 failed** · build green, home first-load JS **166.3 kB gz** · Playwright (w1440 + w390) on EVAL-032/033/035/036/037/038, hero-fold, scene-openers, scene-opener, eval-025 scenes, eval-019, projects, t4-chrome: **176 passed, 43 skipped by design, 1 failed** — the EVAL-037 hover probe, a timing flake (passed 19/19 and 10/10 twice before and after); the probe now polls instead of sleeping and passed 2 × 10/10.
+
+## Gates run in this VM before that merge (exact counts)
 - `pnpm lint`: 0 errors, 0 warnings. `pnpm typecheck`: clean.
 - `pnpm test` (vitest): **100 files passed, 1 skipped; 1123 tests passed, 4 skipped, 0 failed.**
 - `pnpm tokens:check`: 13/13 + 13/13 role tokens, 7/7 + 7/7 material tokens round-trip, **69/69 contrast pairs AA** (was 55; +14 material pairs, light + dark).

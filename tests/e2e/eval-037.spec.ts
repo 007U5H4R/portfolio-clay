@@ -107,12 +107,11 @@ test.describe("@EVAL-037 paper button contract", () => {
     await btn.scrollIntoViewIfNeeded();
     const box0 = await btn.boundingBox();
     const ty = () => btn.evaluate((e) => Number.parseFloat(getComputedStyle(e).translate.split(" ")[1] ?? "0") || 0);
-    await page.mouse.move(box0!.x + box0!.width / 2, box0!.y + box0!.height / 2);
-    await page.waitForTimeout(400);
+    await btn.hover();
+    await expect.poll(ty, { timeout: 3000 }).toBeCloseTo(-1, 0);
     expect(await ty()).toBeCloseTo(-1, 0);
     await page.mouse.down();
-    await page.waitForTimeout(400);
-    expect(await ty()).toBeCloseTo(1, 0);
+    await expect.poll(ty, { timeout: 3000 }).toBeCloseTo(1, 0);
     await page.mouse.move(2, 2); // release off the link so the press does not navigate
     await page.mouse.up();
     const sizeNow = await btn.evaluate((e) => ({ w: (e as HTMLElement).offsetWidth, h: (e as HTMLElement).offsetHeight }));
