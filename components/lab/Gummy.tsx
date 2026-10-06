@@ -2,7 +2,7 @@
 
 import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import { ConvexHullCollider, CuboidCollider, RigidBody, useRapier, type RapierRigidBody } from "@react-three/rapier";
+import { ConvexHullCollider, CuboidCollider, RigidBody, useBeforePhysicsStep, useRapier, type RapierRigidBody } from "@react-three/rapier";
 import {
   CanvasTexture,
   SRGBColorSpace,
@@ -20,6 +20,7 @@ import { pickFace } from "@/lib/lab/expressions";
 import { FACE_OPEN_CAP, MORPH_NAMES, emptyWeights, type MorphName } from "@/lib/lab/jelly";
 import { createFaceMaterial, createGummyMaterial } from "./materials";
 import { GummyController } from "./gummy-controller";
+import { PHYSICS_DT } from "./physics-step";
 import { useRuntime } from "./runtime";
 
 export const GUMMY_URL = "/lab/gummy.glb";
@@ -177,7 +178,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
   );
 
   const ctrlRef = useRef<GummyController | null>(null);
-  const live = useRef({ since: 0, blinkAt: 2.5, blink: 0, face: { Happy: 0.7, Surprised: 0, Worried: 0, Panic: 0 }, weights: emptyWeights(), prevVy: 0, prevVx: 0, park: { x: 0, y: 0, s: 2 }, wasLive: false, hopT: 0, meltedAt: -1 });
+  const live = useRef({ since: 0, blinkAt: 2.5, blink: 0, face: { Happy: 0.7, Surprised: 0, Worried: 0, Panic: 0 }, weights: emptyWeights(), prevVy: 0, prevVx: 0, park: { x: 0, y: 0, s: 2 }, wasLive: false, hopT: 0, meltedAt: -1, drive: false });
   const rayRef = useRef<InstanceType<typeof rapier.Ray> | null>(null);
   const shadowRay = useRef<InstanceType<typeof rapier.Ray> | null>(null);
 
@@ -185,6 +186,13 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     rayRef.current = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
     shadowRay.current = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
   }, [rapier]);
+
+  // The controller's forces run in lock-step with the physics (one call per fixed step), so gameplay
+  // feels the same at 60 fps and at 3 fps. `drive` is set by the frame loop while the bear is live.
+  useBeforePhysicsStep(() => {
+    const rb = body.current;
+    if (rb && live.current.drive) ctrlRef.current?.update(PHYSICS_DT, rb);
+  });
 
   useEffect(() => {
     const state = () => rt.store.getState().machine;
@@ -268,6 +276,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
       rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
       rb.setGravityScale(0, true);
       collider?.setCollisionGroups(0);
+      L.drive = false;
       b.dragged = b.squishing = false;
       b.grounded = false;
       b.inDanger = false;
@@ -288,9 +297,10 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
         rb.setGravityScale(0, true);
         collider?.setCollisionGroups(0);
+        L.drive = false;
       } else if (gs !== "PAUSED") {
         const ctrl = ctrlRef.current;
-        ctrl?.update(dt, rb);
+        L.drive = true;
         const gf = ctrl?.gravityFactor ?? 1;
         rb.setGravityScale(rt.env.gravityMul * gf * rt.tune.gravity, true);
         // grounded: a short ray straight down (sensors excluded)

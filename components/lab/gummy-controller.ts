@@ -215,9 +215,17 @@ export class GummyController {
     this.rt.hooks.tap();
   }
 
-  /** Per-frame: spring drag, squish hold, keyboard nudges. Reads/writes the body only while live. */
+  /**
+   * Spring drag, squish hold, keyboard nudges, wind. Reads/writes the body only while live.
+   * Called once per FIXED physics step (`FIXED_DT`, from `useBeforePhysicsStep`), never per rendered
+   * frame: Rapier advances in whole fixed steps (several per frame on a slow device), so forces
+   * applied once per frame with a clamped dt were a fraction of the intended strength at low frame
+   * rates (EVAL-030: a 400 ms ArrowRight hold barely moved the bear at ~3 fps). The body's own
+   * position is read here — `rt.bear` is only refreshed once per rendered frame.
+   */
   update(dt: number, rb: RapierRigidBody) {
     const b = this.rt.bear;
+    const pos = rb.translation();
     this.keyCooldown = Math.max(0, this.keyCooldown - dt);
     const arena = this.rt.arena;
     const v = rb.linvel();
@@ -240,7 +248,7 @@ export class GummyController {
       b.dragged = true;
       const tx = Math.max(-arena.halfW + 0.45, Math.min(arena.halfW - 0.45, this.world.x + this.grab.x));
       const ty = Math.max(arena.floorY + 0.55, Math.min(arena.ceilingY - 0.7, this.world.y + this.grab.y));
-      const a = dragAcceleration({ x: b.x, y: b.y + 0.5 }, { x: vx, y: vy }, { x: tx, y: ty });
+      const a = dragAcceleration({ x: pos.x, y: pos.y + 0.5 }, { x: vx, y: vy }, { x: tx, y: ty });
       const nv = clampSpeed({ x: vx + a.x * dt, y: vy + a.y * dt }, DRAG_MAX_SPEED);
       vx = nv.x;
       vy = nv.y;
