@@ -1,9 +1,10 @@
 ---
 id: TASK-143.5
 title: 'T2c.5 Mobile, accessibility, reduced motion, performance QA and EVAL-030 spec'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:24'
+updated_date: '2026-10-06 14:36'
 labels:
   - P2
 dependencies: []
