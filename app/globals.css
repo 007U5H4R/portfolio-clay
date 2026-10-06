@@ -12828,12 +12828,12 @@ html[data-theme-vt]::view-transition-group(root) {
   bottom: var(--ship-bottom);
   width: var(--ship-w);
   aspect-ratio: 640 / 767;
-  /* TASK-164: one keyframe set for every width — sail out, turn (mirror), sail back, turn again;
-     the lane ends come from --sail-from / --sail-to so desktop can confine the boat to the sea lane. */
+  /* TASK-164: the boat sails out and back along the same path (alternate; no mirroring, per Tushar).
+     The lane ends come from --sail-from / --sail-to so desktop can confine the boat to the sea lane.
+     The duration is one crossing. */
   --sail-from: -18vw;
   --sail-to: 14vw;
-  /* ease-in-out per segment; set here, not inside the keyframes, which stay transform-only (TC-T4-04) */
-  animation: ocean-sail 140s ease-in-out infinite;
+  animation: ocean-sail 70s ease-in-out infinite alternate;
 }
 .ocean-ship {
   display: block;
@@ -12853,20 +12853,11 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 @keyframes ocean-sail {
-  0% {
-    transform: translate3d(var(--sail-from), 0, 0) scaleX(1);
+  from {
+    transform: translate3d(var(--sail-from), 0, 0);
   }
-  48% {
-    transform: translate3d(var(--sail-to), 0, 0) scaleX(1);
-  }
-  50% {
-    transform: translate3d(var(--sail-to), 0, 0) scaleX(-1);
-  }
-  98% {
-    transform: translate3d(var(--sail-from), 0, 0) scaleX(-1);
-  }
-  100% {
-    transform: translate3d(var(--sail-from), 0, 0) scaleX(1);
+  to {
+    transform: translate3d(var(--sail-to), 0, 0);
   }
 }
 @keyframes ocean-rock {
@@ -12892,7 +12883,7 @@ html[data-theme-vt]::view-transition-group(root) {
    TASK-164 · footer sea lane (Tushar 2026-10-06 markup): at ≥ 1024 the band is three columns —
    left text · an empty sea lane · right text — and both text groups sit low, just above the waves.
    The ocean is laid over the band's bottom (absolute, transparent, pointer-events none), so the
-   hatch runs behind it with no seam, and the boat sails to and fro inside the lane only. The lane's
+   hatch runs behind it with no seam, and the boat sails slowly out and back inside the lane only. The lane's
    x-range is computed from the same numbers that size the grid (Container max-width + desktop gutter,
    right column, lane width), so it cannot drift under the text. Below 1024 nothing changes.
    ================================================================================================== */
@@ -12944,7 +12935,8 @@ html[data-theme-vt]::view-transition-group(root) {
     left: calc(50% + min(50%, var(--band-max) / 2) - var(--gutter-desktop) - var(--band-right) - var(--sea) + var(--sea-inset));
     --sail-from: 0px;
     --sail-to: calc(var(--sea) - 2 * var(--sea-inset) - var(--ship-w));
-    animation-duration: 44s;
+    /* slow (Tushar 2026-10-06): one crossing of the lane takes ~50 s, about 3 px/s at 1440 */
+    animation-duration: 50s;
   }
 }
 /* Container widens at Tailwind's 2xl, which this project sets to 1440px (--breakpoint-2xl) */
