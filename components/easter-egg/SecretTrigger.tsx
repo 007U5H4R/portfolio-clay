@@ -9,6 +9,14 @@ import { LAB_PATH, rememberEntry } from "@/lib/lab/session";
 const BRAND = "[data-site-header] .header-brand";
 
 /**
+ * One detector for the whole page session (this module is evaluated once per document): click 1 on an
+ * inner page navigates home, and clicks 2–5 there must still count towards the same sequence.
+ */
+const detector = createClickDetector();
+/** The last brand click came from an inner page, so it is navigating home (the route commit rebases). */
+let navigatingFromClick = false;
+
+/**
  * The Gummy Lab secret trigger (TASK-143.2, S30, gummy-bear.md §9). Render-less; mounted once in
  * `Header`. Five clicks on the name or the TP monogram inside 3.5 s open `/lab`; the first four give
  * progressively stronger hints (`data-gummy-step`, styled in secret-trigger.css). This file and
@@ -21,9 +29,6 @@ export function SecretTrigger() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // One detector for the whole session: click 1 on an inner page navigates home, and clicks 2–5
-    // there must still count towards the same sequence.
-    const detector = createClickDetector();
     let resetTimer: number | undefined;
 
     const onClick = (event: MouseEvent) => {
@@ -32,7 +37,10 @@ export function SecretTrigger() {
       const brand = target instanceof Element ? target.closest(BRAND) : null;
       if (!brand) return;
 
-      const { step, triggered } = detector.click(performance.now());
+      // The input's own timestamp, not "now": a busy main thread (hydration after the route change,
+      // a slow phone) delays the handler, not the click, so it must not eat the 3.5 s window.
+      const { step, triggered } = detector.click(event.timeStamp || performance.now());
+      navigatingFromClick = !triggered && window.location.pathname !== "/";
       window.clearTimeout(resetTimer);
       const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
@@ -85,6 +93,11 @@ export function SecretTrigger() {
 
   // The exit overlay outlives the route change: once the portfolio has painted, fade it out.
   useEffect(() => {
+    // The sequence's own first click navigated here: page-load time is not clicking time.
+    if (navigatingFromClick) {
+      navigatingFromClick = false;
+      detector.rebase(performance.now());
+    }
     if (pathname === LAB_PATH) return;
     const overlay = document.querySelector("[data-gummy-overlay]");
     if (!overlay) return;
