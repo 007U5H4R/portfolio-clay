@@ -1,9 +1,10 @@
 ---
 id: TASK-149
 title: Stop prefetched routes from preloading every tab's hero scene image
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-06 02:59'
+updated_date: '2026-10-06 10:56'
 labels:
   - P2
 dependencies: []
