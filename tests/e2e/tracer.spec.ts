@@ -232,10 +232,11 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
 });
 
 // ---------------------------------------------------------------------------
-// TKT-71 / D12 — the header keeps one ~72 px height and a constant 10 px blur; scrolling only
-// turns the hairline on (the S04.03 96→68 compaction is deleted). Full matrix: layout.spec.ts.
+// TKT-71 / D12 — the header keeps one ~72 px height; scrolling never changes it (the S04.03 96→68 compaction
+// is deleted). T4 (Dev-173) swapped the translucent blur header for an opaque ivory paper sheet, so the old
+// constant-blur assertion now asserts the sheet stays opaque with no backdrop blur. Full matrix: layout.spec.ts.
 // ---------------------------------------------------------------------------
-test("header keeps one height with a constant blur; scrolling only adds the hairline", async ({ page }) => {
+test("header keeps one height as an opaque paper sheet; scrolling only deepens its shadow", async ({ page }) => {
   test.skip(width(page) !== 1440, "header geometry measured at w1440 (all widths in layout.spec.ts)");
   await page.goto("/", { waitUntil: "load" });
   const header = page.locator("header").first();
@@ -243,30 +244,41 @@ test("header keeps one height with a constant blur; scrolling only adds the hair
   const restBox = await header.boundingBox();
   expect(restBox!.height, `rest height ${restBox!.height} should be ~72`).toBeGreaterThanOrEqual(70);
   expect(restBox!.height).toBeLessThanOrEqual(74);
-  const restFilter = await header.evaluate((el) => {
-    const s = getComputedStyle(el);
-    return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter");
-  });
-  expect(restFilter, `rest backdrop-filter was "${restFilter}"`).toContain("blur(10px)");
+  const headerFilter = () =>
+    header.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter") || "none";
+    });
+  expect(await headerFilter(), "Dev-173: no backdrop blur").toBe("none");
+  const sheetColor = await header.locator(".header-paper-sheet").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(sheetColor, "Dev-173: the paper sheet is opaque ivory (no alpha channel, not transparent)").not.toMatch(/\/|rgba\(0, 0, 0, 0\)/);
   await expect(header).not.toHaveAttribute("data-scrolled");
 
   await page.evaluate(() => window.scrollTo(0, 240));
   await expect(header).toHaveAttribute("data-scrolled", "");
   const scrolledBox = await header.boundingBox();
   expect(Math.abs(scrolledBox!.height - restBox!.height), "height must not change on scroll").toBeLessThanOrEqual(1);
+  expect(await headerFilter(), "still no blur after scroll").toBe("none");
 });
 
 // ---------------------------------------------------------------------------
-// TKT-71 — the active nav link is marked current and draws the ink-stroke underline
-// (the S04.04 active-link pill is deleted).
+// TKT-71 → T4 (Dev-170/171, TASK-145.1) — the active nav link is marked aria-current and carries the
+// terracotta active paper layer (.hn-strip); the ink-stroke underline svg is gone.
 // ---------------------------------------------------------------------------
-test("active nav link is marked current and shows the ink underline", async ({ page }) => {
+test("active nav link is marked current and carries the terracotta active layer", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const active = nav.locator('a[aria-current="page"]');
+  await expect(active).toHaveCount(1);
   await expect(active).toHaveText("Home");
-  await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
-  await expect(nav.locator('a[href="/work"] svg.ink-underline')).toHaveCSS("opacity", "0");
+  await expect(nav.locator("svg.ink-underline"), "ink underline retired by T4").toHaveCount(0);
+  const scale = (loc: import("@playwright/test").Locator) =>
+    loc.locator(".hn-strip").evaluate((el) => {
+      const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+      return Math.hypot(m.a, m.b);
+    });
+  await expect.poll(() => scale(active)).toBeGreaterThan(0.95);
+  await expect.poll(() => scale(nav.locator('a[href="/work"]'))).toBeLessThan(0.05);
 });
 
 // ---------------------------------------------------------------------------
