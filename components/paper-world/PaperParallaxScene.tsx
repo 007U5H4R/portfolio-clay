@@ -36,11 +36,46 @@ export function PaperParallaxScene({ id, priority = false, focal, narrowAspect, 
   const bleed = sceneBleedPx(scene);
   return (
     <div role="img" aria-label={scene.alt} data-paper-scene={id} className={[styles.root, className].filter(Boolean).join(" ")} style={style}>
+      {priority ? <LcpPreloads scene={scene} /> : null}
       {scene.layers.map((l) => (
         <Layer key={l.layer} scene={scene} layer={l} priority={priority} bleed={bleed} />
       ))}
       <SceneMotion />
     </div>
+  );
+}
+
+/**
+ * TASK-155: the LCP layers' preload hints, as rendered `<link>` elements (hoisted to `<head>` for this page's own render
+ * only — never react-dom `preload()`, which Next's nav prefetch replays for every tab, TASK-149). Without them the
+ * eager `<img>`s sit deep in the body, behind the inlined CSS / RSC payload, and are discovered late. One hint per
+ * (viewport x colour scheme): a visitor only matches one of the four, so no bytes are spent on the others. `bg` leads
+ * at high priority; an `eager`-flagged layer (the home subject) is hinted at normal priority.
+ */
+function LcpPreloads({ scene }: { scene: ReturnType<typeof layeredScene> }) {
+  const lead = scene.layers.filter((l) => l.layer === "bg" || l.eager === true);
+  const variants = [
+    { theme: "light", mobile: true, media: `${MOBILE_MEDIA} and (prefers-color-scheme: light)` },
+    { theme: "light", mobile: false, media: "(min-width: 768px) and (prefers-color-scheme: light)" },
+    { theme: "dark", mobile: true, media: `${MOBILE_MEDIA} and (prefers-color-scheme: dark)` },
+    { theme: "dark", mobile: false, media: "(min-width: 768px) and (prefers-color-scheme: dark)" },
+  ] as const;
+  return (
+    <>
+      {variants.flatMap((v) =>
+        lead.map((l) => (
+          <link
+            key={`${v.theme}-${v.mobile}-${l.layer}`}
+            rel="preload"
+            as="image"
+            type="image/webp"
+            href={layerSrc(scene.id, v.theme === "light" ? l.file : l.darkFile, v.mobile)}
+            media={v.media}
+            fetchPriority={l.layer === "bg" ? "high" : undefined}
+          />
+        )),
+      )}
+    </>
   );
 }
 
