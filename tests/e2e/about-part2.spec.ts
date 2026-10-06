@@ -72,7 +72,7 @@ test("@EVAL-011 the dark strip: See full experience → /work, View certificatio
   await expect(page.locator("section#work-experience")).toBeVisible();
 });
 
-test("@EVAL-011 research: the granted patent IN 429867, the patent record + DOI links, 'DOI pending' in Inter", {
+test("@EVAL-011 research: the granted patent IN 429867, the patent record + every paper's DOI link, no 'DOI pending'", {
   tag: "@EVAL-011",
 }, async ({ page }) => {
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
@@ -88,9 +88,9 @@ test("@EVAL-011 research: the granted patent IN 429867, the patent record + DOI 
       await expect(research.getByRole("link", { name: new RegExp(paper.doi.replace(/[.]/g, "\\.")) })).toHaveAttribute("href", paper.doiHref);
     }
   }
-  const pending = research.getByText("DOI pending", { exact: true });
-  await expect(pending).toBeVisible();
-  expect((await pending.evaluate((el) => getComputedStyle(el).fontFamily)).toLowerCase()).not.toContain("caveat");
+  // Both papers carry a real DOI now (TASK-163), so the "DOI pending" fallback never renders.
+  expect(papers.every((p) => p.doi && p.doiHref)).toBe(true);
+  await expect(research.getByText("DOI pending", { exact: true })).toHaveCount(0);
 });
 
 test("recognition shows only the recorded awards; About repeats no role, bullet, metric, education or badge", async ({ page }) => {

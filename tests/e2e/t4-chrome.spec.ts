@@ -12,6 +12,7 @@
  *   TC-T4-06  theme switch swaps the ocean art to the dark twins without moving the page (scrollHeight ±1)
  *   TC-T4-07  the whole ship (mast tip, flag, sails) fits inside the ocean strip at 375 / 768 / 1440 / 1920 (TASK-150)
  *   TC-T4-08  the ocean's rendering is skipped while it is off-screen and resumes in view (TASK-155)
+ *   TC-T4-09  ≥ 1024: the boat sails to and fro inside the sea lane and never touches the footer text (TASK-164)
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
@@ -52,10 +53,13 @@ test.describe("T4 chrome", () => {
     await expect(ocean.locator(".ocean-ship")).toHaveCount(1);
     const geo = await page.evaluate(() => {
       const o = document.querySelector("footer.band [data-band-ocean]")!.getBoundingClientRect();
-      const b = document.querySelector("footer.band .band-bar")!.getBoundingClientRect();
-      return { oceanTop: o.top, barBottom: b.bottom, widthOk: o.width <= document.documentElement.clientWidth + 1 };
+      // the waves (not the strip's transparent sky, which the sea lane shares with the text at ≥ 1024)
+      const waves = document.querySelector("footer.band .ocean-back")!.getBoundingClientRect();
+      // the © bar's own box is empty at ≥ 1024 (display: contents), so measure its text
+      const barBottom = Math.max(...[...document.querySelectorAll("footer.band .band-bar > span")].map((e) => e.getBoundingClientRect().bottom));
+      return { wavesTop: waves.top, barBottom, widthOk: o.width <= document.documentElement.clientWidth + 1 };
     });
-    expect(geo.oceanTop).toBeGreaterThanOrEqual(geo.barBottom - 1);
+    expect(geo.wavesTop).toBeGreaterThanOrEqual(geo.barBottom - 1);
     expect(geo.widthOk).toBe(true);
   });
 
@@ -122,6 +126,31 @@ test.describe("T4 chrome", () => {
     const outOfView = skipped();
     await page.evaluate(() => window.scrollTo(0, 0));
     expect(await outOfView).toBe(true);
+  });
+
+  test("TC-T4-09 the boat sails to and fro in the sea lane, clear of the footer text", async ({ page }) => {
+    for (const w of [1024, 1280, 1440, 1920]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/", { waitUntil: "load" });
+      await page.evaluate(() => document.querySelector("footer.band [data-band-ocean]")!.scrollIntoView({ block: "end" }));
+      const r = await page.evaluate(() => {
+        const wrap = document.querySelector<HTMLElement>("footer.band .ocean-ship-wrap")!;
+        const anim = wrap.getAnimations().find((a) => (a as CSSAnimation).animationName === "ocean-sail")!;
+        const dur = Number(anim.effect!.getComputedTiming().duration);
+        anim.pause();
+        const text = [...document.querySelectorAll("footer.band :is(.band-eyebrow, .band-h, .band-hire, .band-row, .band-bar > span)")].map((e) => e.getBoundingClientRect());
+        const ship = () => document.querySelector("footer.band .ocean-ship")!.getBoundingClientRect();
+        const hit = (a: DOMRect) => text.some((t) => a.left < t.right && a.right > t.left && a.top < t.bottom && a.bottom > t.top);
+        const at = (f: number) => {
+          anim.currentTime = dur * f;
+          const s = ship();
+          return { x: s.left, hit: hit(s) };
+        };
+        return { from: at(0), there: at(0.48), turned: at(0.5), back: at(0.98) };
+      });
+      for (const [k, v] of Object.entries(r)) expect(v.hit, `ship over text at ${k} @${w}`).toBe(false);
+      expect(r.there.x - r.from.x, `the boat actually travels @${w}`).toBeGreaterThan(40);
+    }
   });
 
   test("TC-T4-06 dark twins swap in without moving the page", async ({ page }) => {
