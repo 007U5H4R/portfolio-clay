@@ -7,3 +7,4 @@ Masters: `Portfolio-illustration/illustrations/paper-world/<scene>/` (README.md 
 | scene-certifications | bg .05, mid .22, fg .40 (light + dark) | certifications, origami-miniature composite (S32) | 9 | TASK-158.2 |
 | scene-experience | bg .05, subject .22, fg .40, details .60 (light + dark) | experience | 13.5 | TASK-158.3 |
 | scene-about | bg .05, subject .22, fg .40 (light + dark) | about | 10.5 | TASK-158.4 |
+| scene-contact | bg .05, subject .22, fg .40 (light + dark) | contact | 10.5 | TASK-158.5 |
