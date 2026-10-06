@@ -1,6 +1,5 @@
 import Image, { getImageProps } from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { preload } from "react-dom";
 import { darkSceneImage, illustration, sceneImage, type StaticIllustrationId } from "@/lib/illustrations";
 
 export type SceneBannerProps = {
@@ -83,8 +82,8 @@ export function SceneBanner({ id, priority = false, focalX = 0.5, focalY, sizes 
       <div className="scene-banner-canvas">
         <ThemedImage id={id} theme="light" alt={entry.alt} sizes={sizes} priority={priority} narrow={narrow} />
         {/* The matched dark twin (S23, EV9): its own `<img>`, `display: none` while light (app/globals.css
-            `[data-theme-art]`) and lazy, so a light visitor never fetches it — `ThemeArtPreload` warms it once
-            the page is idle. Never a CSS filter on one image. */}
+            `[data-theme-art]`) and lazy, so a light visitor never fetches it — the theme toggle warms it on intent
+            (`lib/theme-art-warm`: hover / focus / pointerdown). Never a CSS filter on one image. */}
         {darkSceneImage(id) ? <ThemedImage id={id} theme="dark" alt={entry.alt} sizes={sizes} priority={false} narrow={narrow} /> : null}
         {children}
       </div>
@@ -134,16 +133,23 @@ function ArtDirectedImage({ source, theme, art, alt, sizes, narrow, priority }: 
   const { props: wide } = getImageProps({ ...common, src: source, sizes });
   const narrowFile = theme === "dark" && narrow.darkSrc ? narrow.darkSrc : narrow.src;
   const {
-    props: { srcSet: narrowSrcSet, src: narrowSrc },
+    props: { srcSet: narrowSrcSet },
   } = getImageProps({ ...common, src: narrowFile, width: narrow.width, height: narrow.height, sizes: narrow.sizes });
-  if (priority) {
-    preload(narrowSrc, { as: "image", imageSrcSet: narrowSrcSet, imageSizes: narrow.sizes, fetchPriority: "high", media: NARROW_MEDIA });
-    preload(wide.src, { as: "image", imageSrcSet: wide.srcSet, imageSizes: sizes, fetchPriority: "high", media: WIDE_MEDIA });
-  }
   return (
+    <>
+      {/* TASK-149: a rendered <link>, not react-dom `preload()` — that call is serialised into the RSC payload as a
+          resource hint, which Next's <Link> prefetch of every nav route then applied, so each page warmed every
+          other tab's hero. A link element is hoisted to <head> for this page's own render only. */}
+      {priority ? (
+        <>
+          <link rel="preload" as="image" imageSrcSet={narrowSrcSet} imageSizes={narrow.sizes} fetchPriority="high" media={NARROW_MEDIA} />
+          <link rel="preload" as="image" imageSrcSet={wide.srcSet} imageSizes={sizes} fetchPriority="high" media={WIDE_MEDIA} />
+        </>
+      ) : null}
     <picture data-theme-art={art} className="scene-banner-picture">
       <source media={NARROW_MEDIA} srcSet={narrowSrcSet} sizes={narrow.sizes} width={narrow.width} height={narrow.height} />
       <img {...wide} alt={alt} fetchPriority={priority ? "high" : undefined} className="scene-banner-img scene-banner-img--narrow-crop" />
     </picture>
+    </>
   );
 }
