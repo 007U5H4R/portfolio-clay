@@ -34,7 +34,9 @@ describe("vCard builder (TASK-146.3, EVAL-029)", () => {
 
   it("uses CRLF line endings and escapes special characters", () => {
     expect(body.endsWith("END:VCARD\r\n")).toBe(true);
-    expect(buildVCard({ name: "A, B; C", title: "x\ny" })).toContain("FN:A\\, B\; C");
+    expect(buildVCard({ name: "A, B; C", title: "x\ny" })).toContain("FN:A\\, B\\; C");
+    // RFC 6350 §3.4: ";" is escaped as "\;" and every newline form (CRLF, LF, lone CR) as "\n".
+    expect(buildVCard({ name: "A", title: "x\ry\r\nz" })).toContain("TITLE:x\\ny\\nz");
   });
 
   it("targets /card for the QR and names the file", () => {

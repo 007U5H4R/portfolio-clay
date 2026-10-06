@@ -12,7 +12,7 @@ export function cardUrl(): string {
 }
 
 const esc = (v: string) =>
-  v.replace(/\\/g, "\\\\").replace(/\r?\n/g, "\\n").replace(/;/g, "\;").replace(/,/g, "\\,");
+  v.replace(/\\/g, "\\\\").replace(/\r\n|\r|\n/g, "\\n").replace(/;/g, "\\;").replace(/,/g, "\\,");
 
 export interface VCardInput {
   name?: string;
