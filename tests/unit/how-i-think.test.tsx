@@ -94,8 +94,8 @@ describe("HowIThink (TKT-76, TC-148)", () => {
       expect(card.querySelector(".hit-principle")?.textContent).toBe(stage.principle);
       expect(card.querySelector('blockquote[data-hand="quote"]')?.textContent).toBe(`“${stage.example.quote}”`);
       expect(card.querySelector("cite")?.textContent).toBe(stage.example.attribution);
-      // DRAFT principle → exactly one DraftTag per card (content gate: DRAFT copy renders labelled).
-      expect(card.querySelectorAll('[data-paper="tag"]')).toHaveLength(1);
+      // Tushar signed the principles off (TASK-167, 2026-10-06): no draft tag on any card.
+      expect(card.querySelectorAll('[data-paper="tag"]')).toHaveLength(0);
       expect(card.querySelector('[data-fastener="pin"]')?.getAttribute("data-tone")).toBe(stagePin[stage.id]);
     });
   });
@@ -183,7 +183,7 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     }
   });
 
-  it("gives each card its own torn edge, a compact two-line DraftTag and an arrow CTA (TKT-99)", () => {
+  it("gives each card its own torn edge and an arrow CTA (TKT-99); no draft tag since sign-off (TASK-167)", () => {
     const section = renderSection(true);
     const cards = Array.from(section.querySelectorAll('article[data-paper="card"]'));
     const rims = cards.map((c) => (c.querySelector(".hit-paper-rim") as HTMLElement | null)?.style.clipPath ?? "");
@@ -194,10 +194,7 @@ describe("HowIThink (TKT-76, TC-148)", () => {
       // round 2: the navy ink outline follows the same torn outline as the rim
       const ink = card.querySelector(".hit-paper-ink") as HTMLElement | null;
       expect(ink?.style.clipPath).toBe((card.querySelector(".hit-paper-rim") as HTMLElement).style.clipPath);
-      const tag = card.querySelector('[data-paper="tag"]');
-      expect(tag?.textContent).toBe("Draft — pending sign-off");
-      expect(tag?.hasAttribute("data-micro-label")).toBe(true);
-      expect(tag?.querySelector(".hit-draft-line")?.textContent).toBe("pending sign-off");
+      expect(card.querySelector('[data-paper="tag"]')).toBeNull();
       const arrow = card.querySelector("a svg");
       expect(arrow?.getAttribute("aria-hidden")).toBe("true");
     }

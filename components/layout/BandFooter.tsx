@@ -2,7 +2,7 @@ import { OceanGate } from "@/components/layout/OceanGate";
 import Link from "next/link";
 import { BandVerb } from "@/components/layout/BandVerb";
 import { Container } from "@/components/layout/Container";
-import { DraftTag, Hand, TornEdge } from "@/components/paper";
+import { Hand, TornEdge } from "@/components/paper";
 import { hero } from "@/data/hero";
 import { projects } from "@/data/projects";
 import { resumeAction, site } from "@/lib/site";
@@ -48,7 +48,7 @@ export function BandFooter() {
             <span className="dim">something people can use.</span>
           </h2>
           <p className="band-hire">
-            Hiring for PM, AI PM or AI-builder roles? Say hi. <DraftTag tone="onBand" />
+            Hiring for PM, AI PM or AI-builder roles? Say hi.
           </p>
 
           <div className="band-row">
