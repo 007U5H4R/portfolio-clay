@@ -9,3 +9,4 @@ Masters: `Portfolio-illustration/illustrations/paper-world/<scene>/` (README.md 
 | scene-about | bg .05, subject .22, fg .40 (light + dark) | about | 10.5 | TASK-158.4 |
 | scene-contact | bg .05, subject .22, fg .40 (light + dark) | contact | 10.5 | TASK-158.5 |
 | scene-thinking | bg .05, mid .22, fg .40 (light + dark) | thinking | 8.25 | TASK-158.6 |
+| scene-playground | bg .05, subject .22, fg .40 (light + dark) | playground | 13.75 | TASK-158.6 |
