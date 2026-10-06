@@ -3,9 +3,10 @@ id: TASK-168
 title: >-
   Remodel the Gummy Lab into a luxury paper-craft diorama with a looping
   soundtrack and sound effects
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-06 16:50'
+updated_date: '2026-10-06 18:02'
 labels:
   - P2
 dependencies: []
