@@ -1,0 +1,6 @@
+# Paper World layered scenes — provenance
+Masters: `Portfolio-illustration/illustrations/paper-world/<scene>/` (README.md + PROMPTS.md there hold job ids and QA). Encoded by `.scratch/m011/tools/encode.py` (desktop 2400 px, mobile 1280 px, q70).
+
+| Manifest id | Layers (depth) | Source scene | Credits | Task |
+|---|---|---|---|---|
+| scene-work | bg .05, mid .22, fg .40 (light + dark) | portfolio, origami-miniature composite (S32) | 8 | TASK-158.1 |
