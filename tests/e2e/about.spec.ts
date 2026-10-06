@@ -83,7 +83,8 @@ test("the page stays compact: about 4–5 viewport heights of content at 1440 (s
     main: document.querySelector("main")!.getBoundingClientRect().height,
     opener: document.querySelector('[data-opener="scene-about"]')!.getBoundingClientRect().height,
   }));
-  expect((main - opener) / 900).toBeLessThanOrEqual(5.5);
+  // 5.5 viewports before the business card section (TASK-146, ~1.1 viewports tall) joined the page.
+  expect((main - opener) / 900).toBeLessThanOrEqual(6.75);
 });
 
 test("@EVAL-008 /about has no horizontal overflow and every control clears 44×44", {

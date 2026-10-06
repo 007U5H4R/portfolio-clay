@@ -14,7 +14,7 @@ const FLIP_MS = 1150;
  * properties (no React state, no layout), which the stylesheet turns into transform/opacity motion
  * (tilt, parallax, light). Reduced motion: no listeners attached, no 3D, crossfade only (§34).
  */
-export function CardScene({ url }: { url: string }) {
+export function CardScene({ url, compact = false }: { url: string; compact?: boolean }) {
   const [state, dispatch] = useReducer(flipReducer, initialFlip);
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -25,6 +25,7 @@ export function CardScene({ url }: { url: string }) {
 
   // Track prefers-reduced-motion live.
   useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
       reducedRef.current = mq.matches;
@@ -84,7 +85,7 @@ export function CardScene({ url }: { url: string }) {
   return (
     <div
       ref={rootRef}
-      className={styles.scene}
+      className={compact ? `${styles.scene} ${styles.compact}` : styles.scene}
       data-side={state.side}
       data-reduced={state.reduced ? "true" : "false"}
       data-card-root

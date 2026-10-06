@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AboutCard } from "@/components/about/AboutCard";
 import { AboutCta } from "@/components/about/AboutCta";
 import { AboutHero } from "@/components/about/AboutHero";
 import { CareerContexts } from "@/components/about/CareerContexts";
@@ -25,6 +26,7 @@ export const metadata: Metadata = buildMetadata({
  *
  *   scene opener (TASK-114, every tab) → hero → Three Chapters → Career Across Contexts →
  *   Research + What Drives Me → Recognition → In their words (three LinkedIn recommendations) →
+ *   the paper-cut business card (TASK-146) →
  *   the dark Experience / Certifications strip → band.
  *
  * WHAT he did — employer-by-employer roles, dates, bullets, scope and self-reported outcomes, skills,
@@ -42,6 +44,7 @@ export default function AboutPage() {
       <ResearchValues />
       <Recognition />
       <Testimonials />
+      <AboutCard />
       <AboutCta />
     </>
   );

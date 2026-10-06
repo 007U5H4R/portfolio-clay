@@ -40,7 +40,7 @@ test("@EVAL-018 unit counts: hero 4 · chapters 2 · career 2 · research-values
   for (const el of await page.locator("main [data-decor]").all()) await expect(el).toHaveAttribute("aria-hidden", "true");
 });
 
-test("page order: opener → hero → chapters → career → research + values → recognition → testimonials → CTA → band", async ({ page }) => {
+test("page order: opener → hero → chapters → career → research + values → recognition → testimonials → business card → CTA → band", async ({ page }) => {
   test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
   await page.goto("/about", { waitUntil: "load" });
   const order = await page.evaluate(() =>
@@ -48,7 +48,7 @@ test("page order: opener → hero → chapters → career → research + values 
       el.tagName === "FOOTER" ? "band" : el.id || el.getAttribute("data-opener") || el.getAttribute("aria-labelledby"),
     ),
   );
-  expect(order).toEqual(["scene-about", "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta", "band"]);
+  expect(order).toEqual(["scene-about", "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-card", "about-cta", "band"]);
 });
 
 test("@EVAL-011 the dark strip: See full experience → /work, View certifications → /certifications", {
