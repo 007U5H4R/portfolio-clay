@@ -1,9 +1,10 @@
 ---
 id: TASK-146.4
 title: 'T5.4 Depth motion: tilt, parallax, dynamic light, mobile and reduced motion'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:22'
+updated_date: '2026-10-06 08:38'
 labels:
   - P2
 dependencies: []

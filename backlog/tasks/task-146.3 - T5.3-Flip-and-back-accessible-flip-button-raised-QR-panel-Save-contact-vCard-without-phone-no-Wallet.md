@@ -3,9 +3,10 @@ id: TASK-146.3
 title: >-
   T5.3 Flip and back: accessible flip button, raised QR panel, Save contact
   vCard without phone, no Wallet
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:22'
+updated_date: '2026-10-06 08:38'
 labels:
   - P1
 dependencies: []

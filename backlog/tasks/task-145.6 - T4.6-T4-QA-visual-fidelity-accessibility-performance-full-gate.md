@@ -1,10 +1,10 @@
 ---
 id: TASK-145.6
 title: 'T4.6 T4 QA: visual fidelity, accessibility, performance, full gate'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-05 18:07'
-updated_date: '2026-10-05 23:11'
+updated_date: '2026-10-06 08:38'
 labels:
   - P1
 dependencies: []

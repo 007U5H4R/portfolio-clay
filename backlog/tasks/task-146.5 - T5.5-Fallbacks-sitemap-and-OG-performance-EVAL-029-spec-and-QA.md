@@ -1,9 +1,10 @@
 ---
 id: TASK-146.5
 title: 'T5.5 Fallbacks, sitemap and OG, performance, EVAL-029 spec and QA'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-05 17:22'
+updated_date: '2026-10-06 08:39'
 labels:
   - P1
 dependencies: []
