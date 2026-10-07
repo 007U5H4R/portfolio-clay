@@ -27,7 +27,7 @@ let hintsFinished = false;
  */
 export function Driver() {
   const rt = useRuntime();
-  const acc = useRef({ hud: 0, overFor: 0, hint: 0, hintAge: 0, lastHud: "" });
+  const acc = useRef({ hud: 0, overFor: 0, hint: 0, hintAge: 0, lastHud: "", tickKey: "" });
 
   useEffect(() => {
     const { store, engine, audio, particles } = rt;
@@ -235,6 +235,12 @@ export function Driver() {
       A.hud = 0;
       const s = engine.snapshot();
       const key = [s.score, s.combo, Math.floor(s.timeS * 10), s.dangerLeft === null ? "-" : s.dangerLeft.toFixed(1), s.countdown, s.powers.map((p) => `${p.type}${Math.ceil(p.left)}`).join(","), s.tpMode].join("|");
+      // A soft tick for each whole second of the danger countdown and each countdown step.
+      const tickKey = s.dangerLeft !== null ? `d${Math.ceil(s.dangerLeft)}` : machine.state === "COUNTDOWN" ? `c${s.countdown}` : "";
+      if (tickKey !== A.tickKey) {
+        A.tickKey = tickKey;
+        if (tickKey) rt.audio.play("tick");
+      }
       if (key !== A.lastHud) {
         A.lastHud = key;
         store.getState().patch({

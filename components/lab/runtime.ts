@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { MeshPhysicalMaterial } from "three";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
-import type { AudioManager } from "@/lib/lab/audio";
+import type { LabAudio } from "./audio";
 import type { GameEngine } from "@/lib/lab/engine";
 import type { Spawner } from "@/lib/lab/spawner";
 import type { GummyPhysicsState } from "@/lib/lab/gummy-state";
@@ -90,7 +90,7 @@ export interface LabRuntime {
   arena: ArenaSpec;
   store: LabStoreApi;
   engine: GameEngine;
-  audio: AudioManager;
+  audio: LabAudio;
   spawner: Spawner;
   /** Asks the shell to leave the lab (portal / button / ESC) with the exit animation. */
   requestExit(via: "portal" | "button"): void;

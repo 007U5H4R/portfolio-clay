@@ -33,6 +33,8 @@ export default function LabApp() {
     const rt = createRuntime(store);
     rt.onAsset = (status) => store.getState().patch({ assetStatus: status });
     rt.hooks = createFxHooks(rt);
+    // A remembered "sound on" shows the toggle on; the audio context itself waits for the first gesture (audio.ts).
+    store.getState().patch({ muted: rt.audio.muted });
     return { mode: "canvas", runtime: rt };
   });
 
@@ -148,6 +150,10 @@ export default function LabApp() {
   const [debug] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "panel");
   const state = store((s) => s.state);
   const tp = store((s) => s.tpMode);
+  // Paper rustle as the intro, pause and results cards open (a no-op while muted).
+  useEffect(() => {
+    if (state === "INTRO" || state === "PAUSED" || state === "RESULTS") runtime?.audio.play("rustle");
+  }, [state, runtime]);
   const running = state === "PLAYING" || state === "DANGER" || state === "PAUSED" || state === "COUNTDOWN";
 
   return (
@@ -159,6 +165,9 @@ export default function LabApp() {
       data-lab-path={LAB_PATH}
       data-theme-mode={tp ? "tp" : undefined}
       data-lenis-prevent=""
+      onClickCapture={(e) => {
+        if ((e.target as Element).closest("button, a")) runtime?.audio.play("click");
+      }}
     >
       {mode === "canvas" && runtime ? (
         <div className={styles.canvasWrap} data-lab-canvas="" role="group" aria-label="Gummy Lab play field">

@@ -1,5 +1,5 @@
 import { buildArena, portraitHalfWidth } from "@/lib/lab/arena";
-import { AudioManager } from "@/lib/lab/audio";
+import { LabAudio } from "./audio";
 import { GameEngine } from "@/lib/lab/engine";
 import { Spawner } from "@/lib/lab/spawner";
 import { Jelly } from "@/lib/lab/jelly";
@@ -23,7 +23,7 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     arena,
     store,
     engine: new GameEngine(store.getState().machine),
-    audio: new AudioManager(),
+    audio: new LabAudio(),
     spawner: new Spawner(arena.anchors),
     requestExit: () => {},
     jelly: new Jelly(),
