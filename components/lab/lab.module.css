@@ -803,7 +803,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.15cqw;
-  padding: 3.4% 6% 2.6%;
+  padding: 1.15cqw 2cqw 0.9cqw;
   text-align: center;
 }
 .micro {
@@ -836,7 +836,7 @@
   top: 15%;
   width: 17.5%;
   aspect-ratio: 624 / 812;
-  padding: 14% 9% 9% 12%;
+  padding: 2.5cqw 1.6cqw 1.6cqw 2.1cqw;
   rotate: -1.5deg;
 }
 .how {
@@ -885,7 +885,7 @@
   display: grid;
   align-content: center;
   gap: 0.15cqw;
-  padding: 2.5% 8%;
+  padding: 0.4cqw 1.3cqw;
   rotate: 1deg;
 }
 .keyTitle,
@@ -1033,7 +1033,7 @@
     left: 24%;
     top: 8.5%;
     width: 52%;
-    padding: 3.6% 6% 2.6%;
+    padding: 1.9cqw 3.1cqw 1.35cqw;
   }
   .micro {
     font-size: max(15px, 3.1cqw);
@@ -1049,7 +1049,7 @@
     top: 69%;
     width: 56%;
     aspect-ratio: 557 / 187;
-    padding: 2.4% 6%;
+    padding: 1.3cqw 3.4cqw;
     rotate: 0deg;
     --plate-img: url("/media/lab/intro/intro-plate-note-light.webp");
   }
