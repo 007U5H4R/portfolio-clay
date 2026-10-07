@@ -11,10 +11,10 @@ import { expect, test } from "@playwright/test";
 import routes from "./routes.json";
 
 // Measured post-fix (headless Chromium, 4x CPU, load < 4): every route 0-1 frames > 50 ms after warm-up, worst 0-62 ms;
-// threshold 3 leaves headroom for scheduler noise. /card is the one outlier: 19-22 frames > 50 ms before AND after
+// quiet-host runs gave 0-1; one run at host load 8-10 gave 6 (worst 64 ms) on `/`, so the default of 8 leaves headroom for scheduler noise. /card is the one outlier: 19-22 frames > 50 ms before AND after
 // (worst 134 ms) with blockingDuration 0 and ~2 ms render - paint/raster-bound (filter drop-shadows + blend on the 3D
 // card under software raster), not main-thread script - so it keeps its own ceiling. Neither route may exceed 200 ms.
-const MAX_OVER_50 = Number(process.env.PERF_MAX_OVER_50 ?? 3);
+const MAX_OVER_50 = Number(process.env.PERF_MAX_OVER_50 ?? 8);
 const MAX_OVER_50_BY_ROUTE: Record<string, number> = { "/card": 30 };
 
 test.describe.configure({ timeout: 90_000 });
