@@ -29,7 +29,8 @@ for (const theme of ["light", "dark"] as const) {
     expect(style.font.toLowerCase()).toContain("caveat");
     expect(style.angle, "rises to the right").toBeLessThan(-2);
     // Two lines at most at every width (a third line once orphaned "it." at 768).
-    const lines = await visible.locator("blockquote p").evaluate((el) => Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)));
+    // offsetHeight is the untransformed layout height: the tilted block's bounding box is taller than its lines.
+    const lines = await visible.locator("blockquote p").evaluate((el) => Math.round((el as HTMLElement).offsetHeight / parseFloat(getComputedStyle(el).lineHeight)));
     expect(lines).toBeLessThanOrEqual(narrow ? 3 : 2);
   });
 }
