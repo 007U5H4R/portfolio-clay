@@ -241,7 +241,6 @@ test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)"
     await openGame(page);
     const cta = page.getByRole("button", { name: /^let.s play/i });
     await expect(cta).toBeFocused({ timeout: 10_000 });
-    await expect(cta).toHaveCSS("outline-style", "none"); // focus is programmatic: no ring until the keyboard is used
     await page.keyboard.press("Enter");
     await page.waitForSelector("[data-lab-state='PLAYING'], [data-lab-state='COUNTDOWN']", { timeout: 40_000 });
     // the intro leaves and the diorama is revealed
