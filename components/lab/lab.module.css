@@ -16,7 +16,8 @@
   overflow: hidden;
   color: var(--lab-ink);
   font-family: var(--font-body);
-  background: linear-gradient(180deg, var(--lab-top), var(--lab-mid) 55%, var(--lab-bottom));
+  /* One flat paper tone (still a gradient image): the bands around the contain-fitted frame are page paper, never a second colour. */
+  background: linear-gradient(var(--mat-bg), var(--mat-bg));
   overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
