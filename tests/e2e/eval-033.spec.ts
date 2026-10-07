@@ -33,7 +33,7 @@ async function stub(page: Page, mode: Stub) {
   }, mode);
 }
 
-const chip = (page: Page) => page.getByRole("button", { name: "Move your phone to explore" });
+const chip = (page: Page) => page.getByRole("button", { name: "Tap & tilt to explore" });
 const permissionCalls = (page: Page) => page.evaluate(() => (window as unknown as { __pw: PwRecord }).__pw.permission);
 const tilt = (page: Page, gamma: number, beta: number, n = 80) =>
   page.evaluate(
@@ -176,6 +176,14 @@ test.describe("@EVAL-033 on the real site", () => {
       }),
       "chip is not covered",
     ).toBe(true);
+    // It glows to be found, but the pulse is finite (no infinite animation left running) and compositor-only.
+    const glow = await chip(page).evaluate((el) => {
+      const cs = getComputedStyle(el, "::before");
+      return { name: cs.animationName, count: cs.animationIterationCount, shadow: cs.boxShadow };
+    });
+    expect(glow.name).toContain("chip-glow"); // CSS-module keyframes are name-hashed
+    expect(glow.count).not.toBe("infinite");
+    expect(glow.shadow).not.toBe("none");
     expect(await permissionCalls(page), "no prompt before the tap").toBe(0);
     await chip(page).tap();
     await expect(chip(page)).toHaveCount(0);

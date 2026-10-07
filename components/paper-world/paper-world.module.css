@@ -107,6 +107,41 @@
   cursor: pointer;
 }
 
+/* TASK-169: a warm glow so the chip is found and tapped — tilt does nothing until it is. The halo is a static
+   box-shadow on a pseudo-element; only its opacity and scale animate (compositor-only, never a filter or a shadow
+   repaint), 6 pulses and then it rests lit, so no infinite animation is left running on the page. */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--color-rust) 70%, transparent),
+    0 0 26px 8px color-mix(in oklab, var(--color-rust) 60%, transparent),
+    0 0 48px 14px color-mix(in oklab, var(--color-terracotta) 30%, transparent);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chip::before {
+    animation: chip-glow 1.6s ease-in-out 6;
+  }
+}
+
+@keyframes chip-glow {
+  0%,
+  100% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.09);
+  }
+}
+
 .chip:focus-visible {
   outline: 2px solid var(--color-navy);
   outline-offset: 3px;
