@@ -180,3 +180,133 @@ test.describe("@EVAL-030 the remodel adds no animation loop outside the lab", ()
     expect(bad).toEqual([]);
   });
 });
+
+test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)", () => {
+  test.beforeEach(({}, info) => {
+    test.skip(!heavy(info), "canvas checks run on w1440 + w390");
+    test.setTimeout(150_000);
+  });
+
+  test("@EVAL-030 the intro is live text on paper: note, title, sub, instruction sheet and a named CTA", async ({ page }, info) => {
+    await openGame(page);
+    await expect(page.getByRole("heading", { name: "Gummy Lab", level: 1 })).toBeVisible();
+    await expect(page.getByText("You found the secret lab.")).toBeVisible();
+    await expect(page.getByText("Keep the Gummy Alive")).toBeVisible();
+    const how = page.getByRole("list", { name: "How to play" });
+    await expect(how.getByRole("listitem")).toHaveCount(4);
+    for (const t of ["Drag", "Flick", "Collect", "Don't let it fall"]) await expect(how.getByText(t, { exact: true })).toBeAttached();
+    const cta = page.getByRole("button", { name: /^let.s play/i });
+    await expect(cta).toBeVisible();
+    const b = (await cta.boundingBox())!;
+    expect(b.height).toBeGreaterThanOrEqual(44);
+    // the tags are decorative: aria-hidden, never in the accessibility tree
+    const tags = await page.evaluate(() => Array.from(document.querySelectorAll("[data-lab-intro-back] [aria-hidden='true']")).flatMap((e) => Array.from(e.querySelectorAll("span")).map((s) => s.textContent?.trim())).filter(Boolean));
+    if (info.project.name === "w1440") expect(tags).toEqual(["Fun", "Physics", "Experiment", "Play"]);
+    // the plates carry the art; the text on them is real DOM text (none of it is in an image)
+    expect(await page.locator("[data-lab-intro] img").count()).toBe(0);
+  });
+
+  test("@EVAL-030 the art layers stack bg, arch, stage, props, then the gummy, then fg; mobile crops to bg, arch, stage", async ({ page }, info) => {
+    await openGame(page);
+    await page.waitForSelector("[data-lab-diorama='ready']", { timeout: 30_000 });
+    const r = await page.evaluate(() => {
+      const names = (sel: string) => Array.from(document.querySelectorAll<HTMLElement>(`${sel} [data-intro-layer]`)).filter((e) => getComputedStyle(e).display !== "none").map((e) => e.dataset.introLayer);
+      const z = (sel: string) => Number(getComputedStyle(document.querySelector(sel)!).zIndex);
+      return {
+        back: names("[data-lab-intro-back]"),
+        front: names("[data-lab-intro-front]"),
+        zBack: z("[data-lab-intro-back]"),
+        zCanvas: z("[data-lab-canvas]"),
+        zFront: z("[data-lab-intro-front]"),
+        keys: !!document.querySelector("[data-lab-keys]") && getComputedStyle(document.querySelector("[data-lab-keys]")!).display !== "none",
+        loaded: Array.from(document.querySelectorAll<HTMLImageElement>("[data-lab-intro-back] img, [data-lab-intro-front] img")).filter((i) => i.offsetParent !== null).map((i) => i.complete && i.naturalWidth > 0),
+      };
+    });
+    expect(r.zBack).toBeLessThan(r.zCanvas);
+    expect(r.zCanvas).toBeLessThan(r.zFront);
+    if (info.project.name === "w390") {
+      expect(r.back).toEqual(["bg", "arch", "stage"]);
+      expect(r.front).toEqual([]);
+      expect(r.keys).toBe(false); // §101: the keyboard label is hidden on mobile
+    } else {
+      expect(r.back).toEqual(["bg", "arch", "stage", "props-left", "props-right"]);
+      expect(r.front).toEqual(["fg"]);
+      expect(r.keys).toBe(true);
+      await expect(page.locator("[data-lab-keys]")).toContainText("Space bounce");
+    }
+    await expect.poll(async () => (await page.evaluate(() => Array.from(document.querySelectorAll<HTMLImageElement>("[data-lab-intro-back] img, [data-lab-intro-front] img")).filter((i) => i.offsetParent !== null).every((i) => i.complete && i.naturalWidth > 0))), { timeout: 20_000 }).toBe(true);
+  });
+
+  test("@EVAL-030 the CTA works from the keyboard: Enter and Space both start the run", async ({ page }) => {
+    await openGame(page);
+    const cta = page.getByRole("button", { name: /^let.s play/i });
+    await expect(cta).toBeFocused({ timeout: 10_000 });
+    await expect(cta).toHaveCSS("outline-style", "none"); // focus is programmatic: no ring until the keyboard is used
+    await page.keyboard.press("Enter");
+    await page.waitForSelector("[data-lab-state='PLAYING'], [data-lab-state='COUNTDOWN']", { timeout: 40_000 });
+    // the intro leaves and the diorama is revealed
+    await page.waitForSelector("[data-lab-intro-front]", { state: "detached", timeout: 20_000 });
+    expect(await page.locator("[data-lab]").first().getAttribute("data-intro")).toBeNull();
+  });
+
+  test("@EVAL-030 Space activates the CTA too", async ({ page }) => {
+    await openGame(page);
+    const cta = page.getByRole("button", { name: /^let.s play/i });
+    await expect(cta).toBeFocused({ timeout: 10_000 });
+    await page.keyboard.press("Space");
+    await page.waitForSelector("[data-lab-state='PLAYING'], [data-lab-state='COUNTDOWN']", { timeout: 40_000 });
+  });
+
+  test("@EVAL-030 intro parallax rides paperMotion and the transition is transform/opacity only", async ({ page }, info) => {
+    await openGame(page);
+    if (info.project.name === "w1440") {
+      await page.mouse.move(60, 80);
+      await page.mouse.move(200, 120);
+      await expect.poll(() => page.evaluate(() => document.querySelector<HTMLElement>("[data-lab-intro-back]")!.style.getPropertyValue("--pp-x")), { timeout: 15_000 }).not.toBe("");
+    }
+    const bad = await page.evaluate(() => {
+      const names = /intro-(out-depth|out-left|out-right|out-up|pull|fade)|frame-in/;
+      const out: string[] = [];
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRuleList;
+        try {
+          rules = sheet.cssRules;
+        } catch {
+          continue;
+        }
+        for (const r of Array.from(rules)) {
+          if (r instanceof CSSKeyframesRule && names.test(r.name)) {
+            const props = new Set<string>();
+            for (const k of Array.from(r.cssRules)) for (const p of Array.from((k as CSSKeyframeRule).style)) props.add(p);
+            for (const p of props) if (!["transform", "opacity"].includes(p)) out.push(`${r.name}:${p}`);
+          }
+        }
+      }
+      return out;
+    });
+    expect(bad).toEqual([]);
+  });
+
+  test("@EVAL-030 reduced motion swaps the paper-opening for a plain fade, and the game still starts", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openGame(page);
+    const rule = await page.evaluate(() => {
+      let found = "";
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRuleList;
+        try {
+          rules = sheet.cssRules;
+        } catch {
+          continue;
+        }
+        for (const r of Array.from(rules)) if (r instanceof CSSMediaRule && /prefers-reduced-motion: reduce/.test(r.conditionText) && /intro-fade/.test(r.cssText) && /pull/.test(r.cssText)) found = r.cssText;
+      }
+      return found;
+    });
+    expect(rule).toMatch(/intro-fade 250ms/);
+    expect(rule).not.toMatch(/intro-pull|intro-out-depth/);
+    await page.locator("[data-lab-play]").click();
+    await page.waitForSelector("[data-lab-state='PLAYING']", { timeout: 40_000 });
+    await page.waitForSelector("[data-lab-intro-front]", { state: "detached", timeout: 20_000 });
+  });
+});

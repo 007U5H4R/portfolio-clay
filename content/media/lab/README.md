@@ -113,3 +113,58 @@ Common ending on all: "Muted luxury editorial palette, matte only ... No text, l
 ## Local post-processing in the repo (TASK-168)
 - `art/frame-1-outer.webp` and `art/frame-1-outer-dark.webp` were re-keyed after delivery: the manifest art has an opaque page-colour surround (white `#FEFEFE` in light, navy in dark) outside the torn edge, which showed as a solid rectangle behind the frame. The surround (a neutral near-white region flood-filled from the border of the light file, one mask for both twins) is now transparent, and its baked shadow is kept as semi-transparent shadow-ink alpha. Script: `.eval/key-outer.mjs` (git-ignored; sharp, WebP q78 / alpha q80). Sizes: 184 KB light, 74 KB dark. Everything else is byte-identical to the manifest.
 - Stacking: the three frame sheets are drawn back to front as outer, secondary, inner (the art is built that way: the cream sheet is the big one at the back, sage on top).
+
+## Intro scene art (TASK-168, intro redesign)
+Served from `public/media/lab/intro/`. Higgsfield gpt_image_2_5, 13 credits (12 layers + 1 plate sheet), keyed locally; the `-dark` plate variants in the manifest are not shipped (dark mode dims the light plates in CSS). Masters and tools: `/Volumes/E Drive/Dev/.scratch/gummy-remodel/intro/`. Table copied from the intro MANIFEST:
+## Layer order (bottom to top), 2400x1350, all stack at 0,0
+1. intro-bg (opaque) 2. intro-arch 3. intro-stage 4. intro-props-left 5. intro-props-right 6. [live 3D bear] 7. intro-fg. Stage is deliberately below the props (props stand on the desk). Plates and live text go above fg.
+Parallax multipliers (suggested, base ~4px pointer travel): bg 1x, arch/stage/props 2x, bear 3x, fg 4x. Keep bg scale >=1.04 and fg >=1.08 to avoid edge reveal.
+
+## Anchors (px in 2400x1350; percent = /2400, /1350)
+- Stage top-centre (bear feet): x=1200, y=905 (centre of top disc surface). Top disc rim highest point y=809; top disc spans x~790-1710 (approx 38% of width).
+- Sign tags (BLANK, same positions light and dark; tags are rotated about 0-3 deg, so inset text ~8%): 
+  - tag1 x1714-2028 y266-408
+  - tag2 x1752-2069 y411-535
+  - tag3 x1740-2035 y542-679
+  - tag4 x1743-2035 y684-816
+- Lamp bulb centre approx (2190,205); in dark mode it is the warm amber source (glow spill to the right wall and signpost).
+- Arch opening (transparent in intro-arch): x~700-1830, y 0-~960.
+
+## Mobile (1080x1350, crop x660-1740 of the desktop framing, same px y)
+bg, arch, stage only. props-left, props-right and fg omitted on mobile (crop removes them anyway); stage anchor becomes x=540,y=905. Stage disc is slightly clipped at the sides (about 60 px each).
+
+## Files
+| file | size | dims | sha256[:16] | source job |
+|---|---|---|---|---|
+| intro-arch-dark-mobile.webp | 65 KB | 1080x1350 | 27fdd51a408943e7 | 499cba5f-21e1-49be-a65d-5eb033a030b2 (cropped x660-1740) |
+| intro-arch-dark.webp | 231 KB | 2400x1350 | 104f575e2d177598 | 499cba5f-21e1-49be-a65d-5eb033a030b2 |
+| intro-arch-light-mobile.webp | 61 KB | 1080x1350 | 3369132ec4efcebe | fff7818c-1200-472e-9e12-e42ba39667f1 (cropped x660-1740) |
+| intro-arch-light.webp | 255 KB | 2400x1350 | 27b6bfca322bf9d6 | fff7818c-1200-472e-9e12-e42ba39667f1 |
+| intro-bg-dark-mobile.webp | 83 KB | 1080x1350 | 326ba55b5674da09 | 065304f9-a8dc-4467-a138-0bbab53bda94 (cropped x660-1740) |
+| intro-bg-dark.webp | 239 KB | 2400x1350 | 3a9565473712d5fb | 065304f9-a8dc-4467-a138-0bbab53bda94 |
+| intro-bg-light-mobile.webp | 62 KB | 1080x1350 | a7fb5cc5ca8b7004 | be6b5c7d-fe23-486d-8451-fcc8022cc5c2 (cropped x660-1740) |
+| intro-bg-light.webp | 168 KB | 2400x1350 | dda38d0cb3d7b727 | be6b5c7d-fe23-486d-8451-fcc8022cc5c2 |
+| intro-fg-dark.webp | 46 KB | 2400x1350 | 6ec226ca2254bb36 | 01f00bd8-8702-42c5-a1cc-9d22e1d816b4 |
+| intro-fg-light.webp | 31 KB | 2400x1350 | 2149d0c85aee45f1 | 08ee2fee-d8d1-4b85-80e5-fdce670b7b64 |
+| intro-plate-backtab-light.webp | 13 KB | 579x179 | 0e706d01ba9ce270 | 4b5c7404-e7c6-4335-969a-f8e37af6dc2a (sheet split, Pillow) |
+| intro-plate-banner-light.webp | 64 KB | 1265x562 | ba6f60ced075c062 | 4b5c7404-e7c6-4335-969a-f8e37af6dc2a (sheet split, Pillow) |
+| intro-plate-button-light.webp | 49 KB | 1000x318 | 1dacef90152a7ac7 | 4b5c7404-e7c6-4335-969a-f8e37af6dc2a (sheet split, Pillow) |
+| intro-plate-key-light.webp | 18 KB | 571x294 | bdd7a7800da5956b | 4b5c7404-e7c6-4335-969a-f8e37af6dc2a (sheet split, Pillow) |
+| intro-plate-note-light.webp | 13 KB | 557x187 | ae61cd3bdcd2455e | 4b5c7404-e7c6-4335-969a-f8e37af6dc2a (sheet split, Pillow) |
+| intro-plate-sheet-light.webp | 51 KB | 624x812 | 47f4a4cb75efbd3f | 4b5c7404-e7c6-4335-969a-f8e37af6dc2a (sheet split, Pillow) |
+| intro-props-left-dark.webp | 73 KB | 2400x1350 | 7758455b93f89b1c | a356c071-e0c3-4a39-bec8-9fc3f4674e8f |
+| intro-props-left-light.webp | 72 KB | 2400x1350 | 10241db6e41b7f83 | e7d42a33-7a83-4687-8238-46270ebe38e4 |
+| intro-props-right-dark.webp | 145 KB | 2400x1350 | 810b08b24cf24c9c | edea81bf-b408-4cbd-80c6-5d461050e7b7 |
+| intro-props-right-light.webp | 157 KB | 2400x1350 | 96f87a071f88c1b1 | 9e59c5ec-586d-438d-9e6d-5708445a48f4 |
+| intro-stage-dark-mobile.webp | 72 KB | 1080x1350 | 05dd26e8f0d8494b | f6991b4c-4851-4bc9-8347-c775d24be9ee (cropped x660-1740) |
+| intro-stage-dark.webp | 138 KB | 2400x1350 | 98d6c82ff12d513b | f6991b4c-4851-4bc9-8347-c775d24be9ee |
+| intro-stage-light-mobile.webp | 62 KB | 1080x1350 | 5af3373bcee51b35 | c775879c-78c9-4064-8ab0-b8b85e119f6b (cropped x660-1740) |
+| intro-stage-light.webp | 130 KB | 2400x1350 | 2aa5ae95e94d63bb | c775879c-78c9-4064-8ab0-b8b85e119f6b |
+
+Plates (text-free; trim includes ~6 px margin and soft shadow): banner (title, tape at top-centre), sheet (instructions, tape), note, button (terracotta, embossed inset border), backtab, key. Dark plate variants are Pillow recolours (charcoal-slate paper, burgundy button).
+## Caveats
+- Layers were generated separately on magenta, registered by composition prompt (dark by image reference); alignment verified visually on contact-intro.png, not pixel-exact. bg-dark composition (moon, clouds) differs from bg-light but the mountain/horizon band matches.
+- Dark props desaturated 20% in post. Dark lamp: a small pink glow halo under the bulb was cut by a mask, leaving a slightly flat bulb bottom; glass jars keep a faint pink cast from the magenta backdrop (light and dark).
+- Dark plates are dark and flat; tape strips on dark plates are barely visible; builder should lighten text/ink on them.
+- No Pillow-level pixel-exact test of aspect: 2688x1520 originals were centre-cropped to 16:9 then resized.
+- Some layers are baked-in lighting, so parallax shifts should be small (hence base ~4px).

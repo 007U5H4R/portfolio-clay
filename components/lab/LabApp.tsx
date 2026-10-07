@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,8 @@ import { createRuntime } from "./create-runtime";
 import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { Diorama } from "./Diorama";
-import { CenterText, Chrome, Hint, Hud, Intro, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
+import { IntroBack, IntroFront } from "./IntroScene";
+import { CenterText, Chrome, Hint, Hud, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
 import type { LabRuntime } from "./runtime";
 import { webglAvailable } from "./webgl";
@@ -111,11 +112,21 @@ export default function LabApp() {
     return () => window.clearTimeout(t);
   }, [runtime, store]);
 
+  // The intro stays mounted while it animates out (the paper opens onto the game world).
+  const [leaving, setLeaving] = useState(false);
+  const leaveTimer = useRef<number | null>(null);
+  useEffect(() => () => void (leaveTimer.current !== null && window.clearTimeout(leaveTimer.current)), []);
+
   const startRun = useCallback(
     (event: "PLAY" | "REPLAY") => {
       const s = store.getState();
+      const wasIntro = s.state === "INTRO";
       const next = s.send(event);
       if (next !== "COUNTDOWN" || !runtime) return;
+      if (wasIntro) {
+        setLeaving(true);
+        leaveTimer.current = window.setTimeout(() => setLeaving(false), runtime.reducedMotion ? 300 : 800);
+      }
       runtime.engine.beginRun();
       runtime.jelly.reset();
       runtime.melt = 0;
@@ -158,6 +169,7 @@ export default function LabApp() {
   useEffect(() => {
     if (state === "INTRO" || state === "PAUSED" || state === "RESULTS") runtime?.audio.play("rustle");
   }, [state, runtime]);
+  const introOn = mode === "canvas" && (state === "DISCOVERED" || state === "INTRO" || leaving);
   const running = state === "PLAYING" || state === "DANGER" || state === "PAUSED" || state === "COUNTDOWN";
 
   return (
@@ -167,12 +179,14 @@ export default function LabApp() {
       data-lab-state={state}
       data-lab-asset={asset}
       data-lab-path={LAB_PATH}
+      data-intro={introOn ? (leaving ? "leaving" : "on") : undefined}
       data-theme-mode={tp ? "tp" : undefined}
       data-lenis-prevent=""
       onClickCapture={(e) => {
         if ((e.target as Element).closest("button, a")) runtime?.audio.play("click");
       }}
     >
+      {introOn ? <IntroBack show={art} leaving={leaving} /> : null}
       {mode === "canvas" && runtime ? (
         <Diorama show={art}>
           <div className={styles.canvasWrap} data-lab-canvas="" role="group" aria-label="Gummy Lab play field">
@@ -188,6 +202,8 @@ export default function LabApp() {
         </div>
       )}
       {mode === "canvas" ? (
+        <>
+        {introOn ? <IntroFront art={art} text={state === "INTRO" || leaving} leaving={leaving} onPlay={() => startRun("PLAY")} /> : null}
         <div className={styles.opening}>
           {running ? <Hud store={store} onPause={togglePause} /> : null}
           <CenterText store={store} />
@@ -197,10 +213,10 @@ export default function LabApp() {
           <Toasts store={store} />
           {debug && runtime ? <DebugPanel runtime={runtime} /> : null}
           {state === "DISCOVERED" ? <p className={styles.loading} role="status">Warming up the Gummy Lab…</p> : null}
-          {state === "INTRO" ? <Intro onPlay={() => startRun("PLAY")} /> : null}
           {state === "PAUSED" ? <PauseCard onResume={togglePause} onExit={() => exit("button")} /> : null}
           {state === "RESULTS" ? <Results store={store} onReplay={() => startRun("REPLAY")} onExit={() => exit("button")} /> : null}
         </div>
+        </>
       ) : (
         <Fallback onBack={() => exit("button")} />
       )}

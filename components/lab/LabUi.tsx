@@ -201,27 +201,6 @@ function Screen({ children, label }: { children: ReactNode; label: string }) {
   );
 }
 
-export function Intro({ onPlay }: { onPlay: () => void }) {
-  const btn = useRef<HTMLButtonElement>(null);
-  useFocusOnMount(btn);
-  return (
-    <Screen label="Gummy Lab">
-      <p className={styles.micro}>You found the secret lab.</p>
-      <h1 className={styles.title}>Gummy Lab</h1>
-      <p className={styles.sub}>Keep the Gummy Alive</p>
-      <ul className={styles.chips} aria-label="How to play">
-        {["Drag", "Flick", "Bounce", "Squish", "Don't let it fall"].map((c) => (
-          <li key={c} className={styles.chip}>{c}</li>
-        ))}
-      </ul>
-      <button ref={btn} type="button" className={styles.play} onClick={onPlay} data-lab-play="">
-        Let&apos;s play <span aria-hidden="true">→</span>
-      </button>
-      <p className={styles.keys}>Keyboard: ← → nudge · Space bounce · P pause · Esc exit</p>
-    </Screen>
-  );
-}
-
 export function PauseCard({ onResume, onExit }: { onResume: () => void; onExit: () => void }) {
   const btn = useRef<HTMLButtonElement>(null);
   useFocusOnMount(btn);
