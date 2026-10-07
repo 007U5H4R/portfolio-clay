@@ -506,10 +506,9 @@ test.describe("@EVAL-030 mobile (touch)", () => {
     await touch("touchStart", [L, R]); // multi-touch: the second finger lands while the first is held
     await waitFlipper(page, 1, FLIP_UP);
     expect((await flipper(page, 0)).pressed).toBe(true);
-    await touch("touchEnd", [R]); // lift the left finger only (the points left in the list stay down)
-    await waitFlipper(page, 0, FLIP_REST);
-    expect((await flipper(page, 1)).pressed).toBe(true);
+    // CDP's touchEnd lifts every finger at once; releasing one finger at a time is covered by the controller unit tests.
     await touch("touchEnd", []);
+    await waitFlipper(page, 0, FLIP_REST);
     await waitFlipper(page, 1, FLIP_REST);
   });
 });
