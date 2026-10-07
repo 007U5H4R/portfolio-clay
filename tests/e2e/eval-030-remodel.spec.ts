@@ -192,6 +192,14 @@ test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)"
     test.setTimeout(150_000);
   });
 
+  test("@EVAL-030 intro paper plates sit on their own compositing layer (Safari dropped the sheet's paper while it moved)", async ({ page }) => {
+    await openGame(page);
+    await page.waitForSelector("[data-lab-play]", { timeout: 40_000 });
+    const wc = await page.locator("[class*='plate2']").evaluateAll((els) => els.map((e) => getComputedStyle(e).willChange));
+    expect(wc.length).toBeGreaterThanOrEqual(3);
+    for (const v of wc) expect(v).toContain("translate");
+  });
+
   test("@EVAL-030 the intro is live text on paper: note, title, sub, instruction sheet and a named CTA", async ({ page }, info) => {
     await openGame(page);
     await expect(page.getByRole("heading", { name: "Gummy Lab", level: 1 })).toBeVisible();

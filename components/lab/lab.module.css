@@ -818,6 +818,10 @@
   box-sizing: border-box;
   position: absolute;
   translate: calc(var(--pp-x, 0) * var(--k) * var(--ib)) calc(var(--pp-y, 0) * var(--k) * var(--ib));
+  /* Tushar 2026-10-07 (Safari): the instruction sheet's paper vanished while the pointer moved. The plate is restyled
+     every frame through --pp-x/--pp-y, and WebKit repaints it and re-decodes its large background art asynchronously,
+     painting nothing meanwhile. Its own compositing layer means the painted plate is only moved, never repainted. */
+  will-change: translate;
   background: var(--plate-img) center / 100% 100% no-repeat;
   color: var(--ink);
   pointer-events: none;
