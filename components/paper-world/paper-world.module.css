@@ -102,7 +102,8 @@
   border-radius: 6px;
   background: var(--mat-cream);
   color: var(--color-navy);
-  font: 600 0.875rem/1.2 var(--font-sans, system-ui, sans-serif);
+  /* The site's named body face (Inter): --font-sans never existed, so the chip fell back to a system font (fallback-glyphs). */
+  font: 600 0.875rem/1.2 var(--font-body);
   box-shadow: 2px 2px 0 var(--mat-side), 1px 2px 2px color-mix(in oklab, var(--color-navy) 30%, transparent);
   cursor: pointer;
 }
