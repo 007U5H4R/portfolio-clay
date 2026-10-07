@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import type { LabStoreApi } from "@/lib/lab/store";
+import { CONTROL_LABELS } from "./controls-copy";
 import styles from "./lab.module.css";
 
 /**
@@ -48,7 +49,7 @@ export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: 
       </Link>
       {state !== "EXITING" ? (
         <div className={styles.chromeRight}>
-          <button type="button" className={styles.round} data-lab-sound="" aria-pressed={!muted} aria-label={muted ? "Sound is off. Turn sound on" : "Sound is on. Turn sound off"} onClick={(e) => {
+          <button type="button" className={styles.round} data-lab-sound="" aria-pressed={!muted} aria-label={muted ? CONTROL_LABELS.soundOff : CONTROL_LABELS.soundOn} onClick={(e) => {
             onMute();
             e.currentTarget.blur();
           }}>
@@ -96,7 +97,7 @@ export function Hud({ store, onPause }: { store: LabStoreApi; onPause: () => voi
           <span className={styles.hudValue} data-lab-time="">{fmtTime(timeS)}</span>
         </div>
         {state === "PLAYING" || state === "DANGER" || state === "PAUSED" ? (
-          <button type="button" className={`${styles.round} ${styles.pause}`} data-lab-pause="" aria-label={state === "PAUSED" ? "Resume" : "Pause"} onClick={(e) => {
+          <button type="button" className={`${styles.round} ${styles.pause}`} data-lab-pause="" aria-label={state === "PAUSED" ? CONTROL_LABELS.resume : CONTROL_LABELS.pause} onClick={(e) => {
             onPause();
             e.currentTarget.blur();
           }}>

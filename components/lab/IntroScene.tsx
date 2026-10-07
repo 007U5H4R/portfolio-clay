@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { paperMotion } from "@/lib/paper-world/motion";
+import { CONTROL_LABELS, HOW_TO_PLAY, KEYBOARD_LABEL } from "./controls-copy";
 import styles from "./lab.module.css";
 
 /**
@@ -108,47 +109,6 @@ export function IntroBack({ show, leaving }: { show: boolean; leaving: boolean }
   );
 }
 
-const ICON = { width: 28, height: 28, viewBox: "0 0 32 32", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
-const HOW: { main: string; sub?: string; icon: ReactNode }[] = [
-  {
-    main: "Drag",
-    sub: "to move",
-    icon: (
-      <svg {...ICON}>
-        <path d="M11 17V8a2 2 0 0 1 4 0v7m0-3a2 2 0 0 1 4 0v3m0-2a2 2 0 0 1 4 0v6c0 4-3 7-7 7h-2c-3 0-5-2-6-4l-3-5a2 2 0 0 1 3-2l3 3" />
-        <path d="M24 5h5m-2-2 2 2-2 2" />
-      </svg>
-    ),
-  },
-  {
-    main: "Flick",
-    sub: "to bounce",
-    icon: (
-      <svg {...ICON}>
-        <path d="M5 27c1-9 7-15 18-17m-6-4 6 4-5 6" />
-      </svg>
-    ),
-  },
-  {
-    main: "Collect",
-    sub: "stars & rings",
-    icon: (
-      <svg {...ICON}>
-        <path d="m16 4 3.6 7.4 8 1.1-5.8 5.6 1.4 8L16 22.2 8.8 26.1l1.4-8-5.8-5.6 8-1.1z" />
-      </svg>
-    ),
-  },
-  {
-    main: "Don't let it fall",
-    icon: (
-      <svg {...ICON}>
-        <path d="M16 4 29 27H3z" />
-        <path d="M16 13v7m0 3.5v.5" />
-      </svg>
-    ),
-  },
-];
-
 export function IntroFront({ art, text, leaving, onPlay }: { art: boolean; text: boolean; leaving: boolean; onPlay: () => void }) {
   const root = useRef<HTMLDivElement>(null);
   const cta = useRef<HTMLButtonElement>(null);
@@ -168,15 +128,15 @@ export function IntroFront({ art, text, leaving, onPlay }: { art: boolean; text:
           </div>
         ) : null}
         {text ? (
-        <section className={styles.introContent} aria-label="Gummy Lab" data-lab-intro="">
+        <section className={styles.introContent} aria-label={CONTROL_LABELS.introRegion} data-lab-intro="">
           <div className={`${styles.plate2} ${styles.banner}`} style={{ "--k": 4 } as CSSProperties}>
             <p className={styles.micro}>You found the secret lab.</p>
             <h1 className={styles.introTitle}>Gummy Lab</h1>
             <p className={styles.introSub}>Keep the Gummy Alive</p>
           </div>
           <div className={`${styles.plate2} ${styles.sheet}`} style={{ "--k": 4 } as CSSProperties}>
-            <ul className={styles.how} aria-label="How to play">
-              {HOW.map((h) => (
+            <ul className={styles.how} aria-label={CONTROL_LABELS.howToPlay}>
+              {HOW_TO_PLAY.map((h) => (
                 <li key={h.main} className={styles.howItem}>
                   {h.icon}
                   <span className={styles.howMain}>{h.main}</span>
@@ -186,11 +146,10 @@ export function IntroFront({ art, text, leaving, onPlay }: { art: boolean; text:
             </ul>
           </div>
           <div className={`${styles.plate2} ${styles.keyLabel}`} style={{ "--k": 4 } as CSSProperties} data-lab-keys="">
-            <p className={styles.keyTitle}>Keyboard</p>
-            <p className={styles.keyRow}>← → nudge</p>
-            <p className={styles.keyRow}>Space bounce</p>
-            <p className={styles.keyRow}>P pause</p>
-            <p className={styles.keyRow}>Esc exit</p>
+            <p className={styles.keyTitle}>{KEYBOARD_LABEL.title}</p>
+            {KEYBOARD_LABEL.rows.map((r) => (
+              <p key={r} className={styles.keyRow}>{r}</p>
+            ))}
           </div>
           <button ref={cta} type="button" className={`${styles.plate2} ${styles.pull}`} style={{ "--k": 4 } as CSSProperties} onClick={onPlay} disabled={leaving} data-lab-play="">
             <span className={styles.pullText}>
