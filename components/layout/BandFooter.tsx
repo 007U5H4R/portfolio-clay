@@ -47,9 +47,8 @@ export function BandFooter() {
             <br />
             <span className="dim">something people can use.</span>
           </h2>
-          <p className="band-hire">
-            Hiring for PM, AI PM or AI-builder roles? Say hi.
-          </p>
+          {/* Tushar 2026-10-07 (TASK-177): his words, replacing the signed-off hiring line. */}
+          <p className="band-hire">From “what if?” to “it’s live.” Let’s build what’s next.</p>
 
           <div className="band-row">
             <div>
@@ -105,7 +104,13 @@ export function BandFooter() {
           </div>
 
           <div className="band-bar">
-            <span>© 2026 Tushar Pathak. Built with curiosity, chai &amp; Claude Code.</span>
+            <span>
+              © 2026 Tushar Pathak. I like ideas. I love making them real.{" "}
+              {/* Decorative: the emoji face is named so no glyph falls back to a system-font search (fallback-glyphs). */}
+              <span className="band-heart" aria-hidden="true">
+                💓
+              </span>
+            </span>
             <span className="band-tagline">
               <Hand kind="quote" as="span" cite={<span className="sr-only">Source: {site.name}</span>}>
                 {hero.tagline.text}
