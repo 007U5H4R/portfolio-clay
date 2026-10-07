@@ -10,7 +10,6 @@ import {
   ExtrudeGeometry,
   Group,
   MeshBasicMaterial,
-  MeshStandardMaterial,
   Shape,
   SphereGeometry,
   TorusGeometry,
@@ -20,7 +19,7 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import type { Pickup, PickupKind } from "@/lib/lab/spawner";
 import type { PowerUpType } from "@/lib/lab/engine";
 import type { RGB } from "@/lib/lab/tokens";
-import { col } from "./materials";
+import { createPaperMaterial } from "./materials";
 import { useRuntime } from "./runtime";
 
 /**
@@ -126,16 +125,16 @@ function useAssets(): Assets {
   const rt = useRuntime();
   const assets = useMemo<Assets>(() => {
     const p = rt.palette;
-    const ring = { geo: new TorusGeometry(0.36, 0.07, 12, 36), mat: new MeshStandardMaterial({ color: col(p.cyan), emissive: col(p.cyan), emissiveIntensity: 0.35, roughness: 0.25 }) };
+    const ring = { geo: new TorusGeometry(0.36, 0.07, 12, 36), mat: createPaperMaterial("rose", { lift: 0.22 }) };
     const star = {
       geo: new ExtrudeGeometry(starShape(0.34), { depth: 0.12, bevelEnabled: true, bevelSize: 0.03, bevelThickness: 0.03, bevelSegments: 2 }),
-      mat: new MeshStandardMaterial({ color: col(p.gold), emissive: col(p.gold), emissiveIntensity: 0.45, roughness: 0.25 }),
+      mat: createPaperMaterial("ochre", { lift: 0.25 }),
     };
     const droplet = {
       geo: new SphereGeometry(0.2, 16, 12),
-      mat: new MeshStandardMaterial({ color: col(p.orange), emissive: col(p.peach), emissiveIntensity: 0.4, roughness: 0.15, transparent: true, opacity: 0.88 }),
+      mat: createPaperMaterial("blue", { lift: 0.22 }),
     };
-    const card = { geo: new RoundedBoxGeometry(0.72, 0.72, 0.16, 3, 0.16), mat: new MeshStandardMaterial({ color: col(p.cream), emissive: col(p.peach), emissiveIntensity: 0.25, roughness: 0.3 }) };
+    const card = { geo: new RoundedBoxGeometry(0.72, 0.72, 0.16, 3, 0.16), mat: createPaperMaterial("cream", { lift: 0.2 }) };
     const glyphGeo = new CylinderGeometry(0.28, 0.28, 0.01, 1, 1); // placeholder (replaced by a plane below)
     const glyphs = Object.fromEntries(
       (["SUPER_SQUISH", "LOW_GRAVITY", "RAINBOW", "GOLDEN", "TIME_FREEZE"] as PowerUpType[]).map((k) => [

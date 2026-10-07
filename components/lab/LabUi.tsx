@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import type { LabStoreApi } from "@/lib/lab/store";
+import { CONTROL_LABELS } from "./controls-copy";
 import styles from "./lab.module.css";
 
 /**
@@ -48,7 +49,7 @@ export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: 
       </Link>
       {state !== "EXITING" ? (
         <div className={styles.chromeRight}>
-          <button type="button" className={styles.iconBtn} aria-pressed={!muted} aria-label={muted ? "Sound is off. Turn sound on" : "Sound is on. Turn sound off"} onClick={(e) => {
+          <button type="button" className={styles.round} data-lab-sound="" aria-pressed={!muted} aria-label={muted ? CONTROL_LABELS.soundOff : CONTROL_LABELS.soundOn} onClick={(e) => {
             onMute();
             e.currentTarget.blur();
           }}>
@@ -56,6 +57,18 @@ export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: 
           </button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/** One blank paper plate with a live label and value. The value is real text (Fraunces numerals), never part of the art. */
+function Plate({ className, label, children }: { className: string | undefined; label: string; children: ReactNode }) {
+  return (
+    <div className={`${styles.plate} ${className}`}>
+      <div className={styles.plateInner}>
+        <span className={styles.hudLabel}>{label}</span>
+        {children}
+      </div>
     </div>
   );
 }
@@ -68,27 +81,29 @@ export function Hud({ store, onPause }: { store: LabStoreApi; onPause: () => voi
   const state = store((s) => s.state);
   return (
     <div className={styles.hud} data-lab-hud="">
-      <div className={styles.hudItem}>
-        <span className={styles.hudLabel}>Score</span>
+      <Plate className={styles.plateScore} label="Score">
         <span className={styles.hudValue} data-lab-score="">{fmtScore(score)}</span>
+      </Plate>
+      {/* Remounting on each change replays the lift + flutter once; reduced motion turns the animation off in CSS. */}
+      <div key={combo} className={`${styles.plate} ${styles.plateCombo} ${combo > 1 ? styles.flutter : ""}`} data-lab-combo-plate="">
+        <div className={styles.plateInner}>
+          <span className={styles.hudLabel}>Combo{tp ? " · TP" : ""}</span>
+          <span className={`${styles.hudValue} ${styles.combo}`} data-hot={combo >= 3} data-lab-combo="">x{combo}</span>
+        </div>
       </div>
-      <div className={styles.hudItem}>
-        <span className={styles.hudLabel}>Combo{tp ? " · TP" : ""}</span>
-        <span className={`${styles.hudValue} ${styles.combo}`} data-hot={combo >= 3} data-lab-combo="">x{combo}</span>
-      </div>
-      <div className={styles.hudItem}>
-        <span className={styles.hudLabel}>Time</span>
-        <span className={styles.hudTime}>
+      <div className={`${styles.plate} ${styles.plateTime}`}>
+        <div className={styles.plateInner}>
+          <span className={styles.hudLabel}>Time</span>
           <span className={styles.hudValue} data-lab-time="">{fmtTime(timeS)}</span>
-          {state === "PLAYING" || state === "DANGER" || state === "PAUSED" ? (
-            <button type="button" className={`${styles.iconBtn} ${styles.pause}`} aria-label={state === "PAUSED" ? "Resume" : "Pause"} onClick={(e) => {
-              onPause();
-              e.currentTarget.blur();
-            }}>
-              {state === "PAUSED" ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
-            </button>
-          ) : null}
-        </span>
+        </div>
+        {state === "PLAYING" || state === "DANGER" || state === "PAUSED" ? (
+          <button type="button" className={`${styles.round} ${styles.pause}`} data-lab-pause="" aria-label={state === "PAUSED" ? CONTROL_LABELS.resume : CONTROL_LABELS.pause} onClick={(e) => {
+            onPause();
+            e.currentTarget.blur();
+          }}>
+            {state === "PAUSED" ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -184,27 +199,6 @@ function Screen({ children, label }: { children: ReactNode; label: string }) {
     <section className={styles.screen} aria-label={label}>
       {children}
     </section>
-  );
-}
-
-export function Intro({ onPlay }: { onPlay: () => void }) {
-  const btn = useRef<HTMLButtonElement>(null);
-  useFocusOnMount(btn);
-  return (
-    <Screen label="Gummy Lab">
-      <p className={styles.micro}>You found the secret lab.</p>
-      <h1 className={styles.title}>Gummy Lab</h1>
-      <p className={styles.sub}>Keep the Gummy Alive</p>
-      <ul className={styles.chips} aria-label="How to play">
-        {["Drag", "Flick", "Bounce", "Squish", "Don't let it fall"].map((c) => (
-          <li key={c} className={styles.chip}>{c}</li>
-        ))}
-      </ul>
-      <p className={styles.keys}>Keyboard: ← → nudge · Space bounce · P pause · Esc exit</p>
-      <button ref={btn} type="button" className={styles.play} onClick={onPlay} data-lab-play="">
-        Let&apos;s play <span aria-hidden="true">→</span>
-      </button>
-    </Screen>
   );
 }
 

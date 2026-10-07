@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera, Vector3 } from "three";
+import { introFraming } from "./intro-geometry";
 import { useRuntime } from "./runtime";
 
 /**
@@ -23,15 +24,29 @@ export function fitDistance(aspect: number, halfW: number, height: number, margi
 
 export function CameraRig() {
   const rt = useRuntime();
-  const { camera, size } = useThree();
+  const { camera, size, gl } = useThree();
   const focus = useRef(0.62);
+  // Intro framing (TASK-168): how much world the camera shows and where the feet sit, from the art's stage anchor.
+  const framing = useRef({ visibleHeight: 5.6, feetFraction: 0.8 });
+  useEffect(() => {
+    const update = () => {
+      const r = gl.domElement.getBoundingClientRect();
+      if (r.height > 0) framing.current = introFraming(window.innerWidth, window.innerHeight, { top: r.top, height: r.height });
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [gl, size]);
+  const probe = useRef(new Vector3());
   useEffect(() => {
     const v = new Vector3();
     rt.project = (x, y) => {
       v.set(x, y, 0).project(camera);
-      return { x: ((v.x + 1) / 2) * size.width, y: ((1 - v.y) / 2) * size.height };
+      // Viewport coordinates: the canvas sits inside the diorama's opening, not at the page origin.
+      const r = gl.domElement.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * size.width, y: r.top + ((1 - v.y) / 2) * size.height };
     };
-  }, [rt, camera, size]);
+  }, [rt, camera, size, gl]);
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30);
     const cam = camera as PerspectiveCamera;
@@ -41,18 +56,34 @@ export function CameraRig() {
     const play = fitDistance(aspect, arena.halfW, h);
     // intro / results: a close product shot. The bear is placed by screen fraction so it clears the
     // title (intro, lower) or the results card (results, upper) on any aspect ratio.
-    const introDist = Math.max(5.6 / 2 / TAN, 2.4 / (TAN * aspect));
-    const introH = 2 * introDist * TAN;
     const state = rt.store.getState().machine.state;
+    const results = state === "RESULTS";
+    // Results keep the original close shot; the intro frames the bear to stand on the stage art's anchor.
+    const introDist = results ? Math.max(5.6 / 2 / TAN, 2.4 / (TAN * aspect)) : framing.current.visibleHeight / 2 / TAN;
+    const introH = 2 * introDist * TAN;
     const wantPlay = state === "COUNTDOWN" || state === "PLAYING" || state === "PAUSED" || state === "DANGER" || state === "GAME_OVER";
     rt.introBlend += ((wantPlay ? 1 : 0) - rt.introBlend) * (1 - Math.exp(-3.2 * dt));
     const k = rt.introBlend;
     const dist = introDist + (play - introDist) * k;
     const centreY = (arena.floorY + arena.ceilingY) / 2 + 0.2;
-    focus.current += ((state === "RESULTS" ? 0.17 : 0.62) - focus.current) * (1 - Math.exp(-4 * dt));
+    focus.current += ((results ? 0.17 : 0.62) - focus.current) * (1 - Math.exp(-4 * dt));
     rt.resultsScale = Math.min(1.5, Math.max(0.9, 0.17 * introH));
     const bearMid = arena.introPos.y + 0.5 * (state === "RESULTS" ? rt.resultsScale : 1.9);
-    const introY = bearMid + (focus.current - 0.5) * introH;
+    let introY = bearMid + (focus.current - 0.5) * introH;
+    if (!results && k < 0.999) {
+      // Solve the look-at height so the bear's feet project to the stage anchor (a few Newton steps on the real camera).
+      const feetY = arena.introPos.y;
+      const target = 1 - 2 * framing.current.feetFraction;
+      let look = feetY + (framing.current.feetFraction - 0.5) * introH;
+      for (let i = 0; i < 3; i += 1) {
+        cam.position.set(0, look + introDist * Math.tan(TILT), introDist);
+        cam.lookAt(0, look, 0);
+        cam.updateMatrixWorld();
+        probe.current.set(0, feetY, 0).project(cam);
+        look += (probe.current.y - target) * (introH / 2);
+      }
+      introY = look;
+    }
     const follow = rt.reducedMotion ? 0 : 0.06 * rt.tune.follow;
     const fy = (rt.bear.y - centreY) * follow * k;
     const zoom = rt.reducedMotion ? 0 : rt.zoom * 0.05;

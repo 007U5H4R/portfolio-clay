@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { MeshPhysicalMaterial } from "three";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
-import type { AudioManager } from "@/lib/lab/audio";
+import type { LabAudio } from "./audio";
 import type { GameEngine } from "@/lib/lab/engine";
 import type { Spawner } from "@/lib/lab/spawner";
 import type { GummyPhysicsState } from "@/lib/lab/gummy-state";
@@ -90,7 +90,7 @@ export interface LabRuntime {
   arena: ArenaSpec;
   store: LabStoreApi;
   engine: GameEngine;
-  audio: AudioManager;
+  audio: LabAudio;
   spawner: Spawner;
   /** Asks the shell to leave the lab (portal / button / ESC) with the exit animation. */
   requestExit(via: "portal" | "button"): void;
@@ -108,7 +108,7 @@ export interface LabRuntime {
   zoom: number;
   /** 0 = intro framing, 1 = play framing; eased by the camera rig. */
   introBlend: number;
-  /** World (z = 0) → canvas CSS pixels, for DOM overlays and tests. Set by the camera rig. */
+  /** World (z = 0) → viewport CSS pixels (canvas offset included), for DOM overlays and tests. Set by the camera rig. */
   project(x: number, y: number): { x: number; y: number };
   /** World scale of the bear on the results screen (set by the camera so it clears the card). */
   resultsScale: number;
