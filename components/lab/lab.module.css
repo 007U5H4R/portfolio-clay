@@ -538,7 +538,7 @@
   box-sizing: border-box;
   margin: auto;
   width: min(92vw, 420px);
-  padding: 44px 34px 38px;
+  padding: 46px 46px 40px;
   /* A paper plate in the HUD's material language: cream sheet, deckled edge, tape strip and soft shadow are in the art. */
   background: url("/media/lab/intro/intro-plate-sheet-light.webp") center / 100% 100% no-repeat;
   color: var(--lab-ink);
