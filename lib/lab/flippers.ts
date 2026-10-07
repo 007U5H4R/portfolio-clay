@@ -145,9 +145,57 @@ export function nearFlipper(l: FlipperLayout, s: FlipperState, ball: Vec2): bool
   return rx * n.x + ry * n.y > 0 && Math.hypot(rx - d.x * along, ry - d.y * along) <= FLIP_REACH + 0.2;
 }
 
-/** Resting for this long on anything that is not a flipper earns a nudge toward the middle (a stalled gummy is a soft-lock). */
-export const STALL_SPEED = 0.45;
+/**
+ * Anti-stall (TASK-184). A gummy that stays inside a small area for STALL_AFTER_S anywhere but on a flipper is stuck
+ * (a soft-lock: the player can only reach it with the flippers). Judged by POSITION, not speed: wind and the LAB
+ * UNSTABLE low-gravity wobble keep a trapped gummy twitching above any speed threshold (Tushar's 2026-10-08 screenshot:
+ * wedged between the green ball and the blue rail, never freed). Each nudge flips direction and grows, and every second
+ * try pushes DOWN, so a gummy pinned under a rail is pulled out instead of being driven further into it.
+ */
 export const STALL_AFTER_S = 1.1;
-export function stallNudge(x: number): Vec2 {
-  return { x: x >= 0 ? -3.2 : 3.2, y: 3 };
+export const STALL_RADIUS = 0.35;
+/** Distance from the last stuck point beyond which the gummy counts as freed. */
+export const STALL_ESCAPED = 1.2;
+const NUDGE_BASE = 3.2;
+const NUDGE_GROWTH = 1.35;
+const NUDGE_MAX_TRIES = 4;
+
+export class StallWatch {
+  private anchor: Vec2 | null = null;
+  private still = 0;
+  private tries = 0;
+  /** Where the last nudge fired: escalation resets once the gummy is clearly away from it (it escaped). */
+  private stuckAt: Vec2 | null = null;
+
+  /** One fixed physics step. Returns a velocity to set when the gummy is judged stuck, otherwise null. */
+  step(dt: number, pos: Vec2, onFlipper: boolean): Vec2 | null {
+    if (onFlipper || (this.stuckAt && Math.hypot(pos.x - this.stuckAt.x, pos.y - this.stuckAt.y) > STALL_ESCAPED)) {
+      this.tries = 0;
+      this.stuckAt = null;
+    }
+    if (onFlipper || !this.anchor || Math.hypot(pos.x - this.anchor.x, pos.y - this.anchor.y) > STALL_RADIUS) {
+      this.anchor = { x: pos.x, y: pos.y };
+      this.still = 0;
+      return null;
+    }
+    this.still += dt;
+    if (this.still <= STALL_AFTER_S) return null;
+    const k = Math.min(this.tries, NUDGE_MAX_TRIES);
+    const away = pos.x >= 0 ? -1 : 1;
+    const side = k % 2 === 0 ? away : -away;
+    const mag = NUDGE_BASE * Math.pow(NUDGE_GROWTH, k);
+    const nudge = { x: side * mag, y: k % 2 === 0 ? mag * 0.9 : -mag * 0.6 };
+    this.tries += 1;
+    this.still = 0;
+    this.anchor = { x: pos.x, y: pos.y };
+    this.stuckAt = { x: pos.x, y: pos.y };
+    return nudge;
+  }
+
+  reset() {
+    this.anchor = null;
+    this.still = 0;
+    this.tries = 0;
+    this.stuckAt = null;
+  }
 }
