@@ -440,7 +440,9 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
   test("@EVAL-030 the GLB loads (asset ready) — and if it fails to load the lab still plays with a stand-in gummy", async ({ page }) => {
     await openGame(page);
     await page.waitForSelector("[data-lab-state='INTRO']", { timeout: 40_000 });
-    expect(await page.locator("[data-lab-asset]").getAttribute("data-lab-asset")).toBe("ready");
+    // TASK-155: the intro no longer waits on the GLB (it warms in parallel), so the asset becomes ready after INTRO
+    // shows — within the same 40 s budget the INTRO wait had.
+    await expect(page.locator("[data-lab-asset]")).toHaveAttribute("data-lab-asset", "ready", { timeout: 40_000 });
     // second visit with the asset blocked
     await page.route("**/lab/gummy.glb", (route) => route.abort());
     await page.goto("/lab?debug");

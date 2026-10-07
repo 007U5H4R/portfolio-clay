@@ -105,6 +105,17 @@ test.describe("@EVAL-037 paper button contract", () => {
     await page.goto("/", { waitUntil: "networkidle" });
     const btn = page.locator(".hero-btn-primary").first();
     await btn.scrollIntoViewIfNeeded();
+    // The hero sheet's scroll-driven drift (TKT-96) keeps moving the button for a few frames after the scroll
+    // (measured 418 → 515 px), so a box read at once sends the pointer where the button was. Wait until it is still.
+    await page.waitForFunction(
+      (sel) =>
+        new Promise<boolean>((done) => {
+          const el = document.querySelector(sel)!;
+          const y0 = el.getBoundingClientRect().top;
+          requestAnimationFrame(() => requestAnimationFrame(() => done(el.getBoundingClientRect().top === y0)));
+        }),
+      ".hero-btn-primary",
+    );
     const box0 = await btn.boundingBox();
     const ty = () => btn.evaluate((e) => Number.parseFloat(getComputedStyle(e).translate.split(" ")[1] ?? "0") || 0);
     await page.mouse.move(box0!.x + box0!.width / 2, box0!.y + box0!.height / 2);

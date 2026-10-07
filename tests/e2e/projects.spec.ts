@@ -75,11 +75,12 @@ test("@EVAL-011 the carousel lists every personal build; the first is selected i
   await expect(panel(page)).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
   await expect(panel(page)).toHaveAttribute("data-media-mode", "pitch");
   await expect(page.getByRole("heading", { level: 2, name: PERSONAL[0]!.name })).toBeVisible();
-  // Only the active media may load — and no recording exists yet, so nothing at all.
+  // Only the active media may load, and only on Play: the first build (TeachSpark) has a launch pitch and a demo
+  // since TASK-170, so its poster carries a Play button and the Pitch/Demo actions — and no player until Play.
   await expect(page.locator("video, iframe")).toHaveCount(0);
   await expect(page.locator(".pf-stage .pf-cover")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: /^Play / })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /^(Pitch|Demo) video$/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Play / })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /^(Pitch|Demo) video$/ })).toHaveCount(2);
 });
 
 test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the URL; the case-study link opens in a new tab", {

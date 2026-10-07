@@ -21,6 +21,7 @@ export function GyroChip({ className }: { className?: string | undefined }) {
   return (
     <button
       type="button"
+      data-gyro-chip=""
       className={[styles.chip, className].filter(Boolean).join(" ")}
       onClick={() => {
         void paperMotion.requestGyro().then(() => setDecided(true));

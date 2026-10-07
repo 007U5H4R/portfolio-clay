@@ -37,7 +37,8 @@ test("every certification is one <a> to its exact Credly credential", async ({ p
   // the profile URL is never a card target, and there is no generic "Verify" control
   await expect(page.locator('main a[href*="/users/tusharpathak94"]')).toHaveCount(0);
   await expect(page.locator("main").getByText(/\bverify\b/i)).toHaveCount(0);
-  await expect(page.locator("main button")).toHaveCount(0);
+  // Credentials are links, never buttons. The scene's tilt chip (TASK-169) is a site-wide motion control, not content.
+  await expect(page.locator("main button:not([data-gyro-chip])")).toHaveCount(0);
 });
 
 test("the five annotated certifications carry their sticky note, name, issuer and year", async ({ page }) => {

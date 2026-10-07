@@ -13205,8 +13205,9 @@ html[data-theme-vt]::view-transition-group(root) {
    towards right", legible in light and dark). ≥ 768 it is written on the scene's empty ruled page: the note box has the
    scene's ratio (set inline) and rides the opener's scroll drift with the scene (the shared `scene-parallax` rule
    above), so the ink never slides off the paper. Ink is the role token `--color-navy` (navy on the light cream page,
-   cream on the dark navy page) and the attribution `--color-rust`; both flip with the theme. < 768 the opener crops to
-   Tushar, so this copy is display:none and `.contact-quote-narrow` (below the opener) shows instead. */
+   cream on the dark navy page) and the attribution `--color-rust`; both flip with the theme. < 768 the opener is a 4:3
+   crop on Tushar that still keeps empty ruled paper top-left, so the note box takes that 4:3 frame and the quote is
+   written smaller in the top-left corner (Tushar 2026-10-07: it sat below the scene on his phone; he wants it on it). */
 @layer components {
   .scene-opener-note {
     position: absolute;
@@ -13245,25 +13246,20 @@ html[data-theme-vt]::view-transition-group(root) {
     font-size: clamp(1.25rem, 1.8vw, 2.2rem);
     font-weight: 600;
   }
-  .contact-quote-narrow {
-    display: none;
-  }
   @media (max-width: 767px) {
     .scene-opener-note {
-      display: none;
+      aspect-ratio: 4 / 3;
     }
-    .contact-quote-narrow {
-      display: block;
-      padding: 28px 24px 4px;
+    .scene-opener-note .opener-quote {
+      left: 5%;
+      top: 10%;
+      width: 42%;
     }
-    .contact-quote-narrow .opener-quote {
-      max-width: 22rem;
-      margin-inline: auto;
-      transform: rotate(-4deg) skewX(-8deg);
-      transform-origin: center;
+    .opener-quote-text {
+      font-size: 5.3vw;
     }
-    .contact-quote-narrow .opener-quote-text {
-      font-size: 1.9rem;
+    .opener-quote-by {
+      font-size: 4vw;
     }
   }
 }

@@ -23,10 +23,6 @@ export default function ContactPage() {
     <>
       {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-95) — focal point per scene in components/paper/scene-opener-frames.ts. */}
       <SceneOpener id="scene-contact" priority note={<ContactQuote />} />
-      {/* < 768 the opener crops to Tushar, so the quote sits below it (one copy is display:none at each width). */}
-      <div className="contact-quote-narrow">
-        <ContactQuote />
-      </div>
       <ContactSection />
     </>
   );
