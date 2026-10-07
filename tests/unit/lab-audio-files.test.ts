@@ -30,6 +30,7 @@ function harness(opts: { stored?: string | null; failM4a?: boolean } = {}) {
   const urls: string[] = [];
   const music: Started[] = [];
   const sfxStarts: unknown[] = [];
+  const sfxRates: Array<number | undefined> = [];
   const state = { ctx: null as null | (CtxLike & { time: number }), created: 0 };
   const store = new Map<string, string>();
   if (opts.stored) store.set(STORAGE_KEY, opts.stored);
@@ -60,14 +61,17 @@ function harness(opts: { stored?: string | null; failM4a?: boolean } = {}) {
         return g;
       },
       createBufferSource: () => {
-        const src: SourceLike & { gainNode?: unknown } = { buffer: null, onended: null, connect: (n: unknown) => ((src.gainNode = n), n), start: vi.fn() };
+        const src: SourceLike & { gainNode?: unknown } = { buffer: null, onended: null, playbackRate: { value: 1 }, connect: (n: unknown) => ((src.gainNode = n), n), start: vi.fn() };
         src.start = vi.fn((when?: number) => {
           const buf = src.buffer as { url: string; duration: number };
           const g = src.gainNode as { curves: Array<{ t: number; kind: string }> } | undefined;
           if (buf.url.includes("music")) {
             const outc = g?.curves.find((c) => c.kind === "out");
             music.push({ url: buf.url, start: when ?? 0, fadeIn: !!g?.curves.some((c) => c.kind === "in"), fadeOutAt: outc?.t ?? null, src });
-          } else sfxStarts.push(buf.url);
+          } else {
+            sfxStarts.push(buf.url);
+            sfxRates.push(src.playbackRate?.value);
+          }
         });
         return src;
       },
@@ -89,7 +93,7 @@ function harness(opts: { stored?: string | null; failM4a?: boolean } = {}) {
   });
   // The fake "file" is its own URL, so each decoded buffer knows which asset it is.
   const audio = new LabAudio({ createContext, fetchBytes, storage, doc: null, win: null });
-  return { audio, urls, music, sfxStarts, state, store, fetchBytes };
+  return { audio, urls, music, sfxStarts, sfxRates, state, store, fetchBytes };
 }
 const settle = async () => {
   for (let i = 0; i < 80; i += 1) await Promise.resolve();
@@ -176,6 +180,18 @@ describe("LabAudio", () => {
     h.state.ctx!.time = 0.1;
     h.audio.play("bounce");
     expect(h.sfxStarts.map((u) => String(u).match(/bounce-\d/)![0])).toEqual(["bounce-1", "bounce-2"]);
+  });
+
+  it("the flipper SFX is the existing click file, played slower (pitched down), with no new asset", async () => {
+    const h = harness();
+    h.audio.setMuted(false);
+    await settle();
+    expect(SFX_FILES.flip).toEqual(["click"]);
+    h.audio.play("flip");
+    h.state.ctx!.time = 0.2;
+    h.audio.play("click");
+    expect(h.sfxStarts.map((u) => String(u).match(/click/)![0])).toEqual(["click", "click"]);
+    expect(h.sfxRates).toEqual([0.7, 1]);
   });
 
   it("makes no SFX while muted again", async () => {

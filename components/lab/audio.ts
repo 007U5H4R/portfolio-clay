@@ -10,7 +10,7 @@
  * fetched once music-1 has started. Music sits 6 dB under the SFX. `.m4a` first, `.mp3` as the fallback.
  * Audio is paused while the tab is hidden and the context is released on `dispose()` (leaving /lab).
  */
-export type SoundName = "squish" | "bounce" | "ring" | "star" | "powerup" | "danger" | "gameover" | "secret" | "tick" | "click" | "rustle";
+export type SoundName = "squish" | "bounce" | "ring" | "star" | "powerup" | "danger" | "gameover" | "secret" | "tick" | "click" | "rustle" | "flip";
 
 export const MUSIC_TRACKS = ["music-1", "music-2"] as const;
 export const CROSSFADE_S = 0.06;
@@ -33,7 +33,10 @@ export const SFX_FILES: Record<SoundName, readonly string[]> = {
   gameover: ["thud"],
   click: ["click"],
   rustle: ["rustle"],
+  flip: ["click"],
 };
+/** Playback-rate pitch per sound (default 1): the flipper "thock" is the click, a little lower and slower. */
+export const SFX_RATE: Partial<Record<SoundName, number>> = { flip: 0.7 };
 export const ALL_SFX_FILES = ["squish", "bounce-1", "bounce-2", "pluck-pop", "combo-chime", "tick", "win-flourish", "thud", "click", "rustle"] as const;
 
 /** Minimum seconds between two plays of the same sound, so a flurry of impacts never turns harsh. */
@@ -49,6 +52,7 @@ export const MIN_GAP_S: Record<SoundName, number> = {
   gameover: 0.5,
   click: 0.06,
   rustle: 0.25,
+  flip: 0.05,
 };
 
 export const nextTrackIndex = (i: number, n: number = MUSIC_TRACKS.length) => (i + 1) % n;
@@ -335,6 +339,8 @@ export class LabAudio {
     this.alt.set(name, n + 1);
     const src = ctx.createBufferSource();
     src.buffer = buf;
+    const rate = SFX_RATE[name];
+    if (rate && src.playbackRate) src.playbackRate.value = rate;
     src.connect(bus);
     src.start(now);
   }
