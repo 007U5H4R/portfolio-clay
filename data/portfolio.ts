@@ -39,7 +39,10 @@ import type { PortfolioEntry } from "./schema";
  * documents, so it is not listed (never invent a product).
  */
 export const portfolioEntries: PortfolioEntry[] = [
-  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText" },
+  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText",
+    // Tushar 2026-10-07 (TASK-170): "TeachSpark Launch" https://youtu.be/ub7yB4LwMBM, "TeachSpark Demo" https://youtu.be/vWYbkGFjKyQ (both public).
+    pitchVideo: { provider: "youtube", videoId: "ub7yB4LwMBM" },
+    demoVideo: { provider: "youtube", videoId: "vWYbkGFjKyQ" } },
   { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront",
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
