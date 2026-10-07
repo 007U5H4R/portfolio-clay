@@ -2,17 +2,19 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { BallCollider, CuboidCollider, RigidBody, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
+import { BallCollider, CuboidCollider, RigidBody, useBeforePhysicsStep, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
 import { CanvasTexture, SRGBColorSpace, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry, SphereGeometry, TorusGeometry } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import type { BumperSpec, PadSpec, PlatformSpec, TargetSpec } from "@/lib/lab/arena";
+import type { BumperSpec, GuideSpec, PadSpec, PlatformSpec, TargetSpec } from "@/lib/lab/arena";
+import { FLIPPER_THICK, flipperRotation, stepFlipper } from "@/lib/lab/flippers";
 import { col, createLiquidMaterial, createPaperMaterial, tileUV, type PaperKey } from "./materials";
+import { PHYSICS_DT } from "./physics-step";
 import { useRuntime } from "./runtime";
 
 /**
- * The arena (gummy-bear.md §15, §29, §33): soft resin walls, candy platforms (static, sliding,
- * vanishing), spring/launch pads, bumpers (one spinning), four hidden-meta targets, the in-world
- * gummy portal and the glowing jelly danger floor. All colliders are fixed or kinematic; all
+ * The arena (gummy-bear.md §15, §29, §33; pinball since TASK-172): soft resin walls, two flippers either side
+ * of the drain with in-lane guides, tilted rails (static, sliding, vanishing), a spring pad, bumpers (one
+ * spinning), four hidden-meta targets, the in-world gummy portal and the glowing jelly drain. All colliders are fixed or kinematic; all
  * per-frame motion reads the runtime's env knobs (difficulty) — no React state per frame.
  */
 const isBear = (p: CollisionEnterPayload) => p.other.rigidBodyObject?.name === "gummy";
@@ -32,6 +34,11 @@ export function Arena() {
     <group ref={root} visible={false}>
       <Walls />
       <DangerFloor />
+      {arena.guides.map((g) => (
+        <Guide key={g.id} spec={g} />
+      ))}
+      <Flipper index={0} />
+      <Flipper index={1} />
       {arena.platforms.map((p, i) => (
         <Platform key={p.id} spec={p} tint={i} />
       ))}
@@ -70,10 +77,11 @@ function Walls() {
   return (
     <>
       <RigidBody type="fixed" colliders={false}>
-        <CuboidCollider args={[0.5, 20, 1.5]} position={[-arena.halfW - 0.5, 0, 0]} restitution={0.55} friction={0.2} />
-        <CuboidCollider args={[0.5, 20, 1.5]} position={[arena.halfW + 0.5, 0, 0]} restitution={0.55} friction={0.2} />
+        <CuboidCollider args={[0.5, 20, 1.5]} position={[-arena.halfW - 0.5, 0, 0]} restitution={0.55} friction={0.1} />
+        <CuboidCollider args={[0.5, 20, 1.5]} position={[arena.halfW + 0.5, 0, 0]} restitution={0.55} friction={0.1} />
         <CuboidCollider args={[arena.halfW + 1, 0.5, 1.5]} position={[0, arena.ceilingY + 0.5, 0]} restitution={0.5} friction={0.2} />
-        <CuboidCollider args={[arena.halfW + 1, 0.5, 1.5]} position={[0, arena.floorY - 0.5, 0]} restitution={0.05} friction={0.9} />
+        {/* No floor at the bottom: the gap between the flippers is the drain. This only catches a gummy that fell through. */}
+        <CuboidCollider args={[arena.halfW + 1, 0.5, 1.5]} position={[0, arena.floorY - 12, 0]} restitution={0.05} friction={0.9} />
       </RigidBody>
       <mesh geometry={geo} material={mat} position={[-arena.halfW - 0.15, cy, 0]} />
       <mesh geometry={geo} material={mat} position={[arena.halfW + 0.15, cy, 0]} />
@@ -149,11 +157,86 @@ function Platform({ spec, tint }: { spec: PlatformSpec; tint: number }) {
     }
   });
   return (
-    <RigidBody ref={rb} type="kinematicPosition" colliders={false} position={[spec.x, spec.y, 0]}>
-      <CuboidCollider args={[spec.w / 2, spec.h / 2, DEPTH / 2 + 0.2]} restitution={0.15} friction={0.7} />
+    <RigidBody ref={rb} type="kinematicPosition" colliders={false} position={[spec.x, spec.y, 0]} rotation={[0, 0, spec.angle ?? 0]}>
+      <CuboidCollider args={[spec.w / 2, spec.h / 2, DEPTH / 2 + 0.2]} restitution={0.2} friction={0.1} />
       <group ref={group}>
         <mesh geometry={geo} material={mat} />
       </group>
+    </RigidBody>
+  );
+}
+
+/** An in-lane rail: a fixed slope from the wall down to a flipper pivot. */
+function Guide({ spec }: { spec: GuideSpec }) {
+  const len = Math.hypot(spec.x2 - spec.x1, spec.y2 - spec.y1);
+  const angle = Math.atan2(spec.y2 - spec.y1, spec.x2 - spec.x1);
+  const geo = useMemo(() => {
+    const g = new RoundedBoxGeometry(len, 0.3, DEPTH, 3, 0.12);
+    tileUV(g, len, 0.3);
+    return g;
+  }, [len]);
+  const mat = useMemo(() => createPaperMaterial("sage"), []);
+  useEffect(
+    () => () => {
+      geo.dispose();
+      mat.dispose();
+    },
+    [geo, mat],
+  );
+  return (
+    <RigidBody type="fixed" colliders={false} position={[(spec.x1 + spec.x2) / 2, (spec.y1 + spec.y2) / 2, 0]} rotation={[0, 0, angle]}>
+      <CuboidCollider args={[len / 2, 0.15, DEPTH / 2 + 0.2]} restitution={0.25} friction={0.1} />
+      <mesh geometry={geo} material={mat} />
+    </RigidBody>
+  );
+}
+
+/**
+ * A flipper (TASK-172): a kinematic paper card pivoting at its inner end. Its angle is stepped once per fixed physics
+ * step from the runtime's `pressed` flag (set by the controller from touch / mouse / keyboard); hits are handled in
+ * the gummy controller from the same state, so the swing and the impulse always agree.
+ */
+function Flipper({ index }: { index: 0 | 1 }) {
+  const rt = useRuntime();
+  const f = rt.flippers[index];
+  const { layout } = f;
+  const rb = useRef<RapierRigidBody>(null);
+  const geo = useMemo(() => {
+    const g = new RoundedBoxGeometry(layout.len + 0.3, FLIPPER_THICK, DEPTH, 3, 0.13);
+    tileUV(g, layout.len, FLIPPER_THICK);
+    g.translate(layout.len / 2, 0, 0);
+    return g;
+  }, [layout.len]);
+  const hubGeo = useMemo(() => new CylinderGeometry(0.26, 0.26, DEPTH + 0.1, 20), []);
+  const mat = useMemo(() => createPaperMaterial("terracotta"), []);
+  const hubMat = useMemo(() => createPaperMaterial("cream"), []);
+  useEffect(() => {
+    f.body = rb;
+    return () => {
+      f.body = { current: null };
+    };
+  }, [f]);
+  useEffect(
+    () => () => {
+      geo.dispose();
+      hubGeo.dispose();
+      mat.dispose();
+      hubMat.dispose();
+    },
+    [geo, hubGeo, mat, hubMat],
+  );
+  useBeforePhysicsStep(() => {
+    stepFlipper(f.state, f.pressed && rt.store.getState().machine.running, PHYSICS_DT);
+    f.cooldown = Math.max(0, f.cooldown - PHYSICS_DT);
+    f.body.current?.setNextKinematicRotation(flipperRotation(layout.side, f.state.angle));
+  });
+  const rest = flipperRotation(layout.side, f.state.angle);
+  const theta = 2 * Math.atan2(rest.z, rest.w);
+  return (
+    <RigidBody ref={rb} type="kinematicPosition" colliders={false} position={[layout.pivot.x, layout.pivot.y, 0]} rotation={[0, 0, theta]} name={`flipper-${layout.side}`}>
+      <CuboidCollider args={[layout.len / 2 + 0.15, FLIPPER_THICK / 2, DEPTH / 2 + 0.2]} position={[layout.len / 2, 0, 0]} restitution={0.3} friction={0.1} />
+      <mesh geometry={geo} material={mat} />
+      <mesh geometry={hubGeo} material={hubMat} rotation-x={Math.PI / 2} position={[0, 0, 0.05]} />
     </RigidBody>
   );
 }
@@ -180,10 +263,6 @@ function Pad({ spec }: { spec: PadSpec }) {
   useFrame((_, dt) => {
     cooldown.current = Math.max(0, cooldown.current - dt);
     hit.current = Math.max(0, hit.current - dt * 3);
-    // From the chaos phase the floor launch pad drifts sideways ("bounce pads reposition", §20).
-    if (spec.id === "PF" && rb.current) {
-      rb.current.setNextKinematicTranslation({ x: spec.x + rt.env.padShift * rt.arena.halfW * 0.25, y: spec.y, z: 0 });
-    }
     if (top.current) {
       const k = hit.current;
       top.current.scale.y = 1 - 0.5 * Math.sin(k * Math.PI) + 0.25 * Math.sin(k * 9) * k;
@@ -198,13 +277,17 @@ function Pad({ spec }: { spec: PadSpec }) {
     hit.current = 1;
     const len = Math.hypot(spec.dir.x, spec.dir.y);
     const mul = rt.bounceMul;
-    body.setLinvel({ x: (spec.dir.x / len) * spec.speed * mul, y: (spec.dir.y / len) * spec.speed * mul, z: 0 }, true);
+    const c = Math.cos(spec.angle ?? 0);
+    const sn = Math.sin(spec.angle ?? 0);
+    const dx = (spec.dir.x * c - spec.dir.y * sn) / len;
+    const dy = (spec.dir.x * sn + spec.dir.y * c) / len;
+    body.setLinvel({ x: dx * spec.speed * mul, y: dy * spec.speed * mul, z: 0 }, true);
     rt.bear.sinceBounce = 0;
     rt.jelly.impact(0, -1, 16);
     rt.hooks.pad(spec, spec.x, spec.y);
   };
   return (
-    <RigidBody ref={rb} type={spec.id === "PF" ? "kinematicPosition" : "fixed"} colliders={false} position={[spec.x, spec.y, 0]} onCollisionEnter={onEnter}>
+    <RigidBody ref={rb} type="fixed" colliders={false} position={[spec.x, spec.y, 0]} rotation={[0, 0, spec.angle ?? 0]} onCollisionEnter={onEnter}>
       <CuboidCollider args={[spec.w / 2, 0.1, 0.6]} position={[0, 0.1, 0]} restitution={0} />
       <mesh geometry={geoBase} material={baseMat} position={[0, 0.06, 0]} />
       <group ref={top} position={[0, 0.09, 0]}>

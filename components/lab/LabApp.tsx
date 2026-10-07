@@ -13,7 +13,7 @@ import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { Diorama } from "./Diorama";
 import { IntroBack, IntroFront } from "./IntroScene";
-import { CenterText, Chrome, Hint, Hud, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
+import { CenterText, Chrome, FlipLive, Hint, Hud, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
 import { GUMMY_URL } from "./gummy-url";
 import type { LabRuntime } from "./runtime";
@@ -205,12 +205,13 @@ export default function LabApp() {
       {mode === "canvas" ? (
         <>
         {introOn ? <IntroFront art={art} text={state === "INTRO" || leaving} leaving={leaving} onPlay={() => startRun("PLAY")} /> : null}
-        <div className={styles.opening}>
+        <div className={styles.opening} data-lab-opening="">
           {running ? <Hud store={store} onPause={togglePause} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />
           <TpEmblem store={store} />
           <Hint store={store} />
+          <FlipLive store={store} />
           <Toasts store={store} />
           {debug && runtime ? <DebugPanel runtime={runtime} /> : null}
           {state === "DISCOVERED" ? <p className={styles.loading} role="status">Warming up the Gummy Lab…</p> : null}

@@ -28,12 +28,11 @@ export function createFxHooks(rt: LabRuntime): LabHooks {
     squish(charge) {
       burst(rt.bear.x, rt.bear.y + 0.1, "droplet", Math.round(2 + charge * 8), 0);
     },
-    drag() {},
-    flick() {
-      burst(rt.bear.x, rt.bear.y + 0.5, "sparkle", 6, 3);
+    // Visual only: a squash against the flipper (the jelly never feeds back into the physics).
+    flip(_side, speed, nx, ny, x, y) {
+      rt.jelly.impact(-nx, -ny, 10 + speed * 0.5);
+      burst(x - nx * 0.4, y - ny * 0.4, "sparkle", 6, 3);
     },
-    tap() {
-      burst(rt.bear.x, rt.bear.y + 0.1, "droplet", 3, 0);
-    },
+    poke() {},
   };
 }

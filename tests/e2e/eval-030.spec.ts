@@ -9,7 +9,8 @@
  *   • ESC and "← Back to Portfolio" exit (history preserved); reduced motion keeps it playable;
  *   • the high score persists in localStorage (its own key only; no cookies, no third-party requests);
  *   • 0 console errors and 0 leaked animation loops across 3 enter/exit cycles;
- *   • mobile: touch drag + flick work, the HUD fits 390 px, controls are ≥ 44 px; keyboard play works.
+ *   • mobile: touch halves work the flippers (multi-touch), the HUD fits 390 px, controls are ≥ 44 px; keyboard play works;
+ *   • pinball (TASK-172): the player works two flippers, the gummy is the ball, and falling through the drain ends the run.
  * Frame rate (§39) is profiled manually (informational). Chromium is launched with the SwiftShader
  * flags so the canvas path runs where the host has no GPU; the no-WebGL path is forced explicitly.
  */
@@ -21,10 +22,24 @@ test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-s
 
 const heavy = (info: TestInfo) => info.project.name === "w1440" || info.project.name === "w390";
 
+interface FlipperHandle {
+  layout: { side: "left" | "right"; pivot: { x: number; y: number }; len: number };
+  state: { angle: number; omega: number };
+  pressed: boolean;
+}
 interface LabHandle {
   rt: {
+    flippers: [FlipperHandle, FlipperHandle];
+    arena: { pads: { x: number; y: number }[]; guides: { x1: number; y1: number; x2: number; y2: number }[] };
     bear: { x: number; y: number; vx: number; vy: number; state: string; grounded: boolean };
-    bearBody: { current: { setTranslation(p: { x: number; y: number; z: number }, w: boolean): void; setLinvel(v: { x: number; y: number; z: number }, w: boolean): void } | null };
+    bearBody: {
+      current: {
+        setTranslation(p: { x: number; y: number; z: number }, w: boolean): void;
+        setLinvel(v: { x: number; y: number; z: number }, w: boolean): void;
+        translation(): { x: number; y: number; z: number };
+        linvel(): { x: number; y: number; z: number };
+      } | null;
+    };
     project(x: number, y: number): { x: number; y: number };
     reducedMotion: boolean;
     particles: { capacity: number };
@@ -58,35 +73,48 @@ async function loseRun(page: Page) {
   await page.waitForSelector("[data-lab-state='RESULTS']", { timeout: 60_000 });
 }
 
+/** The flipper raise angles the game uses (lib/lab/flippers.ts): rest, and fully raised. */
+const FLIP_REST = -0.46;
+const FLIP_UP = 0.26;
+
+const flipper = (page: Page, i: 0 | 1) =>
+  page.evaluate((idx) => {
+    const f = window.__gummyLab!.rt.flippers[idx];
+    return { pressed: f.pressed, angle: f.state.angle, omega: f.state.omega };
+  }, i);
+
+/** Wait (by state, not by time) until flipper `i` reaches `angle` (within a hair). */
+const waitFlipper = (page: Page, i: 0 | 1, angle: number, timeout = 20_000) =>
+  page.waitForFunction(([idx, a]) => Math.abs(window.__gummyLab!.rt.flippers[idx as 0 | 1].state.angle - (a as number)) < 0.01, [i, angle] as const, { timeout });
+
 /**
- * Park the bear at rest on the right end of S1, the lowest static platform (clear of its spring pad and
- * of the HUD, above the danger zone), and wait until it is settled. On a slow host the run clock keeps ticking while frames crawl,
- * so a step that starts wherever the previous one left the bear (often the floor, 1.2 s from game
- * over) races the danger timer instead of testing its own control.
+ * Put the bear on the surface of a resting flipper (about 1 unit out from its pivot), at rest, and keep the run alive.
+ * Pressing the flipper key in the SAME JavaScript turn (before the next frame) means the first physics step after the
+ * teleport already has the flipper swinging into a gummy that is touching it, so the test never races the bear sliding
+ * off the tip while a slow host renders a frame.
  */
-async function settleOnTopPlatform(page: Page) {
-  await page.evaluate(() => {
-    const rb = window.__gummyLab!.rt.bearBody.current!;
-    rb.setTranslation({ x: -1.95, y: -2.2, z: 0 }, true);
-    rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
-  });
-  await page.waitForFunction(
-    () => {
-      const b = window.__gummyLab!.rt.bear;
-      return b.grounded && Math.abs(b.y + 2.73) < 0.3 && Math.abs(b.vx) < 0.15 && Math.abs(b.vy) < 0.15;
+async function dropOnFlipperAndPress(page: Page, i: 0 | 1, key: string) {
+  await waitFlipper(page, i, FLIP_REST);
+  await page.evaluate(
+    ([idx, k]) => {
+      const rt = window.__gummyLab!.rt;
+      const f = rt.flippers[idx as 0 | 1];
+      const a = f.state.angle;
+      const s = f.layout.side === "left" ? 1 : -1;
+      const d = { x: s * Math.cos(a), y: Math.sin(a) };
+      const n = { x: -s * Math.sin(a), y: Math.cos(a) };
+      const c = { x: f.layout.pivot.x + d.x + n.x * 0.55, y: f.layout.pivot.y + d.y + n.y * 0.55 };
+      const rb = rt.bearBody.current!;
+      rb.setTranslation({ x: c.x, y: c.y - 0.5, z: 0 }, true);
+      rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      // Reset the peak tracker in the same turn as the press so no frame of the launch can be missed.
+      const w = window as unknown as { __peak?: { y: number; vy: number } };
+      w.__peak = { y: c.y, vy: -Infinity };
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: k as string, cancelable: true }));
     },
-    null,
-    { timeout: 30_000 },
+    [i, key] as const,
   );
 }
-
-const bear = (page: Page) =>
-  page.evaluate(() => {
-    const r = window.__gummyLab!.rt;
-    const b = r.bear;
-    const p = r.project(b.x, b.y + 0.5);
-    return { x: b.x, y: b.y, vx: b.vx, vy: b.vy, state: b.state, px: p.x, py: p.y };
-  });
 
 /** Counts requestAnimationFrame requests so a surviving render loop shows up as a rate, not a guess. */
 async function installRafProbe(page: Page) {
@@ -269,53 +297,133 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test("@EVAL-030 controls: tap bounces, drag pulls with a spring, hold-and-release launches, keyboard plays, P pauses", async ({ page }, info) => {
-    test.skip(info.project.name === "w390", "pointer controls on the desktop project; touch is covered separately");
+  test("@EVAL-030 controls: ← / Z and → / M raise their own flipper, Space raises both, release lowers them, P pauses", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "keyboard and mouse controls on the desktop project; touch is covered separately");
     await openGame(page);
     await startRun(page);
-    await settleOnTopPlatform(page);
-    let b = await bear(page);
-    // tap → bounce
-    await page.mouse.move(b.px, b.py);
-    await page.mouse.down();
-    await page.mouse.up();
-    await page.waitForFunction((y0) => window.__gummyLab!.rt.bear.y > y0 + 0.3, b.y, { timeout: 5000 });
-    await settleOnTopPlatform(page);
-    // drag → the bear follows the pointer (spring, not a teleport)
-    b = await bear(page);
-    await page.mouse.move(b.px, b.py);
-    await page.mouse.down();
-    for (let i = 1; i <= 8; i += 1) {
-      await page.mouse.move(b.px - i * 24, b.py - i * 8);
-      await page.waitForTimeout(40);
+    for (const [i, keys] of [[0, ["ArrowLeft", "z"]], [1, ["ArrowRight", "m"]]] as const) {
+      for (const k of keys) {
+        await page.keyboard.down(k);
+        await waitFlipper(page, i, FLIP_UP);
+        expect((await flipper(page, i === 0 ? 1 : 0)).pressed, `${k} must not raise the other flipper`).toBe(false);
+        await page.keyboard.up(k);
+        await waitFlipper(page, i, FLIP_REST);
+      }
     }
-    const dragged = await bear(page);
-    expect(dragged.state).toBe("DRAGGED");
-    expect(dragged.x).toBeLessThan(b.x - 0.2);
-    await page.mouse.up();
-    // keyboard: nudge + bounce + pause
-    await settleOnTopPlatform(page);
-    const k0 = await bear(page);
-    // Hold the key until the bear has visibly moved right, not for a fixed time: the controller acts once
-    // per fixed physics step, and a host that renders a frame every few hundred ms (or none for a second)
-    // would otherwise see the whole hold pass between two frames.
-    await page.keyboard.down("ArrowRight");
-    await page.waitForFunction((x0) => window.__gummyLab!.rt.bear.x > x0 + 0.05, k0.x, { timeout: 20_000 });
-    await page.keyboard.up("ArrowRight");
+    await page.keyboard.down("Space");
+    await waitFlipper(page, 0, FLIP_UP);
+    await waitFlipper(page, 1, FLIP_UP);
+    await page.keyboard.up("Space");
+    await waitFlipper(page, 0, FLIP_REST);
+    await waitFlipper(page, 1, FLIP_REST);
     await page.keyboard.press("p");
     expect(await labState(page)).toBe("PAUSED");
     await page.keyboard.press("p");
     expect(["PLAYING", "DANGER"]).toContain(await labState(page));
   });
 
+  test("@EVAL-030 a flipper swung into the gummy sends it up the table (left by keyboard, right by keyboard)", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "desktop project; the touch halves are covered on w390");
+    await openGame(page);
+    await startRun(page);
+    await page.evaluate(() => {
+      const w = window as unknown as { __peak: { y: number; vy: number } };
+      w.__peak = { y: -Infinity, vy: -Infinity };
+      // Read the physics body itself: `rt.bear` is only refreshed by the render loop, so right after a teleport it is stale.
+      const tick = () => {
+        const body = window.__gummyLab!.rt.bearBody.current!;
+        w.__peak.y = Math.max(w.__peak.y, body.translation().y);
+        w.__peak.vy = Math.max(w.__peak.vy, body.linvel().y);
+        requestAnimationFrame(tick);
+      };
+      tick();
+    });
+    for (const [i, key] of [[0, "ArrowLeft"], [1, "ArrowRight"]] as const) {
+      await dropOnFlipperAndPress(page, i, key);
+      // The launch lasts a fraction of a second and a loaded host renders few frames in it (the first sample can already be past the apex, so a per-frame speed check flaked); the rise it causes is what matters.
+      await page.waitForFunction(([y0]) => (window as unknown as { __peak: { y: number } }).__peak.y > (y0 as number) + 2.5, [await page.evaluate(() => window.__gummyLab!.rt.flippers[0].layout.pivot.y)], { timeout: 15_000 });
+      await page.keyboard.up(key);
+      await waitFlipper(page, i, FLIP_REST);
+      // back in play for the second flipper
+      await page.evaluate(() => window.__gummyLab!.rt.bearBody.current!.setLinvel({ x: 0, y: 0, z: 0 }, true));
+    }
+  });
+
+  test("@EVAL-030 the mouse works the flippers by half: press left, press right, release", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "mouse on the desktop project");
+    await openGame(page);
+    await startRun(page);
+    const box = (await page.locator("[data-lab-canvas] canvas").boundingBox())!;
+    const y = box.y + box.height * 0.8;
+    await page.mouse.move(box.x + box.width * 0.25, y);
+    await page.mouse.down();
+    await waitFlipper(page, 0, FLIP_UP);
+    expect((await flipper(page, 1)).pressed).toBe(false);
+    await page.mouse.up();
+    await waitFlipper(page, 0, FLIP_REST);
+    await page.mouse.move(box.x + box.width * 0.75, y);
+    await page.mouse.down();
+    await waitFlipper(page, 1, FLIP_UP);
+    expect((await flipper(page, 0)).pressed).toBe(false);
+    await page.mouse.up();
+    await waitFlipper(page, 1, FLIP_REST);
+  });
+
+  test("@EVAL-030 a gummy that falls through the drain between the flippers ends the run (no grab or flick to save it)", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "desktop project");
+    await openGame(page);
+    await startRun(page);
+    await page.evaluate(() => {
+      const rb = window.__gummyLab!.rt.bearBody.current!;
+      rb.setTranslation({ x: 0, y: -3.0, z: 0 }, true);
+      rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    });
+    await page.waitForSelector("[data-lab-state='RESULTS']", { timeout: 60_000 });
+  });
+
+  test("@EVAL-030 the first-session hint sits in clear space: it never overlaps a flipper or a guide rail", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await page.waitForSelector("[data-lab-hint]", { timeout: 20_000 });
+    const r = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      const h = document.querySelector("[data-lab-hint]")!.getBoundingClientRect();
+      const boxOf = (pts: { x: number; y: number }[]) => {
+        const p = pts.map((q) => rt.project(q.x, q.y));
+        const pad = 14; // the flipper/guide is a thick card, not a line
+        return { l: Math.min(...p.map((q) => q.x)) - pad, r: Math.max(...p.map((q) => q.x)) + pad, t: Math.min(...p.map((q) => q.y)) - pad, b: Math.max(...p.map((q) => q.y)) + pad };
+      };
+      const boxes = [
+        ...rt.flippers.map((f) => {
+          const tip = { x: f.layout.pivot.x + (f.layout.side === "left" ? 1 : -1) * f.layout.len, y: f.layout.pivot.y };
+          return { name: `flipper-${f.layout.side}`, ...boxOf([f.layout.pivot, tip, { x: tip.x, y: tip.y + 0.9 }]) };
+        }),
+        ...rt.arena.guides.map((g, i) => ({ name: `guide-${i}`, ...boxOf([{ x: g.x1, y: g.y1 }, { x: g.x2, y: g.y2 }]) })),
+      ];
+      const hit = boxes.filter((b) => h.left < b.r && h.right > b.l && h.top < b.b && h.bottom > b.t).map((b) => b.name);
+      return { hit, hint: { l: h.left, r: h.right, t: h.top, b: h.bottom }, centre: (h.left + h.right) / 2, vw: window.innerWidth };
+    });
+    expect(r.hit).toEqual([]);
+    expect(Math.abs(r.centre - r.vw / 2), "centred (within a scrollbar's width)").toBeLessThan(16);
+  });
+
+  test("@EVAL-030 a live region announces 'Left and right flip' when a run starts", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await expect(page.locator("[data-lab-live]")).toHaveText("Left and right flip");
+    expect(await page.locator("[data-lab-live]").getAttribute("aria-live")).toBe("polite");
+  });
+
   test("@EVAL-030 power-ups, pads and combo are reachable: a pad launch scores", async ({ page }, info) => {
     test.skip(info.project.name === "w390", "desktop project");
     await openGame(page);
     await startRun(page);
-    // Drop the bear right onto the spring pad on the lowest platform (PA).
+    // Drop the bear right onto the spring pad (PB, on the tilted rail S2; the old PA/PF pads sat where the flippers are now).
     await page.evaluate(() => {
-      const rb = window.__gummyLab!.rt.bearBody.current!;
-      rb.setTranslation({ x: -0.66 * 5, y: -1.5, z: 0 }, true);
+      const rt = window.__gummyLab!.rt;
+      const pad = rt.arena.pads[0]!;
+      const rb = rt.bearBody.current!;
+      rb.setTranslation({ x: pad.x, y: pad.y + 1.3, z: 0 }, true);
       rb.setLinvel({ x: 0, y: -6, z: 0 }, true);
     });
     await page.waitForFunction(() => window.__gummyLab!.rt.bear.vy > 8, null, { timeout: 15_000 });
@@ -406,37 +514,29 @@ test.describe("@EVAL-030 mobile (touch)", () => {
     expect(small).toEqual([]);
   });
 
-  test("@EVAL-030 touch drag and flick move the gummy", async ({ page }) => {
+  test("@EVAL-030 touch: the left half holds the left flipper, the right half the right, and both at once", async ({ page }) => {
     await page.goto("/lab?debug");
     await waitLab(page);
     test.skip((await labMode(page)) !== "canvas", "no WebGL on this host");
     await startRun(page);
-    await page.waitForFunction(() => window.__gummyLab!.rt.bear.grounded, null, { timeout: 40_000 });
-    await page.waitForTimeout(400);
+    const box = (await page.locator("[data-lab-canvas] canvas").boundingBox())!;
+    const lx = box.x + box.width * 0.25;
+    const rx = box.x + box.width * 0.75;
+    const y = box.y + box.height * 0.8;
     const cdp = await page.context().newCDPSession(page);
-    const touch = (type: "touchStart" | "touchMove" | "touchEnd", x?: number, y?: number) =>
-      cdp.send("Input.dispatchTouchEvent", { type, touchPoints: x === undefined ? [] : [{ x, y: y!, id: 1 }] });
-    const b = await bear(page);
-    await touch("touchStart", b.px, b.py);
-    for (let i = 1; i <= 8; i += 1) {
-      await touch("touchMove", b.px - i * 16, b.py - i * 12);
-      await page.waitForTimeout(30);
-    }
-    expect((await bear(page)).state).toBe("DRAGGED");
-    // fast final swipe = flick
-    await page.evaluate(() => {
-      const w = window as unknown as { __maxSpeed: number };
-      w.__maxSpeed = 0;
-      const tick = () => {
-        const b = window.__gummyLab!.rt.bear;
-        w.__maxSpeed = Math.max(w.__maxSpeed, Math.hypot(b.vx, b.vy));
-        requestAnimationFrame(tick);
-      };
-      tick();
-    });
-    await touch("touchMove", b.px - 200, b.py - 190);
-    await touch("touchEnd");
-    await page.waitForFunction(() => (window as unknown as { __maxSpeed: number }).__maxSpeed > 3, null, { timeout: 8000 });
+    const touch = (type: "touchStart" | "touchEnd", points: { x: number; y: number; id: number }[]) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points });
+    const L = { x: lx, y, id: 1 };
+    const R = { x: rx, y, id: 2 };
+    await touch("touchStart", [L]);
+    await waitFlipper(page, 0, FLIP_UP);
+    expect((await flipper(page, 1)).pressed).toBe(false);
+    await touch("touchStart", [L, R]); // multi-touch: the second finger lands while the first is held
+    await waitFlipper(page, 1, FLIP_UP);
+    expect((await flipper(page, 0)).pressed).toBe(true);
+    // CDP's touchEnd lifts every finger at once; releasing one finger at a time is covered by the controller unit tests.
+    await touch("touchEnd", []);
+    await waitFlipper(page, 0, FLIP_REST);
+    await waitFlipper(page, 1, FLIP_REST);
   });
 });
 

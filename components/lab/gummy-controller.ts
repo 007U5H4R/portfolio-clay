@@ -1,45 +1,31 @@
 import { Plane, Raycaster, Vector2, Vector3, type Camera } from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
-import {
-  DRAG_MAX_SPEED,
-  TAP_BOUNCE_SPEED,
-  bounceSpeed,
-  clampSpeed,
-  dragAcceleration,
-  flickLaunch,
-  isTap,
-  squishCharge,
-  tapKick,
-  type PointerSample,
-} from "@/lib/lab/controls";
+import { clampSpeed } from "@/lib/lab/controls";
 import { SUPER_SQUISH_MULTIPLIER } from "@/lib/lab/engine";
+import { FLIP_COOLDOWN_S, STALL_AFTER_S, STALL_SPEED, flipImpulse, nearFlipper, stallNudge } from "@/lib/lab/flippers";
 import type { LabRuntime } from "./runtime";
 
 /**
- * Pointer + keyboard control of the gummy (gummy-bear.md §17). Attached to the canvas element.
- *   tap    quick squish: a bounce + sideways kick from where it was poked
- *   drag   the bear is pulled by a spring toward the pointer (never teleported) and stretches toward it
- *   flick  pointer velocity at release becomes a capped launch
- *   hold   squish: the bear compresses while held; releasing launches it by the stored charge
- * Touch, mouse and pen all use pointer events; nothing needs hover. Keyboard: ← → nudge, Space bounce.
+ * Pinball controls (TASK-172). The player only works the two flippers; the gummy is the ball.
+ *   touch / mouse / pen   hold the left half of the play area for the left flipper, the right half for the right one
+ *                         (multi-touch: both at once); the half is decided where the press begins
+ *   keyboard              ← or Z = left, → or M = right, Space = both
+ * Nothing grabs, drags or flicks the gummy any more. The intro bear can still be poked (a small hidden delight).
+ * Attached to the canvas element; the key handlers live on window. The flippers themselves are stepped in Arena.tsx.
  */
-export const GRAB_RADIUS = 1.15;
 const MAX_SPEED = 24;
 
-type Mode = "idle" | "pending" | "drag" | "squish";
+type Side = 0 | 1;
+const LEFT_KEYS = new Set(["ArrowLeft", "z", "Z"]);
+const RIGHT_KEYS = new Set(["ArrowRight", "m", "M"]);
 
 export class GummyController {
-  private mode: Mode = "idle";
-  private pointerId = -1;
-  private downT = 0;
-  private downPx = { x: 0, y: 0 };
-  private movedPx = 0;
-  private grab = { x: 0, y: 0 };
-  private world = { x: 0, y: 0 };
-  private samples: PointerSample[] = [];
   private keyLeft = false;
   private keyRight = false;
-  private keyCooldown = 0;
+  private keySpace = false;
+  /** pointerId → side it holds */
+  private readonly held = new Map<number, Side>();
+  private stalledFor = 0;
   private readonly ray = new Raycaster();
   private readonly plane = new Plane(new Vector3(0, 0, 1), 0);
   private readonly hit = new Vector3();
@@ -76,16 +62,30 @@ export class GummyController {
     window.removeEventListener("blur", this.cancel);
   }
 
-  /** Drop any gesture in progress (pause, game over, exit). */
+  /** Release every input (pause, game over, exit, window blur). */
   cancel = () => {
-    this.mode = "idle";
-    this.pointerId = -1;
-    this.keyLeft = this.keyRight = false;
-    const b = this.rt.bear;
-    b.dragged = false;
-    b.squishing = false;
-    b.charge = 0;
+    this.keyLeft = this.keyRight = this.keySpace = false;
+    this.held.clear();
+    this.sync();
   };
+
+  /** The flippers' `pressed` flags are the one place input becomes game state. */
+  private sync() {
+    const [l, r] = this.rt.flippers;
+    let pl = this.keyLeft || this.keySpace;
+    let pr = this.keyRight || this.keySpace;
+    for (const side of this.held.values()) {
+      if (side === 0) pl = true;
+      else pr = true;
+    }
+    l.pressed = pl;
+    r.pressed = pr;
+  }
+
+  private sideOf(clientX: number): Side {
+    const r = this.el.getBoundingClientRect();
+    return clientX < r.left + r.width / 2 ? 0 : 1;
+  }
 
   private toWorld(clientX: number, clientY: number, out: { x: number; y: number }) {
     const r = this.el.getBoundingClientRect();
@@ -98,188 +98,106 @@ export class GummyController {
   }
 
   private onDown(e: PointerEvent) {
-    if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
-    this.toWorld(e.clientX, e.clientY, this.world);
-    const b = this.rt.bear;
-    const cx = b.x;
-    const cy = b.y + 0.5;
-    const near = Math.hypot(this.world.x - cx, this.world.y - cy) <= GRAB_RADIUS * (this.isIntro() ? 1.7 : 1);
-    if (!near) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     if (this.isIntro()) {
+      if (!e.isPrimary) return;
       // The intro bear can be poked: a squish and a wobble (a small hidden delight, §46).
-      this.rt.jelly.impact(0, -1, 14);
-      this.rt.poke = 1;
-      this.rt.hooks.tap();
+      const w = { x: 0, y: 0 };
+      this.toWorld(e.clientX, e.clientY, w);
+      if (Math.hypot(w.x - this.rt.bear.x, w.y - (this.rt.bear.y + 0.5)) <= 1.15 * 1.7) {
+        this.rt.jelly.impact(0, -1, 14);
+        this.rt.poke = 1;
+        this.rt.hooks.poke();
+      }
       return;
     }
     if (!this.isLive()) return;
-    this.pointerId = e.pointerId;
+    this.held.set(e.pointerId, this.sideOf(e.clientX));
     try {
       this.el.setPointerCapture(e.pointerId);
     } catch {
       /* capture is best-effort */
     }
-    this.mode = "pending";
-    this.downT = e.timeStamp; // the input's own timestamp: robust to a busy main thread (a slow frame can batch events)
-    this.downPx = { x: e.clientX, y: e.clientY };
-    this.movedPx = 0;
-    this.grab = { x: cx - this.world.x, y: cy - this.world.y };
-    this.samples = [{ t: this.downT, x: this.world.x, y: this.world.y }];
-    this.rt.pointer.active = true;
+    this.sync();
   }
 
   private onMove(e: PointerEvent) {
-    this.toWorld(e.clientX, e.clientY, this.rt.pointer);
-    this.rt.pointer.active = true;
-    if (e.pointerId !== this.pointerId || this.mode === "idle") return;
-    this.world.x = this.rt.pointer.x;
-    this.world.y = this.rt.pointer.y;
-    this.samples.push({ t: e.timeStamp, x: this.world.x, y: this.world.y });
-    if (this.samples.length > 12) this.samples.shift();
-    this.movedPx = Math.max(this.movedPx, Math.hypot(e.clientX - this.downPx.x, e.clientY - this.downPx.y));
-    if ((this.mode === "pending" || this.mode === "squish") && this.movedPx > 12) {
-      this.mode = "drag";
-      this.rt.hooks.drag();
+    if (e.isPrimary) {
+      this.toWorld(e.clientX, e.clientY, this.rt.pointer);
+      this.rt.pointer.active = true;
     }
   }
 
   private onUp(e: PointerEvent) {
-    if (e.pointerId !== this.pointerId) return;
-    const rb = this.rt.bearBody.current;
-    const now = e.timeStamp;
-    const held = now - this.downT;
-    const b = this.rt.bear;
-    const mode = this.mode;
-    this.mode = "idle";
-    this.pointerId = -1;
-    b.dragged = false;
-    b.squishing = false;
-    if (!rb || !this.isLive()) return;
-    if (mode === "drag") {
-      const launch = flickLaunch(this.samples, now, this.rt.tune.flick);
-      if (launch) {
-        rb.setLinvel({ x: launch.x, y: launch.y, z: 0 }, true);
-        b.sinceBounce = 0;
-        this.rt.jelly.impact(launch.x, launch.y, Math.hypot(launch.x, launch.y) * 0.6);
-        this.rt.hooks.flick();
-      }
-    } else if (mode === "squish") {
-      const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
-      const v = rb.linvel();
-      rb.setLinvel({ x: v.x * 0.3, y: bounceSpeed(b.charge, mul), z: 0 }, true);
-      b.sinceBounce = 0;
-      this.rt.jelly.impact(0, 1, 8 + 12 * b.charge);
-      this.rt.hooks.squish(b.charge, this.rt.superSquish);
-    } else if (mode === "pending" && isTap(held, this.movedPx)) {
-      const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
-      const k = tapKick(this.world.x - b.x, mul);
-      const v = rb.linvel();
-      rb.setLinvel({ x: v.x * 0.5 + k.x, y: Math.max(v.y, 0) * 0.3 + k.y, z: 0 }, true);
-      b.sinceBounce = 0;
-      this.rt.jelly.impact(0, -1, 10);
-      this.rt.hooks.tap();
-      if (this.rt.superSquish) this.rt.hooks.squish(1, true);
-    }
-    b.charge = 0;
+    if (this.held.delete(e.pointerId)) this.sync();
   }
 
   private onKeyDown = (e: KeyboardEvent) => {
-    if (e.repeat && (e.key === " " || e.key === "ArrowUp")) return;
     if (!this.isLive()) return;
     const active = document.activeElement;
-    const typing = active instanceof HTMLElement && active.matches("input, textarea, select, [contenteditable]");
-    if (typing) return;
-    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.keyLeft = true;
-    else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.keyRight = true;
-    else if ((e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W") && !(active instanceof HTMLButtonElement || active instanceof HTMLAnchorElement)) {
-      e.preventDefault();
-      this.keyBounce();
-    } else return;
-    if (e.key.startsWith("Arrow")) e.preventDefault();
+    if (active instanceof HTMLElement && active.matches("input, textarea, select, [contenteditable]")) return;
+    if (LEFT_KEYS.has(e.key)) this.keyLeft = true;
+    else if (RIGHT_KEYS.has(e.key)) this.keyRight = true;
+    else if (e.key === " " && !(active instanceof HTMLButtonElement || active instanceof HTMLAnchorElement)) this.keySpace = true;
+    else return;
+    if (e.key.startsWith("Arrow") || e.key === " ") e.preventDefault();
+    this.sync();
   };
 
   private onKeyUp = (e: KeyboardEvent) => {
-    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.keyLeft = false;
-    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.keyRight = false;
+    if (LEFT_KEYS.has(e.key)) this.keyLeft = false;
+    else if (RIGHT_KEYS.has(e.key)) this.keyRight = false;
+    else if (e.key === " ") this.keySpace = false;
+    else return;
+    this.sync();
   };
 
-  private keyBounce() {
-    const rb = this.rt.bearBody.current;
-    if (!rb || this.keyCooldown > 0) return;
-    this.keyCooldown = 0.38;
-    const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
-    const v = rb.linvel();
-    rb.setLinvel({ x: v.x * 0.6, y: Math.max(v.y * 0.2, 0) + TAP_BOUNCE_SPEED * 1.15 * mul, z: 0 }, true);
-    this.rt.bear.sinceBounce = 0;
-    this.rt.jelly.impact(0, -1, 10);
-    this.rt.hooks.tap();
-  }
-
   /**
-   * Spring drag, squish hold, keyboard nudges, wind. Reads/writes the body only while live.
-   * Called once per FIXED physics step (`FIXED_DT`, from `useBeforePhysicsStep`), never per rendered
-   * frame: Rapier advances in whole fixed steps (several per frame on a slow device), so forces
-   * applied once per frame with a clamped dt were a fraction of the intended strength at low frame
-   * rates (EVAL-030: a 400 ms ArrowRight hold barely moved the bear at ~3 fps). The body's own
-   * position is read here — `rt.bear` is only refreshed once per rendered frame.
+   * Flipper hits, wind, the speed cap and the anti-stall nudge. Reads/writes the body only while live, once per fixed
+   * physics step. The body's own position is read here: `rt.bear` is only refreshed once per rendered frame.
    */
   update(dt: number, rb: RapierRigidBody) {
-    const b = this.rt.bear;
     const pos = rb.translation();
-    this.keyCooldown = Math.max(0, this.keyCooldown - dt);
-    const arena = this.rt.arena;
     const v = rb.linvel();
     let vx = v.x;
     let vy = v.y;
     let changed = false;
+    const centre = { x: pos.x, y: pos.y + 0.5 };
 
-    if (this.mode === "pending" && performance.now() - this.downT > 160) {
-      this.mode = "squish";
-    }
-    if (this.mode === "squish") {
-      const held = performance.now() - this.downT;
-      b.squishing = true;
-      b.charge = squishCharge(held);
-      // Held in place: the bear sinks into its squish rather than falling.
-      vx *= Math.exp(-10 * dt);
-      vy *= Math.exp(-10 * dt);
+    for (const f of this.rt.flippers) {
+      if (f.cooldown > 0) continue;
+      const mul = this.rt.superSquish ? SUPER_SQUISH_MULTIPLIER : 1;
+      const hit = flipImpulse(f.layout, f.state, centre, { x: vx, y: vy }, mul);
+      if (!hit) continue;
+      vx = hit.vx;
+      vy = hit.vy;
+      f.cooldown = FLIP_COOLDOWN_S;
       changed = true;
-    } else if (this.mode === "drag") {
-      b.dragged = true;
-      const tx = Math.max(-arena.halfW + 0.45, Math.min(arena.halfW - 0.45, this.world.x + this.grab.x));
-      const ty = Math.max(arena.floorY + 0.55, Math.min(arena.ceilingY - 0.7, this.world.y + this.grab.y));
-      const a = dragAcceleration({ x: pos.x, y: pos.y + 0.5 }, { x: vx, y: vy }, { x: tx, y: ty });
-      const nv = clampSpeed({ x: vx + a.x * dt, y: vy + a.y * dt }, DRAG_MAX_SPEED);
-      vx = nv.x;
-      vy = nv.y;
-      changed = true;
+      this.rt.bear.sinceBounce = 0;
+      this.rt.hooks.flip(f.layout.side, hit.speed, hit.normal.x, hit.normal.y, centre.x, centre.y);
+      if (this.rt.superSquish) this.rt.hooks.squish(1, true);
     }
-    const dir = (this.keyRight ? 1 : 0) - (this.keyLeft ? 1 : 0);
-    if (dir !== 0 && this.mode === "idle") {
-      vx += dir * 30 * dt;
-      changed = true;
-    }
+
     if (this.rt.env.windX !== 0) {
       vx += this.rt.env.windX * dt;
       changed = true;
     }
+
+    // A gummy that stops anywhere but on a flipper would be a soft-lock (the player cannot reach it): nudge it on.
+    const slow = Math.hypot(vx, vy) < STALL_SPEED;
+    if (slow && !this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre))) this.stalledFor += dt;
+    else this.stalledFor = 0;
+    if (this.stalledFor > STALL_AFTER_S) {
+      const n = stallNudge(pos.x);
+      vx = n.x;
+      vy = n.y;
+      this.stalledFor = 0;
+      changed = true;
+    }
+
     if (changed) {
       const c = clampSpeed({ x: vx, y: vy }, MAX_SPEED);
       rb.setLinvel({ x: c.x, y: c.y, z: 0 }, true);
     }
-  }
-
-  get gravityFactor(): number {
-    if (this.mode === "squish") return 0.1;
-    if (this.mode === "drag") return 0.25;
-    return 1;
-  }
-
-  /** Normalised direction the bear is being pulled while dragged (for the stretch/lean), else null. */
-  dragVector(b: { x: number; y: number }): { x: number; y: number; len: number } | null {
-    if (this.mode !== "drag") return null;
-    const dx = this.world.x + this.grab.x - b.x;
-    const dy = this.world.y + this.grab.y - (b.y + 0.5);
-    return { x: dx, y: dy, len: Math.hypot(dx, dy) };
   }
 }
