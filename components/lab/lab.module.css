@@ -289,7 +289,9 @@
 .plateCombo {
   --plate-art: url("/media/lab/art/plaque-combo.webp");
   justify-self: center;
-  translate: 0 5px;
+  /* Tushar 2026-10-07: up on the frame's top band, not over the arena (it hid the top rail and a ring). Lifted by its
+     own height plus the HUD inset so it sits on the torn paper above the opening; score and time stay in the corners. */
+  translate: 0 calc(-100% - 10px);
   rotate: 0.8deg;
 }
 .plateTime {
