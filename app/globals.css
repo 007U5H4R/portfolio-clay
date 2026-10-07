@@ -5326,7 +5326,8 @@ html.lenis body {
     @supports (animation-timeline: scroll()) {
       .hero-banner,
       .scene-opener .scene-banner,
-      .scene-opener [data-paper-scene] {
+      .scene-opener [data-paper-scene],
+      .scene-opener-note {
         animation: scene-parallax linear both;
         animation-timeline: scroll(root block);
         animation-range: 0 100vh;
@@ -13199,3 +13200,71 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 /* end M-011 P4 */
 /* end M-011 P3 */
+
+/* TASK-171 — the Contact opener's handwritten quote (Tushar 2026-10-07: handwriting, "tilting upwards and inclined
+   towards right", legible in light and dark). ≥ 768 it is written on the scene's empty ruled page: the note box has the
+   scene's ratio (set inline) and rides the opener's scroll drift with the scene (the shared `scene-parallax` rule
+   above), so the ink never slides off the paper. Ink is the role token `--color-navy` (navy on the light cream page,
+   cream on the dark navy page) and the attribution `--color-rust`; both flip with the theme. < 768 the opener crops to
+   Tushar, so this copy is display:none and `.contact-quote-narrow` (below the opener) shows instead. */
+@layer components {
+  .scene-opener-note {
+    position: absolute;
+    inset: 0 0 auto;
+    aspect-ratio: var(--ps-ar);
+    pointer-events: none;
+  }
+  .scene-opener-note .opener-quote {
+    position: absolute;
+    left: 21%;
+    top: 26%;
+    width: 32%;
+  }
+  .opener-quote {
+    margin: 0;
+    color: var(--color-navy);
+    font-family: var(--font-hand);
+    /* Rises left → right and leans forward, like a line dashed off at an angle. */
+    transform: rotate(-6deg) skewX(-8deg);
+    transform-origin: left center;
+  }
+  .opener-quote-text {
+    margin: 0;
+    /* 768 → 1.4 rem keeps the quote to two lines in the 32 % box (1.75 rem orphaned "it." on a third). */
+    font-size: clamp(1.4rem, 2.9vw, 3.6rem);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .opener-quote-text p {
+    margin: 0;
+  }
+  .opener-quote-by {
+    margin-top: 0.35em;
+    padding-left: 18%;
+    color: var(--color-rust);
+    font-size: clamp(1.25rem, 1.8vw, 2.2rem);
+    font-weight: 600;
+  }
+  .contact-quote-narrow {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    .scene-opener-note {
+      display: none;
+    }
+    .contact-quote-narrow {
+      display: block;
+      padding: 28px 24px 4px;
+    }
+    .contact-quote-narrow .opener-quote {
+      max-width: 22rem;
+      margin-inline: auto;
+      transform: rotate(-4deg) skewX(-8deg);
+      transform-origin: center;
+    }
+    .contact-quote-narrow .opener-quote-text {
+      font-size: 1.9rem;
+    }
+  }
+}
+

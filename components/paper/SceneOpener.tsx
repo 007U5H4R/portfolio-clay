@@ -4,6 +4,7 @@ import { OPENER_FOCAL_X, openerNarrow } from "@/components/paper/scene-opener-fr
 import { PaperParallaxScene } from "@/components/paper-world/PaperParallaxScene";
 import { LAYERED_SCENES, type LayeredSceneId } from "@/content/media/illustrations/layers";
 import { TornEdge, type TornFill } from "@/components/paper/TornEdge";
+import type { CSSProperties, ReactNode } from "react";
 import type { SceneId } from "@/lib/illustrations";
 
 export type SceneOpenerProps = {
@@ -13,6 +14,9 @@ export type SceneOpenerProps = {
   priority?: boolean | undefined;
   /** Fill of the section directly below the opener (default `paper` — the page background). */
   tornFill?: TornFill | undefined;
+  /** Live text written on a layered scene (≥ 768, registered to the scene box and riding its scroll drift), below it on
+   *  narrow screens — the Contact quote (TASK-171). */
+  note?: ReactNode | undefined;
 };
 
 /**
@@ -30,7 +34,8 @@ export type SceneOpenerProps = {
  */
 const isLayered = (id: SceneId): id is SceneId & LayeredSceneId => LAYERED_SCENES.some((s) => s.id === id);
 
-export function SceneOpener({ id, priority = false, tornFill = "paper" }: SceneOpenerProps) {
+export function SceneOpener({ id, priority = false, tornFill = "paper", note }: SceneOpenerProps) {
+  const layered = LAYERED_SCENES.find((s) => s.id === id);
   return (
     <section className="scene-opener" data-opener={id}>
       {isLayered(id) ? (
@@ -40,6 +45,12 @@ export function SceneOpener({ id, priority = false, tornFill = "paper" }: SceneO
       ) : (
         <SceneBanner id={id} focalX={OPENER_FOCAL_X[id]} priority={priority} sizes="100vw" narrow={openerNarrow(id)} />
       )}
+      {/* TASK-171: the note's box has the scene's own ratio (≥ 768 the scene is uncropped), so the note registers on the art. */}
+      {note && layered ? (
+        <div className="scene-opener-note" style={{ "--ps-ar": `${layered.width} / ${layered.height}` } as CSSProperties}>
+          {note}
+        </div>
+      ) : null}
       {/* T3 (TASK-144.5): the opener's art is a light/dark pair — warm the opposite twin once idle, as on the home hero. */}
       <ThemeArtPreload />
       <TornEdge fill={tornFill} className="scene-opener-torn" />
