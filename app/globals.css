@@ -13264,7 +13264,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* TASK-177 — the footer's beating heart: an emoji glyph, so its face is named (no system-font fallback search). */
+/* TASK-177 — the footer's red heart: an emoji glyph, so its face is named (no system-font fallback search). */
 @layer components {
   .band-heart {
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
