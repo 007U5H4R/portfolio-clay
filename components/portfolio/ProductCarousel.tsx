@@ -112,7 +112,6 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
               role="tab"
               className="pf-thumb focus-ring"
               data-product={product.id}
-              data-cursor="EXPLORE →"
               data-accent={product.accent}
               aria-selected={selected}
               aria-controls={panelId}

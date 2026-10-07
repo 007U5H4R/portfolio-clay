@@ -33,7 +33,7 @@ const E2E_DIR = resolve(ROOT, "tests/e2e");
  * + EVAL-023 … 031 (M-010, EV7) + EVAL-032 … 038 (M-011, EV12). EVAL-019 was rewritten in place for the still
  * hero (S24) — same id.
  */
-const CASE_COUNT = 39; // EVAL-001 … EVAL-039 (EVAL-039 = M-010 runtime smoothness, TASK-155)
+const CASE_COUNT = 39; // unchanged by retirements - ids are preserved (EVAL-028 retired 2026-10-07, TASK-174); EVAL-001 … EVAL-039 (EVAL-039 = M-010 runtime smoothness, TASK-155)
 
 /** Runners that actually execute a case (i.e. constitute a "runner mapping" for an automated case). */
 const AUTOMATED_RUNNERS = [
@@ -79,6 +79,8 @@ const EvalCaseSchema = z
     priority: z.enum(["critical", "high", "medium", "low"]),
     automated: z.boolean(),
     automated_scope: z.string().optional(),
+    /** Set (to the date + ticket + reason) when a case is retired: the id is preserved, its spec is no longer required. */
+    retired: z.string().optional(),
     runner: z.string().min(1),
     viewport: z.union([z.array(z.string()), z.null()]),
     accessibility_requirement: z.union([z.string(), z.null()]),
@@ -145,7 +147,7 @@ export function loadCases(): EvalCase[] {
 /** EVAL ids that must have a Playwright spec (`runner` contains "playwright"), minus deferred ones. */
 export function requiredPlaywrightSpecIds(cases: EvalCase[]): string[] {
   return cases
-    .filter((c) => c.automated && c.runner.includes("playwright"))
+    .filter((c) => c.automated && !c.retired && c.runner.includes("playwright"))
     .map((c) => c.id)
     .filter((id) => !(id in DEFERRED_SPECS));
 }

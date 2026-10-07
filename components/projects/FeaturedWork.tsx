@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { themeForSlug } from "@/lib/cursor/trail-assets";
 import { FileText, ShieldCheck, type LucideIcon } from "lucide-react";
 import type { Metric, Project } from "@/data/schema";
 import { projects } from "@/data/projects";
@@ -90,7 +89,7 @@ export function exploreLabel(cta: string, name: string): string {
 /** The terracotta torn-paper Explore button (spec §15) — a real same-tab link to the Portfolio deep link. */
 function ExploreLink({ card }: { card: FeaturedCard }) {
   return (
-    <Link href={card.href} aria-label={card.ctaLabel} className="fw-cta focus-ring" data-cursor="EXPLORE →" data-featured-cta={card.project.slug}>
+    <Link href={card.href} aria-label={card.ctaLabel} className="fw-cta focus-ring" data-featured-cta={card.project.slug}>
       <span className="fw-cta-text">{card.presentation.cta}</span>
       <svg className="fw-cta-arrow" viewBox="0 0 20 12" width="20" height="12" aria-hidden="true" focusable="false">
         <path d="M1 6h16M12 1.5 17 6l-5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -125,7 +124,7 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
   return (
     <Sheet as="article" variant="card" rotate={place.rotate} className={`fw-card ${anchor ? "fw-card-anchor" : "fw-card-side"}`}>
       <Tape side={place.tape} />
-      <div className="fw-paper" data-featured={project.slug} data-cursor-theme={themeForSlug(project.slug)}>
+      <div className="fw-paper" data-featured={project.slug}>
         <div className="fw-copy">
           <h3 id={headingId} className="fw-name">
             {project.name}

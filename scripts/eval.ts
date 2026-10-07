@@ -11,7 +11,7 @@
  *   Playwright  → EVAL-002, 006, 007, 008, 010, 011, 014, 015, 017 (tags on served HTML),
  *                 EVAL-018 (decoration budget), EVAL-019 (hero still LCP; was once-and-hold until S24) — M-009, EV3;
  *                 EVAL-023 (theme resolution), 024 (toggle a11y), 026 (theme-switch stability),
- *                 028 (cursor gating + mobile), 029 (/card), 030 (/lab) — M-010, EV7
+ *                 028 (cursor gating + mobile - RETIRED, TASK-174), 029 (/card), 030 (/lab) — M-010, EV7
  *   Lighthouse  → EVAL-004 (median category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget)
  *   Content gate→ EVAL-013 (validate-content + forbidden-strings + fixture proof)
  *   Security    → EVAL-016 (forbidden-strings --bundle + pnpm audit + TP9 headers when --base-url)
@@ -59,7 +59,7 @@ const JS_REGRESSION_KB = 10;
 
 // M-009 (evaluation-plan.md §8.7 / EV3): EVAL-018/019 Playwright, EVAL-020/021 Vitest, EVAL-022 manual.
 // M-010 (evaluation-plan.md §9.8 / EV7): EVAL-023/024/026/028/029/030 Playwright, EVAL-025/027 Vitest, EVAL-031 manual.
-const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019", "EVAL-023", "EVAL-024", "EVAL-026", "EVAL-028", "EVAL-029", "EVAL-030", "EVAL-039"];
+const PLAYWRIGHT_CASES = ["EVAL-002", "EVAL-006", "EVAL-007", "EVAL-008", "EVAL-010", "EVAL-011", "EVAL-014", "EVAL-015", "EVAL-017", "EVAL-018", "EVAL-019", "EVAL-023", "EVAL-024", "EVAL-026", "EVAL-029", "EVAL-030", "EVAL-039"];
 const VITEST_CASES = ["EVAL-012", "EVAL-017", "EVAL-020", "EVAL-021", "EVAL-025", "EVAL-027"];
 const MANUAL_CASES = ["EVAL-001", "EVAL-003", "EVAL-009", "EVAL-022", "EVAL-031"];
 const METRIC_CASES = ["EVAL-004", "EVAL-005"]; // diffed by metric, not status-flip
@@ -72,6 +72,8 @@ interface EvalCaseDef {
   category: string;
   /** Present when only part of the case is automated (EVAL-017, EVAL-021); echoed into `details`. */
   automated_scope?: string;
+  /** Present when the case is retired (id preserved, no longer run). */
+  retired?: string;
 }
 /** Suffix for `details` when a case has a manual sub-result, so a run JSON never implies full automation. */
 function scopeNote(def: EvalCaseDef): string {
@@ -602,6 +604,10 @@ async function main(): Promise<void> {
   const cases: ResultCase[] = [];
   for (const def of evalCases) {
     const base = { id: def.id, priority: def.priority, category: def.category };
+    if (def.retired) {
+      cases.push({ ...base, status: "SKIP", details: `RETIRED: ${def.retired}` });
+      continue;
+    }
     if (!wants(def.id)) {
       cases.push({ ...base, status: "SKIP", details: "excluded by --only" });
       continue;

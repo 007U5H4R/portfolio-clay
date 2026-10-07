@@ -1,10 +1,10 @@
 /**
- * EVAL-027 (cursor half, S29/EV10, TASK-142): no Paper Trail cursor bytes in the first-load set of
- * `/` or of any other route. Runs `scripts/bundle-budget.ts --forbid` over the REAL `.next` build and
- * also greps each prerendered HTML (inlined CSS/RSC payload). SKIPs visibly with no build — never a
- * vacuous pass. A planted-marker fixture proves the scan can fail. (The 3D-stack markers join this
- * file's list with TASK-143.) TASK-143 adds the 3D half below: three.js / R3F / Rapier / the gummy GLB
- * markers may exist only in lazily imported chunks that no route other than `/lab` ever loads.
+ * EVAL-027 (S29/EV10, TASK-143; cursor half retired by TASK-174, 2026-10-07). Two guards over the REAL `.next`
+ * build: (1) no custom-cursor code ships at all (the Paper Trail cursor was removed - system cursor only), and no
+ * built CSS hides the native cursor; (2) the 3D stack (three.js / R3F / Rapier / the gummy GLB markers) may exist only
+ * in lazily imported chunks that no route other than `/lab` ever loads. Runs `scripts/bundle-budget.ts --forbid` and
+ * greps each prerendered HTML (inlined CSS/RSC payload). SKIPs visibly with no build - never a vacuous pass. Planted-marker
+ * fixtures prove the scans can fail.
  */
 import { afterAll, describe, expect, it } from "vitest";
 import { spawnSync } from "node:child_process";
@@ -16,8 +16,8 @@ const SCRIPT = resolve(ROOT, "scripts/bundle-budget.ts");
 const APP_DIR = resolve(ROOT, ".next/server/app");
 const built = existsSync(resolve(APP_DIR, "index.html"));
 
-/** Strings that exist only in the lazily loaded cursor chunk / stylesheet. */
-const CURSOR_MARKERS = ["data-paper-cursor", "paperCursor", "portfolio-cursor", "cursor-trail-item", "has-custom-cursor", "/cursor/trail/"];
+/** Strings that existed only in the removed Paper Trail cursor chunk / stylesheet; none may ship (TASK-174). */
+const CURSOR_MARKERS = ["data-paper-cursor", "paperCursor", "portfolio-cursor", "cursor-trail-item", "has-custom-cursor", "cursor-dragging", "/cursor/trail/"];
 
 function budget(cwd: string, route: string, markers: readonly string[] = CURSOR_MARKERS) {
   const r = spawnSync("pnpm", ["exec", "tsx", SCRIPT, "--route", route, "--json", "--forbid", markers.join(",")], { cwd, encoding: "utf8" });
@@ -47,7 +47,7 @@ function firstLoadChunks(htmlFile: string): string[] {
 
 const SPAWN_TIMEOUT = 120_000;
 
-describe.skipIf(!built)("EVAL-027 · cursor isolation on the real build", () => {
+describe.skipIf(!built)("EVAL-027 · no custom-cursor code ships (TASK-174)", () => {
   it("home first-load set has 0 cursor bytes", () => {
     const parsed = budget(ROOT, "/");
     expect(parsed.ok).toBe(true);
@@ -56,7 +56,7 @@ describe.skipIf(!built)("EVAL-027 · cursor isolation on the real build", () => 
   }, SPAWN_TIMEOUT);
 
   it("no prerendered route's HTML or first-load chunks carry a cursor marker", () => {
-    const files = htmlRoutes(APP_DIR).filter((f) => !/\/lab(\.html|\/)/.test(f));
+    const files = htmlRoutes(APP_DIR);
     expect(files.length).toBeGreaterThan(5);
     for (const file of files) {
       const html = readFileSync(file, "utf8");
@@ -67,10 +67,17 @@ describe.skipIf(!built)("EVAL-027 · cursor isolation on the real build", () => 
     }
   }, SPAWN_TIMEOUT);
 
-  it("the cursor module exists as its own chunk (the scan is not vacuous)", () => {
-    const dir = resolve(ROOT, ".next/static/chunks");
-    const hit = readdirSync(dir).some((f) => f.endsWith(".js") && readFileSync(resolve(dir, f), "utf8").includes("cursor-trail-item"));
-    expect(hit).toBe(true);
+  it("no emitted chunk or stylesheet carries a cursor marker or hides the native cursor", () => {
+    const files = [
+      ...readdirSync(resolve(ROOT, ".next/static/chunks")).filter((f) => f.endsWith(".js") || f.endsWith(".css")).map((f) => resolve(ROOT, ".next/static/chunks", f)),
+      ...(existsSync(resolve(ROOT, ".next/static/css")) ? readdirSync(resolve(ROOT, ".next/static/css")).map((f) => resolve(ROOT, ".next/static/css", f)) : []),
+    ];
+    expect(files.length).toBeGreaterThan(0);
+    for (const file of files) {
+      const text = readFileSync(file, "utf8");
+      for (const marker of CURSOR_MARKERS) expect(text.includes(marker), `${relative(ROOT, file)} contains "${marker}"`).toBe(false);
+      if (file.endsWith(".css")) expect(/cursor:\s*none/.test(text), `${relative(ROOT, file)} sets cursor:none`).toBe(false);
+    }
   });
 });
 

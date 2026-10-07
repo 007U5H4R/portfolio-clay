@@ -96,7 +96,6 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
               <a
                 className="pf-action focus-ring"
                 data-action={kind}
-                data-cursor-kind={kind === "prd" ? "prd" : undefined}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"

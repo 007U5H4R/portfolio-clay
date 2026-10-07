@@ -1,5 +1,7 @@
 # Paper Trail Cursor — Claude/Fable Implementation Prompt
 
+> **Removed 2026-10-07 (TASK-174): system cursor only, at Tushar's request (it lagged).**
+
 ## Objective
 
 Implement a custom, portfolio-specific cursor system called **Paper Trail Cursor**.

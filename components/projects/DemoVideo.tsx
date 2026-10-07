@@ -208,7 +208,6 @@ export function DemoVideo({
           <button
             type="button"
             aria-label={`Play demo: ${name}`}
-            data-cursor="PLAY ▶"
             onClick={handlePlayClick}
             className={`${PAPER_BUTTON} h-14 w-14`}
           >
