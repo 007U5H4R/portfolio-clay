@@ -24,41 +24,47 @@ export interface GummyUniforms {
   uGoldColor: IUniform<Color>;
 }
 
+/** The gummy's own hue (TASK-168, §82): a saturated red-orange candy, #E8463A-#F05A3C. The only literal; everything else follows the palette. */
+const GUMMY_RED: RGB = [0.93, 0.29, 0.22];
+
 export function createGummyMaterial(palette: CandyPalette, tier: TierConfig) {
-  const body = col(mix(palette.orange, palette.peach, 0.12));
+  const body = col(mix(palette.orange, GUMMY_RED, 0.8));
+  const deep = col(mix(GUMMY_RED, palette.jelly, 0.15));
   const uniforms: GummyUniforms = {
     uTime: { value: 0 },
     uJelly: { value: 0 },
     uImpactDir: { value: new Vector3(0, 1, 0) },
     uGlow: { value: 0 },
     uGlowColor: { value: col(palette.pink) },
-    uRim: { value: col(palette.peach) },
+    uRim: { value: col(mix(palette.peach, GUMMY_RED, 0.3)) },
     uRainbow: { value: 0 },
     uGold: { value: 0 },
     uGoldColor: { value: col(palette.gold) },
   };
   const material = new MeshPhysicalMaterial({
     color: body,
-    roughness: 0.28,
+    roughness: 0.22,
     metalness: 0,
     ior: 1.45,
-    clearcoat: 0.7,
-    clearcoatRoughness: 0.12,
-    specularIntensity: 1,
-    sheen: 0.4,
-    sheenColor: col(palette.peach),
-    attenuationColor: col(palette.jelly),
-    attenuationDistance: 0.9,
+    clearcoat: 0.85,
+    clearcoatRoughness: 0.08,
+    specularIntensity: 0.9,
+    sheen: 0.25,
+    sheenColor: col(mix(palette.peach, GUMMY_RED, 0.5)),
+    attenuationColor: deep,
+    attenuationDistance: 1.6,
     thickness: 1.1,
-    envMapIntensity: 1.1,
+    envMapIntensity: 1,
+    // a faint self-light so the candy glows from within, a little more in dark where there is less key light
+    emissive: body,
+    emissiveIntensity: palette.isDark ? 0.14 : 0.05,
   });
   if (tier.transmission) {
-    material.transmission = 0.42;
+    material.transmission = 0.55;
   } else {
     material.transparent = true;
-    material.opacity = 0.9;
-    material.emissive = col(palette.orange);
-    material.emissiveIntensity = 0.12;
+    material.opacity = 0.92;
+    material.emissiveIntensity = palette.isDark ? 0.22 : 0.12;
   }
   material.onBeforeCompile = (shader: WebGLProgramParametersWithUniforms) => {
     Object.assign(shader.uniforms, uniforms);
