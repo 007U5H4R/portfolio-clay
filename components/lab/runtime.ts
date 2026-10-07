@@ -108,7 +108,7 @@ export interface LabRuntime {
   zoom: number;
   /** 0 = intro framing, 1 = play framing; eased by the camera rig. */
   introBlend: number;
-  /** World (z = 0) → canvas CSS pixels, for DOM overlays and tests. Set by the camera rig. */
+  /** World (z = 0) → viewport CSS pixels (canvas offset included), for DOM overlays and tests. Set by the camera rig. */
   project(x: number, y: number): { x: number; y: number };
   /** World scale of the bear on the results screen (set by the camera so it clears the card). */
   resultsScale: number;

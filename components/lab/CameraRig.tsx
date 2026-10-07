@@ -23,15 +23,17 @@ export function fitDistance(aspect: number, halfW: number, height: number, margi
 
 export function CameraRig() {
   const rt = useRuntime();
-  const { camera, size } = useThree();
+  const { camera, size, gl } = useThree();
   const focus = useRef(0.62);
   useEffect(() => {
     const v = new Vector3();
     rt.project = (x, y) => {
       v.set(x, y, 0).project(camera);
-      return { x: ((v.x + 1) / 2) * size.width, y: ((1 - v.y) / 2) * size.height };
+      // Viewport coordinates: the canvas sits inside the diorama's opening, not at the page origin.
+      const r = gl.domElement.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * size.width, y: r.top + ((1 - v.y) / 2) * size.height };
     };
-  }, [rt, camera, size]);
+  }, [rt, camera, size, gl]);
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30);
     const cam = camera as PerspectiveCamera;
