@@ -7,7 +7,8 @@
  *     on their first gesture on /lab (autoplay policy), never at load.
  * Music: music-1 → music-2 → music-1 … sample-accurately. Each next buffer is scheduled on the audio clock
  * to start `CROSSFADE_S` before the previous one ends, with an equal-power crossfade. music-2 is only
- * fetched once music-1 has started. Music sits 6 dB under the SFX. `.m4a` first, `.mp3` as the fallback.
+ * fetched once music-1 has started. The SFX sit 12 dB under the music (Tushar 2026-10-07: effects much quieter than the
+ * background music). `.m4a` first, `.mp3` as the fallback.
  * Audio is paused while the tab is hidden and the context is released on `dispose()` (leaving /lab).
  */
 export type SoundName = "squish" | "bounce" | "ring" | "star" | "powerup" | "danger" | "gameover" | "secret" | "tick" | "click" | "rustle";
@@ -15,9 +16,9 @@ export type SoundName = "squish" | "bounce" | "ring" | "star" | "powerup" | "dan
 export const MUSIC_TRACKS = ["music-1", "music-2"] as const;
 export const CROSSFADE_S = 0.06;
 export const STORAGE_KEY = "gummy-lab:sound";
-/** SFX bus 1.0 × 0.9, music 0.45: exactly −6 dB between them. */
-export const SFX_GAIN = 0.9;
-export const MUSIC_GAIN = 0.45;
+/** Music 0.8, SFX bus 0.2: the effects sit 12 dB under the music (both sources are loudness-matched first). */
+export const SFX_GAIN = 0.2;
+export const MUSIC_GAIN = 0.8;
 const BASE = "/media/lab";
 
 /** Which file(s) a game event plays; arrays alternate. */

@@ -109,8 +109,8 @@ describe("pure scheduling helpers", () => {
     expect(inn[0]).toBe(0);
     for (let i = 0; i < 16; i += 1) expect(out[i]! ** 2 + inn[i]! ** 2).toBeCloseTo(1, 6);
   });
-  it("keeps music exactly 6 dB under the SFX bus", () => {
-    expect(20 * Math.log10(MUSIC_GAIN / SFX_GAIN)).toBeCloseTo(-6.02, 1);
+  it("keeps the SFX 12 dB under the music (Tushar: effects much quieter than the music)", () => {
+    expect(20 * Math.log10(SFX_GAIN / MUSIC_GAIN)).toBeCloseTo(-12.04, 1);
   });
   it("maps every game event to a shipped file", () => {
     for (const files of Object.values(SFX_FILES)) for (const f of files) expect(ALL_SFX_FILES).toContain(f);
