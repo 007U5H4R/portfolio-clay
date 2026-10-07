@@ -214,10 +214,10 @@ export function Intro({ onPlay }: { onPlay: () => void }) {
           <li key={c} className={styles.chip}>{c}</li>
         ))}
       </ul>
-      <p className={styles.keys}>Keyboard: ← → nudge · Space bounce · P pause · Esc exit</p>
       <button ref={btn} type="button" className={styles.play} onClick={onPlay} data-lab-play="">
         Let&apos;s play <span aria-hidden="true">→</span>
       </button>
+      <p className={styles.keys}>Keyboard: ← → nudge · Space bounce · P pause · Esc exit</p>
     </Screen>
   );
 }

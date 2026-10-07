@@ -524,7 +524,7 @@
   text-transform: uppercase;
 }
 .keys {
-  margin: 0;
+  margin: -4px 0 0;
   font: 400 14px/1.4 var(--font-body);
   color: var(--color-ink-soft);
 }
@@ -728,6 +728,16 @@
   8% { opacity: 1; }
   88% { opacity: 1; }
   100% { opacity: 0; }
+}
+/* The wide opening is short: a three-column stat grid keeps the results card low so the gummy above it stays in view. */
+@media (min-aspect-ratio: 6/5) {
+  .results {
+    margin-bottom: 0;
+    width: min(92%, 540px);
+  }
+  .statGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 @media (max-width: 480px) {
   .hud {
