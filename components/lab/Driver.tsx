@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { ACHIEVEMENTS } from "@/lib/lab/storage";
 import type { PowerUpType } from "@/lib/lab/engine";
+import { HINTS } from "./controls-copy";
 import { createFxHooks } from "./fx";
 import { useRuntime } from "./runtime";
 
@@ -146,15 +147,13 @@ export function Driver() {
         if (super_) engine.consumeSuperSquish();
         audio.play(charge > 0.5 ? "bounce" : "squish");
       },
-      drag() {
-        if (acc.current.hint <= 1) hint(2, "Now flick!");
+      flip(side, speed, nx, ny, x, y) {
+        fx.flip(side, speed, nx, ny, x, y);
+        if (acc.current.hint <= 2) hint(3, HINTS.keep);
+        audio.play("flip");
       },
-      flick() {
-        if (acc.current.hint <= 2) hint(3, "Keep me off the floor.");
-        audio.play("bounce");
-      },
-      tap() {
-        fx.tap();
+      poke() {
+        fx.poke();
         audio.play("squish");
       },
     };
@@ -179,7 +178,7 @@ export function Driver() {
     if (runId === 0 || hintsFinished) return;
     acc.current.hint = 1;
     acc.current.hintAge = 0;
-    rt.store.getState().patch({ hint: "Drag me." });
+    rt.store.getState().patch({ hint: HINTS.first });
   }, [rt, runId]);
 
   useFrame((_, rawDt) => {
@@ -197,7 +196,8 @@ export function Driver() {
     e.motion = env.motion;
     e.gravityMul = env.gravityMul;
     e.windX = env.windX;
-    e.dangerRise = env.dangerRise;
+    // Pinball: the drain is the loss, so the danger line stays at the bottom (a rising line would flood the flippers).
+    e.dangerRise = 0;
     e.vanish = env.vanish;
     e.padShift = env.padShift;
     e.rainbow = env.rainbow;

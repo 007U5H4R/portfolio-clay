@@ -1,4 +1,5 @@
 import { buildArena, portraitHalfWidth } from "@/lib/lab/arena";
+import { newFlipperState } from "@/lib/lab/flippers";
 import { LabAudio } from "./audio";
 import { GameEngine } from "@/lib/lab/engine";
 import { Spawner } from "@/lib/lab/spawner";
@@ -29,6 +30,7 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     jelly: new Jelly(),
     particles: new ParticlePool(tier.particles),
     bear: createBear(),
+    flippers: arena.flippers.map((layout) => ({ layout, state: newFlipperState(), pressed: false, cooldown: 0, body: { current: null } })) as LabRuntime["flippers"],
     env: createEnv(),
     hooks: { ...noopHooks },
     bearBody: { current: null },

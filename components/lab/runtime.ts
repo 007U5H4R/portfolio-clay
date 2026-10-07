@@ -2,6 +2,7 @@ import { createContext, useContext } from "react";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { MeshPhysicalMaterial } from "three";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
+import type { FlipperLayout, FlipperSide, FlipperState } from "@/lib/lab/flippers";
 import type { LabAudio } from "./audio";
 import type { GameEngine } from "@/lib/lab/engine";
 import type { Spawner } from "@/lib/lab/spawner";
@@ -62,9 +63,20 @@ export interface LabHooks {
   /** A rapier sensor overlap with a collectible. */
   pickup(id: number): void;
   squish(charge: number, super_: boolean): void;
-  drag(): void;
-  flick(): void;
-  tap(): void;
+  /** A flipper swung into the gummy: `speed` out along the surface normal (nx, ny) at (x, y). */
+  flip(side: FlipperSide, speed: number, nx: number, ny: number, x: number, y: number): void;
+  /** The intro bear was poked. */
+  poke(): void;
+}
+
+/** One flipper: its layout, live swing state, whether it is held, and the kinematic body the arena mounts for it. */
+export interface FlipperRuntime {
+  layout: FlipperLayout;
+  state: FlipperState;
+  pressed: boolean;
+  /** Seconds until this flipper can hand the gummy another impulse. */
+  cooldown: number;
+  body: { current: RapierRigidBody | null };
 }
 
 /** Live tuning knobs for the `?debug` panel (§47); all 1 by default. */
@@ -97,6 +109,8 @@ export interface LabRuntime {
   jelly: Jelly;
   particles: ParticlePool;
   bear: BearKinematics;
+  /** Left and right flippers (TASK-172). */
+  flippers: [FlipperRuntime, FlipperRuntime];
   env: EnvKnobs;
   hooks: LabHooks;
   bearBody: { current: RapierRigidBody | null };
@@ -171,7 +185,6 @@ export const noopHooks: LabHooks = {
   portal() {},
   pickup() {},
   squish() {},
-  drag() {},
-  flick() {},
-  tap() {},
+  flip() {},
+  poke() {},
 };

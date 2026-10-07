@@ -300,10 +300,8 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         collider?.setCollisionGroups(0);
         L.drive = false;
       } else if (gs !== "PAUSED") {
-        const ctrl = ctrlRef.current;
         L.drive = true;
-        const gf = ctrl?.gravityFactor ?? 1;
-        rb.setGravityScale(rt.env.gravityMul * gf * rt.tune.gravity, true);
+        rb.setGravityScale(rt.env.gravityMul * rt.tune.gravity, true);
         // grounded: a short ray straight down (sensors excluded)
         const ray = rayRef.current;
         if (ray) {
@@ -326,10 +324,9 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     jelly.step(dt);
     const w = jelly.weights(L.weights);
 
-    const drag = ctrlRef.current?.dragVector(b) ?? null;
     const speed = Math.hypot(b.vx, b.vy);
     const squishMorph = b.charge * 0.95;
-    const stretchMorph = Math.min(0.55, Math.abs(b.vy) / 30) + (drag ? Math.min(0.7, drag.len / 1.4) : 0);
+    const stretchMorph = Math.min(0.55, Math.abs(b.vy) / 30);
     // landing: a hard impact flattens the belly briefly via the jelly springs (already in `w`)
     const urgency = rt.store.getState().dangerLeft !== null ? 1 - Math.min(1, (rt.store.getState().dangerLeft ?? 1.2) / 1.2) : 0;
     const face = pickFace({
@@ -408,7 +405,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
       sx *= 1 - k * 0.5;
       vis.rotation.z += dt * 10 * k;
     } else {
-      const leanTarget = drag ? Math.atan2(drag.x, Math.max(0.3, Math.abs(drag.y) + 1)) * 0.55 : Math.max(-0.28, Math.min(0.28, -b.vx * 0.022));
+      const leanTarget = Math.max(-0.28, Math.min(0.28, -b.vx * 0.022));
       vis.rotation.z += (leanTarget - vis.rotation.z) * EASE(10, dt);
     }
     // eyes follow the pointer (a gentle yaw), calmer when idle
@@ -477,9 +474,9 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         }}
       >
         {prepared.hull ? (
-          <ConvexHullCollider args={[prepared.hull]} restitution={0.32} friction={0.55} />
+          <ConvexHullCollider args={[prepared.hull]} restitution={0.32} friction={0.12} />
         ) : (
-          <CuboidCollider args={[0.34, 0.45, 0.25]} position={[0, 0.5, 0]} restitution={0.32} friction={0.55} />
+          <CuboidCollider args={[0.34, 0.45, 0.25]} position={[0, 0.5, 0]} restitution={0.32} friction={0.12} />
         )}
         <group ref={visual}>
           <primitive object={prepared.root} />
