@@ -4,31 +4,32 @@ import type { ReactNode } from "react";
  * Every control instruction the visitor reads, in ONE place (TASK-168): the intro instruction sheet (lines + icons),
  * the keyboard label, and the control hints used as accessible names. The intro renders from this module and the HUD
  * buttons take their labels from it, so changing how the game is played is a copy edit here, not a hunt through the
- * components. (The key handlers themselves live in LabApp.tsx and the pointer controls in gummy-controller.ts.)
+ * components. (The key handlers and pointer halves live in gummy-controller.ts; P and Esc in LabApp.tsx.)
  */
 const ICON = { width: 28, height: 28, viewBox: "0 0 32 32", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
 export const HOW_TO_PLAY: readonly { main: string; sub?: string; icon: ReactNode }[] = [
   {
-    main: "Drag",
-    sub: "to move",
+    main: "Tap left / right",
+    sub: "to flip",
     icon: (
       <svg {...ICON}>
-        <path d="M11 17V8a2 2 0 0 1 4 0v7m0-3a2 2 0 0 1 4 0v3m0-2a2 2 0 0 1 4 0v6c0 4-3 7-7 7h-2c-3 0-5-2-6-4l-3-5a2 2 0 0 1 3-2l3 3" />
-        <path d="M24 5h5m-2-2 2 2-2 2" />
+        <path d="M4 22l10 4m14-4-10 4" />
+        <path d="M16 4v8m-3-5 3-3 3 3" />
       </svg>
     ),
   },
   {
-    main: "Flick",
-    sub: "to bounce",
+    main: "Keep the gummy",
+    sub: "in play",
     icon: (
       <svg {...ICON}>
-        <path d="M5 27c1-9 7-15 18-17m-6-4 6 4-5 6" />
+        <circle cx="16" cy="13" r="7" />
+        <path d="M11 25h10" />
       </svg>
     ),
   },
   {
-    main: "Collect",
+    main: "Hit",
     sub: "stars & rings",
     icon: (
       <svg {...ICON}>
@@ -37,7 +38,7 @@ export const HOW_TO_PLAY: readonly { main: string; sub?: string; icon: ReactNode
     ),
   },
   {
-    main: "Don't let it fall",
+    main: "Don't let it drain",
     icon: (
       <svg {...ICON}>
         <path d="M16 4 29 27H3z" />
@@ -50,7 +51,7 @@ export const HOW_TO_PLAY: readonly { main: string; sub?: string; icon: ReactNode
 /** The tiny editorial keyboard label (hidden on portrait phones by CSS). */
 export const KEYBOARD_LABEL = {
   title: "Keyboard",
-  rows: ["← → nudge", "Space bounce", "P pause", "Esc exit"],
+  rows: ["← → flip · Space both · P pause · Esc exit"],
 } as const;
 
 /** Accessible names and region labels for the control surfaces. */
@@ -61,4 +62,12 @@ export const CONTROL_LABELS = {
   resume: "Resume",
   soundOff: "Sound is off. Turn sound on",
   soundOn: "Sound is on. Turn sound off",
+  /** Spoken (aria-live, polite) when a run starts, so the flippers are discoverable without sight. */
+  flipLive: "Left and right flip",
+} as const;
+
+/** The on-canvas hints (first session only, never a modal). */
+export const HINTS = {
+  first: "Left and right flip",
+  keep: "Keep me in play.",
 } as const;

@@ -171,6 +171,18 @@ export function PowerChips({ store }: { store: LabStoreApi }) {
   );
 }
 
+const SR_ONLY = { position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 } as const;
+
+/** Polite live region: tells a screen-reader user the flippers exist as soon as a run begins (TASK-172). */
+export function FlipLive({ store }: { store: LabStoreApi }) {
+  const on = store((s) => s.state === "COUNTDOWN" || s.state === "PLAYING" || s.state === "DANGER");
+  return (
+    <p role="status" aria-live="polite" style={SR_ONLY} data-lab-live="">
+      {on ? CONTROL_LABELS.flipLive : ""}
+    </p>
+  );
+}
+
 export function Hint({ store }: { store: LabStoreApi }) {
   const hint = store((s) => s.hint);
   return hint ? (
