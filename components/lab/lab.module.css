@@ -781,6 +781,7 @@
 }
 /* The paper plates: blank art with live text on top; the cream art is shared by both themes, dimmed in dark. */
 .plate2 {
+  box-sizing: border-box;
   position: absolute;
   translate: calc(var(--pp-x, 0) * var(--k) * var(--ib)) calc(var(--pp-y, 0) * var(--k) * var(--ib));
   background: var(--plate-img) center / 100% 100% no-repeat;
@@ -877,9 +878,9 @@
 }
 .keyLabel {
   --plate-img: url("/media/lab/intro/intro-plate-key-light.webp");
-  left: 72.5%;
-  top: 83%;
-  width: 12%;
+  left: 73.5%;
+  top: 79.5%;
+  width: 15.5%;
   aspect-ratio: 571 / 294;
   display: grid;
   align-content: center;
@@ -909,6 +910,7 @@
   display: grid;
   place-items: center;
   border: 0;
+  border-radius: 999px;
   padding: 0;
   cursor: pointer;
   pointer-events: auto;
@@ -1029,7 +1031,7 @@
   }
   .banner {
     left: 24%;
-    top: 3%;
+    top: 8.5%;
     width: 52%;
     padding: 3.6% 6% 2.6%;
   }

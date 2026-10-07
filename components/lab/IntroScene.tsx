@@ -54,7 +54,6 @@ function Art({ spec }: { spec: Spec }) {
         <picture key={theme} data-theme-art={theme}>
           {spec.mobile ? <source media={PORTRAIT} srcSet={file(theme, true)} type="image/webp" /> : null}
           {/* Layer art is already WebP at its shipped size; no next/image loader (same as the Paper World scenes). */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={file(theme)} alt="" aria-hidden="true" draggable={false} decoding="async" loading="lazy" className={styles.introImg} />
         </picture>
       ))}
