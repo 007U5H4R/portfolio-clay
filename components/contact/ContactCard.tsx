@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowUpRight, Download, FileText, Mail, MapPin } from "lucide-react";
+import { ArrowUpRight, FileText, Mail, MapPin } from "lucide-react";
 import { CopyButton } from "@/components/common/CopyButton";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
 import { showGithub } from "@/components/layout/BandFooter";
@@ -47,11 +47,9 @@ export function PrimaryContactCTA() {
 }
 
 /**
- * Secondary actions (spec §12–§13): LinkedIn (external, `target=_blank rel="noopener noreferrer"` +
- * sr-only "(opens in new tab)") and the résumé from `contactResumeLink()` — "Resume ↓" once
- * `site.resumeAvailable` flips, "Resume — available on request" (mailto with a subject) until then.
- * GitHub joins only under the band's S5 rule (`showGithub()`). `#resume` stays the target the
- * site-wide résumé placeholder (`resumeAction()` → `/contact#resume`) lands on.
+ * Secondary actions (spec §12–§13): LinkedIn and the résumé (`contactResumeLink()` - Tushar's Google Drive file, TASK-175)
+ * are external (`target=_blank rel="noopener noreferrer"` + sr-only "(opens in new tab)"). GitHub joins only under
+ * the band's S5 rule (`showGithub()`).
  */
 export function SecondaryContactLinks() {
   const resume = contactResumeLink();
@@ -77,14 +75,12 @@ export function SecondaryContactLinks() {
         className="cx-btn cx-btn-secondary focus-ring"
         data-link="resume"
         href={resume.href}
-        download={resume.download || undefined}
+        target="_blank"
+        rel="noopener noreferrer"
       >
-        {resume.download ? (
-          <Download className="cx-btn-down" size={18} strokeWidth={1.75} aria-hidden="true" />
-        ) : (
-          <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
-        )}
+        <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
         <span className="cx-btn-text">{resume.label}</span>
+        <VisuallyHidden>(opens in new tab)</VisuallyHidden>
       </a>
       {github ? (
         <a

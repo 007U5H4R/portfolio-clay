@@ -11,14 +11,15 @@
  *               static HTML content
  * plus hero frame ladder (S05.02), tile offsets (S05.03), the one-height header + ink underline
  * (TKT-71 / D12 — replacing the S04.03 compaction and S04.04 active-pill checks), no menu button
- * (S04.05, TASK-112), SkipLink (S04.02), AskAIButton tab-order (S04.06), resume placeholder +
- * /resume.pdf 404 (E-13).
+ * (S04.05, TASK-112), SkipLink (S04.02), AskAIButton tab-order (S04.06), the resume Drive link +
+ * /resume.pdf 404 (E-13, TASK-175).
  */
 import { test, expect } from "./fixtures";
 import { openCaseStudy } from "./case-study-system";
 // The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
 // JPEGs for `next/image`, which Playwright's TypeScript transform cannot load.
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
+import { site } from "@/lib/site";
 
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 // TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`; a paper-cut still since S24).
@@ -326,16 +327,19 @@ test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page 
 });
 
 // ---------------------------------------------------------------------------
-// E-13 — resume placeholder resolves to /contact#resume; /resume.pdf is 404
+// E-13 / TASK-175 — the resume is the external Google Drive link; no local /resume.pdf exists
 // ---------------------------------------------------------------------------
-test("resume placeholder points at /contact#resume and /resume.pdf is 404", async ({ page }) => {
+test("resume is the Drive link in a new tab and /resume.pdf is 404", async ({ page }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
   // Since TKT-72 the home page's in-page résumé control is the band footer's résumé circle (the
   // TKT-73 hero carries no résumé CTA and the old closing-CTA section is gone; since TASK-112 the
   // band is the only résumé control on every page) — scope to the band. Its name comes from resumeAction().
-  const resume = page.locator('footer.band a[href="/contact#resume"][aria-label="Resume — updating"]');
+  const resume = page.locator('footer.band a[aria-label="Resume ↗"]');
   await expect(resume).toBeVisible();
+  await expect(resume).toHaveAttribute("href", site.resumeUrl);
+  await expect(resume).toHaveAttribute("target", "_blank");
+  await expect(resume).toHaveAttribute("rel", "noopener noreferrer");
   const res = await page.request.get("/resume.pdf");
-  expect(res.status(), "/resume.pdf must 404 while resumeAvailable=false").toBe(404);
+  expect(res.status(), "no local /resume.pdf is served").toBe(404);
 });

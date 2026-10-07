@@ -83,8 +83,8 @@ export function BandFooter() {
                   <a
                     href={resume.href}
                     aria-label={resume.label}
-                    title={resume.note}
-                    download={resume.download || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="focus-ring"
                   >
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

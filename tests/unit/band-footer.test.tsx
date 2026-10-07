@@ -134,14 +134,17 @@ describe("TC-136 · conditionals follow their single sources", () => {
     expect(screen.queryByRole("link", { name: "GitHub" })).toBeNull();
   });
 
-  it("résumé circle derives from resumeAction(): PB5 placeholder label + /contact#resume", async () => {
+  it("résumé circle derives from resumeAction(): the Drive link, external, new tab", async () => {
     await renderBand();
     const { resumeAction } = await import("@/lib/site");
     const resume = resumeAction();
-    expect(resume.label).toBe("Resume — updating");
+    expect(resume.label).toBe("Resume ↗");
     const link = screen.getByRole("link", { name: resume.label });
-    expect(link.getAttribute("href")).toBe("/contact#resume");
+    expect(link.getAttribute("href")).toBe(resume.href);
+    expect(link.getAttribute("href")).toMatch(/^https:\/\/drive\.google\.com\//);
     expect(link.hasAttribute("download")).toBe(false);
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
   });
 
   it("every social circle carries an aria-label; external ones open safely", async () => {

@@ -1,23 +1,13 @@
 /**
- * resume-pii.test.ts (technical-plan.md §B TKT-08 S08r.01) — the PII gate for the sanitised
- * resume PDF. There is NO PDF in this repo yet and `site.resumeAvailable` stays `false` (TKT-08 is
- * BLOCKED on Tushar supplying a sanitised export) — this file only builds the test infra so the
- * gate is ready the moment the file lands.
+ * resume-pii.test.ts (technical-plan.md §B TKT-08 S08r.01; TASK-175, 2026-10-07) - guards the resume.
+ * The resume is Tushar's Google Drive file (`site.resumeUrl`), so NO resume PDF is committed to `public/`:
  *
- * State matrix:
- *   file absent + resumeAvailable=false (today)      → SKIP, loudly, with the reason in the title.
- *   file absent + resumeAvailable=true                → FAIL (the flag must never flip without the
- *                                                        file backing it — A14 "pdftotext absent on
- *                                                        Vercel build image" mitigation).
- *   file present                                      → runs `pdftotext -layout` via `spawnSync`
- *                                                        and asserts the PII rules below. Fails
- *                                                        CLOSED (does not skip) if the `pdftotext`
- *                                                        binary itself cannot be found — an
- *                                                        unverifiable PDF is never treated as clean.
+ *   default (no RESUME_PATH)   -> asserts public/resume.pdf is absent and the URL is https on drive.google.com.
+ *   RESUME_PATH set + exists   -> runs the PII gate (`pdftotext -layout` via `spawnSync`) over that scratch
+ *                                 candidate, never committed. Fails CLOSED (does not skip) if the `pdftotext`
+ *                                 binary cannot be found - an unverifiable PDF is never treated as clean.
  *
- * `RESUME_PATH` lets a scratch candidate be checked without ever committing it
- * (`RESUME_PATH="/Volumes/E Drive/Dev/.scratch/portfolio-clay/resume-candidate.pdf" pnpm test -t resume-pii`),
- * per the gate documented at technical-plan.md TKT-08 S08r.01.
+ * `RESUME_PATH="/Volumes/E Drive/Dev/.scratch/portfolio-clay/resume-candidate.pdf" pnpm test -t resume-pii`
  */
 import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
@@ -27,7 +17,8 @@ import { resolve } from "node:path";
 import { site } from "@/lib/site";
 import { PII_PATTERNS, RESUME_PII_PATTERNS } from "@/scripts/forbidden-strings";
 
-const RESUME_PATH = process.env.RESUME_PATH ?? "public/resume.pdf";
+const CANDIDATE = process.env.RESUME_PATH;
+const RESUME_PATH = CANDIDATE ?? "public/resume.pdf";
 const RESOLVED_PATH = resolve(process.cwd(), RESUME_PATH);
 const DECISIONS_PATH = resolve(process.cwd(), "decisions.md");
 
@@ -71,26 +62,21 @@ async function decisionsHasResumeTitleException(): Promise<boolean> {
 
 const fileExists = existsSync(RESOLVED_PATH);
 
-describe("resume PII gate (TKT-08 S08r.01)", () => {
-  if (!fileExists && site.resumeAvailable) {
-    // The flag must never be true without the file backing it.
-    it("FAILS: site.resumeAvailable=true but no resume file was found", () => {
-      throw new Error(
-        `site.resumeAvailable is true but ${RESUME_PATH} does not exist. TKT-08 must not flip ` +
-          "the flag until the sanitised PDF is committed alongside it.",
-      );
-    });
-    return;
-  }
+describe("resume guard (TASK-175)", () => {
+  it("no resume PDF is committed to public/ (the resume is the Drive link)", () => {
+    expect(existsSync(resolve(process.cwd(), "public/resume.pdf"))).toBe(false);
+  });
 
-  if (!fileExists) {
-    // Loud, explicit skip — the reason lives in the test title so it shows up in any reporter,
-    // not just verbose logs.
-    it.skip(
-      `SKIP: ${RESUME_PATH} absent and site.resumeAvailable=false — TKT-08 blocked on Tushar's ` +
-        "sanitised export; no PDF is committed and none should be created to satisfy this test",
-      () => {},
-    );
+  it("site.resumeUrl is https on drive.google.com", () => {
+    const url = new URL(site.resumeUrl);
+    expect(url.protocol).toBe("https:");
+    expect(url.hostname).toBe("drive.google.com");
+  });
+});
+
+describe("resume PII gate (TKT-08 S08r.01) - scratch candidate via RESUME_PATH", () => {
+  if (!CANDIDATE || !fileExists) {
+    it.skip("SKIP: set RESUME_PATH to a scratch PDF to run the PII gate (none is committed)", () => {});
     return;
   }
 

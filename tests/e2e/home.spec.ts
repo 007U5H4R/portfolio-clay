@@ -99,7 +99,7 @@ test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({
 // ---------------------------------------------------------------------------
 // TKT-72 AC 3 / AC 4 (TC-134, TC-136) — the band's controls on `/` are live and derived from their
 // single sources: email → /contact, LinkedIn, GitHub (S5: shown while a public repo link exists),
-// résumé from resumeAction() (PB5 placeholder), the DRAFT hiring line visible.
+// résumé from resumeAction() (the Google Drive link, TASK-175), the DRAFT hiring line visible.
 // ---------------------------------------------------------------------------
 test("@EVAL-011 band footer renders its headline + live contact controls", async ({ page }) => {
   test.skip(width(page) !== 1440, "content checked once at w1440");
@@ -115,11 +115,10 @@ test("@EVAL-011 band footer renders its headline + live contact controls", async
   await expect(band.getByRole("link", { name: resume.label })).toHaveAttribute("href", resume.href);
   await expect(band.getByText("Draft — pending sign-off")).toHaveCount(0); // signed off (TASK-167)
 
-  for (const path of ["/contact", resume.href.split("#")[0]!]) {
-    const res = await page.request.get(path);
-    expect(res.status(), `${path} must resolve 200`).toBe(200);
-  }
-  for (const name of ["LinkedIn", "GitHub"]) {
+  // The résumé is an external Drive link (not fetched here): only the internal /contact must resolve.
+  const res = await page.request.get("/contact");
+  expect(res.status(), "/contact must resolve 200").toBe(200);
+  for (const name of ["LinkedIn", "GitHub", resume.label]) {
     const link = band.getByRole("link", { name });
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", /noopener/);

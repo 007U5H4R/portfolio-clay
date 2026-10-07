@@ -1,9 +1,9 @@
 /**
  * eval-002.spec.ts (technical-plan.md §B S09.02, `@EVAL-002`) — the recruiter path. The full
  * journey is / → /work → /work/[slug] → /about → resume → /contact in ≤ 6 clicks with every hop
- * 200 and the resume 200 on production. Implemented incrementally: the / → /work → /work/teachspark
- * leg is live now (those routes exist); the /about hop and the resume download are fixme'd until
- * TKT-42 (/about) and TKT-08 (resume PDF, resumeAvailable flips true).
+ * 200 and the resume link (an external Google Drive link since TASK-175, so not fetched here) present. Implemented incrementally: the / → /work → /work/teachspark
+ * leg is live now (those routes exist); the /about hop and the full click-counted journey are fixme'd until
+ * TKT-42 (/about) lands its journey spec.
  */
 import { test, expect } from "./fixtures";
 
@@ -40,9 +40,8 @@ test("@EVAL-002 recruiter path: / → /projects → /work/teachspark all resolve
   expect(contact?.status(), "/contact must be 200").toBe(200);
 });
 
-// Full click-counted journey through /about and the resume download (≤ 6 clicks, resume 200 on
-// production) — /about is TKT-42, the resume PDF is TKT-08 (until then resumeAvailable=false and
-// the CTA is a labelled placeholder to /contact#resume).
-test.fixme("@EVAL-002 recruiter path: full journey incl /about + resume in ≤ 6 clicks (TKT-42/TKT-08)", {
+// Full click-counted journey through /about and the resume link (≤ 6 clicks) — /about is TKT-42; the
+// resume is the external Google Drive link "Resume ↗" (TASK-175), asserted in contact.spec.ts / home.spec.ts.
+test.fixme("@EVAL-002 recruiter path: full journey incl /about + resume in ≤ 6 clicks (TKT-42)", {
   tag: "@EVAL-002",
 }, async () => {});

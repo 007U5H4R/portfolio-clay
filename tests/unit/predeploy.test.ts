@@ -146,39 +146,30 @@ describe("scanResumePii (fail-closed PII extraction)", () => {
   });
 });
 
-describe("checkResume (PB5: resumeAvailable / PII invariant)", () => {
-  it("PASSES when resume.pdf is absent and resumeAvailable is false (today's real state)", () => {
-    const dir = tmp();
-    const issues = checkResume(dir, { resumeAvailable: false });
-    expect(issues).toEqual([]);
+describe("checkResume (PB5, TASK-175: the resume is the Google Drive link)", () => {
+  it("PASSES with no resume.pdf and the real Drive URL (today's real state)", () => {
+    expect(checkResume(tmp())).toEqual([]);
   });
 
-  it("FAILS: resumeAvailable is true but no resume.pdf exists", () => {
-    const dir = tmp();
-    const issues = checkResume(dir, { resumeAvailable: true });
-    expect(issues).toHaveLength(1);
-    expect(issues[0]?.code).toBe("resume-missing");
-  });
-
-  it("FAILS: resume.pdf exists but its PII scan fails", () => {
+  it("FAILS: a resume.pdf is committed to public/", () => {
     const dir = tmp();
     mkdirSync(join(dir, "public"), { recursive: true });
     writeFileSync(join(dir, "public", "resume.pdf"), "not a real pdf");
-    const issues = checkResume(dir, {
-      resumeAvailable: true,
-      scanPii: () => ({ ok: false, reason: "resume PDF matches a DOB pattern" }),
-    });
+    const issues = checkResume(dir);
     expect(issues).toHaveLength(1);
-    expect(issues[0]?.code).toBe("resume-pii");
-    expect(issues[0]?.message).toMatch(/DOB pattern/);
+    expect(issues[0]?.code).toBe("resume-pdf-committed");
   });
 
-  it("PASSES when resume.pdf exists and its PII scan is clean", () => {
-    const dir = tmp();
-    mkdirSync(join(dir, "public"), { recursive: true });
-    writeFileSync(join(dir, "public", "resume.pdf"), "not a real pdf");
-    const issues = checkResume(dir, { resumeAvailable: true, scanPii: () => ({ ok: true }) });
-    expect(issues).toEqual([]);
+  it.each([
+    "http://drive.google.com/file/d/abc/view",
+    "https://example.com/resume.pdf",
+    "https://drive.google.com.evil.test/file/d/abc/view",
+    "/resume.pdf",
+    "mailto:a@b.co",
+  ])("FAILS: resumeUrl %s is not https on drive.google.com", (resumeUrl) => {
+    const issues = checkResume(tmp(), { resumeUrl });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.code).toBe("resume-url");
   });
 });
 

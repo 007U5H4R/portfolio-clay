@@ -5,11 +5,8 @@
  * PII leak, a missing/oversized production video, or a forbidden string never reaches a deploy.
  * Failure modes:
  *
- *   1. `public/resume.pdf` exists AND its PII gate would fail (mirrors the pattern set in
- *      `tests/unit/resume-pii.test.ts` / technical-plan.md TKT-08 S08r.01: `pdftotext -layout`,
- *      fail CLOSED — never skip — when the binary itself cannot be found).
- *   2. `site.resumeAvailable === true` without a resume.pdf present to back it (the flag must
- *      never claim a resume exists that isn't there).
+ *   1. `public/resume.pdf` exists (TASK-175: the resume is the Google Drive link; no PDF may be committed).
+ *   2. `site.resumeUrl` is not an https://drive.google.com/ link.
  *   3. A featured product (`data/projects.ts` `featured` ranks) without a pitch video — a valid
  *      `pitchVideo` provider + id in `data/portfolio.ts` — but **only** when
  *      `VERCEL_ENV === 'production'` (PB4 — previews may ship without them). Tushar 2026-10-05: the
@@ -84,35 +81,42 @@ export function scanResumePii(pdfPath: string, env: NodeJS.ProcessEnv = process.
 }
 
 export interface CheckResumeOptions {
-  /** Defaults to the live `site.resumeAvailable` (PB5). Injectable so tests can simulate the flag flipping without touching `lib/site.ts`. */
-  resumeAvailable?: boolean;
-  /** Defaults to `scanResumePii`. Injectable so tests can prove the PII branch without a real PDF. */
-  scanPii?: (pdfPath: string) => PiiScanResult;
+  /** Defaults to the live `site.resumeUrl` (PB5, TASK-175). Injectable so tests can prove the URL guard without touching `lib/site.ts`. */
+  resumeUrl?: string;
 }
 
-/** Failure modes 1 + 2: resume.pdf PII gate + the resumeAvailable/file-presence invariant (PB5). */
+/** The resume must be Tushar's Google Drive file, over https (TASK-175). */
+export function isDriveResumeUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && u.hostname === "drive.google.com";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Failure modes 1 + 2 (PB5, TASK-175): the resume is an external Google Drive link, so no resume PDF may be
+ * committed to `public/` (it would be served, PII and all), and `site.resumeUrl` must be https on drive.google.com.
+ */
 export function checkResume(cwd: string, opts: CheckResumeOptions = {}): PredeployIssue[] {
-  const resumeAvailable = opts.resumeAvailable ?? site.resumeAvailable;
-  const scanPii = opts.scanPii ?? scanResumePii;
+  const resumeUrl = opts.resumeUrl ?? site.resumeUrl;
   const resumePath = join(cwd, "public", "resume.pdf");
-  const exists = existsSync(resumePath);
+  const issues: PredeployIssue[] = [];
 
-  if (resumeAvailable && !exists) {
-    return [
-      {
-        code: "resume-missing",
-        message: `site.resumeAvailable is true but ${resumePath} does not exist`,
-      },
-    ];
+  if (existsSync(resumePath)) {
+    issues.push({
+      code: "resume-pdf-committed",
+      message: `${resumePath} exists: the resume is the Google Drive link (site.resumeUrl); no resume PDF may ship in public/`,
+    });
   }
-
-  if (!exists) return [];
-
-  const pii = scanPii(resumePath);
-  if (!pii.ok) {
-    return [{ code: "resume-pii", message: `${resumePath}: ${pii.reason}` }];
+  if (!isDriveResumeUrl(resumeUrl)) {
+    issues.push({
+      code: "resume-url",
+      message: `site.resumeUrl must be an https://drive.google.com/ link, got "${resumeUrl}"`,
+    });
   }
-  return [];
+  return issues;
 }
 
 /** A featured product and the pitch video its portfolio entry carries (if any). */

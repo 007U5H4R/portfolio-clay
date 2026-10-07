@@ -12,7 +12,7 @@
  * the page (Design.md §7.8, §7.9, §3.3):
  *   TC-170.1 — copy → "Copied" (forest border) for 2 s → idle; the live region announces.
  *   TC-170.2 — blocked clipboard → "Copy failed" (rust border) + selectable `<output>` fallback.
- *   TC-170.3 — mailto / LinkedIn external / `#resume` = `contactResumeLink()` (never "updating");
+ *   TC-170.3 — mailto / LinkedIn external / `#resume` = `contactResumeLink()` (the Drive link, never "updating");
  *              location line only behind `site.showLocation` (default false).
  *   TC-170.4 — no phone / DOB / street address in the route markup (PII_PATTERNS, EXE-8).
  *   TASK-113 — the spec's exact copy; card structure; desktop two columns / mobile head → card →
@@ -142,38 +142,25 @@ test("LinkedIn links are real external links: target=_blank, rel=noopener, 'open
 });
 
 // ---------------------------------------------------------------------------
-// #resume = contactResumeLink(): "available on request" mailto until the flag flips (spec §13).
+// #resume = contactResumeLink(): the Google Drive link, an external new-tab link like LinkedIn (TASK-175).
 // ---------------------------------------------------------------------------
-test("#resume asks by email while resumeAvailable is false — 'Resume — updating' is gone from the page", async ({
-  page,
-}) => {
+test("#resume is the Drive link: 'Resume ↗', new tab, no mailto, no unfinished-state copy", async ({ page }) => {
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
-  expect(site.resumeAvailable, "this suite runs against the placeholder build (resumeAvailable=false)").toBe(
-    false,
-  );
   const resume = contactResumeLink();
   await page.goto("/contact", { waitUntil: "load" });
 
   const control = page.locator("main a#resume");
   await expect(control).toBeVisible();
-  await expect(control).toHaveText(resume.label);
-  await expect(control).toHaveText("Resume — available on request");
-  await expect(control).toHaveAttribute("href", `mailto:${site.email}?subject=Resume%20request`);
+  await expect(control).toContainText("Resume ↗");
+  expect(resume.label).toBe("Resume ↗");
+  await expect(control).toHaveAttribute("href", site.resumeUrl);
+  await expect(control).toHaveAttribute("target", "_blank");
+  await expect(control).toHaveAttribute("rel", /noopener/);
+  await expect(control).toHaveAccessibleName(/opens in new tab/i);
   expect(await control.getAttribute("download")).toBeNull();
 
-  // No unfinished-state copy on the page a reader sees (spec §13). The shared chrome's hidden
-  // résumé control (the band circle's aria-label) still derives from
-  // resumeAction() — out of this section's scope, flagged to Tushar in docs/reports/TASK-113.md.
-  expect(await page.locator("main").innerHTML()).not.toMatch(/updating/i);
-  expect(await page.locator("body").innerText()).not.toMatch(/Resume — updating/);
+  expect(await page.locator("body").innerText()).not.toMatch(/Resume — (updating|available on request)/);
 });
-
-// The real 200-download path only exists once TKT-08 lands a sanitised public/resume.pdf and flips
-// site.resumeAvailable; resumeAction()'s download branch is covered in tests/unit/site.test.ts.
-test.fixme(
-  "resume control serves a real 200 download once resumeAvailable flips true (TKT-08)",
-  async () => {},
-);
 
 // ---------------------------------------------------------------------------
 // TC-170.1 — copied: forest border, announced, reverts to idle after 2 s.
