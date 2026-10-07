@@ -254,7 +254,7 @@
 .pl[data-panther-layer="face"] { background-image: var(--p-face); }
 .pl[data-panther-layer="nose"] { background-image: var(--p-nose); }
 .pl[data-panther-layer="eyes"] { background-image: var(--p-eyes); }
-.pantherBack [data-panther-layer="silhouette"] { translate: 0 0; filter: none; opacity: 0.55; }
+.pantherBack [data-panther-layer="silhouette"] { translate: 0 0; filter: none; opacity: 0.5; }
 .pantherBack [data-panther-layer="head"] { filter: none; opacity: 0.9; }
 
 /* corner folds: independent paper sheets cut with clip-paths */
@@ -371,8 +371,8 @@
   display: grid;
   align-content: start;
   justify-items: center;
-  gap: 3.4cqw;
-  padding: 12cqw 8cqw 6cqw;
+  gap: 4.4cqw;
+  padding: 13cqw 8cqw 6cqw;
 }
 .qrPanel {
   position: relative;
