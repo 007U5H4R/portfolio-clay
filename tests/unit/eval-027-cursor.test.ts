@@ -32,8 +32,13 @@ function htmlRoutes(dir: string): string[] {
   });
 }
 
-/** Strings that exist only in the lazily loaded 3D stack (three.js, R3F, Rapier wasm, the GLB path). */
-const STACK_MARKERS = ["THREE.WebGLRenderer", "__r3f", "rapier_wasm3d", "KHR_materials_transmission", "/lab/gummy.glb"];
+/**
+ * Strings that exist only in the lazily loaded 3D stack (three.js, R3F, Rapier wasm). The GLB path is deliberately not a
+ * marker any more: LabApp (a lazy chunk, never first-load) names it to warm the model in parallel with the engine
+ * chunks (TASK-155) - a URL string is not 3D-stack code, and counting it would make LabApp a "stack chunk" and the
+ * first-load LabLoader its "referrer".
+ */
+const STACK_MARKERS = ["THREE.WebGLRenderer", "__r3f", "rapier_wasm3d", "KHR_materials_transmission"];
 
 function firstLoadChunks(htmlFile: string): string[] {
   const html = readFileSync(htmlFile, "utf8");
