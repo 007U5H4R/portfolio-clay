@@ -111,10 +111,18 @@ export async function layerTranslates(page: Page): Promise<LayerTranslate[]> {
 }
 
 /** Wait until the layers stop moving (two equal reads 120 ms apart). */
+/** Two real animation frames: a reading taken after this has seen the spring advance (or rest). */
+const frames2 = (page: Page) => page.evaluate(() => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))));
+
 export async function settled(page: Page): Promise<LayerTranslate[]> {
+  // TASK-169: two equal readings 120 ms apart are not "at rest" when no frame ran between them — the first tilt
+  // promotes six large layers and, under software GL, that frame can outlast 120 ms (it read 15.3 of 18 px, twice).
+  // Every reading waits for two frames, so equal readings mean the spring really stopped.
+  await frames2(page);
   let prev = JSON.stringify(await layerTranslates(page));
   for (let i = 0; i < 40; i++) {
     await page.waitForTimeout(120);
+    await frames2(page);
     const cur = JSON.stringify(await layerTranslates(page));
     if (cur === prev) return JSON.parse(cur) as LayerTranslate[];
     prev = cur;
