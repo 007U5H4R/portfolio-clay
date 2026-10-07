@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { layerSrc, layeredScene, sceneBleedPx, DEPTHS, ORIENTATION_PX, pointerRangePx, type LayeredSceneId, type SceneLayer } from "@/content/media/illustrations/layers";
+import { GyroChip } from "./GyroChip";
 import { SceneMotion } from "./SceneMotion";
 import styles from "./paper-world.module.css";
 
@@ -22,7 +23,10 @@ const unit = (n: number | undefined) => `${Math.round(Math.min(1, Math.max(0, n 
  * scene's alt, and per layer a wrapper (pointer/tilt `translate`, from `--pp-x/--pp-y`) around a depth wrapper
  * (CSS scroll-timeline offset) around a `<picture>` per theme. The inactive theme's picture is `display: none`
  * (app/globals.css `[data-theme-art]`) and lazy, so it is never fetched; light is the eager/LCP rendition, as in
- * SceneBanner. The client island `SceneMotion` only registers the root with `paperMotion`.
+ * SceneBanner. The client island `SceneMotion` only registers the root with `paperMotion`. The tilt chip (§28) is the
+ * root's sibling, not its child: inside `role="img"` a button is presentational and unreachable (TASK-169 — it used to
+ * live only on the dev board, so iOS never got its tap-gated permission and phones never tilted). It needs a
+ * positioned parent (`.hero-banner`, `.scene-opener`).
  */
 export function PaperParallaxScene({ id, priority = false, focal, narrowAspect, className }: PaperParallaxSceneProps) {
   const scene = layeredScene(id);
@@ -35,12 +39,15 @@ export function PaperParallaxScene({ id, priority = false, focal, narrowAspect, 
   // One bleed for every layer, so all `object-fit: cover` boxes have the same shape and scale (the layers register at rest).
   const bleed = sceneBleedPx(scene);
   return (
-    <div role="img" aria-label={scene.alt} data-paper-scene={id} className={[styles.root, className].filter(Boolean).join(" ")} style={style}>
-      {scene.layers.map((l) => (
-        <Layer key={l.layer} scene={scene} layer={l} priority={priority} bleed={bleed} />
-      ))}
-      <SceneMotion />
-    </div>
+    <>
+      <div role="img" aria-label={scene.alt} data-paper-scene={id} className={[styles.root, className].filter(Boolean).join(" ")} style={style}>
+        {scene.layers.map((l) => (
+          <Layer key={l.layer} scene={scene} layer={l} priority={priority} bleed={bleed} />
+        ))}
+        <SceneMotion />
+      </div>
+      <GyroChip />
+    </>
   );
 }
 

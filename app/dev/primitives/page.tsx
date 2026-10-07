@@ -21,7 +21,6 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { Reveal } from "@/components/interactions/Reveal";
-import { GyroChip } from "@/components/paper-world/GyroChip";
 import { PaperParallaxScene } from "@/components/paper-world/PaperParallaxScene";
 import { ViolateFixture } from "./ViolateFixture";
 
@@ -459,8 +458,8 @@ export default function PrimitivesDevPage() {
           source, plus the gyro chip; the fixture `tests/e2e/eval-032.spec.ts` and `eval-033.spec.ts` drive. */}
       <Board id="board-paper-world" title="Paper World scene" mirrors="PaperParallaxScene · GyroChip — 0 objects" className="mt-[var(--space-9)]">
         <div data-testid="paper-scene-fixture" className="relative">
+          {/* The scene renders its own gyro chip beside the root (TASK-169). */}
           <PaperParallaxScene id="hero-home" />
-          <GyroChip />
         </div>
       </Board>
 

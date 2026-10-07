@@ -157,3 +157,39 @@ test.describe("@EVAL-033 desktop", () => {
     expect(await permissionCalls(page)).toBe(0);
   });
 });
+
+// TASK-169 (Tushar 2026-10-07: "3d depth parallax is not working in phones"): the chip lived only on the dev board, so
+// on the real site iOS never got its tap-gated permission and tilt never started. These run on the shipped pages.
+test.describe("@EVAL-033 on the real site", () => {
+  test("home, iOS-style: the chip shows outside the role=img scene, and a tap starts tilt parallax", async ({ page }) => {
+    await stub(page, "ios-granted");
+    await page.goto("/", { waitUntil: "load" });
+    await scrollSceneIntoView(page);
+    await expect(chip(page)).toBeVisible();
+    expect(await chip(page).evaluate((el) => el.closest('[role="img"]') === null), "chip must not sit inside role=img").toBe(true);
+    expect(await permissionCalls(page), "no prompt before the tap").toBe(0);
+    await chip(page).tap();
+    await expect(chip(page)).toHaveCount(0);
+    expect(await permissionCalls(page)).toBe(1);
+    await tilt(page, 40, 45 + 40);
+    const details = (await settled(page)).find((l) => l.layer === "details")!;
+    expect(Math.abs(details.x), "front layer follows the tilt").toBeGreaterThanOrEqual(ORIENTATION_PX.details - 1);
+  });
+
+  test("a tab opener, iOS-style: the chip shows there too", async ({ page }) => {
+    await stub(page, "ios-granted");
+    await page.goto("/projects", { waitUntil: "load" });
+    await page.locator("[data-paper-scene]").first().scrollIntoViewIfNeeded();
+    await expect(chip(page)).toBeVisible();
+  });
+
+  test("home, Android-style: no chip, and tilt moves the layers without a tap", async ({ page }) => {
+    await stub(page, "android");
+    await page.goto("/", { waitUntil: "load" });
+    await scrollSceneIntoView(page);
+    await expect(chip(page)).toHaveCount(0);
+    await tilt(page, 40, 45 + 40);
+    const moved = (await settled(page)).some((l) => Math.abs(l.x) > 1);
+    expect(moved, "layers follow the tilt").toBe(true);
+  });
+});

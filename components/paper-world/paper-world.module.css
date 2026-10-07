@@ -90,10 +90,11 @@
 
 /* Gyro permission chip (§28): a cream paper tab, ≥ 44 px target, bottom-left of its scene container. */
 .chip {
+  /* Top-left of the scene's positioned parent: the home sheet slides over the banner's bottom edge (TKT-96). */
   position: absolute;
   z-index: 2;
   left: 16px;
-  bottom: 16px;
+  top: 16px;
   min-height: 44px;
   padding: 0 18px;
   border: 0;
