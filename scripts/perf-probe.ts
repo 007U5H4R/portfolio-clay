@@ -33,7 +33,8 @@ async function probe(route: string) {
   await page.goto(base + route, { waitUntil: "load" });
   await page.waitForTimeout(2500);
   const rest = await page.evaluate(() => {
-    const preloads = document.querySelectorAll('link[rel="preload"][as="image"]').length;
+    // Hints whose `media` does not match this viewport / colour scheme are never fetched, so they do not count.
+    const preloads = [...document.querySelectorAll<HTMLLinkElement>('link[rel="preload"][as="image"]')].filter((l) => !l.media || matchMedia(l.media).matches).length;
     const vh = innerHeight;
     const off: string[] = [];
     let running = 0;

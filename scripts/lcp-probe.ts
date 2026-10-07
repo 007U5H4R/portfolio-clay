@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-expressions -- ad-hoc browser probe: PerformanceObserver entries are untyped */
 import { chromium } from "@playwright/test";
 const base = process.env.PW_BASE_URL ?? "http://127.0.0.1:3335";
 (async () => {

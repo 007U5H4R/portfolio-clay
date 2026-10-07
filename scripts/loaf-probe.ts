@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-expressions -- ad-hoc browser probe: PerformanceObserver entries are untyped */
 /** Long-animation-frame attribution for one route: ROUTE=/card tsx scripts/loaf-probe.ts (4x CPU, w1440, 2 scroll passes). */
 import { chromium } from "@playwright/test";
 const base = process.env.PW_BASE_URL ?? "http://127.0.0.1:3335";

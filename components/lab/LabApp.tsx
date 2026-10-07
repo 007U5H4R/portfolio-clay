@@ -20,11 +20,6 @@ import styles from "./lab.module.css";
 
 const GameScene = dynamic(() => import("./GameScene"), { ssr: false });
 
-// TASK-155: the lab's boot was a serial chain (LabApp chunk -> GameScene chunk -> rapier wasm init -> only then the
-// GLB fetch, inside Suspense). Start the GLB fetch now so it warms the HTTP cache in parallel with the engine chunks;
-// three's loader then reads it from cache instead of starting the download after the physics init.
-if (typeof window !== "undefined") void fetch(GUMMY_URL).catch(() => undefined);
-
 /** Elements of the portfolio chrome that must not be reachable while the lab covers the page. */
 const CHROME_SELECTOR = "header[data-site-header], footer, a[href='#main']";
 
@@ -36,6 +31,10 @@ export default function LabApp() {
   // The lab chunk only ever renders on the client (`ssr: false`), so WebGL can be probed up front.
   const [{ mode, runtime }] = useState<{ mode: Mode; runtime: LabRuntime | null }>(() => {
     if (!webglAvailable()) return { mode: "fallback", runtime: null };
+    // TASK-155: the lab's boot was a serial chain (LabApp chunk -> GameScene chunk -> rapier wasm init -> only then the
+    // GLB fetch, inside Suspense). Start the GLB fetch now so it warms the HTTP cache in parallel with the engine
+    // chunks. In the initializer, not at module top level, so the module stays side-effect free (EVAL-027 chunk layout).
+    void fetch(GUMMY_URL).catch(() => undefined);
     const rt = createRuntime(store);
     rt.onAsset = (status) => store.getState().patch({ assetStatus: status });
     rt.hooks = createFxHooks(rt);
