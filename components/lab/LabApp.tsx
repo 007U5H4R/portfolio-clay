@@ -205,7 +205,7 @@ export default function LabApp() {
       {mode === "canvas" ? (
         <>
         {introOn ? <IntroFront art={art} text={state === "INTRO" || leaving} leaving={leaving} onPlay={() => startRun("PLAY")} /> : null}
-        <div className={styles.opening}>
+        <div className={styles.opening} data-lab-opening="">
           {running ? <Hud store={store} onPause={togglePause} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />

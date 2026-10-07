@@ -92,6 +92,11 @@ test.describe("@EVAL-030 the diorama (canvas path)", () => {
     const hb = (await hud.boundingBox())!;
     expect(hb.x).toBeGreaterThanOrEqual(0);
     expect(hb.x + hb.width).toBeLessThanOrEqual(page.viewportSize()!.width + 0.5);
+    // Tushar 2026-10-07: the combo plate sits up on the frame, never over the arena, and stays on screen.
+    const combo = (await page.locator("[data-lab-combo-plate]").boundingBox())!;
+    const opening = (await page.locator("[data-lab-opening]").boundingBox())!;
+    expect(combo.y + combo.height, "combo above the opening").toBeLessThanOrEqual(opening.y + 2);
+    expect(combo.y, "combo on screen").toBeGreaterThanOrEqual(0);
   });
 
   test("@EVAL-030 sound is off by default: 0 audio requests until the toggle, music-1 before music-2, choice remembered", async ({ page }) => {
