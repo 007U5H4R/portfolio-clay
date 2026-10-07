@@ -167,6 +167,15 @@ test.describe("@EVAL-033 on the real site", () => {
     await scrollSceneIntoView(page);
     await expect(chip(page)).toBeVisible();
     expect(await chip(page).evaluate((el) => el.closest('[role="img"]') === null), "chip must not sit inside role=img").toBe(true);
+    // Nothing paints over it (the home hero's polaroids once covered its left part): the topmost element is the chip
+    // at five points across its width.
+    expect(
+      await chip(page).evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return [0.1, 0.3, 0.5, 0.7, 0.9].every((f) => el.contains(document.elementFromPoint(r.left + r.width * f, r.top + r.height / 2)));
+      }),
+      "chip is not covered",
+    ).toBe(true);
     expect(await permissionCalls(page), "no prompt before the tap").toBe(0);
     await chip(page).tap();
     await expect(chip(page)).toHaveCount(0);
