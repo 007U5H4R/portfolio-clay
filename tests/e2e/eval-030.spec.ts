@@ -30,7 +30,7 @@ interface FlipperHandle {
 interface LabHandle {
   rt: {
     flippers: [FlipperHandle, FlipperHandle];
-    arena: { pads: { x: number; y: number }[] };
+    arena: { pads: { x: number; y: number }[]; guides: { x1: number; y1: number; x2: number; y2: number }[] };
     bear: { x: number; y: number; vx: number; vy: number; state: string; grounded: boolean };
     bearBody: {
       current: {
@@ -379,6 +379,32 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
       rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
     });
     await page.waitForSelector("[data-lab-state='RESULTS']", { timeout: 60_000 });
+  });
+
+  test("@EVAL-030 the first-session hint sits in clear space: it never overlaps a flipper or a guide rail", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await page.waitForSelector("[data-lab-hint]", { timeout: 20_000 });
+    const r = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      const h = document.querySelector("[data-lab-hint]")!.getBoundingClientRect();
+      const boxOf = (pts: { x: number; y: number }[]) => {
+        const p = pts.map((q) => rt.project(q.x, q.y));
+        const pad = 14; // the flipper/guide is a thick card, not a line
+        return { l: Math.min(...p.map((q) => q.x)) - pad, r: Math.max(...p.map((q) => q.x)) + pad, t: Math.min(...p.map((q) => q.y)) - pad, b: Math.max(...p.map((q) => q.y)) + pad };
+      };
+      const boxes = [
+        ...rt.flippers.map((f) => {
+          const tip = { x: f.layout.pivot.x + (f.layout.side === "left" ? 1 : -1) * f.layout.len, y: f.layout.pivot.y };
+          return { name: `flipper-${f.layout.side}`, ...boxOf([f.layout.pivot, tip, { x: tip.x, y: tip.y + 0.9 }]) };
+        }),
+        ...rt.arena.guides.map((g, i) => ({ name: `guide-${i}`, ...boxOf([{ x: g.x1, y: g.y1 }, { x: g.x2, y: g.y2 }]) })),
+      ];
+      const hit = boxes.filter((b) => h.left < b.r && h.right > b.l && h.top < b.b && h.bottom > b.t).map((b) => b.name);
+      return { hit, hint: { l: h.left, r: h.right, t: h.top, b: h.bottom }, centre: (h.left + h.right) / 2, vw: window.innerWidth };
+    });
+    expect(r.hit).toEqual([]);
+    expect(Math.abs(r.centre - r.vw / 2), "centred (within a scrollbar's width)").toBeLessThan(16);
   });
 
   test("@EVAL-030 a live region announces 'Left and right flip' when a run starts", async ({ page }) => {

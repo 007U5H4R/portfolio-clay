@@ -466,13 +466,20 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 20%;
+  /* Up in the open middle of the arena, well clear of the flippers and guide rails (TASK-172). */
+  top: 44%;
   text-align: center;
   font: 400 1.6rem/1.1 var(--font-hand);
   color: var(--color-terracotta);
   pointer-events: none;
   animation: pop 700ms var(--ease-hover);
   z-index: 2;
+}
+
+@media (max-width: 767px) {
+  .hint {
+    top: 38%;
+  }
 }
 
 /* ---- intro / paused / results cards -------------------------------------------------------- */
