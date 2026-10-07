@@ -51,7 +51,8 @@ test("@EVAL-013 six stage cards in order, each quote and cite visible without in
     await expect(card.locator('[data-hand="label"]')).toHaveText(String(i + 1).padStart(2, "0"));
     await expect(card.locator('blockquote[data-hand="quote"]')).toBeVisible();
     await expect(card.locator("cite")).toBeVisible();
-    await expect(card.locator('[data-paper="tag"]')).toHaveCount(1);
+    // Tushar signed the principles off on 2026-10-06 (TASK-167): no "Draft — pending sign-off" tag on any card.
+    await expect(card.locator('[data-paper="tag"]')).toHaveCount(0);
   }
   await expect(section(page).locator("button, [aria-expanded]")).toHaveCount(0);
 });
