@@ -2,7 +2,7 @@ import { Plane, Raycaster, Vector2, Vector3, type Camera } from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
 import { clampSpeed } from "@/lib/lab/controls";
 import { SUPER_SQUISH_MULTIPLIER } from "@/lib/lab/engine";
-import { FLIP_COOLDOWN_S, STALL_AFTER_S, STALL_SPEED, flipImpulse, nearFlipper, stallNudge } from "@/lib/lab/flippers";
+import { FLIP_COOLDOWN_S, StallWatch, flipImpulse, nearFlipper } from "@/lib/lab/flippers";
 import type { LabRuntime } from "./runtime";
 
 /**
@@ -25,7 +25,7 @@ export class GummyController {
   private keySpace = false;
   /** pointerId → side it holds */
   private readonly held = new Map<number, Side>();
-  private stalledFor = 0;
+  private stall = new StallWatch();
   private readonly ray = new Raycaster();
   private readonly plane = new Plane(new Vector3(0, 0, 1), 0);
   private readonly hit = new Vector3();
@@ -183,15 +183,13 @@ export class GummyController {
       changed = true;
     }
 
-    // A gummy that stops anywhere but on a flipper would be a soft-lock (the player cannot reach it): nudge it on.
-    const slow = Math.hypot(vx, vy) < STALL_SPEED;
-    if (slow && !this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre))) this.stalledFor += dt;
-    else this.stalledFor = 0;
-    if (this.stalledFor > STALL_AFTER_S) {
-      const n = stallNudge(pos.x);
+    // A gummy stuck anywhere but on a flipper is a soft-lock (the player cannot reach it): judged by position, so wind
+    // and the low-gravity wobble can't hide it (TASK-184), then nudged on with an escalating, alternating kick.
+    const onFlipper = this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre));
+    const n = this.stall.step(dt, { x: pos.x, y: pos.y }, onFlipper);
+    if (n) {
       vx = n.x;
       vy = n.y;
-      this.stalledFor = 0;
       changed = true;
     }
 
