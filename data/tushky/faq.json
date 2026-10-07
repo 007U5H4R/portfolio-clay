@@ -30,8 +30,8 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-06",
-    "profileVersion": "v1-86bebba25241",
+    "updatedAt": "2026-10-07",
+    "profileVersion": "v1-2086b85f8866",
     "dependsOn": [
       "profile",
       "experience",
@@ -436,8 +436,8 @@
       "What impact has he created?",
       "What enterprise programs has he worked on?"
     ],
-    "updatedAt": "2026-10-05",
-    "profileVersion": "v1-fa0a4f01074c",
+    "updatedAt": "2026-10-07",
+    "profileVersion": "v1-8ac1444f7143",
     "dependsOn": [
       "experience",
       "profile"
@@ -471,8 +471,8 @@
       "What enterprise programs has he worked on?",
       "What is his educational background?"
     ],
-    "updatedAt": "2026-10-06",
-    "profileVersion": "v1-b5952c288025",
+    "updatedAt": "2026-10-07",
+    "profileVersion": "v1-146f8335f368",
     "dependsOn": [
       "experience",
       "profile",
@@ -787,7 +787,7 @@
       "What is Tushar's email?",
       "Can I get Tushar's resume?"
     ],
-    "answer": "Email is best: Tushar_Pathak@outlook.com. You can also find him on LinkedIn. His résumé is available on request, so just ask for it by email. Woof woof 🐾 I'll be right here if you want to sniff around his work some more.",
+    "answer": "Email is best: Tushar_Pathak@outlook.com. You can also find him on LinkedIn. His résumé is one tap away: the Resume link on the site opens it on Google Drive. Woof woof 🐾 I'll be right here if you want to sniff around his work some more.",
     "sources": [
       {
         "label": "Contact",
@@ -796,14 +796,18 @@
       {
         "label": "LinkedIn",
         "href": "https://www.linkedin.com/in/pathaktushar"
+      },
+      {
+        "label": "Résumé",
+        "href": "https://drive.google.com/file/d/1hqDF4-YlcdaoIRLBzKwI4D8pUWQ7ELJ_/view?usp=sharing"
       }
     ],
     "followUps": [
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-05",
-    "profileVersion": "v1-a1b7188c0aae",
+    "updatedAt": "2026-10-07",
+    "profileVersion": "v1-f77235180d74",
     "dependsOn": [
       "profile"
     ],
