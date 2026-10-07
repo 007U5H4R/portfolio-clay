@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContactSection } from "@/components/contact/ContactSection";
 import { SceneOpener } from "@/components/paper/SceneOpener";
+import { ContactQuote } from "@/components/contact/ContactQuote";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -21,7 +22,7 @@ export default function ContactPage() {
   return (
     <>
       {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-95) — focal point per scene in components/paper/scene-opener-frames.ts. */}
-      <SceneOpener id="scene-contact" priority />
+      <SceneOpener id="scene-contact" priority note={<ContactQuote />} />
       <ContactSection />
     </>
   );

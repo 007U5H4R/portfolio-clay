@@ -239,7 +239,7 @@ test.describe("TKT-90c · §8 reduced-motion row sweep", () => {
       // Hero clip → poster only; no other autoplaying video anywhere.
       expect(state.autoplayVideos, "no autoplaying <video> under reduced motion").toBe(0);
       if (route === "/") {
-        await expect(page.locator(".scene-banner img").first(), "the hero renders its still image").toBeVisible();
+        await expect(page.locator("[data-paper-scene=\"hero-home\"] img").first(), "the hero renders its still image").toBeVisible();
       }
       // Draw-ins render complete, never animate.
       for (const d of state.drawins) {

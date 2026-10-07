@@ -4,13 +4,12 @@ title: 'TSK-22: experience.ts + skills.ts authoring (resume-sourced)'
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 04:42'
+updated_date: '2026-10-05 13:36'
 labels:
   - P1
   - 'sp:2'
 milestone: m-5
-dependencies:
-  - TASK-3
+dependencies: []
 parent_task_id: TASK-36
 priority: high
 type: task

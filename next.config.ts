@@ -26,10 +26,13 @@ import { buildCsp, providersInUse } from "./lib/csp";
 // from the video providers `data/portfolio.ts` actually uses — the privacy-enhanced YouTube host,
 // plus `player.vimeo.com` only while some product uses Vimeo. Only after the viewer presses play,
 // one player at a time; nothing else may frame.
-const CSP = buildCsp(providersInUse(portfolioEntries));
+const USED_PROVIDERS = providersInUse(portfolioEntries);
+const CSP = buildCsp(USED_PROVIDERS);
+// TASK-143: the hidden /lab route runs Rapier (WebAssembly), so it alone carries `'wasm-unsafe-eval'`.
+const LAB_CSP = buildCsp(USED_PROVIDERS, { wasm: true });
 
-const SECURITY_HEADERS = [
-  { key: "Content-Security-Policy", value: CSP },
+const securityHeaders = (csp: string) => [
+  { key: "Content-Security-Policy", value: csp },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
@@ -44,19 +47,22 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/(.*)", headers: SECURITY_HEADERS }];
+    // Every route except `/lab` gets the base policy; `/lab` gets the same policy plus wasm. Two
+    // rules never match one path, so the browser never intersects two policies.
+    return [
+      { source: "/((?!lab$).*)", headers: securityHeaders(CSP) },
+      { source: "/lab", headers: securityHeaders(LAB_CSP) },
+    ];
   },
   // Do not auto-generate AGENTS.md / CLAUDE.md into the repo root (Next 16 default);
   // this repo keeps its own docs and a surgical commit surface.
   agentRules: false,
-  // TKT-92 (EXE-17): inline the CSS as a <style> so the first frame is not held behind a pending
-  // render-blocking stylesheet. Paired with `preload: false` on the three next/font families
-  // (app/layout.tsx): with both, the hero/opener LCP image paints before the fonts and JS finish, so
-  // Lighthouse's simulated LCP stops charging them to LCP. Either change alone does not move the
-  // metric (docs/reports/TKT-92.md). Cost: the CSS also rides in the RSC payload (HTML ≈ +17 kB br)
-  // and pages don't share a cached stylesheet on first load. CSP already allows inline styles (TP9).
+  // TASK-155 reverses TKT-92 (EXE-17)'s inlineCss. That trade assumed ~17 kB of extra HTML; the stylesheet is now
+  // 322 kB, and inlining writes it TWICE into the document (a <style> plus the RSC payload copy): the home HTML was
+  // 1.25 MB (228 kB br) and 45 kB with a linked, cacheable stylesheet. Measured on the slow-network harness
+  // (4x CPU, 1.6 Mbps / 150 ms, scripts/lcp-probe.ts): home LCP 2.8 s -> 1.3 s at 390, 4.3 s -> 1.6 s at 1440.
   experimental: {
-    inlineCss: true,
+    inlineCss: false,
   },
   images: {
     formats: ["image/avif", "image/webp"],

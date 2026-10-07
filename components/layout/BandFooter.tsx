@@ -1,7 +1,8 @@
+import { OceanGate } from "@/components/layout/OceanGate";
 import Link from "next/link";
 import { BandVerb } from "@/components/layout/BandVerb";
 import { Container } from "@/components/layout/Container";
-import { DraftTag, Hand, TornEdge } from "@/components/paper";
+import { Hand, TornEdge } from "@/components/paper";
 import { hero } from "@/data/hero";
 import { projects } from "@/data/projects";
 import { resumeAction, site } from "@/lib/site";
@@ -46,9 +47,8 @@ export function BandFooter() {
             <br />
             <span className="dim">something people can use.</span>
           </h2>
-          <p className="band-hire">
-            Hiring for PM, AI PM or AI-builder roles? Say hi. <DraftTag tone="onBand" />
-          </p>
+          {/* Tushar 2026-10-07 (TASK-177): his words, replacing the signed-off hiring line. */}
+          <p className="band-hire">From “what if?” to “it’s live.” Let’s build what’s next.</p>
 
           <div className="band-row">
             <div>
@@ -82,8 +82,8 @@ export function BandFooter() {
                   <a
                     href={resume.href}
                     aria-label={resume.label}
-                    title={resume.note}
-                    download={resume.download || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="focus-ring"
                   >
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -91,12 +91,26 @@ export function BandFooter() {
                     </svg>
                   </a>
                 </li>
+                {/* TASK-166: the digital business card (/card) — Tushar 2026-10-06: link it from the footer */}
+                <li>
+                  <Link href="/card" aria-label="Digital business card" className="focus-ring">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm.6 1.6v10.8h16.8V6.6H3.6zM6 9h5v1.6H6V9zm0 3.2h5v1.6H6v-1.6zm8.5-3.2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM12 16.2c.3-1.4 1.3-2.2 2.5-2.2s2.2.8 2.5 2.2H12z" />
+                    </svg>
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="band-bar">
-            <span>© 2026 Tushar Pathak. Built with curiosity, chai &amp; Claude Code.</span>
+            <span>
+              © 2026 Tushar Pathak. I like ideas. I love making them real.{" "}
+              {/* Decorative: the emoji face is named so no glyph falls back to a system-font search (fallback-glyphs). */}
+              <span className="band-heart" aria-hidden="true">
+                ❤️
+              </span>
+            </span>
             <span className="band-tagline">
               <Hand kind="quote" as="span" cite={<span className="sr-only">Source: {site.name}</span>}>
                 {hero.tagline.text}
@@ -105,6 +119,16 @@ export function BandFooter() {
             {site.showLocation ? <span>Bengaluru, India</span> : null}
           </div>
         </Container>
+      </div>
+      {/* M-010 T4 (TASK-145.3): the paper ocean — decorative, aria-hidden, transform-only motion (paper-cut-2 §65–§122). */}
+      <div className="band-ocean" aria-hidden="true" data-band-ocean="">
+        <span className="ocean-track ocean-back" />
+        <span className="ocean-track ocean-mid" />
+        <span className="ocean-ship-wrap">
+          <span className="ocean-ship" />
+        </span>
+        <span className="ocean-track ocean-front" />
+        <OceanGate />
       </div>
     </footer>
   );

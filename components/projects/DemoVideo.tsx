@@ -180,6 +180,7 @@ export function DemoVideo({
     <div
       ref={containerRef}
       data-video-state={phase}
+      data-no-trail=""
       className={["relative h-full w-full overflow-hidden bg-ivory", className].filter(Boolean).join(" ")}
     >
       {intent ? (

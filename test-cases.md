@@ -2006,6 +2006,63 @@ Consumes `tickets.md` M-009 (TKT-69…91, TSK-30…47), `technical-plan.md` §F,
 
 ---
 
+## M-010 T2 · Dark mode + paper-cut theme toggle (TASK-141)
+
+Ids are `TC-T2.n` (track-scoped so parallel M-010 lanes cannot collide). Specs live in `tests/e2e/eval-023.spec.ts`, `eval-024.spec.ts`, `eval-026.spec.ts`, `tests/unit/theme.test.ts`, `theme-toggle.test.tsx`, `eval-020.test.ts`, `eval-025.test.ts`.
+
+### TC-T2.1 · Theme resolution, persistence and no flash (saved > system > light)
+- **Related:** M-010 · TASK-141.1 · **EVAL:** EVAL-023
+- **Steps:** 1. Six scenarios at 390 and 1440: no choice + system light/dark; saved light/dark against the opposite system; hard reload after toggling; a runtime system flip with and without a saved choice. 2. MutationObserver history of `<html data-theme>`. 3. Served HTML head order. 4. Storage writes on a plain visit. 5. Console hydration warnings.
+- **Expected:** 6/6 correct · history length 1 per document · inline script before the first stylesheet · 0 writes on a plain visit (only a toggle writes `portfolio-theme`) · 0 hydration warnings.
+- **Type:** functional · **Priority:** P0 · **Automation:** Y — Playwright `eval-023.spec.ts` + Vitest `theme.test.ts` · **Status:** Planned
+### TC-T2.2 · The switch is accessible (semantics, keyboard, focus ring, reserved box, reduced motion, axe)
+- **Related:** M-010 · TASK-141.3 · **EVAL:** EVAL-024
+- **Steps:** 1. `role="switch"` named "Use dark theme"; `aria-checked` equals `data-theme === "dark"` both ways; Light/Dark are real text. 2. Tab/Space/Enter toggle. 3. Focus ring solid ≥ 2 px, ≥ 3:1 in both themes. 4. Box identical before/after hydration, 0 layout shift attributed to it. 5. Reduced motion: no transition, no VT/transition mark, still switches. 6. axe on `header` in both themes and states. 7. Manual: VoiceOver reads "Use dark theme, switch, off/on".
+- **Expected:** 100 % keyboard · state correct both ways · 0 shift · 0 axe critical/serious.
+- **Type:** accessibility · **Priority:** P0 · **Automation:** Y (+ manual VoiceOver) — `eval-024.spec.ts`, `theme-toggle.test.tsx` · **Status:** Planned
+### TC-T2.3 · Theme-switch stability on every route (and with the Ask drawer, on a case study, at the footer)
+- **Related:** M-010 · TASK-141.5/141.6 · **EVAL:** EVAL-026
+- **Steps:** light → dark → light on the 9 static routes at 390 and 1440, then with the drawer open, then at the footer of `/work/teachspark`; buffered CLS observer; `scrollHeight`; computed `filter` on img/picture/video/iframe/canvas/[data-scene]; the band's terracotta token; console.
+- **Expected:** CLS < 0.05 · Δheight ≤ 1 px · 0 filtered media · band token intact · 0 console errors.
+- **Type:** performance · **Priority:** P1 · **Automation:** Y — `eval-026.spec.ts` · **Status:** Planned
+### TC-T2.4 · Dark palette + every token pair AA in both themes; 13 names defined once per theme
+- **Related:** M-010 · TASK-141.1, 141.4 · **EVAL:** EVAL-020 (extended)
+- **Steps:** `pnpm tokens:check` (13/13 light, 13/13 dark, N/N contrast pairs); `eval-020.test.ts` (26 `--color-*` definitions = 13 names × 2 themes; 0 literals outside `app/globals.css`).
+- **Expected:** all round-trip; every pair ≥ its minimum in both themes; no 14th name.
+- **Type:** validation · **Priority:** P0 · **Automation:** Y · **Status:** Planned
+### TC-T2.5 · Hero art swaps by theme: one image fetched before load, the twin warmed when idle, no filter
+- **Related:** M-010 · TASK-141.6 · **EVAL:** EVAL-019, EVAL-025, EVAL-026
+- **Steps:** SSR markup carries the light banner (eager, high priority) + one lazy dark twin; exactly one hero URL before load; the twin is requested after idle; in dark the visible banner is the dark twin with one alt; both renditions pair in the manifest at identical size.
+- **Expected:** as stated · 0 `filter` on art.
+- **Type:** content-integrity · **Priority:** P1 · **Automation:** Y — `eval-019.spec.ts`, `eval-025.test.ts` · **Status:** Planned
+### TC-T2.6 · Per-tab dark pass: no white boxes, no pure black, legible on Home, Work, Projects, About, Thinking, Playground, Certifications, Contact, a case study, the Ask drawer and the footer
+- **Related:** M-010 · TASK-141.5 · **EVAL:** EVAL-031 (manual style gate), EVAL-006 ×2
+- **Steps:** screenshots of each route light and dark at 390 and 1440 (`docs/screenshots/m-010/t2/`); eyeball for white canvases, unreadable text, broken shadows.
+- **Expected:** every route reads as the same paper world in the evening; findings recorded or fixed.
+- **Type:** visual-review · **Priority:** P1 · **Automation:** N — manual (screenshots are the evidence) · **Status:** Planned
+
+---
+
+## M-010 T5 · The paper-cut business card `/card` (TASK-146)
+
+`TC-T5-` ids are scoped to this track; the board assigns permanent `TC-178+` numbers when the track merges. Apple Wallet is out of scope (S27) and is asserted absent, never tested as a feature.
+
+| ID | Case | Method | EVAL | Status |
+|---|---|---|---|---|
+| TC-T5-01 | `/card` returns 200, is listed in `sitemap.xml`, has an absolute-https OG image that serves a PNG | `tests/e2e/eval-029.spec.ts` + `eval-017.spec.ts` | EVAL-029, EVAL-017 | Automated |
+| TC-T5-02 | The flip is a real `<button>` with an accessible name that names the action, toggles on Enter and Space, and exposes `aria-expanded` | `eval-029.spec.ts` | EVAL-029 | Automated |
+| TC-T5-03 | Back-face links are not focusable while the front shows (face is `inert`) and become tabbable once flipped; the front goes inert | `eval-029.spec.ts` | EVAL-029 | Automated |
+| TC-T5-04 | The rendered QR decodes (jsQR over an element screenshot) to `${siteUrl()}/card`; it stays dark-on-light in dark theme | `eval-029.spec.ts`, `tests/unit/card-qr.test.ts` | EVAL-029 | Automated |
+| TC-T5-05 | "Save contact" returns a `text/vcard` attachment with BEGIN/VERSION/FN/N/TITLE/EMAIL/URL/END, no TEL, no BDAY, no phone/DOB pattern | `eval-029.spec.ts`, `tests/unit/card-vcard.test.ts` | EVAL-029, EVAL-013 | Automated |
+| TC-T5-06 | No Apple Wallet control, badge, text, `.pkpass` or route anywhere on `/card` | `eval-029.spec.ts`, `tests/unit/card-back.test.tsx` | EVAL-029 | Automated |
+| TC-T5-07 | If the QR cannot be generated no QR frame renders and the rest of the back still works | `tests/unit/card-back.test.tsx` | EVAL-029 | Automated |
+| TC-T5-08 | Reduced motion: card computed transform `none`, scene `perspective: none`, pointer writes nothing, flip is a front/back opacity crossfade | `eval-029.spec.ts` | EVAL-029, EVAL-010 | Automated |
+| TC-T5-09 | Pointer movement moves nearer layers further than far layers and stays inside the bleed | `eval-029.spec.ts` (≥ 1024) | EVAL-029 | Automated |
+| TC-T5-10 | The home first-load set carries no card code, QR library or card art | `tests/unit/card-bundle-isolation.test.ts` (skips without a build) | EVAL-027 | Automated |
+| TC-T5-11 | `/card` passes the shared route sweeps (axe, overflow, targets, decoration budget, crawler) at the four widths | `routes.json` sweeps | EVAL-006, 008, 018 | Automated |
+| TC-T5-12 | Style gate: front and back × light and dark at 390 and 1440 against `card-reference-*.jpg` | `docs/screenshots/m-010/t5/` reviewed by Claude | EVAL-031 | Manual |
+| TC-T5-13 | iOS and Android camera scan the on-screen QR at the TASK-146 gate | phone | EVAL-029 | Manual |
+
 ## Appendix A · Coverage matrix — ticket → test cases
 
 Every live ticket's acceptance criteria are covered by at least one case; task-level coverage is listed where a task has its own criteria. "Shared AC" for content tickets = TKT-28…33/54 common contract (a)–(f).
@@ -2170,3 +2227,106 @@ Anchors follow the TKT-19 scheme (`#01-context` … `#08-what-i-learned`, `lib/a
 *M-009 addendum (2026-09-24): TC-122…TC-177 = 56 cases · P0 40 · P1 13 · P2 3 · P3 0; four permanent S18 regression cases (TC-135, TC-157, TC-164, TC-167); five gate-type positive controls (TC-122, TC-123, TC-127, TC-129, TC-138); 47 automated or partly automated, 9 with a manual component, 2 manual-only (TC-146, TC-177). Grand total TC-001…TC-177 = 177 cases.*
 
 *v1 totals (counted from the case fields): 121 cases · P0 60 · P1 49 · P2 12 · P3 0. By primary type: functional 38 · validation 16 · accessibility 15 · content-integrity 11 · responsive 10 · visual-review 7 · security-functional 5 · performance 5 · deployment-smoke 3 · regression 3 · negative 3 · error-handling 2 · edge/boundary 2 · e2e 1. Automation: 110 cases have an automated component (Playwright 73 · Vitest 38 · script 19 · axe 17 · LHCI 5; many cases use more than one tool), of which 9 also carry a manual step; 11 are manual-only (Appendix C lists all 20 with a manual component). Authored before implementation; statuses are `Planned` until Stage 7 QA gates and Stage 9B fill them from real runs.*
+
+
+---
+
+## M-010 T2c · Gummy Lab (TASK-143, S30, T2c-D1…)
+
+IDs use the `TC-T2c-` prefix so parallel M-010 tracks cannot collide on `TC-178+`; the merge may renumber. Spec: `docs/specs/m-010/gummy-bear.md` (§9–40, §41–51); evals: EVAL-030 (functional), EVAL-027 (isolation). Specs live in `tests/e2e/eval-030.spec.ts` plus the Vitest files named below. Frame rate (§39) is profiled by hand — see TC-T2c-30.
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T2c-01 | 5 rapid clicks (≤ 3.5 s) on the header name → `/lab`; on the TP monogram → `/lab`; from an inner page the sequence survives click 1's navigation | Playwright `eval-030.spec.ts` + Vitest `lab-click-detector.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-02 | 4 clicks, a slow sequence (> 3.5 s) and a pause that expires the window do nothing; per-click hints animate only transform/opacity/filter/letter-spacing (no layout properties) | Playwright `eval-030.spec.ts` + Vitest `lab-click-detector.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-03 | `/lab` is 200 with `<meta name="robots" content="noindex">`, **not** disallowed in `robots.txt`, 0 sitemap entries, 0 `a[href="/lab"]` (static HTML of every sitemap URL + live DOM of four routes) | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-04 | Only `/lab` is served with `'wasm-unsafe-eval'` (Rapier); `'unsafe-eval'` appears nowhere; every other CSP directive is identical on both | Vitest `csp.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-05 | 0 three.js / R3F / Rapier / GLB-path bytes in the first-load set of `/` and every other route (and none of the lazy loader chunks that name them); the 3D chunks exist (scan not vacuous); a planted three.js marker fails the scan; `/lab` first-load recorded | Vitest `eval-027-cursor.test.ts` (3D block) | EVAL-027 | P0 | Automated · pass |
+| TC-T2c-06 | `/lab` renders a canvas, or — with WebGL forced off — a labelled fallback with the Back link (never blank); Back works; 0 console errors | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-07 | Exits: ESC (also during the loading shell), "← Back to Portfolio", browser Back, results/pause Back buttons, the in-world portal; a direct visit has no history and lands on `/`; the portfolio underneath is `inert` while open and restored after; the entry/exit overlay never lingers | Playwright `eval-030.spec.ts` + Vitest `lab-session.test.ts` | EVAL-030 | P0 | Automated · pass (portal: manual) |
+| TC-T2c-08 | State machine: explicit states, legal transitions only, pause resumes into PLAYING or DANGER, EXIT accepted everywhere and terminal | Vitest `lab-state-machine.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-09 | Control maths: drag is a spring (never a teleport), flick = pointer velocity over 100 ms scaled and capped, tap kicks away from the poke, squish charge → bounce, Super Squish multiplier | Vitest `lab-controls.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-10 | Real pointer: tap bounces, drag pulls the bear with a spring (state DRAGGED), hold-and-release launches, ← → nudge, Space bounces, P pauses/resumes | Playwright `eval-030.spec.ts` (w1440) | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-11 | Touch (w390): drag moves the gummy, a fast final swipe launches it; HUD fits 390 px, 0 horizontal overflow, every control ≥ 44 px | Playwright `eval-030.spec.ts` (w390) | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-12 | Jelly: impact → compression → overshoot → damped rest; ears/arms follow through; weights bounded [0, 1]; reduced-motion amplitude smaller; side hits wobble the head | Vitest `lab-jelly.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-13 | Faces and states: happy by default, worried in danger, surprised at speed/long fall; Surprised/Panic never above 0.6; physics-state priority; device tiers and adaptive DPR | Vitest `lab-tiers-expressions.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-14 | Danger rule: touching danger starts a 1.2 s countdown, leaving cancels it (a late rescue is a "save" bonus), the timer recovers only slowly, past 1.2 s the run ends; droplets restore time | Vitest `lab-engine.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-15 | Score and combo: 10 pts/s survival; actions chain x2…x10 and multiply points; combo holds 3 s then decays; re-hitting one thing does not farm | Vitest `lab-engine.test.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-16 | Difficulty ramp: calm → arena moves → dynamic → chaos → LAB UNSTABLE; eased, bounded (rise ≤ 0.95, gravity 0.5–1.45), monotone phases | Vitest `lab-difficulty.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-17 | Power-ups: Low Gravity ≈ 7 s, Golden ×2, Rainbow bonus + bounce, Super Squish single-use, Time Freeze rare (> 30 s) and 3 s; spawner caps (≤ 3 rings, 1 star, 1 power-up), anchors only, expiry, droplet on danger | Vitest `lab-engine.test.ts`, `lab-spawner.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-18 | TP MODE (all four AI/PRODUCT/DESIGN/BUILD targets in one run, once) raises the multiplier and lights the scene; achievements unlock once (curious mind, wobble master, gummy operator, product sense, you really found it) | Vitest `lab-engine.test.ts`, `lab-storage.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-19 | Game over → results (score, best, combo, time, targets, power-ups, status line) → Play again resets every run value; best score kept | Vitest `lab-engine.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-20 | High score persists in localStorage under its own key only (survives a reload); corrupt/blocked storage never throws; no cookies; no third-party requests | Vitest `lab-storage.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-21 | Audio is muted by default, builds no `AudioContext` until unmuted, tolerates no Web Audio; the toggle is a labelled `aria-pressed` button | Vitest `lab-audio.test.ts` + Playwright `eval-030.spec.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-22 | Reduced motion: hint animations off, transition collapses to a cross-fade, particles ≤ 24, wobble amplitude ≤ 0.4, camera follow/shake off — and a full run is still playable | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-23 | GLB contract: `GummyBear` + `GummyCollider` nodes, the 15 morph targets, 1 unit tall / +Y / base at origin, collider inside the body's footprint, `GummyBody`/`GummyFace` materials, < 400 kB | Vitest `lab-glb.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-24 | Asset loaded (`data-lab-asset="ready"`); with the GLB blocked the lab still reaches the intro and plays through with the stand-in gummy | Playwright `eval-030.spec.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-25 | Particle pool never exceeds its tier cap; particles fall and expire | Vitest `lab-particles.test.ts` | EVAL-030 | P2 | Automated · pass |
+| TC-T2c-26 | Axe (critical/serious) on the lab; keyboard Tab stops wear the shared 2 px solid focus ring; the lab follows the dark theme | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-27 | 3 enter/exit cycles: 0 console errors and the `requestAnimationFrame` rate after each exit is back to the home baseline (no zombie loop) | Playwright `eval-030.spec.ts` | EVAL-030 | P0 | Automated · pass |
+| TC-T2c-28 | Return route: `safeReturnRoute` never returns the lab, a protocol-relative or cross-origin URL; back-navigation used only after a trigger entry from a portfolio page | Vitest `lab-session.test.ts` | EVAL-030 | P1 | Automated · pass |
+| TC-T2c-29 | Visual review: intro / play / game over, light and dark, 390 and 1440 — `docs/screenshots/m-010/t2c/` (`pnpm tsx scripts/lab-screenshots.ts`) | manual (screenshots) | — | P1 | Captured · manual review |
+| TC-T2c-30 | Frame rate (60 fps desktop, 45–60 fps phone), real-GPU feel of the jelly, sound design, the entry/exit transitions, the in-world portal, Safari/Firefox, real-device touch | manual | EVAL-030 (informational) | P2 | Planned · manual — the build sandbox has no GPU (SwiftShader only) |
+
+---
+
+## M-010 T2b · Paper Trail cursor (TASK-142, S29, Dev-150…154)
+
+IDs use the `TC-T2b-` prefix so parallel M-010 tracks cannot collide on `TC-178+`; the merge may renumber. Spec: `docs/specs/m-010/cursor.md`; evals: EVAL-027 (isolation), EVAL-028 (gating + mobile, both themes).
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T2b-01 | Touch/coarse (w390): 0 `[data-paper-cursor]`, `has-custom-cursor` never set, cursor chunk never requested | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-02 | Fine pointer mounts only after `load` (chunk `requestStart ≥ loadEventStart`); native cursor until the first pointer move | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-03 | Reduced motion and no-JS: nothing mounts, page intact, native cursor; a blocked chunk leaves the native cursor (no "no cursor" state) | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-04 | Each exclusion zone (`input, textarea, select, button, video, iframe, [contenteditable], [data-no-trail]`) computes a non-`none` cursor and spawns 0 nodes on a drag | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-05 | Ask drawer open: native cursor, 0 trail nodes, custom cursor hidden | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-06 | Trail only on left-button hold-and-drag; hover and right-button drag spawn 0; nodes decorative (`alt=""`, `aria-hidden`), `pointer-events:none`, cleaned up after the lifetime | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-07 | ≤ 18 active nodes on a long fast stroke; only `transform` + `opacity` animate (cursor.md §45) | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-08 | No selection lock after release, window blur or tab hidden (`body.cursor-dragging` removed, `user-select` restored) | Playwright `eval-028.spec.ts` | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-09 | No horizontal scroll at 375 and 768 in light and dark, with a trail drag in flight | Playwright `eval-028.spec.ts` (`dataset.theme` set directly until T2's fixture) | EVAL-028 | P0 | Automated · pass |
+| TC-T2b-10 | Section themes: `tushky` is paw-only, `railcite` starts with the rail ticket; unknown theme → default; deterministic loop | Playwright + Vitest `cursor-logic.test.ts` | EVAL-028 | P1 | Automated · pass |
+| TC-T2b-11 | Semantic labels: `OPEN →`, `OPEN ↗`, `CODE ↗`, `PRD ↗`, `CASE STUDY →`, `VIEW →`, `EXPLORE →`, `PLAY ▶`, `WOOF 🐾` (paw dot); none for plain content, buttons, in-page anchors | Playwright + Vitest `cursor-dom.test.tsx` | EVAL-028 | P1 | Automated · pass |
+| TC-T2b-12 | Spacing/velocity/cap logic: no spawn under 110 px, even fill, ≤ 5 per move, size 90→125 px and tilt ±8→±20° with speed | Vitest `cursor-logic.test.ts` | EVAL-028 | P1 | Automated · pass |
+| TC-T2b-13 | 0 cursor bytes in the home first-load set or any route's HTML; planted-marker fixture fails the scan; SKIPs visibly with no build | Vitest `eval-027-cursor.test.ts` | EVAL-027 | P0 | Automated · pass |
+| TC-T2b-14 | Cross-browser (Safari, Firefox), trackpad, real mid-range-laptop profiling, drag-out-of-window | manual | — | P2 | Planned · manual — only Chromium is available to CI |
+
+---
+
+## M-010 T3 · Paper-cut scene art, light + dark (TASK-144.5 integrate, TASK-144.6 QA; Dev-160…169)
+
+IDs use the `TC-T3-` prefix so parallel M-010 tracks cannot collide; the merge may renumber. Evals: EVAL-019/021 (budgets + provenance), EVAL-025 (pairing), EVAL-026 (switch stability), EVAL-031 T3 (Tushar's side-by-side style gate).
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T3-01 | The seven tab scenes (`scene-about/-experience/-thinking/-work/-playground/-certifications/-contact`) each carry `darkFile`; the pair set is exactly `hero-banner` + those seven; `scene-casestudy` stays unpaired | Vitest `eval-025.test.ts` | EVAL-025 | P0 | Automated · pass |
+| TC-T3-02 | Every pair: identical pixel size (3168×1344), one alt, both files ≤ 350 kB, a README row for the dark file naming its light twin | Vitest `eval-025.test.ts` | EVAL-025 | P0 | Automated · pass |
+| TC-T3-03 | Every paired scene has a light and a dark narrow crop (`<id>-mobile.webp`, `<id>-dark-mobile.webp`) of identical size, ≤ 350 kB, README-listed; the dark crop sits on the light crop's grid and `scene-casestudy` has none | Vitest `eval-025.test.ts`, `scene-opener-frames.test.ts` | EVAL-025, EVAL-021 | P0 | Automated · pass |
+| TC-T3-04 | Provenance both ways after the swap: no orphan file in `content/media/illustrations/`, every id has a README row, every alt starts "Illustration of" and is text-free; alts equal Design.md §6.3 | Vitest `eval-021.test.ts`, `paper.test.tsx` | EVAL-021 | P0 | Automated · pass |
+| TC-T3-05 | On each tab opener at w390 and w1440, in each theme: exactly one twin visible with pixels, the right file (`<id>` / `<id>-dark`, `-mobile` at 390), the other twin `display: none`, no CSS filter, one alt | Playwright `eval-025-scenes.spec.ts` | EVAL-025 | P0 | Automated |
+| TC-T3-06 | light → dark → light on every static route at w390 and w1440: CLS < 0.05, `scrollHeight` Δ ≤ 1 px, no filtered art, no scene figure left with no visible image | Playwright `eval-026.spec.ts` (unchanged; now exercises seven paired scenes) | EVAL-026 | P0 | Automated |
+| TC-T3-07 | The opposite twin is lazy and never fetched before load or while idle on the home hero; it is warmed on theme-toggle intent (hover / focus / pointerdown, `lib/theme-art-warm.ts`, TASK-155) so the first switch is instant | Playwright `eval-019.spec.ts` (home), `eval-025-scenes.spec.ts` | EVAL-019, EVAL-026 | P1 | Automated |
+| TC-T3-08 | Cross-site review, 390 and 1440, light and dark (paper-cut-2 §60/§62): no white box or bright light-theme scene in dark; text that sits on art is AA (none sits on art: titles are on paper below the opener, the hero copy on the paper sheet); one palette; each tab has its own metaphor; the home polaroids crop to their subjects in both themes. Screenshots `docs/screenshots/m-010/t3/<tab>-{light,dark}-{390,1440}.png` | manual review of 32 screenshots + `/Volumes/E Drive/Dev/.scratch/t3-site-compare.png` | EVAL-031 | P0 | Manual · done by the T3 builder; Tushar's gate pending |
+| TC-T3-09 | No tab's art repeats another's (tab uniqueness) and none repeats the home hero's desk; the About v1 desk scene is rejected, About v2 is the mountain overlook | manual (contact sheet) | EVAL-031 | P1 | Manual · done; Tushar's gate pending |
+| TC-T3-10 | The intro video's poster still renders (`intro-poster.webp`, the retired watercolour crop, byte-identical to the old `scene-contact-mobile.webp`) | Playwright `eval-019.spec.ts` (poster lazy, never high-priority) | EVAL-019 | P2 | Automated |
+| TC-T3-11 | Tushky art (`paper-cut/tushky/*`) has no slot and ships nothing: no file, no manifest entry, documented as an unused library asset | Vitest `eval-021.test.ts` (no orphan) + README | EVAL-021 | P2 | Automated · pass |
+| TC-T3-12 | Runtime smoothness on every static route at w1440 under a 4x CPU throttle: after warm-up 0 long frames > 200 ms and <= 8 frames > 50 ms (`/card` <= 30, paint-bound); 0 time-based CSS animations running outside the viewport at rest (scroll-driven exempt); <= 3 image preloads for this viewport + scheme, never another tab's hero (TASK-155, TASK-149) | Playwright `perf-smoothness.spec.ts` (+ `scripts/perf-probe.ts`, `scripts/lcp-probe.ts`) | EVAL-039 | P1 | Automated |
+
+## M-010 T4 · Paper-cut chrome — nav, footer ocean, dividers, depth (TASK-145, Dev-170…184)
+
+IDs use the `TC-T4-` prefix so parallel M-010 tracks cannot collide; the merge may renumber. Spec: `docs/specs/m-010/paper-cut-2.md` (nav §169–§210, footer §65–§122, dividers §170–§232, depth §233–§265). Automated rows live in `tests/e2e/t4-chrome.spec.ts`; `tests/e2e/t4-shots.spec.ts` (opt-in, `T4_SHOTS=1`) writes the EVAL-031 T4 evidence to `docs/screenshots/m-010/t4/`.
+
+| ID | Case | Layer · file | EVAL | Priority | Status |
+|---|---|---|---|---|---|
+| TC-T4-01 | Nav: routes and labels unchanged, Ask button present, exactly one `aria-current` tab with its terracotta strip drawn, every tab keyboard-reachable with a visible focus ring | Playwright `t4-chrome.spec.ts` | EVAL-008 | P0 | Automated |
+| TC-T4-02 | No horizontal scroll at 375 / 768 / 1440 on `/` and `/about` with the nav, ocean and dividers | Playwright `t4-chrome.spec.ts` | EVAL-008 | P0 | Automated |
+| TC-T4-03 | Footer ocean is `aria-hidden`, three wave tracks + one ship, and sits below the footer text (`.band-bar`) | Playwright `t4-chrome.spec.ts` | EVAL-008 | P0 | Automated |
+| TC-T4-04 | Ocean keyframes animate `transform` only; `prefers-reduced-motion: reduce` leaves 0 running animations | Playwright `t4-chrome.spec.ts` | EVAL-010 | P0 | Automated |
+| TC-T4-05 | Every `[data-decor="torn"]` renders three ridge layers; reduced motion freezes them | Playwright `t4-chrome.spec.ts` | EVAL-010 | P1 | Automated |
+| TC-T4-06 | Switching to dark swaps the ocean to the `-dark` twins and the page height changes by ≤ 1 px | Playwright `t4-chrome.spec.ts` | EVAL-026 | P0 | Automated |
+| TC-T4-07 | `TornEdge` markup contract (`data-decor`, `aria-hidden`, three paths) and snapshots per fill | Vitest `paper.test.tsx` | EVAL-018 | P1 | Automated |
+| TC-T4-08 | Depth tokens: `--depth-0…5` cast from `--shadow-ink` (no navy glow in dark); legacy `--shadow-paper*` remapped; 13/13 tokens + 55 contrast pairs unchanged | `pnpm tokens:check` | EVAL-020 | P0 | Automated |
+| TC-T4-09 | Nav acceptance §209 (paper strip reads 3D, identity layered, tabs read as paper, terracotta layer under the active tab, navy Connect CTA, chip around the switch) in both themes at 390 and 1440 | manual · `docs/screenshots/m-010/t4/nav-*` | EVAL-031 | P1 | Manual |
+| TC-T4-10 | Footer report §121 and divider benchmark §229: ocean in the footer palette with the text above the waves; dividers replace the zig-zag one-for-one | manual · `docs/screenshots/m-010/t4/footer-*`, `divider-*`, `/Volumes/E Drive/Dev/.scratch/t4-compare.png` | EVAL-031 | P1 | Manual — Tushar's style gate |
+| TC-T4-11 | Ocean art ≤ 200 kB per layer (8 files, 19–86 kB) with a provenance row each | `docs/briefs/TASK-145-art.md` | EVAL-025 | P1 | Verified by size listing |
+| TC-T4-12 | Safari / Firefox, real-device scroll smoothness | manual | — | P2 | Planned · manual — only Chromium in CI |

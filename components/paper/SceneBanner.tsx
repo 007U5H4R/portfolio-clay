@@ -1,7 +1,6 @@
 import Image, { getImageProps } from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { preload } from "react-dom";
-import { illustration, sceneImage, type StaticIllustrationId } from "@/lib/illustrations";
+import { darkSceneImage, illustration, sceneImage, type StaticIllustrationId } from "@/lib/illustrations";
 
 export type SceneBannerProps = {
   /** A manifest id that ships as a static import (`sceneImage`): the six scenes or `hero-banner`. */
@@ -59,6 +58,8 @@ export type SceneBannerNarrow = {
   span: number;
   /** `sizes` for the crop's `<source>`. */
   sizes: string;
+  /** The dark twin's crop (same size and position), served when the scene has a dark rendition (S23). */
+  darkSrc?: string | undefined;
 };
 
 /** The breakpoint the banner box switches to its narrow 4:3 crop at (app/globals.css `.scene-banner`). */
@@ -79,25 +80,45 @@ export function SceneBanner({ id, priority = false, focalX = 0.5, focalY, sizes 
   return (
     <figure data-illustration={id} className={classes.filter(Boolean).join(" ")} style={style}>
       <div className="scene-banner-canvas">
-        {narrow === undefined ? (
-          <Image
-            src={sceneImage(id)}
-            alt={entry.alt}
-            sizes={sizes}
-            preload={priority}
-            // Next 16 does not derive fetchpriority from preload; the first banner is the LCP image.
-            fetchPriority={priority ? "high" : undefined}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
-            className="scene-banner-img"
-          />
-        ) : (
-          <ArtDirectedImage id={id} alt={entry.alt} sizes={sizes} narrow={narrow} priority={priority} />
-        )}
+        <ThemedImage id={id} theme="light" alt={entry.alt} sizes={sizes} priority={priority} narrow={narrow} />
+        {/* The matched dark twin (S23, EV9): its own `<img>`, `display: none` while light (app/globals.css
+            `[data-theme-art]`) and lazy, so a light visitor never fetches it — the theme toggle warms it on intent
+            (`lib/theme-art-warm`: hover / focus / pointerdown). Never a CSS filter on one image. */}
+        {darkSceneImage(id) ? <ThemedImage id={id} theme="dark" alt={entry.alt} sizes={sizes} priority={false} narrow={narrow} /> : null}
         {children}
       </div>
     </figure>
   );
+}
+
+/**
+ * One theme's banner image. Light is the LCP image (eager, `fetchpriority="high"`, preloaded); the dark twin is
+ * lazy and carries no preload. `data-theme-art` is the hook the theme CSS hides the inactive twin by (display:
+ * none — removed from the accessibility tree too, so a screen reader gets the one alt once).
+ */
+function ThemedImage({ id, theme, alt, sizes, priority, narrow }: { id: StaticIllustrationId; theme: "light" | "dark"; alt: string; sizes: string; priority: boolean; narrow: SceneBannerNarrow | undefined }) {
+  const dark = darkSceneImage(id);
+  const source = theme === "dark" ? (dark ?? sceneImage(id)) : sceneImage(id);
+  // The hook exists only on a PAIRED scene: an unpaired one (no dark art yet, T3) shows its single light scene in
+  // both themes and must never be hidden by the `[data-theme-art]` rules.
+  const art = dark ? theme : undefined;
+  if (narrow === undefined) {
+    return (
+      <Image
+        src={source}
+        alt={alt}
+        sizes={sizes}
+        preload={priority}
+        // Next 16 does not derive fetchpriority from preload; the first banner is the LCP image.
+        fetchPriority={priority ? "high" : undefined}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        className="scene-banner-img"
+        data-theme-art={art}
+      />
+    );
+  }
+  return <ArtDirectedImage source={source} theme={theme} art={art} alt={alt} sizes={sizes} narrow={narrow} priority={priority} />;
 }
 
 /**
@@ -107,20 +128,28 @@ export function SceneBanner({ id, priority = false, focalX = 0.5, focalY, sizes 
  * so a priority banner preloads each rendition itself, split by `media` — a phone never fetches the
  * wide scene and a desktop never fetches the crop.
  */
-function ArtDirectedImage({ id, alt, sizes, narrow, priority }: { id: StaticIllustrationId; alt: string; sizes: string; narrow: SceneBannerNarrow; priority: boolean }) {
+function ArtDirectedImage({ source, theme, art, alt, sizes, narrow, priority }: { source: ReturnType<typeof sceneImage>; theme: "light" | "dark"; art: "light" | "dark" | undefined; alt: string; sizes: string; narrow: SceneBannerNarrow; priority: boolean }) {
   const common = { alt, loading: priority ? ("eager" as const) : ("lazy" as const), decoding: "async" as const };
-  const { props: wide } = getImageProps({ ...common, src: sceneImage(id), sizes });
+  const { props: wide } = getImageProps({ ...common, src: source, sizes });
+  const narrowFile = theme === "dark" && narrow.darkSrc ? narrow.darkSrc : narrow.src;
   const {
-    props: { srcSet: narrowSrcSet, src: narrowSrc },
-  } = getImageProps({ ...common, src: narrow.src, width: narrow.width, height: narrow.height, sizes: narrow.sizes });
-  if (priority) {
-    preload(narrowSrc, { as: "image", imageSrcSet: narrowSrcSet, imageSizes: narrow.sizes, fetchPriority: "high", media: NARROW_MEDIA });
-    preload(wide.src, { as: "image", imageSrcSet: wide.srcSet, imageSizes: sizes, fetchPriority: "high", media: WIDE_MEDIA });
-  }
+    props: { srcSet: narrowSrcSet },
+  } = getImageProps({ ...common, src: narrowFile, width: narrow.width, height: narrow.height, sizes: narrow.sizes });
   return (
-    <picture>
+    <>
+      {/* TASK-149: a rendered <link>, not react-dom `preload()` — that call is serialised into the RSC payload as a
+          resource hint, which Next's <Link> prefetch of every nav route then applied, so each page warmed every
+          other tab's hero. A link element is hoisted to <head> for this page's own render only. */}
+      {priority ? (
+        <>
+          <link rel="preload" as="image" imageSrcSet={narrowSrcSet} imageSizes={narrow.sizes} fetchPriority="high" media={NARROW_MEDIA} />
+          <link rel="preload" as="image" imageSrcSet={wide.srcSet} imageSizes={sizes} fetchPriority="high" media={WIDE_MEDIA} />
+        </>
+      ) : null}
+    <picture data-theme-art={art} className="scene-banner-picture">
       <source media={NARROW_MEDIA} srcSet={narrowSrcSet} sizes={narrow.sizes} width={narrow.width} height={narrow.height} />
       <img {...wide} alt={alt} fetchPriority={priority ? "high" : undefined} className="scene-banner-img scene-banner-img--narrow-crop" />
     </picture>
+    </>
   );
 }

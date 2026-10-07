@@ -4,7 +4,7 @@
  * primitives' render-time enforcement (`Hand` limits, fasteners) in test mode, so a copy change that
  * breaks a §3.4 limit fails here first.
  */
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import { ContactSection } from "@/components/contact/ContactSection";
 import { site } from "@/lib/site";
@@ -24,9 +24,6 @@ describe("ContactSection (TASK-113)", () => {
         disconnect() {}
       },
     );
-  });
-  afterEach(() => {
-    site.resumeAvailable = false;
   });
 
   it("renders the spec copy: eyebrow, h1, subline, sticky, note, closing line", () => {
@@ -76,20 +73,25 @@ describe("ContactSection (TASK-113)", () => {
     expect(container.querySelector('[data-paper="card"]')!.contains(img)).toBe(true);
   });
 
-  it("résumé: 'available on request' mailto while unavailable; 'Resume ↓' download once the flag flips", () => {
-    site.resumeAvailable = false;
-    const { container, unmount } = render(<ContactSection />);
-    const onRequest = container.querySelector("a#resume")!;
-    expect(onRequest).toHaveTextContent("Resume — available on request");
-    expect(onRequest).toHaveAttribute("href", `mailto:${site.email}?subject=Resume%20request`);
-    expect(onRequest).not.toHaveAttribute("download");
-    unmount();
+  it("TASK-176: 'Digital card' tile links to /card in the same tab (internal, no arrow)", () => {
+    const { container } = render(<ContactSection />);
+    const tile = container.querySelector('.cx-secondary a[data-link="card"]')!;
+    expect(tile).toHaveAttribute("href", "/card");
+    expect(tile).toHaveTextContent(/^Digital card$/);
+    expect(tile).toHaveAccessibleName("Digital card");
+    expect(tile).not.toHaveAttribute("target");
+    expect(tile.className).toContain("cx-btn-secondary");
+    expect(Array.from(container.querySelectorAll(".cx-secondary > a")).at(-1)).toBe(tile);
+  });
 
-    site.resumeAvailable = true;
-    const { container: after } = render(<ContactSection />);
-    const download = after.querySelector("a#resume")!;
-    expect(download).toHaveTextContent("Resume ↓");
-    expect(download).toHaveAttribute("href", "/resume.pdf");
-    expect(download).toHaveAttribute("download");
+  it("résumé: the Drive link, 'Resume ↗', opens in a new tab (TASK-175)", () => {
+    const { container } = render(<ContactSection />);
+    const resume = container.querySelector("a#resume")!;
+    expect(resume).toHaveTextContent("Resume ↗");
+    expect(resume).toHaveAttribute("href", site.resumeUrl);
+    expect(resume).toHaveAttribute("target", "_blank");
+    expect(resume).toHaveAttribute("rel", "noopener noreferrer");
+    expect(resume).not.toHaveAttribute("download");
+    expect(resume).toHaveAccessibleName(/opens in new tab/i);
   });
 });

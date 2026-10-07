@@ -63,4 +63,18 @@ describe("TKT-107 scene opener frames", () => {
       expect(narrow.left + narrow.span, id).toBeLessThanOrEqual(1 + 1e-9);
     }
   });
+
+  it("every paired scene's dark crop sits on the light crop's grid (TASK-144.5); scene-casestudy has none", () => {
+    for (const id of ids) {
+      const narrow = openerNarrow(id);
+      if (id === "scene-casestudy") {
+        expect(narrow.darkSrc, id).toBeUndefined();
+        continue;
+      }
+      expect(narrow.darkSrc, id).toBe(`/media/illustrations/${id}-dark-mobile.webp`);
+      const file = join(ROOT, "public", narrow.darkSrc!);
+      expect(existsSync(file), `${narrow.darkSrc} missing`).toBe(true);
+      expect(webpSize(readFileSync(file)), narrow.darkSrc).toEqual({ width: narrow.width, height: narrow.height });
+    }
+  });
 });

@@ -27,9 +27,19 @@ function directives(csp: string): Map<string, string> {
 
 async function servedCsp(): Promise<string> {
   const rules = await nextConfig.headers!();
-  const all = rules.find((r) => r.source === "/(.*)");
+  const all = rules.find((r) => r.source === ALL_BUT_LAB);
   const header = all?.headers.find((h) => h.key === "Content-Security-Policy");
-  if (!header) throw new Error("no CSP header on /(.*)");
+  if (!header) throw new Error(`no CSP header on ${ALL_BUT_LAB}`);
+  return header.value;
+}
+
+// TASK-143: every route but /lab (Rapier needs `'wasm-unsafe-eval'`, only there).
+const ALL_BUT_LAB = "/((?!lab$).*)";
+
+async function labCsp(): Promise<string> {
+  const rules = await nextConfig.headers!();
+  const header = rules.find((r) => r.source === "/lab")?.headers.find((h) => h.key === "Content-Security-Policy");
+  if (!header) throw new Error("no CSP header on /lab");
   return header.value;
 }
 
@@ -76,10 +86,12 @@ describe("served CSP (next.config.ts headers)", () => {
 
   it("the other security headers are still sent", async () => {
     const rules = await nextConfig.headers!();
-    const keys = rules.find((r) => r.source === "/(.*)")!.headers.map((h) => h.key);
-    expect(keys).toEqual(
-      expect.arrayContaining(["X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy", "Strict-Transport-Security", "Permissions-Policy"]),
-    );
+    for (const source of [ALL_BUT_LAB, "/lab"]) {
+      const keys = rules.find((r) => r.source === source)!.headers.map((h) => h.key);
+      expect(keys, source).toEqual(
+        expect.arrayContaining(["X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy", "Strict-Transport-Security", "Permissions-Policy"]),
+      );
+    }
   });
 });
 
@@ -125,5 +137,22 @@ describe("no youtube.com embed anywhere in the shipped source (§1)", () => {
     const files = [...["app", "components", "lib", "data"].flatMap((d) => walk(join(ROOT, d))), join(ROOT, "next.config.ts")];
     const offenders = files.filter((f) => /youtube\.com\/embed/.test(readFileSync(f, "utf8")));
     expect(offenders).toEqual([]);
+  });
+});
+
+describe("/lab CSP (TASK-143)", () => {
+  it("is the base policy plus 'wasm-unsafe-eval' on script-src and nothing else", async () => {
+    const base = directives(await servedCsp());
+    const lab = directives(await labCsp());
+    expect(lab.get("script-src")).toBe("'self' 'unsafe-inline' 'wasm-unsafe-eval' https://va.vercel-scripts.com");
+    for (const [name, value] of base) if (name !== "script-src") expect(lab.get(name), name).toBe(value);
+    expect([...lab.keys()].sort()).toEqual([...base.keys()].sort());
+  });
+  it("never grants 'unsafe-eval' anywhere", async () => {
+    expect(await servedCsp()).not.toContain("'unsafe-eval'");
+    expect(await labCsp()).not.toContain("'unsafe-eval'");
+  });
+  it("no other route receives the wasm token", async () => {
+    expect(await servedCsp()).not.toContain("wasm-unsafe-eval");
   });
 });

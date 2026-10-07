@@ -4,14 +4,13 @@ import { useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "@/lib/nav";
-import { InkUnderline } from "./InkUnderline";
 
 /** Keep a scrolled-to tab this far clear of the strip's edges (the right-edge fade is 32 px). */
 const EDGE_CLEARANCE_PX = 40;
 
 /**
- * The primary nav (Design.md §4.1; TKT-71, TASK-112): Fraunces 18, ≥ 44 px hit areas, the ink-stroke
- * underline drawn on `aria-current="page"` and hover. Every width shows the tabs — there is no
+ * The primary nav (Design.md §4.1; TKT-71, TASK-112): Fraunces 18, ≥ 44 px hit areas, a physical terracotta paper strip
+ * (`.hn-strip`, TASK-145.1) under the `aria-current="page"` tab. Every width shows the tabs — there is no
  * hamburger (Tushar 2026-09-27, TASK-112). ≥ 1440 they sit centred in the single header row; below
  * 1440 they are the header's second row, a horizontally scrollable strip (`.header-tabs`) with a
  * paper fade at the right edge while more tabs lie beyond it (`data-more`).
@@ -91,7 +90,7 @@ export function PrimaryNav() {
               className="header-nav-link focus-ring"
             >
               {item.label}
-              <InkUnderline />
+              <span className="hn-strip" aria-hidden="true" />
             </Link>
           );
         })}

@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { DraftTag, Hand, Pin, Sheet, TornEdge } from "@/components/paper";
+import { Hand, Pin, Sheet, TornEdge } from "@/components/paper";
 import { MediaGate } from "@/components/paper/MediaGate";
 import { AnimatedJourneyPath } from "@/components/motion/journey/AnimatedJourneyPath";
 import { ProductThinkingJourney } from "@/components/motion/journey/ProductThinkingJourney";
@@ -20,7 +20,7 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
  *
  * Six pinned ivory stage cards (`Sheet variant="card"` + `Pin`, alternating −0.8° / +0.6°, odd cards
  * offset 28 px) laid over the dashed journey-curve `Sketch`. Every card is static: Caveat numeral
- * (`data-hand="label"`), h3 stage, the DRAFT principle with its `DraftTag`, the VERIFIED example as a
+ * (`data-hand="label"`), h3 stage, the principle (signed off, TASK-167), the VERIFIED example as a
  * `data-hand="quote"` blockquote + `cite`, and one link pill into the case-study chapter that proves
  * it. The M-008 expand / arrow-key disclosure is gone — the quote is always visible, and the
  * pills are the section's only focus stops (TC-148).
@@ -33,8 +33,7 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
  * TKT-99 (Tushar direction 2026-09-26, how-i-think-target.png; Design.md §11 Dev-41): each card is a
  * deckled, torn-edge sheet (seeded `clip-path` layers — shade, rim, face — behind the content — the card's own
  * material, `aria-hidden`, not a decoration), the quote sits on a tinted torn slip with a washi-tape
- * strip (CSS on the blockquote; the cite stays plain below it), the DraftTag is the compact two-line
- * form, the numeral is terracotta italic, and the pill is a paper button with an arrow glyph. The
+ * strip (CSS on the blockquote; the cite stays plain below it), the numeral is terracotta italic, and the pill is a paper button with an arrow glyph. The
  * collage behind the cards is ONE `data-decor="collage"` object (`HowIThinkCollage`).
  *
  * Round 2 (Tushar 2026-09-26): Higgsfield collage crops, wider cards, a bolder pin-to-pin path, and
@@ -55,7 +54,7 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
 export interface HowIThinkStage {
   id: StageId;
   label: string;
-  /** DRAFT editorial framing (data/thinking-framework.ts header) — always rendered with a `DraftTag`. */
+  /** Editorial framing (data/thinking-framework.ts header), signed off by Tushar 2026-10-06 (TASK-167). */
   principle: string;
   example: {
     quote: string;
@@ -136,10 +135,6 @@ export function HowIThink({ stages }: HowIThinkProps) {
                       {String(index + 1).padStart(2, "0")}
                     </Hand>
                     <h3 className="hit-h3">{stage.label}</h3>
-                    <DraftTag className="hit-draft">
-                      {"Draft — "}
-                      <span className="hit-draft-line">pending sign-off</span>
-                    </DraftTag>
                     <p className="hit-principle">{stage.principle}</p>
                     <div className="hit-quote">
                       <Hand kind="quote" as="blockquote" cite={stage.example.attribution} className="hit-slip">

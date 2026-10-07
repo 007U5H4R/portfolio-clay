@@ -4,9 +4,12 @@
  * file under `public/media/logos/` is the official artwork fetched from Wikimedia (source URL, licence
  * and trademark note per file in `content/media/logos/README.md`), svgo-optimised, never redrawn.
  *
- * An organisation with no official file on Wikimedia Commons (Shellkode, Quantiphi, Bhilai Institute
- * of Technology) has no entry here: the timeline sets its name in type on the taped label instead —
- * a logo is never invented. `width`/`height` are the SVG viewBox, so the `<img>` reserves its box (no CLS).
+ * Shellkode, Quantiphi and Bhilai Institute of Technology, Durg have no file on Wikimedia Commons; Tushar
+ * supplied their official logos (TASK-153, 2026-10-06). Those three are raster WebP, trimmed with the white
+ * canvas turned transparent (BIT Durg's 200 px JPEG denoised and upscaled 2×), never redrawn — provenance in
+ * `content/media/logos/README.md`. An organisation with no file still falls back to its name set in type; a
+ * logo is never invented. `width`/`height` are the SVG viewBox or the raster size, so the `<img>` reserves its
+ * box (no CLS).
  */
 export interface OrgLogo {
   src: string;
@@ -18,8 +21,11 @@ export interface OrgLogo {
 
 export const ORG_LOGOS: Record<string, OrgLogo> = {
   amex: { src: "/media/logos/american-express.svg", alt: "American Express", width: 1000, height: 998 },
+  shellkode: { src: "/media/logos/shellkode.webp", alt: "Shellkode", width: 510, height: 86 },
+  quantiphi: { src: "/media/logos/quantiphi.webp", alt: "Quantiphi", width: 510, height: 95 },
   godrej: { src: "/media/logos/godrej.svg", alt: "Godrej", width: 398, height: 192 },
   "mtech-nitc": { src: "/media/logos/nit-calicut.svg", alt: "National Institute of Technology Calicut", width: 275, height: 335 },
+  "be-bitd": { src: "/media/logos/bit-durg.webp", alt: "Bhilai Institute of Technology, Durg", width: 420, height: 420 },
 };
 
 /** Cloud-platform marks used inside the (aria-hidden) collage doodles — decorative there, so `alt=""`. */

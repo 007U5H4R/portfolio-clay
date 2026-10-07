@@ -95,7 +95,7 @@ export const knowledge: KnowledgeEntry[] = [
     evidence: [
       { label: "TeachSpark — What I built", href: "/work/teachspark#05-what-i-built" },
       { label: "RailCite — What I built", href: "/work/railcite#05-what-i-built" },
-      { label: "Experience", href: "/about#experience" },
+      { label: "Experience", href: "/work#work-experience" },
     ],
     sources: [
       { id: "TS-ANTHROPIC-PAPER", label: "TeachSpark question-paper adapter", ref: "TS/src/adapters/anthropic-paper.ts", inventory: "§9" },
@@ -139,7 +139,7 @@ export const knowledge: KnowledgeEntry[] = [
     answer:
       "At American Express I own the migration roadmap for 35+ Accounts Receivable capabilities — 180+ stories across four Agile teams — with a 30% reduction in feature delivery cycle time (self-reported). TeachSpark's first-week pilot (24 Aug 2026, test handsets excluded) took 17 teachers onto WhatsApp, activated 8, and saved a median 37.5 minutes per teacher by their own report. RailCite keeps 5,760 government documents searchable with zero invented citations by construction.",
     evidence: [
-      { label: "Impact", href: "/about#impact" },
+      { label: "Experience — scope & outcomes", href: "/work#work-experience" },
       { label: "TeachSpark — Outcome", href: "/work/teachspark#07-outcome" },
       { label: "RailCite — Outcome", href: "/work/railcite#07-outcome" },
     ],
@@ -188,7 +188,7 @@ export const knowledge: KnowledgeEntry[] = [
     answer:
       "American Express (via IntraEdge), 2026–present: Senior PM for Accounts Receivable, migrating 35+ capabilities from the legacy Triumph platform to the cloud-native MARS microservices platform and championing Devin GenAI adoption. Quantiphi (2022–26): GCP programs including DynamoDB→Cloud Spanner migrations and HIPAA-compliant healthcare data migration. Godrej Infotech (2016–18): Assistant PM on the Smartnet platform, 12 features in 11 months.",
     evidence: [
-      { label: "Experience", href: "/about#experience" },
+      { label: "Experience", href: "/work#work-experience" },
       // §9 sanctioned edit 2: `?tab=enterprise` → `?filter=enterprise` (E-2).
       // TKT-101: the project index moved to /projects. TASK-116: the filter tabs are gone — the
       // Portfolio page's "Enterprise & client work" section is the anchor now.
@@ -209,7 +209,7 @@ export const knowledge: KnowledgeEntry[] = [
     answer:
       "Discovery and hypothesis framing (confidence-tagged PRDs, assumption tables), AI product design where trust is the feature (cite-or-refuse, QC passes, honest instrumentation), and enterprise delivery at scale (roadmaps across four Agile teams, program governance on GCP/AWS).",
     evidence: [
-      { label: "Capabilities", href: "/about#capabilities" },
+      { label: "Skills", href: "/work#skills" },
       { label: "RailCite", href: "/work/railcite" },
       { label: "TeachSpark — Evaluation", href: "/work/teachspark#06-evaluation" },
     ],

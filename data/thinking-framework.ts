@@ -10,12 +10,10 @@ import { stageTone } from "@/lib/stages";
  *    §1.5, one real project moment per stage. Never paraphrased; `source` is the inventory's
  *    traceability path (never rendered).
  *  - `principle` — a one-line framing of what the stage means in general, independent of any one
- *    project. CONTENT_INVENTORY §1.5 supplies only the sourced `example`, not this framing line, so
- *    every `principle` here is DRAFT, unsigned-off editorial copy rather than a verifiable claim —
- *    `HowIThink` renders a "Draft" tag next to it accordingly (content-gate rule: no fabricated
- *    claims; DRAFT copy must render DRAFT-labelled). None of the six principle lines assert a
- *    specific fact, number, or outcome, so there is nothing in them that could be fabrication —
- *    only the (flagged) editorial voice is unsigned-off.
+ *    project. CONTENT_INVENTORY §1.5 supplies only the sourced `example`, not this framing line. It
+ *    was drafted editorial copy, and Tushar signed all six principle lines off on 2026-10-06
+ *    (TASK-167), so `HowIThink` no longer renders a "Draft" tag. None of them asserts a specific
+ *    fact, number or outcome — they are editorial voice, not verifiable claims.
  *
  * `tone` is read from `lib/stages.ts`'s `stageTone` map (single source of truth, reused by later
  * artifact/badge components — TKT-20/21) rather than repeated here.

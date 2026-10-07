@@ -20,6 +20,15 @@ const real = buildPortfolioProducts(projects, portfolioEntries, (id) => {
   return { src: entry.publicSrc, width: entry.width, height: entry.height, alt: entry.alt };
 });
 
+// The fixture states every product's videos explicitly instead of inheriting real ones: product 2 is pitch-only and
+// product 3 has none, whatever data/portfolio.ts carries (RailCite and TeachSpark have real demos — TASK-125/170).
+const withoutVideos = <T extends { pitchVideo?: unknown; demoVideo?: unknown }>(product: T): T => {
+  const rest = { ...product };
+  delete rest.pitchVideo;
+  delete rest.demoVideo;
+  return rest;
+};
+
 const products = real.map((product, index) => {
   if (index === 0) {
     return {
@@ -29,8 +38,9 @@ const products = real.map((product, index) => {
     };
   }
   if (index === 1) {
-    return { ...product, pitchVideo: resolveVideoMedia({ provider: "youtube", videoId: FIXTURE_YOUTUBE_ID_2 }, product.name, "pitch") };
+    return { ...withoutVideos(product), pitchVideo: resolveVideoMedia({ provider: "youtube", videoId: FIXTURE_YOUTUBE_ID_2 }, product.name, "pitch") };
   }
+  if (index === 2) return withoutVideos(product);
   return product;
 });
 

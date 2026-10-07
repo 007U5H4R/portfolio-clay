@@ -4,14 +4,13 @@ title: 'TKT-13: How I Think module (6 stages · principle · example · link)'
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-16 12:09'
+updated_date: '2026-10-05 13:36'
 labels:
   - P1
   - 'sp:3'
   - home
 milestone: m-2
 dependencies:
-  - TASK-3
   - TASK-4
   - TASK-5
 priority: high

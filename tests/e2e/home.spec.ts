@@ -76,7 +76,7 @@ test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({
   await page.goto("/", { waitUntil: "load" });
 
   const ordered = [
-    page.getByAltText(HERO_BANNER_ALT),
+    page.getByRole("img", { name: HERO_BANNER_ALT }),
     page.locator("h1"),
     page.getByRole("link", { name: "View my work →" }),
     page.locator("#work-featured-heading"),
@@ -99,7 +99,7 @@ test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({
 // ---------------------------------------------------------------------------
 // TKT-72 AC 3 / AC 4 (TC-134, TC-136) — the band's controls on `/` are live and derived from their
 // single sources: email → /contact, LinkedIn, GitHub (S5: shown while a public repo link exists),
-// résumé from resumeAction() (PB5 placeholder), the DRAFT hiring line visible.
+// résumé from resumeAction() (the Google Drive link, TASK-175), the DRAFT hiring line visible.
 // ---------------------------------------------------------------------------
 test("@EVAL-011 band footer renders its headline + live contact controls", async ({ page }) => {
   test.skip(width(page) !== 1440, "content checked once at w1440");
@@ -113,13 +113,12 @@ test("@EVAL-011 band footer renders its headline + live contact controls", async
   await expect(band.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", site.github);
   const resume = resumeAction();
   await expect(band.getByRole("link", { name: resume.label })).toHaveAttribute("href", resume.href);
-  await expect(band.getByText("Draft — pending sign-off")).toBeVisible();
+  await expect(band.getByText("Draft — pending sign-off")).toHaveCount(0); // signed off (TASK-167)
 
-  for (const path of ["/contact", resume.href.split("#")[0]!]) {
-    const res = await page.request.get(path);
-    expect(res.status(), `${path} must resolve 200`).toBe(200);
-  }
-  for (const name of ["LinkedIn", "GitHub"]) {
+  // The résumé is an external Drive link (not fetched here): only the internal /contact must resolve.
+  const res = await page.request.get("/contact");
+  expect(res.status(), "/contact must resolve 200").toBe(200);
+  for (const name of ["LinkedIn", "GitHub", resume.label]) {
     const link = band.getByRole("link", { name });
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", /noopener/);
@@ -253,7 +252,7 @@ test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) 
   test.skip(![390, 1440].includes(width(page)), "EVAL-001 is scored at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
   if (width(page) === 1440) {
-    await expect(page.getByAltText(HERO_BANNER_ALT)).toBeVisible();
+    await expect(page.getByRole("img", { name: HERO_BANNER_ALT })).toBeVisible();
     await expectWholeScene(page);
     await expectCopyWithinOneScroll(page);
     await expect(page.locator("h1#hero-h")).toContainText("AI-native products");
@@ -266,7 +265,7 @@ test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) 
   const elements = {
     name: page.locator("header .header-name"),
     title: page.getByText(hero.eyebrow.text, { exact: true }),
-    desk: page.getByAltText(HERO_BANNER_ALT),
+    desk: page.getByRole("img", { name: HERO_BANNER_ALT }),
     video: page.locator(".hero-intro").getByRole("button", { name: `Play ${hero.introVideo.title}` }),
   };
   for (const [label, locator] of Object.entries(elements)) {

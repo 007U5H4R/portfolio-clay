@@ -43,6 +43,12 @@ export const MEDIA: MediaRow[] = [
   // staged-reveal funnel (its shares are labelled directional estimates in the image itself).
   { slug: "bhakti-vilas", from: "tea-circle.jpg", to: "tea-circle.webp", width: 1200 },
   { slug: "bhakti-vilas", from: "Madhu-Mukti-TOFU-MOFU-BOFU-Funnel.jpg", to: "madhu-mukti-funnel.webp", width: 1200 },
+  // The live prototype itself (TASK-137): captured 2026-10-05 from bhakti-vilas.vercel.app after its mock
+  // phone + OTP sign-in, so every person, session and number on screen is the prototype's mock data.
+  { slug: "bhakti-vilas", from: "sessions-desktop.jpg", to: "sessions.webp", width: 1200 },
+  { slug: "bhakti-vilas", from: "home-desktop.jpg", to: "home.webp", width: 1000 },
+  { slug: "bhakti-vilas", from: "community-desktop.jpg", to: "community.webp", width: 1000 },
+  { slug: "bhakti-vilas", from: "profile-mobile.jpg", to: "profile-mobile.webp", width: 540 },
   // RailCite — the product's own README screenshots (railcite@0112a6f docs/screenshots). Crops drop the
   // signed-in account chip, the mouse cursor and the floating bottom nav.
   { slug: "railcite", from: "answer.jpg", to: "answer.webp", width: 1100, extract: { left: 288, top: 86, width: 850, height: 420 } },

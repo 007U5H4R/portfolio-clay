@@ -39,7 +39,10 @@ import type { PortfolioEntry } from "./schema";
  * documents, so it is not listed (never invent a product).
  */
 export const portfolioEntries: PortfolioEntry[] = [
-  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText" },
+  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText",
+    // Tushar 2026-10-07 (TASK-170): "TeachSpark Launch" https://youtu.be/ub7yB4LwMBM, "TeachSpark Demo" https://youtu.be/vWYbkGFjKyQ (both public).
+    pitchVideo: { provider: "youtube", videoId: "ub7yB4LwMBM" },
+    demoVideo: { provider: "youtube", videoId: "vWYbkGFjKyQ" } },
   { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront",
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
@@ -49,7 +52,11 @@ export const portfolioEntries: PortfolioEntry[] = [
   { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2" },
   { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music" },
   { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", coverArt: "cover-token-toli", lettering: "rounded", coverGlyph: "HeartHandshake" },
-  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope" },
+  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope",
+    // Tushar 2026-10-07 (TASK-179): "pratyasa launch" (a YouTube Short) https://youtube.com/shorts/xqevuhTxKAQ,
+    // "pratyasa demo" https://youtu.be/Rl6MQiSBqh8 (both public).
+    pitchVideo: { provider: "youtube", videoId: "xqevuhTxKAQ" },
+    demoVideo: { provider: "youtube", videoId: "Rl6MQiSBqh8" } },
   { slug: "tegaki", code: "TG-01", coverLine: "Handwriting, read by hand", accent: "rust", meta: "Live pilot", coverArt: "cover-tegaki", lettering: "script", coverGlyph: "Brush" },
   { slug: "dino-arcade-pwa", code: "DA-01", coverLine: "Your phone, an arcade", accent: "steel", meta: "Live · BYO-ROM", coverArt: "cover-dino-arcade-pwa", lettering: "mono", coverGlyph: "Gamepad2" },
   { slug: "cinematic-portfolio", code: "CP-01", coverLine: "A portfolio, on film", accent: "forest", meta: "Live", coverArt: "cover-cinematic-portfolio", lettering: "slab", coverGlyph: "Clapperboard" },

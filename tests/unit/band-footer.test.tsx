@@ -72,19 +72,21 @@ describe("BandFooter — landmark + markup (§4.2)", () => {
     expect(decor).toHaveLength(1);
     expect(decor[0]!.getAttribute("data-decor")).toBe("torn");
     expect(footer.querySelector(".band-bar")?.textContent).toContain(
-      "© 2026 Tushar Pathak. Built with curiosity, chai & Claude Code.",
+      "© 2026 Tushar Pathak. I like ideas. I love making them real. ❤️",
     );
   });
 
-  it("links email to /contact and renders the DRAFT hiring tag in the on-band tone", async () => {
+  it("links email to /contact; the support line is Tushar's own (TASK-177) and carries no draft tag (TASK-167)", async () => {
     const { container } = await renderBand();
     const { site } = await import("@/lib/site");
     const email = screen.getByRole("link", { name: site.email });
     expect(email.getAttribute("href")).toBe("/contact");
-    const tag = container.querySelector(".band-hire [data-paper='tag']")!;
-    expect(tag.textContent).toBe("Draft — pending sign-off");
-    expect(tag).toHaveClass("text-ivory", "draft-tag-on-band");
-    expect(tag).not.toHaveClass("text-terracotta");
+    expect(container.querySelector(".band-hire")?.textContent).toBe("From “what if?” to “it’s live.” Let’s build what’s next.");
+    // The heart is decorative: hidden from assistive tech, in a named emoji face.
+    const heart = container.querySelector(".band-heart");
+    expect(heart?.textContent?.trim()).toBe("❤️");
+    expect(heart?.getAttribute("aria-hidden")).toBe("true");
+    expect(container.querySelector(".band-hire [data-paper='tag']")).toBeNull();
   });
 });
 
@@ -136,26 +138,36 @@ describe("TC-136 · conditionals follow their single sources", () => {
     expect(screen.queryByRole("link", { name: "GitHub" })).toBeNull();
   });
 
-  it("résumé circle derives from resumeAction(): PB5 placeholder label + /contact#resume", async () => {
+  it("résumé circle derives from resumeAction(): the Drive link, external, new tab", async () => {
     await renderBand();
     const { resumeAction } = await import("@/lib/site");
     const resume = resumeAction();
-    expect(resume.label).toBe("Resume — updating");
+    expect(resume.label).toBe("Resume ↗");
     const link = screen.getByRole("link", { name: resume.label });
-    expect(link.getAttribute("href")).toBe("/contact#resume");
+    expect(link.getAttribute("href")).toBe(resume.href);
+    expect(link.getAttribute("href")).toMatch(/^https:\/\/drive\.google\.com\//);
     expect(link.hasAttribute("download")).toBe(false);
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
   });
 
   it("every social circle carries an aria-label; external ones open safely", async () => {
     const { container } = await renderBand();
     const circles = Array.from(container.querySelectorAll(".band-social a"));
-    expect(circles).toHaveLength(3);
+    expect(circles).toHaveLength(4); // LinkedIn, GitHub, résumé, digital card (TASK-166)
     for (const a of circles) expect(a.getAttribute("aria-label")).toBeTruthy();
     for (const name of ["LinkedIn", "GitHub"]) {
       const link = screen.getByRole("link", { name });
       expect(link.getAttribute("target")).toBe("_blank");
       expect(link.getAttribute("rel")).toMatch(/noopener/);
     }
+  });
+
+  it("TASK-166: the digital business card circle links to /card in the same tab", async () => {
+    await renderBand();
+    const card = screen.getByRole("link", { name: "Digital business card" });
+    expect(card.getAttribute("href")).toBe("/card");
+    expect(card.hasAttribute("target")).toBe(false);
   });
 });
 
@@ -187,7 +199,7 @@ describe("TASK-118 · the band headline's cycling italic verb", () => {
       "IntersectionObserver",
       class {
         constructor(cb: IOCallback) {
-          ioCallback = cb;
+          ioCallback ??= cb; // the first observer is the verb cycler's; OceanGate (M-011) creates a later one
         }
         observe() {}
         disconnect() {}

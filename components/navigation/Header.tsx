@@ -4,6 +4,8 @@ import { Annotation } from "@/components/paper";
 import { MediaGate } from "@/components/paper/MediaGate";
 import { site } from "@/lib/site";
 import { AskAIButton } from "./AskAIButton";
+import { ThemeToggle } from "./ThemeToggle";
+import { SecretTrigger } from "@/components/easter-egg/SecretTrigger";
 import { HeaderScroll } from "./HeaderScroll";
 import { Monogram } from "./Monogram";
 import { PrimaryNav } from "./PrimaryNav";
@@ -28,6 +30,14 @@ export function Header() {
   return (
     <header data-site-header="" className="site-header">
       <HeaderScroll />
+      <SecretTrigger />
+      {/* M-010 T4 (TASK-145.1): the paper strip — decorative layers behind the real HTML (paper-cut-2 §172–§176). */}
+      <span className="header-paper" aria-hidden="true">
+        <span className="header-paper-sheet" />
+        <span className="header-scrap header-scrap-graph" />
+        <span className="header-scrap header-scrap-rust" />
+        <span className="header-scrap header-scrap-kraft" />
+      </span>
       <Container className="site-header-row">
         <Link href="/" aria-label={`${site.name} — home`} className="header-brand focus-ring">
           <Monogram />
@@ -52,9 +62,15 @@ export function Header() {
               <span className="max-sm:sr-only">Let&apos;s </span>
               <span className="max-sm:capitalize">connect</span>
             </span>
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true" className="header-pill-arrow">
+              →
+            </span>
           </Link>
           <AskAIButton />
+          {/* The theme switch sits on its own paper chip (TASK-145.1); the control inside is unchanged. */}
+          <span className="header-chip">
+            <ThemeToggle />
+          </span>
         </div>
       </Container>
     </header>

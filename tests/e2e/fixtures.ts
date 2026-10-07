@@ -20,7 +20,7 @@
  *                       client errors).
  *   saveData          — opt-in (TSK-37, EVAL-019 Save-Data mode): stubs `navigator.connection` to
  *                       `{ saveData: true }` on the whole context before any page script runs, so
- *                       `HeroClip` takes its poster-only branch (Design.md §5.3.1).
+ *                       the EVAL-019 Save-Data case can prove the still hero renders no <video> (S24).
  */
 import { test as base, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";

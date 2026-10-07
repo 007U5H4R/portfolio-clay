@@ -1,0 +1,149 @@
+/* M-011 Paper World — PaperParallaxScene (Design.md §14.4). Layers move by `translate` only: the pointer/tilt
+   offset on `.layer` (from --pp-x/--pp-y, written by lib/paper-world/motion.ts), the scroll-depth offset on the
+   `.depth` wrapper (CSS scroll timeline), so neither overwrites the other. No scroll listener, no layout property. */
+.root {
+  --par-0: 0;
+  --par-1: 0.05;
+  --par-2: 0.12;
+  --par-3: 0.22;
+  --par-4: 0.4;
+  --par-5: 0.6;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: var(--ps-ar);
+}
+
+@media (max-width: 767px) {
+  .root {
+    aspect-ratio: var(--ps-ar-narrow, var(--ps-ar));
+  }
+}
+
+.root {
+  background: var(--mat-bg);
+}
+
+.layer {
+  /* Offset in px = pointer range × factor (tablet and narrower: halved); tilt uses the per-layer maximum. */
+  --k: 1;
+  --rng: calc(var(--par) * var(--rng-p) * var(--k));
+  position: absolute;
+  inset: calc(var(--bleed) * -1);
+  translate: calc(var(--pp-x, 0) * var(--rng)) calc(var(--pp-y, 0) * var(--rng));
+  pointer-events: none;
+}
+
+/* Only while a scene is in view and moving does the layer get its own compositor layer (set by paperMotion). */
+.root[data-pp-mode] .layer {
+  will-change: translate;
+}
+
+@media (max-width: 1023px) {
+  .layer {
+    --k: 0.5;
+  }
+}
+
+.root[data-pp-mode="orientation"] .layer {
+  --rng: var(--rng-o);
+}
+
+.depth {
+  position: absolute;
+  inset: 0;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .depth {
+      animation: depth-shift linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes depth-shift {
+  from {
+    translate: 0 calc(var(--par) * -12px);
+  }
+  to {
+    translate: 0 calc(var(--par) * 12px);
+  }
+}
+
+.picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focal-x, 50%) var(--focal-y, 50%);
+  user-select: none;
+}
+
+/* Gyro permission chip (§28): a cream paper tab, ≥ 44 px target, bottom-left of its scene container. */
+.chip {
+  /* Top-left of the scene's positioned parent: the home sheet slides over the banner's bottom edge (TKT-96). */
+  position: absolute;
+  /* Above the home hero's decorative polaroids (z-index 3, globals.css): a live control never sits under decoration. */
+  z-index: 4;
+  left: 16px;
+  top: 16px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--mat-cream);
+  color: var(--color-navy);
+  /* The site's named body face (Inter): --font-sans never existed, so the chip fell back to a system font (fallback-glyphs). */
+  font: 600 0.875rem/1.2 var(--font-body);
+  box-shadow: 2px 2px 0 var(--mat-side), 1px 2px 2px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  cursor: pointer;
+}
+
+/* TASK-169: a warm glow so the chip is found and tapped — tilt does nothing until it is. The halo is a static
+   box-shadow on a pseudo-element; only its opacity and scale animate (compositor-only, never a filter or a shadow
+   repaint), 6 pulses and then it rests lit, so no infinite animation is left running on the page. */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--color-rust) 70%, transparent),
+    0 0 26px 8px color-mix(in oklab, var(--color-rust) 60%, transparent),
+    0 0 48px 14px color-mix(in oklab, var(--color-terracotta) 30%, transparent);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chip::before {
+    animation: chip-glow 1.6s ease-in-out 6;
+  }
+}
+
+@keyframes chip-glow {
+  0%,
+  100% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.09);
+  }
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 3px;
+}

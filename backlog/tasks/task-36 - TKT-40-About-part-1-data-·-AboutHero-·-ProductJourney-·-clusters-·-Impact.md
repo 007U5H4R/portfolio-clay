@@ -4,14 +4,13 @@ title: 'TKT-40: About part 1: data · AboutHero · ProductJourney · clusters ·
 status: Done
 assignee: []
 created_date: '2026-09-15 13:23'
-updated_date: '2026-09-22 05:24'
+updated_date: '2026-10-05 13:36'
 labels:
   - P1
   - 'sp:5'
   - about
 milestone: m-5
 dependencies:
-  - TASK-3
   - TASK-4
   - TASK-5
   - TASK-6

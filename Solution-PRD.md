@@ -156,3 +156,104 @@ Approve §12 · confirm the footer credit line (S16: keep TP10 "Built with curio
 4. **Stage 6** — `technical-plan.md`, `test-cases.md`, Campfire milestone + tickets.
 5. **Stage 7** — Phase 0 tracer: tokens + fonts + header + band footer + hero (scene, video, poster) on `/`, Lighthouse measured, **Tushar's visual gate on the Vercel preview**; Phase A home complete + OG; Phase B work + case-study template (all 11 slugs) + thinking/essay; Phase C about, playground, contact, 404; Phase D redesign QA, dead-code removal (clay primitives, aurora, avatar system), `Design.md` deviations, PWA sync.
 6. **Stages 8–10** critique against the mockups → review + eval run → security → `QA-report.md` addendum. **Stage 11** merge `m-009-redesign → main`; production remains gated on Tushar's inputs.
+
+## 13. M-010 · Paper-cut system, dark mode and delight features — solution addendum (2026-10-05, approved 2026-10-05)
+
+Source: six specs from Tushar, 2026-10-05, saved verbatim in `docs/specs/m-010/` (`paper-cut-2.md`, `dark-mode.md`, `toggle.md`, `cursor.md`, `card-updated.md`, `gummy-bear.md`, plus `toggle-reference.png`, the toggle's visual acceptance target). Sequencing plan approved the same day: `~/.claude/plans/i-want-to-add-immutable-raccoon.md`. Campfire: milestone `m-9`, tickets TASK-139…146. Decisions S22–S30.
+
+### 13.1 Goal
+Move the site from gouache illustration + paper collage to one coherent **3D paper-cut / layered-paper diorama** system, in a light and a **dark** theme, and add three optional delights: a semantic paper cursor, a paper-cut digital business card, and a hidden physics game. Everything M-009 guarantees (content provenance, tests, evals, budgets, accessibility, static prerender) stays.
+
+### 13.2 Approach (what changes, what stays)
+| Layer | M-009 (production since 2026-10-05) | M-010 |
+|---|---|---|
+| Scene art | Gouache/pencil scenes + collage sprites (Higgsfield) | Paper-cut dioramas per tab, each in a light and a matched dark variant (S23) |
+| Home hero | Locked gouache character + clip A (plays once, holds) | A **paper-cut still** of the character; clip A and `HeroClip` are retired; no hero animation (S24) |
+| Theme | Single paper theme, no toggle (S19) | Light + dark, system preference first, saved choice wins, no flash; paper-cut toggle (S22, S25) |
+| Chrome | Paper header, torn edges, terracotta band | Paper-cut nav, section dividers with gentle parallax (they replace the torn edges, not add to them), footer ocean + ship, global depth rules (S23, S28) |
+| New surfaces | — | `/card` business card (no Apple Wallet, S27); desktop-only cursor + paper trail (S29); hidden `/lab` game behind a 5-click trigger (S30) |
+| Content, data, evals | `data/*.ts`, zod gate, `pnpm eval` | Unchanged; art never carries evidence (S20 stands) |
+
+### 13.3 Scope (one milestone, M-010, tracks per the plan)
+T0 this addendum + theme contract (TASK-139) → T1 paper-cut style lock on the **hero scene** as the pilot (TASK-140; Tushar's style gate) → T2 theme system: dark mode + toggle (TASK-141) → T3 every tab's scene, light + dark together (TASK-144) → T4 nav, dividers + parallax, footer ocean, depth pass (TASK-145) → T5 `/card` (TASK-146). Side lanes: T2b cursor (TASK-142, after T1) and T2c gummy `/lab` (TASK-143, after T0).
+
+### 13.4 Out of scope
+Apple Wallet `.pkpass` (needs an Apple Developer account; the card keeps a slot for it) · any hero animation or clip · runtime Higgsfield calls (all art is generated at build time and committed) · new content, metrics or claims · CSS-filter "dark versions" of rich art (spec: dark art is generated, not inverted).
+
+### 13.5 Success criteria (in addition to §8 and §12.6; thresholds are never lowered)
+- Every tab's scene exists in light and dark, in one paper-cut language, judged side by side at the T1 and T3 gates; the hero still matches the character sheet's likeness in paper-cut form.
+- Theme: no wrong-theme flash on a hard reload with a saved choice; first visit follows `prefers-color-scheme`; the toggle works by keyboard and screen reader; WCAG AA contrast in both themes (EVAL-006 runs in both).
+- Budgets: EVAL-005 ≤ 180 kB gz first-load JS on `/` (cursor lazy and fine-pointer only; `/lab` never in the home bundle) · EVAL-018 decoration budget unchanged · CLS < 0.05 in both themes and across theme switches.
+- Reduced motion: parallax, cursor trail, ocean and card flip all degrade to static.
+- Mobile: no horizontal scroll at 375 and 768 in both themes; the cursor never mounts on touch.
+
+### 13.6 Risks & mitigations
+| Risk | Mitigation |
+|---|---|
+| Paper-cut loses the character's likeness | T1 pilots the hero first; nothing else is generated until Tushar approves the style |
+| Dark variants drift from their light scene | Generate each pair in one pass with the light image as reference; side-by-side QA (paper-cut-2 §153) |
+| Credit overrun (608 cr on 2026-10-05) | Per-track estimate shown before spending; at most 2 regenerations per asset without approval |
+| Theme flash / hydration mismatch | Inline pre-paint script sets `data-theme`; tokens switch by attribute; covered by a Playwright test |
+| One big release at the end | Every track merges to the branch and preview with its own full e2e; production diff is reviewed as one release (S26) |
+| 8 GB Mac | One heavy local session at a time; gummy can run in a cloud session |
+
+### 13.7 Dependencies on Tushar
+Style gate at T1 · scene gate at T3 · the toggle reference (received) · final release approval (S26).
+
+### 13.8 Delivery plan
+Per §13.3. Every track: ticket → build on the branch → full e2e + gates → preview → Tushar's look. Production: one release after T5 (S26).
+
+## 14. M-011 · "Tushar Paper World" — layered parallax paper system — solution addendum (2026-10-06, approved 2026-10-06 on Tushar's behalf, EXE-39)
+
+Source: `docs/specs/m-011/paper-world.md` (Tushar, verbatim; cited by section `§NN`). Decisions S31–S34 (Tushar), EXE-39 … (Claude, delegated by S33). Campfire milestone `m-10`, kickoff TASK-151.
+
+### 14.1 Discovery (Stage 1, compressed — the spec already did the problem work)
+- **Problem (Tushar's words, S31):** the scenes are single flat paper-cut images; the Portfolio and Certifications scenes show blank frames. Underneath: M-010 gave the site a paper *look* but not a paper *world* — scenes, cards, buttons, cursor, divider ridges and the footer ocean each solve depth their own way (three motion systems: CSS scroll timelines for the banner, ridges and torn-lag; Lenis smoothing; pointer rAF only in `/card` and the cursor), and nothing moves with the visitor's pointer or phone.
+- **Who it's for:** the same audiences as §3 (hiring managers, founders, peers). The bar: "beautiful at first glance, tactile at second, interactive at third" (§Final) without costing the content its speed or legibility.
+- **Riskiest assumption:** that the art pipeline can produce *separable, transparent, coherent* layers per scene and theme. **Tested first, before any code** (pilot, §14.6) — result: yes, by isolating each layer with an image-to-image edit of one approved composite.
+- **Success looks like:** every scene is a stack of 3–5 paper layers that separate under mouse, tilt and scroll; cards, buttons, icons, timeline, skills and the contact scene obey one material, light and depth system; no budget, contrast, motion or accessibility gate gets worse.
+
+### 14.2 What changes vs. the current system
+| Layer | Now (M-010, on preview) | M-011 |
+|---|---|---|
+| Scene art | One flat 3168×1344 WebP per scene per theme | 3–5 layer WebPs per scene per theme (bg opaque, the rest transparent), named per §32, composed by `PaperParallaxScene` |
+| Portfolio / Certifications | Empty frames, blank sleeves | Origami miniatures on the shelf and wall (S32); real covers/badges stay in content |
+| Depth | `--depth-0…5` (T4) on `--shadow-ink`, 4 consumers | Same scale, extended to the spec's 0–6 levels and PAPER-0…5 elevations with a parallax factor each (Design.md §14) — renamed in place, not duplicated |
+| Motion | CSS scroll timelines (banner, ridges, torn-lag) + Lenis smoothing; no pointer parallax | **One motion source** (`paperMotion`): one pointer listener, one optional gyro listener, one spring rAF loop that sleeps at rest; scroll stays on CSS scroll timelines; Lenis unchanged |
+| Cards / buttons / icons | Page-specific classes (`fw-card`, `cx-btn`, `hero-btn`…) | Shared paper card + button contract (sidewall, lift, press) applied to the existing classes; paper-cut icon set |
+| About / Experience | Collage timeline, skills list | Notebook About (§21), paper-strip timeline (§22), skills as paper tags by group (§23) |
+| Cursor | T2b Paper Trail (pointer + trail) | Cardboard cursor (§11) replaces the pointer glyph inside T2b's gate; trail kept, restyled (EXE-41) |
+| Footer | T4 ocean: 3 infinite drifting tracks + ship | Contact scene: layered paper waves + fully visible origami sailboat; pauses off-screen; no filter animation (§24, §26, TASK-143 scar) |
+
+### 14.3 Conflicts and how each is resolved (recorded as EXE decisions)
+1. **Palette vs the 13 role tokens (EVAL-020, D13).** The 13 role tokens stay the only colours for text and UI states; their hexes don't change, so the 55 AA checks stand. The five §02 materials become a second tier of **surface-only material tokens** (`--mat-*`, light and dark), never used for text; any text that sits on a material surface gets its pair added to `tokens:check` in both themes. Dark materials are navy-family equivalents, never black (EXE-40).
+2. **Cursor §11 vs T2b Paper Trail (EVAL-028).** Evolve, don't replace: keep T2b's mount gate (fine pointer, no reduced motion, after `load`, idle-imported, exclusion zones), swap the glyph for the cardboard cursor with §11 states and spring, restyle the trail as kraft/cream scraps lit from the upper left (EXE-41).
+3. **Typography §16–17.** Keep Fraunces (editorial serif), Inter (neutral sans), Caveat (hand accent, never nav or body). All three are within the spec's intent; changing fonts would cost LCP/CLS for no gain (EXE-42).
+4. **Annotations §18 vs DraftTag.** Two different things. DraftTag stays the only "pending Tushar's sign-off" signal (terracotta hairline, unchanged). Annotations are a new decorative `PaperLabel` (kraft tab, Inter caps, `aria-hidden` unless it carries meaning) with a closed vocabulary that **excludes the word "DRAFT"**: ITERATION 0n, SHIPPED, IN PROGRESS, FIELD NOTE, OBSERVATION, SYSTEM 0n; at most one per section (EXE-43).
+5. **One motion system, not three.** Pointer and gyro go through `paperMotion` → CSS custom properties (`--pp-x`, `--pp-y`, unitless −1…1) on the scene; each layer's `translate` = factor × range. Scroll depth stays on CSS scroll-driven animations (already transform-only, off-main-thread) and composes on a wrapper element. The banner-level TKT-96 scroll parallax becomes per-layer factors; T4 ridges keep their CSS timelines; Lenis keeps smoothing only. No second rAF loop anywhere (EXE-44).
+6. **Gyroscope §28.** iOS: `DeviceOrientationEvent.requestPermission()` only from a tap on a small "Move your phone to explore" paper chip; denied or unavailable → silent scroll-only fallback. Android/others: orientation listener attaches only while a scene is in view. Never on load, never blocks navigation. The "touch movement" fallback is **rejected**: dragging a scene would fight native scrolling (§30) (EXE-44).
+
+### 14.4 Scope (milestone M-011, Campfire `m-10`)
+Tracks (each a Campfire ticket with subtasks per §-list at kickoff): **P0** tokens + `PaperParallaxScene` + `paperMotion` · **P1** layered Home hero pilot + style gate · **P2** scenes rollout (Portfolio, Experience, About, Certifications, Contact, Thinking, Playground; light + dark; S32 miniatures) · **P3** paper cards, buttons, icons · **P4** About notebook, paper timeline, skills tags · **P5** cardboard cursor · **P6** contact scene (footer waves + sailboat) · **P7** integration gate (full gate, preview). P5/P6 and any global-CSS edit wait for TASK-143 and TASK-150 to commit.
+
+### 14.5 Non-goals
+WebGL/3D or canvas scenes · new copy, metrics or claims · changes to case-study media or real covers/badges · runtime image generation · scroll-jacking or scroll snapping · touch-drag parallax · new fonts · a production release (S34: one release with M-010, Tushar's go only).
+
+### 14.6 Pilot result (riskiest assumption, run 2026-10-06 before any code)
+Home hero, light: four image-to-image edits of the approved hero (bg plate; man alone with his body continued below the desk; desk + props + dog; foreground leaves + torn strip) recombine into one coherent scene; positions hold except the figure (≈ 10 % larger, corrected by a per-layer transform in the layer manifest). Transparency: Higgsfield `remove_background` (≈ 2.25 cr) is clean on grey-containing layers; a free local key works on a magenta backdrop for layers with no grey/pink. Every layer needs **bleed** (overscan ≥ the max shift) or edges show at ±25 px. Spend: 8.5 cr light. Evidence: `Portfolio-illustration/illustrations/paper-world/pilot-home/` (+ `layers.json`), contact strips in `/Volumes/E Drive/Dev/.scratch/m011/`.
+
+### 14.7 Success criteria (in addition to §8, §12.6, §13.5; nothing lowered)
+- Every scene ships as layers per theme, passes the §33 eight-question check at its style gate (EXE per track), and shows no gaps at ±max shift.
+- Motion: transform-only; reduced motion = a still, composed frame (no listeners attached); gyro permission only after a tap; no scroll-jacking (native scroll position = Lenis target); the motion loop sleeps when settled, off-screen or in a hidden tab.
+- Budgets: EVAL-005 ≤ 180 kB gz first-load JS on `/` (the primitive ≤ 3 kB gz, no animation library on the first-load path); CLS < 0.05; LCP ≤ 2.5 s on the Lighthouse routes with the layered hero; per-scene layer bytes within Design.md §14 budgets; non-hero layers lazy.
+- Contrast: tokens:check stays green in both themes with any new material pairs added.
+- Contact: the whole sailboat (mast and sails) is visible at 390/768/1024/1440 in both themes.
+
+### 14.8 Risks & mitigations
+| Risk | Mitigation |
+|---|---|
+| Layers drift from one another or the character's likeness | Isolate every layer from ONE approved composite per scene/theme; per-layer transform in a layer manifest; side-by-side gate at rest and at ±max |
+| More image bytes per scene | Bleed-trimmed transparent WebP, mobile layers at ≤ 1280 px, only bg + subject eager on the LCP scene, the rest lazy |
+| Main-thread cost / jank | One spring loop, sleeps at rest; CSS variables on the scene root only; no filters animated; IntersectionObserver gating |
+| Credits (553 cr after pilot) | Rollout estimate shown in technical-plan §M-011 before spending; ≤ 2 regenerations per layer |
+| Collisions with TASK-143 / TASK-150 | Docs + pilot first; global CSS, header and footer work starts only after both commit; own worktrees per track |

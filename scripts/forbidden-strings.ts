@@ -6,14 +6,13 @@
  * (value read from git-ignored `tests/forbidden.local.json` — the scan prints a loud SKIP if it is
  * missing so CI never silently passes), "AI Product Manager" used as a title, `.env` key names, and
  * local `/Volumes/E Drive/` paths leaking into the app/bundle. Also fails if `public/resume.pdf`
- * exists while `resumeAvailable === false` (PB5).
+ * exists (PB5, TASK-175: the resume is a Google Drive link).
  *
  * Usage: `tsx scripts/forbidden-strings.ts [--bundle]`. Exits 1 on any hit; the pure `scan()` is
  * unit-tested against a temp tree.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
-import { site } from "@/lib/site";
 
 type Category = "data" | "content" | "app" | "components" | "public" | "bundle";
 
@@ -259,9 +258,9 @@ export function scan(opts: ScanOptions = {}): ScanResult {
     }
   }
 
-  // PB5: resume.pdf must not exist while the flag says it is unavailable.
-  if (!site.resumeAvailable && existsSync(join(cwd, "public", "resume.pdf"))) {
-    hits.push({ file: "public/resume.pdf", line: 0, pattern: "resume.pdf while resumeAvailable=false", match: "present" });
+  // PB5 / TASK-175: the resume is the Google Drive link; no resume PDF may be committed to public/.
+  if (existsSync(join(cwd, "public", "resume.pdf"))) {
+    hits.push({ file: "public/resume.pdf", line: 0, pattern: "resume.pdf committed (resume is the Drive link)", match: "present" });
   }
 
   return { hits, filesScanned, sandboxSkipped: opts.sandboxSkipped ?? false, skipped };

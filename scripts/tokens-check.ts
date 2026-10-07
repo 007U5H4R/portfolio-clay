@@ -7,6 +7,7 @@
  * via culori and guards them from drift.
  *
  *   pnpm tokens:check --write   rewrites the 13 `--color-*` oklch() lines in app/globals.css
+ *                               (light `@theme` AND the `[data-theme="dark"]` block, Design.md §13.1)
  *                               from the authoritative hex (culori, 3-decimal precision).
  *   pnpm tokens:check           parses globals.css, converts each oklch() back to an 8-bit
  *                               sRGB hex and asserts it equals the authoritative hex (0 diff).
@@ -15,7 +16,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { oklch, formatHex } from "culori";
+import { oklch, formatHex, wcagContrast } from "culori";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GLOBALS = resolve(HERE, "../app/globals.css");
@@ -36,6 +37,137 @@ const AUTHORITATIVE: Record<string, string> = {
   "--color-note": "#EEDCA9",
   "--color-kraft": "#D7BE93",
 };
+
+// Dark twin — Design.md §13.1 (S22/S25, D13): the same 13 names redefined by ROLE under
+// `[data-theme="dark"]` in app/globals.css (navy = ink = warm ivory; ivory = card = lifted navy).
+// Declared AFTER the light set on purpose: tests/unit/contrast-pairs.test.ts reads the first hit.
+const AUTHORITATIVE_DARK: Record<string, string> = {
+  "--color-paper": "#0B1530",
+  "--color-ivory": "#172646",
+  "--color-paper-2": "#101C38",
+  "--color-navy": "#F4EEDF",
+  "--color-navy-2": "#C7CDD9",
+  "--color-ink-soft": "#A3ADBF",
+  "--color-rust": "#DC7650",
+  "--color-terracotta": "#E8946F",
+  "--color-forest": "#8CCBB0",
+  "--color-green-2": "#9CC7AD",
+  "--color-steel": "#7E94B8",
+  "--color-note": "#4B4023",
+  "--color-kraft": "#6B5B3C",
+};
+
+// Material tier — Design.md §14.1 (M-011, EXE-40): surface-only tokens, plain custom properties (not @theme).
+const MATERIAL: Record<string, string> = {
+  "--mat-bg": "#F5EBDD",
+  "--mat-cream": "#F0E2C8",
+  "--mat-kraft": "#C88A52",
+  "--mat-terra-1": "#96381F",
+  "--mat-terra-2": "#A94728",
+  "--mat-terra-3": "#B9532D",
+  "--mat-side": "#6D321E",
+};
+const MATERIAL_DARK: Record<string, string> = {
+  "--mat-bg": "#0E1934",
+  "--mat-cream": "#1B2A4A",
+  "--mat-kraft": "#5E4630",
+  "--mat-terra-1": "#6E2A18",
+  "--mat-terra-2": "#7E3320",
+  "--mat-terra-3": "#8C3C26",
+  "--mat-side": "#070F24",
+};
+
+const BLOCKS = [
+  { name: "light", header: "@theme {", tokens: AUTHORITATIVE, mat: MATERIAL },
+  { name: "dark", header: '[data-theme="dark"] {', tokens: AUTHORITATIVE_DARK, mat: MATERIAL_DARK },
+] as const;
+const MAT_BLOCKS = [
+  { name: "light", header: "/* M-011 mat:light */\n:root {", tokens: MATERIAL },
+  { name: "dark", header: '/* M-011 mat:dark */\n[data-theme="dark"] {', tokens: MATERIAL_DARK },
+] as const;
+
+/** [start, end) of a rule body: from its header to the first closing brace (these blocks hold no nested rules). */
+function blockRange(css: string, header: string): [number, number] {
+  const start = css.indexOf(header);
+  if (start < 0) return [-1, -1];
+  return [start, css.indexOf("}", start)];
+}
+
+
+// Contrast table (WCAG 2.x AA; never lowered, EV2): [foreground token, background token, minimum, where it is used].
+// Evaluated in BOTH themes from the authoritative hex above, because the dark theme redefines the same names by
+// role (D13) — a pair that passes in light can fail in dark and vice versa. 4.5 = text, 3 = large text / UI.
+const PAIRS: ReadonlyArray<[string, string, number, string]> = [
+  ["navy", "paper", 4.5, "body text on the page"],
+  ["navy", "ivory", 4.5, "text on cards / sheets / inputs"],
+  ["navy", "paper-2", 4.5, "text on alternate sections"],
+  ["navy-2", "paper", 4.5, "secondary text"],
+  ["navy-2", "ivory", 4.5, "secondary text on cards"],
+  ["navy-2", "paper-2", 4.5, "secondary text on alternate sections"],
+  ["ink-soft", "paper", 4.5, "captions, meta, placeholders"],
+  ["ink-soft", "ivory", 4.5, "captions on cards"],
+  ["ink-soft", "paper-2", 4.5, "captions on alternate sections"],
+  ["rust", "paper", 4.5, "links, numerals"],
+  ["rust", "paper-2", 3, "rust on alternate sections — large (≥ 17 px) or bold only, Design.md §2.1 (light is 4.30)"],
+  ["rust", "ivory", 4.5, "links on cards"],
+  ["ivory", "rust", 4.5, "primary button label"],
+  ["ivory", "navy", 4.5, "nav pill / navy-filled control label"],
+  ["ivory", "terracotta", 4.5, "band text"],
+  ["forest", "paper", 4.5, "positive metrics"],
+  ["forest", "ivory", 4.5, "positive metrics on cards"],
+  ["green-2", "paper-2", 4.5, "kickers, tags"],
+  ["green-2", "ivory", 4.5, "kickers on cards"],
+  ["terracotta", "paper-2", 4.5, "draft tags, hover deepening"],
+  ["navy", "note", 4.5, "sticky-note text"],
+  ["navy-2", "note", 4.5, "secondary text on stickies"],
+  ["navy", "kraft", 4.5, "kraft tag text"],
+  ["steel", "paper", 3, "ruled lines, badge borders (non-text)"],
+  ["steel", "ivory", 3, "ruled lines on cards (non-text)"],
+];
+// Band accents are role-dependent (globals.css --band-accent / --band-dim): light uses note / kraft on terracotta,
+// dark uses paper (4.5) and note (3, the 40–72 px heading line) on the light terracotta fill.
+const BAND_PAIRS = {
+  light: [["note", "terracotta", 4.5, "band italic word, © tagline"], ["kraft", "terracotta", 3, "band heading line 2"]],
+  dark: [["paper", "terracotta", 4.5, "band italic word, © tagline"], ["note", "terracotta", 3, "band heading line 2"], ["paper", "terracotta", 3, "band focus ring"]],
+} as const;
+
+// Text on a material (Design.md §14.1): [foreground role token, material, minimum, where it is used]. Per theme because the
+// roles flip in dark (navy = ivory ink). `mat-terra-3` carries no text (ivory on it is 4.53, too close to the line).
+const MAT_PAIRS = {
+  light: [
+    ["navy", "mat-bg", 4.5, "text on scene paper"],
+    ["navy", "mat-cream", 4.5, "text on cream cards / labels"],
+    ["ink-soft", "mat-cream", 4.5, "captions on cream"],
+    ["navy", "mat-kraft", 4.5, "text on kraft tags"],
+    ["ivory", "mat-terra-1", 4.5, "label on deep terracotta"],
+    ["ivory", "mat-terra-2", 4.5, "label on mid terracotta"],
+    ["terracotta", "mat-cream", 4.5, "accent text on cream"],
+  ],
+  dark: [
+    ["navy", "mat-bg", 4.5, "text on scene paper"],
+    ["navy", "mat-cream", 4.5, "text on cream cards / labels"],
+    ["ink-soft", "mat-cream", 4.5, "captions on cream"],
+    ["navy", "mat-kraft", 4.5, "text on kraft tags"],
+    ["navy", "mat-terra-1", 4.5, "label on deep terracotta"],
+    ["navy", "mat-terra-2", 4.5, "label on mid terracotta"],
+    ["terracotta", "mat-cream", 4.5, "accent text on cream"],
+  ],
+} as const;
+
+function contrastFailures(): { checked: number; failures: string[] } {
+  const failures: string[] = [];
+  let checked = 0;
+  for (const block of BLOCKS) {
+    const hex = (name: string) => (name.startsWith("mat-") ? block.mat[`--${name}`] : block.tokens[`--color-${name}`]) as string;
+    const rows = [...PAIRS, ...BAND_PAIRS[block.name], ...MAT_PAIRS[block.name]];
+    for (const [fg, bg, min, where] of rows) {
+      checked += 1;
+      const ratio = wcagContrast(hex(fg), hex(bg));
+      if (ratio < min) failures.push(`[${block.name}] ${fg} on ${bg} = ${ratio.toFixed(2)}:1 < ${min} (${where})`);
+    }
+  }
+  return { checked, failures };
+}
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -62,43 +194,94 @@ function lineRegExp(token: string): RegExp {
 
 function write(): void {
   let css = readFileSync(GLOBALS, "utf8");
-  for (const [token, hex] of Object.entries(AUTHORITATIVE)) {
-    const re = lineRegExp(token);
-    if (!re.test(css)) {
-      console.error(`tokens:check --write: token ${token} not found in globals.css`);
+  let count = 0;
+  for (const block of BLOCKS) {
+    const [a, b] = blockRange(css, block.header);
+    if (a < 0) {
+      console.error(`tokens:check --write: ${block.name} block (${block.header}) not found in globals.css`);
       process.exit(1);
     }
-    css = css.replace(re, `$1${oklchFor(hex)}`);
+    let body = css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const re = lineRegExp(token);
+      if (!re.test(body)) {
+        console.error(`tokens:check --write: token ${token} not found in the ${block.name} block`);
+        process.exit(1);
+      }
+      body = body.replace(re, `$1${oklchFor(hex)}`);
+      count += 1;
+    }
+    css = css.slice(0, a) + body + css.slice(b);
+  }
+  for (const block of MAT_BLOCKS) {
+    const [a, b] = blockRange(css, block.header);
+    if (a < 0) {
+      console.error(`tokens:check --write: material ${block.name} block not found in globals.css`);
+      process.exit(1);
+    }
+    let body = css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const re = lineRegExp(token);
+      if (!re.test(body)) {
+        console.error(`tokens:check --write: token ${token} not found in the material ${block.name} block`);
+        process.exit(1);
+      }
+      body = body.replace(re, `$1${oklchFor(hex)}`);
+      count += 1;
+    }
+    css = css.slice(0, a) + body + css.slice(b);
   }
   writeFileSync(GLOBALS, css);
-  console.log(`wrote ${Object.keys(AUTHORITATIVE).length} oklch colour tokens to app/globals.css`);
+  console.log(`wrote ${count} oklch colour tokens to app/globals.css (light + dark, roles + materials)`);
 }
 
 function check(): void {
   const css = readFileSync(GLOBALS, "utf8");
   const total = Object.keys(AUTHORITATIVE).length;
-  let ok = 0;
   const failures: string[] = [];
+  const summary: string[] = [];
 
-  for (const [token, hex] of Object.entries(AUTHORITATIVE)) {
-    const m = css.match(new RegExp(`${escapeRegExp(token)}:\\s*(oklch\\([^)]*\\))`));
-    if (!m || !m[1]) {
-      failures.push(`${token}: no oklch() value found`);
-      continue;
+  for (const block of BLOCKS) {
+    let ok = 0;
+    const [a, b] = blockRange(css, block.header);
+    const body = a < 0 ? "" : css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const m = body.match(new RegExp(`${escapeRegExp(token)}:\\s*(oklch\\([^)]*\\))`));
+      if (!m || !m[1]) {
+        failures.push(`[${block.name}] ${token}: no oklch() value found`);
+        continue;
+      }
+      const back = formatHex(m[1]);
+      if (!back) {
+        failures.push(`[${block.name}] ${token}: could not parse ${m[1]}`);
+        continue;
+      }
+      if (back.toUpperCase() === hex.toUpperCase()) {
+        ok += 1;
+      } else {
+        failures.push(`[${block.name}] ${token}: ${m[1]} → ${back.toUpperCase()} ≠ ${hex.toUpperCase()}`);
+      }
     }
-    const back = formatHex(m[1]);
-    if (!back) {
-      failures.push(`${token}: could not parse ${m[1]}`);
-      continue;
-    }
-    if (back.toUpperCase() === hex.toUpperCase()) {
-      ok += 1;
-    } else {
-      failures.push(`${token}: ${m[1]} → ${back.toUpperCase()} ≠ ${hex.toUpperCase()}`);
-    }
+    summary.push(block.name === "light" ? `${ok}/${total} tokens round-trip OK` : `${ok}/${total} dark tokens round-trip OK`);
   }
 
-  console.log(`${ok}/${total} tokens round-trip OK`);
+  for (const block of MAT_BLOCKS) {
+    let ok = 0;
+    const [a, b] = blockRange(css, block.header);
+    const body = a < 0 ? "" : css.slice(a, b);
+    for (const [token, hex] of Object.entries(block.tokens)) {
+      const m = body.match(new RegExp(`${escapeRegExp(token)}:\\s*(oklch\\([^)]*\\))`));
+      const back = m?.[1] ? formatHex(m[1]) : undefined;
+      if (back && back.toUpperCase() === hex.toUpperCase()) ok += 1;
+      else failures.push(`[mat-${block.name}] ${token}: ${m?.[1] ?? "no oklch() value found"} ≠ ${hex.toUpperCase()}`);
+    }
+    summary.push(`${ok}/${Object.keys(block.tokens).length} ${block.name} material tokens round-trip OK`);
+  }
+
+  const contrast = contrastFailures();
+  summary.push(`${contrast.checked - contrast.failures.length}/${contrast.checked} contrast pairs AA (light + dark)`);
+  failures.push(...contrast.failures);
+  console.log(summary.join("\n"));
   if (failures.length > 0) {
     console.error(failures.join("\n"));
     process.exit(1);

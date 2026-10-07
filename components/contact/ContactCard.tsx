@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { ArrowUpRight, Download, FileText, Mail, MapPin } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, FileText, Mail, MapPin } from "lucide-react";
 import { CopyButton } from "@/components/common/CopyButton";
 import { VisuallyHidden } from "@/components/common/VisuallyHidden";
 import { showGithub } from "@/components/layout/BandFooter";
@@ -47,11 +48,9 @@ export function PrimaryContactCTA() {
 }
 
 /**
- * Secondary actions (spec §12–§13): LinkedIn (external, `target=_blank rel="noopener noreferrer"` +
- * sr-only "(opens in new tab)") and the résumé from `contactResumeLink()` — "Resume ↓" once
- * `site.resumeAvailable` flips, "Resume — available on request" (mailto with a subject) until then.
- * GitHub joins only under the band's S5 rule (`showGithub()`). `#resume` stays the target the
- * site-wide résumé placeholder (`resumeAction()` → `/contact#resume`) lands on.
+ * Secondary actions (spec §12–§13): LinkedIn and the résumé (`contactResumeLink()` - Tushar's Google Drive file, TASK-175)
+ * are external (`target=_blank rel="noopener noreferrer"` + sr-only "(opens in new tab)"). GitHub joins only under
+ * the band's S5 rule (`showGithub()`).
  */
 export function SecondaryContactLinks() {
   const resume = contactResumeLink();
@@ -77,14 +76,12 @@ export function SecondaryContactLinks() {
         className="cx-btn cx-btn-secondary focus-ring"
         data-link="resume"
         href={resume.href}
-        download={resume.download || undefined}
+        target="_blank"
+        rel="noopener noreferrer"
       >
-        {resume.download ? (
-          <Download className="cx-btn-down" size={18} strokeWidth={1.75} aria-hidden="true" />
-        ) : (
-          <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
-        )}
+        <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
         <span className="cx-btn-text">{resume.label}</span>
+        <VisuallyHidden>(opens in new tab)</VisuallyHidden>
       </a>
       {github ? (
         <a
@@ -99,6 +96,13 @@ export function SecondaryContactLinks() {
           <VisuallyHidden>(opens in new tab)</VisuallyHidden>
         </a>
       ) : null}
+      {/* TASK-176: the digital business card (/card) - internal, same tab, like the footer's card circle (TASK-166). */}
+      <Link className="cx-btn cx-btn-secondary focus-ring" data-link="card" href="/card">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+          <path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm.6 1.6v10.8h16.8V6.6H3.6zM6 9h5v1.6H6V9zm0 3.2h5v1.6H6v-1.6zm8.5-3.2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM12 16.2c.3-1.4 1.3-2.2 2.5-2.2s2.2.8 2.5 2.2H12z" />
+        </svg>
+        <span className="cx-btn-text">Digital card</span>
+      </Link>
     </div>
   );
 }

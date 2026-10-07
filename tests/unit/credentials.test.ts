@@ -29,7 +29,7 @@ describe("data/credentials (TKT-42)", () => {
     );
   });
 
-  it("has exactly 2 papers; Langmuir has a resolvable DOI, Soft Matter has none (DOI pending, never fabricated)", () => {
+  it("has exactly 2 papers, each with a resolvable DOI (Soft Matter's supplied by Tushar and checked against Crossref)", () => {
     expect(papers).toHaveLength(2);
     const langmuir = papers.find((p) => p.id === "langmuir-2025");
     const softMatter = papers.find((p) => p.id === "soft-matter-2023");
@@ -37,9 +37,14 @@ describe("data/credentials (TKT-42)", () => {
     expect(langmuir?.doi).toBe("10.1021/acs.langmuir.5c00784");
     expect(langmuir?.doiHref).toBe("https://doi.org/10.1021/acs.langmuir.5c00784");
 
-    expect(softMatter?.doi).toBeUndefined();
-    expect(softMatter?.doiHref).toBeUndefined();
-    expect(softMatter?.authors).toBeUndefined();
+    expect(softMatter?.doi).toBe("10.1039/d3sm00290j");
+    expect(softMatter?.doiHref).toBe("https://doi.org/10.1039/d3sm00290j");
+    // Title, authors and volume as published (Crossref record for 10.1039/d3sm00290j; Tushar approved, TASK-163).
+    expect(softMatter?.title).toBe(
+      "Topological phases in nanoparticle monolayers: can crystalline, hexatic, and isotropic-fluid phases coexist in the same monolayer?",
+    );
+    expect(softMatter?.authors).toBe("Bhattacharjee, K.; Vaidya, S. S.; Pathak, T.; Shimpi, J. R.; Prasad, B. L. V.");
+    expect(softMatter?.volumeIssue).toBe("19(38)");
   });
 
   it("has exactly 2 education entries (M.Tech NIT Calicut 2022, B.E. BIT Durg 2016)", () => {

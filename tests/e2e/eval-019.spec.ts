@@ -1,63 +1,44 @@
 /**
- * eval-019.spec.ts (`@EVAL-019`, technical-plan.md S73.07; Design.md §5; decisions S14, D10, TP13;
- * TC-139 step 1, TC-140, TC-141, TC-142) — the hero once-and-hold contract, measured on `/` in the
- * four modes at w390 and w1440 (w768 / w1024 skip: the case's `viewport` is ["390", "1440"]).
+ * eval-019.spec.ts (`@EVAL-019`; evaluation-plan.md §9.2; decisions S24 / EV7; Design.md §5) — the paper-cut
+ * hero STILL, measured on `/` at w390 and w1440 (w768 / w1024 skip: the case's `viewport` is ["390", "1440"]).
+ * Rewritten in TASK-140 in the same change that retired clip A: the once-and-hold clip tests, the registration
+ * guard and the clip caps are deleted (they remain in git at `a4f17c2`), not `fixme`'d.
  *
- *   default          — w1440 only (w390 is the touch project): `video[data-hero-clip]` mounts with the
- *                      exact attribute set, no `loop`/`controls`, webm → mp4; `ended` within 4 000 ms of
- *                      navigation; over the next 3 s (scroll + `visibilitychange` + `resize`) currentTime
- *                      never decreases and the element stays paused on its last frame; the held frame
- *                      is screenshotted to docs/screenshots/m-009/tracer/hero-end-1440.png.
- *   reduced motion   — `test.use({ reducedMotion: "reduce" })` → 0 `<video>` at both widths.
- *   touch / coarse   — the w390 project (`hasTouch`, `isMobile`) → 0 `<video>`.
- *   Save-Data        — the `saveData` fixture (navigator.connection.saveData = true) → 0 `<video>`.
- *   play() rejected  — `HTMLMediaElement.prototype.play` overridden to reject → 0 `<video>` (poster).
- *   SSR              — `request.get("/")`: the banner `<img>` (TKT-93 — the 3168×1344 outpaint is the LCP
- *                      image; the poster survives only as the clip's `poster` attribute) is in the static
- *                      HTML with fetchpriority="high", loading="eager", 3168×1344, `sizes="100vw"` and the
- *                      manifest alt; no poster `<img>`; no `<video`.
- *   registration     — TKT-93 guard: at 1024 / 1440 / 1920 the mounted video's bounding box equals the
- *                      `CLIP_REGISTRATION` percentages of the banner canvas (±2 px) and the canvas covers
- *                      the banner box.
- *   caps             — `fs.statSync` on the three shipped renditions.
+ *   no video          — default · reduced motion · touch (the w390 project) · Save-Data: 0 `<video>` inside
+ *                       `.hero-banner` after hydration, 0 `[data-hero-clip]`, and the banner `<img>` is visible.
+ *   SSR               — `request.get("/")`: exactly one light banner `<img>` (plus its lazy dark twin) in the static HTML with
+ *                       fetchpriority="high", loading="eager", 3168×1344, `sizes="100vw"` and the manifest alt
+ *                       (once in the markup); 0 `<video` in the hero; 0 `data-hero-clip`.
+ *   one hero image    — exactly one hero banner image is fetched before the load event (the dark twin is in
+ *                       the markup, lazy and display:none, and is only warmed after idle — TASK-141, S23/EV9).
+ *   intro poster      — kept verbatim from TASK-138: the intro print's `<img class="pf-stage-poster">` is
+ *                       `loading="lazy"` and never `fetchpriority="high"`.
+ *   files             — 0 `hero-animation.*` and no clip mask under `public/`; every banner rendition
+ *                       (light, dark, the two narrow crops) ≤ 350 kB on disk, light and dark 3168×1344.
  *
- * "After hydration" for the poster-only modes = the load event + a 2 s settle (TC-140 steps 2–4);
- * the default-mode test proves hydration happens well inside that window (the clip has *ended*).
- * Every measured number is pushed into `test.info().annotations` (type `eval-019`) so
- * `.eval/playwright.json` carries the evidence `pnpm eval` summarises.
+ * Every measured number is pushed into `test.info().annotations` (type `eval-019`) so `.eval/playwright.json`
+ * carries the evidence `pnpm eval` summarises. The "LCP element on the preview = the banner in both themes"
+ * half of the criterion is read from the preview Lighthouse run (EVAL-004/005), as before; the dark half
+ * arrives with the theme wiring (TASK-141).
  */
-import { statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 // The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene JPEGs
 // for `next/image`, which Playwright's TypeScript transform cannot load (only the built app can).
 import { ILLUSTRATIONS, type Illustration } from "@/content/media/illustrations/manifest";
-// Pure numbers (no JSX / image imports) — the same module `Hero` renders its `--clip-*` vars from.
-import { CLIP_REGISTRATION } from "@/components/hero/registration";
 
 const MEASURED_WIDTHS = [390, 1440];
-const VIDEO = "video[data-hero-clip]";
-const BANNER_CANVAS = ".hero-banner .scene-banner-canvas";
-const BANNER_BOX = ".hero-banner .scene-banner";
+const SETTLE_MS = 2000;
+const BANNER_CAP_BYTES = 240 * 1024;
+const MEDIA_DIR = resolve(process.cwd(), "public/media/illustrations");
 const entry = (id: Illustration["id"]): Illustration => {
   const found = ILLUSTRATIONS.find((e) => e.id === id);
   if (!found) throw new Error(`manifest has no "${id}"`);
   return found;
 };
-const POSTER = entry("hero-desk");
 const BANNER = entry("hero-banner");
-const CLIP = entry("hero-clip");
-const PUBLIC_DIR = resolve(process.cwd(), "public");
-const HELD_FRAME_SHOT = resolve(process.cwd(), "docs/screenshots/m-009/tracer/hero-end-1440.png");
-
-/** EVAL-019 thresholds (evals/eval-cases.json `threshold`). */
-const ENDED_WITHIN_MS = 4000;
-const CAPS_BYTES = { webm: 200 * 1024, mp4: 350 * 1024, poster: 120 * 1024 };
-const SETTLE_MS = 2000;
-/** TKT-93 registration guard: widths measured (in the w1440 project) and the tolerance per edge. */
-const REGISTRATION_WIDTHS = [1024, 1440, 1920];
-const REGISTRATION_TOLERANCE_PX = 2;
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
@@ -69,263 +50,162 @@ function note(type: string, description: string) {
   test.info().annotations.push({ type, description });
 }
 
-/** Load `/`, wait for hydration to have had its chance, and return the `<video>` count. */
-async function videoCountAfterSettle(page: Page): Promise<number> {
+/** Load `/`, let hydration have its chance, and count the hero's `<video>`s and clip hooks. */
+async function heroVideosAfterSettle(page: Page): Promise<{ videos: number; clipHooks: number }> {
   await page.goto("/", { waitUntil: "load" });
   await page.waitForTimeout(SETTLE_MS);
-  return page.locator("video").count();
+  return page.evaluate(() => ({
+    videos: document.querySelectorAll(".hero-banner video").length,
+    clipHooks: document.querySelectorAll("[data-hero-clip]").length,
+  }));
+}
+
+async function expectStill(page: Page, mode: string) {
+  const { videos, clipHooks } = await heroVideosAfterSettle(page);
+  note("eval-019", `${mode} @${width(page)}: ${videos} <video> in the hero, ${clipHooks} [data-hero-clip]`);
+  expect(videos, `${mode}: no <video> in the hero`).toBe(0);
+  expect(clipHooks, `${mode}: no [data-hero-clip]`).toBe(0);
+  await expect(page.getByRole("img", { name: BANNER.alt })).toHaveCount(1);
 }
 
 // ---------------------------------------------------------------------------
-// Default mode (TC-140 step 1, TC-141 steps 1–4) — w1440. The w390 project is the touch mode.
+// The four modes — the hero is a still in every one of them.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 default mode mounts the once-and-hold clip: exact attributes, ended ≤ 4 s, 0 restarts", async ({
-  page,
-}) => {
+test("@EVAL-019 default mode: the hero is a still — 0 <video>, 0 [data-hero-clip]", async ({ page }) => {
   skipUnmeasured(page);
   test.skip(width(page) !== 1440, "w390 is the touch/coarse-pointer mode (hasTouch) — see the touch test");
-
-  await page.goto("/", { waitUntil: "commit" });
-  const video = page.locator(VIDEO);
-  await video.waitFor({ state: "attached", timeout: ENDED_WITHIN_MS });
-
-  // The §5.2 contract, attribute by attribute.
-  await expect(video).toHaveAttribute("autoplay", "");
-  await expect(video).toHaveAttribute("muted", "");
-  await expect(video).toHaveAttribute("playsinline", "");
-  await expect(video).toHaveAttribute("preload", "metadata");
-  await expect(video).toHaveAttribute("poster", POSTER.publicSrc!);
-  await expect(video).toHaveAttribute("aria-hidden", "true");
-  await expect(video).toHaveAttribute("tabindex", "-1");
-  await expect(video).not.toHaveAttribute("loop");
-  await expect(video).not.toHaveAttribute("controls");
-  const sources = await video.locator("source").evaluateAll((els) =>
-    els.map((el) => [el.getAttribute("src"), el.getAttribute("type")]),
-  );
-  expect(sources, "sources in order webm → mp4").toEqual([
-    [CLIP.publicSrc, "video/webm"],
-    [CLIP.publicSrc!.replace(/\.webm$/, ".mp4"), "video/mp4"],
-  ]);
-  expect(await video.evaluate((v: HTMLVideoElement) => v.loop)).toBe(false);
-  expect(await video.evaluate((v: HTMLVideoElement) => v.muted)).toBe(true);
-
-  // ended within 4 s of arrival — measured in-page from the navigation time origin.
-  const endedAtMs = await video.evaluate(
-    (v: HTMLVideoElement, timeout) =>
-      new Promise<number>((done, fail) => {
-        const settle = () => done(Math.round(performance.now()));
-        if (v.ended) return settle();
-        v.addEventListener("ended", settle, { once: true });
-        setTimeout(() => fail(new Error(`video not ended after ${timeout} ms (currentTime ${v.currentTime.toFixed(2)}, readyState ${v.readyState}, paused ${v.paused})`)), timeout);
-      }),
-    ENDED_WITHIN_MS,
-  );
-  note("eval-019", `ended at ${endedAtMs} ms after navigation start (threshold ${ENDED_WITHIN_MS})`);
-  expect(endedAtMs, "ended must fire within 4 s of arrival").toBeLessThanOrEqual(ENDED_WITHIN_MS);
-
-  // 0 restarts: sample currentTime every 250 ms for 3 s while poking the page.
-  const samples: number[] = [];
-  const read = () => video.evaluate((v: HTMLVideoElement) => v.currentTime);
-  samples.push(await read());
-  for (let i = 0; i < 12; i++) {
-    if (i === 1) await page.mouse.wheel(0, 600);
-    if (i === 4) await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
-    if (i === 7) await page.evaluate(() => window.dispatchEvent(new Event("resize")));
-    if (i === 9) await page.mouse.wheel(0, -600);
-    await page.waitForTimeout(250);
-    samples.push(await read());
-  }
-  const decreases = samples.filter((t, i) => i > 0 && t < samples[i - 1]!);
-  note("eval-019", `currentTime samples (s): ${samples.map((t) => t.toFixed(3)).join(" ")}`);
-  expect(decreases, `currentTime must never decrease (samples ${samples.join(", ")})`).toEqual([]);
-
-  const state = await video.evaluate((v: HTMLVideoElement) => ({ paused: v.paused, ended: v.ended, loop: v.loop, duration: v.duration }));
-  note("eval-019", `after 3 s: ${JSON.stringify(state)}`);
-  expect(state.paused, "stays paused on the last frame").toBe(true);
-  expect(state.ended, "stays ended").toBe(true);
-  expect(state.loop).toBe(false);
-  await expect(page.locator(VIDEO)).toHaveCount(1);
-
-  // The held frame — compared visually with Portfolio-illustration/animation/export/hero-end.webp.
-  // Instant scroll to the top (a wheel scroll is smooth and could still be mid-flight, letting the
-  // sticky header overlap the frame in the capture), then the banner box alone (TKT-93: the clip is
-  // registered inside the banner, so the box is the frame).
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await page.waitForTimeout(300);
-  await page.locator(BANNER_BOX).screenshot({ path: HELD_FRAME_SHOT });
+  await expectStill(page, "default");
 });
 
-// ---------------------------------------------------------------------------
-// TKT-93 registration guard — the video's box equals CLIP_REGISTRATION % of the banner canvas at
-// 1024 / 1440 / 1920 (±2 px), and the canvas covers the banner box. Runs once in the w1440 project
-// (fine pointer → default mode) by resizing the viewport; a drift in the CSS, the registration
-// constants or the cover math fails here before anyone eyeballs a seam.
-// ---------------------------------------------------------------------------
-test("@EVAL-019 the masked clip stays registered on the banner canvas at 1024, 1440 and 1920", async ({ page }) => {
-  skipUnmeasured(page);
-  test.skip(width(page) !== 1440, "registration is measured once, in the fine-pointer project, across three widths");
-
-  for (const w of REGISTRATION_WIDTHS) {
-    await page.setViewportSize({ width: w, height: 900 });
-    await page.goto("/", { waitUntil: "load" });
-    const video = page.locator(VIDEO);
-    await video.waitFor({ state: "attached", timeout: ENDED_WITHIN_MS });
-    await page.evaluate(() => document.fonts.ready);
-
-    const boxes = await page.evaluate(
-      ({ canvasSel, boxSel, videoSel }) => {
-        const rect = (sel: string) => {
-          const el = document.querySelector(sel);
-          if (!el) throw new Error(`missing ${sel}`);
-          const r = el.getBoundingClientRect();
-          return { x: r.x, y: r.y, width: r.width, height: r.height };
-        };
-        return { canvas: rect(canvasSel), box: rect(boxSel), video: rect(videoSel) };
-      },
-      { canvasSel: BANNER_CANVAS, boxSel: BANNER_BOX, videoSel: VIDEO },
-    );
-    const expected = {
-      x: boxes.canvas.x + (boxes.canvas.width * CLIP_REGISTRATION.left) / 100,
-      y: boxes.canvas.y + (boxes.canvas.height * CLIP_REGISTRATION.top) / 100,
-      width: (boxes.canvas.width * CLIP_REGISTRATION.width) / 100,
-      height: (boxes.canvas.height * CLIP_REGISTRATION.height) / 100,
-    };
-    const delta = {
-      x: Math.abs(boxes.video.x - expected.x),
-      y: Math.abs(boxes.video.y - expected.y),
-      width: Math.abs(boxes.video.width - expected.width),
-      height: Math.abs(boxes.video.height - expected.height),
-    };
-    note(
-      "eval-019",
-      `registration @${w}: canvas ${boxes.canvas.width.toFixed(1)}×${boxes.canvas.height.toFixed(1)} at (${boxes.canvas.x.toFixed(1)}, ${boxes.canvas.y.toFixed(1)}); video ${boxes.video.width.toFixed(1)}×${boxes.video.height.toFixed(1)} at (${boxes.video.x.toFixed(1)}, ${boxes.video.y.toFixed(1)}); Δ x ${delta.x.toFixed(2)} y ${delta.y.toFixed(2)} w ${delta.width.toFixed(2)} h ${delta.height.toFixed(2)}`,
-    );
-    for (const [edge, d] of Object.entries(delta)) {
-      expect(d, `@${w} video ${edge} off registration by ${d.toFixed(2)} px (tolerance ${REGISTRATION_TOLERANCE_PX})`).toBeLessThanOrEqual(REGISTRATION_TOLERANCE_PX);
-    }
-    // The cover crop: the canvas never leaves a gap inside the banner box (Design brief — crop the canvas, not the img).
-    expect(boxes.canvas.x, `@${w} canvas left edge inside the box`).toBeLessThanOrEqual(boxes.box.x + 0.5);
-    expect(boxes.canvas.x + boxes.canvas.width, `@${w} canvas right edge covers the box`).toBeGreaterThanOrEqual(boxes.box.x + boxes.box.width - 0.5);
-    expect(boxes.canvas.y, `@${w} canvas top edge inside the box`).toBeLessThanOrEqual(boxes.box.y + 0.5);
-    expect(boxes.canvas.y + boxes.canvas.height, `@${w} canvas bottom edge covers the box`).toBeGreaterThanOrEqual(boxes.box.y + boxes.box.height - 0.5);
-    // The video's intrinsic aspect matches its slot (1280/684 = 2447.36/1307.8), so nothing is letterboxed inside it.
-    const slotRatio = boxes.video.width / boxes.video.height;
-    expect(Math.abs(slotRatio - 1280 / 684), `@${w} slot aspect ${slotRatio.toFixed(4)} vs clip 1280/684`).toBeLessThan(0.005);
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Reduced motion (TC-140 step 2) — both widths.
-// ---------------------------------------------------------------------------
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
-  test("@EVAL-019 prefers-reduced-motion: reduce never mounts a <video>", async ({ page }) => {
+  test("@EVAL-019 prefers-reduced-motion: reduce — the hero is a still", async ({ page }) => {
     skipUnmeasured(page);
-    const count = await videoCountAfterSettle(page);
-    note("eval-019", `reduced motion @${width(page)}: ${count} <video>`);
-    expect(count).toBe(0);
-    await expect(page.getByAltText(BANNER.alt)).toBeVisible();
+    await expectStill(page, "reduced motion");
   });
 });
 
-// ---------------------------------------------------------------------------
-// Touch / coarse pointer (TC-140 step 3) — the w390 project (`hasTouch: true`, `isMobile: true`).
-// ---------------------------------------------------------------------------
-test("@EVAL-019 touch / coarse pointer (w390 project) never mounts a <video>", async ({ page }) => {
+test("@EVAL-019 touch / coarse pointer (w390 project) — the hero is a still", async ({ page }) => {
   skipUnmeasured(page);
   test.skip(width(page) !== 390, "the touch mode is the w390 project; w1440 has a fine pointer");
-  const count = await videoCountAfterSettle(page);
-  note("eval-019", `touch @${width(page)}: ${count} <video>`);
-  expect(count).toBe(0);
-  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
+  await expectStill(page, "touch");
 });
 
-// ---------------------------------------------------------------------------
-// Save-Data (TC-140 step 4) — both widths, via the `saveData` fixture.
-// ---------------------------------------------------------------------------
-test("@EVAL-019 Save-Data never mounts a <video>", async ({ page, saveData }) => {
+test("@EVAL-019 Save-Data — the hero is a still", async ({ page, saveData }) => {
   void saveData;
   skipUnmeasured(page);
-  const count = await videoCountAfterSettle(page);
+  await expectStill(page, "save-data");
   // The fixture's init script ran on this document (a stub that silently didn't would pass vacuously).
   expect(await page.evaluate(() => (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData)).toBe(true);
-  note("eval-019", `saveData @${width(page)}: ${count} <video>`);
-  expect(count).toBe(0);
-  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
-// Autoplay rejected (TC-141 step 5) — the error state is the poster: the video unmounts.
+// SSR — the static HTML, no JavaScript. The banner is the LCP image in every mode.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 a rejected play() unmounts the clip — the poster is the error state", async ({ page }) => {
-  skipUnmeasured(page);
-  test.skip(width(page) !== 1440, "only the default mode ever calls play()");
-  await page.addInitScript(() => {
-    HTMLMediaElement.prototype.play = () => Promise.reject(new DOMException("autoplay blocked", "NotAllowedError"));
-  });
-  const count = await videoCountAfterSettle(page);
-  note("eval-019", `play() rejected @${width(page)}: ${count} <video>`);
-  expect(count).toBe(0);
-  await expect(page.getByAltText(BANNER.alt)).toBeVisible();
-});
-
-// ---------------------------------------------------------------------------
-// SSR (TC-139 step 1, TC-140/EVAL-019 "every mode") — the static HTML, no JavaScript.
-// ---------------------------------------------------------------------------
-test("@EVAL-019 static HTML carries the banner <img fetchpriority=high> and no <video>", async ({ page, request }) => {
+test("@EVAL-019 static HTML carries one banner <img fetchpriority=high> and no <video>", async ({ page, request }) => {
   skipUnmeasured(page);
   test.skip(width(page) !== 1440, "the served HTML is viewport-independent; checked once");
   const html = await (await request.get("/")).text();
-
-  expect((html.match(/<video/g) ?? []).length, "no <video> in the SSR HTML").toBe(0);
-
-  const imgTags = html.match(/<img\b[^>]*>/g) ?? [];
-  // TKT-93: the LCP image is the static-imported banner (`/_next/static/media/hero-banner.<hash>.webp`
-  // + the optimizer srcset); the poster is no longer an <img> anywhere in the page.
-  const banners = imgTags.filter((tag) => tag.includes("hero-banner"));
-  expect(banners, "exactly one banner <img>").toHaveLength(1);
-  expect(imgTags.filter((tag) => tag.includes("hero-poster")), "the poster is not rendered as an <img> (it is the clip's poster attribute)").toHaveLength(0);
-  const banner = banners[0]!;
-  // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML
-  // attribute names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM
-  // check below confirms `img.fetchPriority === "high"` where it matters.
-  expect(banner).toMatch(/\bfetchpriority="high"/i);
-  expect(banner).toMatch(/\bloading="eager"/);
-  expect(banner).toMatch(/\bwidth="3168"/);
-  expect(banner).toMatch(/\bheight="1344"/);
-  expect(banner).toMatch(/\bsizes="100vw"/);
-  // The alt byte-equal to the manifest (HTML-escaped by React — decode the few entities it emits).
-  const alt = /\balt="([^"]*)"/.exec(banner)?.[1] ?? "";
-  const decoded = alt.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&");
-  expect(decoded).toBe(BANNER.alt);
-  // Rendered once in the markup. (The inline RSC flight payload in <script> repeats every prop
-  // string, so scripts are stripped before counting — that copy is data, not a second <img>.)
+  // The inline RSC flight payload in <script> repeats every prop string, so scripts are stripped before
+  // counting — that copy is data, not markup.
   const markupOnly = html.replace(/<script\b[\s\S]*?<\/script>/g, "");
-  // Count the HTML-escaped form: since TKT-105 the alt names the "AI & Society" book, which React emits as `&amp;`.
-  const escapedAlt = BANNER.alt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-  expect(markupOnly.split(escapedAlt).length - 1, "alt string once in the rendered markup").toBe(1);
+
+  expect((markupOnly.match(/<video/g) ?? []).length, "no <video> in the SSR HTML").toBe(0);
+  expect(markupOnly, "no clip hook in the SSR HTML").not.toContain("data-hero-clip");
+
+  const imgTags = markupOnly.match(/<img\b[^>]*>/g) ?? [];
+  // M-011 P1: the hero banner is the layered `hero-home` scene — four layers per theme, each an `<img>`. The markup carries
+  // the light set plus the matched dark set: only the light `bg` is eager + high priority (the LCP element), the dark twins
+  // are lazy and never high-priority, hidden by `[data-theme-art]` CSS. The scene's one alt sits once on its `role="img"` root.
+  const heroTags = imgTags.filter((tag) => tag.includes("paper-world/hero-home"));
+  const lightTags = heroTags.filter((tag) => !tag.includes("-dark"));
+  const darkTags = heroTags.filter((tag) => tag.includes("-dark"));
+  expect(lightTags, "four light layer <img>s").toHaveLength(4);
+  expect(darkTags, "four dark layer <img>s").toHaveLength(4);
+  for (const tag of darkTags) {
+    expect(tag, "a dark twin is lazy").toMatch(/\bloading="lazy"/);
+    expect(tag, "a dark twin is never a high-priority candidate").not.toMatch(/\bfetchpriority="high"/i);
+  }
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="dark"/);
+  expect(markupOnly).toMatch(/<picture[^>]*data-theme-art="light"/);
+  const highs = heroTags.filter((tag) => /\bfetchpriority="high"/i.test(tag));
+  expect(highs, "exactly one high-priority hero image").toHaveLength(1);
+  const banner = highs[0]!;
+  // React 19's server renderer emits the prop name as written (`fetchPriority="high"`); HTML attribute
+  // names are case-insensitive, so the browser reads it as `fetchpriority` — the live-DOM check below
+  // confirms `img.fetchPriority === "high"` where it matters.
+  expect(banner).toContain("hero-home-bg.webp");
+  expect(banner).toMatch(/\bloading="eager"/);
+  expect(banner).toMatch(/\bwidth="2400"/);
+  expect(banner).toMatch(/\bheight="1029"/);
+  const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+  expect(markupOnly.split(escape(BANNER.alt)).length - 1, "the scene alt once in the rendered markup (on its role=img root)").toBe(1);
+
+  // Intro-video rule (TASK-138), kept verbatim: its poster is lazy and never a high-priority candidate.
+  for (const tag of imgTags.filter((t) => /\bclass="[^"]*pf-stage-poster/.test(t))) {
+    expect(tag, "the intro print's poster is lazy, never an LCP candidate").toMatch(/\bloading="lazy"/);
+    expect(tag).not.toMatch(/\bfetchpriority="high"/i);
+  }
 
   // Live DOM at w1440: the parsed attribute + the LCP-relevant IDL property.
   await page.goto("/", { waitUntil: "load" });
-  const img = page.getByAltText(BANNER.alt);
+  await expect(page.getByRole("img", { name: BANNER.alt })).toHaveCount(1);
+  const img = page.locator('[data-paper-scene="hero-home"] img[src$="hero-home-bg.webp"], [data-paper-scene="hero-home"] img[src$="hero-home-bg-mobile.webp"]').first();
   await expect(img).toHaveAttribute("fetchpriority", "high");
   expect(await img.evaluate((el: HTMLImageElement) => el.fetchPriority)).toBe("high");
   await expect(img).toHaveAttribute("loading", "eager");
 });
 
 // ---------------------------------------------------------------------------
-// Asset caps (TC-142) — from disk, the shipped renditions.
+// One hero image fetched before the load event; the inactive (dark) twin is never requested.
 // ---------------------------------------------------------------------------
-test("@EVAL-019 shipped hero renditions stay inside their caps", async ({ page }) => {
+test("@EVAL-019 only the hero's own light layers are fetched before load; the dark twin is warmed only on theme-toggle intent (TASK-155)", async ({ page }) => {
+  skipUnmeasured(page);
+  const before = new Set<string>();
+  let loaded = false;
+  const all = new Set<string>();
+  page.on("request", (req) => {
+    if (!req.url().includes("paper-world/hero-home")) return;
+    all.add(req.url());
+    if (!loaded) before.add(req.url());
+  });
+  page.on("load", () => {
+    loaded = true;
+  });
+  await page.goto("/", { waitUntil: "load" });
+  note("eval-019", `hero banner requests before load @${width(page)}: ${[...before].join(" | ")}`);
+  expect(before.size, "the hero's own light layers requested before load (bg + subject eager, fg + details in view; EXE-50)").toBeGreaterThanOrEqual(2);
+  expect(before.size).toBeLessThanOrEqual(4);
+  expect([...before].some((u) => u.includes("dark")), "the dark twin is not fetched before load").toBe(false);
+  // TASK-155: the twin is warmed on INTENT (toggle hover/focus/pointerdown), not on idle — a visitor who never
+  // reaches for the toggle never downloads or decodes the second scene.
+  await page.waitForTimeout(5000);
+  expect([...all].some((u) => u.includes("dark")), "the dark twin is NOT fetched while idle").toBe(false);
+  await page.locator("[data-theme-toggle]:visible").first().hover();
+  await expect.poll(() => [...all].some((u) => u.includes("dark")), { timeout: 8000, message: "the dark twin is warmed on toggle intent" }).toBe(true);
+});
+
+// ---------------------------------------------------------------------------
+// Files — from disk: clip A is gone; every banner rendition is inside the cap.
+// ---------------------------------------------------------------------------
+test("@EVAL-019 no clip files ship and every banner rendition stays inside its cap", async ({ page }) => {
   skipUnmeasured(page);
   test.skip(width(page) !== 1440, "file sizes are viewport-independent; checked once");
-  const size = (publicSrc: string) => statSync(resolve(PUBLIC_DIR, `.${publicSrc}`)).size;
-  const webm = size(CLIP.publicSrc!);
-  const mp4 = size(CLIP.publicSrc!.replace(/\.webm$/, ".mp4"));
-  const poster = size(POSTER.publicSrc!);
-  note("eval-019", `bytes: webm ${webm} (≤ ${CAPS_BYTES.webm}) · mp4 ${mp4} (≤ ${CAPS_BYTES.mp4}) · poster ${poster} (≤ ${CAPS_BYTES.poster})`);
-  expect(webm).toBeLessThanOrEqual(CAPS_BYTES.webm);
-  expect(mp4).toBeLessThanOrEqual(CAPS_BYTES.mp4);
-  expect(poster).toBeLessThanOrEqual(CAPS_BYTES.poster);
+  const clipFiles = readdirSync(MEDIA_DIR).filter((name) => /^hero-animation\./.test(name) || name === "hero-clip-mask.png");
+  note("eval-019", `clip files under public/media/illustrations: ${clipFiles.length}`);
+  expect(clipFiles, "clip A is retired (S24)").toEqual([]);
+  expect(ILLUSTRATIONS.some((e) => (e.id as string) === "hero-clip"), "no hero-clip manifest entry").toBe(false);
+
+  // M-011: the banner is the layered `hero-home` scene — every layer file (4 per theme, desktop + mobile) inside the layer cap
+  // (EVAL-034 holds the full integrity set).
+  const dir = resolve(process.cwd(), "public/media/paper-world/hero-home");
+  const renditions = readdirSync(dir).filter((f) => f.endsWith(".webp")).map((f) => resolve(dir, f));
+  expect(renditions, "16 hero-home layer files").toHaveLength(16);
+  for (const file of renditions) {
+    expect(existsSync(file), `${file} exists`).toBe(true);
+    const bytes = statSync(file).size;
+    note("eval-019", `${file.split("/").pop()}: ${bytes} bytes (cap ${BANNER_CAP_BYTES})`);
+    expect(bytes, `${file} over the 350 kB cap`).toBeLessThanOrEqual(BANNER_CAP_BYTES);
+  }
 });

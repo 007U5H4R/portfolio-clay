@@ -1,130 +1,33 @@
-# HANDOFF — Portfolio (M-009 · Illustrated editorial redesign)
+# HANDOFF — Portfolio (M-010 · Paper-cut system, dark mode and delight features)
 
-Updated 2026-09-28 (TASK-86, docs only). Branch `m-009-redesign` @ `27d0004`. **Stage 7 (Execution) is complete. Stages 8–10 have not run on M-009** (`decisions.md` EXE-24). Every claim below cites a file in this repo. Where the repo has no record, it says so.
+Updated 2026-10-06 ~14:30 IST. Main worktree `/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay-redesign`, branch `m-009-redesign`. **Production FROZEN: preview only — never touch `main`, never deploy production** (S26; Tushar: "Dont touch the Production now"). **Tushar delegated all M-010 decisions, stage sign-offs and style gates to Claude (EXE-26)**: decide, record each call as an `EXE-` decision in `decisions.md` with evidence, keep going. The production release is NOT delegated. **Agents run on Sonnet (builds) / Opus (reviews, gates). Never use Fable.** Tushar's latest asks: "complete all the tickets"; "once everything is done, commit, merge, push and deploy to Preview".
 
-## 0. State in five lines
+## 0. Where things are (read first)
+- **Preview is current at `08a9a99`** (code = `9126870`; deploy `dpl_Eu59WjRJjUKSR8eD9uQjKVvPbTTP` READY, verified live: `/card`, `/card/vcard` text/vcard with no TEL/BDAY, T3 scene twins, T4 header paper + footer ocean). Alias `portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app`.
+- **Done (Campfire):** TASK-136…148 except **TASK-143** — T1 hero (140), T2 dark mode + toggle (141), T2b cursor (142), T3 scenes (144; 144.4 closed without case-study scenes, EXE-34), T4 chrome (145), T5 `/card` (146), Stage docs (147), Bhakti screens (148, renumbered from a duplicate 137, EXE-29).
+- **Open: TASK-143 Gummy Lab `/lab`** — on preview (reachable only via 5 rapid clicks on the name/monogram) but **not done**. See §1.
+- **Open, outside M-010: TASK-149** — every page view preloads all tabs' hero scenes via route prefetch (`ecad101`, M-009; likely on production too). Fix after the release.
+- **Last full gate (#2, quiet machine, `9126870`):** typecheck ✓, lint 0 errors, `pnpm tsx scripts/eval-cases.ts --check-specs` 31 OK (nothing deferred), `pnpm tokens:check` 55/55 AA, build ✓ (20 static routes), unit 1051 ✓, **e2e 1643 passed / 26 failed** = 25 × `tests/e2e/eval-030.spec.ts` (w768/w1024/w1440, + 1 w390 touch drag) + 1 × `tests/e2e/lenis.spec.ts:78` (PageDown/Space at w1440, not yet investigated; may share the cause).
+- **Security review** (Opus; `/Volumes/E Drive/Dev/.scratch/m010-security-review.md`): no Critical/High/Medium; 3 Lows fixed (`0afba63` `.env*` ignore, `dda3da9` lab return path rejects tab/CR/LF, `dd1df3a` vCard RFC 6350 escaping) — EXE-37. Before any production release: set `NEXT_PUBLIC_SITE_URL` on Vercel production (else the card QR/vCard point at the preview URL).
 
-- **What M-009 is:** the illustrated editorial ("paper") redesign. It replaces the clay site in place on the existing codebase and supersedes M-008 (`decisions.md` S11). The spec is `Design.md`, and the plan is `milestones.md` M-009 (TKT-69–91). In Campfire it is milestone `m-8` (`decisions.md` TP11).
-- **Build:** every planned M-009 ticket is merged. Tushar signed off the hero gate, Phase A and Phase B (EXE-22). A second wave of Tushar-directed changes has also merged: TKT-96…113 and TASK-112…122 (`backlog/tasks/`).
-- **Release is blocked:** the PB4 rule in `scripts/predeploy-check.ts` needs local MP4s at `VERCEL_ENV=production`. Tushar chose "Wait for videos", and on skipping Stages 8–10 he said "hold on" (EXE-24).
-- **Preview:** https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app (branch `m-009-redesign`; `docs/reports/RC-dbc047c.md`).
-- **`main` and production are untouched.** `origin/main` is still `22d6f66` (the 2026-09-23 M-007 merge). `m-009-redesign` is 318 commits ahead and not merged. No production deploy exists (`backlog/tasks/task-49` is Blocked; EXE-24).
+- **⚠ Parallel work in this worktree:** another session opened **TASK-150** "Keep the footer sailboat fully visible above the ocean strip" (In Progress, created 2026-10-06 14:25 IST) and has **uncommitted edits to `app/globals.css` `.band-ocean`** (plus `next-env.d.ts` churn) here. Don't overwrite or commit them; coordinate (ask Tushar / check the board) before Bug A's fix touches the same ocean CSS — do Bug A in the `lab-debug` worktree and merge after TASK-150 is committed.
 
-## 1. What shipped
+## 1. TASK-143 (`/lab`): DONE 2026-10-06 ~20:15 IST
+Fixed, gated, pushed and verified on preview. Root cause and evidence in **EXE-55** (`decisions.md`): the band footer's infinite animations ran under the opaque lab and starved its WebGL boot; `HideOnLab` keeps the footer off `/lab`. EVAL-030 test-harness fixes: non-WebGL blocks in `tests/e2e/eval-030-entry.spec.ts`, the leak check counts live rAF loops, the lab-page budget = its step waits. Quiet full gate on `3d4f334`: e2e 1678/3 → test-side fixes → w1440 29/0, lab-page ×2 on all projects 64/0. Pushed `m-009-redesign` `0f2e2ef → 9eb416e` (fast-forward); preview `dpl_89ihL6mqVVLZM3shpUgkGUN9AHXX` READY and checked live with a GPU. TASK-143 and 143.1–.5 Done. Screenshot churn from the gate is stashed in the lab-debug worktree as `task143-screenshot-churn-2026-10-06` (safe to drop).
+Follow-ups for TASK-155 (perf lane): `/lab` intro takes ~12 s over the network; Lenis `autoRaf` runs every frame on every page; a cold home under software GL renders at ~1 fps (test env only).
 
-### Planned build (Phase 0 → D), all Done
-- **Phase 0:** tokens and fonts, paper primitives, header, band footer, hero plus `HeroClip`, and the tracer (TKT-69–74). The hero was then restyled on Tushar's change request (EXE-15…19): TKT-93 banner, TKT-94 Lenis, TKT-95 page scene openers, and TKT-92 perf.
-- **Phase A** (home) TKT-75–79 · **Phase B** (`/work`, 11 case studies, `/thinking`) TKT-80–85 · **Phase C** (`/about`, `/playground`, `/contact`, 404) TKT-86–88 · **Phase D** (dead code, QA sweep, a11y fixes) TKT-89–90. Summary in EXE-21.
-- **TKT-92 perf (TASK-88):** Done, and accepted by Tushar as measured (EXE-24). The mobile LCP target was **not** met; see §4.
+## 2. After TASK-143
+Write the release summary for Tushar: what shipped per track; style-gate decisions EXE-28/32/34/35; known nits (dark back wave slightly violet, faint olive line on the dark ridge top, intro-video poster + About mini-collage still watercolour); pre-existing "Draft — pending sign-off" labels (DraftTag) need Tushar's sign-off; TASK-149; `NEXT_PUBLIC_SITE_URL`. **Do not deploy production.** Persist to Obsidian (`~/Documents/Documents - Tushar's Macbook/Obsidian Vault/Portfolio-illustration/Progress.md`) + memory.
 
-### Tushar-directed changes after the RC (all Done unless noted; statuses from `backlog/tasks/`)
+## 3. Machine rules (scars — keep them)
+- 8 GB RAM. **Every** `next build`, Playwright run, full `pnpm test` and `pnpm typecheck` goes through `/Volumes/E Drive/Dev/.scratch/heavy-gate.sh <label> zsh -c '<cmd>'` (busy-check anchored on `^node`; regression test `heavy-gate.test.sh`). Single-file `pnpm vitest run <file>` is fine outside. A gate run while other heavy work runs is not evidence (EXE-38).
+- Playwright needs `.env.tooling` (browsers on the E Drive): run ad-hoc scripts via `pnpm exec dotenv -e .env.tooling -- node …`; keep probes in the repo's git-ignored `.eval/` and import from `@playwright/test`.
+- e2e runs rewrite tracked `docs/screenshots/**`: `git stash push -- docs/screenshots` before committing (never `git checkout --` them; a hook blocks destructive commands — move/stash instead of rm).
+- Lane agents can hang silently while showing "running": judge by commits and lock activity; give briefs anti-hang rules (≤ 5 min per external wait; commands > 2 min via run_in_background + timeout ≤ 7200000; no long-lived dev servers; commit per subtask). Bash background tasks cap at 2 h. Cloud sessions can't download Higgsfield output (make raster art locally first) and are started via claude.ai/code in Chrome (memory `cloud-session-launch`).
+- Campfire CLI `"/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/dist/backlog"` from this worktree; board http://127.0.0.1:6480 (project `portfolio-clay`); `backlog doctor` repairs duplicate ids.
 
-| Area | Tickets | Design.md §11 |
-|---|---|---|
-| Home banner: whole scene + parallax, text-free, polaroids, hero copy | TASK-91 (TKT-96), 98, 102, 105, 108 | Dev-39, Dev-50, Dev-80 |
-| Paper-over-paper parallax at every torn edge; overlap fixes | TASK-103, 110, 115 | Dev-96 |
-| How I think collage + choreography | TASK-94, 107 | Dev-41, Dev-70–72 |
-| `/about` journey collage; About hero rebuild | TASK-96, 117 | Dev-42, Dev-105–107, EXE-25 |
-| `/work` → Experience timeline; Certifications tab | TASK-97, 99 | Dev-46, Dev-56, Dev-90–93 |
-| Scene openers uncropped, 21:9, plus Experience and Certifications | TASK-100, 104, 114 | Dev-40, Dev-95, Dev-103/104 |
-| Ask Tushky drawer + Home launcher | TASK-101, 109 (TKT-104 r2, TKT-113) | Dev-47–49, Dev-60–69, EXE-23 |
-| Header tabs at every width (no hamburger) | TASK-112 | Dev-97 |
-| Contact scrapbook page + real-photo stamp | TASK-111, 113 | Dev-98–102 |
-| Band footer: narrower teeth, compact, cycling verb | TASK-95, 106, 118 | Dev-43, Dev-108 |
-| `/projects` → Portfolio (products + enterprise case files) | TASK-116, 119 | Dev-109–114 |
-| Portfolio scrapbook rework | **TASK-121 In Progress** (merged `762ea58`; painted covers open) | Dev-115–118 |
-| Click-to-load YouTube/Vimeo player, CSP derived from data | TASK-122 (merged `15abb00`) | Dev-119/120 |
-| Ask Tushky curated FAQ cache (`data/tushky/faq.json`, versioned by data hash; offline Gemini refresh script, no live LLM) | TASK-123 (merged `d53f964`) | — |
-| Ask Tushky voice playback: Listen/Pause/Replay strip, Gemini TTS through the site's first server function `POST /api/tushky/speech` (recomputes the real answer, never takes text). Silent until Tushar adds `GEMINI_API_KEY` in Vercel (`docs/reports/TASK-134-setup.md`) | TASK-134 (branch `cloud/task-134`, not merged) | Dev-133, Dev-134 |
-| Hardening: CopyButton test, OG verification | TASK-92 (TKT-97), TASK-93 (TKT-98; the essay `og:image` 404 was fixed in `016c0ab`) | — |
+## 4. Key decisions
+S22–S30 (Solution-PRD §13), TP15, EV7–EV11, D13, T2-D1, EXE-26 … EXE-38 in `decisions.md`. Dev ids per track in Design.md §13.5 (T1 136–139, T2 140–149, T2b 150–154, T2c 155–159, T3 160–169, T4 170–184, T5 185–189).
 
-**Still open in the backlog:** TASK-121 (In Progress) and TASK-120 (To Do: remove the legacy `/projects` CSS left by TASK-116). Also blocked: TASK-8 (sanitised résumé), TASK-46/49 (deploy and production) and TASK-22…26 (demo media, `on-hold`) (`docs/reports/CAMPFIRE-TRIAGE-2026-09-26.md`; EXE-24).
-
-## 2. Open decisions for Tushar
-
-Each one was checked against `backlog/tasks/` and `decisions.md`.
-
-1. **Release gate (PB4):** `scripts/predeploy-check.ts` fails a production build unless `public/video/{teachspark,railcite,velora}.mp4` exist (≤ 4 MB) (PB4; EXE-24). Videos will now be hosted on YouTube (`task-122`), so should PB4 require pitch-video IDs instead of MP4s, and for which products? *Recorded:* `task-122` says "PB4 proposal not applied", and EXE-24 records "Wait for videos" and the rejected option of relaxing PB4. *Not recorded:* the proposal's text and its product list. All video IDs are still empty (`task-122`).
-2. **Demo videos and media:** when will the TASK-22…26 media (TeachSpark, RailCite, Nuptis/Velora, Bhakti-Vilas, Pratyasa/Tegaki/dino-arcade/cinematic) be recorded or linked? All five are Blocked and `on-hold` (EXE-24).
-3. **Painted covers:** approve about 2.5 credits to paint the 10 remaining product covers? Only TeachSpark has painted art (Dev-115). The other 10 are CSS covers because Higgsfield's daily limit blocked them (`task-121`).
-4. **Live Gemini for Ask Tushky:** should Ask stay deterministic? The repo records only the deterministic local provider: "no live LLM" (S7, S21; `components/ai/AskProvider.tsx`; `data/knowledge.ts`), and Tushky "answers only from the portfolio index" (Dev-61). TASK-123 added a curated FAQ cache in front of the local provider, plus an offline, human-reviewed Gemini refresh script (`scripts/tushky-faq-refresh.ts`). A live Gemini path on the site has not been approved.
-5. **Vendor Passport and Velora:** can you supply the Vendor Passport data? It is in neither `data/projects.ts` nor the source documents, so it was left out (`docs/reports/TASK-116.md`, `TASK-121-plan.md`). Is Velora apparel sourcing / vendor onboarding (as in `data/projects.ts`) rather than the spec's "beauty / routine"? Also open in `task-121`: the status-label wording.
-6. **Résumé label and header:**
-   - Should `resumeAction()`'s placeholder change site-wide from "Resume — updating" to "Resume — available on request"? The band footer, `/about` and home still read "updating"; only `/contact` changed (`docs/reports/TASK-113.md`, Dev-99).
-   - Is the two-row header acceptable at 1024–1439 px too? "No hamburger" extended it below 1440 (`docs/reports/TASK-112.md`, `task-112`, Dev-97).
-7. **Video play and CSP:**
-   - One press or two to play? Today one press mounts the iframe with `autoplay=1`, and nothing plays on selection (Dev-120; `components/portfolio/ProductMediaPlayer.tsx`). *Not recorded:* a separate question about two presses.
-   - Keep `'self'` out of CSP `frame-src`? Spec §9 lists it, but it was left out because every route sends `frame-ancestors 'none'` (Dev-119, "awaits Tushar"). The other TASK-116 open items: CSP hosts, a GitHub action only for public repos, trimming the carousel, and corporate records only on `/work` (`task-116`).
-8. **PMP/SAFe in Ask:** may Ask answers name PMP and SAFe? Today `scripts/forbidden-strings.ts` allows them only on the certifications surfaces; the ban stands everywhere else, and the résumé omits them (`docs/reports/TKT-102.md`, `data/certifications.ts`).
-
-**Smaller confirmations flagged in `Design.md` §11:**
-- Dev-50 hero-copy accounting.
-- Dev-64/65: the Home field doesn't open the drawer on focus, and there is no paperclip.
-- Dev-105: 640–899 is one column.
-- Dev-106: the `/about` decoration accounting.
-- `docs/reports/TKT-102.md`: how expired Credly credentials should display, and the PSPO year (2023 vs 2024).
-- LinkedIn Post Inspector: re-check `/`, `/projects` and `/certifications` before release (`task-86` notes).
-
-## 3. How to run the gates
-
-Scripts are in `package.json`. `.env.tooling` redirects Playwright, TMPDIR and LHCI to the E Drive.
-
-| Gate | Command |
-|---|---|
-| Types / lint / tokens | `pnpm typecheck` · `pnpm lint` · `pnpm tokens:check` (13/13) |
-| Unit | `pnpm test` (Vitest) |
-| Build | `pnpm build`. `prebuild` runs `predeploy-check.ts` + `validate-content.ts`; then `assert-static.ts` |
-| E2E | `pnpm test:e2e` runs the Playwright production build on `pnpm start`, Chromium, projects **w390 / w768 / w1024 / w1440** (`playwright.config.ts`). The default is 1 worker; `PW_WORKERS=2` opts in to 2. Filter one width with `--project=w390` |
-| Eval | `pnpm eval` (full), `--only EVAL-0xx,…`, `--skip-build`, `--label <name>`, `--base-url <preview>` (adds the header check; skips Lighthouse). Results go to `evals/results/<label>.json` (`docs/eval.md`) |
-| Lighthouse | `pnpm exec lhci autorun` with `lighthouserc.mobile.json` / `lighthouserc.desktop.json` (median of 3; perf ≥ 0.9, LCP ≤ 2500 ms, CLS ≤ 0.05) (`docs/eval.md`, `scripts/eval.ts`) |
-| Pre-deploy | `pnpm predeploy` |
-
-CI (`eval.yml`) runs only on pushes and PRs to `main`, so branch pushes don't trigger it (EXE-17).
-
-## 4. Latest evidence (full summary in `QA-report.md` §M-009)
-
-- **RC record run `dbc047c`** (`docs/reports/RC-dbc047c.md`): unit 625 · full e2e 1209/0 · `pnpm eval --base-url` preview 16 pass / 0 fail / 2 skip / 4 manual (`evals/results/m009-rc-dbc047c.json`).
-- **After TKT-92 r4 (`1de0ba6`):**
-  - mobile `/` perf 93 and LCP 2659 ms;
-  - `/work/teachspark` perf 88 and LCP 3164 ms;
-  - LCP is over 2.5 s at the median, which Tushar accepted (EXE-24).
-- **Latest full e2e recorded:** 1300/0 on TASK-116's final tree (`task-116`).
-- **After that, only targeted runs exist:** TASK-117, 118, 121 and 122. **No full e2e or `pnpm eval` is recorded on the current tip `27d0004`.**
-
-## 5. Where the specs live
-
-- `Design.md` (normative) plus the eight M-009 mockups: `docs/redesign-mockups/m-009/*.html` (S17).
-- Tushar's later specs and targets:
-  - `docs/redesign-mockups/m-009/tushar-2026-09-26/`: Ask Tushky drawer, Home Ask, certifications, How-I-think choreography, and target PNGs.
-  - `…/tushar-2026-09-27/contact-spec.md`
-  - `…/tushar-2026-09-28/`: about-hero, portfolio, portfolio-rectify, projects-scene-left, and video-embed specs, plus reference PNGs.
-- Per-ticket reports are in `docs/reports/` (TKT-*, TASK-*, RC-*), and screenshots are in `docs/screenshots/m-009/**`.
-
-## 6. Design.md §11 deviations (from `Design.md` itself)
-
-§11 holds 94 `Dev-` rows. The "pending" and "to confirm" rows are listed in §2. Three notes for Stage 8:
-- **Dev-41 appears twice**, as identical rows at `Design.md` lines 533 and 557.
-- Numbering has gaps: Dev-18, 44–45, 51–55, 57–59, 73–79 and 81–89 are absent. The repo has no record of whether these were renumbered or never used.
-- Dev-08 and Dev-12 still say "**pending Tushar**" (D8/D9). However, EXE-20 applied the five-item nav and dropped the quiet closes as defaults, and the nav is now tabs (Dev-97). Dev-20 and Dev-23 say "confirm at the hero gate", and that gate was signed off (EXE-22). Their disposition text has not been updated.
-
-## 7. What Stages 8–10 should open
-
-- **Stage 8 (design critique):**
-  - Open the running preview against `Design.md` and the spec folders in §5.
-  - Screenshots: `docs/screenshots/m-009/**`.
-  - Accessibility pass: `docs/a11y-pass.md`. It is an ARIA-snapshot proxy, not a VoiceOver session.
-  - EVAL-021 asset checklist: `evals/results/eval-021-ff806f5.md`.
-  - Manual EVAL-001/003/009/022.
-- **Stage 9:** `/code-review` over `main..m-009-redesign`, then `test-cases.md`, a full `pnpm test:e2e` and `pnpm eval` on the tip, and `lhci` on the preview.
-- **Stage 10:** `/security-review` and a threat pass. The CSP changed (`lib/csp.ts`, `tests/unit/csp.test.ts`: YouTube `frame-src`). There is a new third-party embed (`lib/video-providers.ts`, youtube-nocookie). Also check the new headshot asset (`content/media/portrait/`) and the PII gate (`scripts/forbidden-strings.ts`, `CREDENTIAL_SURFACES`). Then assemble `QA-report.md`.
-
-## 8. Hard stops (unchanged)
-
-- The 13-token gate holds.
-- Thresholds are never lowered without a `decisions.md` entry (EV2/EV6).
-- No PII.
-- Decoration budget ≤ 4 per section (EVAL-018; the parked list stays `[]`).
-- All routes are static.
-- Everything lives on `/Volumes/E Drive`.
-- **Never push to `main`, merge to `main`, deploy to production or spend money without Tushar's explicit approval.**
-- IDs (`M-`, `TKT-`, `TSK-`, `TASK-`, `EVAL-`, `Dev-`) are stable and never regenerated.
+## 5. Worktrees (M-010)
+`Portfolio-m010-{planning,t2-dark,t2b-cursor,t3-scenes,t4-chrome,t4-specs,t5-card,t2c-gummy,t2c-fix,lab-debug}` — all merged except `lab-debug` (scratch). Clean them up after TASK-143 lands (verify each is merged and clean first; `git worktree remove`, never `rm -rf`).

@@ -73,12 +73,12 @@ Every field is generated from real execution output — nothing is hand-entered.
 
 | Layer | Command | Cases |
 |-------|---------|-------|
-| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`), EVAL-021 (illustration provenance, `tests/unit/eval-021.test.ts`) |
-| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006, 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`), 019 (hero once-and-hold, `tests/e2e/eval-019.spec.ts`) |
+| Vitest | `vitest run` (reads `.eval/vitest.json`) | EVAL-012 (Ask provider suite, TKT-09), EVAL-017 (SEO tag unit), EVAL-020 (paper token gate, `tests/unit/eval-020.test.ts`), EVAL-021 (illustration provenance, `tests/unit/eval-021.test.ts`); M-010 (evaluation-plan.md §9): EVAL-025 (dark-art pairing, `tests/unit/eval-025.test.ts`), EVAL-027 (bundle isolation, `tests/unit/eval-027.test.ts`, needs the `.next` build — SKIP without it) |
+| Playwright | `playwright test` (`--grep @EVAL-0xx` under `--only`) | EVAL-002, 006 (per theme since M-010), 007, 008, 010, 011, 014, 017, 018 (decoration budget, `tests/e2e/eval-018.spec.ts`), 019 (hero still LCP since S24, `tests/e2e/eval-019.spec.ts`); M-010: EVAL-023 (theme resolution), 024 (toggle a11y), 026 (theme-switch stability), 028 (cursor gating + mobile), 029 (`/card`), 030 (`/lab`) — specs deferred per `DEFERRED_SPECS` in `scripts/eval-cases.ts` until their track lands |
 | Lighthouse CI | `lhci autorun` mobile + desktop, median of 3 | EVAL-004 (category scores /route/form-factor), EVAL-005 (LCP/CLS + JS budget) |
 | Content gate | `validate-content` + `forbidden-strings` + fixture proof | EVAL-013 |
 | Security | `forbidden-strings --bundle` + `pnpm audit` + TP9 headers (`--base-url`) | EVAL-016 |
-| Manual | recorded, not executed (`status: MANUAL`) | EVAL-001, 003, 009, and the EVAL-017 inspector sub-result |
+| Manual | recorded, not executed (`status: MANUAL`) | EVAL-001, 003, 009, 022, 031 (M-010 paper-cut style gates), and the EVAL-017 / 021 / 024 / 025 / 029 / 030 manual sub-results |
 
 ## EVAL-020 — paper token gate (M-009, S12/D2)
 

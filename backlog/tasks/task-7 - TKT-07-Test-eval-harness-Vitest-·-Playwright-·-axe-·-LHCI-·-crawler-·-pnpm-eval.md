@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-09-15 13:22'
-updated_date: '2026-09-16 07:41'
+updated_date: '2026-10-05 13:36'
 labels:
   - P0
   - 'sp:8'
@@ -14,7 +14,6 @@ labels:
 milestone: m-1
 dependencies:
   - TASK-1
-  - TASK-3
 priority: high
 type: feature
 ordinal: 7000

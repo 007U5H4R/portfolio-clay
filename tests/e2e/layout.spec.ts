@@ -39,26 +39,22 @@ async function gotoDev(
 }
 
 // ---------------------------------------------------------------------------
-// TC-130 (TKT-71 AC 1, D12) — one header height at every width; `data-scrolled` toggles the hairline
-// only, and is removed again at the top.
+// TC-130 (TKT-71 AC 1, D12) — one header height at every width; `data-scrolled` toggles a scroll cue only,
+// and is removed again at the top. T4 (Dev-173, TASK-145.1) retired the --line hairline: the cue is now the
+// paper sheet's deeper drop shadow, and the header's own border stays transparent.
 // ---------------------------------------------------------------------------
-test("header keeps one height across scroll; data-scrolled only toggles the hairline", async ({ page }) => {
+test("header keeps one height across scroll; data-scrolled only deepens the paper shadow", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   const header = page.locator("header[data-site-header]");
   await expect(header).toBeVisible();
-  const lineColor = await page.evaluate(() => {
-    const probe = document.createElement("span");
-    probe.style.color = "var(--line)";
-    document.body.appendChild(probe);
-    const c = getComputedStyle(probe).color;
-    probe.remove();
-    return c;
-  });
+  const paper = header.locator(".header-paper");
+  const shadow = () => paper.evaluate((el) => getComputedStyle(el).filter);
 
   const restBox = await header.boundingBox();
   await expect(header).not.toHaveAttribute("data-scrolled");
-  const restBorder = await header.evaluate((el) => getComputedStyle(el).borderBottomColor);
-  expect(restBorder, "no hairline at rest").not.toBe(lineColor);
+  const restShadow = await shadow();
+  // Dev-173: opaque ivory sheet, no blur, no hairline on the header box itself.
+  expect(await header.evaluate((el) => getComputedStyle(el).borderBottomColor), "no --line hairline at rest").toBe("rgba(0, 0, 0, 0)");
 
   await page.evaluate(() => window.scrollTo(0, 400));
   // Waits for hydration — the attribute is only written by the client HeaderScroll listener.
@@ -68,11 +64,12 @@ test("header keeps one height across scroll; data-scrolled only toggles the hair
     Math.abs(scrolledBox!.height - restBox!.height),
     `height at scrollY 400 (${scrolledBox!.height}) must equal rest (${restBox!.height}) ±1 at ${width(page)}`,
   ).toBeLessThanOrEqual(1);
-  const scrolledBorder = await header.evaluate((el) => getComputedStyle(el).borderBottomColor);
-  expect(scrolledBorder, "the --line hairline appears after scroll").toBe(lineColor);
+  expect(await shadow(), "the paper shadow deepens after scroll (Dev-173)").not.toBe(restShadow);
+  expect(await header.evaluate((el) => getComputedStyle(el).borderBottomColor), "still no hairline after scroll").toBe("rgba(0, 0, 0, 0)");
 
   await page.evaluate(() => window.scrollTo(0, 0));
   await expect(header).not.toHaveAttribute("data-scrolled");
+  expect(await shadow()).toBe(restShadow);
   const backBox = await header.boundingBox();
   expect(Math.abs(backBox!.height - restBox!.height)).toBeLessThanOrEqual(1);
 });
@@ -103,7 +100,7 @@ test("header subline annotation is absent from the DOM < 640 and present + aria-
   }
 });
 
-test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every width, no menu (TASK-112), aria-current draws the underline on /work", async ({ page }) => {
+test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every width, no menu (TASK-112), aria-current carries the terracotta active layer on /work", async ({ page }) => {
   await page.goto("/work", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const links = nav.locator("a");
@@ -119,8 +116,15 @@ test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every w
   await expect(page.locator("header").getByRole("button", { name: /menu/i })).toHaveCount(0);
   const active = nav.locator('a[aria-current="page"]');
   await expect(active).toHaveText("Experience");
-  await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
-  await expect(nav.locator('a[href="/"] svg.ink-underline')).toHaveCSS("opacity", "0");
+  // T4 (Dev-170/171, TASK-145.1) replaced the ink underline with a terracotta paper strip (.hn-strip) under the
+  // aria-current tab: drawn full-width there, collapsed on the others. Polled — it transitions 220 ms.
+  const stripScale = (loc: import("@playwright/test").Locator) =>
+    loc.locator(".hn-strip").evaluate((el) => {
+      const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+      return Math.hypot(m.a, m.b);
+    });
+  await expect.poll(() => stripScale(active), "active tab strip drawn").toBeGreaterThan(0.95);
+  await expect.poll(() => stripScale(nav.locator('a[href="/"]')), "inactive tab strip collapsed").toBeLessThan(0.05);
   const font = await active.evaluate((el) => getComputedStyle(el).fontFamily);
   expect(font).toContain("Fraunces");
   await expect(page.locator("header").getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
@@ -228,8 +232,8 @@ for (const target of [1024, 1280, 1440]) {
         return { count: boxes.length, overlaps, outside, squeezed, minGap };
       });
       const where = `${route} @ ${target}`;
-      // TASK-112: brand + every nav tab + pill + Ask at every width (no menu button).
-      expect(report.count, `${where}: brand + every nav item + pill + Ask visible`).toBe(3 + navItems.length);
+      // TASK-112: brand + every nav tab + pill + Ask at every width (no menu button); TASK-141 adds the theme switch.
+      expect(report.count, `${where}: brand + every nav item + pill + Ask + theme switch visible`).toBe(4 + navItems.length);
       expect(report.overlaps, `${where}: overlapping header controls`).toEqual([]);
       expect(report.outside, `${where}: controls outside the header`).toEqual([]);
       expect(report.squeezed, `${where}: a control squeezed below its content`).toEqual([]);
@@ -457,7 +461,7 @@ test("band footer geometry: social circles 48 px with names, no overflow, safe-a
 
   const circles = band.locator(".band-social a");
   const n = await circles.count();
-  expect(n, "LinkedIn + GitHub (S5: public repo exists) + résumé").toBe(3);
+  expect(n, "LinkedIn + GitHub (S5: public repo exists) + résumé + digital card (TASK-166)").toBe(4);
   for (let i = 0; i < n; i++) {
     const circle = circles.nth(i);
     await expect(circle).toHaveAttribute("aria-label", /.+/);
@@ -468,8 +472,12 @@ test("band footer geometry: social circles 48 px with names, no overflow, safe-a
   }
   // TKT-109 (Tushar 2026-09-26: "compress and compact it and make the height shorter"): was 622 px at
   // 1440 and 687 px at 390; compact band measures 347 / 528 px — guard against it growing back.
+  // T4 (Dev-175) adds the decorative ocean strip as a sibling BELOW the text; the compaction invariant is about
+  // the text band, so measure the footer minus [data-band-ocean].
   const bandBox = await band.boundingBox();
-  expect(bandBox!.height, "compact band height (Dev-43)").toBeLessThanOrEqual(width(page) === 1440 ? 400 : 580);
+  const oceanBox = await band.locator("[data-band-ocean]").boundingBox();
+  const textHeight = bandBox!.height - (oceanBox?.height ?? 0);
+  expect(textHeight, "compact band height excluding the ocean (Dev-43, Dev-175)").toBeLessThanOrEqual(width(page) === 1440 ? 400 : 580);
   const email = await band.locator(".band-email").boundingBox();
   expect(email!.height, "email link is a ≥ 44 px target").toBeGreaterThanOrEqual(44);
 

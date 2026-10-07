@@ -5,8 +5,8 @@ import type { CaseStudy } from "../schema";
  * Bhakti Vilas — devotion as behavioural health (TASK-130; audit in
  * docs/reports/TASK-130/bhakti-vilas.md). A team build (5 of 8 commits by Tushar); the survey numbers
  * are Prashant's pod's team research, never Tushar's fieldwork; the staged-reveal funnel is a
- * directional estimate. No UI screenshots exist and the live site can't be captured from here, so
- * the product is shown through its verified booking flow and its own imagery, captioned as such.
+ * directional estimate. The screens are the live prototype (TASK-137: captured 2026-10-05 after its
+ * mock sign-in), so every person, session and number in them is the prototype's mock data.
  * No architecture section: a static prototype on mock data has no system worth a diagram.
  */
 export const bhaktiVilasCase: z.input<typeof CaseStudy> = {
@@ -26,13 +26,13 @@ export const bhaktiVilasCase: z.input<typeof CaseStudy> = {
       { value: "11", label: "sources behind the answer to a mentor’s “why bhakti?”", kind: "structural", source: "BV-MENTOR-QA" },
     ],
     media: {
-      src: "/media/case-studies/bhakti-vilas/tea-circle.webp",
-      alt: "Prototype imagery from Bhakti Vilas: elders and their families sharing tea in a leafy courtyard, with a harmonium and small lamps.",
+      src: "/media/case-studies/bhakti-vilas/sessions.webp",
+      alt: "Bhakti Vilas Daily Sessions page: a week of gentle sessions from Gentle Joint Mobility to a Yamuna Ghat Temple Walk, each with a time and a Free or Exclusive tag, above photo cards for chanting and meditation.",
       width: 1200,
-      height: 800,
-      frame: "print",
-      caption: "Imagery from the prototype (illustrative)",
-      provenance: "docs/case-study-sources/bhakti-vilas/tea-circle.jpg ← case study 2/Bhakti-Vilas/assets/tea-circle.jpg",
+      height: 750,
+      frame: "browser",
+      caption: "The live prototype’s Daily Sessions page (mock data)",
+      provenance: "docs/case-study-sources/bhakti-vilas/sessions-desktop.jpg ← https://bhakti-vilas.vercel.app/bhakti_sessions/code.html, 2026-10-05",
     },
     layout: "split",
   },
@@ -105,6 +105,33 @@ export const bhaktiVilasCase: z.input<typeof CaseStudy> = {
         steps: [{ label: "Learn" }, { label: "Pick a date" }, { label: "Circle on a map" }, { label: "Payment" }, { label: "QR pass" }],
       },
       shots: [
+        {
+          src: "/media/case-studies/bhakti-vilas/home.webp",
+          alt: "Bhakti Vilas home page: “Habit Building with Bhakti”, bhajan sessions for elders, over a photo of elders singing and raising their arms together, with an Add a buddy card and city and language pickers.",
+          width: 1000,
+          height: 625,
+          frame: "browser",
+          caption: "Home: bhajan circles for elders, with a buddy to keep the habit (mock data)",
+          provenance: "docs/case-study-sources/bhakti-vilas/home-desktop.jpg ← https://bhakti-vilas.vercel.app/bhakti_wellness_home/code.html, 2026-10-05",
+        },
+        {
+          src: "/media/case-studies/bhakti-vilas/community.webp",
+          alt: "Bhakti Vilas Community page, “A Sanctuary of Belonging”: a featured member story beside an Upcoming Circle card for a Chai aur Charcha gathering at Lodhi Garden with a Save me a place button.",
+          width: 1000,
+          height: 625,
+          frame: "browser",
+          caption: "Community: member stories and the next neighbourhood circle (mock data)",
+          provenance: "docs/case-study-sources/bhakti-vilas/community-desktop.jpg ← https://bhakti-vilas.vercel.app/bhakti_community/code.html, 2026-10-05",
+        },
+        {
+          src: "/media/case-studies/bhakti-vilas/profile-mobile.webp",
+          alt: "Bhakti Vilas profile on a phone: Namaste, Urmila ji, with sessions completed, total hours, a day streak and a level progress bar.",
+          width: 540,
+          height: 1169,
+          frame: "phone",
+          caption: "Profile on a phone: streaks and levels for a mock member",
+          provenance: "docs/case-study-sources/bhakti-vilas/profile-mobile.jpg ← https://bhakti-vilas.vercel.app/my_bhakti_profile/code.html, 2026-10-05",
+        },
         {
           src: "/media/case-studies/bhakti-vilas/madhu-mukti-funnel.webp",
           alt: "Madhu Mukti staged-reveal funnel: awareness through temple noticeboards, consideration through devotional WhatsApp messages, decision through community camps — shares labelled as directional estimates.",

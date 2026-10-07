@@ -11,18 +11,18 @@
  *               static HTML content
  * plus hero frame ladder (S05.02), tile offsets (S05.03), the one-height header + ink underline
  * (TKT-71 / D12 — replacing the S04.03 compaction and S04.04 active-pill checks), no menu button
- * (S04.05, TASK-112), SkipLink (S04.02), AskAIButton tab-order (S04.06), resume placeholder +
- * /resume.pdf 404 (E-13).
+ * (S04.05, TASK-112), SkipLink (S04.02), AskAIButton tab-order (S04.06), the resume Drive link +
+ * /resume.pdf 404 (E-13, TASK-175).
  */
 import { test, expect } from "./fixtures";
 import { openCaseStudy } from "./case-study-system";
 // The manifest directly, not `lib/illustrations.ts` — that module statically imports the scene
 // JPEGs for `next/image`, which Playwright's TypeScript transform cannot load.
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
+import { site } from "@/lib/site";
 
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
-// TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`); `hero-desk` survives only as the
-// clip's `poster` attribute.
+// TKT-93: the SSR hero image is the full-bleed banner (`hero-banner`; a paper-cut still since S24).
 const HERO_BANNER_ALT = ILLUSTRATIONS.find((entry) => entry.id === "hero-banner")!.alt;
 
 const ROUTES = [
@@ -233,10 +233,11 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
 });
 
 // ---------------------------------------------------------------------------
-// TKT-71 / D12 — the header keeps one ~72 px height and a constant 10 px blur; scrolling only
-// turns the hairline on (the S04.03 96→68 compaction is deleted). Full matrix: layout.spec.ts.
+// TKT-71 / D12 — the header keeps one ~72 px height; scrolling never changes it (the S04.03 96→68 compaction
+// is deleted). T4 (Dev-173) swapped the translucent blur header for an opaque ivory paper sheet, so the old
+// constant-blur assertion now asserts the sheet stays opaque with no backdrop blur. Full matrix: layout.spec.ts.
 // ---------------------------------------------------------------------------
-test("header keeps one height with a constant blur; scrolling only adds the hairline", async ({ page }) => {
+test("header keeps one height as an opaque paper sheet; scrolling only deepens its shadow", async ({ page }) => {
   test.skip(width(page) !== 1440, "header geometry measured at w1440 (all widths in layout.spec.ts)");
   await page.goto("/", { waitUntil: "load" });
   const header = page.locator("header").first();
@@ -244,30 +245,41 @@ test("header keeps one height with a constant blur; scrolling only adds the hair
   const restBox = await header.boundingBox();
   expect(restBox!.height, `rest height ${restBox!.height} should be ~72`).toBeGreaterThanOrEqual(70);
   expect(restBox!.height).toBeLessThanOrEqual(74);
-  const restFilter = await header.evaluate((el) => {
-    const s = getComputedStyle(el);
-    return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter");
-  });
-  expect(restFilter, `rest backdrop-filter was "${restFilter}"`).toContain("blur(10px)");
+  const headerFilter = () =>
+    header.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return s.getPropertyValue("backdrop-filter") || s.getPropertyValue("-webkit-backdrop-filter") || "none";
+    });
+  expect(await headerFilter(), "Dev-173: no backdrop blur").toBe("none");
+  const sheetColor = await header.locator(".header-paper-sheet").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(sheetColor, "Dev-173: the paper sheet is opaque ivory (no alpha channel, not transparent)").not.toMatch(/\/|rgba\(0, 0, 0, 0\)/);
   await expect(header).not.toHaveAttribute("data-scrolled");
 
   await page.evaluate(() => window.scrollTo(0, 240));
   await expect(header).toHaveAttribute("data-scrolled", "");
   const scrolledBox = await header.boundingBox();
   expect(Math.abs(scrolledBox!.height - restBox!.height), "height must not change on scroll").toBeLessThanOrEqual(1);
+  expect(await headerFilter(), "still no blur after scroll").toBe("none");
 });
 
 // ---------------------------------------------------------------------------
-// TKT-71 — the active nav link is marked current and draws the ink-stroke underline
-// (the S04.04 active-link pill is deleted).
+// TKT-71 → T4 (Dev-170/171, TASK-145.1) — the active nav link is marked aria-current and carries the
+// terracotta active paper layer (.hn-strip); the ink-stroke underline svg is gone.
 // ---------------------------------------------------------------------------
-test("active nav link is marked current and shows the ink underline", async ({ page }) => {
+test("active nav link is marked current and carries the terracotta active layer", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const active = nav.locator('a[aria-current="page"]');
+  await expect(active).toHaveCount(1);
   await expect(active).toHaveText("Home");
-  await expect(active.locator("svg.ink-underline")).toHaveCSS("opacity", "1");
-  await expect(nav.locator('a[href="/work"] svg.ink-underline')).toHaveCSS("opacity", "0");
+  await expect(nav.locator("svg.ink-underline"), "ink underline retired by T4").toHaveCount(0);
+  const scale = (loc: import("@playwright/test").Locator) =>
+    loc.locator(".hn-strip").evaluate((el) => {
+      const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+      return Math.hypot(m.a, m.b);
+    });
+  await expect.poll(() => scale(active)).toBeGreaterThan(0.95);
+  await expect.poll(() => scale(nav.locator('a[href="/work"]'))).toBeLessThan(0.05);
 });
 
 // ---------------------------------------------------------------------------
@@ -315,16 +327,19 @@ test("Ask AI control is live, focusable, and opens the AskPanel", async ({ page 
 });
 
 // ---------------------------------------------------------------------------
-// E-13 — resume placeholder resolves to /contact#resume; /resume.pdf is 404
+// E-13 / TASK-175 — the resume is the external Google Drive link; no local /resume.pdf exists
 // ---------------------------------------------------------------------------
-test("resume placeholder points at /contact#resume and /resume.pdf is 404", async ({ page }) => {
+test("resume is the Drive link in a new tab and /resume.pdf is 404", async ({ page }) => {
   test.skip(width(page) !== 1440, "runs once at w1440");
   await page.goto("/", { waitUntil: "load" });
   // Since TKT-72 the home page's in-page résumé control is the band footer's résumé circle (the
   // TKT-73 hero carries no résumé CTA and the old closing-CTA section is gone; since TASK-112 the
   // band is the only résumé control on every page) — scope to the band. Its name comes from resumeAction().
-  const resume = page.locator('footer.band a[href="/contact#resume"][aria-label="Resume — updating"]');
+  const resume = page.locator('footer.band a[aria-label="Resume ↗"]');
   await expect(resume).toBeVisible();
+  await expect(resume).toHaveAttribute("href", site.resumeUrl);
+  await expect(resume).toHaveAttribute("target", "_blank");
+  await expect(resume).toHaveAttribute("rel", "noopener noreferrer");
   const res = await page.request.get("/resume.pdf");
-  expect(res.status(), "/resume.pdf must 404 while resumeAvailable=false").toBe(404);
+  expect(res.status(), "no local /resume.pdf is served").toBe(404);
 });

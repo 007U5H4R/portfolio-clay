@@ -75,11 +75,12 @@ test("@EVAL-011 the carousel lists every personal build; the first is selected i
   await expect(panel(page)).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
   await expect(panel(page)).toHaveAttribute("data-media-mode", "pitch");
   await expect(page.getByRole("heading", { level: 2, name: PERSONAL[0]!.name })).toBeVisible();
-  // Only the active media may load — and no recording exists yet, so nothing at all.
+  // Only the active media may load, and only on Play: the first build (TeachSpark) has a launch pitch and a demo
+  // since TASK-170, so its poster carries a Play button and the Pitch/Demo actions — and no player until Play.
   await expect(page.locator("video, iframe")).toHaveCount(0);
   await expect(page.locator(".pf-stage .pf-cover")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: /^Play / })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /^(Pitch|Demo) video$/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Play / })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /^(Pitch|Demo) video$/ })).toHaveCount(2);
 });
 
 test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the URL; the case-study link opens in a new tab", {
@@ -288,10 +289,12 @@ test("@EVAL-008 /projects has no horizontal overflow and ≥44 targets", { tag: 
 test("@EVAL-018 /projects: one scene img; decoration counts products 2 / enterprise 2", { tag: ["@EVAL-018", "@EVAL-013"] }, async ({ page }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "counts asserted at the two boundary widths");
   await page.goto("/projects", { waitUntil: "load" });
-  await expect(page.locator('img[src*="scene-work"], img[srcset*="scene-work"]')).toHaveCount(1);
-  const img = page.locator('[data-opener="scene-work"] img');
-  await expect(img).toHaveCount(1);
-  expect((await img.getAttribute("alt"))?.length ?? 0).toBeGreaterThan(20);
+  // M-011 P2: one VISIBLE layered scene — three layer imgs for the active theme (the dark set is `display: none`),
+  // one `role="img"` root carrying the alt.
+  await expect(page.locator('[data-opener="scene-work"] [data-paper-scene="scene-work"]')).toHaveCount(1);
+  await expect(page.locator('[data-opener="scene-work"] img:visible')).toHaveCount(3);
+  const root = page.locator('[data-opener="scene-work"] [data-paper-scene]');
+  expect(((await root.getAttribute("aria-label")) ?? "").length).toBeGreaterThan(20);
   const counts = await page.evaluate(() => {
     const unitOf = (el: Element) => el.closest("section, footer");
     const count = (selector: string) => {

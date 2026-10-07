@@ -15,15 +15,19 @@
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
+ * TASK-144.5 (M-010 T3): the seven tab scenes are paper-cut stills, light + dark twins (`darkFile`), WebP, 3168×1344, with
+ * pre-cropped narrow renditions under `public/` (provenance + job ids in this folder's `README.md`); `scene-casestudy` is
+ * still the watercolour (144.4 deferred).
  * TASK-133: `featured-<slug>`, the three hand-authored cut-paper collages on the home Featured Work cards
  * (scripts/portfolio-art/featured/, public-only; full-card compositions since the fidelity pass).
  */
 
-export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot";
+export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot"; // "clip": no entry ships since S24 retired clip A, kept for the alt-prefix table
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "hero-clip" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
+  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
-  file: string;          // relative to content/media/illustrations/ (source rendition)
+  file: string;          // relative to content/media/illustrations/ (source rendition; the LIGHT rendition when `darkFile` is set)
+  darkFile?: string;     // TASK-140 (S23, EV9, EVAL-025): the paired dark-theme rendition — same entry, same alt, identical pixel size
   publicSrc?: string;    // served path under public/media/illustrations/ (clip + poster + mascot; scenes go through next/image)
   width: number; height: number;
   alt: string;           // MUST start with "Illustration of" (scenes/poster), "Animated illustration of" (clip) or "Tushky, " (mascot); ≥ 8 chars (schema)
@@ -39,38 +43,33 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1280,
     height: 684,
     alt: "Illustration of Tushar at a warm desk — laptop, notebook, books, a plant, a lamp, and pinned notes reading Problem → Insight → Bet → Build → Evaluate → Impact.",
-    // TKT-93: no longer rendered as an <img>; ships as the clip's `poster` attribute on `/` (Design.md §5.2).
+    // TKT-93: never an <img> on `/`. TASK-140 (S24) retired the clip it was the poster of; it now survives only as the
+    // OG image's source (`lib/og.tsx` OG_POSTER_PATH) and the intro video's dev board — retire with the OG re-skin.
     usedOn: ["/"],
   },
   {
-    // TKT-93 (Dev-23 / EXE-15): the 21:9 outpaint of `hero-desk` — the full-bleed home banner and the
-    // LCP image; the clip is registered on it (components/hero/registration.ts). Static import via
-    // lib/illustrations.ts (`sceneImage("hero-banner")`) so next/image emits AVIF/WebP + srcset.
+    // TASK-140 (S24 / Dev-136): the home banner is now a paper-cut STILL (Higgsfield `gpt_image_2_5`, light + dark twin,
+    // 2688×1152 masters → 3168×1344 renditions). The full-bleed home banner and the LCP image; no clip. Static import via
+    // lib/illustrations.ts (`sceneImage("hero-banner")`) so next/image emits AVIF/WebP + srcset. `darkFile` is the matched
+    // evening twin (identical size, one shared alt) — T2 (TASK-141) wires it to `data-theme`.
     id: "hero-banner",
     kind: "scene",
     file: "hero-banner.webp",
+    darkFile: "hero-banner-dark.webp",
     width: 3168,
     height: 1344,
-    alt: "Illustration of Tushar at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, and books titled Product Thinking, AI & Society, System Thinking and A Better Tomorrow.",
+    alt: "Illustration of Tushar in layered paper-cut at a warm desk — laptop, notebook, plants, a lamp, a sleeping golden retriever, blank pinned notes, a mountain photo, and a stack of books.",
     usedOn: ["/"],
   },
   {
-    id: "hero-clip",
-    kind: "clip",
-    file: "",
-    publicSrc: "/media/illustrations/hero-animation.webm",
-    width: 1280,
-    height: 684,
-    alt: "Animated illustration of Tushar thinking at his desk and turning a pen — plays once.",
-    usedOn: ["/"],
-  },
-  {
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 11c66397-6bab-437c-904e-4e5511c68643, dark twin job cdcd15cc-7588-4201-8c7c-d2dcea634bb3 (the Portfolio tab's art); masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-work",
     kind: "scene",
-    file: "scene-work.jpg",
+    file: "scene-work.webp",
+    darkFile: "scene-work-dark.webp",
     width: 3168,
-    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
-    alt: "Illustration of Tushar pinning a product sketch to a corkboard already covered in wireframes, flow diagrams, sticky notes and small landscape photos — a plant and a green mug on the shelf below — beside a quiet studio corner: a wooden bookshelf, trailing and potted plants, and sketches, swatches and landscapes taped to the wall.",
+    height: 1344, // 21:9, the home banner's size (Dev-95); TASK-144.5: the paper-cut still, light + dark twin
+    alt: "Illustration of a layered paper-cut shelf wall — two wooden shelves of blank project boxes beside a toy train, a skyline model, a campfire, a tiny cubicle, an arcade cabinet, fabric swatches and a potted plant, under a kraft banner with an empty cream frame hanging at the centre.",
     usedOn: ["/projects", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
@@ -83,63 +82,76 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     usedOn: [], // TASK-130 (Dev-130): case studies open on their own product hero; kept for /dev/primitives
   },
   {
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 7d278780-cce9-4310-af45-d0ed1a3932b9, dark twin job 6e6a891c-318e-4376-9bd1-52abcf143a6b (About v2, the mountain overlook); masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-about",
     kind: "scene",
-    file: "scene-about.jpg",
+    file: "scene-about.webp",
+    darkFile: "scene-about-dark.webp",
     width: 3168,
-    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
-    alt: "Illustration of Tushar from behind on a hillside path at dawn, coffee in one hand and a notebook under his arm, looking out over pine forest towards a snow-capped mountain horizon.",
+    height: 1344, // 21:9, the home banner's size (Dev-95); TASK-144.5: the paper-cut still, light + dark twin
+    alt: "Illustration of Tushar from behind in layered paper-cut, coffee in one hand and a notebook under his arm, looking out from a grassy hillside over misty blue mountain ridges, a river and pine forest towards a terracotta sun and snow-capped peaks.",
     usedOn: ["/about", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 6b3996bc-c57f-4f38-ae4b-ffbdad03cce7, dark twin job 7193f293-32bc-4847-b883-adab46d94f4b; masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-thinking",
     kind: "scene",
-    file: "scene-thinking.jpg",
+    file: "scene-thinking.webp",
+    darkFile: "scene-thinking-dark.webp",
     width: 3168,
-    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
-    alt: "Illustration of Tushar writing in an open notebook at a wooden desk by a window — a green lamp, a cup of tea, stacked books, a plant, and a sketched flow diagram on loose paper.",
+    height: 1344, // 21:9, the home banner's size (Dev-95); TASK-144.5: the paper-cut still, light + dark twin
+    alt: "Illustration of Tushar in layered paper-cut resting his chin on his hand at a writing desk, a winding paper pathway leading from him across green hills past six stations — a magnifying glass over a page, sticky notes, a glowing light bulb, stacked blocks, a checked sheet and a red star.",
     usedOn: ["/thinking", "/thinking/[slug]"], // TKT-95: the scene opener on the index and every essay
   },
   {
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 056cc7b5-4245-49bc-8c04-98264d72a3a4, dark twin job 25e39e33-90c8-44e2-bed1-2e2d70b91411; masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-playground",
     kind: "scene",
-    file: "scene-playground.jpg",
+    file: "scene-playground.webp",
+    darkFile: "scene-playground-dark.webp",
     width: 3168,
-    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
-    alt: "Illustration of Tushar at a tinkering workbench, holding up a small cardboard prototype with wires; a breadboard, tape, scissors, paper planes and a tablet sketch sit on the desk under a green lamp.",
+    height: 1344, // 21:9, the home banner's size (Dev-95); TASK-144.5: the paper-cut still, light + dark twin
+    alt: "Illustration of Tushar in layered paper-cut at a workshop stage, holding up a small cardboard prototype with a gear between red curtains and a backdrop of cardboard machines and a rocket — a paper plane, a toy car, scissors, tape and a tablet sketch on the desk.",
     usedOn: ["/playground", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
   },
   {
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 18705997-f3f5-4abf-8171-5d71ca88fff1, dark twin job 81c70e0b-f337-463d-9f99-3f50268e6199; masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-contact",
     kind: "scene",
-    file: "scene-contact.jpg",
+    file: "scene-contact.webp",
+    darkFile: "scene-contact-dark.webp",
     width: 3168,
-    height: 1344, // TKT-107: 21:9 outpaint, the home banner's size (Dev-95)
-    alt: "Illustration of Tushar standing by a window next to a tall leafy plant, a terracotta coffee mug in one hand, the other raised in a friendly wave.",
-    // "/" — its 4:3 character crop (`scene-contact-mobile.webp`) is the hero intro video's poster (Dev-132).
-    usedOn: ["/contact", "/"],
+    height: 1344, // 21:9, the home banner's size (Dev-95); TASK-144.5: the paper-cut still, light + dark twin
+    alt: "Illustration of Tushar in layered paper-cut waving with one hand and holding a terracotta mug in the other, on the last page of a ruled notebook beside an envelope, a fountain pen, a paper plane and a flowering plant, with paper hills below.",
+    // TASK-144.5: the hero intro video's poster is now its own file (`intro-poster.webp`, the retired watercolour's 4:3
+    // character crop, Dev-132) — `scene-contact-mobile.webp` is the new paper-cut crop, so `/` no longer uses this scene.
+    usedOn: ["/contact"],
   },
   {
     // TASK-114 (Design.md §11 Dev-103): the `/work` Experience opener — a new Higgsfield `gpt_image_2_5`
     // 21:9 scene (every existing scene is already used on another page), 3840×1648 master cropped 19 px
     // top/bottom to 21:9 and resized to the home banner's 3168×1344.
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 70ec7a0b-961f-4cbf-93eb-d871087034ba, dark twin job b4f6f12c-0d86-4133-8626-046d208d7464 (dark = regeneration 1); masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-experience",
     kind: "scene",
-    file: "scene-experience.jpg",
+    file: "scene-experience.webp",
+    darkFile: "scene-experience-dark.webp",
     width: 3168,
     height: 1344,
-    alt: "Illustration of Tushar in a sunlit meeting room pointing at a whiteboard of sticky notes in three columns above a timeline arrow — a laptop, a mug and a notebook on the long wooden table, plants, and a city skyline through tall windows.",
+    alt: "Illustration of Tushar in layered paper-cut presenting at a whiteboard of blue, terracotta and yellow sticky notes above a timeline arrow — a laptop, a mug and a notebook on the wooden table before a window onto a paper city skyline.",
     usedOn: ["/work"],
   },
   {
     // TASK-114 (Design.md §11 Dev-104): the `/certifications` opener — a new Higgsfield `gpt_image_2_5`
     // 21:9 scene, encoded as `scene-experience`.
+    // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 7af13257-37ce-43c1-9038-febd82f176f7, dark twin job 7c320b38-d6e9-487d-b9b1-7c5ac8412d9c; masters under Portfolio-illustration/illustrations/paper-cut/.
     id: "scene-certifications",
     kind: "scene",
-    file: "scene-certifications.jpg",
+    file: "scene-certifications.webp",
+    darkFile: "scene-certifications-dark.webp",
     width: 3168,
     height: 1344,
-    alt: "Illustration of Tushar in a warm home study hanging a framed certificate on a wall of framed certificates and a ribbon medal, his golden retriever sitting and looking up at him — an armchair by the window, a bookshelf and a desk lamp.",
+    alt: "Illustration of a layered paper-cut credential board — a cork pinboard of eight blank certificates with ribbon rosettes, and a wooden shelf below holding a golden trophy, a stack of books and a potted plant.",
     usedOn: ["/certifications"],
   },
   {

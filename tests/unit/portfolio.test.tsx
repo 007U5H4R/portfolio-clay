@@ -255,9 +255,18 @@ describe("Portfolio data model (spec §5, §21)", () => {
     }
     const [first] = personal;
     // TASK-122: the portfolio plays provider videos only — a local MP4 stays on the /work case study.
+    // The first entry's own portfolio videos are stripped so only the local MP4 could supply a demo (TASK-170 gave
+    // TeachSpark, the first build, real ones).
+    const noEntryVideos = portfolioEntries.map((e) => {
+      if (e.slug !== first!.slug) return e;
+      const rest = { ...e };
+      delete rest.pitchVideo;
+      delete rest.demoVideo;
+      return rest;
+    });
     const withLocal = buildPortfolioProducts(
       [{ ...first!, links: { ...first!.links, demoVideo: { src: "/video/fixture-tiny.mp4", poster: "/video/fixture-tiny-poster.webp", durationSec: 10 } } }],
-      portfolioEntries,
+      noEntryVideos,
       resolveArt,
     );
     expect(withLocal[0]?.demoVideo).toBeUndefined();
@@ -278,7 +287,15 @@ describe("Portfolio data model (spec §5, §21)", () => {
     expect(slag?.demoVideo).toEqual({ provider: "youtube", videoId: "tc4QDVl8NJM", title: "Slag City product demonstration", poster: undefined });
     expect(slag?.productUrl).toBe("https://slag-city.vercel.app");
     expect(slag?.githubUrl).toBe("https://github.com/007U5H4R/slag-city"); // public repo (2026-09-29)
-    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-170: TeachSpark carries its launch pitch + demo (Tushar 2026-10-07).
+    const teachspark = products.find((p) => p.id === "teachspark");
+    expect(teachspark?.pitchVideo).toEqual({ provider: "youtube", videoId: "ub7yB4LwMBM", title: "TeachSpark pitch video", poster: undefined });
+    expect(teachspark?.demoVideo).toEqual({ provider: "youtube", videoId: "vWYbkGFjKyQ", title: "TeachSpark product demonstration", poster: undefined });
+    // TASK-179: Pratyasa carries its launch pitch (a Short) + demo (Tushar 2026-10-07).
+    const pratyasa = products.find((p) => p.id === "pratyasa");
+    expect(pratyasa?.pitchVideo).toEqual({ provider: "youtube", videoId: "xqevuhTxKAQ", title: "Pratyasa pitch video", poster: undefined });
+    expect(pratyasa?.demoVideo).toEqual({ provider: "youtube", videoId: "Rl6MQiSBqh8", title: "Pratyasa product demonstration", poster: undefined });
+    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark", "pratyasa"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],
