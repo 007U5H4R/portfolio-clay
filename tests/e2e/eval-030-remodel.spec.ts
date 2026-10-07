@@ -302,7 +302,7 @@ test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)"
       }
       return found;
     });
-    expect(rule).toMatch(/intro-fade (250ms|\.25s)/); // the CSS minifier rewrites 250ms as .25s
+    expect(rule).toMatch(/(250ms|0?\.25s)[^;}]*intro-fade/); // the CSS minifier reorders the shorthand and rewrites 250ms as .25s
     expect(rule).not.toMatch(/intro-pull|intro-out-depth/);
     await page.locator("[data-lab-play]").click();
     await page.waitForSelector("[data-lab-state='PLAYING']", { timeout: 40_000 });
