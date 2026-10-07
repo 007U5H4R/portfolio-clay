@@ -1,4 +1,4 @@
-import { Color, MeshPhysicalMaterial, SRGBColorSpace, MeshStandardMaterial, ShaderMaterial, Vector3, type IUniform, type WebGLProgramParametersWithUniforms } from "three";
+import { Color, MeshPhysicalMaterial, RepeatWrapping, SRGBColorSpace, MeshStandardMaterial, ShaderMaterial, TextureLoader, Vector3, type BufferGeometry, type IUniform, type Texture, type WebGLProgramParametersWithUniforms } from "three";
 import { mix, type CandyPalette, type RGB } from "@/lib/lab/tokens";
 import type { TierConfig } from "@/lib/lab/tiers";
 
@@ -117,9 +117,67 @@ export function createFaceMaterial(palette: CandyPalette) {
   return new MeshStandardMaterial({ color: col(palette.face), roughness: 0.4, metalness: 0 });
 }
 
-/** Soft acrylic / resin look for arena pieces (§29): no metal, gentle sheen, pastel tints. */
+/**
+ * Paper materials (TASK-168): platforms and collectibles are matte cardstock, never glass, gloss or metal. The six
+ * seamless 1024 px textures (cream, rose, sage, blue, terracotta, ochre) and the shared bump map are fetched when the
+ * first paper material is built (the canvas already exists by then) and shared by every material that uses them.
+ * The art carries the colour, so the palette tint is not applied; lighting is the stage's upper-left key.
+ */
+export type PaperKey = "cream" | "rose" | "sage" | "blue" | "terracotta" | "ochre";
+/** World units one texture tile covers on a flat platform. */
+export const PAPER_TILE = 2.4;
+const PAPER_BASE = "/media/lab/art";
+const paperTextures = new Map<string, Texture>();
+let paperLoader: TextureLoader | null = null;
+
+function loadPaper(file: string, colour: boolean): Texture {
+  let t = paperTextures.get(file);
+  if (!t) {
+    paperLoader ??= new TextureLoader();
+    t = paperLoader.load(`${PAPER_BASE}/${file}.webp`);
+    t.wrapS = t.wrapT = RepeatWrapping;
+    if (colour) t.colorSpace = SRGBColorSpace;
+    t.anisotropy = 4;
+    paperTextures.set(file, t);
+  }
+  return t;
+}
+
+/** `lift` self-lights the paper by its own texture (collectibles stay readable against the hills; it is not a glow colour). */
+export function createPaperMaterial(key: PaperKey, opts: { opacity?: number; lift?: number } = {}) {
+  const m = new MeshStandardMaterial({
+    map: loadPaper(`paper-${key}`, true),
+    bumpMap: loadPaper("paper-bump", false),
+    bumpScale: 0.6,
+    roughness: 0.94,
+    metalness: 0,
+    envMapIntensity: 0.45,
+  });
+  if (opts.lift) {
+    m.emissiveMap = m.map;
+    m.emissive = new Color(1, 1, 1);
+    m.emissiveIntensity = opts.lift;
+  }
+  if (opts.opacity !== undefined && opts.opacity < 1) {
+    m.transparent = true;
+    m.opacity = opts.opacity;
+  }
+  return m;
+}
+
+/** Tile the paper grain by scaling a geometry's UVs (the textures are shared, so repeat is not per material). */
+export function tileUV(geo: BufferGeometry, w: number, h: number): void {
+  const uv = geo.getAttribute("uv");
+  if (!uv) return;
+  const kx = Math.max(0.25, w / PAPER_TILE);
+  const ky = Math.max(0.25, h / PAPER_TILE);
+  for (let i = 0; i < uv.count; i += 1) uv.setXY(i, uv.getX(i) * kx, uv.getY(i) * ky);
+  uv.needsUpdate = true;
+}
+
+/** Soft matte tint for arena pieces that have no paper art of their own (kept for the few flat-colour parts). */
 export function createCandyMaterial(tint: RGB, opts: { opacity?: number; emissive?: number } = {}) {
-  const m = new MeshStandardMaterial({ color: col(tint), roughness: 0.34, metalness: 0, envMapIntensity: 0.9 });
+  const m = new MeshStandardMaterial({ color: col(tint), roughness: 0.8, metalness: 0, envMapIntensity: 0.5 });
   if (opts.opacity !== undefined && opts.opacity < 1) {
     m.transparent = true;
     m.opacity = opts.opacity;

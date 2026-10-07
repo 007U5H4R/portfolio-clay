@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { BallCollider, CuboidCollider, RigidBody, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
-import { CanvasTexture, SRGBColorSpace, CylinderGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, SphereGeometry, TorusGeometry } from "three";
+import { CanvasTexture, SRGBColorSpace, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry, SphereGeometry, TorusGeometry } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { BumperSpec, PadSpec, PlatformSpec, TargetSpec } from "@/lib/lab/arena";
-import { col, createCandyMaterial, createLiquidMaterial } from "./materials";
+import { col, createLiquidMaterial, createPaperMaterial, tileUV, type PaperKey } from "./materials";
 import { useRuntime } from "./runtime";
 
 /**
@@ -51,12 +51,12 @@ export function Arena() {
 
 function Walls() {
   const rt = useRuntime();
-  const { arena, palette } = rt;
+  const { arena } = rt;
   const h = arena.ceilingY - arena.floorY;
   const geo = useMemo(() => new RoundedBoxGeometry(0.22, h + 0.6, DEPTH + 0.2, 3, 0.08), [h]);
-  const mat = useMemo(() => createCandyMaterial(palette.pink, { opacity: 0.6, emissive: 0.12 }), [palette]);
+  const mat = useMemo(() => createPaperMaterial("rose", { opacity: 0.6 }), []);
   const topGeo = useMemo(() => new RoundedBoxGeometry(arena.halfW * 2 + 0.9, 0.3, DEPTH + 0.4, 3, 0.1), [arena.halfW]);
-  const topMat = useMemo(() => createCandyMaterial(palette.pink, { opacity: 0.6, emissive: 0.12 }), [palette]);
+  const topMat = useMemo(() => createPaperMaterial("rose", { opacity: 0.6 }), []);
   useEffect(
     () => () => {
       geo.dispose();
@@ -104,15 +104,19 @@ function DangerFloor() {
   return <mesh ref={mesh} geometry={geo} material={material} position={[0, arena.dangerTop - 1.3, 0.45]} renderOrder={5} />;
 }
 
-const TINTS = ["peach", "pink", "mint", "cyan"] as const;
+/** Restrained cardstock for the platforms, cycled by index (TASK-168). */
+const PAPERS: PaperKey[] = ["terracotta", "sage", "blue", "cream"];
 
 function Platform({ spec, tint }: { spec: PlatformSpec; tint: number }) {
   const rt = useRuntime();
-  const { palette } = rt;
   const rb = useRef<RapierRigidBody>(null);
   const group = useRef<Group>(null);
-  const geo = useMemo(() => new RoundedBoxGeometry(spec.w, spec.h, DEPTH, 3, Math.min(0.14, spec.h * 0.45)), [spec.w, spec.h]);
-  const mat = useMemo(() => createCandyMaterial(palette[TINTS[tint % TINTS.length]!], { opacity: spec.vanishes ? 0.9 : 1 }), [palette, tint, spec.vanishes]);
+  const geo = useMemo(() => {
+    const g = new RoundedBoxGeometry(spec.w, spec.h, DEPTH, 3, Math.min(0.14, spec.h * 0.45));
+    tileUV(g, spec.w, spec.h);
+    return g;
+  }, [spec.w, spec.h]);
+  const mat = useMemo(() => createPaperMaterial(PAPERS[tint % PAPERS.length]!, { opacity: spec.vanishes ? 0.9 : 1 }), [tint, spec.vanishes]);
   const phase = useRef(spec.slide?.phase ?? 0);
   useEffect(
     () => () => {
@@ -156,15 +160,14 @@ function Platform({ spec, tint }: { spec: PlatformSpec; tint: number }) {
 
 function Pad({ spec }: { spec: PadSpec }) {
   const rt = useRuntime();
-  const { palette } = rt;
   const rb = useRef<RapierRigidBody>(null);
   const top = useRef<Group>(null);
   const hit = useRef(0);
   const cooldown = useRef(0);
   const geoBase = useMemo(() => new CylinderGeometry(spec.w * 0.5, spec.w * 0.55, 0.12, 24), [spec.w]);
   const geoTop = useMemo(() => new CylinderGeometry(spec.w * 0.46, spec.w * 0.46, 0.1, 24), [spec.w]);
-  const baseMat = useMemo(() => createCandyMaterial(palette.peach), [palette]);
-  const topMat = useMemo(() => createCandyMaterial(spec.kind === "launch" ? palette.cyan : palette.orange, { emissive: 0.15 }), [palette, spec.kind]);
+  const baseMat = useMemo(() => createPaperMaterial("cream"), []);
+  const topMat = useMemo(() => createPaperMaterial(spec.kind === "launch" ? "blue" : "ochre"), [spec.kind]);
   useEffect(
     () => () => {
       geoBase.dispose();
@@ -213,7 +216,6 @@ function Pad({ spec }: { spec: PadSpec }) {
 
 function Bumper({ spec }: { spec: BumperSpec }) {
   const rt = useRuntime();
-  const { palette } = rt;
   const rb = useRef<RapierRigidBody>(null);
   const group = useRef<Group>(null);
   const hit = useRef(0);
@@ -222,7 +224,7 @@ function Bumper({ spec }: { spec: BumperSpec }) {
   const appear = useRef(spec.minPhase === 0 ? 1 : 0);
   const geo = useMemo(() => new SphereGeometry(spec.r, 24, 16), [spec.r]);
   const barGeo = useMemo(() => (spec.spin ? new RoundedBoxGeometry(spec.spin.len, 0.22, 0.5, 3, 0.1) : null), [spec.spin]);
-  const mat = useMemo(() => createCandyMaterial(spec.spin ? palette.pink : palette.mint, { emissive: 0.1 }), [palette, spec.spin]);
+  const mat = useMemo(() => createPaperMaterial(spec.spin ? "rose" : "sage"), [spec.spin]);
   useEffect(
     () => () => {
       geo.dispose();
@@ -302,14 +304,18 @@ function Target({ spec }: { spec: TargetSpec }) {
   const cooldown = useRef(0);
   const done = useRef(false);
   const geo = useMemo(() => new CylinderGeometry(spec.r, spec.r, 0.5, 28), [spec.r]);
-  const mat = useMemo(() => createCandyMaterial(palette.cyan, { opacity: 0.92, emissive: 0.08 }), [palette]);
+  const mat = useMemo(() => {
+    const m = createPaperMaterial("blue");
+    m.emissive = col(palette.cream); // the hit flash below lifts the card toward cream, never a glow colour
+    return m;
+  }, [palette]);
   const labelGeo = useMemo(() => new PlaneGeometry(spec.r * 1.5, spec.r * 1.5), [spec.r]);
   const labelMat = useMemo(() => {
     const font = getComputedStyle(document.documentElement).getPropertyValue("--font-body") || "sans-serif";
     return new MeshBasicMaterial({ map: labelTexture(spec.id, palette.face, font), transparent: true });
   }, [spec.id, palette]);
   const ring = useMemo(() => new TorusGeometry(spec.r * 1.08, 0.04, 8, 32), [spec.r]);
-  const ringMat = useMemo(() => createCandyMaterial(palette.pink, { emissive: 0.2 }), [palette]);
+  const ringMat = useMemo(() => createPaperMaterial("rose"), []);
   useEffect(
     () => () => {
       geo.dispose();
@@ -363,15 +369,15 @@ function Target({ spec }: { spec: TargetSpec }) {
 
 function Portal() {
   const rt = useRuntime();
-  const { arena, palette } = rt;
+  const { arena } = rt;
   const g1 = useRef<Mesh>(null);
   const g2 = useRef<Mesh>(null);
   const torus = useMemo(() => new TorusGeometry(arena.portal.r, 0.07, 10, 40), [arena.portal.r]);
   const torus2 = useMemo(() => new TorusGeometry(arena.portal.r * 0.66, 0.05, 10, 32), [arena.portal.r]);
   const disc = useMemo(() => new CylinderGeometry(arena.portal.r * 0.62, arena.portal.r * 0.62, 0.05, 28), [arena.portal.r]);
-  const mat = useMemo(() => new MeshStandardMaterial({ color: col(palette.pink), emissive: col(palette.pink), emissiveIntensity: 0.45, roughness: 0.3 }), [palette]);
-  const mat2 = useMemo(() => new MeshStandardMaterial({ color: col(palette.cyan), emissive: col(palette.cyan), emissiveIntensity: 0.4, roughness: 0.3 }), [palette]);
-  const discMat = useMemo(() => new MeshStandardMaterial({ color: col(palette.cream), emissive: col(palette.peach), emissiveIntensity: 0.35, transparent: true, opacity: 0.55 }), [palette]);
+  const mat = useMemo(() => createPaperMaterial("rose"), []);
+  const mat2 = useMemo(() => createPaperMaterial("blue"), []);
+  const discMat = useMemo(() => createPaperMaterial("cream", { opacity: 0.6 }), []);
   useEffect(
     () => () => {
       torus.dispose();
