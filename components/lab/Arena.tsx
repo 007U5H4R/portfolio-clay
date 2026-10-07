@@ -54,9 +54,9 @@ function Walls() {
   const { arena } = rt;
   const h = arena.ceilingY - arena.floorY;
   const geo = useMemo(() => new RoundedBoxGeometry(0.22, h + 0.6, DEPTH + 0.2, 3, 0.08), [h]);
-  const mat = useMemo(() => createPaperMaterial("rose", { opacity: 0.6 }), []);
+  const mat = useMemo(() => createPaperMaterial("rose", { opacity: 0.88 }), []);
   const topGeo = useMemo(() => new RoundedBoxGeometry(arena.halfW * 2 + 0.9, 0.3, DEPTH + 0.4, 3, 0.1), [arena.halfW]);
-  const topMat = useMemo(() => createPaperMaterial("rose", { opacity: 0.6 }), []);
+  const topMat = useMemo(() => createPaperMaterial("rose", { opacity: 0.88 }), []);
   useEffect(
     () => () => {
       geo.dispose();
@@ -105,7 +105,7 @@ function DangerFloor() {
 }
 
 /** Restrained cardstock for the platforms, cycled by index (TASK-168). */
-const PAPERS: PaperKey[] = ["terracotta", "sage", "blue", "cream"];
+const PAPERS: PaperKey[] = ["cream", "sage", "blue", "terracotta"];
 
 function Platform({ spec, tint }: { spec: PlatformSpec; tint: number }) {
   const rt = useRuntime();

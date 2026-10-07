@@ -36,9 +36,11 @@ const BACKDROP: Layer[] = [
 ];
 const FRAME_LAYERS: Layer[] = [
   { name: "bg", depth: DEPTHS[0], file: "frame-4-vignette", dark: false, kind: "vignette" },
-  { name: "mid", depth: DEPTHS[2], file: "frame-3-inner", dark: true, kind: "frame" },
-  { name: "subject", depth: DEPTHS[3], file: "frame-2-secondary", dark: true, kind: "frame" },
-  { name: "fg", depth: DEPTHS[4], file: "frame-1-outer", dark: true, kind: "frame" },
+  // Back to front: the big cream sheet sits at the back and the sage sheet on top of it, so the nearer a sheet is the
+  // more it moves. (The asset manifest listed the factors the other way round; the art's own stacking wins.)
+  { name: "subject", depth: DEPTHS[3], file: "frame-1-outer", dark: true, kind: "frame" },
+  { name: "fg", depth: DEPTHS[4], file: "frame-2-secondary", dark: true, kind: "frame" },
+  { name: "fg", depth: DEPTHS[4], file: "frame-3-inner", dark: true, kind: "frame" },
 ];
 /** Alt text lives on the group; every layer is decorative. */
 export const DIORAMA_LAYERS = { backdrop: BACKDROP.map((l) => l.file), frame: FRAME_LAYERS.map((l) => l.file) } as const;

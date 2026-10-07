@@ -31,9 +31,13 @@
   --o-t: calc((100dvh - var(--fh)) / 2 + var(--fh) * 0.152);
   --o-w: calc(var(--fw) * 0.667);
   --o-h: calc(var(--fh) * 0.668);
+  /* The canvas and backdrop reach this far under the sheets so the nearest sheet's parallax never uncovers an edge. */
+  --ext-x: 12px;
+  --ext-y: 12px;
 }
 @media (max-aspect-ratio: 1/1) {
   .root {
+    --ext-x: 0px;
     --fh: 100dvh;
     --fw: calc(100dvh * var(--ar));
     --o-l: 10px;
@@ -47,10 +51,10 @@
 }
 .canvasWrap {
   position: absolute;
-  left: var(--o-l);
-  top: var(--o-t);
-  width: var(--o-w);
-  height: var(--o-h);
+  left: calc(var(--o-l) - var(--ext-x));
+  top: calc(var(--o-t) - var(--ext-y));
+  width: calc(var(--o-w) + var(--ext-x) * 2);
+  height: calc(var(--o-h) + var(--ext-y) * 2);
   z-index: 1;
   touch-action: none;
   pointer-events: auto;
@@ -79,10 +83,10 @@
 }
 .dioClip {
   position: absolute;
-  left: var(--o-l);
-  top: var(--o-t);
-  width: var(--o-w);
-  height: var(--o-h);
+  left: calc(var(--o-l) - var(--ext-x));
+  top: calc(var(--o-t) - var(--ext-y));
+  width: calc(var(--o-w) + var(--ext-x) * 2);
+  height: calc(var(--o-h) + var(--ext-y) * 2);
   overflow: hidden;
   z-index: 0;
   background: color-mix(in oklab, var(--color-ivory) 70%, var(--color-kraft));
@@ -144,10 +148,8 @@
     inset: auto -30% calc(var(--bleed) * -1) -30%;
   }
 }
-/* The outer cream sheet nearly vanishes on the navy page in dark: a paper rim and a soft lift keep its edge readable. */
-.dioLayer[data-layer="frame-1-outer"] .dioImg {
-  filter: drop-shadow(3px 5px 5px color-mix(in oklab, var(--shadow-ink) 26%, transparent));
-}
+/* The outer sheet carries its own soft shadow in the art (keyed to alpha). In dark it nearly vanishes on the navy
+   page, so a paper rim and a faint lift keep its edge readable (static filter, never animated). */
 :global([data-theme="dark"]) .dioLayer[data-layer="frame-1-outer"] .dioImg {
   filter: drop-shadow(0 0 1px color-mix(in oklab, var(--color-ivory) 70%, transparent))
     drop-shadow(0 0 12px color-mix(in oklab, var(--color-steel) 38%, transparent));
@@ -494,7 +496,7 @@
 }
 .title {
   margin: 0;
-  font: 600 clamp(2.6rem, 1.6rem + 5vw, 5.2rem)/0.95 var(--font-display);
+  font: 600 clamp(2.4rem, min(1.6rem + 5vw, var(--o-h) * 0.12), 5.2rem)/0.95 var(--font-display);
   letter-spacing: var(--tracking-hero);
   color: var(--lab-ink);
 }

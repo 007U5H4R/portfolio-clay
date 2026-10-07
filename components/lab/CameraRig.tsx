@@ -49,7 +49,9 @@ export function CameraRig() {
     const k = rt.introBlend;
     const dist = introDist + (play - introDist) * k;
     const centreY = (arena.floorY + arena.ceilingY) / 2 + 0.2;
-    focus.current += ((state === "RESULTS" ? 0.17 : 0.62) - focus.current) * (1 - Math.exp(-4 * dt));
+    // Landscape (the diorama's opening): seat the intro bear lower so it clears the title stack.
+    const introFocus = aspect > 1.2 ? 0.8 : 0.62;
+    focus.current += ((state === "RESULTS" ? 0.17 : introFocus) - focus.current) * (1 - Math.exp(-4 * dt));
     rt.resultsScale = Math.min(1.5, Math.max(0.9, 0.17 * introH));
     const bearMid = arena.introPos.y + 0.5 * (state === "RESULTS" ? rt.resultsScale : 1.9);
     const introY = bearMid + (focus.current - 0.5) * introH;
