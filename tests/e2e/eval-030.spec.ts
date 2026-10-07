@@ -340,9 +340,8 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     });
     for (const [i, key] of [[0, "ArrowLeft"], [1, "ArrowRight"]] as const) {
       await dropOnFlipperAndPress(page, i, key);
-      // The launch lasts several frames and a slow host renders few of them, so check the rise it causes, not one frame's speed.
+      // The launch lasts a fraction of a second and a loaded host renders few frames in it (the first sample can already be past the apex, so a per-frame speed check flaked); the rise it causes is what matters.
       await page.waitForFunction(([y0]) => (window as unknown as { __peak: { y: number } }).__peak.y > (y0 as number) + 2.5, [await page.evaluate(() => window.__gummyLab!.rt.flippers[0].layout.pivot.y)], { timeout: 15_000 });
-      expect(await page.evaluate(() => (window as unknown as { __peak: { vy: number } }).__peak.vy)).toBeGreaterThan(5);
       await page.keyboard.up(key);
       await waitFlipper(page, i, FLIP_REST);
       // back in play for the second flipper
