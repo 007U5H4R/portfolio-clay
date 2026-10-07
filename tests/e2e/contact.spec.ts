@@ -163,6 +163,22 @@ test("#resume is the Drive link: 'Resume ↗', new tab, no mailto, no unfinished
 });
 
 // ---------------------------------------------------------------------------
+// TASK-176 - the "Digital card" tile: internal /card link, same tab, no arrow.
+// ---------------------------------------------------------------------------
+test("Digital card tile links to /card in the same tab", async ({ page }) => {
+  test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
+  await page.goto("/contact", { waitUntil: "load" });
+  const tile = page.locator('section#contact a[data-link="card"]');
+  await expect(tile).toBeVisible();
+  await expect(tile).toHaveAccessibleName("Digital card");
+  await expect(tile).toHaveAttribute("href", "/card");
+  expect(await tile.getAttribute("target")).toBeNull();
+  await expect(tile).not.toContainText("↗");
+  const last = page.locator("section#contact [data-contact-secondary] > a").last();
+  await expect(last).toHaveAttribute("data-link", "card");
+});
+
+// ---------------------------------------------------------------------------
 // TC-170.1 — copied: forest border, announced, reverts to idle after 2 s.
 // ---------------------------------------------------------------------------
 test("CopyButton copies the email, shows 'Copied' with a forest border, then reverts", async ({ page }) => {
@@ -331,9 +347,9 @@ test("layout: story beside the card ≥ 1024, head → card → story below; sec
     expect(card.y + card.height, "the controls come before the decoration (spec §22)").toBeLessThanOrEqual(story.y + 1);
   }
 
-  // LinkedIn + résumé, plus GitHub under the band's S5 rule (a project links a public repo).
+  // LinkedIn + résumé + Digital card (TASK-176), plus GitHub under the band's S5 rule (a project links a public repo).
   const secondary = page.locator("section#contact [data-contact-secondary] > a");
-  await expect(secondary).toHaveCount((await page.locator('footer.band a[aria-label="GitHub"]').count()) ? 3 : 2);
+  await expect(secondary).toHaveCount((await page.locator('footer.band a[aria-label="GitHub"]').count()) ? 4 : 3);
   const [a, b] = [(await secondary.nth(0).boundingBox())!, (await secondary.nth(1).boundingBox())!];
   expect(Math.abs(a.width - b.width), "equal-width secondary buttons").toBeLessThanOrEqual(1);
   if (width(page) >= 560) expect(Math.abs(a.y - b.y), "two columns").toBeLessThanOrEqual(1);

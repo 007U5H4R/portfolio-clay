@@ -73,6 +73,17 @@ describe("ContactSection (TASK-113)", () => {
     expect(container.querySelector('[data-paper="card"]')!.contains(img)).toBe(true);
   });
 
+  it("TASK-176: 'Digital card' tile links to /card in the same tab (internal, no arrow)", () => {
+    const { container } = render(<ContactSection />);
+    const tile = container.querySelector('.cx-secondary a[data-link="card"]')!;
+    expect(tile).toHaveAttribute("href", "/card");
+    expect(tile).toHaveTextContent(/^Digital card$/);
+    expect(tile).toHaveAccessibleName("Digital card");
+    expect(tile).not.toHaveAttribute("target");
+    expect(tile.className).toContain("cx-btn-secondary");
+    expect(Array.from(container.querySelectorAll(".cx-secondary > a")).at(-1)).toBe(tile);
+  });
+
   it("résumé: the Drive link, 'Resume ↗', opens in a new tab (TASK-175)", () => {
     const { container } = render(<ContactSection />);
     const resume = container.querySelector("a#resume")!;
