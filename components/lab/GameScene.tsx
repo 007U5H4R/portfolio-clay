@@ -66,14 +66,17 @@ function World() {
   );
 }
 
-export default function GameScene({ runtime }: { runtime: LabRuntime }) {
+export default function GameScene({ runtime, onReady }: { runtime: LabRuntime; onReady?: () => void }) {
   const [dpr, setDpr] = useState(Math.min(runtime.tier.maxDpr, typeof window === "undefined" ? 1 : window.devicePixelRatio || 1));
   return (
     <Canvas
       dpr={dpr}
       camera={{ fov: FOV, near: 0.5, far: 120, position: [0, 3, 22] }}
-      gl={{ antialias: runtime.tier.antialias, powerPreference: "high-performance", alpha: false }}
+      // Transparent: the diorama's paper backdrop (DOM layers) shows through behind the world.
+      gl={{ antialias: runtime.tier.antialias, powerPreference: "high-performance", alpha: true }}
       onCreated={({ gl }) => {
+        gl.setClearColor(0x000000, 0);
+        onReady?.();
         gl.toneMapping = NeutralToneMapping;
         gl.toneMappingExposure = runtime.palette.isDark ? 0.95 : 1.02;
       }}

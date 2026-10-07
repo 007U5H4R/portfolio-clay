@@ -48,7 +48,7 @@ export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: 
       </Link>
       {state !== "EXITING" ? (
         <div className={styles.chromeRight}>
-          <button type="button" className={styles.iconBtn} aria-pressed={!muted} aria-label={muted ? "Sound is off. Turn sound on" : "Sound is on. Turn sound off"} onClick={(e) => {
+          <button type="button" className={styles.round} data-lab-sound="" aria-pressed={!muted} aria-label={muted ? "Sound is off. Turn sound on" : "Sound is on. Turn sound off"} onClick={(e) => {
             onMute();
             e.currentTarget.blur();
           }}>
@@ -56,6 +56,18 @@ export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: 
           </button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/** One blank paper plate with a live label and value. The value is real text (Fraunces numerals), never part of the art. */
+function Plate({ className, label, children }: { className: string | undefined; label: string; children: ReactNode }) {
+  return (
+    <div className={`${styles.plate} ${className}`}>
+      <div className={styles.plateInner}>
+        <span className={styles.hudLabel}>{label}</span>
+        {children}
+      </div>
     </div>
   );
 }
@@ -68,27 +80,29 @@ export function Hud({ store, onPause }: { store: LabStoreApi; onPause: () => voi
   const state = store((s) => s.state);
   return (
     <div className={styles.hud} data-lab-hud="">
-      <div className={styles.hudItem}>
-        <span className={styles.hudLabel}>Score</span>
+      <Plate className={styles.plateScore} label="Score">
         <span className={styles.hudValue} data-lab-score="">{fmtScore(score)}</span>
+      </Plate>
+      {/* Remounting on each change replays the lift + flutter once; reduced motion turns the animation off in CSS. */}
+      <div key={combo} className={`${styles.plate} ${styles.plateCombo} ${combo > 1 ? styles.flutter : ""}`} data-lab-combo-plate="">
+        <div className={styles.plateInner}>
+          <span className={styles.hudLabel}>Combo{tp ? " · TP" : ""}</span>
+          <span className={`${styles.hudValue} ${styles.combo}`} data-hot={combo >= 3} data-lab-combo="">x{combo}</span>
+        </div>
       </div>
-      <div className={styles.hudItem}>
-        <span className={styles.hudLabel}>Combo{tp ? " · TP" : ""}</span>
-        <span className={`${styles.hudValue} ${styles.combo}`} data-hot={combo >= 3} data-lab-combo="">x{combo}</span>
-      </div>
-      <div className={styles.hudItem}>
-        <span className={styles.hudLabel}>Time</span>
-        <span className={styles.hudTime}>
+      <div className={`${styles.plate} ${styles.plateTime}`}>
+        <div className={styles.plateInner}>
+          <span className={styles.hudLabel}>Time</span>
           <span className={styles.hudValue} data-lab-time="">{fmtTime(timeS)}</span>
-          {state === "PLAYING" || state === "DANGER" || state === "PAUSED" ? (
-            <button type="button" className={`${styles.iconBtn} ${styles.pause}`} aria-label={state === "PAUSED" ? "Resume" : "Pause"} onClick={(e) => {
-              onPause();
-              e.currentTarget.blur();
-            }}>
-              {state === "PAUSED" ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
-            </button>
-          ) : null}
-        </span>
+        </div>
+        {state === "PLAYING" || state === "DANGER" || state === "PAUSED" ? (
+          <button type="button" className={`${styles.round} ${styles.pause}`} data-lab-pause="" aria-label={state === "PAUSED" ? "Resume" : "Pause"} onClick={(e) => {
+            onPause();
+            e.currentTarget.blur();
+          }}>
+            {state === "PAUSED" ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
+          </button>
+        ) : null}
       </div>
     </div>
   );

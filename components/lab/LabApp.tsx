@@ -11,6 +11,7 @@ import { playExit, settleOverlay } from "@/components/easter-egg/transition";
 import { createRuntime } from "./create-runtime";
 import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
+import { Diorama } from "./Diorama";
 import { CenterText, Chrome, Hint, Hud, Intro, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
 import type { LabRuntime } from "./runtime";
@@ -44,6 +45,9 @@ export default function LabApp() {
       (window as unknown as { __gummyLab?: unknown }).__gummyLab = { rt: runtime, store };
     }
   }, [runtime, store]);
+
+  // The diorama's art is only requested once the canvas exists, so the lab's own first load is unchanged.
+  const [art, setArt] = useState(false);
 
   const exit = useCallback(
     (via: "portal" | "button" = "button") => {
@@ -170,9 +174,11 @@ export default function LabApp() {
       }}
     >
       {mode === "canvas" && runtime ? (
-        <div className={styles.canvasWrap} data-lab-canvas="" role="group" aria-label="Gummy Lab play field">
-          <GameScene runtime={runtime} />
-        </div>
+        <Diorama show={art}>
+          <div className={styles.canvasWrap} data-lab-canvas="" role="group" aria-label="Gummy Lab play field">
+            <GameScene runtime={runtime} onReady={() => setArt(true)} />
+          </div>
+        </Diorama>
       ) : null}
       {mode === "canvas" ? <Chrome store={store} onExit={() => exit("button")} onMute={toggleMute} /> : (
         <div className={styles.chrome}>
@@ -182,7 +188,7 @@ export default function LabApp() {
         </div>
       )}
       {mode === "canvas" ? (
-        <>
+        <div className={styles.opening}>
           {running ? <Hud store={store} onPause={togglePause} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />
@@ -194,7 +200,7 @@ export default function LabApp() {
           {state === "INTRO" ? <Intro onPlay={() => startRun("PLAY")} /> : null}
           {state === "PAUSED" ? <PauseCard onResume={togglePause} onExit={() => exit("button")} /> : null}
           {state === "RESULTS" ? <Results store={store} onReplay={() => startRun("REPLAY")} onExit={() => exit("button")} /> : null}
-        </>
+        </div>
       ) : (
         <Fallback onBack={() => exit("button")} />
       )}

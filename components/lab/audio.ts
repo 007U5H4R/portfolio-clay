@@ -67,7 +67,7 @@ export function equalPowerCurves(n = 32): { out: Float32Array; inn: Float32Array
   return { out, inn };
 }
 
-export function readSoundPref(storage: Pick<Storage, "getItem"> | null): boolean {
+export function readSoundPref(storage: Pick<Storage, "getItem"> | null | undefined): boolean {
   try {
     return storage?.getItem(STORAGE_KEY) === "on";
   } catch {
