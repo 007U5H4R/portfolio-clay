@@ -109,3 +109,7 @@ Common ending on all: "Muted luxury editorial palette, matte only ... No text, l
 - 'danger' -> sfx/tick (loop once per second during the DANGER countdown)
 - 'gameover' -> sfx/thud
 - New hooks not in the code today: UI pause/sound/intro buttons -> sfx/click; intro/pause/results card open/close -> sfx/rustle.
+
+## Local post-processing in the repo (TASK-168)
+- `art/frame-1-outer.webp` and `art/frame-1-outer-dark.webp` were re-keyed after delivery: the manifest art has an opaque page-colour surround (white `#FEFEFE` in light, navy in dark) outside the torn edge, which showed as a solid rectangle behind the frame. The surround (a neutral near-white region flood-filled from the border of the light file, one mask for both twins) is now transparent, and its baked shadow is kept as semi-transparent shadow-ink alpha. Script: `.eval/key-outer.mjs` (git-ignored; sharp, WebP q78 / alpha q80). Sizes: 184 KB light, 74 KB dark. Everything else is byte-identical to the manifest.
+- Stacking: the three frame sheets are drawn back to front as outer, secondary, inner (the art is built that way: the cream sheet is the big one at the back, sage on top).
