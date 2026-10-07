@@ -4,7 +4,7 @@
  *   - after warm-up (the second pass) 0 long animation frames > 200 ms and <= MAX_OVER_50 frames > 50 ms;
  *   - at rest (scroll top) 0 time-based CSS animations running while their target is outside the viewport
  *     (scroll-driven `view()` animations only advance when scrolled, so they are exempt);
- *   - <= 2 image preloads that apply to this viewport + scheme (a page preloads only its own LCP layers — TASK-149).
+ *   - <= 3 image preloads that apply to this viewport + scheme (a page preloads only its own LCP layers — TASK-149).
  * M-011's parallax lands on these routes: this is the guard that keeps the scroll smooth.
  */
 import { expect, test } from "@playwright/test";
@@ -48,8 +48,10 @@ for (const route of routes.static) {
       return { offscreen, preloads };
     });
     expect(rest.offscreen, "running animations outside the viewport at rest").toEqual([]);
-    // bg + the home hero's eager subject, hinted for this viewport + colour scheme only (PaperParallaxScene LcpPreloads).
-    expect(rest.preloads, "image preloads that apply to this viewport").toBeLessThanOrEqual(2);
+    // A page's own images only: the scene's bg (+ the home subject) hinted for this viewport + colour scheme (LcpPreloads, client-rendered so
+    // nav prefetch cannot replay it) and, on /projects, the first demo poster's next/image `priority` hint (client-rendered at hydration).
+    // Baseline was 12-14 here, most of them other tabs' heroes.
+    expect(rest.preloads, "image preloads that apply to this viewport").toBeLessThanOrEqual(3);
 
     const pass = async () => {
       const h = await page.evaluate(() => document.documentElement.scrollHeight);
