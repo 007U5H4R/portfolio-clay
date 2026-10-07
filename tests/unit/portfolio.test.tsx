@@ -291,7 +291,11 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const teachspark = products.find((p) => p.id === "teachspark");
     expect(teachspark?.pitchVideo).toEqual({ provider: "youtube", videoId: "ub7yB4LwMBM", title: "TeachSpark pitch video", poster: undefined });
     expect(teachspark?.demoVideo).toEqual({ provider: "youtube", videoId: "vWYbkGFjKyQ", title: "TeachSpark product demonstration", poster: undefined });
-    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-179: Pratyasa carries its launch pitch (a Short) + demo (Tushar 2026-10-07).
+    const pratyasa = products.find((p) => p.id === "pratyasa");
+    expect(pratyasa?.pitchVideo).toEqual({ provider: "youtube", videoId: "xqevuhTxKAQ", title: "Pratyasa pitch video", poster: undefined });
+    expect(pratyasa?.demoVideo).toEqual({ provider: "youtube", videoId: "Rl6MQiSBqh8", title: "Pratyasa product demonstration", poster: undefined });
+    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark", "pratyasa"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],
