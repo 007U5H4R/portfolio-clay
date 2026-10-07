@@ -72,7 +72,7 @@ describe("BandFooter — landmark + markup (§4.2)", () => {
     expect(decor).toHaveLength(1);
     expect(decor[0]!.getAttribute("data-decor")).toBe("torn");
     expect(footer.querySelector(".band-bar")?.textContent).toContain(
-      "© 2026 Tushar Pathak. I like ideas. I love making them real. 💓",
+      "© 2026 Tushar Pathak. I like ideas. I love making them real. ❤️",
     );
   });
 
@@ -84,7 +84,7 @@ describe("BandFooter — landmark + markup (§4.2)", () => {
     expect(container.querySelector(".band-hire")?.textContent).toBe("From “what if?” to “it’s live.” Let’s build what’s next.");
     // The heart is decorative: hidden from assistive tech, in a named emoji face.
     const heart = container.querySelector(".band-heart");
-    expect(heart?.textContent?.trim()).toBe("💓");
+    expect(heart?.textContent?.trim()).toBe("❤️");
     expect(heart?.getAttribute("aria-hidden")).toBe("true");
     expect(container.querySelector(".band-hire [data-paper='tag']")).toBeNull();
   });

@@ -108,7 +108,7 @@ export function BandFooter() {
               © 2026 Tushar Pathak. I like ideas. I love making them real.{" "}
               {/* Decorative: the emoji face is named so no glyph falls back to a system-font search (fallback-glyphs). */}
               <span className="band-heart" aria-hidden="true">
-                💓
+                ❤️
               </span>
             </span>
             <span className="band-tagline">
