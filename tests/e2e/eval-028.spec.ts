@@ -49,6 +49,26 @@ async function addSurface(page: Page, theme?: string) {
 
 const nodeCount = (page: Page) => page.locator(`#trail .${MARKER}`).count();
 
+/**
+ * TASK-165: record every trail node as it is spawned (src in order), so a stroke that outlasts the 1150 ms node
+ * lifetime under CPU contention (parallel workers, a loaded host) can't expire early nodes before they are counted.
+ * The live `nodeCount` still checks clean-up and the active cap.
+ */
+async function recordSpawns(page: Page) {
+  await page.evaluate((marker) => {
+    const w = window as unknown as { __spawned: string[] };
+    w.__spawned = [];
+    new MutationObserver((records) => {
+      for (const r of records) for (const n of r.addedNodes) if (n instanceof HTMLElement && n.classList.contains(marker)) w.__spawned.push(n.getAttribute("src") ?? "");
+    }).observe(document.getElementById("trail")!, { childList: true });
+  }, MARKER);
+  return {
+    count: () => page.evaluate(() => (window as unknown as { __spawned: string[] }).__spawned.length),
+    srcs: () => page.evaluate(() => [...(window as unknown as { __spawned: string[] }).__spawned]),
+    reset: () => page.evaluate(() => void ((window as unknown as { __spawned: string[] }).__spawned = [])),
+  };
+}
+
 async function drag(page: Page, from: [number, number], to: [number, number], steps: number, button: "left" | "right" = "left") {
   await page.mouse.move(from[0], from[1]);
   await page.mouse.down({ button });
@@ -214,8 +234,9 @@ test.describe("@EVAL-028 paper trail behaviour", () => {
     await page.goto("/");
     await mounted(page);
     await addSurface(page);
+    const spawned = await recordSpawns(page);
     const up = await drag(page, [60, 300], [660, 300], 40);
-    const n = await nodeCount(page);
+    const n = await spawned.count();
     expect(n).toBeGreaterThanOrEqual(5); // 1 on press + 600px / 110px
     expect(n).toBeLessThanOrEqual(7);
     const first = page.locator(`#trail .${MARKER}`).first();
@@ -236,10 +257,11 @@ test.describe("@EVAL-028 paper trail behaviour", () => {
     const box = (await hero.boundingBox())!;
     const y = Math.min(box.y + box.height / 2, page.viewportSize()!.height - 40);
     const x0 = box.x + 40;
+    const spawned = await recordSpawns(page);
     await page.mouse.move(x0, y);
     await page.mouse.down();
     await page.mouse.move(x0 + 520, y + 30, { steps: 30 });
-    expect(await nodeCount(page)).toBeGreaterThanOrEqual(4);
+    expect(await spawned.count()).toBeGreaterThanOrEqual(4);
     await page.mouse.up();
   });
 
@@ -303,15 +325,17 @@ test.describe("@EVAL-028 paper trail behaviour", () => {
     await page.goto("/");
     await mounted(page);
     await addSurface(page, "tushky");
+    const spawned = await recordSpawns(page);
     const up = await drag(page, [60, 300], [700, 300], 30);
-    const srcs = await page.locator(`#trail .${MARKER}`).evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute("src")));
+    const srcs = await spawned.srcs();
     expect(srcs.length).toBeGreaterThan(3);
     expect(new Set(srcs)).toEqual(new Set(["/cursor/trail/paw.svg"]));
     await up();
     await page.evaluate(() => document.getElementById("eval028-surface")?.setAttribute("data-cursor-theme", "railcite"));
     await expect.poll(() => nodeCount(page), { timeout: 4000 }).toBe(0);
+    await spawned.reset();
     const up2 = await drag(page, [60, 400], [700, 400], 30);
-    const srcs2 = await page.locator(`#trail .${MARKER}`).evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute("src")));
+    const srcs2 = await spawned.srcs();
     expect(srcs2[0]).toBe("/cursor/trail/rail-ticket.svg");
     await up2();
   });

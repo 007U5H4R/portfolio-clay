@@ -113,7 +113,7 @@ test("@EVAL-011 band footer renders its headline + live contact controls", async
   await expect(band.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", site.github);
   const resume = resumeAction();
   await expect(band.getByRole("link", { name: resume.label })).toHaveAttribute("href", resume.href);
-  await expect(band.getByText("Draft — pending sign-off")).toBeVisible();
+  await expect(band.getByText("Draft — pending sign-off")).toHaveCount(0); // signed off (TASK-167)
 
   for (const path of ["/contact", resume.href.split("#")[0]!]) {
     const res = await page.request.get(path);

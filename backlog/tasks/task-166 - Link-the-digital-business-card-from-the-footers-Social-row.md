@@ -1,10 +1,10 @@
 ---
 id: TASK-166
 title: Link the digital business card from the footer's Social row
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-06 15:17'
-updated_date: '2026-10-06 15:17'
+updated_date: '2026-10-06 16:08'
 labels:
   - P2
 dependencies: []

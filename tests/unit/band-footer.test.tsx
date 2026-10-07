@@ -76,15 +76,13 @@ describe("BandFooter — landmark + markup (§4.2)", () => {
     );
   });
 
-  it("links email to /contact and renders the DRAFT hiring tag in the on-band tone", async () => {
+  it("links email to /contact; the hiring line is signed off, so it carries no draft tag (TASK-167)", async () => {
     const { container } = await renderBand();
     const { site } = await import("@/lib/site");
     const email = screen.getByRole("link", { name: site.email });
     expect(email.getAttribute("href")).toBe("/contact");
-    const tag = container.querySelector(".band-hire [data-paper='tag']")!;
-    expect(tag.textContent).toBe("Draft — pending sign-off");
-    expect(tag).toHaveClass("text-ivory", "draft-tag-on-band");
-    expect(tag).not.toHaveClass("text-terracotta");
+    expect(container.querySelector(".band-hire")?.textContent).toContain("Hiring for PM, AI PM or AI-builder roles? Say hi.");
+    expect(container.querySelector(".band-hire [data-paper='tag']")).toBeNull();
   });
 });
 

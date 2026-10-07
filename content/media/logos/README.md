@@ -23,9 +23,8 @@ Shellkode, Quantiphi and Bhilai Institute of Technology, Durg have no file on Wi
 Quantiphi and Bhilai Institute of Technology Durg in the Experience tab … enhance the quality"). Processing,
 all in Python/Pillow, nothing redrawn or recoloured: the white canvas is turned transparent with a colour-to-alpha
 pass (keeps anti-aliased edges), trimmed to the mark with a few px of margin, and sized for ~3× the logo card
-(max 170 × 132 CSS px). BIT Durg's source is a 200 × 200 JPEG, so it was median-denoised, upscaled 2× with
-Lanczos and lightly sharpened before the alpha pass (the Recraft AI upscaler was unavailable that day — re-run a
-crisp AI upscale from the source if a sharper version is wanted). Its triangles' soft white highlights become
+(max 170 × 132 CSS px). BIT Durg's source is a 200 × 200 JPEG, so it was AI-upscaled to 2160 × 2160 (Higgsfield `upscale_image`, bytedance model, job `a02d88aa-6047-4b76-b890-07ed66450146`, 2 credits, 2026-10-06) before the alpha pass, then saved as WebP q75 (text checked legible). It replaced an earlier local Lanczos 2× version.
+Its triangles' soft white highlights become
 partly transparent; the logo always sits on a light backing (light card, or the dark-mode paper label), where it
 reads as the original. Originals: `/Volumes/E Drive/Dev/.scratch/logos/*-src.*`.
 
@@ -33,7 +32,7 @@ reads as the original. Originals: `/Volumes/E Drive/Dev/.scratch/logos/*-src.*`.
 |---|---|---|---|---|---|---|
 | `shellkode.webp` | `shellcode-private-limited@3x.png` (2520 × 1080) | white → alpha, trim, 510 w, lossless WebP | 510 × 86 | 12,784 | `d40533ddf96e1960` | Shellkode logo card, alt "Shellkode" |
 | `quantiphi.webp` | `quantiphi-inc-logo-vector.png` (900 × 500) | white → alpha, trim, 510 w, lossless WebP | 510 × 95 | 10,160 | `f3fc118742f82854` | Quantiphi logo card, alt "Quantiphi" |
-| `bit-durg.webp` | `1631339146254.jpeg` (200 × 200) | denoise, 2× Lanczos, sharpen, white → alpha, trim, WebP q90 | 412 × 408 | 59,928 | `de038b9e73041ea1` | BIT Durg logo card, alt "Bhilai Institute of Technology, Durg" |
+| `bit-durg.webp` | `1631339146254.jpeg` (200 × 200) | AI upscale to 2160², white → alpha, trim, WebP q75 | 420 × 420 | 68,520 | `0f3e9759aaac377d` | BIT Durg logo card, alt "Bhilai Institute of Technology, Durg" |
 
 In dark mode the logo cards turn navy, which would bury dark marks; every `.ct-logo-img` gets its own light
 paper label there (`globals.css`, the same move as the certification badges).

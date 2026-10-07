@@ -1,10 +1,10 @@
 ---
 id: TASK-151
 title: 'M-011 Paper World: Stages 1-6 and the layered pilot scene'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-06 09:08'
-updated_date: '2026-10-06 09:16'
+updated_date: '2026-10-06 09:50'
 labels:
   - P1
 milestone: m-10
@@ -22,5 +22,5 @@ Full-tier build chain for docs/specs/m-011/paper-world.md (S31-S34): discovery +
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Solution-PRD addendum, evaluation-plan rows, Design.md section and track tickets exist; pilot scene passes its EXE style gate
+- [x] #1 Solution-PRD addendum, evaluation-plan rows, Design.md section and track tickets exist; pilot scene passes its EXE style gate
 <!-- AC:END -->
