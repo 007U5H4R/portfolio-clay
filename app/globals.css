@@ -106,6 +106,19 @@
   --ease-reveal: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-panel: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-vt: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Interaction motion tokens (M-012, TASK-181, Design.md §14.10; decisions S35, EXE-59…64). Mirrored in lib/motion.ts
+     (`easings.paper/l1/press`, `interactionDurations`) and checked by tests/unit/interaction-tokens.test.ts.
+     Levels: L1 150–250 ms · L2 300–700 ms · L3 500–1200 ms. */
+  --ease-paper: cubic-bezier(0.22, 1, 0.36, 1); /* L2/L3 premium deceleration */
+  --ease-l1: cubic-bezier(0.25, 1, 0.5, 1); /* L1, tighter */
+  --ease-press: cubic-bezier(0.3, 0.7, 0.4, 1.4); /* the §14.6 paper-button overshoot */
+  --dur-l1: 180ms;
+  --dur-l1-out: 150ms;
+  --dur-l2: 420ms;
+  --dur-l2-out: 320ms;
+  --dur-l3: 700ms;
+  --dur-press: 90ms;
 }
 
 /*
@@ -1195,10 +1208,7 @@ body::before {
     border-radius: 999px;
     line-height: 1;
     text-decoration: none;
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease,
-      border-color 180ms ease;
+    /* transitions + hover/press: the paper-button contract (TASK-181 block); the old box-shadow transition is gone */
   }
   .hero-btn-primary {
     background: var(--color-rust);
@@ -1207,9 +1217,6 @@ body::before {
     font-weight: 600;
     box-shadow: 0 8px 18px -10px color-mix(in oklab, var(--color-rust) 70%, transparent);
   }
-  .hero-btn-primary:hover {
-    box-shadow: 0 12px 22px -10px color-mix(in oklab, var(--color-rust) 80%, transparent); /* lift: the M-011 P3 paper-button block */
-  }
   .hero-btn-secondary {
     background: var(--color-ivory);
     color: var(--color-navy);
@@ -1217,9 +1224,6 @@ body::before {
     font-family: var(--font-body);
     font-size: 15px;
     font-weight: 500;
-  }
-  .hero-btn-secondary:hover {
-    border-color: var(--color-navy-2);
   }
   .hero-btn-glyph {
     width: 16px;
@@ -1233,9 +1237,6 @@ body::before {
   @media (prefers-reduced-motion: reduce) {
     .hero-btn {
       transition: none;
-    }
-    .hero-btn-primary:hover {
-      transform: none;
     }
   }
 }
@@ -1379,10 +1380,7 @@ body::before {
     line-height: 1;
     text-decoration: none;
     box-shadow: 0 6px 14px -8px color-mix(in oklab, var(--color-navy) 50%, transparent);
-    transition: transform 180ms ease;
-  }
-  .header-pill:hover {
-    transform: translateY(-1px);
+    /* hover/focus/press: the paper-button contract (TASK-181 block, end of file) */
   }
   .header-ask {
     display: inline-grid;
@@ -1398,10 +1396,6 @@ body::before {
   .header-ask {
     border: 1.5px solid transparent;
     background: transparent;
-  }
-  .header-ask:hover {
-    border-color: var(--line);
-    background: var(--color-ivory);
   }
   .ask-glyph {
     width: 20px;
@@ -1445,14 +1439,6 @@ body::before {
     pointer-events: none;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .header-pill {
-      transition: none;
-    }
-    .header-pill:hover {
-      transform: none;
-    }
-  }
 }
 
 /* TKT-72 · band — the terracotta band footer on every route (Design.md §4.2, §2.1 contrast; decisions
@@ -1541,9 +1527,6 @@ body::before {
     text-decoration-color: color-mix(in oklab, var(--on-band) 35%, transparent);
     overflow-wrap: anywhere;
   }
-  .band-email:hover {
-    text-decoration-color: var(--band-accent);
-  }
   .band-social {
     display: flex;
     gap: 14px;
@@ -1559,10 +1542,7 @@ body::before {
     border-radius: 50%;
     background: var(--color-ivory);
     color: var(--color-terracotta);
-    transition: transform 0.18s ease;
-  }
-  .band-social a:hover {
-    transform: translateY(-2px);
+    transition: transform var(--dur-l1) var(--ease-l1);
   }
   .band-social svg {
     width: 22px;
@@ -1601,14 +1581,6 @@ body::before {
     color: var(--band-accent);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .band-social a {
-      transition: none;
-    }
-    .band-social a:hover {
-      transform: none;
-    }
-  }
 }
 
 /* TKT-94 · lenis — the recommended rules for the installed Lenis (1.3.26, `lenis/dist/lenis.css`, minus
@@ -2312,10 +2284,8 @@ html.lenis body {
     line-height: 1.2;
     color: var(--color-ivory);
     text-decoration: none;
+    /* the torn silhouette needs this filter, so it is static: hover never changes it (EXE-61) */
     filter: drop-shadow(0 2px 3px color-mix(in oklab, var(--color-terracotta) 30%, transparent));
-    transition:
-      translate 0.18s ease,
-      filter 0.18s ease;
   }
   .fw-card-anchor .fw-cta {
     min-height: 54px;
@@ -2334,19 +2304,6 @@ html.lenis body {
   }
   .fw-cta-arrow {
     flex: none;
-    transition: translate 0.18s ease;
-  }
-  .fw-cta:hover,
-  .fw-cta:focus-visible {
-    translate: 0 -1px;
-    filter: drop-shadow(0 5px 7px color-mix(in oklab, var(--color-terracotta) 42%, transparent));
-  }
-  .fw-cta:hover .fw-cta-arrow,
-  .fw-cta:focus-visible .fw-cta-arrow {
-    translate: 3px 0;
-  }
-  .fw-cta:hover::before {
-    background-color: var(--color-terracotta);
   }
 
   /* art — stacked (phones, and the side cards below 1200): a crop of the collage's right side */
@@ -2467,18 +2424,6 @@ html.lenis body {
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .fw-cta,
-    .fw-cta-arrow {
-      transition: none;
-    }
-    .fw-cta:hover,
-    .fw-cta:focus-visible,
-    .fw-cta:hover .fw-cta-arrow,
-    .fw-cta:focus-visible .fw-cta-arrow {
-      translate: none;
-    }
-  }
 }
 
 /* Unlayered (to win over the TornEdge fill utility and `.reveal`): the torn edge takes the section's
@@ -4766,14 +4711,13 @@ html.lenis body {
     text-decoration: none;
     transition:
       translate 200ms var(--ease-hover),
-      box-shadow 200ms var(--ease-hover),
       border-color 200ms var(--ease-hover),
       background-color 200ms var(--ease-hover);
   }
   .cx-btn svg,
   .cx-btn-arrow {
     flex: none;
-    transition: translate 200ms var(--ease-hover);
+    transition: translate var(--dur-l1) var(--ease-l1);
   }
   .cx-btn-primary {
     justify-self: start;
@@ -4791,13 +4735,6 @@ html.lenis body {
   }
   .cx-btn-arrow {
     display: inline-block;
-  }
-  .cx-btn-primary:hover {
-    translate: 0 -2px;
-    box-shadow: 0 16px 26px -12px color-mix(in oklab, var(--color-rust) 85%, transparent);
-  }
-  .cx-btn-primary:hover .cx-btn-arrow {
-    translate: 3px 0;
   }
   .cx-divider {
     margin: 0;
@@ -4826,16 +4763,6 @@ html.lenis body {
     font-weight: 500;
     line-height: 1.25;
     box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
-  }
-  .cx-btn-secondary:hover {
-    border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
-    background: var(--color-ivory);
-  }
-  .cx-btn-secondary[data-link="linkedin"]:hover .cx-in {
-    translate: 0 -1px;
-  }
-  .cx-btn-secondary:hover .cx-btn-down {
-    translate: 0 2px;
   }
   .cx-in {
     display: inline-grid;
@@ -5249,12 +5176,6 @@ html.lenis body {
     .cx-in,
     .copy-btn {
       transition: none;
-    }
-    .cx-btn-primary:hover,
-    .cx-btn-primary:hover .cx-btn-arrow,
-    .cx-btn-secondary:hover .cx-btn-down,
-    .cx-btn-secondary[data-link="linkedin"]:hover .cx-in {
-      translate: none;
     }
   }
 }
@@ -5692,16 +5613,9 @@ html.lenis body {
     line-height: 1.3;
     color: var(--color-navy);
     text-decoration: none;
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease;
   }
   .hit-pill-arrow {
     flex: none;
-  }
-  .hit-pill:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-paper-hover);
   }
 
   /* ---- the collage backdrop: ONE decoration object, pieces positioned in its box ---- */
@@ -5783,14 +5697,6 @@ html.lenis body {
   @media (max-width: 440px) {
     .hit-stages {
       grid-template-columns: 1fr;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hit-pill {
-      transition: none;
-    }
-    .hit-pill:hover {
-      transform: none;
     }
   }
 }
@@ -10090,17 +9996,13 @@ html.lenis body {
     box-shadow:
       0 0 0 6px color-mix(in oklab, var(--color-ivory) 18%, transparent),
       0 12px 26px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
-    transition: translate 160ms var(--ease-hover), background-color 160ms var(--ease-hover);
+    /* transition + hover/press: the TASK-181 block */
   }
   .pf-play svg {
     width: 42%;
     height: 42%;
     margin-left: 7%;
     fill: currentColor;
-  }
-  .pf-play:hover {
-    translate: 0 -2px;
-    background: color-mix(in oklab, var(--color-navy) 78%, transparent);
   }
   /* no recording yet: a small torn kraft tag pinned to the poster's lower-right corner, clear of the
      lettering (never a dead play button) */
@@ -10552,7 +10454,7 @@ html.lenis body {
     color: var(--color-navy);
     text-decoration: none;
     filter: var(--pf-contact) drop-shadow(0 4px 5px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
-    transition: translate 160ms var(--ease-hover), filter 160ms var(--ease-hover);
+    /* hover/focus/press and the transition: the TASK-181 block; the filter is static (EXE-61) */
   }
   .pf-action::before {
     content: "";
@@ -10631,7 +10533,6 @@ html.lenis body {
   .pf-action-arrow {
     width: 18px;
     height: 18px;
-    transition: translate 160ms var(--ease-hover);
   }
   .pf-action[data-action="pitch"] { --pf-strip: var(--strip-coral); --pf-strip-ink: var(--color-terracotta); }
   .pf-action[data-action="demo"] { --pf-strip: var(--strip-blue); --pf-strip-ink: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy)); }
@@ -10639,15 +10540,6 @@ html.lenis body {
   .pf-action[data-action="github"] { --pf-strip: var(--strip-lavender); --pf-strip-ink: color-mix(in oklab, color-mix(in oklab, var(--color-steel) 60%, var(--color-rust)) 70%, var(--color-navy)); }
   .pf-action[data-action="prd"] { --pf-strip: var(--strip-yellow); --pf-strip-ink: color-mix(in oklab, var(--color-rust) 60%, var(--color-kraft)); }
   .pf-action[data-action="case"] { --pf-strip: color-mix(in oklab, var(--color-kraft) 62%, var(--color-ivory)); --pf-strip-ink: var(--color-terracotta); }
-  .pf-action:hover {
-    translate: 0 -2px;
-  }
-  .pf-action:hover {
-    filter: var(--pf-contact) drop-shadow(0 8px 8px color-mix(in oklab, var(--color-terracotta) 20%, transparent));
-  }
-  .pf-action:hover .pf-action-arrow {
-    translate: 3px 0;
-  }
   /* pressed (current media mode): a deeper strip + a hand-underline — never colour alone */
   .pf-action[aria-pressed="true"]::before {
     background-color: color-mix(in oklab, var(--pf-strip) 72%, var(--pf-strip-ink));
@@ -10788,7 +10680,7 @@ html.lenis body {
     background: none;
     border: 0;
     filter: var(--pf-contact) var(--pf-ambient);
-    transition: translate 140ms var(--ease-hover);
+    /* transition + hover/focus nudge: the TASK-181 block */
   }
   .pf-arrow::before {
     content: "";
@@ -10812,12 +10704,6 @@ html.lenis body {
   .pf-arrow svg {
     width: 24px;
     height: 24px;
-  }
-  .pf-arrow[data-dir="prev"]:hover {
-    translate: -2px 0;
-  }
-  .pf-arrow[data-dir="next"]:hover {
-    translate: 2px 0;
   }
   @media (min-width: 1024px) {
     .pf-arrow {
@@ -12191,9 +12077,6 @@ html.lenis body {
     font-size: 16px;
     font-weight: 600;
     box-shadow: 0 2px 0 color-mix(in oklab, var(--shadow-ink) 60%, transparent);
-    transition:
-      translate 180ms ease,
-      box-shadow 180ms ease;
   }
   .acx-btn-primary {
     background: var(--color-rust);
@@ -12204,16 +12087,7 @@ html.lenis body {
     color: var(--color-navy);
   }
   .acx-arrow {
-    transition: translate 180ms ease;
-  }
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .acx-btn:hover {
-      translate: 0 -1px;
-      box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
-    }
-    .acx-btn:hover .acx-arrow {
-      translate: 3px 0;
-    }
+    display: inline-block;
   }
   .acx-horizon {
     position: absolute;
@@ -12366,7 +12240,7 @@ html.lenis body {
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 160ms var(--ease-hover);
+  transition: transform var(--dur-l1) var(--ease-l1);
 }
 .tt-window {
   position: absolute;
@@ -12379,7 +12253,7 @@ html.lenis body {
     inset 0 0 0 2px var(--color-ivory),
     inset 0 2px 5px color-mix(in oklab, var(--color-navy) 28%, transparent),
     var(--shadow-paper);
-  transition: box-shadow 200ms ease;
+  /* M-012 (EXE-61): the hover shadow swaps (TASK-181 block); box-shadow is never transitioned */
 }
 .tt-scene {
   position: absolute;
@@ -12445,15 +12319,6 @@ html.lenis body {
 [data-theme="dark"] .tt-scene-dark {
   transform: translateX(-2px);
 }
-.theme-toggle:hover {
-  transform: translateY(-1px);
-}
-.theme-toggle:hover .tt-window {
-  box-shadow:
-    inset 0 0 0 2px var(--color-ivory),
-    inset 0 2px 5px color-mix(in oklab, var(--color-navy) 28%, transparent),
-    var(--shadow-paper-hover);
-}
 .theme-toggle:active {
   transform: translateY(1px);
 }
@@ -12499,7 +12364,6 @@ html.lenis body {
   .tt-veil {
     transition: none;
   }
-  .theme-toggle:hover,
   .theme-toggle:active {
     transform: none;
   }
@@ -12675,17 +12539,14 @@ html[data-theme-vt]::view-transition-group(root) {
   border-radius: 7px;
   background: var(--color-paper);
   box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 16%, transparent), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
-  transition: transform 160ms var(--ease-hover), box-shadow 160ms var(--ease-hover);
+  /* M-012 (EXE-61): the shadow swaps with the state; only the paper moves (hover/focus/press rules: the TASK-181 block) */
+  transition: transform var(--dur-l1) var(--ease-l1);
 }
 .header-nav-link:nth-child(odd)::before {
   transform: rotate(-0.5deg);
 }
 .header-nav-link:nth-child(even)::before {
   transform: rotate(0.4deg);
-}
-.header-nav-link:hover::before {
-  transform: translateY(-1px) rotate(0deg);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent), 0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
 }
 .header-nav-link[aria-current="page"]::before {
   background: color-mix(in oklab, var(--color-terracotta) 12%, var(--color-ivory));
@@ -12702,14 +12563,12 @@ html[data-theme-vt]::view-transition-group(root) {
   box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
   transform: scaleX(0) rotate(-0.8deg);
   transform-origin: left center;
-  transition: transform 220ms var(--ease-hover);
+  transition: transform 200ms var(--ease-l1);
   pointer-events: none;
 }
-.header-nav-link:hover .hn-strip {
-  transform: scaleX(0.5) rotate(-0.8deg);
-}
 .header-nav-link[aria-current="page"] .hn-strip,
-.header-nav-link[aria-current="page"]:hover .hn-strip {
+.header-nav-link[aria-current="page"]:hover .hn-strip,
+.header-nav-link[aria-current="page"]:focus-visible .hn-strip {
   transform: scaleX(1) rotate(-0.8deg);
 }
 
@@ -12723,9 +12582,6 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .header-pill-arrow {
   display: inline-block;
-}
-.header-pill:hover {
-  transform: translateY(-1px) rotate(-0.4deg);
 }
 
 /* theme control: just the capsule switch — no paper chip behind it (Tushar, 2026-10-06; TASK-154) */
@@ -12744,13 +12600,8 @@ html[data-theme-vt]::view-transition-group(root) {
 
 @media (prefers-reduced-motion: reduce) {
   .header-nav-link::before,
-  .hn-strip,
-  .header-pill:hover {
+  .hn-strip {
     transition: none;
-  }
-  .header-nav-link:hover::before,
-  .header-pill:hover {
-    transform: none;
   }
 }
 /* end M-010 T4 nav */
@@ -13123,31 +12974,9 @@ html[data-theme-vt]::view-transition-group(root) {
    property (compositor); the shadow swaps with the state and is never transitioned (transform/opacity only,
    TASK-155). Shadows cast bottom-right from --shadow-ink (§14.2). Colours and shapes stay each family's own.
    ================================================================================================== */
-/* (unlayered on purpose: some families, e.g. .think-btn, are unlayered upstream) */
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
-  box-shadow: var(--depth-1);
-  transition:
-    translate 160ms cubic-bezier(0.3, 0.7, 0.4, 1.4),
-    background-color 160ms ease,
-    border-color 160ms ease;
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover {
-  translate: 0 -1px;
-  box-shadow: var(--depth-2);
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
-  translate: 0 1px;
-  box-shadow: var(--depth-0);
-}
-@media (prefers-reduced-motion: reduce) {
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
-    transition: none;
-  }
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover,
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
-    translate: none;
-  }
-}
+/* The contract's rules (rest, hover, focus-visible, press, reduced motion) now live in the M-012 / TASK-181 interaction block at the
+   end of this file, which also adds the focus twins, the fine-pointer gate and the .hit-pill / .acx-btn / .header-pill /
+   .pf-action / .pf-play family members. */
 
 /* M-011 P4 (TASK-160, spec §22–§23, EXE-53) · skills as paper tags, the experience rail as a paper strip.
    Unlayered overrides of the TKT-86 / TKT-101 rules above; markup and copy are untouched (D7). */
@@ -13272,3 +13101,410 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
+
+/* ==================================================================================================
+   M-012 · TASK-181 (P1) · interaction system — primitives + L1 surfaces (Design.md §14.10; Solution-PRD §15;
+   decisions S35, EXE-59…64). Three levels: L1 150–250 ms (nav, links, buttons, icons), L2 300–700 ms (cards),
+   L3 500–1200 ms (signatures). Rules, in force here:
+   - only translate / transform / rotate / opacity animate (colour for L1 text); box-shadow and filter are NEVER
+     transitioned: an L1 shadow swaps with the state, an L2 shadow is a pseudo-element whose opacity crossfades;
+   - every :hover has a :focus-visible twin; :hover is gated to (hover: hover) and (pointer: fine) so a tap leaves
+     nothing stuck, :focus-visible is not (a keyboard on a touch device still gets feedback); touch gets :active;
+   - reduced motion keeps non-motion feedback (shadow swap, colour) and drops translate / rotate / tilt;
+   - nothing here scales up on hover (EVAL-040).
+   Unlayered on purpose (some families are unlayered upstream) and last, so it wins over the layered rules above.
+   ================================================================================================== */
+
+/* ---- the paper-button contract (Design.md §14.6, EVAL-037): rest PAPER-1 · hover/focus PAPER-2 + 1 px lift · press 1 px
+   down + PAPER-0 · release springs back (160 ms, capped overshoot). The lift is the individual `translate` property
+   (compositor); shadows swap and are never transitioned. Families: the original six + the M-012 members. ---- */
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
+  box-shadow: var(--depth-1);
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play) {
+  transition:
+    translate 160ms var(--ease-press),
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):focus-visible {
+  translate: 0 -1px;
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):focus-visible {
+  box-shadow: var(--depth-2);
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):hover {
+    translate: 0 -1px;
+  }
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover {
+    box-shadow: var(--depth-2);
+  }
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):active {
+  translate: 0 1px;
+}
+:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
+  box-shadow: var(--depth-0);
+}
+
+/* members that keep their own paper: the hover shadow SWAPS (never transitions) */
+.hit-pill:focus-visible {
+  box-shadow: var(--shadow-paper-hover);
+}
+.acx-btn:focus-visible {
+  box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
+}
+.header-pill:focus-visible {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
+    0 8px 11px -3px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hit-pill:hover {
+    box-shadow: var(--shadow-paper-hover);
+  }
+  .acx-btn:hover {
+    box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
+  }
+  .header-pill:hover {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
+      0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
+      0 8px 11px -3px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
+  }
+}
+.header-pill:active {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+}
+
+/* colour feedback that rides the same states (non-motion: it stays under reduced motion) */
+.hero-btn-secondary:focus-visible,
+.cx-btn-secondary:focus-visible {
+  border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
+}
+.cx-btn-secondary:focus-visible {
+  background: var(--color-ivory);
+}
+.pf-play:focus-visible {
+  background: color-mix(in oklab, var(--color-navy) 78%, transparent);
+}
+.header-ask:focus-visible {
+  border-color: var(--line);
+  background: var(--color-ivory);
+}
+.band-email:focus-visible {
+  text-decoration-color: var(--band-accent);
+}
+.fw-cta:focus-visible::before {
+  background-color: var(--color-terracotta);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-btn-secondary:hover {
+    border-color: var(--color-navy-2);
+  }
+  .cx-btn-secondary:hover {
+    border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
+    background: var(--color-ivory);
+  }
+  .pf-play:hover {
+    background: color-mix(in oklab, var(--color-navy) 78%, transparent);
+  }
+  .header-ask:hover {
+    border-color: var(--line);
+    background: var(--color-ivory);
+  }
+  .band-email:hover {
+    text-decoration-color: var(--band-accent);
+  }
+  .fw-cta:hover::before {
+    background-color: var(--color-terracotta);
+  }
+}
+.header-ask {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    translate var(--dur-l1) var(--ease-l1);
+}
+
+/* ---- the arrow nudge (3 px; the brief's "arrow responds"). One custom property on the host, one rule on the arrow. ---- */
+.btn-arrow,
+.cx-btn-arrow,
+.header-pill-arrow,
+.hit-pill-arrow,
+.fw-cta-arrow,
+.pf-action-arrow,
+.acx-arrow {
+  translate: var(--arrow-x, 0px) 0;
+  transition: translate var(--dur-l1) var(--ease-l1);
+}
+.btn-arrow,
+.header-pill-arrow,
+.acx-arrow {
+  display: inline-block;
+}
+:is(.hero-btn, .cx-btn, .header-pill, .hit-pill, .fw-cta, .pf-action, .acx-btn):focus-visible {
+  --arrow-x: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.hero-btn, .cx-btn, .header-pill, .hit-pill, .fw-cta, .pf-action, .acx-btn):hover {
+    --arrow-x: 3px;
+  }
+}
+/* the Contact secondary glyphs keep their own small nudges (Design.md §14.10: L1 icons) */
+.cx-btn-secondary:focus-visible .cx-btn-down {
+  translate: 0 2px;
+}
+.cx-btn-secondary[data-link="linkedin"]:focus-visible .cx-in {
+  translate: 0 -1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cx-btn-secondary:hover .cx-btn-down {
+    translate: 0 2px;
+  }
+  .cx-btn-secondary[data-link="linkedin"]:hover .cx-in {
+    translate: 0 -1px;
+  }
+}
+
+/* ---- header nav: the tab paper lifts 1 px and squares up, its shadow swaps, the terracotta strip wipes to half; the
+   label never moves (EVAL-040) ---- */
+.header-nav-link:focus-visible::before {
+  /* one `transform` (rotation + lift): lightningcss rewrites a `translate` + `transform` pair in one block and breaks the press */
+  transform: translateY(-1px) rotate(0deg);
+  box-shadow:
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
+    0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+}
+.header-nav-link:focus-visible .hn-strip {
+  transform: scaleX(0.5) rotate(-0.8deg);
+}
+@media (hover: hover) and (pointer: fine) {
+  .header-nav-link:hover::before {
+    transform: translateY(-1px) rotate(0deg);
+    box-shadow:
+      0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
+      0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+  }
+  .header-nav-link:hover .hn-strip {
+    transform: scaleX(0.5) rotate(-0.8deg);
+  }
+}
+.header-nav-link:active::before {
+  transform: translateY(1px) rotate(0deg);
+}
+
+/* ---- icons and small controls (L1): the existing travel, now with focus twins, the fine-pointer gate and a touch press ---- */
+.band-social a:focus-visible {
+  transform: translateY(-2px);
+}
+.theme-toggle:focus-visible {
+  transform: translateY(-1px);
+}
+.theme-toggle:focus-visible .tt-window {
+  box-shadow:
+    inset 0 0 0 2px var(--color-ivory),
+    inset 0 2px 5px color-mix(in oklab, var(--color-navy) 28%, transparent),
+    var(--shadow-paper-hover);
+}
+.pf-arrow {
+  transition: translate var(--dur-l1) var(--ease-l1);
+}
+.pf-arrow[data-dir="prev"]:focus-visible {
+  translate: -2px 0;
+}
+.pf-arrow[data-dir="next"]:focus-visible {
+  translate: 2px 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .band-social a:hover {
+    transform: translateY(-2px);
+  }
+  .theme-toggle:hover {
+    transform: translateY(-1px);
+  }
+  .theme-toggle:hover .tt-window {
+    box-shadow:
+      inset 0 0 0 2px var(--color-ivory),
+      inset 0 2px 5px color-mix(in oklab, var(--color-navy) 28%, transparent),
+      var(--shadow-paper-hover);
+  }
+  .pf-arrow[data-dir="prev"]:hover {
+    translate: -2px 0;
+  }
+  .pf-arrow[data-dir="next"]:hover {
+    translate: 2px 0;
+  }
+}
+.band-social a:active {
+  transform: translateY(1px);
+}
+.theme-toggle:active {
+  transform: translateY(1px);
+}
+.header-ask:active,
+.pf-arrow:active {
+  translate: 0 1px;
+}
+
+/* ---- .pf-action (a torn strip whose silhouette needs a filter): the filter stays STATIC; the hover shadow is a pseudo-element
+   with the strip's own mask whose opacity crossfades (EXE-61) ---- */
+.pf-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-color: color-mix(in oklab, var(--color-terracotta) 34%, transparent);
+  -webkit-mask: var(--pf-tear-strip-a) 0 0 / 100% 100% no-repeat;
+  mask: var(--pf-tear-strip-a) 0 0 / 100% 100% no-repeat;
+  filter: blur(5px);
+  translate: 2px 5px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-l1-out) var(--ease-l1);
+}
+.pf-actions li:nth-child(3n + 2) .pf-action::after {
+  -webkit-mask: var(--pf-tear-strip-b) 0 0 / 100% 100% no-repeat;
+  mask: var(--pf-tear-strip-b) 0 0 / 100% 100% no-repeat;
+}
+.pf-actions li:nth-child(3n) .pf-action::after,
+.pf-case-link.pf-action::after {
+  -webkit-mask: var(--pf-tear-strip-c) 0 0 / 100% 100% no-repeat;
+  mask: var(--pf-tear-strip-c) 0 0 / 100% 100% no-repeat;
+}
+.pf-action:focus-visible::after {
+  opacity: 0.9;
+  transition-duration: var(--dur-l1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pf-action:hover::after {
+    opacity: 0.9;
+    transition-duration: var(--dur-l1);
+  }
+}
+.pf-action:active::after {
+  opacity: 0.3;
+}
+
+/* ---- primitives for objects (P2 consumes them): the CSS custom-property contract that `paperMotion`'s object channel
+   feeds (--hx / --hy ∈ [-1, 1] on the one active object; Design.md §14.10) and the L2 shadow crossfade ---- */
+[data-pm-obj] {
+  --hx: 0;
+  --hy: 0;
+}
+.pm-layer {
+  --pm-r: 0px;
+  translate: calc(var(--hx, 0) * var(--pm-r)) calc(var(--hy, 0) * var(--pm-r));
+}
+.pm-layer[data-pm-depth="bg"] {
+  --pm-r: var(--pm-r-bg, 2px);
+}
+.pm-layer[data-pm-depth="art"] {
+  --pm-r: var(--pm-r-art, 4px);
+}
+.pm-layer[data-pm-depth="fg"] {
+  --pm-r: var(--pm-r-fg, 6px);
+}
+[data-pm-obj][data-pm-active] .pm-layer {
+  will-change: translate;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-pm-tilt] {
+    transform: perspective(1200px) rotateX(calc(var(--hy, 0) * -1.5deg)) rotateY(calc(var(--hx, 0) * 2deg));
+  }
+}
+.paper-lift {
+  position: relative;
+  isolation: isolate;
+  transition: translate var(--dur-l2-out) var(--ease-paper);
+}
+.paper-lift::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--depth-3);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.paper-lift:focus-within:has(:focus-visible) {
+  translate: 0 -4px;
+  transition-duration: var(--dur-l2);
+}
+.paper-lift:focus-within:has(:focus-visible)::after {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+@media (hover: hover) and (pointer: fine) {
+  .paper-lift:hover {
+    translate: 0 -4px;
+    transition-duration: var(--dur-l2);
+  }
+  .paper-lift:hover::after {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+  .paper-lift:hover:active {
+    translate: 0 -2px;
+    transition-duration: var(--dur-press);
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .paper-lift:active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+
+/* ---- reduced motion: no translate / rotate / tilt; the shadow swap, the colours and the pseudo-element shadow stay ---- */
+@media (prefers-reduced-motion: reduce) {
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play) {
+    transition: none;
+  }
+  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):is(:hover, :focus-visible, :active) {
+    translate: none;
+    --arrow-x: 0px;
+  }
+  .header-ask:active,
+  .pf-arrow:is(:hover, :focus-visible, :active) {
+    translate: none;
+  }
+  .header-nav-link:nth-child(odd):is(:hover, :focus-visible, :active)::before {
+    transform: rotate(-0.5deg);
+  }
+  .header-nav-link:nth-child(even):is(:hover, :focus-visible, :active)::before {
+    transform: rotate(0.4deg);
+  }
+  .band-social a:is(:hover, :focus-visible, :active),
+  .theme-toggle:is(:hover, :focus-visible, :active) {
+    transform: none;
+  }
+  .cx-btn-secondary:is(:hover, :focus-visible) :is(.cx-btn-down, .cx-in) {
+    translate: none;
+  }
+  .pm-layer,
+  .paper-lift:is(:hover, :focus-within:has(:focus-visible), :active) {
+    translate: none;
+  }
+  .header-ask,
+  .pf-arrow,
+  .btn-arrow,
+  .cx-btn-arrow,
+  .header-pill-arrow,
+  .hit-pill-arrow,
+  .fw-cta-arrow,
+  .pf-action-arrow,
+  .acx-arrow,
+  .paper-lift,
+  .paper-lift::after,
+  .pf-action::after {
+    transition: none;
+  }
+}
+/* end M-012 P1 */

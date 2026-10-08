@@ -804,7 +804,7 @@ P0 Dev-190…194 · P1 195…199 · P2 200…209 · P3 210…214 · P4 215…219
 | `--ease-paper` | `cubic-bezier(0.22, 1, 0.36, 1)` | L2/L3 premium deceleration |
 | `--ease-l1` | `cubic-bezier(0.25, 1, 0.5, 1)` | L1 (tighter) |
 | `--ease-press` | `cubic-bezier(0.3, 0.7, 0.4, 1.4)` | the §14.6 button overshoot (unchanged) |
-| `--dur-l1` / `--dur-l1-out` | 180 ms / 140 ms | nav, links, icons, buttons' arrows |
+| `--dur-l1` / `--dur-l1-out` | 180 ms / 150 ms | nav, links, icons, buttons' arrows |
 | `--dur-l2` / `--dur-l2-out` | 420 ms / 320 ms | cards, objects |
 | `--dur-l3` | 700 ms (max 1000) | signatures, hero and Contact reactions |
 | `--dur-press` | 90 ms | `:active` (`lib/motion.ts` `press: 90`) |
