@@ -48,6 +48,8 @@ export interface CandyPalette {
   glow: RGB;
   gold: RGB;
   isDark: boolean;
+  /** The raw role tokens the machine's paper art and light accents are mixed from (TASK-185). */
+  tok: { paper: RGB; ivory: RGB; navy: RGB; rust: RGB; terracotta: RGB; steel: RGB; forest: RGB; sage: RGB; note: RGB; kraft: RGB };
 }
 
 /** The cream / peach / blush / candy-orange / pastel cyan palette (§29) built from the paper tokens. */
@@ -59,6 +61,8 @@ export function readPalette(): CandyPalette {
   const note = readToken("--color-note");
   const steel = readToken("--color-steel");
   const green = readToken("--color-green-2");
+  const forest = readToken("--color-forest");
+  const kraftTok = kraft;
   const navy = readToken("--color-navy");
   const terracotta = readToken("--color-terracotta");
   const isDark = luminance(paper) < 0.3;
@@ -79,5 +83,6 @@ export function readPalette(): CandyPalette {
     glow: isDark ? mix(steel, rust, 0.3) : mix(rust, kraft, 0.45),
     gold: mix(note, rust, isDark ? 0.2 : 0.18),
     isDark,
+    tok: { paper, ivory, navy, rust, terracotta, steel, forest, sage: green, note, kraft: kraftTok },
   };
 }

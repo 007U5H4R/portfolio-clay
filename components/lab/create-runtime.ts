@@ -5,6 +5,8 @@ import { GameEngine } from "@/lib/lab/engine";
 import { Spawner } from "@/lib/lab/spawner";
 import { Jelly } from "@/lib/lab/jelly";
 import { ParticlePool } from "@/lib/lab/particles";
+import { Plunger } from "@/lib/lab/plunger";
+import { TrailBuffer } from "@/lib/lab/trail";
 import type { LabStoreApi } from "@/lib/lab/store";
 import { detectTier, readDevice, tierConfig } from "@/lib/lab/tiers";
 import { readPalette } from "@/lib/lab/tokens";
@@ -28,7 +30,19 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     spawner: new Spawner(arena.anchors),
     requestExit: () => {},
     jelly: new Jelly(),
-    particles: new ParticlePool(tier.particles),
+    // Reduced motion: no particles at all (capacity 0 draws and emits nothing) and a trail that records nothing.
+    particles: new ParticlePool(reducedMotion ? 0 : tier.particles),
+    plunger: new Plunger(),
+    touchPlunger: false,
+    syncInput: () => {},
+    trail: Object.assign(new TrailBuffer(), { enabled: !reducedMotion }),
+    sinceLaunch: Infinity,
+    launched: false,
+    popup: () => {},
+    trailFlash: 0,
+    renderInfo: () => ({ calls: 0, triangles: 0 }),
+    dom: { portal: null, plunger: null, plaque: null },
+    blackHoleHover: false,
     bear: createBear(),
     flippers: arena.flippers.map((layout) => ({ layout, state: newFlipperState(), pressed: false, cooldown: 0, body: { current: null } })) as LabRuntime["flippers"],
     env: createEnv(),

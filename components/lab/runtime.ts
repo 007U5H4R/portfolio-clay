@@ -9,6 +9,8 @@ import type { Spawner } from "@/lib/lab/spawner";
 import type { GummyPhysicsState } from "@/lib/lab/gummy-state";
 import type { Jelly } from "@/lib/lab/jelly";
 import type { ParticlePool } from "@/lib/lab/particles";
+import type { Plunger } from "@/lib/lab/plunger";
+import type { TrailBuffer } from "@/lib/lab/trail";
 import type { LabStoreApi } from "@/lib/lab/store";
 import type { TierConfig } from "@/lib/lab/tiers";
 import type { CandyPalette } from "@/lib/lab/tokens";
@@ -67,6 +69,10 @@ export interface LabHooks {
   flip(side: FlipperSide, speed: number, nx: number, ny: number, x: number, y: number): void;
   /** The intro bear was poked. */
   poke(): void;
+  /** The plunger fired: `force` is the launch speed given to the gummy, `progress` the 0–1 charge it was released at. */
+  launch(force: number, progress: number, x: number, y: number): void;
+  /** A slingshot kicked the gummy. */
+  sling(id: string, x: number, y: number): void;
 }
 
 /** One flipper: its layout, live swing state, whether it is held, and the kinematic body the arena mounts for it. */
@@ -111,6 +117,28 @@ export interface LabRuntime {
   bear: BearKinematics;
   /** Left and right flippers (TASK-172). */
   flippers: [FlipperRuntime, FlipperRuntime];
+  /** The launch plunger's charge state (TASK-185); the controller steps it, the scene draws it. */
+  plunger: Plunger;
+  /** A touch is holding the on-screen plunger (set by LaunchControl, read by the controller's `sync`). */
+  touchPlunger: boolean;
+  /** Re-reads every input source into the flippers and plunger (the controller installs it). */
+  syncInput(): void;
+  /** The gummy's light trail: a fixed-size ring buffer, off under reduced motion. */
+  trail: TrailBuffer;
+  /** Seconds since the last launch (Infinity before the first): the lane light and launch streak read it. */
+  sinceLaunch: number;
+  /** True once this run has launched the gummy at least once (the start plaque is only for before that). */
+  launched: boolean;
+  /** Show a floating "+100" at a world point. Installed by the HUD overlay; a no-op until then. */
+  popup(text: string, x: number, y: number): void;
+  /** Draw calls and triangles of the last frame (set by GameScene; read by `?debug` and the profiling notes). */
+  renderInfo: () => { calls: number; triangles: number };
+  /** 0–1 flash on the trail (a bumper hit or a launch); decays by itself. */
+  trailFlash: number;
+  /** Elements the HUD overlay registers so the scene can place them over the canvas each frame (no extra rAF loop). */
+  dom: { portal: HTMLElement | null; plunger: HTMLElement | null; plaque: HTMLElement | null };
+  /** Black-hole exit hover/focus (0/1) the scene eases toward; set by the Back link, read by the scene. */
+  blackHoleHover: boolean;
   env: EnvKnobs;
   hooks: LabHooks;
   bearBody: { current: RapierRigidBody | null };
@@ -187,4 +215,6 @@ export const noopHooks: LabHooks = {
   squish() {},
   flip() {},
   poke() {},
+  launch() {},
+  sling() {},
 };

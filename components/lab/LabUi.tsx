@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import type { LabStoreApi } from "@/lib/lab/store";
-import { CONTROL_LABELS } from "./controls-copy";
+import { CONTROL_LABELS, START_PLAQUE } from "./controls-copy";
+import type { LabRuntime } from "./runtime";
 import styles from "./lab.module.css";
 
 /**
@@ -32,21 +33,26 @@ function useFocusOnMount(ref: React.RefObject<HTMLElement | null>) {
   }, [ref]);
 }
 
-export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: () => void; onMute: () => void }) {
+export function Chrome({ store, onExit, onMute, showBack = true }: { store: LabStoreApi; onExit: () => void; onMute: () => void; showBack?: boolean }) {
   const muted = store((s) => s.muted);
   const state = store((s) => s.state);
   return (
     <div className={styles.chrome}>
-      <Link
-        className={styles.back}
-        href="/"
-        onClick={(e) => {
-          e.preventDefault();
-          onExit();
-        }}
-      >
-        <span aria-hidden="true">←</span> Back to Portfolio
-      </Link>
+      {/* Off the machine (intro, results) the way back is the classic torn tab; on the machine it is the black hole (BackPortal). */}
+      {showBack ? (
+        <Link
+          className={styles.back}
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onExit();
+          }}
+        >
+          <span aria-hidden="true">←</span> Back to Portfolio
+        </Link>
+      ) : (
+        <span />
+      )}
       {state !== "EXITING" ? (
         <div className={styles.chromeRight}>
           <button type="button" className={styles.round} data-lab-sound="" aria-pressed={!muted} aria-label={muted ? CONTROL_LABELS.soundOff : CONTROL_LABELS.soundOn} onClick={(e) => {
@@ -57,6 +63,154 @@ export function Chrome({ store, onExit, onMute }: { store: LabStoreApi; onExit: 
           </button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * The way back to the portfolio (TASK-185, spec §23): the machine's black hole is the link. The 3D hole is drawn by
+ * BlackHole.tsx; this is a real `<a href="/">` laid over it (placed each frame by OverlaySync, so it tracks the camera), with
+ * a torn-paper label beside it. Keyboard focusable, named "Back to Portfolio", and hover/focus tell the scene to swell the hole.
+ */
+export function BackPortal({ runtime, onExit }: { runtime: LabRuntime; onExit: () => void }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    runtime.dom.portal = ref.current;
+    return () => {
+      runtime.dom.portal = null;
+      runtime.blackHoleHover = false;
+    };
+  }, [runtime]);
+  const hover = (on: boolean) => () => {
+    runtime.blackHoleHover = on;
+  };
+  return (
+    <Link
+      ref={ref}
+      className={styles.portal}
+      href="/"
+      aria-label={CONTROL_LABELS.back}
+      data-lab-portal=""
+      onClick={(e) => {
+        e.preventDefault();
+        onExit();
+      }}
+      onPointerEnter={hover(true)}
+      onPointerLeave={hover(false)}
+      onFocus={hover(true)}
+      onBlur={hover(false)}
+    >
+      <span className={styles.portalLabel} data-hand="cta">
+        <span aria-hidden="true">←</span> Back to Portfolio
+      </span>
+    </Link>
+  );
+}
+
+/**
+ * The plunger's touch control (spec §15, brief): a transparent press-and-hold button laid over the launch lane (placed each frame
+ * by OverlaySync). Hold to charge, release to launch; the keyboard's Space does the same through the controller. Mouse works too.
+ */
+export function LaunchControl({ runtime, store }: { runtime: LabRuntime; store: LabStoreApi }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const live = store((s) => s.state === "PLAYING" || s.state === "DANGER");
+  const launched = store((s) => s.launched);
+  useEffect(() => {
+    runtime.dom.plunger = ref.current;
+    return () => {
+      runtime.dom.plunger = null;
+    };
+  }, [runtime]);
+  const hold = (on: boolean) => {
+    runtime.touchPlunger = on;
+    runtime.syncInput();
+  };
+  return (
+    <button
+      ref={ref}
+      type="button"
+      tabIndex={-1}
+      className={styles.plunger}
+      data-lab-plunger=""
+      data-hint={!launched ? "on" : undefined}
+      aria-label={CONTROL_LABELS.plunger}
+      disabled={!live}
+      onPointerDown={(e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        e.preventDefault();
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+          /* capture is best-effort */
+        }
+        hold(true);
+      }}
+      onPointerUp={() => hold(false)}
+      onPointerCancel={() => hold(false)}
+      onLostPointerCapture={() => hold(false)}
+      onContextMenu={(e) => e.preventDefault()}
+    />
+  );
+}
+
+/** Floating "+100" popups (spec §10): a fixed pool of six nodes, restarted in place, never created per hit. */
+export function ScorePops({ runtime }: { runtime: LabRuntime }) {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const nodes = Array.from(el.children) as HTMLElement[];
+    let next = 0;
+    runtime.popup = (text, x, y) => {
+      const n = nodes[next]!;
+      next = (next + 1) % nodes.length;
+      const p = runtime.project(x, y);
+      n.textContent = text;
+      n.style.left = `${p.x}px`;
+      n.style.top = `${p.y}px`;
+      n.classList.remove(styles.popOn!);
+      void n.offsetWidth;
+      n.classList.add(styles.popOn!);
+    };
+    return () => {
+      runtime.popup = () => {};
+    };
+  }, [runtime]);
+  return (
+    <div ref={box} className={styles.pops} aria-hidden="true" data-lab-pops="">
+      {Array.from({ length: 6 }, (_, i) => (
+        <span key={i} className={styles.pop} />
+      ))}
+    </div>
+  );
+}
+
+/** The instruction plaque (spec §28): on the table until the first launch, then gone. Small, never a modal. */
+export function StartPlaque({ runtime, store }: { runtime: LabRuntime; store: LabStoreApi }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const state = store((s) => s.state);
+  const launched = store((s) => s.launched);
+  // The lab chunk only renders on the client (ssr: false), so the pointer type can be read up front.
+  const [coarse] = useState(() => window.matchMedia?.("(pointer: coarse)").matches ?? false);
+  const show = !launched && (state === "COUNTDOWN" || state === "PLAYING" || state === "DANGER" || state === "PAUSED");
+  useEffect(() => {
+    runtime.dom.plaque = show ? ref.current : null;
+    return () => {
+      runtime.dom.plaque = null;
+    };
+  }, [runtime, show]);
+  if (!show) return null;
+  const t = coarse ? START_PLAQUE.touch : START_PLAQUE.keys;
+  return (
+    <div ref={ref} className={styles.plaque} data-lab-plaque="" aria-hidden="true">
+      <p className={styles.plaqueHead}>
+        <span>{t[0]}</span>
+        <span>{t[1]}</span>
+      </p>
+      <p className={styles.plaqueSub}>
+        <span>{t[2]}</span>
+        <span>{t[3]}</span>
+      </p>
     </div>
   );
 }
@@ -176,10 +330,16 @@ const SR_ONLY = { position: "absolute", width: 1, height: 1, margin: -1, padding
 /** Polite live region: tells a screen-reader user the flippers exist as soon as a run begins (TASK-172). */
 export function FlipLive({ store }: { store: LabStoreApi }) {
   const on = store((s) => s.state === "COUNTDOWN" || s.state === "PLAYING" || s.state === "DANGER");
+  const waiting = store((s) => !s.launched);
   return (
-    <p role="status" aria-live="polite" style={SR_ONLY} data-lab-live="">
-      {on ? CONTROL_LABELS.flipLive : ""}
-    </p>
+    <>
+      <p role="status" aria-live="polite" style={SR_ONLY} data-lab-live="">
+        {on ? CONTROL_LABELS.flipLive : ""}
+      </p>
+      <p role="status" aria-live="polite" style={SR_ONLY} data-lab-plunger-live="">
+        {on && waiting ? CONTROL_LABELS.plungerLive : ""}
+      </p>
+    </>
   );
 }
 
