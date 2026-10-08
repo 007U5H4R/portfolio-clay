@@ -279,8 +279,8 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const campfire = products.find((p) => p.id === "campfire-board");
     expect(campfire?.pitchVideo).toEqual({ provider: "youtube", videoId: "K_-510L6e7g", title: "Campfire Board pitch video", poster: undefined });
     expect(campfire?.demoVideo).toEqual({ provider: "youtube", videoId: "DkxDQji3dz8", title: "Campfire Board product demonstration", poster: undefined });
-    expect(campfire?.productUrl).toBeUndefined(); // a local tool — no product link
-    expect(campfire?.githubUrl).toBe("https://github.com/007U5H4R/pm-dashboard"); // public repo (2026-09-28)
+    expect(campfire?.productUrl).toBe("https://site-eight-lake-51.vercel.app"); // hosted live demo (TASK-188)
+    expect(campfire?.githubUrl).toBeUndefined(); // repo link removed at Tushar's request (TASK-188)
     // TASK-129: Slag City carries its launch pitch + demo, a live product link and its public repo.
     const slag = products.find((p) => p.id === "slag-city");
     expect(slag?.pitchVideo).toEqual({ provider: "youtube", videoId: "1xvj8j79Svs", title: "Slag City pitch video", poster: undefined });
