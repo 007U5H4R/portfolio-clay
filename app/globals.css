@@ -13462,48 +13462,51 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- reduced motion: no translate / rotate / tilt; the shadow swap, the colours and the pseudo-element shadow stay ---- */
+/* ---- reduced motion: no translate / rotate / tilt; the shadow swap, the colours and the pseudo-element shadow stay.
+   `:root` lifts each reset one class above the hover/focus rule it cancels (EVAL-010 reads those rules from the CSSOM). ---- */
 @media (prefers-reduced-motion: reduce) {
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play) {
+  :root :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play) {
     transition: none;
   }
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):is(:hover, :focus-visible, :active) {
+  :root :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):is(:hover, :focus-visible, :active) {
     translate: none;
     --arrow-x: 0px;
   }
-  .header-ask:active,
-  .pf-arrow:is(:hover, :focus-visible, :active) {
+  :root .header-ask:active,
+  :root .pf-arrow[data-dir]:is(:hover, :focus-visible, :active),
+  :root .pf-arrow:active {
     translate: none;
   }
-  .header-nav-link:nth-child(odd):is(:hover, :focus-visible, :active)::before {
+  :root .header-nav-link:nth-child(odd):is(:hover, :focus-visible, :active)::before {
     transform: rotate(-0.5deg);
   }
-  .header-nav-link:nth-child(even):is(:hover, :focus-visible, :active)::before {
+  :root .header-nav-link:nth-child(even):is(:hover, :focus-visible, :active)::before {
     transform: rotate(0.4deg);
   }
-  .band-social a:is(:hover, :focus-visible, :active),
-  .theme-toggle:is(:hover, :focus-visible, :active) {
+  :root .band-social a:is(:hover, :focus-visible, :active),
+  :root .theme-toggle:is(:hover, :focus-visible, :active) {
     transform: none;
   }
-  .cx-btn-secondary:is(:hover, :focus-visible) :is(.cx-btn-down, .cx-in) {
+  :root .cx-btn-secondary:is(:hover, :focus-visible) .cx-btn-down,
+  :root .cx-btn-secondary[data-link="linkedin"]:is(:hover, :focus-visible) .cx-in {
     translate: none;
   }
-  .pm-layer,
-  .paper-lift:is(:hover, :focus-within:has(:focus-visible), :active) {
+  :root .pm-layer,
+  :root .paper-lift:is(:hover, :focus-within:has(:focus-visible), :active) {
     translate: none;
   }
-  .header-ask,
-  .pf-arrow,
-  .btn-arrow,
-  .cx-btn-arrow,
-  .header-pill-arrow,
-  .hit-pill-arrow,
-  .fw-cta-arrow,
-  .pf-action-arrow,
-  .acx-arrow,
-  .paper-lift,
-  .paper-lift::after,
-  .pf-action::after {
+  :root .header-ask,
+  :root .pf-arrow,
+  :root .btn-arrow,
+  :root .cx-btn-arrow,
+  :root .header-pill-arrow,
+  :root .hit-pill-arrow,
+  :root .fw-cta-arrow,
+  :root .pf-action-arrow,
+  :root .acx-arrow,
+  :root .paper-lift,
+  :root .paper-lift::after,
+  :root .pf-action::after {
     transition: none;
   }
 }
