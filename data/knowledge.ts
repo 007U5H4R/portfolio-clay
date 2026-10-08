@@ -12,7 +12,8 @@ import type { KnowledgeEntry } from "./schema";
  * The 3 additional PB3 answers (`learned`, `evaluate`, `research`) are authored from VERIFIED §8 /
  * §4.7 source packs — every number in them traces to a cited pack line (see docs/reports/TKT-09.md).
  *
- * All answers ship `draft: true` (Tushar signs off the copy later; the UI labels them DRAFT).
+ * Tushar signed every answer off on 2026-10-08 (TASK-189), so all are `draft: false` and show no DRAFT tag.
+ * A new or rewritten answer goes back to `draft: true` until he signs it off.
  * `surface`: 5 entries on the home inline field, 6 on the panel (disjoint; PB3 = 11 total).
  * Evidence hrefs resolve through `lib/anchors.ts` routes() — a dangling one fails the build (EVAL-013).
  * `keywords` are CANONICAL terms (post-synonym) with weights; `aliases` are whole-prompt paraphrases
@@ -45,7 +46,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "CS3-LINKEDIN-DAY9", label: "Nine-day build series", ref: "CS3/Case-Study-3-LinkedIn-9-Day-Series.docx Day 9", inventory: "§9" },
       { id: "CS6-QA-13", label: "Cubicle QA report", ref: "CS6/QA-report.md:13", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["home"],
   },
   {
@@ -67,7 +68,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "CS4-PITCH-13", label: "TeachSpark pitch", ref: "CS4/pitch/teachspark-pitch.pdf slide 13", inventory: "§9" },
       { id: "CS3-DISCOVERY-PRD", label: "Apparel Vendor Onboarding Discovery PRD", ref: "CS3/Apparel-Vendor-Onboarding-Discovery-PRD.docx", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["home"],
   },
   {
@@ -102,7 +103,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "RC-VALIDATE", label: "RailCite citation validator", ref: "RC/lib/validate.ts", inventory: "§9" },
       { id: "RESUME", label: "Résumé", ref: "RESUME", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["home"],
   },
   {
@@ -125,7 +126,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "RC-QUERY-ROUTE", label: "RailCite query route", ref: "RC/app/api/query/route.ts", inventory: "§9" },
       { id: "RC-CALIBRATE", label: "RailCite threshold calibration", ref: "RC/scripts/calibrate.ts", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["home"],
   },
   {
@@ -148,7 +149,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "CS4-FINAL-PRD-7", label: "TeachSpark Final PRD §7", ref: "CS4/docs/final-prd.docx §7", inventory: "§9" },
       { id: "RC-VALIDATE", label: "RailCite citation validator", ref: "RC/lib/validate.ts", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["home"],
   },
 
@@ -174,7 +175,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "TS-9DAY-SERIES", label: "TeachSpark 9-day build series", ref: "TS/docs/linkedin/9-day-build-series.md", inventory: "§9" },
       { id: "CS5-DESIGN-21", label: "RailCite Design.md", ref: "CS5/Design.md L21-24", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["panel"],
   },
   {
@@ -195,7 +196,7 @@ export const knowledge: KnowledgeEntry[] = [
       { label: "Portfolio — Enterprise", href: "/projects#enterprise" },
     ],
     sources: [{ id: "RESUME", label: "Résumé", ref: "RESUME", inventory: "§9" }],
-    draft: true,
+    draft: false,
     surface: ["panel"],
   },
   {
@@ -218,7 +219,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "CS5-DESIGN", label: "RailCite Design.md", ref: "CS5/Design.md", inventory: "§9" },
       { id: "CS4-FINAL-PRD", label: "TeachSpark Final PRD", ref: "CS4/docs/final-prd.docx", inventory: "§9" },
     ],
-    draft: true,
+    draft: false,
     surface: ["panel"],
   },
   {
@@ -242,7 +243,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "CS3-LINKEDIN-DAY7", label: "Nine-day build series (Day 7)", ref: "CS3/Case-Study-3-LinkedIn-9-Day-Series.docx Day 7", inventory: "§8.4" },
       { id: "RC-BUILD-LEDGER", label: "RailCite build ledger", ref: "CS5/docs/superpowers/BUILD-LEDGER.md L253", inventory: "§8.2" },
     ],
-    draft: true,
+    draft: false,
     surface: ["panel"],
   },
   {
@@ -266,7 +267,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "RC-VALIDATE", label: "RailCite citation validator", ref: "RC/lib/validate.ts", inventory: "§8.2" },
       { id: "TS-DECK-CONTENT", label: "TeachSpark instrumentation", ref: "TS/docs/investor/deck-content.md:35", inventory: "§8.1" },
     ],
-    draft: true,
+    draft: false,
     surface: ["panel"],
   },
   {
@@ -289,7 +290,7 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "PT-DISCOVERY-PRD", label: "Pratyasa Discovery PRD §4", ref: "PT/discoveryPRD.md §4 (certificate)", inventory: "§4.7" },
       { id: "PT-ROLE-192", label: "Pratyasa role note", ref: "PT/discoveryPRD.md L192", inventory: "§8.8" },
     ],
-    draft: true,
+    draft: false,
     surface: ["panel"],
   },
 ];
