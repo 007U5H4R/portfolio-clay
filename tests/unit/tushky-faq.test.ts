@@ -187,7 +187,7 @@ describe("TASK-123 FAQ cache — contract, coverage and grounding", () => {
       score: 1,
       sourceType: "faq-cache",
       suggestedFollowUps: entry.followUps.slice(0, 3).map((q) => ({ label: q, query: q })),
-      draft: true,
+      draft: false, // Tushar signed the answers off (TASK-189); `draft` is `!entry.reviewed`
     });
   });
 

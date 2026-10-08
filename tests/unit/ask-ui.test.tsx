@@ -20,7 +20,7 @@ const ANSWER: Extract<Answer, { kind: "answer" }> = {
     { label: "RailCite", href: "/work/railcite" },
     { label: "railcite.vercel.app", href: "https://railcite.vercel.app" },
   ],
-  matched: ["most-technical"], // a real draft:true entry → DRAFT badge
+  matched: ["most-technical"], // a real entry, signed off by Tushar (TASK-189) → no DRAFT badge
   score: 1,
 };
 
@@ -87,12 +87,12 @@ describe("AnswerView states", () => {
     expect(screen.getByText(LOADING_LABEL)).toBeInTheDocument();
   });
 
-  it("answer: heading focus target, verbatim text, evidence, DRAFT badge and microcopy", () => {
+  it("answer: heading focus target, verbatim text, evidence and microcopy; a signed-off entry has no DRAFT badge", () => {
     render(<AnswerView status="answer" answer={ANSWER} {...base} />);
     const heading = screen.getByRole("heading", { level: 3, name: "Answer" });
     expect(heading).toHaveAttribute("tabindex", "-1");
     expect(screen.getByText(ANSWER.text)).toBeInTheDocument();
-    expect(screen.getByText(/draft/i)).toBeInTheDocument();
+    expect(screen.queryByText("Draft — pending sign-off")).toBeNull(); // TASK-189
     expect(screen.getByRole("list", { name: "Sources" })).toBeInTheDocument();
     expect(screen.getByText(ASK_MICROCOPY)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ask another" })).toBeInTheDocument();
