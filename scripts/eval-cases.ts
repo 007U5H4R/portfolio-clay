@@ -30,10 +30,10 @@ const E2E_DIR = resolve(ROOT, "tests/e2e");
 
 /**
  * Number of cases the catalogue must hold: EVAL-001 … EVAL-017 (Stage 6) + EVAL-018 … 022 (M-009, EV3)
- * + EVAL-023 … 031 (M-010, EV7) + EVAL-032 … 038 (M-011, EV12). EVAL-019 was rewritten in place for the still
+ * + EVAL-023 … 031 (M-010, EV7) + EVAL-032 … 038 (M-011, EV12) + EVAL-040 … 043 (M-012, TASK-181). EVAL-019 was rewritten in place for the still
  * hero (S24) — same id.
  */
-const CASE_COUNT = 39; // unchanged by retirements - ids are preserved (EVAL-028 retired 2026-10-07, TASK-174); EVAL-001 … EVAL-039 (EVAL-039 = M-010 runtime smoothness, TASK-155)
+const CASE_COUNT = 43; // unchanged by retirements - ids are preserved (EVAL-028 retired 2026-10-07, TASK-174); EVAL-001 … EVAL-043 (EVAL-039 = M-010 runtime smoothness, TASK-155; EVAL-040…043 = M-012 interaction system, TASK-181)
 
 /** Runners that actually execute a case (i.e. constitute a "runner mapping" for an automated case). */
 const AUTOMATED_RUNNERS = [
@@ -62,6 +62,11 @@ const AUTOMATED_RUNNERS = [
  * the spec in the same change; remove the entry then.
  */
 const DEFERRED_SPECS: Record<string, string> = {
+  // M-012 (Solution-PRD §15, TASK-181): EVAL-040 lands in P1 (tests/e2e/eval-040.spec.ts); the rest wait for their phase.
+  "EVAL-040": "P1 (TASK-181.1): interaction-hierarchy e2e lands in the same phase; remove this entry with the spec",
+  "EVAL-041": "P2 (TASK-181.2): object-motion e2e lands with the layered project cards",
+  "EVAL-042": "P4 (TASK-181.4): reduced-motion/touch parity sweep lands once every surface exists",
+  "EVAL-043": "P2 (TASK-181.2): project signatures land with the featured art split",
 };
 
 const EvalCaseSchema = z

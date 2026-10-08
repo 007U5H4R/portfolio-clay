@@ -440,9 +440,9 @@ Global: `@media (prefers-reduced-motion: reduce)` sets every transition/animatio
 | Hero | still image, no motion | — | — | identical |
 | Headline underline draw-in (`/`, `/work`, `/thinking`, `/playground`, essays h2) | CSS `stroke-dashoffset` 400 → 0, once on load | `ease-out`, delay 0.5 s | 1.1 s | drawn (no animation) |
 | Section reveal (`Reveal`, IntersectionObserver once) | CSS transition opacity + translateY(12px) | `cubic-bezier(.2,.7,.2,1)` | 500 ms, 70 ms stagger | opacity-only ≈ instant |
-| Card hover (work cards, openers, experiment cards) | CSS transition `transform`, `box-shadow` | `ease` | 250 ms | none (shadow change only) |
-| Button / pill hover | `translateY(-1px)` + shadow | `ease` | 180 ms | none |
-| Band social hover | `translateY(-2px)` | `ease` | 180 ms | none |
+| Card hover (work cards, openers, experiment cards) | CSS transition `transform`, `box-shadow` — **superseded by §14.10** (L2: 300–700 ms, shadow crossfade by pseudo opacity) | `ease` | 250 ms | none (shadow change only) |
+| Button / pill hover | `translateY(-1px)` + shadow — **superseded by §14.10** (L1: 150–250 ms; the 1 px lift and 1 px press stay) | `ease` | 180 ms | none |
+| Band social hover | `translateY(-2px)` — **superseded by §14.10** (L1; same 2 px) | `ease` | 180 ms | none |
 | Nav / tab underline | opacity of the `::after` stroke | — | instant | — |
 | Row hover arrow (`/work` rows) / title colour | opacity / colour | `ease` | 180 ms | colour only |
 | Experience strip chevron | `rotate(180deg)` | `ease` | 200 ms | instant |
@@ -794,3 +794,55 @@ Home hero, light + dark, four layers: `bg` (opaque plate), `subject` (the man, b
 
 ### 14.9 Dev-id ranges (M-011; the last M-010 id is Dev-189)
 P0 Dev-190…194 · P1 195…199 · P2 200…209 · P3 210…214 · P4 215…219 · P5 220…222 · P6 223…227 · P7 228…229. Same rule as §13.5: never borrow across ranges.
+
+### 14.10 Interaction system (M-012; TASK-181; Solution-PRD §15; decisions S35, EXE-59…64)
+**Supersedes the hover rows of §8** (card hover, button/pill hover, band social hover) and amends §14.3 (text), §14.4 (motion source) and §14.6 (card layers). Where this section and §8 disagree on a hover, this section wins. Everything else in §8 (reveals, draw-ins, panels, the band verb) stands.
+
+#### Motion tokens (`app/globals.css @theme`, mirrored in `lib/motion.ts`, EXE-3)
+| Token | Value | Use |
+|---|---|---|
+| `--ease-paper` | `cubic-bezier(0.22, 1, 0.36, 1)` | L2/L3 premium deceleration |
+| `--ease-l1` | `cubic-bezier(0.25, 1, 0.5, 1)` | L1 (tighter) |
+| `--ease-press` | `cubic-bezier(0.3, 0.7, 0.4, 1.4)` | the §14.6 button overshoot (unchanged) |
+| `--dur-l1` / `--dur-l1-out` | 180 ms / 140 ms | nav, links, icons, buttons' arrows |
+| `--dur-l2` / `--dur-l2-out` | 420 ms / 320 ms | cards, objects |
+| `--dur-l3` | 700 ms (max 1000) | signatures, hero and Contact reactions |
+| `--dur-press` | 90 ms | `:active` (`lib/motion.ts` `press: 90`) |
+Bands: **L1 150–250 ms, L2 300–700 ms, L3 500–1200 ms.** Buttons keep the §14.6 160 ms overshoot curve.
+
+#### Object channel (amends §14.4)
+`paperMotion` also owns **one active object**: `--hx`, `--hy` ∈ [−1, 1], local to the object's rect, written on that element only, stepped in the same spring loop and activated in the same single `pointermove` listener. While an object is active the scene channel's target is held. A 150 ms scrolling window blocks activation (Lenis scrolls under a parked cursor). No second listener or loop; "nothing else writes per frame" still holds.
+
+#### Per-surface table
+| Surface | Level | Hover / focus-visible (fine pointer) | Touch | Reduced motion | Phase | Dev id |
+|---|---|---|---|---|---|---|
+| Header nav tab | L1 | tab paper `translate 0 -1px`, rotate → 0, shadow **swaps**; `hn-strip` `scaleX 0 → .5` in 200 ms; label static; no scale, bounce or label rotate | `:active` tab `translate 0 1px` | strip shown instantly, no translate | P1 | Dev-230 |
+| Header pill, `.hit-pill`, `.acx-btn`, `.pf-action`, `.pf-play` | L1 | paper-button contract (−1 px / +1 px press, shadow swaps); arrow `translate 3px 0` (↗ glyph 2px −2px) in `--dur-l1`; **no rotate** | `:active` press | no translate; arrow changes colour | P1 | Dev-231 |
+| Existing contract buttons (`hero-btn`, `ask-btn`, `cx-btn`, `fw-cta`, `think-btn`) | L1 | unchanged 1 px / 1 px; focus-visible twin; hover gated to fine pointer; arrow nudge | `:active` press | as above | P1 | Dev-231 |
+| Icons (`band-social` 2 px, `header-ask`, `pf-arrow` ±2 px, theme toggle ±1 px) | L1 | unchanged values; focus-visible twins; `tt-window` shadow swaps | `:active` press | none | P1 | Dev-232 |
+| Text links | L1 | colour and underline colour only | `:active` colour | same | P1 | Dev-232 |
+| Featured project cards (trio) | L2 | lift −4 px; layers bg 2 / art 4 / fg 6 px; art tilt ≤ 2° Y, 1.5° X on `.pm-art` only; shadow pseudo crossfade; text factor 0; signature (L3) | `:active` −2 px; signature once at ≥ 60 % in view | shadow on, nothing moves | P2 | Dev-235…239 |
+| `.pf-thumb`, `.pf-case` | L2-lite | thumb lift −4 px, one inner layer ±2 px; case file −2 px; shadow crossfade; no tilt, no signature | `:active` press | shadow only | P2 | Dev-240…242 |
+| Hero CTAs | L3 | "View my work": polaroids `translate 0 -3px`, rotate toward 0 by 0.6°, staggered; "Ask Tushky": sticker 6° → 0°; polaroids stay on their papers | press only | none | P3 | Dev-245…246 |
+| Tushky | L3 | finite breathing (3 breaths on first entry); whole-image lean ≤ 2° and 3 px lift; attentive lift when the composer is focused | breathing only | none | P3 | Dev-247 |
+| Contact CTA | L3 | contract −1 px, stamp lifts 2 px and rotates 1.5°, arrow after 120 ms | press | none | P3 | Dev-248 |
+| Experience, skills, Thinking rows, `pg-ex` | L1/L2 | card −3/−4 px with shadow crossfade; chip −2 px, rotate → 0; essay title 3 px, arrow 4 px, meta static | `:active` colour | colour/shadow only | P4 | Dev-250…254 |
+
+#### Touch, reduced motion and keyboard (one rule for every surface; EXE-62)
+| Mode | Behaviour |
+|---|---|
+| Fine pointer | lift + layered parallax + optional art tilt + signature, on `(hover: hover) and (pointer: fine)` only |
+| Keyboard (`:focus-visible`) | identical lift, arrow and signature; `--hx/--hy` = 0 (centred, no tilt). Cards use `:focus-within:has(:focus-visible)` so a mouse click does not latch |
+| Touch / coarse | no pointer listener, `--hx/--hy` unset; `:active` = press (`translate 0 1px` from rest, shadow → `--depth-1`, `--dur-press`); no sticky hover; a signature plays once, finite |
+| Reduced motion | no translate, rotate, tilt or signature motion; the shadow pseudo shows at full opacity instantly; colour, underline and arrow colour still change |
+
+#### Amendments (S35; each recorded in decisions.md)
+- **§14.6 card (C3):** inner art layers move bg 2 / illustration 4 / foreground 6 px (was "+1–2 px"); the card keeps its 4 px lift → `--depth-3`; art-only tilt ≤ 2°.
+- **§14.3 text (C7):** text never moves with parallax (text layer factor 0). On hover/focus only, a title may shift 2–4 px and an arrow 3–4 px; card text rides the card's lift.
+- **§8 hover rows (C8):** superseded by the three tiers above.
+- **§14.6 button (C1):** unchanged, 1 px lift and 1 px press (EVAL-037); the arrow nudge adds energy.
+- **Shadows (C9):** L1 swaps, L2 crossfades a pseudo-element's opacity; no hover changes `box-shadow` or `filter`.
+- **Skills:** no "connected skills"; chip lift plus a small detail.
+
+#### Dev-id ranges (M-012; the last M-011 id is Dev-229)
+P1 Dev-230…234 · P2 235…244 · P3 245…249 · P4 250…254. Never borrow across ranges.

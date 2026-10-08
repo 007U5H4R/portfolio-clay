@@ -1,6 +1,6 @@
 {
-  "$schema_note": "Machine-readable form of evaluation-plan.md §3 + §8 + §9 (Stage 3, EV1/EV2; M-009 addendum EV3–EV6, 2026-09-24: EVAL-018…022 added, character gate reworded per S14, no threshold changed; M-010 addendum EV7–EV11, 2026-10-05: EVAL-019 rewritten in place for the still hero (S24 — the clip criteria are superseded, history in git), EVAL-023…031 added, EVAL-001/004/005/006/008/009/010/018/020/021/022 amended in wording only, no threshold lowered). Generic case schema from eval-framework.md extended for UI (viewport, accessibility_requirement) and for this project (method, threshold, related_tickets, runner). Authored Stage 6 (technical-plan.md A16). IDs, priorities and thresholds are stable; thresholds are never lowered to pass (EV2). M-009 ticket ids (TKT-69…91, tickets.md M-009 section) allocated at Stage 5, 2026-09-24; M-010 tickets are Campfire TASK-139…147 (milestone m-9). Read by scripts/eval.ts. M-011 addendum EV12–EV14, 2026-10-06: EVAL-032…038 added (evaluation-plan.md §10), EVAL-005/006/020/021 amended in wording only, no threshold lowered.",
-  "version": "1.3.0",
+  "$schema_note": "Machine-readable form of evaluation-plan.md §3 + §8 + §9 (Stage 3, EV1/EV2; M-009 addendum EV3–EV6, 2026-09-24: EVAL-018…022 added, character gate reworded per S14, no threshold changed; M-010 addendum EV7–EV11, 2026-10-05: EVAL-019 rewritten in place for the still hero (S24 — the clip criteria are superseded, history in git), EVAL-023…031 added, EVAL-001/004/005/006/008/009/010/018/020/021/022 amended in wording only, no threshold lowered). Generic case schema from eval-framework.md extended for UI (viewport, accessibility_requirement) and for this project (method, threshold, related_tickets, runner). Authored Stage 6 (technical-plan.md A16). IDs, priorities and thresholds are stable; thresholds are never lowered to pass (EV2). M-009 ticket ids (TKT-69…91, tickets.md M-009 section) allocated at Stage 5, 2026-09-24; M-010 tickets are Campfire TASK-139…147 (milestone m-9). Read by scripts/eval.ts. M-011 addendum EV12–EV14, 2026-10-06: EVAL-032…038 added (evaluation-plan.md §10), EVAL-005/006/020/021 amended in wording only, no threshold lowered. M-012 addendum, 2026-10-08 (S35, Solution-PRD §15): EVAL-040…043 added, EVAL-037 and EVAL-039 amended in wording only, no threshold changed.",
+  "version": "1.4.0",
   "project": "portfolio-clay",
   "source": "evaluation-plan.md",
   "cases": [
@@ -663,7 +663,7 @@
       "id": "EVAL-037",
       "feature": "paper-material-light-consistency",
       "category": "design",
-      "input": "Every route at 1440 and 390, both themes; the material tokens in scripts/tokens-check.ts",
+      "input": "Every route at 1440 and 390, both themes; the material tokens in scripts/tokens-check.ts; M-012 (TASK-181, wording only, thresholds unchanged): the probe set also covers the paper-button family classes hit-pill, acx-btn, pf-action, pf-play and header-pill, and .paper-lift cards (lift -4 px ± 1, shadow crossfade, no box-shadow/filter transition)",
       "expected_behavior": "§02/§03/§05: material tokens (--mat-*) exist in both themes and are never used as text colour; every text-on-material pair is in tokens:check with AA in both themes (ivory text only on terra-1/terra-2); every elevated paper element ([data-elev=\"1…5\"]) has a box-shadow/drop-shadow whose x and y offsets are both ≥ 0 (light from the upper left) and whose blur is within its PAPER level's band; no backdrop-filter, gloss gradient or pure #000 on paper surfaces; cards/buttons follow lift (hover translateY(-4px) ± 1) and press (active scale/translate down) without changing layout",
       "expected_output": "tokens:check green both themes incl. material pairs · 0 shadows cast up/left · 0 out-of-band blurs · 0 glass/gloss/pure-black paper surfaces · hover/press transform-only",
       "failure_conditions": ["a shadow cast toward the upper left", "material colour used for text", "AA failure on a material pair", "backdrop-filter or pure black on a paper surface"],
@@ -699,7 +699,7 @@
       "id": "EVAL-039",
       "feature": "runtime-smoothness",
       "category": "performance",
-      "input": "Every static route (tests/e2e/routes.json) at w1440 with a 4x CPU throttle (CDP Emulation.setCPUThrottlingRate): cold load, 2.5 s rest, then two scripted top-to-bottom wheel scrolls (the first is warm-up)",
+      "input": "Every static route (tests/e2e/routes.json) at w1440 with a 4x CPU throttle (CDP Emulation.setCPUThrottlingRate): cold load, 2.5 s rest, then two scripted top-to-bottom wheel scrolls (the first is warm-up); M-012 (TASK-181, wording only, thresholds unchanged): after the scroll, a scripted hover sweep (pointer path) across the FeaturedWork trio and the Portfolio thumbs, also under the 4x CPU throttle",
       "expected_behavior": "The site stays smooth on every tab: after warm-up there is no long animation frame over 200 ms and at most 8 frames over 50 ms (30 on /card); at rest no time-based CSS animation runs while its target is outside the viewport (OceanGate gates the footer loops, EVAL-036; scroll-driven view() animations are exempt, they only advance when scrolled); a page preloads at most three images that apply to the viewport and colour scheme - its own (the scene's bg, the home subject, a first demo poster), never another tab's hero (TASK-149: react-dom preload() hints were replayed by nav prefetch)",
       "expected_output": "per route: frames>200ms = 0 · frames>50ms <= 8 (/card 30) · off-screen running animations = 0 · viewport-matching image preloads <= 3",
       "failure_conditions": [
@@ -731,6 +731,175 @@
       "related_tickets": [
         "TASK-155",
         "TASK-149"
+      ]
+    },
+    {
+      "id": "EVAL-040",
+      "feature": "interaction-hierarchy-contract",
+      "category": "design",
+      "input": "Every in-scope surface (header nav and pill, buttons and icons, text links; later phases add cards, hero, Tushky, Contact, Experience, skills, Thinking, Playground) at 1440 with a fine pointer, and at 390 with touch; hover, keyboard focus-visible and press states; light and dark",
+      "expected_behavior": "Every hover/focus state on an in-scope surface animates only translate/transform/rotate/scale/opacity (plus colour for L1 text links): no box-shadow, filter, backdrop-filter or layout property appears in the transition-property of any hovered or focused element or its ::before/::after; no hover or focus state scales an element above 1; durations sit in the level bands (L1 140-250 ms, L2 300-700 ms, L3 500-1200 ms); every :hover rule on an interactive element has a :focus-visible twin producing the same transform; hover rules apply only under (hover: hover) and (pointer: fine); nav hover moves the tab paper -1 px and wipes the strip to scaleX(.5) while the label does not move; buttons keep the EVAL-037 1 px lift and 1 px press and the arrow moves 3 px; no hover rotates the header pill",
+      "expected_output": "0 forbidden transition properties · 0 hover scale-ups · 0 hover-only feedback on focusable elements · 0 sticky hover after a tap · label rect unchanged · arrow +3 px",
+      "failure_conditions": [
+        "a box-shadow, filter or backdrop-filter in a hovered element's transition-property",
+        "a hover or focus state with scale above 1",
+        "a hover rule on an interactive element with no focus-visible twin",
+        "hover applied on a touch device (sticky after a tap)",
+        "the nav label or a card's text moving with the hover",
+        "a hover duration outside its level band"
+      ],
+      "method": "Playwright tests/e2e/eval-040.spec.ts: computed transition-property, duration and translate on hover (page.hover) and on keyboard Tab focus for the in-scope selectors and their pseudo-elements; a stylesheet walk for hover rules without a focus-visible twin and outside (hover: hover); a touch context (hasTouch) asserting no hover transform after a tap",
+      "threshold": {
+        "forbiddenTransitionProps": 0,
+        "hoverScaleUps": 0,
+        "hoverOnlyFeedback": 0,
+        "stickyHovers": 0
+      },
+      "priority": "high",
+      "automated": true,
+      "runner": "playwright",
+      "viewport": [
+        "390",
+        "1440"
+      ],
+      "accessibility_requirement": "WCAG 2.1.1 / 2.4.7: keyboard focus gets the same feedback as hover",
+      "tags": [
+        "interaction",
+        "hover",
+        "focus",
+        "L1",
+        "S35",
+        "m-012"
+      ],
+      "related_tickets": [
+        "TASK-181",
+        "TASK-181.1"
+      ]
+    },
+    {
+      "id": "EVAL-041",
+      "feature": "object-motion-single-source",
+      "category": "functional",
+      "input": "Home FeaturedWork trio and the Portfolio thumbs at 1440 (fine pointer): a scripted pointer sweep across the cards, a leave, and a wheel scroll with a parked cursor; light and dark",
+      "expected_behavior": "Card tilt and layered hover use paperMotion's one pointermove listener and one rAF loop (EVAL-032 counts stay 1 and 1); --hx/--hy are written only on the one active object; layer offsets equal factor × range (bg 2, art 4, fg 6 px) within 1 px; the art tilt is at most 2 degrees and sits on the art container only; the copy's bounding box does not move relative to its sheet beyond the sheet's own lift; no transparent edge is visible at ±max; 0 rAF callbacks 1.5 s after the pointer leaves; 0 objects activate while the page scrolls under a parked cursor",
+      "expected_output": "listeners 1 · loops 1 · idle rAF 0 · scroll activations 0 · offset tolerance 1 px · edge gaps 0 · text static",
+      "failure_conditions": [
+        "a second pointer listener or rAF loop for object motion",
+        "--hx/--hy written on more than one element at a time",
+        "rAF still running 1.5 s after the pointer leaves",
+        "an object activates during scroll",
+        "text moves with parallax",
+        "a transparent edge visible at ±max"
+      ],
+      "method": "Playwright tests/e2e/eval-041.spec.ts (init-script counters as in eval-032.spec.ts; MutationObserver on style attributes; alpha probe at the sheet edges) plus tests/unit/paper-motion.test.ts for the channel logic",
+      "threshold": {
+        "pointerListeners": 1,
+        "loops": 1,
+        "idleRafCallbacksAfter1500ms": 0,
+        "scrollActivations": 0,
+        "offsetTolerancePx": 1,
+        "edgeGapsAtMax": 0
+      },
+      "priority": "critical",
+      "automated": true,
+      "runner": "playwright",
+      "viewport": [
+        "1440"
+      ],
+      "accessibility_requirement": "prefers-reduced-motion: the object channel never attaches",
+      "tags": [
+        "parallax",
+        "motion",
+        "cards",
+        "L2",
+        "S35",
+        "m-012"
+      ],
+      "related_tickets": [
+        "TASK-181",
+        "TASK-181.2"
+      ]
+    },
+    {
+      "id": "EVAL-042",
+      "feature": "interaction-rm-touch-parity",
+      "category": "accessibility",
+      "input": "Every in-scope surface under prefers-reduced-motion: reduce at 1440, and with touch (hasTouch, coarse pointer) at 390 and 430: hover, focus, press and tap",
+      "expected_behavior": "Reduced motion: 0 transform changes on hover, focus or press across the surfaces, and a non-motion change (shadow, colour, underline or arrow colour) is still present. Touch: 0 pointermove listeners, 0 --hx writes, an :active press is present on cards and buttons, and no hover state remains after a tap",
+      "expected_output": "RM transform changes 0 · RM non-motion feedback present · touch writes 0 · sticky hovers 0 · touch press present",
+      "failure_conditions": [
+        "a translate, rotate or tilt change under reduced motion",
+        "no remaining feedback under reduced motion",
+        "a pointermove listener or --hx write on touch",
+        "a hover state left after a tap",
+        "no :active press on a card or button"
+      ],
+      "method": "Playwright tests/e2e/eval-042.spec.ts (emulateMedia reducedMotion; hasTouch context; computed transform before and after hover, focus and press)",
+      "threshold": {
+        "rmTransformChanges": 0,
+        "touchWrites": 0,
+        "stickyHovers": 0
+      },
+      "priority": "high",
+      "automated": true,
+      "runner": "playwright",
+      "viewport": [
+        "390",
+        "430",
+        "1440"
+      ],
+      "accessibility_requirement": "WCAG 2.3.3 prefers-reduced-motion honoured; feedback never depends on motion alone",
+      "tags": [
+        "interaction",
+        "reduced-motion",
+        "touch",
+        "S35",
+        "m-012"
+      ],
+      "related_tickets": [
+        "TASK-181",
+        "TASK-181.4"
+      ]
+    },
+    {
+      "id": "EVAL-043",
+      "feature": "project-signatures",
+      "category": "functional",
+      "input": "The three FeaturedWork cards (RailCite, Slag City, Campfire Board) at 1440, hover and keyboard focus, light and dark, plus the art at rest against the pre-split composite",
+      "expected_behavior": "Each card's signature is distinct (different data-sig targets); transform and opacity only; finite (0 running animations 2 s after the hover starts, except held transitions); plays on focus as well as hover; never runs while the card is off-screen; keeps its parts inside the card mask; the layered art at rest matches the original single image",
+      "expected_output": "distinct 3/3 · infinite animations 0 · off-screen runs 0 · focus parity · rest-pose diff ≤ 0.5 %",
+      "failure_conditions": [
+        "two cards share the same signature targets",
+        "an infinite animation after hover",
+        "a signature running off-screen",
+        "a signature part outside the card mask",
+        "no signature on keyboard focus",
+        "rest pose differs from the pre-split art by more than 0.5 %"
+      ],
+      "method": "Playwright tests/e2e/eval-043.spec.ts (document.getAnimations(), data-sig target sets, screenshots at rest) and a generator snapshot unit test",
+      "threshold": {
+        "distinctSignatures": 3,
+        "infiniteAnimations": 0,
+        "offscreenRuns": 0,
+        "restPoseDiffPct": 0.5
+      },
+      "priority": "high",
+      "automated": true,
+      "runner": "playwright",
+      "viewport": [
+        "1440"
+      ],
+      "accessibility_requirement": "Signatures are decorative; the card stays operable without them",
+      "tags": [
+        "signature",
+        "cards",
+        "L3",
+        "S35",
+        "m-012"
+      ],
+      "related_tickets": [
+        "TASK-181",
+        "TASK-181.2"
       ]
     }
   ]
