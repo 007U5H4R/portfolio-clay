@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { BallCollider, ConvexHullCollider, CuboidCollider, RigidBody, useBeforePhysicsStep, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
 import {
-  Color,
   CylinderGeometry,
   Group,
-  Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
@@ -16,7 +14,6 @@ import {
   TubeGeometry,
   Curve,
   Vector3,
-  type Material,
 } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { BumperSpec, GuideSpec, PadSpec, PlatformSpec, RailSpec, SlingSpec, TargetSpec } from "@/lib/lab/arena";
@@ -25,7 +22,7 @@ import { mix, type RGB } from "@/lib/lab/tokens";
 import { BlackHole } from "./BlackHole";
 import { BOARD_Z, Machine } from "./Machine";
 import { col, createTintedPaper, tileUV } from "./materials";
-import { cssColor, flipperShape, glowMaterial, glowTexture, neonColors, roundedRect, sheet, siteFont, starShape, textTexture } from "./paper-kit";
+import { creamRGB, cssColor, disposeAll, flipperShape, glowMaterial, glowTexture, neonColors, shadowMaterial, shadowTextures, sheet, siteFont, starShape, textTexture } from "./paper-kit";
 import { PHYSICS_DT } from "./physics-step";
 import { useRuntime } from "./runtime";
 
@@ -45,20 +42,30 @@ function useOwned<T extends object>(build: () => T): T {
   const [kit] = useState(build);
   useEffect(
     () => () => {
-      for (const v of Object.values(kit)) {
-        if (Array.isArray(v)) v.forEach((x) => (x as { dispose?: () => void })?.dispose?.());
-        else (v as { dispose?: () => void } | null)?.dispose?.();
-      }
+      for (const v of Object.values(kit)) disposeAll(Array.isArray(v) ? v : [v]);
     },
     [kit],
   );
   return kit;
 }
 
+/** The soft contact shadows every part shares (spec §3): a blob for round things, and a flat dark material for outlines. */
+const ShadowCtx = createContext<{ unit: PlaneGeometry; blobMat: MeshBasicMaterial; flatMat: MeshBasicMaterial } | null>(null);
+const useShadows = () => {
+  const v = useContext(ShadowCtx);
+  if (!v) throw new Error("useShadows outside <Arena>");
+  return v;
+};
+
 export function Arena() {
   const rt = useRuntime();
   const { arena } = rt;
   const root = useRef<Group>(null);
+  const shadows = useOwned(() => {
+    const { blob, edge } = shadowTextures();
+    const k = rt.palette.isDark ? 0.5 : 0.36;
+    return { blob, edge, unit: new PlaneGeometry(1, 1), blobMat: shadowMaterial(blob, k), flatMat: new MeshBasicMaterial({ color: col(tint(rt.palette.tok.navy, [0, 0, 0] as RGB, 0.6)), transparent: true, opacity: k * 0.55, depthWrite: false, toneMapped: false }) };
+  });
   // The intro and results are product shots on a bare backdrop; the machine appears with the countdown.
   useFrame(() => {
     const st = rt.store.getState().state;
@@ -66,6 +73,7 @@ export function Arena() {
     if (root.current && root.current.visible !== shown) root.current.visible = shown;
   });
   return (
+    <ShadowCtx.Provider value={shadows}>
     <group ref={root} visible={false}>
       <Machine />
       <Walls />
@@ -89,12 +97,13 @@ export function Arena() {
       {arena.bumpers.map((b, i) => (
         <Bumper key={b.id} spec={b} index={i} />
       ))}
-      {arena.targets.map((t, i) => (
-        <Target key={t.id} spec={t} index={i} />
+      {arena.targets.map((t) => (
+        <Target key={t.id} spec={t} />
       ))}
       <Plunger />
       <BlackHole />
     </group>
+    </ShadowCtx.Provider>
   );
 }
 
@@ -172,6 +181,7 @@ function Flipper({ index }: { index: 0 | 1 }) {
   const rt = useRuntime();
   const f = rt.flippers[index];
   const { layout } = f;
+  const shadows = useShadows();
   const rb = useRef<RapierRigidBody>(null);
   const visual = useRef<Group>(null);
   const neon = useMemo(() => neonColors(rt.palette), [rt.palette]);
@@ -183,7 +193,7 @@ function Flipper({ index }: { index: 0 | 1 }) {
     const inlay = sheet(flipperShape(layout.len * 0.9, 0.105, 0.052), 0.05, 0.015);
     inlay.translate(layout.len * 0.04, 0, depth / 2 + 0.01);
     const bodyMat = createTintedPaper(tint(tok.rust, tok.terracotta, 0.35), { lift: 0.07 });
-    const inlayMat = createTintedPaper(tint(tok.ivory, tok.kraft, 0.25), { lift: 0.06 });
+    const inlayMat = createTintedPaper(tint(creamRGB(rt.palette), tok.kraft, 0.08), { lift: 0.1 });
     const screw = new CylinderGeometry(0.1, 0.1, 0.1, 14);
     const screwMat = new MeshStandardMaterial({ color: col(tint(tok.kraft, tok.ivory, 0.5)), metalness: 0.8, roughness: 0.3, envMapIntensity: 1 });
     const edge = new RoundedBoxGeometry(layout.len * 0.78, 0.05, 0.05, 1, 0.02);
@@ -227,17 +237,22 @@ function Flipper({ index }: { index: 0 | 1 }) {
     // the lit edge: a soft warm line at rest, brighter while raised (a flash lives on the hit hook)
     const raised0 = Math.min(1, Math.max(0, (a - FLIP_REST) / (FLIP_UP - FLIP_REST)));
     const raised = rt.reducedMotion ? (raised0 > 0.5 ? 1 : 0) : raised0;
-    const lit = 0.42 + 0.58 * raised;
-    kit.edgeMat.color.copy(neon.amber).multiplyScalar(lit);
-    kit.glowMat.opacity = 0.06 + 0.16 * raised;
+    // a hit on the gummy flashes the edge (a beat, about 250 ms; a reduced-motion edge just goes on and off)
+    f.flash = Math.max(0, f.flash - dt * 4);
+    const flash = rt.reducedMotion ? (f.flash > 0.4 ? 1 : 0) : f.flash;
+    const lit = 0.42 + 0.58 * raised + 1.1 * flash;
+    kit.edgeMat.color.copy(neon.white).lerp(neon.amber, Math.max(0, 1 - flash * 1.4)).multiplyScalar(lit);
+    kit.glowMat.opacity = 0.06 + 0.16 * raised + 0.3 * flash;
   });
   const rest = flipperRotation(layout.side, f.state.angle);
   const theta = 2 * Math.atan2(rest.z, rest.w);
   return (
     <RigidBody ref={rb} type="kinematicPosition" colliders={false} position={[layout.pivot.x, layout.pivot.y, 0]} rotation={[0, 0, theta]} name={`flipper-${layout.side}`}>
       <CuboidCollider args={[layout.len / 2 + 0.15, FLIPPER_THICK / 2, DEPTH / 2 + 0.2]} position={[layout.len / 2, 0, 0]} restitution={0.3} friction={0.1} />
+      {/* the contact shadow on the table, to the lower right of the upper-left light (the right paddle's frame is turned half a turn, so its offset flips) */}
+      <mesh geometry={kit.body} material={shadows.flatMat} position={[(layout.side === "left" ? 1 : -1) * 0.1, (layout.side === "left" ? -1 : 1) * 0.14, -0.58]} scale={[1, 1, 0.02]} />
       <group ref={visual}>
-        <mesh geometry={kit.glow} material={kit.glowMat} position={[layout.len / 2, 0, -0.35]} renderOrder={2} />
+        {rt.tier.tier === "low" ? null : <mesh geometry={kit.glow} material={kit.glowMat} position={[layout.len / 2, 0, -0.35]} renderOrder={2} />}
         <mesh geometry={kit.body} material={kit.bodyMat} />
         <mesh geometry={kit.inlay} material={kit.inlayMat} />
         <mesh geometry={kit.screw} material={kit.screwMat} position={[0, 0, kit.depth / 2 + 0.08]} rotation-x={Math.PI / 2} />
@@ -376,6 +391,7 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
   const cooldown = useRef(0);
   const angle = useRef(0);
   const appear = useRef(spec.minPhase === 0 ? 1 : 0);
+  const shadows = useShadows();
   const neon = useMemo(() => neonColors(rt.palette), [rt.palette]);
   const lightCol = [neon.amber, neon.cyan, neon.magenta, neon.amber][index % 4]!;
   const kit = useOwned(() => {
@@ -395,7 +411,7 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
     const skirtMat = createTintedPaper(tint(tok.ivory, tok.kraft, 0.3), { lift: 0.05 });
     const ringMat = createTintedPaper(tint(base, tok.ivory, 0.18), { lift: 0.05 });
     const btnMat = createTintedPaper(tint(base, tok.ivory, 0.34), { lift: 0.07 });
-    const starMat = createTintedPaper(tint(tok.ivory, tok.note, 0.3), { lift: 0.1 });
+    const starMat = createTintedPaper(creamRGB(rt.palette), { lift: 0.14 });
     const litMat = new MeshBasicMaterial({ color: lightCol.clone(), toneMapped: false });
     const tex = glowTexture(128, 2);
     const halo = new PlaneGeometry(R * 4.4, R * 4.4);
@@ -455,7 +471,8 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
           </>
         ) : (
           <>
-            <mesh geometry={kit.halo} material={kit.haloMat} position={[0, 0, -0.3]} renderOrder={2} />
+            {rt.tier.tier === "low" ? null : <mesh geometry={kit.halo} material={kit.haloMat} position={[0, 0, -0.3]} renderOrder={2} />}
+            <mesh geometry={shadows.unit} material={shadows.blobMat} position={[spec.r * 0.3, -spec.r * 0.36, -0.5]} scale={[spec.r * 3.1, spec.r * 3.1, 1]} />
             <mesh geometry={kit.skirt} material={kit.skirtMat} position={[0, 0, -0.34]} />
             <mesh geometry={kit.ring} material={kit.ringMat} position={[0, 0, -0.1]} />
             <mesh geometry={kit.lit} material={kit.litMat} position={[0, 0, 0.1]} />
@@ -478,9 +495,10 @@ const TARGET_TINT: Record<string, (typeof BUMPER_TINTS)[number] | "terracotta" |
  * A mounted pinball target (spec §19): a raised, slightly angled plate on two posts with its name in Fraunces and a lit edge
  * beneath it. A hit pushes the plate back, flashes its light, and the score pops (the hook); it springs forward again.
  */
-function Target({ spec, index }: { spec: TargetSpec; index: number }) {
+function Target({ spec }: { spec: TargetSpec }) {
   const rt = useRuntime();
   const { palette } = rt;
+  const shadows = useShadows();
   const plate = useRef<Group>(null);
   const hit = useRef(0);
   const cooldown = useRef(0);
@@ -502,7 +520,7 @@ function Target({ spec, index }: { spec: TargetSpec; index: number }) {
     const label = textTexture(320, 160, (g2, w, h) => {
       g2.textAlign = "center";
       g2.textBaseline = "middle";
-      g2.fillStyle = cssColor(tok.ivory);
+      g2.fillStyle = cssColor(creamRGB(palette));
       const size = spec.id.length > 5 ? 54 : spec.id.length > 3 ? 62 : 80;
       g2.font = `700 ${size}px ${siteFont("display")}`;
       g2.fillText(spec.id, w / 2, h * 0.54);
@@ -549,11 +567,11 @@ function Target({ spec, index }: { spec: TargetSpec; index: number }) {
     rt.jelly.impact(-dx / len, -dy / len, 12);
     rt.hooks.target(spec.id, spec.x, spec.y);
   };
-  void index;
   return (
     <RigidBody type="fixed" colliders={false} position={[spec.x, spec.y, 0]} rotation={[0, 0, spec.angle]} onCollisionEnter={onEnter}>
       <CuboidCollider args={[spec.hw, spec.hh, 0.6]} restitution={0.8} />
-      <mesh geometry={kit.halo} material={kit.haloMat} position={[0, 0, -0.45]} renderOrder={2} />
+      {rt.tier.tier === "low" ? null : <mesh geometry={kit.halo} material={kit.haloMat} position={[0, 0, -0.45]} renderOrder={2} />}
+      <mesh geometry={shadows.unit} material={shadows.blobMat} position={[0.16, -0.22, -0.5]} scale={[W * 1.5, H * 2.6, 1]} />
       <mesh geometry={kit.post} material={kit.postMat} position={[-spec.hw * 0.6, -spec.hh * 0.4, -0.3]} />
       <mesh geometry={kit.post} material={kit.postMat} position={[spec.hw * 0.6, -spec.hh * 0.4, -0.3]} />
       <group ref={plate} position={[0, 0, 0.1]}>
@@ -574,6 +592,7 @@ function Target({ spec, index }: { spec: TargetSpec; index: number }) {
  */
 function Sling({ spec }: { spec: SlingSpec }) {
   const rt = useRuntime();
+  const shadows = useShadows();
   const trim = useRef<Group>(null);
   const hit = useRef(0);
   const cooldown = useRef(0);
@@ -599,7 +618,7 @@ function Sling({ spec }: { spec: SlingSpec }) {
     const button = new CylinderGeometry(0.1, 0.1, 0.12, 14);
     button.rotateX(Math.PI / 2);
     const bodyMat = createTintedPaper(tint(tok.rust, tok.ivory, 0.2), { lift: 0.08 });
-    const barMat = createTintedPaper(tint(tok.ivory, tok.kraft, 0.25), { lift: 0.06 });
+    const barMat = createTintedPaper(tint(creamRGB(rt.palette), tok.kraft, 0.1), { lift: 0.1 });
     const stripMat = new MeshBasicMaterial({ color: neon.amber.clone(), toneMapped: false });
     const buttonMat = new MeshBasicMaterial({ color: neon.amber.clone(), toneMapped: false });
     // hull for the collider: the prism, in world coordinates
@@ -646,6 +665,7 @@ function Sling({ spec }: { spec: SlingSpec }) {
     <RigidBody type="fixed" colliders={false} onCollisionEnter={onEnter}>
       <ConvexHullCollider args={[kit.hull]} restitution={0.5} friction={0.05} />
       <group position={[spec.mid.x, spec.mid.y, 0]}>
+        <mesh geometry={kit.body} material={shadows.flatMat} position={[0.1, -0.14, -0.58]} scale={[1, 1, 0.02]} />
         <mesh geometry={kit.body} material={kit.bodyMat} />
         <group ref={trim}>
           <group rotation={[0, 0, faceAng]} position={[spec.normal.x * 0.02, spec.normal.y * 0.02, 0.38]}>
@@ -744,8 +764,3 @@ function Plunger() {
     </group>
   );
 }
-
-export type { Material };
-void Color;
-void Mesh;
-void roundedRect;

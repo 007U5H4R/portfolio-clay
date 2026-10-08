@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import type { RapierRigidBody } from "@react-three/rapier";
-import type { MeshPhysicalMaterial } from "three";
+import type { MeshPhysicalMaterial, Object3D } from "three";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
 import type { FlipperLayout, FlipperSide, FlipperState } from "@/lib/lab/flippers";
 import type { LabAudio } from "./audio";
@@ -82,6 +82,8 @@ export interface FlipperRuntime {
   pressed: boolean;
   /** Seconds until this flipper can hand the gummy another impulse. */
   cooldown: number;
+  /** 0–1 flash at the paddle's lit edge after it hits the gummy (set by the flip hook, decays in the paddle's own frame). */
+  flash: number;
   body: { current: RapierRigidBody | null };
 }
 
@@ -133,6 +135,8 @@ export interface LabRuntime {
   popup(text: string, x: number, y: number): void;
   /** Draw calls and triangles of the last frame (set by GameScene; read by `?debug` and the profiling notes). */
   renderInfo: () => { calls: number; triangles: number };
+  /** The three.js scene (read-only handle for `?debug`: profiling and tests). */
+  scene: Object3D | null;
   /** 0–1 flash on the trail (a bumper hit or a launch); decays by itself. */
   trailFlash: number;
   /** Elements the HUD overlay registers so the scene can place them over the canvas each frame (no extra rAF loop). */

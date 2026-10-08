@@ -85,6 +85,8 @@ export interface LaneSpec {
   /** World y of the plunger cap's top at rest (the gummy's feet sit here) and how far it retracts. */
   restY: number;
   travel: number;
+  /** The arch that turns a shot over the divider: centre and inner radius of its quarter circle. */
+  arch: { cx: number; cy: number; r: number };
 }
 /** A fixed rail: the in-lane slope that carries the gummy from the wall down to a flipper. */
 export interface GuideSpec {
@@ -156,8 +158,9 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
 
   // Two tilted ramps (kept from the old shelves, TASK-168): every platform is sloped so the gummy rolls on instead of stalling.
   const platforms: PlatformSpec[] = [
-    { id: "S2", x: fx(0.56), y: -0.55, w: wide ? 1.8 : 1.3, h: 0.3, angle: 0.22, minPhase: 0 },
-    { id: "M2", x: fx(-0.56), y: -0.45, w: wide ? 1.8 : 1.3, h: 0.3, angle: -0.24, slide: { amp: fx(0.1), speed: 0.7, phase: 1.6 }, minPhase: 0 },
+    // Out near the walls, above the slingshots: a shot from a flipper (which drifts a little outward) clears them.
+    { id: "S2", x: fx(wide ? 0.68 : 0.62), y: -0.45, w: wide ? 1.5 : 1.2, h: 0.3, angle: 0.22, minPhase: 0 },
+    { id: "M2", x: fx(wide ? -0.68 : -0.62), y: -0.35, w: wide ? 1.5 : 1.2, h: 0.3, angle: -0.24, slide: { amp: fx(0.06), speed: 0.7, phase: 1.6 }, minPhase: 0 },
   ];
   const s2 = platforms[0]!;
   const padAlong = 0.5;
@@ -197,7 +200,7 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
   const th = wide ? 0.37 : 0.31;
   const tx = hw - (wide ? 0.98 : 0.78);
   const mk = (id: TargetName, side: -1 | 1, y: number): TargetSpec => ({ id, x: side * tx, y, hw: tw, hh: th, angle: -side * 0.55, r: Math.hypot(tw, th) });
-  const targets: TargetSpec[] = [mk("AI", -1, 3.55), mk("DESIGN", -1, 1.45), mk("PRODUCT", 1, 3.3), mk("BUILD", 1, 1.2)];
+  const targets: TargetSpec[] = wide ? [mk("AI", -1, 4.0), mk("DESIGN", -1, 2.1), mk("PRODUCT", 1, 3.7), mk("BUILD", 1, 1.8)] : [mk("AI", -1, 3.7), mk("DESIGN", -1, 1.75), mk("PRODUCT", 1, 3.45), mk("BUILD", 1, 1.5)];
 
   // Slingshots (spec §20): right-angle triangles standing on the in-lane guides, the long edge facing the table.
   const slings: SlingSpec[] = (["left", "right"] as const).map((side) => {
@@ -235,6 +238,7 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
     dividerTop: archCy - 0.7,
     restY: -4.0,
     travel: 0.55,
+    arch: { cx: archCx, cy: archCy, r: ARCH_R },
   };
   const panel = wide ? 1.8 : 1.3;
   const rails: RailSpec[] = [];
@@ -257,10 +261,10 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
         { x: -1.0, y: 3.3 },
         { x: 1.0, y: 3.3 },
         { x: 0, y: 2.55 },
-        { x: -3.0, y: 4.35 },
-        { x: 3.0, y: 4.6 },
-        { x: -3.1, y: 0.55 },
-        { x: 3.1, y: 0.25 },
+        { x: -2.9, y: 4.6 },
+        { x: 2.9, y: 5.0 },
+        { x: -2.9, y: 0.95 },
+        { x: 2.9, y: 0.95 },
         { x: -1.3, y: 0.3 },
         { x: 1.3, y: 0.3 },
         { x: 0, y: -0.6 },

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
+  AdditiveBlending,
   CatmullRomCurve3,
   CircleGeometry,
   Color,
@@ -26,7 +27,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { litSegments } from "@/lib/lab/plunger";
 import { mix, type RGB } from "@/lib/lab/tokens";
 import { col, createTintedPaper, tileUV } from "./materials";
-import { cssColor, disposeAll, glowMaterial, glowTexture, neonColors, paintBoard, pineShapes, rng, sheet, siteFont, textTexture } from "./paper-kit";
+import { cssColor, disposeAll, glowMaterial, glowTexture, neonColors, paintBoard, pineShapes, rng, sheet, shadowMaterial, shadowTextures, siteFont, textTexture } from "./paper-kit";
 import { useRuntime } from "./runtime";
 
 /**
@@ -43,10 +44,7 @@ function useKit<T extends object>(build: () => T): T {
   const [kit] = useState(build);
   useEffect(
     () => () => {
-      for (const v of Object.values(kit)) {
-        if (Array.isArray(v)) disposeAll(v as { dispose(): void }[]);
-        else if (v && typeof (v as { dispose?: unknown }).dispose === "function") (v as { dispose(): void }).dispose();
-      }
+      for (const v of Object.values(kit)) disposeAll(Array.isArray(v) ? v : [v]);
     },
     [kit],
   );
@@ -59,6 +57,7 @@ export function Machine() {
   return (
     <>
       <Board />
+      <EdgeShadows />
       <Hills />
       <Cabinet />
       <Lights />
@@ -101,6 +100,37 @@ function Board() {
       <mesh geometry={kit.geo} material={kit.mat} position={[kit.x, kit.y, BOARD_Z]} />
       <mesh geometry={kit.laneGeo} material={kit.laneMat} position={[(b.lane.xIn + b.lane.xOut) / 2, kit.y, BOARD_Z + 0.01]} />
     </>
+  );
+}
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+
+/** Ambient occlusion where the table meets its walls: soft shadow strips falling to the lower right of the upper-left key light. */
+function EdgeShadows() {
+  const rt = useRuntime();
+  const { arena } = rt;
+  const kit = useKit(() => {
+    const { edge } = shadowTextures();
+    const strength = rt.palette.isDark ? 0.55 : 0.4;
+    const mat = shadowMaterial(edge, strength);
+    const w = 0.95;
+    const h = arena.ceilingY + 6.3;
+    const geoV = new PlaneGeometry(w, h);
+    const geoH = new PlaneGeometry(w, arena.halfW * 2 + 2);
+    return { edge, mat, geoV, geoH, h };
+  });
+  const lane = arena.lane;
+  const hw = arena.halfW;
+  const cy = (arena.ceilingY - 6.3) / 2;
+  return (
+    <group>
+      {/* inside the left wall, falling to its right */}
+      <mesh geometry={kit.geoV} material={kit.mat} position={[-hw + 0.475, cy, BOARD_Z + 0.02]} renderOrder={1} />
+      {/* under the top rail, falling down (the gradient is turned a quarter) */}
+      <mesh geometry={kit.geoH} material={kit.mat} position={[0, arena.ceilingY - 0.475, BOARD_Z + 0.02]} rotation-z={-Math.PI / 2} scale={[1, 1, 1]} renderOrder={1} />
+      {/* in the lane, right of the divider */}
+      <mesh geometry={kit.geoV} material={kit.mat} position={[lane.xIn + 0.475, cy, BOARD_Z + 0.03]} renderOrder={1} />
+    </group>
   );
 }
 
@@ -183,8 +213,6 @@ function Hills() {
     m.instanceMatrix.needsUpdate = true;
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
   }, [kit]);
-  const hw = arena.halfW;
-  void hw;
   return (
     <group>
       <mesh geometry={kit.lFar} material={kit.mats.far} position={[0, 0, -0.6]} />
@@ -230,10 +258,24 @@ function Cabinet() {
     return { cab, cabDark, trim, pin, left, right, top, apron, divider, outerLip, pinGeo, trimGeo, cy, rightW, topW, apronW, heightAll };
   });
   const lane = b.lane;
-  const pins: [number, number][] = [];
-  for (let y = -5.4; y <= b.ceil; y += 2.4) {
-    pins.push([b.left + SIDE / 2, y], [lane.xOut + kit.rightW / 2 - 0.05 + 0.0, y]);
-  }
+  const pins = useMemo(() => {
+    const out: [number, number][] = [];
+    for (let y = -5.4; y <= b.ceil; y += 2.4) out.push([b.left + SIDE / 2, y], [lane.xOut + kit.rightW / 2 - 0.05, y]);
+    return out;
+  }, [b, lane, kit.rightW]);
+  const pinMesh = useRef<InstancedMesh>(null);
+  useEffect(() => {
+    const m = pinMesh.current;
+    if (!m) return;
+    const o = new Object3D();
+    o.rotation.x = Math.PI / 2;
+    pins.forEach(([x, y], i) => {
+      o.position.set(x, y, 0.78);
+      o.updateMatrix();
+      m.setMatrixAt(i, o.matrix);
+    });
+    m.instanceMatrix.needsUpdate = true;
+  }, [pins]);
   return (
     <group>
       <mesh geometry={kit.left} material={kit.cab} position={[b.left + SIDE / 2, kit.cy, 0]} />
@@ -242,10 +284,8 @@ function Cabinet() {
       <mesh geometry={kit.apron} material={kit.cabDark} position={[b.left - 0.1 + kit.apronW / 2, -5.55, 0.05]} />
       {/* the lane's divider: paper with a kraft cap, standing proud of the table */}
       <mesh geometry={kit.divider} material={kit.trim} position={[b.hw + 0.11, (lane.dividerTop - 5.9) / 2, 0]} />
-      {/* brass pins */}
-      {pins.map(([x, y], i) => (
-        <mesh key={i} geometry={kit.pinGeo} material={kit.pin} position={[x, y, 0.78]} rotation-x={Math.PI / 2} />
-      ))}
+      {/* brass pins: one instanced draw */}
+      <instancedMesh ref={pinMesh} args={[kit.pinGeo, kit.pin, pins.length]} frustumCulled={false} />
     </group>
   );
 }
@@ -288,7 +328,6 @@ function tubePair(run: Run, halo: number, seg = 48) {
 function Lights() {
   const rt = useRuntime();
   const { arena, palette } = rt;
-  const b = useBounds();
   const neon = useMemo(() => neonColors(palette), [palette]);
   const kit = useKit(() => {
     const hw = arena.halfW;
@@ -300,33 +339,21 @@ function Lights() {
     const ramp2 = (a: Color, c: Color, from = 0, to = 1) => (t: number) => new Color().copy(a).lerp(c, Math.min(1, Math.max(0, (t - from) / (to - from))));
     const runs: Run[] = [];
     const Z = 0.56;
-    // The arch: lane's outer wall up and round the top bend, amber fading through magenta at the far end.
-    const arch = arena.rails.filter((r) => r.id.startsWith("ARCH-"));
-    const archPts: [number, number][] = [[lane.xOut - 0.14, -4.4], [lane.xOut - 0.14, arch[0]!.y1]];
-    for (const r of arch) archPts.push([r.x2 - (r.x2 - arch[0]!.x1 > 0 ? 0 : 0), r.y2]);
-    // pull the points to the arch's inner face
-    const rIn = 3.0 - 0.14;
-    const cxA = lane.xOut - 3.0;
-    const cyA = arch[0]!.y1;
-    const archInner: [number, number][] = [[lane.xOut - 0.14, -4.4], [lane.xOut - 0.14, cyA]];
+    // The arch: up the lane's outer wall, round the top bend and a little way along the ceiling; amber, fading through magenta at the far end.
+    const { cx: archCx, cy: archCy, r: archR } = lane.arch;
+    const archPts: [number, number][] = [[lane.xOut - 0.14, -4.4], [lane.xOut - 0.14, archCy]];
     for (let i = 1; i <= 10; i += 1) {
       const a = (i / 10) * (Math.PI / 2);
-      archInner.push([cxA + (rIn + 0.14 - 0.0) * Math.cos(a) - 0.14 * Math.cos(a), cyA + (rIn + 0.14) * Math.sin(a) - 0.14 * Math.sin(a)]);
+      archPts.push([archCx + (archR - 0.14) * Math.cos(a), archCy + (archR - 0.14) * Math.sin(a)]);
     }
-    archInner.push([cxA - 1.2, cyA + 3.0 - 0.14]);
-    void archPts;
-    runs.push({ pts: archInner, z: Z, radius: 0.05, ramp: (t) => (t < 0.7 ? ramp2(amber, amber)(t) : ramp2(amber, magenta, 0.7, 1)(t)) });
+    archPts.push([archCx - 1.2, archCy + archR - 0.14]);
+    runs.push({ pts: archPts, z: Z, radius: 0.05, ramp: (t) => ramp2(amber, magenta, 0.7, 1)(t) });
     // The lane's own guide: a cool line up the divider's lane side ("illuminated guide").
     runs.push({ pts: [[lane.xIn + 0.1, -4.9], [lane.xIn + 0.1, lane.dividerTop - 0.05]], z: Z - 0.1, radius: 0.04, ramp: ramp2(cyan, cyan) });
     // Left and right walls of the table, and the corner deflector
     runs.push({ pts: [[-hw + 0.16, -1.9], [-hw + 0.16, arena.ceilingY - 1.75], [-hw + 1.7 - 0.05, arena.ceilingY - 0.3]], z: Z - 0.04, radius: 0.04, ramp: ramp2(amber, cyan, 0.55, 1) });
     // The in-lane guides, down to the flippers
     for (const g of arena.guides) {
-      const dx = g.x2 - g.x1;
-      const dy = g.y2 - g.y1;
-      const len = Math.hypot(dx, dy);
-      const nx = (-dy / len) * (g.x1 < 0 ? -1 : 1) * 0.0;
-      void nx;
       runs.push({ pts: [[g.x1 + (g.x1 < 0 ? 0.1 : -0.1), g.y1 + 0.17], [g.x2, g.y2 + 0.17]], z: Z - 0.06, radius: 0.036, ramp: ramp2(warm, amber) });
     }
     const pairs = runs.map((r) => tubePair(r, 3.4));
@@ -337,7 +364,7 @@ function Lights() {
       p.halo.dispose();
     });
     const coreMat = new MeshBasicMaterial({ vertexColors: true, toneMapped: false });
-    const haloMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.16, blending: 2, depthWrite: false, toneMapped: false });
+    const haloMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.16, blending: AdditiveBlending, depthWrite: false, toneMapped: false });
     // spill on the paper beside the lights
     const tex = glowTexture(128, 2.4);
     const spillGeo = new PlaneGeometry(1, 1);
@@ -345,8 +372,8 @@ function Lights() {
     const spills: { x: number; y: number; s: number; k: keyof typeof spillMats }[] = [
       { x: lane.x, y: -1.5, s: 3.2, k: "amber" },
       { x: lane.x, y: 2.8, s: 3.0, k: "amber" },
-      { x: cxA + 0.6, y: cyA + 2.4, s: 3.6, k: "magenta" },
-      { x: cxA - 1.5, y: cyA + 2.8, s: 3.2, k: "amber" },
+      { x: lane.arch.cx + 0.6, y: lane.arch.cy + 2.4, s: 3.6, k: "magenta" },
+      { x: lane.arch.cx - 1.5, y: lane.arch.cy + 2.8, s: 3.2, k: "amber" },
       { x: -hw + 0.7, y: 1.2, s: 3.4, k: "amber" },
       { x: -hw + 1.2, y: arena.ceilingY - 1.2, s: 3.0, k: "cyan" },
       { x: -hw + 0.9, y: -2.4, s: 3.0, k: "amber" },
@@ -354,14 +381,14 @@ function Lights() {
     ];
     return { core, haloG, coreMat, haloMat, tex, spillGeo, spillMats, spills, extra: [spillMats.amber, spillMats.cyan, spillMats.magenta] };
   });
-  void b;
   return (
     <group>
       <mesh geometry={kit.haloG} material={kit.haloMat} renderOrder={4} />
       <mesh geometry={kit.core} material={kit.coreMat} renderOrder={4} />
-      {kit.spills.map((s, i) => (
-        <mesh key={i} geometry={kit.spillGeo} material={kit.spillMats[s.k]} position={[s.x, s.y, -0.5]} scale={[s.s, s.s, 1]} renderOrder={1} />
-      ))}
+      {/* the glow that spills onto the paper is the first thing a weak phone drops (large, soft, additive overdraw) */}
+      {rt.tier.tier === "low"
+        ? null
+        : kit.spills.map((s, i) => <mesh key={i} geometry={kit.spillGeo} material={kit.spillMats[s.k]} position={[s.x, s.y, -0.5]} scale={[s.s, s.s, 1]} renderOrder={1} />)}
     </group>
   );
 }
@@ -540,13 +567,13 @@ function PowerMeter() {
     kit.spillMat.opacity = 0.34 * progress * (p.charging ? 1 : 0.6);
   });
   // top to bottom: the label, the well of lamps, the percentage. The lamps are measured from the well's centre.
-  const WELL_Y = 0.3;
+  const WELL_Y = 0.12;
   const lampY = (i: number) => WELL_Y - 0.95 + i * 0.3;
   return (
     <group ref={group} position={[cx, cy, 0.78]}>
       <mesh geometry={kit.spillGeo} material={kit.spillMat} position={[0, 0.2, 0.04]} renderOrder={3} />
       <mesh geometry={kit.plate} material={kit.plateMat} />
-      <mesh geometry={kit.labelGeo} material={kit.labelMat} position={[0, plateH / 2 - 0.5, 0.09]} />
+      <mesh geometry={kit.labelGeo} material={kit.labelMat} position={[0, plateH / 2 - 0.42, 0.09]} />
       <mesh geometry={kit.well} material={kit.wellMat} position={[0, WELL_Y, 0.1]} />
       {kit.lamps.map((l, i) => (
         <mesh key={i} geometry={kit.lampGeo} material={l.m} position={[0, lampY(i), 0.14]} />

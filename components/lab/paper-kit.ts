@@ -1,6 +1,5 @@
 import {
   AdditiveBlending,
-  BufferGeometry,
   CanvasTexture,
   Color,
   ExtrudeGeometry,
@@ -64,6 +63,14 @@ export function neonColors(p: CandyPalette): Neon {
   return { amber: col(amberRGB), cyan: col(cyanRGB), magenta: col(magentaRGB), white: col(whiteRGB), amberRGB, cyanRGB, magentaRGB, whiteRGB };
 }
 
+/**
+ * The pale cardstock of the machine's lettering and inlays (target names, bumper stars, flipper inlays, slingshot trim). The role
+ * tokens flip with the theme (ivory is a dark card in dark mode), so a surface that must stay light in both is mixed from `note`.
+ */
+export function creamRGB(p: CandyPalette): RGB {
+  return mix(p.tok.note, [1, 1, 1], 0.72);
+}
+
 /** A radial-gradient "light spill" sprite: white at the centre falling to nothing (tinted by the material colour). */
 export function glowTexture(size = 128, falloff = 2.2): CanvasTexture {
   const c = document.createElement("canvas");
@@ -79,6 +86,44 @@ export function glowTexture(size = 128, falloff = 2.2): CanvasTexture {
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
   return tex;
+}
+
+/**
+ * Soft contact shadows (spec §3): a radial blob and a one-sided edge gradient, both black-to-clear. The light is the
+ * site's upper-left key, so shadows fall to the lower right and the callers offset them that way.
+ */
+export function shadowTextures(): { blob: CanvasTexture; edge: CanvasTexture } {
+  const make = (draw: (g: CanvasRenderingContext2D, s: number) => void) => {
+    const size = 128;
+    const c = document.createElement("canvas");
+    c.width = c.height = size;
+    draw(c.getContext("2d")!, size);
+    const t = new CanvasTexture(c);
+    t.colorSpace = SRGBColorSpace;
+    return t;
+  };
+  const blob = make((g, s) => {
+    const grad = g.createRadialGradient(s / 2, s / 2, s * 0.08, s / 2, s / 2, s / 2);
+    grad.addColorStop(0, "color(srgb 0 0 0 / 0.85)");
+    grad.addColorStop(0.55, "color(srgb 0 0 0 / 0.35)");
+    grad.addColorStop(1, "color(srgb 0 0 0 / 0)");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, s, s);
+  });
+  const edge = make((g, s) => {
+    const grad = g.createLinearGradient(0, 0, s, 0);
+    grad.addColorStop(0, "color(srgb 0 0 0 / 0.7)");
+    grad.addColorStop(0.35, "color(srgb 0 0 0 / 0.28)");
+    grad.addColorStop(1, "color(srgb 0 0 0 / 0)");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, s, s);
+  });
+  return { blob, edge };
+}
+
+/** A shadow material: the shadow textures are black, so this just sets how strong it reads on the theme. */
+export function shadowMaterial(map: CanvasTexture, opacity: number): MeshBasicMaterial {
+  return new MeshBasicMaterial({ map, color: new Color(0, 0, 0), transparent: true, opacity, depthWrite: false, toneMapped: false });
 }
 
 /** An additive, unlit light material: the spill on nearby paper and the bloom around a light tube. */
@@ -338,7 +383,10 @@ export function paintBoard(palette: CandyPalette, spec: BoardSpec, px = 1024): C
   return tex;
 }
 
-/** Merge helper result type for callers that want to dispose a list of geometries. */
-export const disposeAll = (items: ({ dispose(): void } | null | undefined)[]) => items.forEach((i) => i?.dispose());
-
-export type { BufferGeometry };
+/** Disposes a list of geometries, materials or textures. */
+export function disposeAll(items: readonly unknown[]): void {
+  for (const i of items) {
+    const d = (i as { dispose?: unknown } | null | undefined)?.dispose;
+    if (typeof d === "function") (i as { dispose(): void }).dispose();
+  }
+}

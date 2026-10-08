@@ -40,7 +40,7 @@
    viewport height less a band for the combo plate above and a margin below; the outer sheets simply bleed off the screen. */
 @media (min-aspect-ratio: 1/1) {
   .root[data-machine] {
-    --fh: min(calc((100dvh - 190px) / 0.668), calc((100vw - 24px) / 0.667 / var(--ar)));
+    --fh: min(calc((100dvh - 215px) / 0.668), calc((100vw - 24px) / 0.667 / var(--ar)));
     --fw: calc(var(--fh) * var(--ar));
   }
 }
@@ -316,6 +316,25 @@
 }
 :global([data-theme="dark"]) .plateTime {
   --plate-art: url("/media/lab/art/plaque-timer-dark.webp");
+}
+/* two brass pins in the top corners: the plaques are screwed to the machine (TASK-185, spec §24) */
+.plate::before,
+.plate::after {
+  content: "";
+  position: absolute;
+  top: 12%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--color-ivory), var(--color-kraft) 55%, color-mix(in oklab, var(--color-terracotta) 55%, var(--color-kraft)));
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--color-navy) 28%, transparent);
+  pointer-events: none;
+}
+.plate::before {
+  left: 6%;
+}
+.plate::after {
+  right: 6%;
 }
 .plateInner {
   display: flex;

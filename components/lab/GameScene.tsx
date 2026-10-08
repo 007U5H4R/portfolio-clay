@@ -126,7 +126,8 @@ export default function GameScene({ runtime, onReady }: { runtime: LabRuntime; o
       camera={{ fov: FOV, near: 0.5, far: 120, position: [0, 3, 22] }}
       // Transparent: the diorama's paper backdrop (DOM layers) shows through behind the world.
       gl={{ antialias: runtime.tier.antialias, powerPreference: "high-performance", alpha: true }}
-      onCreated={({ gl }) => {
+      onCreated={({ gl, scene }) => {
+        runtime.scene = scene;
         runtime.renderInfo = () => ({ calls: gl.info.render.calls, triangles: gl.info.render.triangles });
         gl.setClearColor(0x000000, 0);
         onReady?.();

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { BufferAttribute, BufferGeometry, Color, DynamicDrawUsage, Mesh, MeshBasicMaterial, NormalBlending, PlaneGeometry } from "three";
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, DynamicDrawUsage, Mesh, MeshBasicMaterial, NormalBlending, PlaneGeometry } from "three";
 import { FULL_SPEED, MIN_TRAIL_SPEED, type TrailBuffer } from "@/lib/lab/trail";
 import { glowTexture, neonColors } from "./paper-kit";
 import { useRuntime } from "./runtime";
@@ -17,10 +17,10 @@ import { useRuntime } from "./runtime";
  * Both fade 100 → 70 → 40 → 15 → 0 % by the buffer's own gradient, are widest at speed, and shorten as the gummy slows. A small
  * glow sits on the gummy while it is quick. Under reduced motion the buffer records nothing, so none of this draws.
  */
-const VERTS = 4;
+const VERTS = 6;
 /** Where the four vertices of a sample sit across the ribbon, as a fraction of its half-width (module constants: nothing is allocated per frame). */
-const AURA_K = [-1, -0.38, 0.38, 1] as const;
-const CORE_K = [-0.34, -0.12, 0.12, 0.34] as const;
+const AURA_K = [-1, -0.6, -0.2, 0.2, 0.6, 1] as const;
+const CORE_K = [-0.3, -0.18, -0.06, 0.06, 0.18, 0.3] as const;
 
 interface Ribbon {
   geo: BufferGeometry;
@@ -36,12 +36,12 @@ function makeRibbon(cap: number): Ribbon {
   colr.setUsage(DynamicDrawUsage);
   geo.setAttribute("position", pos);
   geo.setAttribute("color", colr);
-  // three quads between each pair of neighbouring samples
+  // five quads between each pair of neighbouring samples
   const idx: number[] = [];
   for (let i = 0; i < cap - 1; i += 1) {
     const a = i * VERTS;
     const b = (i + 1) * VERTS;
-    for (let q = 0; q < 3; q += 1) idx.push(a + q, b + q, a + q + 1, a + q + 1, b + q, b + q + 1);
+    for (let q = 0; q < VERTS - 1; q += 1) idx.push(a + q, b + q, a + q + 1, a + q + 1, b + q, b + q + 1);
   }
   geo.setIndex(idx);
   geo.setDrawRange(0, 0);
@@ -61,11 +61,24 @@ export function Trail() {
   const head = useRef<Mesh>(null);
   const neon = useMemo(() => neonColors(rt.palette), [rt.palette]);
   const cap = rt.trail.capacity;
+  // On a cream table the light must be deeper to show (a pale glow vanishes there); on navy it can be full strength.
+  const cols = useMemo(() => {
+    const dark = rt.palette.isDark;
+    const k = dark ? 1 : 0.62;
+    return {
+      cyan: neon.cyan.clone().multiplyScalar(k),
+      magenta: neon.magenta.clone().multiplyScalar(k),
+      mid: neon.amber.clone().lerp(neon.magenta, 0.12).multiplyScalar(k),
+      amber: neon.amber.clone().multiplyScalar(k),
+      white: neon.white.clone().lerp(neon.amber, dark ? 0 : 0.38),
+    };
+  }, [neon, rt.palette]);
   const kit = useMemo(() => {
     const aura = makeRibbon(cap);
     const core = makeRibbon(cap);
-    const auraMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, blending: NormalBlending, depthWrite: false, toneMapped: false });
-    const coreMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, blending: NormalBlending, depthWrite: false, toneMapped: false });
+    // DoubleSide: the ribbon's winding follows the direction of travel, so it must be visible from either face
+    const auraMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, blending: NormalBlending, depthWrite: false, toneMapped: false, side: DoubleSide });
+    const coreMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, blending: NormalBlending, depthWrite: false, toneMapped: false, side: DoubleSide });
     const tex = glowTexture(128, 1.6);
     const headGeo = new PlaneGeometry(2.4, 2.4);
     const headMat = new MeshBasicMaterial({ color: neon.amber.clone().lerp(neon.white, 0.35), map: tex, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
@@ -128,7 +141,7 @@ export function Trail() {
     const aCol = kit.aura.colr.array as Float32Array;
     const cPos = kit.core.pos.array as Float32Array;
     const cCol = kit.core.colr.array as Float32Array;
-    const baseW = 0.62 + flash * 0.18;
+    const baseW = 1.0 + flash * 0.2;
     for (let k = 0; k < n; k += 1) {
       const i = trail.slot(k);
       const x = trail.x[i]!;
@@ -156,24 +169,30 @@ export function Trail() {
         cPos[(o + v) * 3 + 1] = y + py * w * CORE_K[v]!;
         cPos[(o + v) * 3 + 2] = z + 0.01;
       }
-      // colours: the warm-white core drifts to amber as it ages; the aura is amber in the middle, cyan one side, magenta the other
-      tmp.warm.copy(neon.white).lerp(neon.amber, (1 - a) * 0.7);
-      tmp.mid.copy(neon.amber).lerp(neon.magenta, 0.25);
+      // colours: a warm core drifting from pale gold to amber as it ages; the aura is amber at the heart, cyan on one side and magenta on the
+      // other, each strongest a little in from the edge and clear at the edge itself (so it reads on cream and on navy alike)
+      tmp.warm.copy(cols.white).lerp(cols.amber, (1 - a) * 0.7);
+      tmp.mid.copy(cols.mid);
       const boost = Math.min(1, (0.95 + flash * 0.3) * Math.min(1, a * 1.25));
-      const auraA = Math.min(0.95, (0.85 + flash * 0.15) * a);
-      setColor(aCol, o, neon.cyan, 0);
-      setColor(aCol, o + 1, tmp.mid, auraA);
-      setColor(aCol, o + 2, tmp.mid, auraA);
-      setColor(aCol, o + 3, neon.magenta, 0);
+      const heart = Math.min(0.95, (0.88 + flash * 0.12) * a);
+      const side = heart * 0.75;
+      setColor(aCol, o, cols.cyan, 0);
+      setColor(aCol, o + 1, cols.cyan, side);
+      setColor(aCol, o + 2, tmp.mid, heart);
+      setColor(aCol, o + 3, tmp.mid, heart);
+      setColor(aCol, o + 4, cols.magenta, side);
+      setColor(aCol, o + 5, cols.magenta, 0);
       setColor(cCol, o, tmp.warm, 0);
-      setColor(cCol, o + 1, tmp.warm, boost);
+      setColor(cCol, o + 1, tmp.warm, boost * 0.8);
       setColor(cCol, o + 2, tmp.warm, boost);
-      setColor(cCol, o + 3, tmp.warm, 0);
+      setColor(cCol, o + 3, tmp.warm, boost);
+      setColor(cCol, o + 4, tmp.warm, boost * 0.8);
+      setColor(cCol, o + 5, tmp.warm, 0);
     }
     kit.aura.pos.needsUpdate = kit.core.pos.needsUpdate = true;
     kit.aura.colr.needsUpdate = kit.core.colr.needsUpdate = true;
-    kit.aura.geo.setDrawRange(0, (n - 1) * 18);
-    kit.core.geo.setDrawRange(0, (n - 1) * 18);
+    kit.aura.geo.setDrawRange(0, (n - 1) * 30);
+    kit.core.geo.setDrawRange(0, (n - 1) * 30);
   });
   return (
     <>

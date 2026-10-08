@@ -83,6 +83,8 @@ export function Driver() {
           break;
         }
         case "game-over":
+          // The drain took it (spec §22): say so for a beat while the gummy melts.
+          banner("DRAINED", 1400);
           audio.play("gameover");
           burst(rt.bear.x, rt.bear.y + 0.3, "droplet", 18, 0);
           rt.shake = 0.6;

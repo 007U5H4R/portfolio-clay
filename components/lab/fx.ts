@@ -42,7 +42,8 @@ export function createFxHooks(rt: LabRuntime): LabHooks {
       burst(rt.bear.x, rt.bear.y + 0.1, "droplet", Math.round(2 + charge * 8), 0);
     },
     // Visual only: a squash against the flipper (the jelly never feeds back into the physics).
-    flip(_side, speed, nx, ny, x, y) {
+    flip(side, speed, nx, ny, x, y) {
+      rt.flippers[side === "left" ? 0 : 1].flash = 1;
       rt.jelly.impact(-nx, -ny, 10 + speed * 0.5);
       burst(x - nx * 0.4, y - ny * 0.4, "sparkle", 5, 0);
     },

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { CircleGeometry, Color, Group, InstancedMesh, MeshBasicMaterial, Object3D, PlaneGeometry, ShaderMaterial, ShapeGeometry, type IUniform } from "three";
+import { CircleGeometry, Group, InstancedMesh, MeshBasicMaterial, Object3D, PlaneGeometry, ShaderMaterial, ShapeGeometry, type IUniform } from "three";
 import { mix, type RGB } from "@/lib/lab/tokens";
 import { col, createTintedPaper } from "./materials";
 import { glowMaterial, glowTexture, neonColors, rng, tornCircle } from "./paper-kit";
@@ -140,4 +140,3 @@ export function BlackHole() {
   );
 }
 
-void Color;
