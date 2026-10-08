@@ -30,8 +30,8 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-07",
-    "profileVersion": "v1-2086b85f8866",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-4c88bfd78503",
     "dependsOn": [
       "profile",
       "experience",
@@ -53,7 +53,7 @@
       "Show me your projects",
       "What have you made"
     ],
-    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Tegaki, Pratyasa, Dino Arcade and a cinematic portfolio. Cubicle, a multi-agent “AI team” from a team buildathon, is built but not launched. Campfire Board, a local-first, multi-project dashboard for the AI build workflow and a personal fork of Backlog.md, is built as a local tool. Slag City, an original arcade beat-'em-up that runs in the browser, is live.",
+    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Tegaki, Pratyasa, Dino Arcade and a cinematic portfolio. Cubicle, a multi-agent “AI team” from a team buildathon, is built but not launched. Campfire Board, a local-first, multi-project dashboard for the AI build workflow and a personal fork of Backlog.md, is built as a local tool with a hosted live demo. Slag City, an original arcade beat-'em-up that runs in the browser, is live.",
     "sources": [
       {
         "label": "TeachSpark",
@@ -81,8 +81,8 @@
       "Tell me about RailCite.",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-963d41cf9003",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-5285ae74e0d2",
     "dependsOn": [
       "projects"
     ],
