@@ -171,6 +171,29 @@ export function createPaperMaterial(key: PaperKey, opts: { opacity?: number; lif
   return m;
 }
 
+/**
+ * Token-tinted cardstock (TASK-185): the shared cream grain texture multiplied by a colour mixed from the site's role
+ * tokens, so the machine follows the light and dark themes and never carries a colour literal. `lift` adds a little
+ * self-light by the texture itself (the same trick as `createPaperMaterial`).
+ */
+export function createTintedPaper(tint: RGB, opts: { rough?: number; lift?: number; bump?: number } = {}) {
+  const m = new MeshStandardMaterial({
+    map: loadPaper("paper-cream", true),
+    bumpMap: loadPaper("paper-bump", false),
+    bumpScale: opts.bump ?? 0.5,
+    color: col(tint),
+    roughness: opts.rough ?? 0.92,
+    metalness: 0,
+    envMapIntensity: 0.4,
+  });
+  if (opts.lift) {
+    m.emissiveMap = m.map;
+    m.emissive = col(tint);
+    m.emissiveIntensity = opts.lift;
+  }
+  return m;
+}
+
 /** Tile the paper grain by scaling a geometry's UVs (the textures are shared, so repeat is not per material). */
 export function tileUV(geo: BufferGeometry, w: number, h: number): void {
   const uv = geo.getAttribute("uv");

@@ -3,7 +3,7 @@
  * Pure data + maths (no three.js) so the cap and lifetimes are unit-testable. Kinds are visual only:
  * sparkles on impacts, gummy droplets, star bursts, power-up trails.
  */
-export type ParticleKind = "sparkle" | "droplet" | "star" | "trail";
+export type ParticleKind = "sparkle" | "droplet" | "star" | "trail" | "streak";
 
 export interface Emit {
   x: number;
@@ -14,6 +14,9 @@ export interface Emit {
   speed?: number;
   /** Palette slot 0–4 (index into the renderer's colour list). */
   color?: number;
+  /** Unit direction the gummy is travelling: "streak" particles drift back along it (the trail's micro-sparks). */
+  dirX?: number;
+  dirY?: number;
 }
 
 export class ParticlePool {
@@ -44,7 +47,9 @@ export class ParticlePool {
     this.gravity = new Float32Array(capacity);
   }
 
-  emit({ x, y, kind, count, speed = 1, color = 0 }: Emit) {
+  /** Capacity 0 (reduced motion, TASK-185) is a pool that never holds anything. */
+  emit({ x, y, kind, count, speed = 1, color = 0, dirX = 0, dirY = 0 }: Emit) {
+    if (this.capacity === 0) return;
     for (let n = 0; n < count; n += 1) {
       // Ring buffer: the oldest particle is recycled when the pool is full (hard cap, no growth).
       const i = this.cursor;
@@ -66,6 +71,14 @@ export class ParticlePool {
         this.gravity[i] = 1.5;
         this.maxLife[i] = 0.6 + this.rng() * 0.3;
         this.size[i] = 0.09 + this.rng() * 0.05;
+      } else if (kind === "streak") {
+        // Tiny, quick sparks that fall behind the gummy's path and are gone within a fraction of a second.
+        const spread = (this.rng() - 0.5) * 1.4;
+        this.vx[i] = -dirX * (1.2 + this.rng() * 1.4) - dirY * spread;
+        this.vy[i] = -dirY * (1.2 + this.rng() * 1.4) + dirX * spread;
+        this.gravity[i] = 0;
+        this.maxLife[i] = 0.16 + this.rng() * 0.16;
+        this.size[i] = 0.025 + this.rng() * 0.03;
       } else if (kind === "trail") {
         this.vx[i] = (this.rng() - 0.5) * 0.5;
         this.vy[i] = (this.rng() - 0.5) * 0.5;

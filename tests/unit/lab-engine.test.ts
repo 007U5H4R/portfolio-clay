@@ -78,8 +78,8 @@ describe("scoring and combo", () => {
     expect(engine.snapshot().combo).toBe(3);
     engine.action("star", 2);
     expect(engine.snapshot().combo).toBe(4);
-    // 25*1 + 100*2 + 30*3 + 150*4
-    expect(engine.snapshot().score - before).toBe(25 + 200 + 90 + 600);
+    // 25*1 + 100*2 + 100*3 (a bumper is 100 since TASK-185) + 150*4
+    expect(engine.snapshot().score - before).toBe(25 + 200 + 300 + 600);
   });
 
   it("the combo caps at x10 and unlocks WOBBLE MASTER", () => {
@@ -338,5 +338,46 @@ describe("difficulty feeds the environment", () => {
     tick(engine, 21);
     expect(engine.env().phase).toBe(2);
     expect(events).toContain("phase");
+  });
+});
+
+describe("pinball scoring (TASK-185)", () => {
+  it("each target scores its own value and a bumper scores 100, fed through the same combo", () => {
+    for (const [name, value] of [["AI", 150], ["DESIGN", 200], ["PRODUCT", 250], ["BUILD", 300]] as const) {
+      const { machine, engine } = setup();
+      play(machine, engine);
+      const before = engine.snapshot().score;
+      const pts = engine.hitTarget(name);
+      expect(pts, name).toBe(value); // first action of the run: combo ×1
+      expect(engine.snapshot().score - before, name).toBe(value);
+    }
+    const { machine, engine } = setup();
+    play(machine, engine);
+    const before = engine.snapshot().score;
+    expect(engine.action("bumper", "B1")).toBe(100);
+    expect(engine.snapshot().score - before).toBe(100);
+  });
+
+  it("the combo multiplies a target's own value: a second action doubles, a third triples", () => {
+    const { machine, engine } = setup();
+    play(machine, engine);
+    engine.action("bumper", "B1"); // ×1 → 100
+    expect(engine.hitTarget("BUILD")).toBe(300 * 2);
+    expect(engine.hitTarget("AI")).toBe(150 * 3);
+  });
+
+  it("hitting the same target again straight away is farming: 20% of its value, no combo", () => {
+    const { machine, engine } = setup();
+    play(machine, engine);
+    engine.hitTarget("PRODUCT");
+    const combo = engine.snapshot().combo;
+    expect(engine.hitTarget("PRODUCT")).toBeCloseTo(250 * 0.2 * combo, 6);
+    expect(engine.snapshot().combo).toBe(combo);
+  });
+
+  it("a slingshot kick is a small scoring action (30)", () => {
+    const { machine, engine } = setup();
+    play(machine, engine);
+    expect(engine.action("sling", "SL")).toBe(30);
   });
 });
