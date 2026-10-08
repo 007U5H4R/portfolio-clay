@@ -2824,8 +2824,8 @@ export const cinematicPortfolio: Project = {
 /**
  * Campfire Board (TASK-124). A local-first dashboard — a personal fork of Backlog.md (MrLesk/Backlog.md,
  * MIT) — so the credit to Backlog.md and its authors is part of the record, never implied away. It runs
- * on the owner's machine only: no live URL. Its GitHub repo 007U5H4R/pm-dashboard was made public at
- * Tushar's request (2026-09-28) → `github` + repoPublic:true, so the Portfolio shows the GitHub action.
+ * on the owner's machine; a hosted live demo with a sample project is the `live` link, and the GitHub link
+ * was removed at Tushar's request (TASK-188, 2026-10-08).
  * Every field traces to the Campfire README / docs (CONTENT_INVENTORY §8.12, `docs/trace/campfire-board.md`).
  * No users, metrics or outcomes are recorded there, so none are claimed. Card depth, like the thin five.
  */
@@ -2838,7 +2838,7 @@ export const campfireBoard: Project = {
   tags: ["Kanban", "Gantt", "Local-first"],
   filters: ["experiments"],
   status: "prototype",
-  statusLabel: "Built · local tool",
+  statusLabel: "Built · live demo",
   featured: 3, // TASK-133: home Featured Work, bottom-right
   gridSize: "small",
   icon: "SquareKanban",
@@ -2846,15 +2846,15 @@ export const campfireBoard: Project = {
   dates: { start: "2026-09" },
   duration: "Sep 2026",
   links: {
-    github: "https://github.com/007U5H4R/pm-dashboard",
-    repoPublic: true,
+    live: "https://site-eight-lake-51.vercel.app",
+    repoPublic: false, // no repo link shown (TASK-188)
   },
   hero: {},
   metrics: [],
   overview: {
     thirtySecond: [
       "A personal fork of Backlog.md reshaped into a cross-project command centre: every project stays a self-contained folder of Markdown files, and one dashboard, launched locally in Chrome, renders them all — the operational home for a 10-stage build workflow, from Product Discovery through Deployment.",
-      "It adds a multi-project switcher, a Kanban board with an Execution / Workflow toggle, an hours-axis Execution Gantt with dependency arrows, a statistics view and an in-app artifacts viewer, all served from a single Bun-compiled local binary with the web UI embedded — nothing to deploy, so there is no hosted product link. Backlog.md is by Alex Gavrilescu and contributors (MIT licence); Campfire inherits its Markdown-native, agent-first philosophy.",
+      "It adds a multi-project switcher, a Kanban board with an Execution / Workflow toggle, an hours-axis Execution Gantt with dependency arrows, a statistics view and an in-app artifacts viewer, all served from a single Bun-compiled local binary with the web UI embedded — nothing to deploy; a hosted live demo runs a sample project. Backlog.md is by Alex Gavrilescu and contributors (MIT licence); Campfire inherits its Markdown-native, agent-first philosophy.",
     ],
     deepDive: false,
   },

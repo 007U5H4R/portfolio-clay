@@ -65,7 +65,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     code: "CF-01",
     coverLine: "One dashboard, every project",
     accent: "terracotta",
-    meta: "Built · local tool",
+    meta: "Built · live demo",
     coverArt: "cover-campfire-board",
     lettering: "script",
     coverGlyph: "Flame",

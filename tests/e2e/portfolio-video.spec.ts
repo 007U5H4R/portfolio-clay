@@ -148,12 +148,11 @@ test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
     await expect(pitchBtn).toBeVisible();
     await expect(demoBtn).toBeVisible();
-    // A local tool: no product link. Its repo is public (2026-09-28): one GitHub action, new tab.
-    await expect(actions(page).locator('[data-action="product"]')).toHaveCount(0);
-    const github = actions(page).locator('[data-action="github"]');
-    await expect(github).toHaveCount(1);
-    await expect(github).toHaveAttribute("href", "https://github.com/007U5H4R/pm-dashboard");
-    await expect(github).toHaveAttribute("target", "_blank");
+    // TASK-188: the hosted live demo is the product link; the GitHub link is gone.
+    const product = actions(page).locator('[data-action="product"]');
+    await expect(product).toHaveCount(1);
+    await expect(product).toHaveAttribute("href", "https://site-eight-lake-51.vercel.app");
+    await expect(actions(page).locator('[data-action="github"]')).toHaveCount(0);
     await expect(frames(page)).toHaveCount(0);
 
     await stage(page).getByRole("button", { name: /^Play Campfire Board pitch video$/ }).click();
