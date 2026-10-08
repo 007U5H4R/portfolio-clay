@@ -31,7 +31,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-08",
-    "profileVersion": "v1-4c88bfd78503",
+    "profileVersion": "v1-000a70b79f4a",
     "dependsOn": [
       "profile",
       "experience",
@@ -82,7 +82,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-08",
-    "profileVersion": "v1-5285ae74e0d2",
+    "profileVersion": "v1-b580084fcecb",
     "dependsOn": [
       "projects"
     ],
