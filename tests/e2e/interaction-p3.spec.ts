@@ -203,8 +203,15 @@ test.describe("@TASK-181.3 tushky", () => {
     expect(running, "breathing is running with 3 iterations").toEqual([{ n: "tk-breathe", it: 3 }]);
     await page.waitForTimeout(8000);
     expect(await dog.evaluate((el) => el.getAnimations().length), "no animation on the mascot 8 s after entering view").toBe(0);
-    const infinite = await page.evaluate(() => document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations === Infinity).length);
-    expect(infinite, "no infinite animation on the page").toBe(0);
+    // scoped to the Tushky section: other surfaces own their loops (the gyro chip, the postmark), TASK-181.3 adds none
+    const infinite = await page.evaluate(
+      () =>
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getComputedTiming().iterations === Infinity)
+          .filter((a) => (a.effect as KeyframeEffect).target?.closest("section#ask")).length,
+    );
+    expect(infinite, "no infinite animation in the Tushky section").toBe(0);
   });
 
   test("breathing never starts off-screen or under reduced motion", async ({ page }) => {
