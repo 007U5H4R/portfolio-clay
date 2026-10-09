@@ -30,15 +30,15 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-07",
-    "profileVersion": "v1-2086b85f8866",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-000a70b79f4a",
     "dependsOn": [
       "profile",
       "experience",
       "projects",
       "credentials"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "products-built",
@@ -53,7 +53,7 @@
       "Show me your projects",
       "What have you made"
     ],
-    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Tegaki, Pratyasa, Dino Arcade and a cinematic portfolio. Cubicle, a multi-agent “AI team” from a team buildathon, is built but not launched. Campfire Board, a local-first, multi-project dashboard for the AI build workflow and a personal fork of Backlog.md, is built as a local tool. Slag City, an original arcade beat-'em-up that runs in the browser, is live.",
+    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Tegaki, Pratyasa, Dino Arcade and a cinematic portfolio. Cubicle, a multi-agent “AI team” from a team buildathon, is built but not launched. Campfire Board, a local-first, multi-project dashboard for the AI build workflow and a personal fork of Backlog.md, is built as a local tool with a hosted live demo. Slag City, an original arcade beat-'em-up that runs in the browser, is live.",
     "sources": [
       {
         "label": "TeachSpark",
@@ -81,12 +81,12 @@
       "Tell me about RailCite.",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-963d41cf9003",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-b580084fcecb",
     "dependsOn": [
       "projects"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "ai-experience",
@@ -121,8 +121,8 @@
       "Tell me about RailCite.",
       "What certifications does he have?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-73690808f11c",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-f0fc3703fa1a",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -130,7 +130,7 @@
       "experience",
       "knowledge"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "impact",
@@ -173,7 +173,7 @@
       "project:teachspark",
       "project:railcite"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "strongest-skills",
@@ -207,14 +207,14 @@
       "What enterprise programs has he worked on?",
       "What cloud experience does he have?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-f8c25c1d39ec",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-80c702825a4c",
     "dependsOn": [
       "skills",
       "experience",
       "knowledge"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "product-thinking",
@@ -248,15 +248,15 @@
       "How does he evaluate an AI product?",
       "Walk me through a specific project."
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-a5b6a283b7ac",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-4748a96ee2af",
     "dependsOn": [
       "thinking",
       "knowledge",
       "project:teachspark",
       "project:velora"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "project-walkthrough",
@@ -293,7 +293,7 @@
     "dependsOn": [
       "project:railcite"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "teachspark",
@@ -330,7 +330,7 @@
       "project:teachspark",
       "thinking"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "railcite",
@@ -366,7 +366,7 @@
     "dependsOn": [
       "project:railcite"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "velora",
@@ -399,14 +399,14 @@
       "What did he learn when an assumption failed?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-2e08fef43e71",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-8dd07c0fc033",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
       "knowledge"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "current-role",
@@ -442,7 +442,7 @@
       "experience",
       "profile"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "career",
@@ -478,7 +478,7 @@
       "profile",
       "credentials"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "enterprise-programs",
@@ -513,7 +513,7 @@
       "enterprise",
       "experience"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "cloud-experience",
@@ -553,7 +553,7 @@
       "certifications",
       "credentials"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "certifications",
@@ -583,7 +583,7 @@
     "dependsOn": [
       "certifications"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "research-background",
@@ -616,13 +616,13 @@
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-06",
-    "profileVersion": "v1-92700cdd9cd8",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-7a7379e5ef2a",
     "dependsOn": [
       "credentials",
       "knowledge"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "why-pm",
@@ -654,13 +654,13 @@
       "What impact has he created?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-936612ba7d19",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-96c9e51cded7",
     "dependsOn": [
       "knowledge",
       "experience"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "assumption-failed",
@@ -693,15 +693,15 @@
       "What is his product thinking process?",
       "Tell me about Velora."
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-770a77b6f7a4",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-81d489c57728",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
       "project:velora",
       "project:railcite"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "evaluate-ai",
@@ -734,14 +734,14 @@
       "What did he learn when an assumption failed?",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-6ae21c1e5b51",
+    "updatedAt": "2026-10-08",
+    "profileVersion": "v1-ca0ce5eb97f4",
     "dependsOn": [
       "knowledge",
       "project:railcite",
       "project:teachspark"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "education",
@@ -774,7 +774,7 @@
     "dependsOn": [
       "credentials"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "contact",
@@ -811,6 +811,6 @@
     "dependsOn": [
       "profile"
     ],
-    "reviewed": false
+    "reviewed": true
   }
 ]

@@ -5,7 +5,7 @@ import type { CaseStudy } from "../schema";
  * Campfire Board — one local dashboard for every build (TASK-130; audit in
  * docs/reports/TASK-130/campfire-board.md). A personal fork of Backlog.md (Alex Gavrilescu and
  * contributors, MIT): the page credits it and never implies Tushar wrote Backlog.md. A local tool
- * with no hosted link by design; no users, metrics or learnings recorded.
+ * with a hosted live demo of a sample project (TASK-188); no users, metrics or learnings recorded.
  */
 export const campfireCase: z.input<typeof CaseStudy> = {
   slug: "campfire-board",
@@ -119,7 +119,7 @@ export const campfireCase: z.input<typeof CaseStudy> = {
       proofs: [
         { value: "3 / 3", label: "pilot checks passed: switching, ticket moves, isolation", kind: "prototype", asOf: "2026-09-06", source: "CF-PILOT", note: "scripted, at the API level, against two throwaway projects" },
       ],
-      gaps: ["No users or usage data are recorded.", "No hosted product link, by design: it runs on your machine."],
+      gaps: ["No users or usage data are recorded.", "The hosted live demo shows a sample project; the real tool runs on your machine."],
     },
   ],
   evidence: [
