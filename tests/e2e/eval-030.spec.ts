@@ -10,7 +10,9 @@
  *   • the high score persists in localStorage (its own key only; no cookies, no third-party requests);
  *   • 0 console errors and 0 leaked animation loops across 3 enter/exit cycles;
  *   • mobile: touch halves work the flippers (multi-touch), the HUD fits 390 px, controls are ≥ 44 px; keyboard play works;
- *   • pinball (TASK-172): the player works two flippers, the gummy is the ball, and falling through the drain ends the run.
+ *   • pinball (TASK-172): the player works two flippers, the gummy is the ball, and falling through the drain ends the run;
+ *   • the paper-cut machine (TASK-185): Space is the plunger (hold to charge, release to launch, longer = harder), A/D/arrows/Z/M
+ *     are the flippers, the black hole in the corner is the real "Back to Portfolio" link, reduced motion draws no trail/particles.
  * Frame rate (§39) is profiled manually (informational). Chromium is launched with the SwiftShader
  * flags so the canvas path runs where the host has no GPU; the no-WebGL path is forced explicitly.
  */
@@ -26,11 +28,16 @@ interface FlipperHandle {
   layout: { side: "left" | "right"; pivot: { x: number; y: number }; len: number };
   state: { angle: number; omega: number };
   pressed: boolean;
+  body: { current: { setNextKinematicRotation(q: { x: number; y: number; z: number; w: number }): void } | null };
 }
 interface LabHandle {
   rt: {
     flippers: [FlipperHandle, FlipperHandle];
-    arena: { pads: { x: number; y: number }[]; guides: { x1: number; y1: number; x2: number; y2: number }[] };
+    plunger: { progress: number; charging: boolean; pull: number; phase: string };
+    trail: { capacity: number; count: number; enabled: boolean; x: Float32Array };
+    particles: { capacity: number; active: number };
+    launched: boolean;
+    arena: { pads: { x: number; y: number }[]; guides: { x1: number; y1: number; x2: number; y2: number }[]; lane: { x: number; restY: number; xIn: number; xOut: number } };
     bear: { x: number; y: number; vx: number; vy: number; state: string; grounded: boolean };
     bearBody: {
       current: {
@@ -42,7 +49,6 @@ interface LabHandle {
     };
     project(x: number, y: number): { x: number; y: number };
     reducedMotion: boolean;
-    particles: { capacity: number };
     jelly: { amplitude: number };
   };
   store: { getState(): { state: string; score: number; combo: number; summary: { score: number; best: { score: number } } | null } };
@@ -62,6 +68,44 @@ async function startRun(page: Page) {
   await page.locator("[data-lab-play]").click();
   await page.waitForSelector("[data-lab-state='PLAYING']", { timeout: 30_000 });
 }
+
+/** The camera has finished easing from the intro framing to the machine (the overlays are placed from it each frame). */
+const settled = (page: Page) => page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { introBlend: number }).introBlend > 0.985, null, { timeout: 90_000 });
+
+/**
+ * Hold the plunger (Space, via the controller's own key handler) until it has charged to `charge` (0–1), then release. Waits
+ * for the launch itself (the gummy leaves the lane on the next physics step) and returns the force the plunger fired with.
+ */
+async function launch(page: Page, charge = 0.05) {
+  await page.evaluate(() => {
+    const w = window as unknown as { __launches?: number[]; __hookWrapped?: boolean };
+    w.__launches = [];
+    (w as unknown as { __launchVy: number[] }).__launchVy = [];
+    const rt = window.__gummyLab!.rt as unknown as { hooks: { launch: (...a: number[]) => void }; bearBody: { current: { linvel(): { y: number } } } };
+    if (!w.__hookWrapped) {
+      w.__hookWrapped = true;
+      const orig = rt.hooks.launch.bind(rt.hooks);
+      // the run-time hooks object is replaced when the scene mounts: wrap whatever is current. The hook runs straight after the
+      // impulse is applied, so the body's own vertical velocity then IS what the impulse gave it.
+      rt.hooks.launch = (...a: number[]) => {
+        w.__launches!.push(a[0]!);
+        (w as unknown as { __launchVy: number[] }).__launchVy.push(rt.bearBody.current.linvel().y);
+        orig(...a);
+      };
+    }
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: " ", cancelable: true }));
+  });
+  await page.waitForFunction((c) => window.__gummyLab!.rt.plunger.progress >= c, charge, { timeout: 60_000 });
+  await page.evaluate(() => window.dispatchEvent(new KeyboardEvent("keyup", { key: " ", cancelable: true })));
+  await page.waitForFunction(() => (window as unknown as { __launches: number[] }).__launches.length > 0, null, { timeout: 60_000 });
+  return page.evaluate(() => {
+    const w = window as unknown as { __launches: number[]; __launchVy: number[] };
+    return w.__launches[0]!;
+  });
+}
+
+/** The body's vertical velocity the instant the last plunger launch was applied (see `launch`). */
+const launchVy = (page: Page) => page.evaluate(() => (window as unknown as { __launchVy: number[] }).__launchVy[0]!);
 
 /** Drop the bear into the danger zone (a debug handle; only present with `?debug`) and wait for results. */
 async function loseRun(page: Page) {
@@ -93,17 +137,17 @@ const waitFlipper = (page: Page, i: 0 | 1, angle: number, timeout = 20_000) =>
  * teleport already has the flipper swinging into a gummy that is touching it, so the test never races the bear sliding
  * off the tip while a slow host renders a frame.
  */
-async function dropOnFlipperAndPress(page: Page, i: 0 | 1, key: string) {
+async function dropOnFlipperAndPress(page: Page, i: 0 | 1, key: string, along = 1) {
   await waitFlipper(page, i, FLIP_REST);
   await page.evaluate(
-    ([idx, k]) => {
+    ([idx, k, along]) => {
       const rt = window.__gummyLab!.rt;
       const f = rt.flippers[idx as 0 | 1];
       const a = f.state.angle;
       const s = f.layout.side === "left" ? 1 : -1;
       const d = { x: s * Math.cos(a), y: Math.sin(a) };
       const n = { x: -s * Math.sin(a), y: Math.cos(a) };
-      const c = { x: f.layout.pivot.x + d.x + n.x * 0.55, y: f.layout.pivot.y + d.y + n.y * 0.55 };
+      const c = { x: f.layout.pivot.x + d.x * (along as number) + n.x * 0.55, y: f.layout.pivot.y + d.y * (along as number) + n.y * 0.55 };
       const rb = rt.bearBody.current!;
       rb.setTranslation({ x: c.x, y: c.y - 0.5, z: 0 }, true);
       rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
@@ -112,7 +156,7 @@ async function dropOnFlipperAndPress(page: Page, i: 0 | 1, key: string) {
       w.__peak = { y: c.y, vy: -Infinity };
       window.dispatchEvent(new KeyboardEvent("keydown", { key: k as string, cancelable: true }));
     },
-    [i, key] as const,
+    [i, key, along] as const,
   );
 }
 
@@ -297,11 +341,11 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test("@EVAL-030 controls: ← / Z and → / M raise their own flipper, Space raises both, release lowers them, P pauses", async ({ page }, info) => {
+  test("@EVAL-030 controls: ← A Z and → D M raise their own flipper, Space is the plunger (not a flipper), release lowers them, P pauses", async ({ page }, info) => {
     test.skip(info.project.name === "w390", "keyboard and mouse controls on the desktop project; touch is covered separately");
     await openGame(page);
     await startRun(page);
-    for (const [i, keys] of [[0, ["ArrowLeft", "z"]], [1, ["ArrowRight", "m"]]] as const) {
+    for (const [i, keys] of [[0, ["ArrowLeft", "a", "z"]], [1, ["ArrowRight", "d", "m"]]] as const) {
       for (const k of keys) {
         await page.keyboard.down(k);
         await waitFlipper(page, i, FLIP_UP);
@@ -310,16 +354,156 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
         await waitFlipper(page, i, FLIP_REST);
       }
     }
+    // Space charges the plunger and moves neither flipper (it used to raise both)
     await page.keyboard.down("Space");
-    await waitFlipper(page, 0, FLIP_UP);
-    await waitFlipper(page, 1, FLIP_UP);
+    await page.waitForFunction(() => window.__gummyLab!.rt.plunger.charging, null, { timeout: 20_000 });
+    expect((await flipper(page, 0)).pressed).toBe(false);
+    expect((await flipper(page, 1)).pressed).toBe(false);
     await page.keyboard.up("Space");
-    await waitFlipper(page, 0, FLIP_REST);
-    await waitFlipper(page, 1, FLIP_REST);
     await page.keyboard.press("p");
     expect(await labState(page)).toBe("PAUSED");
     await page.keyboard.press("p");
     expect(["PLAYING", "DANGER"]).toContain(await labState(page));
+  });
+
+  test("@EVAL-030 the plunger: holding Space longer launches the gummy with a stronger real force (it hits the physics body, not just an animation)", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "desktop project; the touch plunger has its own test on w390");
+    await openGame(page);
+    await startRun(page);
+    // the gummy waits on the plunger in the right-hand lane at 0%
+    const rest = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      const p = rt.bearBody.current!.translation();
+      return { x: p.x, y: p.y, laneX: rt.arena.lane.x, restY: rt.arena.lane.restY, charging: rt.plunger.charging, launched: rt.launched };
+    });
+    expect(Math.abs(rest.x - rest.laneX)).toBeLessThan(0.45);
+    expect(rest.y).toBeLessThan(rest.restY + 0.6);
+    expect(rest.launched).toBe(false);
+    await expect(page.locator("[data-lab-plaque]")).toBeVisible();
+    const forces: number[] = [];
+    const speeds: number[] = [];
+    for (const charge of [0.02, 0.5, 0.97]) {
+      // back on the plunger at rest
+      await page.evaluate((r) => {
+        const rt = window.__gummyLab!.rt;
+        rt.bearBody.current!.setTranslation({ x: r.laneX, y: r.restY + 0.05, z: 0 }, true);
+        rt.bearBody.current!.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      }, rest);
+      await page.waitForFunction(() => !window.__gummyLab!.rt.plunger.charging && window.__gummyLab!.rt.plunger.phase === "idle", null, { timeout: 30_000 });
+      forces.push(await launch(page, charge));
+      speeds.push(await launchVy(page));
+    }
+    // the force the plunger fired with grows with the hold, from MIN to MAX …
+    expect(forces[0]!).toBeGreaterThanOrEqual(21);
+    expect(forces[1]!).toBeGreaterThan(forces[0]! + 1);
+    expect(forces[2]!).toBeGreaterThan(forces[1]! + 1);
+    expect(forces[2]!).toBeLessThanOrEqual(27.5 + 1e-6);
+    // … and it is the physics body that received it: the gummy's own vertical velocity, read the instant the impulse was applied,
+    // equals the launch force (impulse per unit mass), so a longer hold really is a harder shot
+    for (let i = 0; i < 3; i += 1) expect(Math.abs(speeds[i]! - forces[i]!), `launch ${i}: body vy ${speeds[i]} vs force ${forces[i]}`).toBeLessThan(0.05);
+    expect(speeds[2]!).toBeGreaterThan(speeds[1]! + 1);
+    expect(speeds[1]!).toBeGreaterThan(speeds[0]! + 1);
+    // the start plaque goes at the first launch
+    await expect(page.locator("[data-lab-plaque]")).toHaveCount(0);
+  });
+
+  test("@EVAL-030 the black hole is the real 'Back to Portfolio' link: keyboard focusable, named, and it exits", async ({ page, axe }, info) => {
+    test.skip(info.project.name === "w390", "desktop project; the link is size-checked on w390 in the touch test");
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    const hole = page.getByRole("link", { name: "Back to Portfolio" });
+    await expect(hole).toHaveCount(1);
+    await expect(hole).toHaveAttribute("href", "/");
+    await expect(hole).toHaveAttribute("data-ready", "1", { timeout: 20_000 });
+    // reachable by keyboard
+    let focused = false;
+    for (let i = 0; i < 12 && !focused; i += 1) {
+      await page.keyboard.press("Tab");
+      focused = await hole.evaluate((el) => el === document.activeElement);
+    }
+    expect(focused, "Tab reaches the black-hole link").toBe(true);
+    expect(await page.evaluate(() => (window.__gummyLab!.rt as unknown as { blackHoleHover: boolean }).blackHoleHover), "focus swells the hole").toBe(true);
+    const box = (await hole.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    // it sits over the machine's top-left corner, inside the canvas
+    const canvas = (await page.locator("[data-lab-canvas] canvas").boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(canvas.x - 2);
+    expect(box.y).toBeGreaterThanOrEqual(canvas.y - 2);
+    expect(box.x + box.width / 2, "top-left").toBeLessThan(canvas.x + canvas.width / 2);
+    expect(box.y + box.height / 2, "top-left").toBeLessThan(canvas.y + canvas.height / 3);
+    await axe(page, { include: "[data-lab]" });
+    // Space on the focused link must not charge the plunger (a focused control keeps its keys)
+    await page.keyboard.down("Space");
+    expect(await page.evaluate(() => window.__gummyLab!.rt.plunger.charging)).toBe(false);
+    await page.keyboard.up("Space");
+    // Enter follows the link: the same exit path as the old button (history, return route)
+    await page.keyboard.press("Enter");
+    await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+  });
+
+  test("@EVAL-030 clicking the black hole exits, and Esc and the pause card's Back to Portfolio still do", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "desktop project");
+    await openGame(page);
+    await startRun(page);
+    await page.keyboard.press("p");
+    await expect(page.getByRole("dialog", { name: "Paused" }).getByRole("button", { name: "Back to Portfolio" })).toBeVisible();
+    await page.keyboard.press("p");
+    await page.getByRole("link", { name: "Back to Portfolio" }).click();
+    await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+  });
+
+  test("@EVAL-030 reduced motion draws no light trail and no particles, and the lights change state without a loop; play is intact", async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openGame(page);
+    await startRun(page);
+    const before = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      return { enabled: rt.trail.enabled, cap: rt.trail.capacity, particles: rt.particles.capacity, reduced: rt.reducedMotion };
+    });
+    expect(before.reduced).toBe(true);
+    expect(before.enabled).toBe(false);
+    expect(before.particles).toBe(0);
+    // a full-power launch and some play: nothing is ever recorded or emitted
+    await launch(page, 0.9);
+    await page.waitForTimeout(2500);
+    const after = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      return { count: rt.trail.count, active: rt.particles.active };
+    });
+    expect(after.count).toBe(0);
+    expect(after.active).toBe(0);
+    // no looping animation anywhere in the lab (the black hole's swirl and orbit are driven by the render loop and stop)
+    const loops = await page.evaluate(() => document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.getTiming().iterations === Infinity).length);
+    expect(loops).toBe(0);
+    // gameplay stays intact: the gummy is in play and the drain still ends the run
+    expect(await page.evaluate(() => window.__gummyLab!.rt.launched)).toBe(true);
+    await loseRun(page);
+  });
+
+  test("@EVAL-030 the trail pool is a fixed-size buffer: it never grows however long the game runs", async ({ page }, info) => {
+    test.skip(info.project.name === "w390", "desktop project");
+    await openGame(page);
+    await startRun(page);
+    const r = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      const t = rt.trail as unknown as { capacity: number; x: Float32Array; y: Float32Array; age: Float32Array; push(x: number, y: number, s: number, dt: number): void; update(dt: number): void };
+      const refs = [t.x, t.y, t.age];
+      const len0 = refs.map((a) => a.length);
+      let maxCount = 0;
+      for (let i = 0; i < 6000; i += 1) {
+        t.push(Math.sin(i * 0.07) * 4, Math.cos(i * 0.07) * 4 + i * 0.0005, 20, 1 / 60);
+        if (i % 3 === 0) t.update(1 / 60);
+        maxCount = Math.max(maxCount, rt.trail.count);
+      }
+      return { cap: t.capacity, len0, len1: [t.x, t.y, t.age].map((a) => a.length), same: refs.every((a, i) => a === [t.x, t.y, t.age][i]), maxCount };
+    });
+    expect(r.same).toBe(true);
+    expect(r.len1).toEqual(r.len0);
+    expect(r.maxCount).toBeLessThanOrEqual(r.cap);
+    expect(r.len0.every((n) => n === r.cap)).toBe(true);
   });
 
   test("@EVAL-030 a flipper swung into the gummy sends it up the table (left by keyboard, right by keyboard)", async ({ page }, info) => {
@@ -329,17 +513,22 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await page.evaluate(() => {
       const w = window as unknown as { __peak: { y: number; vy: number } };
       w.__peak = { y: -Infinity, vy: -Infinity };
-      // Read the physics body itself: `rt.bear` is only refreshed by the render loop, so right after a teleport it is stale.
-      const tick = () => {
-        const body = window.__gummyLab!.rt.bearBody.current!;
+      // Sample the physics body itself on EVERY fixed physics step (not per rendered frame: a software-GL host renders a frame every
+      // few steps, and a shot that bounces off a bumper and falls back inside that gap would be missed). A flipper's body is told its
+      // angle once per step, so wrapping that call gives a per-step tick.
+      const rt = window.__gummyLab!.rt;
+      const flipperBody = rt.flippers[0].body.current!;
+      const stepFlipper = flipperBody.setNextKinematicRotation.bind(flipperBody);
+      flipperBody.setNextKinematicRotation = (q) => {
+        const body = rt.bearBody.current!;
         w.__peak.y = Math.max(w.__peak.y, body.translation().y);
         w.__peak.vy = Math.max(w.__peak.vy, body.linvel().y);
-        requestAnimationFrame(tick);
+        stepFlipper(q);
       };
-      tick();
     });
     for (const [i, key] of [[0, "ArrowLeft"], [1, "ArrowRight"]] as const) {
-      await dropOnFlipperAndPress(page, i, key);
+      // 1.5 along the paddle (toward the tip): the shot goes up the middle of the table, clear of the ramps out by the walls
+      await dropOnFlipperAndPress(page, i, key, 1.5);
       // The launch lasts a fraction of a second and a loaded host renders few frames in it (the first sample can already be past the apex, so a per-frame speed check flaked); the rise it causes is what matters.
       await page.waitForFunction(([y0]) => (window as unknown as { __peak: { y: number } }).__peak.y > (y0 as number) + 2.5, [await page.evaluate(() => window.__gummyLab!.rt.flippers[0].layout.pivot.y)], { timeout: 15_000 });
       await page.keyboard.up(key);
@@ -361,7 +550,8 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect((await flipper(page, 1)).pressed).toBe(false);
     await page.mouse.up();
     await waitFlipper(page, 0, FLIP_REST);
-    await page.mouse.move(box.x + box.width * 0.75, y);
+    // the right half, but clear of the launch lane (which has its own plunger control)
+    await page.mouse.move(box.x + box.width * 0.6, y);
     await page.mouse.down();
     await waitFlipper(page, 1, FLIP_UP);
     expect((await flipper(page, 0)).pressed).toBe(false);
@@ -381,9 +571,12 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await page.waitForSelector("[data-lab-state='RESULTS']", { timeout: 60_000 });
   });
 
-  test("@EVAL-030 the first-session hint sits in clear space: it never overlaps a flipper or a guide rail", async ({ page }) => {
+  test("@EVAL-030 the first-session hint appears only after the launch and sits in clear space: it never overlaps a flipper or a guide rail", async ({ page }) => {
     await openGame(page);
     await startRun(page);
+    await page.waitForTimeout(500);
+    expect(await page.locator("[data-lab-hint]").count(), "no overlay before the launch").toBe(0);
+    await launch(page, 0.05);
     await page.waitForSelector("[data-lab-hint]", { timeout: 20_000 });
     const r = await page.evaluate(() => {
       const rt = window.__gummyLab!.rt;
@@ -423,7 +616,7 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
       const rt = window.__gummyLab!.rt;
       const pad = rt.arena.pads[0]!;
       const rb = rt.bearBody.current!;
-      rb.setTranslation({ x: pad.x, y: pad.y + 1.3, z: 0 }, true);
+      rb.setTranslation({ x: pad.x, y: pad.y + 0.55, z: 0 }, true);
       rb.setLinvel({ x: 0, y: -6, z: 0 }, true);
     });
     await page.waitForFunction(() => window.__gummyLab!.rt.bear.vy > 8, null, { timeout: 15_000 });
@@ -521,7 +714,7 @@ test.describe("@EVAL-030 mobile (touch)", () => {
     await startRun(page);
     const box = (await page.locator("[data-lab-canvas] canvas").boundingBox())!;
     const lx = box.x + box.width * 0.25;
-    const rx = box.x + box.width * 0.75;
+    const rx = box.x + box.width * 0.58; // the right half, clear of the launch lane (its own plunger control)
     const y = box.y + box.height * 0.8;
     const cdp = await page.context().newCDPSession(page);
     const touch = (type: "touchStart" | "touchEnd", points: { x: number; y: number; id: number }[]) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points });
@@ -537,6 +730,79 @@ test.describe("@EVAL-030 mobile (touch)", () => {
     await touch("touchEnd", []);
     await waitFlipper(page, 0, FLIP_REST);
     await waitFlipper(page, 1, FLIP_REST);
+  });
+});
+
+test.describe("@EVAL-030 mobile plunger (touch)", () => {
+  test.beforeEach(({}, info) => {
+    test.skip(info.project.name !== "w390", "touch project only");
+    test.setTimeout(150_000);
+  });
+
+  test("@EVAL-030 touch: press and hold the visible plunger in the launch lane to charge, release to launch", async ({ page }) => {
+    await page.goto("/lab?debug");
+    await waitLab(page);
+    test.skip((await labMode(page)) !== "canvas", "no WebGL on this host");
+    await startRun(page);
+    await settled(page);
+    // the start plaque speaks touch, and the plunger is a real, big-enough control sitting over the lane
+    await expect(page.locator("[data-lab-plaque]")).toContainText(/plunger/i);
+    const btn = page.locator("[data-lab-plunger]");
+    await expect(btn).toBeVisible();
+    await expect(btn).toHaveAccessibleName(/plunger.*hold to charge, release to launch/i);
+    await expect.poll(async () => (await btn.boundingBox())?.width ?? 0, { timeout: 20_000 }).toBeGreaterThanOrEqual(44);
+    const b = (await btn.boundingBox())!;
+    expect(b.height).toBeGreaterThanOrEqual(44);
+    const lane = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt;
+      const a = rt.project(rt.arena.lane.x, rt.arena.lane.restY);
+      return { x: a.x, y: a.y };
+    });
+    expect(lane.x, "the control covers the lane").toBeGreaterThan(b.x);
+    expect(lane.x).toBeLessThan(b.x + b.width);
+    expect(lane.y).toBeGreaterThan(b.y);
+    expect(lane.y).toBeLessThan(b.y + b.height);
+    const cdp = await page.context().newCDPSession(page);
+    const touch = (type: "touchStart" | "touchEnd", points: { x: number; y: number; id: number }[]) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points });
+    await page.evaluate(() => {
+      const w = window as unknown as { __launches: number[] };
+      w.__launches = [];
+      const hooks = (window.__gummyLab!.rt as unknown as { hooks: { launch: (...a: number[]) => void } }).hooks;
+      const orig = hooks.launch.bind(hooks);
+      hooks.launch = (...a: number[]) => {
+        w.__launches.push(a[0]!);
+        orig(...a);
+      };
+    });
+    await touch("touchStart", [{ x: lane.x, y: lane.y, id: 1 }]);
+    await page.waitForFunction(() => window.__gummyLab!.rt.plunger.charging, null, { timeout: 20_000 });
+    // flippers are untouched by a plunger press
+    expect((await flipper(page, 0)).pressed).toBe(false);
+    expect((await flipper(page, 1)).pressed).toBe(false);
+    await page.waitForFunction(() => window.__gummyLab!.rt.plunger.progress >= 0.25, null, { timeout: 60_000 });
+    await touch("touchEnd", []);
+    await page.waitForFunction(() => (window as unknown as { __launches: number[] }).__launches.length > 0, null, { timeout: 60_000 });
+    const force = await page.evaluate(() => (window as unknown as { __launches: number[] }).__launches[0]!);
+    expect(force).toBeGreaterThan(21.5);
+    await expect(page.locator("[data-lab-plaque]")).toHaveCount(0);
+    expect(await page.evaluate(() => window.__gummyLab!.rt.launched)).toBe(true);
+  });
+
+  test("@EVAL-030 the black hole link is a 44 px+ target on a phone and sits in the top-left of the table", async ({ page }) => {
+    await page.goto("/lab?debug");
+    await waitLab(page);
+    test.skip((await labMode(page)) !== "canvas", "no WebGL on this host");
+    await startRun(page);
+    await settled(page);
+    const hole = page.getByRole("link", { name: "Back to Portfolio" });
+    await expect(hole).toHaveAttribute("data-ready", "1", { timeout: 20_000 });
+    const b = (await hole.boundingBox())!;
+    expect(b.width).toBeGreaterThanOrEqual(44);
+    expect(b.height).toBeGreaterThanOrEqual(44);
+    expect(b.x).toBeGreaterThanOrEqual(0);
+    expect(b.x + b.width).toBeLessThanOrEqual(390.5);
+    await hole.click();
+    await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
   });
 });
 

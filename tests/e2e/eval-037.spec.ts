@@ -130,3 +130,27 @@ test.describe("@EVAL-037 paper button contract", () => {
     expect(sizeNow).toEqual({ w: Math.round(box0!.width), h: Math.round(box0!.height) });
   });
 });
+
+// M-012 (TASK-181): the contract's other members — hover lifts 1 px, press goes 1 px down — on a fine pointer.
+test.describe("@EVAL-037 paper button contract: M-012 family members", () => {
+  for (const [route, selector] of [["/", ".header-pill"], ["/", ".hit-pill"], ["/about", ".acx-btn-primary"], ["/projects", ".pf-action"]] as const) {
+    test(`${selector} (${route}): hover −1 px, press +1 px`, async ({ page, viewport }) => {
+      test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
+      await page.goto(route, { waitUntil: "networkidle" });
+      const el = page.locator(selector).first();
+      await el.scrollIntoViewIfNeeded();
+      // wait for a one-shot Reveal / scroll drift to finish (fully shown and still) before reading the box
+      await el.evaluate((n) => new Promise<void>((done) => { let last = "", same = 0; const t = () => { let a = 1; for (let e: Element | null = n; e; e = e.parentElement) a *= Number(getComputedStyle(e).opacity); const k = `${a}|${n.getBoundingClientRect().top}|${getComputedStyle(n).transform}`; same = k === last && a === 1 ? same + 1 : 0; last = k; same > 20 ? done() : requestAnimationFrame(t); }; t(); }));
+      const ty = () => el.evaluate((e) => Number.parseFloat(getComputedStyle(e).translate.split(" ")[1] ?? "0") || 0);
+      const rest = await ty();
+      await el.hover();
+      await page.waitForTimeout(400);
+      expect((await ty()) - rest).toBeCloseTo(-1, 0);
+      await page.mouse.down();
+      await page.waitForTimeout(400);
+      expect((await ty()) - rest).toBeCloseTo(1, 0);
+      await page.mouse.move(2, 2); // release off the link so the press does not navigate
+      await page.mouse.up();
+    });
+  }
+});

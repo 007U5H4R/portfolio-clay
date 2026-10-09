@@ -284,10 +284,19 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
       L.wasLive = false;
     } else {
       if (!L.wasLive) {
-        // Going live: restore collisions; the bear drops from where it hovered.
+        // Going live: restore collisions. Every run starts on the plunger (TASK-185): if the gummy has not launched yet it is
+        // placed exactly at the launcher (the countdown eases it there, but a slow frame rate can end the countdown early).
         collider?.setCollisionGroups(0xffffffff);
         L.wasLive = true;
         b.fallTime = 0;
+        if (!rt.launched) {
+          rb.setTranslation({ x: spawn.x, y: spawn.y, z: 0 }, true);
+          rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
+          b.x = spawn.x;
+          b.y = spawn.y;
+          L.park.x = spawn.x;
+          L.park.y = spawn.y;
+        }
       }
       // Remember where the bear is: the exit spiral and the results reform start from here.
       L.park.x = b.x;
@@ -313,7 +322,8 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
         b.sinceBounce += dt;
         b.fallTime = b.grounded || lv.y > -1 ? 0 : b.fallTime + dt;
       }
-      b.inDanger = t.y < rt.arena.dangerTop + rt.env.dangerRise + 0.02;
+      // The drain is the loss; the plunger well in the launch lane sits below the danger line when pulled back and is never the drain.
+      b.inDanger = t.y < rt.arena.dangerTop + rt.env.dangerRise + 0.02 && t.x < rt.arena.lane.xIn - 0.05;
     }
 
     // ---- state + visuals ------------------------------------------------------------------------

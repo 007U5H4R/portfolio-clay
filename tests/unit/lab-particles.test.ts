@@ -29,3 +29,25 @@ describe("ParticlePool", () => {
     expect(p.alpha(0)).toBe(0);
   });
 });
+
+describe("ParticlePool under reduced motion (TASK-185)", () => {
+  it("a pool of capacity 0 holds nothing and never throws, whatever is emitted", () => {
+    const p = new ParticlePool(0);
+    expect(() => {
+      for (const kind of ["sparkle", "droplet", "star", "trail", "streak"] as const) p.emit({ x: 0, y: 0, kind, count: 20 });
+      p.update(0.1);
+    }).not.toThrow();
+    expect(p.capacity).toBe(0);
+    expect(p.active).toBe(0);
+  });
+  it("streak sparks are tiny, drift back along the path and are gone within a fraction of a second", () => {
+    const p = new ParticlePool(16, () => 0.5);
+    p.emit({ x: 0, y: 0, kind: "streak", count: 4, dirX: 1, dirY: 0 });
+    expect(p.active).toBe(4);
+    expect(p.vx[0]!).toBeLessThan(0); // opposite the direction of travel
+    expect(p.size[0]!).toBeLessThan(0.06);
+    expect(p.maxLife[0]!).toBeLessThan(0.4);
+    for (let i = 0; i < 10; i += 1) p.update(0.05);
+    expect(p.active).toBe(0);
+  });
+});

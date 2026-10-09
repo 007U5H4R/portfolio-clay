@@ -257,3 +257,56 @@ Home hero, light: four image-to-image edits of the approved hero (bg plate; man 
 | Main-thread cost / jank | One spring loop, sleeps at rest; CSS variables on the scene root only; no filters animated; IntersectionObserver gating |
 | Credits (553 cr after pilot) | Rollout estimate shown in technical-plan §M-011 before spending; ≤ 2 regenerations per layer |
 | Collisions with TASK-143 / TASK-150 | Docs + pilot first; global CSS, header and footer work starts only after both commit; own worktrees per track |
+
+## 15. M-012 · Premium interaction system — solution addendum (2026-10-08, approved 2026-10-08, S35)
+
+Source: Tushar's brief of 2026-10-07 (condensed in `.scratch/interaction-system/BRIEF.md`), the Opus audit and plan (`.scratch/interaction-system/PLAN.md`), decisions S35 (Tushar) and EXE-59…EXE-64 (Claude, delegated by EXE-26). Campfire TASK-181, subtasks TASK-181.1…181.4 (P1…P4). Full tier; Stage 1 is compressed into §15.1 because the brief and the audit already did the problem work.
+
+### 15.1 Problem
+M-009…M-011 gave the site a paper look, a paper world and one paper-button contract, but hover and focus feedback is uneven: project cards have no card-level hover at all (FeaturedWork lifts only its CTA); about 14 hovers still transition `box-shadow` or `filter` (the TASK-143 cost class); keyboard focus rarely gets the hover feedback (only `fw-cta`, `cert-*`, `certm-*`); most hovers are not gated to fine pointers, so lifts stick after a tap; and the three featured artworks are single flat images with nothing to separate. The goal is "a physical paper world responding to the visitor's presence", not "a site with lots of animations".
+
+### 15.2 Scope and non-goals
+- **In scope:** a three-level motion hierarchy applied to header nav and links, buttons and icons (P1); project cards, the Portfolio thumbs and case files, and one signature per featured project (P2); the hero, Tushky and the Contact CTA (P3); Experience, skills, Thinking, the Playground bench and the remaining shadow offenders (P4). Visual QA at 1440, 1280, 1024, 430 and 390 after P2 and P4.
+- **Non-goals:** **no Rive**; **no new animation library** (CSS, CSS 3D, custom properties and the existing `paperMotion` only); **no generic scale hovers** (no `scale(1.05)`, none at all on hover); no magnetic buttons (EXE-63); no new scroll reveals (EXE-63); no new art generation (the featured signatures are code-drawn, 0 Higgsfield credits); no head/eye tracking for Tushky; no invented skill relationships (S35); no production deploy (S34, production stays frozen until Tushar's go).
+
+### 15.3 Motion grammar
+| Level | Used for | Duration | Travel | Easing |
+|---|---|---|---|---|
+| **L1 micro** | nav, text links, buttons, icons, chips | 150–250 ms | 1–4 px | tighter curve; buttons keep the §14.6 overshoot |
+| **L2 object** | project cards, feature cards, paper objects | 300–700 ms | 4 px lift; layers 2/4/6 px; art tilt ≤ 2° | `cubic-bezier(0.22, 1, 0.36, 1)` |
+| **L3 signature** | hero CTA reactions, Tushky, per-project signatures, Contact | 500–1200 ms (sparingly) | small, physical, finite | `cubic-bezier(0.22, 1, 0.36, 1)`, one small overshoot where it reads as physical |
+
+Only `transform`/`translate`/`rotate`/`opacity` animate (colour for L1 text links). Never `box-shadow`, `filter`, `backdrop-filter`, blur or a layout property (TASK-143 scar; EXE-61). Text never moves with parallax; on hover a title may shift 2–4 px and an arrow 3–4 px (S35 C7).
+
+### 15.4 Architecture
+- **One source.** `paperMotion` (`lib/paper-world/motion.ts`) gets an object channel: `registerObject(el)`, a second target/spring pair for at most one active object, stepped in the same rAF loop, activated inside the same single `pointermove` listener. Writes `--hx/--hy` ∈ [−1, 1] on the active object only; sleeps when both channels rest. One passive `scroll` listener opens a 150 ms window in which nothing activates (EXE-60). Object activation is gated by IntersectionObserver; nothing attaches under reduced motion; coarse pointers get no `pointermove`.
+- **React glue.** `components/paper-world/ObjectMotion.tsx`, a hidden marker like `SceneMotion`, registers its parent. Server components stay server components. `usePressInteraction` is CSS only.
+- **CSS custom-property contract.** `[data-pm-obj]` carries `--hx/--hy` (default 0). `.pm-layer[data-pm-depth="bg|art|fg"]` translate by `--hx/--hy` × `--pm-r` (2/4/6 px); `[data-pm-tilt]` rotates the art container only. The lift is plain `:hover` / `:focus-visible` CSS, so it works with JS off and for keyboard users. `will-change` only under `[data-pm-active]`.
+- **Tokens.** Motion tokens in `globals.css @theme`, mirrored in `lib/motion.ts` (EXE-3): `--ease-paper`, `--ease-l1`, `--ease-press`, `--dur-l1(-out)`, `--dur-l2(-out)`, `--dur-l3`, `--dur-press`.
+- **Shadow crossfade.** L2 shadow is a pseudo-element's opacity (EXE-61).
+- **Touch, reduced motion, keyboard.** One table, Design §14.10 (EXE-62).
+
+### 15.5 Success criteria (in addition to §8, §12.6, §13.5, §14.7; nothing lowered)
+- EVAL-032 stays at 1 listener, 1 loop, 0 idle rAF; EVAL-037 stays at hover −1 px / press +1 px for buttons and −4 px ± 1 for cards; EVAL-039 thresholds unchanged (0 frames > 200 ms, ≤ 8 > 50 ms).
+- 0 hover rules that transition `box-shadow`, `filter`, `backdrop-filter` or a layout property; 0 hover scale-ups; every hover on a focusable element has a focus-visible twin; hover gated to `(hover: hover) and (pointer: fine)`.
+- New infinite animations: 0. At most one active object at a time. First-load JS on `/` ≤ 180 kB gz (EV6); `paperMotion` plus scene component ≤ 3 kB gz.
+- Reduced motion: no transform changes on hover/focus/press, non-motion feedback present. Touch: no pointer listener, no sticky hover, `:active` press present.
+
+### 15.6 Phases and eval rows
+| Phase | Ticket | Content | Evals |
+|---|---|---|---|
+| **P1** | TASK-181.1 | primitives (object channel, glue, CSS contract, tokens, crossfade, touch/RM/keyboard), L1 nav, links, buttons and icons, L1 shadow/filter offenders | EVAL-040 (spec lands here); unit tests for the object channel; EVAL-032/037 unchanged |
+| **P2** | TASK-181.2 | FeaturedWork layered parallax, tilt, shadow crossfade, three signatures, Portfolio thumbs and case files (absorbs TASK-159 AC #1) | EVAL-041, EVAL-043 specs |
+| **P3** | TASK-181.3 | hero CTA reactions, Tushky finite breathing and lean, Contact stamp | EVAL-019/035/039 re-run |
+| **P4** | TASK-181.4 | Experience, skills, Thinking, Playground, cert/tk/hat/theme-toggle shadows | EVAL-042 spec |
+
+Eval rows added: **EVAL-040** interaction-hierarchy-contract, **EVAL-041** object-motion-single-source, **EVAL-042** interaction-rm-touch-parity, **EVAL-043** project-signatures; wording-only amendments to **EVAL-037** (new family classes and `.paper-lift` in the probe set) and **EVAL-039** (a scripted hover sweep added to the input). Thresholds unchanged. Specs for EVAL-041/042/043 are deferred to the phase that builds their surface (`DEFERRED_SPECS`, `scripts/eval-cases.ts`).
+
+### 15.7 Risks
+| Risk | Mitigation |
+|---|---|
+| A second pointer listener or loop breaks EVAL-032 | Object channel lives in the same file and loop; unit tests assert one listener and one loop |
+| Masked, filtered `.fw-card` plus 3D tilt (Safari paper-dropout scar, TASK-168) | Tilt on the art container only, own layer; P2 starts with a tracer card, measured under EVAL-039 throttling |
+| Focus twins change focus visuals (EVAL-007) | The ring is untouched; twins add the same transform as hover |
+| TASK-143-class main-thread cost | No filter/shadow animation, no infinite loops, `will-change` only while active, measure with `getAnimations()` |
+| Host contention flakes the gate | Heavy-gate lock; full suite on a quiet machine; failures re-run alone (EXE-38/56/57) |
