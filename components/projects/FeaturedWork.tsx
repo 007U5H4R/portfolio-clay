@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { FileText, ShieldCheck, type LucideIcon } from "lucide-react";
+import type { CSSProperties } from "react";
 import type { Metric, Project } from "@/data/schema";
 import { projects } from "@/data/projects";
 import { portfolioEntries } from "@/data/portfolio";
 import { featuredPresentation, type FeaturedPresentation } from "@/data/featured";
+import { featuredLayers, featuredLayerSrc } from "@/data/featured-layers";
+import { ObjectMotion } from "@/components/paper-world/ObjectMotion";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Sheet, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { illustration } from "@/lib/illustrations";
@@ -98,20 +101,48 @@ function ExploreLink({ card }: { card: FeaturedCard }) {
   );
 }
 
+/**
+ * The collage as depth layers (M-012 P2): one `.pm-layer` per depth group (bg 2 · art 4 · fg 6 · top 8 px of
+ * `--hx/--hy` travel, `app/globals.css` TASK-186 / P2), each holding its transparent SVGs in z order. Only the
+ * first image carries the manifest alt (it describes the whole scene); the rest are decorative. `data-sig`
+ * marks the parts a card's hover/focus signature moves (RailCite's train, Slag City's works, Campfire's flames
+ * and notes); the Campfire sparks are three CSS paper chips. `.fw-art` is the tilt container (never the copy).
+ */
 function FeaturedArt({ card }: { card: FeaturedCard }) {
   const art = illustration(card.presentation.art);
+  const slug = card.project.slug;
+  const layers = featuredLayers[slug];
+  if (!layers) throw new Error(`FeaturedWork: ${slug} has no data/featured-layers.ts entry`);
+  const stage = { "--w": layers.w, "--h": layers.h, "--bx": layers.bleed, "--bb": layers.bleed } as CSSProperties;
   return (
-    <div className="fw-art">
-      {/* eslint-disable-next-line @next/next/no-img-element -- a static SVG collage (no raster pipeline to gain) */}
-      <img
-        src={art.publicSrc}
-        width={art.width}
-        height={art.height}
-        alt={art.alt}
-        loading="lazy"
-        decoding="async"
-        data-illustration={art.id}
-      />
+    <div className="fw-art" data-pm-tilt="">
+      <div className="fw-stage" style={stage}>
+        {layers.groups.map((group) => (
+          <div key={group.depth} className="pm-layer fw-layer" data-pm-depth={group.depth}>
+            {group.items.map((item) => {
+              const first = item.name === "back";
+              return (
+                // eslint-disable-next-line @next/next/no-img-element -- static SVG layers (no raster pipeline to gain)
+                <img
+                  key={item.name}
+                  src={featuredLayerSrc(slug, item.name)}
+                  width={art.width}
+                  height={art.height}
+                  alt={first ? art.alt : ""}
+                  loading="lazy"
+                  decoding="async"
+                  data-layer={item.name}
+                  {...(first ? { "data-illustration": art.id } : {})}
+                  {...(item.sig ? { "data-sig": item.sig } : {})}
+                />
+              );
+            })}
+            {group.depth === "fg" && slug === "campfire-board"
+              ? [0, 1, 2].map((i) => <i key={i} className="fw-spark" data-sig={`spark spark${i}`} aria-hidden="true" />)
+              : null}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -122,43 +153,59 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
   const place = PLACEMENT[index] ?? { rotate: 0, tape: "c" as const };
   const headingId = `fw-${project.slug}-h`;
   return (
-    <Sheet as="article" variant="card" rotate={place.rotate} className={`fw-card ${anchor ? "fw-card-anchor" : "fw-card-side"}`}>
-      <Tape side={place.tape} />
-      <div className="fw-paper" data-featured={project.slug}>
-        <div className="fw-copy">
-          <h3 id={headingId} className="fw-name">
-            {project.name}
-          </h3>
-          <p className="fw-tagline">{card.tagline}</p>
-          {presentation.line ? <p className="fw-line">{presentation.line}</p> : null}
-          {metrics.length > 0 ? (
-            <ul className="fw-proof" aria-label={`${project.name} proof points`}>
-              {metrics.map((metric) => {
-                const Icon = METRIC_ICON[metric.kind];
-                return (
-                  <li key={metric.label} className="fw-proof-item" data-metric={metric.kind}>
-                    <Icon className="fw-proof-icon" aria-hidden="true" strokeWidth={1.5} />
-                    <span className="fw-proof-body">
-                      <b className="fw-proof-value" data-metric-value="">
-                        {metric.value}
-                      </b>{" "}
-                      <span className="fw-proof-label" data-metric-label="">
-                        {metric.label}
+    <div className="fw-lift" data-featured-lift={project.slug}>
+      <ObjectMotion />
+      {/* the L2 shadow: a masked, statically blurred shape behind the sheet; only its opacity animates (EXE-61) */}
+      <span className="fw-shade" aria-hidden="true">
+        <span className="fw-shade-shape" data-featured={project.slug} />
+      </span>
+      <Sheet as="article" variant="card" rotate={place.rotate} className={`fw-card ${anchor ? "fw-card-anchor" : "fw-card-side"}`}>
+        <Tape side={place.tape} />
+        <div className="fw-paper" data-featured={project.slug}>
+          <div className="fw-copy">
+            <h3 id={headingId} className="fw-name">
+              {project.name}
+            </h3>
+            <p className="fw-tagline">{card.tagline}</p>
+            {presentation.line ? <p className="fw-line">{presentation.line}</p> : null}
+            {metrics.length > 0 ? (
+              <ul className="fw-proof" aria-label={`${project.name} proof points`}>
+                {metrics.map((metric, i) => {
+                  const Icon = METRIC_ICON[metric.kind];
+                  return (
+                    <li key={metric.label} className="fw-proof-item" data-metric={metric.kind} style={{ "--slip": i } as CSSProperties}>
+                      <Icon className="fw-proof-icon" aria-hidden="true" strokeWidth={1.5} />
+                      <span className="fw-proof-body">
+                        <b className="fw-proof-value" data-metric-value="">
+                          {metric.value}
+                        </b>{" "}
+                        <span className="fw-proof-label" data-metric-label="">
+                          {metric.label}
+                        </span>
+                        <span className="fw-proof-kind" data-metric-kind="" data-micro-label="">
+                          {metricKindNote(metric)}
+                        </span>
                       </span>
-                      <span className="fw-proof-kind" data-metric-kind="" data-micro-label="">
-                        {metricKindNote(metric)}
-                      </span>
-                    </span>
-                  </li>
-                );
-              })}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
+            <ul className="fw-tags" aria-label={`${project.name} tags`}>
+              {project.tags.map((tag) => (
+                <li key={tag} className="fw-tag" data-micro-label="">
+                  {tag}
+                </li>
+              ))}
             </ul>
-          ) : null}
-          <ExploreLink card={card} />
+            <ExploreLink card={card} />
+          </div>
+          <FeaturedArt card={card} />
+          {/* the contextual information slip of the supporting cards: the record's own status line (hover, focus, touch) */}
+          {anchor ? null : <span className="fw-slip">{project.statusLabel}</span>}
         </div>
-        <FeaturedArt card={card} />
-      </div>
-    </Sheet>
+      </Sheet>
+    </div>
   );
 }
 
@@ -170,6 +217,10 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
  * is a torn paper sheet whose hand-authored collage fills the WHOLE card behind the copy (static SVG, no
  * JS; the copy sits in the collage's calm zone), with ONE real link: the terracotta torn-paper Explore
  * button → `/projects?product=<slug>` (the Portfolio deep link, same tab).
+ *
+ * M-012 P2 (TASK-181.2 / TASK-186): each card is a `.fw-lift` object (`ObjectMotion` writes `--hx/--hy` while hovered): a 4 px lift
+ * with the shadow crossfaded by opacity, the art as depth layers with a small tilt, per-product signatures, and RailCite's
+ * evidence slips revealed on hover and focus (always shown on touch). The section ends with the bridge into How I think.
  *
  * Decorations = 1 (the torn edge — Design.md §3.3); the tapes are fasteners and the cards content
  * paper. Motion: the existing one-shot `Reveal` — head and RailCite settle up, the right cards fade in
@@ -202,6 +253,17 @@ export function FeaturedWork() {
                 <Card card={card} index={index} />
               </Reveal>
             ))}
+          </div>
+          <div className="fw-bridge">
+            <p className="fw-bridge-q">
+              <span>Three products.</span> <span>One recurring question:</span>{" "}
+              <q>How do I turn ambiguity into something useful?</q>
+            </p>
+            {/* a stitched paper path: it leaves the question and runs on into How I think (aria-hidden ornament) */}
+            <svg className="fw-bridge-path" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <path d="M18 4 C 20 70, 120 76, 150 120 S 180 196, 262 214" />
+              <circle cx="266" cy="214" r="5" />
+            </svg>
           </div>
         </div>
       </div>

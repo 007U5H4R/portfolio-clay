@@ -13,6 +13,7 @@ import { StageRoll } from "@/components/motion/journey/StageRoll";
 import { stagePin, type StageId } from "@/lib/stages";
 import { deckle } from "./deckle";
 import { HowIThinkCollage } from "./HowIThinkCollage";
+import { HitStageToggle } from "./HitStageToggle";
 
 /**
  * HowIThink — home section "A product journey, not a process." (TKT-76, Design.md §7.1; mockup
@@ -46,6 +47,11 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
  * (`StageRoll`) one after another, ~7.6 s, driven by `ProductThinkingJourney`
  * (`components/motion/journey/*`). It replaces the generic `Reveal` stagger. SSR / no-JS / reduced
  * motion render the final composition; see those files for the a11y and CLS rules.
+ *
+ * M-012 P2 (TASK-186, Tushar's spec 2026-10-09): the card shows the numeral, stage and principle; its example (quote,
+ * source, link) is a second paper layer that slides out from behind on hover and focus (fine pointer) and opens from a
+ * `HitStageToggle` button where there is no hover (touch, coarse, phone width) — nothing is hover-only. The active stage lifts and
+ * deepens its shadow, the others recede, and the path into and out of it firms up (CSS only; no pointer tracking).
  *
  * Copy: stage label, principle, quote and attribution are rendered verbatim from
  * `data/thinking-framework.ts` (D7); the project name is resolved server-side in `app/page.tsx`.
@@ -127,6 +133,7 @@ export function HowIThink({ stages }: HowIThinkProps) {
                     <Pin tone={stagePin[stage.id]} />
                     <span className="hit-paper" aria-hidden="true">
                       <span className="hit-paper-shade" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-deep" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-ink" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-rim" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-face" style={{ clipPath: edges.face }} />
@@ -136,16 +143,21 @@ export function HowIThink({ stages }: HowIThinkProps) {
                     </Hand>
                     <h3 className="hit-h3">{stage.label}</h3>
                     <p className="hit-principle">{stage.principle}</p>
-                    <div className="hit-quote">
-                      <Hand kind="quote" as="blockquote" cite={stage.example.attribution} className="hit-slip">
-                        {`“${stage.example.quote}”`}
-                      </Hand>
+                    <HitStageToggle controls={`hit-more-${stage.id}`} label={stage.label} />
+                    {/* the second paper layer: the example slides out from behind the card on hover / focus (desktop) or
+                        opens from the toggle (touch, phones); the quote, source and link are the section's existing copy */}
+                    <div className="hit-more" id={`hit-more-${stage.id}`}>
+                      <div className="hit-quote">
+                        <Hand kind="quote" as="blockquote" cite={stage.example.attribution} className="hit-slip">
+                          {`“${stage.example.quote}”`}
+                        </Hand>
+                      </div>
+                      <Link href={stage.example.href} className="hit-pill focus-ring" {...caseStudyLinkAttrs(stage.example.href)}>
+                        <span>{`See how I tested this in ${stage.example.projectName}`}</span>
+                        <NewTabHint href={stage.example.href} />
+                        <ArrowRight className="hit-pill-arrow" aria-hidden="true" focusable="false" size={18} strokeWidth={1.8} />
+                      </Link>
                     </div>
-                    <Link href={stage.example.href} className="hit-pill focus-ring" {...caseStudyLinkAttrs(stage.example.href)}>
-                      <span>{`See how I tested this in ${stage.example.projectName}`}</span>
-                      <NewTabHint href={stage.example.href} />
-                      <ArrowRight className="hit-pill-arrow" aria-hidden="true" focusable="false" size={18} strokeWidth={1.8} />
-                    </Link>
                   </Sheet>
                 </StageRoll>
               </li>

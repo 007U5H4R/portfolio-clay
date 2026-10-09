@@ -91,7 +91,7 @@ export function ProductCover({ product, size }: ProductCoverProps) {
       data-product={product.id}
       aria-hidden="true"
     >
-      <span className="pf-cover-art">
+      <span className={size === "thumb" ? "pf-cover-art pm-layer" : "pf-cover-art"} {...(size === "thumb" ? { "data-pm-depth": "bg" } : {})}>
         <Image
           src={product.art.src}
           alt=""
