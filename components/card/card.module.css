@@ -224,7 +224,8 @@
   aspect-ratio: 3 / 4;
 }
 .panther { left: 4cqw; top: 3cqw; width: 92cqw; }
-.pantherBack { left: 52cqw; top: 112cqw; width: 66cqw; opacity: 0.55; }
+/* bottom-left, mirrored from the old bottom-right spot so it clears the navy/gold corner fold (Tushar, TASK-180) */
+.pantherBack { left: -18cqw; top: 112cqw; width: 66cqw; opacity: 0.55; }
 .pl {
   position: absolute;
   inset: 0;
