@@ -13599,7 +13599,7 @@ html[data-theme-vt]::view-transition-group(root) {
 
 /* === TASK-181.3 === */
 /* ====================================================================================================================
-   M-012 · TASK-181 (P3) · L3 signatures: the hero sticker, Tushky and Contact (the polaroid reaction was dropped, EXE-68) (PLAN §4.5–4.7; Design.md §14.10; EXE-62…64).
+   M-012 · TASK-181 (P3) · L3 signatures: the hero sticker, Tushky and Contact (the polaroid reaction was dropped, EXE-70) (PLAN §4.5–4.7; Design.md §14.10; EXE-62…64).
    Restrained and physical: each reaction is the related paper object answering the control that is hovered or focused.
    Only translate / rotate / transform / opacity move; nothing scales up; nothing is infinite (TASK-143). Hover sits
    inside (hover: hover) and (pointer: fine) with an identical :focus-visible twin; touch gets the existing :active
