@@ -85,7 +85,7 @@ async function hangAt(page: Page, at: (a: Handle["rt"]["arena"]) => { x: number;
   await page.waitForFunction(
     (t) => {
       const rt = (window as unknown as Win).__gummyLab.rt;
-      if ((rt as unknown as { time: number }).time - t.t > 0.2 && Math.hypot(rt.bear.x - t.x, rt.bear.y - t.y) < 2.2) {
+      if ((rt as unknown as { time: number }).time - t.t > 0.04 && Math.hypot(rt.bear.x - t.x, rt.bear.y - t.y) < 2.2) {
         window.dispatchEvent(new KeyboardEvent("keydown", { key: "p" }));
         return true;
       }
