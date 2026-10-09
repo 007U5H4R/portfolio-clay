@@ -72,13 +72,19 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
     for (const slug of SLUGS) {
       const box = await paperBox(page, slug);
       for (const [sx, sy] of [[1, 1], [-1, -1], [1, -1], [-1, 1]] as const) {
-        // the paper's corner (a hair inside: the torn mask) — the object's local pointer maps past ±1, clamped
-        await page.mouse.move(box.x + box.width / 2 + (sx * box.width) / 2 - sx, box.y + box.height / 2 + (sy * box.height) / 2 - sy, { steps: 8 });
+        // just inside the paper's corner (the torn mask lets the pointer through at the very corner)
+        await page.mouse.move(box.x + box.width / 2 + sx * box.width * 0.47, box.y + box.height / 2 + sy * box.height * 0.47, { steps: 8 });
         const offsets = await layerOffsets(page, slug);
+        // the object's own local pointer (--hx/--hy): layer travel must be exactly depth range × that value
+        const h = await page.locator(lift(slug)).evaluate((el) => [Number(el.style.getPropertyValue("--hx")), Number(el.style.getPropertyValue("--hy"))]);
+        expect(Math.abs(h[0]!), `${slug} --hx at ${sx},${sy}`).toBeGreaterThan(0.85);
+        expect(Math.abs(h[1]!), `${slug} --hy at ${sx},${sy}`).toBeGreaterThan(0.85);
+        expect(Math.sign(h[0]!)).toBe(sx);
+        expect(Math.sign(h[1]!)).toBe(sy);
         expect(offsets.length, `${slug} layers`).toBeGreaterThanOrEqual(3);
         for (const o of offsets) {
-          expect(Math.abs(o.x - sx * RANGE[o.depth]!), `${slug} ${o.depth} x at ${sx},${sy}`).toBeLessThanOrEqual(1);
-          expect(Math.abs(o.y - sy * RANGE[o.depth]!), `${slug} ${o.depth} y at ${sx},${sy}`).toBeLessThanOrEqual(1);
+          expect(Math.abs(o.x - h[0]! * RANGE[o.depth]!), `${slug} ${o.depth} x at ${sx},${sy}`).toBeLessThanOrEqual(1);
+          expect(Math.abs(o.y - h[1]! * RANGE[o.depth]!), `${slug} ${o.depth} y at ${sx},${sy}`).toBeLessThanOrEqual(1);
         }
         const tilt = await page.locator(`${lift(slug)} [data-pm-tilt]`).evaluate((el) => {
           const m = new DOMMatrix(getComputedStyle(el).transform);
@@ -142,7 +148,7 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
     for (const slug of SLUGS) {
       const rest = await rel(slug);
       const box = await paperBox(page, slug);
-      await page.mouse.move(box.x + box.width - 3, box.y + box.height - 3, { steps: 8 });
+      await page.mouse.move(box.x + box.width * 0.96, box.y + box.height * 0.96, { steps: 8 });
       await layerOffsets(page, slug);
       const moved = await rel(slug);
       moved.forEach((v, i) => expect(Math.abs(v - rest[i]!), `${slug} copy offset ${i}`).toBeLessThanOrEqual(0.6));
@@ -156,7 +162,7 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
     for (const slug of SLUGS) {
       const paper = await paperBox(page, slug);
       for (const [sx, sy] of [[1, 1], [-1, -1], [1, -1], [-1, 1]] as const) {
-        await page.mouse.move(paper.x + paper.width / 2 + (sx * paper.width) / 2 - sx, paper.y + paper.height / 2 + (sy * paper.height) / 2 - sy, { steps: 8 });
+        await page.mouse.move(paper.x + paper.width / 2 + sx * paper.width * 0.47, paper.y + paper.height / 2 + sy * paper.height * 0.47, { steps: 8 });
         await layerOffsets(page, slug);
         const gaps = await page.evaluate((sel) => {
           const p = document.querySelector(`${sel} .fw-paper`)!.getBoundingClientRect();

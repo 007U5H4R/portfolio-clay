@@ -13695,10 +13695,10 @@ html[data-theme-vt]::view-transition-group(root) {
   border-radius: 999px;
 }
 .fw-proof {
-  gap: 12px;
+  gap: 8px;
 }
 .fw-proof-item {
-  padding: 10px 16px 10px 12px;
+  padding: 8px 10px 8px 9px;
   background: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory));
   border-radius: 3px;
   box-shadow: var(--depth-1);
@@ -13710,12 +13710,12 @@ html[data-theme-vt]::view-transition-group(root) {
     translate var(--dur-l2-out) var(--ease-paper);
 }
 .fw-proof-item + .fw-proof-item {
-  padding-left: 12px;
+  padding-left: 9px;
   border-left: 0;
   rotate: 0.5deg;
 }
 .fw-proof-item:last-child {
-  padding-right: 16px;
+  padding-right: 10px;
 }
 .fw-slip {
   position: absolute;
