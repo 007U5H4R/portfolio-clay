@@ -26,13 +26,13 @@ const ART: Record<WibStage["id"], { alt: string }> = {
 
 /** Marker + path geometry in the strip's 2400 x 1028 box (path = Catmull-Rom through the seven road points). */
 const ROAD: [number, number][] = [
-  [171, 800],
-  [514, 828],
-  [857, 872],
-  [1200, 890],
-  [1543, 868],
-  [1886, 812],
-  [2229, 770],
+  [171, 826],
+  [514, 852],
+  [857, 898],
+  [1200, 914],
+  [1543, 890],
+  [1886, 836],
+  [2229, 788],
 ];
 function segment(i: number): string {
   const p = (k: number) => ROAD[Math.min(Math.max(k, 0), ROAD.length - 1)]!;

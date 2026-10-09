@@ -13982,9 +13982,9 @@ html[data-theme-vt]::view-transition-group(root) {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 120px;
+    top: 100%;
+    margin-top: 28px;
     text-align: center;
-    margin: 0;
     transition: opacity var(--dur-l2-out) var(--ease-paper);
   }
   .wib[data-active] .wib-hint {
