@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import type { NudgeState } from "@/lib/lab/nudge";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { MeshPhysicalMaterial, Object3D } from "three";
 import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
@@ -71,6 +72,8 @@ export interface LabHooks {
   poke(): void;
   /** The plunger fired: `force` is the launch speed given to the gummy, `progress` the 0–1 charge it was released at. */
   launch(force: number, progress: number, x: number, y: number): void;
+  /** The cabinet was nudged (manual): `tilt` when it was the third press inside three seconds. */
+  nudge(tilt: boolean): void;
   /** A slingshot kicked the gummy. */
   sling(id: string, x: number, y: number): void;
 }
@@ -131,6 +134,11 @@ export interface LabRuntime {
   sinceLaunch: number;
   /** True once this run has launched the gummy at least once (the start plaque is only for before that). */
   launched: boolean;
+  /** The shooter lane's one-way gate is shut: set once the launched gummy has left the lane, cleared when a new run is served. */
+  laneGateShut: boolean;
+  /** The manual nudge's cooldown state, and a pending press the controller applies on the next physics step. */
+  nudge: NudgeState;
+  nudgeRequested: boolean;
   /** Show a floating "+100" at a world point. Installed by the HUD overlay; a no-op until then. */
   popup(text: string, x: number, y: number): void;
   /** Draw calls and triangles of the last frame (set by GameScene; read by `?debug` and the profiling notes). */
@@ -221,4 +229,5 @@ export const noopHooks: LabHooks = {
   poke() {},
   launch() {},
   sling() {},
+  nudge() {},
 };

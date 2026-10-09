@@ -38,10 +38,13 @@ describe.each([5, 2.7])("buildArena(%s)", (hw) => {
     }
   });
 
-  it("has three to five major bumpers (the spinner arrives later)", () => {
+  it("has the right number of major bumpers: 3-5 on the wide table, 2 smaller ones on the phone table (the spinner arrives later)", () => {
     const major = a.bumpers.filter((b) => !b.spin);
-    expect(major.length).toBeGreaterThanOrEqual(3);
-    expect(major.length).toBeLessThanOrEqual(5);
+    if (hw < 4) expect(major).toHaveLength(2);
+    else {
+      expect(major.length).toBeGreaterThanOrEqual(3);
+      expect(major.length).toBeLessThanOrEqual(5);
+    }
     for (const b of major) expect(Math.abs(b.x) + b.r).toBeLessThan(hw);
     // a gummy (about 0.7 wide) can pass between any two of them
     for (let i = 0; i < major.length; i += 1)
@@ -67,11 +70,14 @@ describe.each([5, 2.7])("buildArena(%s)", (hw) => {
     }
   });
 
-  it("keeps a clear drain between the flippers and puts the black hole top-left, outside the table", () => {
+  it("keeps a clear drain between the flippers and puts the black hole in the left wall, outside the table", () => {
     expect(Math.abs(a.drain.x)).toBeLessThan(0.1);
     expect(a.drain.y).toBeLessThan(a.flippers[0].pivot.y);
     expect(a.portal.x).toBeLessThan(-hw);
-    expect(a.portal.y).toBeGreaterThan(a.ceilingY - 0.5);
+    // the opening in the wall: at least a gummy (0.98 tall) high, below the ceiling, and the drawn hole sits in it
+    expect(a.portal.y1 - a.portal.y0).toBeGreaterThan(1.05);
+    expect(a.portal.y1).toBeLessThanOrEqual(a.ceilingY);
+    expect(a.portal.y).toBeCloseTo((a.portal.y0 + a.portal.y1) / 2, 6);
     expect(a.minX).toBeLessThan(a.portal.x - a.portal.r);
     expect(a.maxX).toBeGreaterThan(a.lane.xOut);
     expect(a.topY).toBeGreaterThan(a.portal.y + a.portal.r);

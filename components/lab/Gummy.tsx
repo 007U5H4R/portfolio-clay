@@ -130,6 +130,9 @@ function GummyFromAsset() {
 }
 
 const EASE = (k: number, dt: number) => 1 - Math.exp(-k * dt);
+/** How long the black hole takes to swallow the gummy (s), and the plain fade used instead under reduced motion. */
+const PORTAL_SUCK_S = 0.55;
+const PORTAL_FADE_S = 0.2;
 const FACE_MORPHS = new Set<MorphName>(["Happy", "Surprised", "Worried", "Panic", "Blink"]);
 
 function GummyBody({ model }: { model: Prepared | "fallback" }) {
@@ -179,7 +182,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
   );
 
   const ctrlRef = useRef<GummyController | null>(null);
-  const live = useRef({ since: 0, blinkAt: 2.5, blink: 0, face: { Happy: 0.7, Surprised: 0, Worried: 0, Panic: 0 }, weights: emptyWeights(), prevVy: 0, prevVx: 0, park: { x: 0, y: 0, s: 2 }, wasLive: false, hopT: 0, meltedAt: -1, drive: false });
+  const live = useRef({ since: 0, blinkAt: 2.5, blink: 0, face: { Happy: 0.7, Surprised: 0, Worried: 0, Panic: 0 }, weights: emptyWeights(), prevVy: 0, prevVx: 0, park: { x: 0, y: 0, s: 2 }, wasLive: false, fading: false, hopT: 0, meltedAt: -1, drive: false });
   const rayRef = useRef<InstanceType<typeof rapier.Ray> | null>(null);
   const shadowRay = useRef<InstanceType<typeof rapier.Ray> | null>(null);
 
@@ -237,6 +240,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     b.vy = lv.y;
 
     // ---- parked states: the bear is placed, not simulated -------------------------------------
+    let fade = 0;
     const parkedKind = gs === "COUNTDOWN" ? "spawn" : gs === "RESULTS" ? "results" : gs === "EXITING" ? "exit" : machine.live ? null : "intro";
     if (parkedKind) {
       let tx = intro.x;
@@ -260,14 +264,21 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
           L.park.s = 1;
         }
         const ex = rt.exit;
-        const k = ex ? Math.min(1, ex.t / 0.9) : 0;
+        const hole = ex?.via === "portal";
+        // The black hole sucks the gummy in within ~0.55 s; under reduced motion it does not move at all, it just fades (0.2 s).
+        const k = ex ? Math.min(1, ex.t / (hole ? (rt.reducedMotion ? PORTAL_FADE_S : PORTAL_SUCK_S) : 0.9)) : 0;
         if (ex) ex.t += dt;
-        const tgt = ex?.via === "portal" ? { x: rt.arena.portal.x, y: rt.arena.portal.y - 0.4 } : { x: 0, y: rt.arena.ceilingY - 1 };
-        const ang = k * 9;
-        const rad = (1 - k) * 0.6;
-        L.park.x += (tgt.x + Math.cos(ang) * rad - L.park.x) * EASE(5, dt);
-        L.park.y += (tgt.y + Math.sin(ang) * rad - L.park.y) * EASE(5, dt);
-        L.park.s = Math.max(0.02, 1 - k * 0.98);
+        if (hole && rt.reducedMotion) {
+          L.park.s = 1;
+          fade = k;
+        } else {
+          const tgt = hole ? { x: rt.arena.portal.x, y: rt.arena.portal.y - 0.45 } : { x: 0, y: rt.arena.ceilingY - 1 };
+          const ang = k * (hole ? 7 : 9);
+          const rad = (1 - k) * (hole ? 0.45 : 0.6);
+          L.park.x += (tgt.x + Math.cos(ang) * rad - L.park.x) * EASE(hole ? 9 : 5, dt);
+          L.park.y += (tgt.y + Math.sin(ang) * rad - L.park.y) * EASE(hole ? 9 : 5, dt);
+          L.park.s = Math.max(0.02, 1 - k * 0.98);
+        }
       } else {
         L.park.x += (tx - L.park.x) * EASE(5, dt);
         L.park.y += (ty - L.park.y) * EASE(5, dt);
@@ -411,9 +422,11 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     }
     if (gs === "EXITING" && rt.exit) {
       const k = Math.min(1, rt.exit.t / 0.9);
-      sy *= 1 + k * 1.8;
-      sx *= 1 - k * 0.5;
-      vis.rotation.z += dt * 10 * k;
+      if (rt.exit.via !== "portal") {
+        sy *= 1 + k * 1.8;
+        sx *= 1 - k * 0.5;
+      }
+      if (!(rt.exit.via === "portal" && rt.reducedMotion)) vis.rotation.z += dt * 10 * k;
     } else {
       const leanTarget = Math.max(-0.28, Math.min(0.28, -b.vx * 0.022));
       vis.rotation.z += (leanTarget - vis.rotation.z) * EASE(10, dt);
@@ -425,6 +438,16 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     const hop = poke > 0 ? Math.sin(poke * Math.PI) * 0.18 : 0;
     vis.position.y = hop;
     vis.scale.set(s * sx, s * sy, s * sx);
+    // Reduced motion's black-hole exit is a plain fade: the gummy's materials go transparent only while it is fading.
+    if ((fade > 0) !== L.fading) {
+      L.fading = fade > 0;
+      for (const m of [material, faceMat]) {
+        m.transparent = L.fading;
+        m.opacity = 1;
+        m.needsUpdate = true;
+      }
+    }
+    if (L.fading) material.opacity = faceMat.opacity = 1 - fade;
 
     // ---- shader uniforms -----------------------------------------------------------------------
     uniforms.uTime.value = rt.time;

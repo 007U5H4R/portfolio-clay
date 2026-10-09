@@ -128,8 +128,78 @@ export interface ArenaSpec {
   pads: PadSpec[];
   bumpers: BumperSpec[];
   targets: TargetSpec[];
-  portal: { x: number; y: number; r: number };
+  /**
+   * The black hole (TASK-185 follow-up): a pocket cut into the cabinet's left wall. `x`/`y`/`r` place the drawn hole; `y0`/`y1` are
+   * the opening's lower and upper edge on the wall (the gummy is 0.9 tall, so the gap is a shot to line up); `depth` is how far the
+   * pocket reaches into the cabinet. A sensor in the pocket sends the gummy to the portfolio.
+   */
+  portal: { x: number; y: number; r: number; y0: number; y1: number; depth: number };
+  /** The one-way gate on the shooter lane's open side: a thin vertical panel from (x1, y1) up to (x2, y2) that stands only once the gummy has left the lane. */
+  gate: { x1: number; y1: number; x2: number; y2: number; thick: number };
   anchors: Anchor[];
+}
+
+/** A box collider of the cabinet shell (centre + half extents, z is always ±1.5). `sensor` boxes only report a touch. */
+export interface WallBox {
+  id: string;
+  cx: number;
+  cy: number;
+  hx: number;
+  hy: number;
+  restitution: number;
+  friction: number;
+}
+
+/**
+ * The black-hole opening's lower edge and height (u), tuned per layout with the headless Rapier scan in
+ * tests/unit/lab-portal-sim.test.ts. The gummy's hull is 0.98 tall, so 1.3-1.4 leaves a little play. The opening is a skill shot:
+ * on the wide table only a launch within a few percent of full power (arriving down the top) lines up with it; on the
+ * narrow phone table the same shot arrives higher, so the opening sits under the ceiling.
+ */
+const PORTAL_PIECES = { wide: { y0: 4.1, h: 1.2 }, narrow: { y0: 4.8, h: 1.4 } };
+const PORTAL_DEPTH = 0.8;
+
+/** The phone table's bumper and target positions (tuned with tests/unit/lab-arena-clearance.test.ts). */
+const NARROW = { b1: { x: 1.05, y: 4.8 }, b2: { x: -0.55, y: 3.9 }, t: { AI: 2.0, DESIGN: 0.7, PRODUCT: 2.9, BUILD: 1.4 } };
+
+/**
+ * Every box that makes up the cabinet shell (walls, divider, ceiling, floors). The left wall is split around the black hole's
+ * opening and closed by a back plate, so the board stays sealed. Arena.tsx builds its colliders from this list and the
+ * headless physics tests build theirs from it too, so the two cannot drift apart.
+ */
+export function wallBoxes(a: ArenaSpec): WallBox[] {
+  const hw = a.halfW;
+  const lane = a.lane;
+  const { y0, y1, depth } = a.portal;
+  const divH = (lane.dividerTop + 8) / 2;
+  const ceilW = (lane.xOut + hw) / 2 + 1;
+  const lowH = (y0 + 20) / 2;
+  const upH = (20 - y1) / 2;
+  return [
+    { id: "wall-left-low", cx: -hw - 0.5, cy: y0 - lowH, hx: 0.5, hy: lowH, restitution: 0.55, friction: 0.1 },
+    { id: "wall-left-high", cx: -hw - 0.5, cy: y1 + upH, hx: 0.5, hy: upH, restitution: 0.55, friction: 0.1 },
+    // the pocket's back plate: closes the opening 0.8 deep so nothing leaves the cabinet
+    { id: "wall-left-back", cx: -hw - depth - 0.1, cy: (y0 + y1) / 2, hx: 0.1, hy: (y1 - y0) / 2, restitution: 0.2, friction: 0.1 },
+    { id: "divider", cx: (lane.xIn + hw) / 2, cy: lane.dividerTop - divH, hx: (lane.xIn - hw) / 2, hy: divH, restitution: 0.3, friction: 0.05 },
+    { id: "wall-lane", cx: lane.xOut + 0.5, cy: 0, hx: 0.5, hy: 20, restitution: 0.4, friction: 0.05 },
+    { id: "ceiling", cx: (lane.xOut - hw) / 2, cy: a.ceilingY + 0.5, hx: ceilW, hy: 0.5, restitution: 0.5, friction: 0.2 },
+    // No floor under the table: the gap between the flippers is the drain. This only catches a gummy that fell through.
+    { id: "catch", cx: 0, cy: a.floorY - 12, hx: hw + 3, hy: 0.5, restitution: 0.05, friction: 0.9 },
+    // The lane has a solid floor well below the plunger's lowest point.
+    { id: "lane-floor", cx: lane.x, cy: lane.restY - lane.travel - 0.55, hx: (lane.xOut - lane.xIn) / 2, hy: 0.3, restitution: 0.05, friction: 0.4 },
+  ];
+}
+
+/**
+ * The black-hole sensor: a box in the pocket's deep end, 0.2 inside the wall line. The gummy's hull is 0.98 tall, so only a body
+ * that has really gone through the opening reaches it; a head poking in at the opening's edge does not (the lower body is still
+ * stopped by the wall face).
+ */
+export function portalSensor(a: ArenaSpec): { cx: number; cy: number; hx: number; hy: number } {
+  const { y0, y1, depth } = a.portal;
+  const near = 0.2;
+  const far = depth;
+  return { cx: -a.halfW - (near + far) / 2, cy: (y0 + y1) / 2, hx: (far - near) / 2, hy: (y1 - y0) / 2 };
 }
 
 export const FLOOR_Y = -5;
@@ -147,6 +217,7 @@ export function portraitHalfWidth(aspect: number): number {
 export function buildArena(halfW: number, simplified = false): ArenaSpec {
   const hw = halfW;
   const wide = hw > 4;
+  const pp = wide ? PORTAL_PIECES.wide : PORTAL_PIECES.narrow;
   const fx = (f: number) => f * hw;
   const flip = flipperLayouts(hw, FLIPPER_PIVOT_Y);
   const px = Math.abs(flip.left.pivot.x);
@@ -179,7 +250,9 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
   ];
 
   // Bumpers (spec §18): a diamond of three or four big circles in the middle of the table, plus the spinner from phase 1.
-  const br = wide ? 0.58 : 0.5;
+  // The phone table (hw 2.7) gets fewer, smaller bumpers than the wide one (TASK-185, Tushar's phone screenshots): two domes of
+  // about 72 % of the desktop radius, high on the table with a clear lane between them and the flippers, and no spinner.
+  const br = wide ? 0.58 : 0.42;
   const bumpers: BumperSpec[] = wide
     ? [
         { id: "B1", x: 0, y: 3.95, r: br, minPhase: 0 },
@@ -189,18 +262,16 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
         { id: "RB", x: 0, y: 5.35, r: 0.3, spin: { len: 1.5, speed: 1.6 }, minPhase: 1 },
       ]
     : [
-        { id: "B1", x: 0, y: 3.9, r: br, minPhase: 0 },
-        { id: "B2", x: -1.15, y: 2.4, r: br, minPhase: 0 },
-        { id: "B3", x: 1.15, y: 2.4, r: br, minPhase: 0 },
-        { id: "RB", x: 0, y: 5.35, r: 0.3, spin: { len: 1.2, speed: 1.6 }, minPhase: 1 },
+        { id: "B1", x: NARROW.b1.x, y: NARROW.b1.y, r: br, minPhase: 0 },
+        { id: "B2", x: NARROW.b2.x, y: NARROW.b2.y, r: br, minPhase: 0 },
       ];
 
   // Targets (spec §19): four mounted plates, two a side, tilted into the table. Tests and tools read x/y.
-  const tw = wide ? 0.78 : 0.62;
-  const th = wide ? 0.37 : 0.31;
-  const tx = hw - (wide ? 0.98 : 0.78);
-  const mk = (id: TargetName, side: -1 | 1, y: number): TargetSpec => ({ id, x: side * tx, y, hw: tw, hh: th, angle: -side * 0.55, r: Math.hypot(tw, th) });
-  const targets: TargetSpec[] = wide ? [mk("AI", -1, 4.0), mk("DESIGN", -1, 2.1), mk("PRODUCT", 1, 3.7), mk("BUILD", 1, 1.8)] : [mk("AI", -1, 3.7), mk("DESIGN", -1, 1.75), mk("PRODUCT", 1, 3.45), mk("BUILD", 1, 1.5)];
+  const tw = wide ? 0.78 : 0.5;
+  const th = wide ? 0.37 : 0.26;
+  const tx = hw - (wide ? 0.98 : 0.62);
+  const mk = (id: TargetName, side: -1 | 1, y: number): TargetSpec => ({ id, x: side * tx, y, hw: tw, hh: th, angle: side * 0.55, r: Math.hypot(tw, th) });
+  const targets: TargetSpec[] = wide ? [mk("AI", -1, 3.25), mk("DESIGN", -1, 1.3), mk("PRODUCT", 1, 3.3), mk("BUILD", 1, 1.4)] : [mk("AI", -1, NARROW.t.AI), mk("DESIGN", -1, NARROW.t.DESIGN), mk("PRODUCT", 1, NARROW.t.PRODUCT), mk("BUILD", 1, NARROW.t.BUILD)];
 
   // Slingshots (spec §20): right-angle triangles standing on the in-lane guides, the long edge facing the table.
   const slings: SlingSpec[] = (["left", "right"] as const).map((side) => {
@@ -252,9 +323,12 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
   }
   // A low wedge on the divider's top: anything that lands on it rolls toward the table, nothing balances there.
   rails.push({ id: "DIV-CAP", x1: lane.xIn - 0.1, y1: lane.dividerTop + 0.2, x2: hw - 0.6, y2: lane.dividerTop - 0.05, thick: 0.16 });
-  // The top-left corner is cut off by a 45° deflector so a hard shot across the top is turned back down into the table.
-  rails.push({ id: "CORNER-L", x1: -hw, y1: CEILING_Y - 1.7, x2: -hw + 1.7, y2: CEILING_Y - 0.12, thick: 0.3 });
-
+  // The one-way gate (TASK-185): a thin panel that closes the lane's open side (the window between the divider's top and the arch) once
+  // the launched gummy is out in the field, so it can never drop back into the lane. It stands on the divider's right edge and
+  // reaches up into the arch's underside.
+  const gx = lane.xIn - 0.02;
+  const archAtGate = archCy + Math.sqrt(ARCH_R * ARCH_R - (gx - archCx) * (gx - archCx));
+  const gate = { x1: gx, y1: lane.dividerTop - 0.05, x2: gx, y2: archAtGate + 0.1, thick: 0.14 };
   // Collectible anchors: open space between the bumpers, ramps and targets (never in the lane, below the shelves or under a rail).
   const anchors: Anchor[] = wide
     ? [
@@ -270,14 +344,14 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
         { x: 0, y: -0.6 },
         { x: -1.4, y: 5.0 },
       ]
-    : [
-        { x: 0, y: 2.5 },
-        { x: -0.9, y: 0.45 },
-        { x: 0.9, y: 0.45 },
-        { x: 0, y: 1.2 },
-        { x: -1.0, y: 4.8 },
-        { x: 1.0, y: 4.8 },
-        { x: 0, y: -0.6 },
+    : // Phone table: only open spots with 1.5 gummy-widths of clearance from the bumpers, plates and walls, none in the feed from the
+      // bumpers to the flippers (tests/unit/lab-arena-clearance.test.ts).
+      [
+        { x: -1.4, y: 5.5 },
+        { x: -0.6, y: 5.5 },
+        { x: 0.5, y: 2.2 },
+        { x: 0.5, y: 1.0 },
+        { x: -0.35, y: 0.45 },
       ];
   return {
     halfW: hw,
@@ -302,7 +376,8 @@ export function buildArena(halfW: number, simplified = false): ArenaSpec {
     pads,
     bumpers: simplified ? bumpers.filter((b) => !b.spin) : bumpers,
     targets,
-    portal: { x: -hw - 0.2, y: CEILING_Y + 0.1, r: 0.72 },
+    portal: { x: -hw - 0.5, y: pp.y0 + pp.h / 2, r: 0.55, y0: pp.y0, y1: pp.y0 + pp.h, depth: PORTAL_DEPTH },
+    gate,
     anchors,
   };
 }

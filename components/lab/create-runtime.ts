@@ -1,4 +1,5 @@
 import { buildArena, portraitHalfWidth } from "@/lib/lab/arena";
+import { NudgeState } from "@/lib/lab/nudge";
 import { newFlipperState } from "@/lib/lab/flippers";
 import { LabAudio } from "./audio";
 import { GameEngine } from "@/lib/lab/engine";
@@ -38,6 +39,9 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     trail: Object.assign(new TrailBuffer(), { enabled: !reducedMotion }),
     sinceLaunch: Infinity,
     launched: false,
+    laneGateShut: false,
+    nudge: new NudgeState(),
+    nudgeRequested: false,
     popup: () => {},
     trailFlash: 0,
     scene: null,

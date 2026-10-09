@@ -1,5 +1,6 @@
 "use client";
 
+import { portalOnce } from "./portal-exit";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { ACHIEVEMENTS } from "@/lib/lab/storage";
@@ -131,10 +132,12 @@ export function Driver() {
         st().patch({ launched: true });
         if (acc.current.hint <= 1) hint(2, HINTS.first);
       },
-      portal() {
-        if (!store.getState().machine.running) return;
-        engine.foundHiddenInteraction();
-        rt.requestExit("portal");
+      portal: portalOnce(() => store.getState().machine.running, () => engine.foundHiddenInteraction(), () => rt.requestExit("portal")),
+      nudge(tilt) {
+        fx.nudge(tilt);
+        st().patch({ nudgeRun: st().nudgeRun + 1 });
+        audio.play("squish");
+        if (tilt) banner("TILT!", 1100);
       },
       pickup(id) {
         const item = rt.spawner.items.find((i) => i.id === id);
