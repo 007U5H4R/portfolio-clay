@@ -34,3 +34,11 @@ export const allNavItems: NavItem[] = [
 
 /** The tabs the header renders: `allNavItems` minus the hidden ones. */
 export const navItems: NavItem[] = allNavItems.filter((item) => !item.hidden);
+
+/**
+ * The tab that is current for a pathname (TASK-192; was inline in `PrimaryNav`): an exact match on the tab's route — a nested
+ * path such as `/work/<slug>` marks no tab, as before. Hidden tabs are never returned (they are not rendered).
+ */
+export function activeNavHref(pathname: string | null | undefined): string | undefined {
+  return navItems.find((item) => item.href === pathname)?.href;
+}

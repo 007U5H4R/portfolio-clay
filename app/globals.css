@@ -12433,13 +12433,47 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 /* ==================================================================================================
-   M-010 T4 (TASK-145.1) · paper-cut nav — paper-cut-2 §169–§210. Unlayered, grouped, tokens only.
-   Layers (back to front): backing scraps → main paper strip (.header-paper-sheet) → paper tabs
-   (.header-nav-link::before) → terracotta active layer (.hn-strip) → labels. Every extra layer is a
-   pseudo-element or an absolutely positioned decorative span, so no layout box changes size (QA-010
-   spacing and the 108 / 72 px header heights are untouched). Shadows come from --shadow-ink.
+   M-013 (TASK-192) · origami paper tabs header. Replaces the M-010 T4 paper-cut nav (scraps, tab cards, terracotta strip).
+   Unlayered, grouped, tokens only (EVAL-020). Layers, back to front: the paper sheet (grain image + torn lower edge) → the thin
+   terrain band (left / mid / right pieces, tinted toward slate in dark) → the torn lip → per tab: soft shadow (rest + lifted
+   crossfade) · thickness · face · fold · label · underline. One light, upper left, so every shadow falls down and right.
+   Shadows are blurred shapes (a static blur on the parent of a clip-path'd child); the lifted shadow crossfades by opacity and no
+   box-shadow / filter is ever transitioned (EXE-61). The only motion is the tab's own `transform`, under the L1 fine-pointer gate.
    ================================================================================================== */
+:root {
+  --poly-sheet: polygon(0 0, 100% 0, 100.00% calc(100% - 1.9px), 98.44% calc(100% - 1.5px), 96.88% calc(100% - 2.3px), 95.31% calc(100% - 4.7px), 93.75% calc(100% - 1.7px), 92.19% calc(100% - 2.1px), 90.62% calc(100% - 3.4px), 89.06% calc(100% - 1.9px), 87.50% calc(100% - 3.9px), 85.94% calc(100% - 4.8px), 84.38% calc(100% - 0.9px), 82.81% calc(100% - 0.8px), 81.25% calc(100% - 2.3px), 79.69% calc(100% - 3.9px), 78.12% calc(100% - 4.5px), 76.56% calc(100% - 1.7px), 75.00% calc(100% - 1.4px), 73.44% calc(100% - 3.5px), 71.88% calc(100% - 3.2px), 70.31% calc(100% - 4.3px), 68.75% calc(100% - 1.1px), 67.19% calc(100% - 5.0px), 65.62% calc(100% - 4.4px), 64.06% calc(100% - 1.0px), 62.50% calc(100% - 1.1px), 60.94% calc(100% - 0.8px), 59.38% calc(100% - 1.8px), 57.81% calc(100% - 1.1px), 56.25% calc(100% - 2.0px), 54.69% calc(100% - 3.5px), 53.12% calc(100% - 3.7px), 51.56% calc(100% - 3.5px), 50.00% calc(100% - 0.3px), 48.44% calc(100% - 3.0px), 46.88% calc(100% - 2.5px), 45.31% calc(100% - 0.6px), 43.75% calc(100% - 3.2px), 42.19% calc(100% - 2.2px), 40.62% calc(100% - 2.8px), 39.06% calc(100% - 3.3px), 37.50% calc(100% - 0.2px), 35.94% calc(100% - 2.1px), 34.38% calc(100% - 2.8px), 32.81% calc(100% - 3.5px), 31.25% calc(100% - 2.3px), 29.69% calc(100% - 2.6px), 28.12% calc(100% - 1.3px), 26.56% calc(100% - 2.6px), 25.00% calc(100% - 3.5px), 23.44% calc(100% - 0.5px), 21.88% calc(100% - 2.7px), 20.31% calc(100% - 4.8px), 18.75% calc(100% - 1.8px), 17.19% calc(100% - 3.2px), 15.62% calc(100% - 1.3px), 14.06% calc(100% - 1.0px), 12.50% calc(100% - 0.7px), 10.94% calc(100% - 4.4px), 9.38% calc(100% - 1.6px), 7.81% calc(100% - 4.9px), 6.25% calc(100% - 0.7px), 4.69% calc(100% - 2.8px), 3.12% calc(100% - 1.5px), 1.56% calc(100% - 2.6px), 0.00% calc(100% - 1.7px));
+  --poly-lip: polygon(0.00% 2.0px, 1.56% 2.7px, 3.12% 0.4px, 4.69% 0.1px, 6.25% 0.9px, 7.81% 1.6px, 9.38% 1.7px, 10.94% 3.2px, 12.50% 2.5px, 14.06% 0.5px, 15.62% 2.8px, 17.19% 3.1px, 18.75% 2.0px, 20.31% 3.0px, 21.88% 1.8px, 23.44% 1.7px, 25.00% 0.3px, 26.56% 3.8px, 28.12% 2.8px, 29.69% 2.5px, 31.25% 1.9px, 32.81% 2.5px, 34.38% 1.0px, 35.94% 1.7px, 37.50% 1.8px, 39.06% 2.5px, 40.62% 3.4px, 42.19% 1.8px, 43.75% 0.7px, 45.31% 1.2px, 46.88% 1.3px, 48.44% 0.6px, 50.00% 1.7px, 51.56% 2.6px, 53.12% 3.5px, 54.69% 2.4px, 56.25% 1.7px, 57.81% 1.9px, 59.38% 3.2px, 60.94% 0.4px, 62.50% 1.8px, 64.06% 3.6px, 65.62% 3.1px, 67.19% 2.5px, 68.75% 3.0px, 70.31% 1.5px, 71.88% 1.4px, 73.44% 1.4px, 75.00% 0.6px, 76.56% 2.0px, 78.12% 1.2px, 79.69% 2.7px, 81.25% 2.5px, 82.81% 3.3px, 84.38% 4.0px, 85.94% 2.9px, 87.50% 2.1px, 89.06% 2.2px, 90.62% 2.5px, 92.19% 3.6px, 93.75% 0.4px, 95.31% 1.6px, 96.88% 1.6px, 98.44% 1.2px, 100.00% 3.8px, 100% 100%, 0 100%);
+  --poly-pill: polygon(0 11px, 3.3px 3.3px, 11px 0, 11.1% 0.7px, 22.2% 0.3px, 33.3% 1.4px, 44.4% 0.2px, 55.6% 1.2px, 66.7% 0.8px, 77.8% 0.1px, 88.9% 1.1px, calc(100% - 11px) 0, calc(100% - 3.3px) 3.3px, 100% 11px, calc(100% - 0.1px) 35%, calc(100% - 1.0px) 70%, 100% calc(100% - 11px), calc(100% - 3.3px) calc(100% - 3.3px), calc(100% - 11px) 100%, 88.9% calc(100% - 0.2px), 77.8% calc(100% - 0.2px), 66.7% calc(100% - 0.9px), 55.6% calc(100% - 1.8px), 44.4% calc(100% - 0.3px), 33.3% calc(100% - 0.5px), 22.2% calc(100% - 1.4px), 11.1% calc(100% - 2.1px), 11px 100%, 3.3px calc(100% - 3.3px), 0 calc(100% - 11px), 1.3px 70%, 0.9px 35%);
+  /* tab silhouette: a broad face, the top-left corner cut, the right edge leaning in toward the bottom (spec §4.1) */
+  --poly-tab: polygon(6px 0, 100% 2px, calc(100% - 17px) calc(100% - 1px), 0 100%);
+  --poly-tab-on: polygon(11px 0, 100% 3px, calc(100% - 21px) 100%, 0 calc(100% - 5px));
+  --tab-shadow: color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+  --tab-hi: color-mix(in oklab, var(--color-ivory) 85%, transparent);
+  --tab-hi-on: color-mix(in oklab, var(--color-ivory) 16%, transparent);
+  --hdr-grain: url("/header/paper-grain-light.webp");
+  --hdr-tile: url("/header/tp-tile-light.webp");
+  --hdr-left: url("/header/terrain-light-left.webp");
+  --hdr-right: url("/header/terrain-light-right.webp");
+  --hdr-mid: url("/header/terrain-light-mid.webp");
+}
+[data-theme="dark"] {
+  --tab-shadow: color-mix(in oklab, var(--shadow-ink) 72%, transparent);
+  --tab-hi: color-mix(in oklab, var(--color-navy) 9%, transparent);
+  --tab-hi-on: color-mix(in oklab, var(--color-ivory) 10%, transparent);
+  --hdr-grain: url("/header/paper-grain-dark.webp");
+  --hdr-tile: url("/header/tp-tile-dark.webp");
+  --hdr-left: url("/header/terrain-dark-left.webp");
+  --hdr-right: url("/header/terrain-dark-right.webp");
+  --hdr-mid: url("/header/terrain-dark-mid.webp");
+}
 .site-header {
+  /* the tunables: tab height / side padding / label size, the monogram tile, the terrain scale */
+  --nt-h: 46px;
+  --nt-pad: 18px;
+  --nt-font: 16px;
+  --hdr-tile-px: 44px;
+  --ht-edge-w: 0px;
+  --ht-mid-h: 16px;
   background: transparent;
   backdrop-filter: none;
   border-bottom-color: transparent;
@@ -12447,6 +12481,11 @@ html[data-theme-vt]::view-transition-group(root) {
 .site-header[data-scrolled] {
   border-bottom-color: transparent;
 }
+:root {
+  --header-h: 114px;
+}
+
+/* ---- the sheet ---- */
 .header-paper {
   position: absolute;
   inset: 0;
@@ -12462,117 +12501,338 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .header-paper-sheet {
   position: absolute;
-  inset: 0 0 -5px 0;
-  background:
-    var(--grain-a) 0 0 / 7px 7px,
-    var(--grain-b) 3px 4px / 11px 11px,
-    var(--color-ivory);
-  /* hand-cut lower edge: a few small steps, never a straight rule */
-  clip-path: polygon(
-    0 0, 100% 0, 100% calc(100% - 3px), 94% calc(100% - 1px), 81% 100%, 67% calc(100% - 2px), 52% calc(100% - 1px),
-    38% 100%, 23% calc(100% - 2px), 9% calc(100% - 1px), 0 calc(100% - 3px)
-  );
+  inset: 0 0 -6px 0;
+  background: var(--hdr-grain) 0 0 / 320px 320px, var(--color-paper-2);
+  clip-path: var(--poly-sheet);
 }
-.header-scrap {
-  position: absolute;
-  bottom: -9px;
-  height: 11px;
-  border-radius: 2px;
-}
-.header-scrap-graph {
-  left: 4%;
-  width: 90px;
-  transform: rotate(-1.2deg);
-  background:
-    repeating-linear-gradient(0deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
-    repeating-linear-gradient(90deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
-    color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
-}
-.header-scrap-rust {
-  right: 12%;
-  width: 70px;
-  transform: rotate(0.9deg);
-  background: color-mix(in oklab, var(--color-rust) 70%, var(--color-ivory));
-}
-.header-scrap-kraft {
-  left: 46%;
-  width: 56px;
-  transform: rotate(-0.6deg);
-  background: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
-}
-.header-scrap-kraft {
-  display: none;
-}
-@media (min-width: 1024px) {
-  .header-scrap-kraft {
-    display: block;
-  }
-}
-
-/* identity: the monogram sits on its own small paper card */
-.header-monogram {
-  padding: 3px;
-  border-radius: 8px;
-  background: var(--color-paper);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 22%, transparent), 0 3px 5px -2px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
-  transform: rotate(-2deg);
-}
-
-/* paper tabs: the card is a pseudo-element that overhangs the hit area (no width change) */
-.header-nav-link {
-  isolation: isolate;
-}
-.header-nav-link::before {
+/* the torn bottom lip: a paper strip with its own torn upper edge, lying over the foot of the terrain */
+.header-paper-sheet::after {
   content: "";
   position: absolute;
-  inset: 5px -6px;
-  z-index: -2;
-  border-radius: 7px;
-  background: var(--color-paper);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 16%, transparent), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
-  /* M-012 (EXE-61): the shadow swaps with the state; only the paper moves (hover/focus/press rules: the TASK-181 block) */
+  inset: auto 0 0 0;
+  height: 11px;
+  background: var(--mat-tab);
+  opacity: 0.9;
+  clip-path: var(--poly-lip);
+}
+
+/* ---- the terrain: a thin band, never behind the labels ---- */
+.header-terrain {
+  position: absolute;
+  inset: 0;
+}
+.ht-mid,
+.ht-left,
+.ht-right {
+  position: absolute;
+  bottom: 0;
+}
+.ht-mid {
+  left: 0;
+  right: 0;
+  height: var(--ht-mid-h);
+  background: var(--hdr-mid) 0 100% / auto 100% repeat-x;
+}
+.ht-left,
+.ht-right {
+  display: none;
+  width: var(--ht-edge-w);
+  aspect-ratio: 480 / 330;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.ht-left {
+  left: 0;
+  background-image: var(--hdr-left);
+  /* the inner side fades into the mid band so no step shows where the two meet */
+  -webkit-mask-image: linear-gradient(to right, #000 55%, transparent);
+  mask-image: linear-gradient(to right, #000 55%, transparent);
+}
+.ht-right {
+  right: 0;
+  background-image: var(--hdr-right);
+  -webkit-mask-image: linear-gradient(to left, #000 55%, transparent);
+  mask-image: linear-gradient(to left, #000 55%, transparent);
+}
+/* dark: the generated terrain is a saturated blue; a slate veil, masked by the piece itself, tones it down */
+[data-theme="dark"] .ht-mid::after,
+[data-theme="dark"] .ht-left::after,
+[data-theme="dark"] .ht-right::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--color-ink-soft) 30%, var(--color-paper));
+  opacity: 0.3;
+  -webkit-mask: var(--ht-src) 0 100% / var(--ht-size, 100% 100%) var(--ht-rep, no-repeat);
+  mask: var(--ht-src) 0 100% / var(--ht-size, 100% 100%) var(--ht-rep, no-repeat);
+}
+[data-theme="dark"] .ht-mid {
+  --ht-src: var(--hdr-mid);
+  --ht-size: auto 100%;
+  --ht-rep: repeat-x;
+}
+[data-theme="dark"] .ht-left {
+  --ht-src: var(--hdr-left);
+}
+[data-theme="dark"] .ht-right {
+  --ht-src: var(--hdr-right);
+}
+
+/* ---- identity: the TP monogram on its own paper tile ---- */
+.header-brand {
+  gap: 12px;
+}
+.header-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--hdr-tile-px);
+  height: var(--hdr-tile-px);
+  background: var(--hdr-tile) 0 0 / 100% 100% no-repeat;
+  /* a static CSS shadow (the tile art carries none); upper-left light, so it falls down and right */
+  filter: drop-shadow(1px 2px 1.5px color-mix(in oklab, var(--shadow-ink) 28%, transparent))
+    drop-shadow(3px 6px 5px color-mix(in oklab, var(--shadow-ink) 20%, transparent));
+}
+.header-monogram {
+  width: 66%;
+  height: 66%;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+.header-name {
+  letter-spacing: 0.12em;
+}
+
+/* ---- the folded tabs ---- */
+.header-nav-link {
+  isolation: isolate;
+  height: var(--nt-h);
+  padding: 0;
+  font-size: var(--nt-font);
+  border-radius: 0;
+}
+.nt-lift {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-inline: var(--nt-pad);
   transition: transform var(--dur-l1) var(--ease-l1);
 }
-.header-nav-link:nth-child(odd)::before {
-  transform: rotate(-0.5deg);
+.nt-label {
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+  padding-bottom: 3px;
 }
-.header-nav-link:nth-child(even)::before {
-  transform: rotate(0.4deg);
+/* the paper: thickness (.nt-under), face (::before) and fold (::after), sized a little wider than the hit area */
+.nt-paper {
+  position: absolute;
+  inset: 0 -6px;
+  z-index: 0;
 }
-.header-nav-link[aria-current="page"]::before {
-  background: color-mix(in oklab, var(--color-terracotta) 12%, var(--color-ivory));
+.nt-under,
+.nt-paper::before,
+.nt-paper::after,
+.nt-shadow::before,
+.nt-shadow::after {
+  content: "";
+  position: absolute;
 }
+.nt-under {
+  inset: 0;
+  z-index: 0;
+  translate: 1px 4px;
+  background: var(--mat-tab-edge);
+  clip-path: var(--poly-tab);
+}
+.nt-paper::before {
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(158deg, var(--tab-hi) 0, transparent 46%),
+    var(--grain-a) 0 0 / 7px 7px,
+    var(--mat-tab);
+  clip-path: var(--poly-tab);
+}
+/* the fold: a darker triangular flap at the lower right, hanging past the face onto the neighbour's side */
+.nt-paper::after {
+  right: -2px;
+  bottom: -9px;
+  z-index: 2;
+  width: 22px;
+  height: 18px;
+  background: linear-gradient(150deg, var(--mat-tab-fold) 20%, var(--mat-tab-edge));
+  clip-path: polygon(0 0, 100% 0, 45% 100%);
+  box-shadow: none;
+}
+/* the contact shadow: a static blur on the parent, the lifted twin crossfades by opacity */
+.nt-shadow {
+  position: absolute;
+  inset: 0 -6px;
+  z-index: -1;
+  filter: blur(4px);
+  pointer-events: none;
+}
+.nt-shadow::before {
+  inset: 0;
+  translate: 3px 7px;
+  background: var(--tab-shadow);
+  clip-path: var(--poly-tab);
+}
+.nt-shadow::after {
+  inset: 2px -2px -2px 0;
+  translate: 5px 11px;
+  background: var(--tab-shadow);
+  clip-path: var(--poly-tab);
+  opacity: 0;
+  transition: opacity var(--dur-l1) var(--ease-l1);
+}
+/* the underline: collapsed on resting tabs, drawn on the current page (half on hover / focus) */
 .hn-strip {
   position: absolute;
-  z-index: -1;
-  left: -3px;
-  right: -3px;
-  bottom: 7px;
-  height: 7px;
+  z-index: 3;
+  left: var(--nt-pad);
+  right: calc(var(--nt-pad) + 8px);
+  bottom: 9px;
+  height: 3px;
   border-radius: 2px;
-  background: var(--color-terracotta);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
-  transform: scaleX(0) rotate(-0.8deg);
+  background: color-mix(in oklab, var(--color-rust) 80%, var(--mat-tab));
+  transform: scaleX(0);
   transform-origin: left center;
   transition: transform 200ms var(--ease-l1);
   pointer-events: none;
 }
+.header-nav-link[aria-current="page"] {
+  color: var(--color-ivory);
+}
+.header-nav-link[aria-current="page"] .nt-paper::before {
+  background:
+    linear-gradient(158deg, var(--tab-hi-on) 0, transparent 46%),
+    var(--color-navy);
+}
+.header-nav-link[aria-current="page"] .nt-paper::before,
+.header-nav-link[aria-current="page"] .nt-under,
+.header-nav-link[aria-current="page"] .nt-shadow::before {
+  clip-path: var(--poly-tab-on);
+}
+.header-nav-link[aria-current="page"] .nt-under {
+  background: var(--mat-tab-on-fold);
+}
+.header-nav-link[aria-current="page"] .nt-paper::after {
+  background: linear-gradient(150deg, var(--mat-tab-on-fold) 30%, var(--mat-tab-on-fold));
+}
 .header-nav-link[aria-current="page"] .hn-strip,
 .header-nav-link[aria-current="page"]:hover .hn-strip,
 .header-nav-link[aria-current="page"]:focus-visible .hn-strip {
-  transform: scaleX(1) rotate(-0.8deg);
+  background: var(--mat-tab-line);
+  transform: scaleX(1);
+}
+.header-nav-link[aria-current="page"] .nt-shadow::before {
+  translate: 3px 9px;
+}
+/* hover / keyboard focus (the twin): the paper rises 3 px, the lifted shadow fades in, the underline wipes to half */
+.header-nav-link:focus-visible .nt-lift {
+  transform: translateY(-3px);
+}
+.header-nav-link:focus-visible .nt-shadow::after {
+  opacity: 1;
+}
+.header-nav-link:focus-visible .hn-strip {
+  transform: scaleX(0.5);
+}
+@media (hover: hover) and (pointer: fine) {
+  .header-nav-link:hover .nt-lift {
+    transform: translateY(-3px);
+  }
+  .header-nav-link:hover .nt-shadow::after {
+    opacity: 1;
+  }
+  .header-nav-link:hover .hn-strip {
+    transform: scaleX(0.5);
+  }
+}
+/* touch / press: the paper settles 1 px below rest and the lifted shadow goes */
+.header-nav-link:active .nt-lift {
+  transform: translateY(1px);
+}
+.header-nav-link:active .nt-shadow::after {
+  opacity: 0;
 }
 
-/* Connect CTA: a navy paper layer with a lifted ivory-edge top and a contact shadow */
+/* ---- Connect CTA: a torn strip of navy paper (cream in dark) with thickness and a soft shadow ---- */
 .header-pill {
-  background: var(--color-navy);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
-    0 5px 8px -3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+  position: relative;
+  isolation: isolate;
+  min-height: 48px;
+  padding: 6px 26px 8px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--color-ivory);
+  font-size: 24px;
+}
+.header-pill::before,
+.header-pill::after,
+.hp-shadow::before,
+.hp-shadow::after {
+  content: "";
+  position: absolute;
+  clip-path: var(--poly-pill);
+}
+.header-pill::before {
+  inset: 0;
+  z-index: -1;
+  background: var(--grain-a) 0 0 / 7px 7px, var(--color-navy);
+}
+.header-pill::after {
+  inset: 0;
+  z-index: -2;
+  translate: 0.5px 3px;
+  background: var(--mat-tab-on-fold);
+}
+.hp-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  filter: blur(4px);
+  pointer-events: none;
+}
+.hp-shadow::before {
+  inset: 0;
+  translate: 3px 7px;
+  background: var(--tab-shadow);
+}
+.hp-shadow::after {
+  inset: 0;
+  translate: 4px 10px;
+  background: var(--tab-shadow);
+  opacity: 0;
+  transition: opacity var(--dur-l1) var(--ease-l1);
+}
+.header-pill:focus-visible .hp-shadow::after {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .header-pill:hover .hp-shadow::after {
+    opacity: 1;
+  }
+}
+.header-pill:active .hp-shadow::after {
+  opacity: 0;
 }
 .header-pill-arrow {
   display: inline-block;
+}
+
+/* the sparkle (Ask AI): a single small four-point glyph in the ink colour */
+.ask-glyph {
+  width: 22px;
+  height: 22px;
 }
 
 /* theme control: just the capsule switch — no paper chip behind it (Tushar, 2026-10-06; TASK-154) */
@@ -12582,20 +12842,180 @@ html[data-theme-vt]::view-transition-group(root) {
   flex: none;
 }
 
-/* the right-edge scroll fade must match the paper strip, not the page */
-@media (max-width: 1439px) {
+/* ---- the compact layout (< 1280): two rows, brand + actions over the tab strip (TASK-112) ---- */
+.site-header-row {
+  padding-block: 8px 0;
+}
+.header-tabs::after {
+  background: linear-gradient(to right, color-mix(in oklab, var(--color-paper-2) 0%, transparent), var(--color-paper-2));
+}
+.header-nav {
+  padding: 8px 12px 12px;
+  gap: 16px;
+}
+.header-nav > :first-child {
+  margin-inline-start: auto;
+}
+.header-nav > :last-child {
+  margin-inline-end: auto;
+}
+@media (min-width: 768px) {
+  :root {
+    --header-h: 130px;
+  }
+  .site-header {
+    --nt-h: 50px;
+    --nt-pad: 22px;
+    --nt-font: 17px;
+    --hdr-tile-px: 52px;
+    --ht-mid-h: 24px;
+  }
+  .header-nav {
+    padding: 8px 12px 18px;
+  }
+}
+@media (min-width: 1024px) {
+  .site-header {
+    --ht-edge-w: 140px;
+  }
+  .ht-left,
+  .ht-right {
+    display: block;
+  }
+}
+/* ---- one row (≥ 1280): the three zones, brand · tabs · utilities ---- */
+@media (min-width: 1280px) {
+  :root {
+    --header-h: 128px;
+  }
+  .site-header {
+    --nt-h: 56px;
+    --nt-pad: 19px;
+    --nt-font: 18px;
+    --hdr-tile-px: 74px;
+    --ht-edge-w: 184px;
+    --ht-mid-h: 36px;
+  }
+  .site-header-row {
+    max-width: 1600px;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: none;
+    column-gap: 20px;
+    padding-block: 14px 34px;
+    padding-inline: clamp(24px, 2.4vw, 56px);
+  }
+  .header-brand,
+  .header-actions {
+    grid-area: auto;
+  }
+  .header-brand {
+    gap: 14px;
+  }
+  .header-name {
+    font-size: 15px;
+  }
+  .header-subline {
+    font-size: 21px;
+  }
+  .header-tabs {
+    display: contents;
+  }
   .header-tabs::after {
-    background: linear-gradient(to right, color-mix(in srgb, var(--color-ivory) 0%, transparent), var(--color-ivory));
+    display: none;
+  }
+  .header-nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 0;
+    overflow: visible;
+  }
+  .header-nav > :first-child,
+  .header-nav > :last-child {
+    margin-inline: 0;
+  }
+  .header-nav-link {
+    font-size: var(--nt-font);
+  }
+  .header-actions {
+    gap: 12px;
+  }
+  .header-pill {
+    min-height: 56px;
+    padding: 6px 30px 8px;
+    font-size: 27px;
+  }
+  .theme-toggle {
+    width: 124px;
+    height: 50px;
+  }
+}
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .site-header {
+    --nt-pad: 14px;
+    --nt-font: 16px;
+    --hdr-tile-px: 62px;
+  }
+  .header-brand {
+    gap: 10px;
+  }
+  .header-name {
+    font-size: 14px;
+  }
+  .header-pill {
+    min-height: 50px;
+    padding-inline: 20px;
+    font-size: 22px;
+  }
+  .header-subline {
+    font-size: 18px;
+  }
+  .header-actions {
+    gap: 8px;
+  }
+  .theme-toggle {
+    width: 108px;
+    height: 44px;
+  }
+}
+@media (max-width: 639px) {
+  .header-pill {
+    min-height: 44px;
+    padding: 2px 12px 4px;
+    font-size: 19px;
+  }
+  .site-header {
+    --hdr-tile-px: 40px;
+  }
+  .header-actions {
+    gap: 4px;
+  }
+  .header-brand {
+    gap: 8px;
+  }
+  .header-name {
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+  }
+  .site-header-row {
+    padding-inline: 12px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header-nav-link::before,
-  .hn-strip {
+  .nt-lift,
+  .hn-strip,
+  .nt-shadow::after,
+  .hp-shadow::after {
     transition: none;
   }
+  /* no lift or press; the lifted-shadow swap and the underline remain as the non-motion feedback */
+  :root .header-nav-link:is(:hover, :focus-visible, :active) .nt-lift {
+    transform: none;
+  }
 }
-/* end M-010 T4 nav */
+/* end M-013 header */
 
 /* ==================================================================================================
    M-010 T4 (TASK-145.3) · footer ocean — three seamless wave tracks at three speeds, the paper ship
@@ -12923,9 +13343,7 @@ html[data-theme-vt]::view-transition-group(root) {
   filter: none; /* full-bleed scenes are the page's layer, not a cut-out on it */
 }
 /* header pieces sit on the same rungs */
-.header-nav-link::before,
-.header-chip::before,
-.header-monogram {
+.header-chip::before {
   box-shadow: var(--depth-1), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
 }
 /* end M-010 T4 depth */
@@ -13156,12 +13574,6 @@ html[data-theme-vt]::view-transition-group(root) {
 .acx-btn:focus-visible {
   box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
 }
-.header-pill:focus-visible {
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
-    0 8px 11px -3px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
-}
 @media (hover: hover) and (pointer: fine) {
   .hit-pill:hover {
     box-shadow: var(--shadow-paper-hover);
@@ -13169,17 +13581,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .acx-btn:hover {
     box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
   }
-  .header-pill:hover {
-    box-shadow:
-      inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
-      0 8px 11px -3px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
-  }
-}
-.header-pill:active {
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
 }
 
 /* colour feedback that rides the same states (non-motion: it stays under reduced motion) */
@@ -13292,32 +13693,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- header nav: the tab paper lifts 1 px and squares up, its shadow swaps, the terracotta strip wipes to half; the
-   label never moves (EVAL-040) ---- */
-.header-nav-link:focus-visible::before {
-  /* one `transform` (rotation + lift): lightningcss rewrites a `translate` + `transform` pair in one block and breaks the press */
-  transform: translateY(-1px) rotate(0deg);
-  box-shadow:
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
-    0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
-}
-.header-nav-link:focus-visible .hn-strip {
-  transform: scaleX(0.5) rotate(-0.8deg);
-}
-@media (hover: hover) and (pointer: fine) {
-  .header-nav-link:hover::before {
-    transform: translateY(-1px) rotate(0deg);
-    box-shadow:
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
-      0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
-  }
-  .header-nav-link:hover .hn-strip {
-    transform: scaleX(0.5) rotate(-0.8deg);
-  }
-}
-.header-nav-link:active::before {
-  transform: translateY(1px) rotate(0deg);
-}
+/* ---- header nav and the Connect pill: the folded tabs and the torn strip have their hover / focus / press rules in the M-013 header block ---- */
 
 /* ---- icons and small controls (L1): the existing travel, now with focus twins, the fine-pointer gate and a touch press ---- */
 .band-social a:focus-visible {
@@ -13527,12 +13903,6 @@ html[data-theme-vt]::view-transition-group(root) {
   :root .pf-arrow[data-dir]:is(:hover, :focus-visible, :active),
   :root .pf-arrow[data-dir]:active {
     translate: none;
-  }
-  :root .header-nav-link:nth-child(odd):is(:hover, :focus-visible, :active)::before {
-    transform: rotate(-0.5deg);
-  }
-  :root .header-nav-link:nth-child(even):is(:hover, :focus-visible, :active)::before {
-    transform: rotate(0.4deg);
   }
   :root .band-social a:is(:hover, :focus-visible, :active),
   :root .theme-toggle:is(:hover, :focus-visible, :active) {
