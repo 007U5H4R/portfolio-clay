@@ -237,8 +237,9 @@ export function NudgeButton({ runtime, store }: { runtime: LabRuntime; store: La
   const run = store((s) => s.nudgeRun);
   const ref = useRef<HTMLButtonElement>(null);
   const seen = useRef(run); // a remount (after a pause) must not replay an old recharge
-  // The recharge follows the real cooldown (simulated time, so it stays true on a slow device): one rAF loop per nudge writes the
-  // fill straight to the element (no render per frame) and stops when the cooldown is over, on unmount, or after 5 s.
+  // The recharge follows the real cooldown (simulated time, so it stays true on a slow device): a 60 ms timer writes the fill straight
+  // to the element (no render per tick) and stops when the cooldown is over, on unmount, or after 8 s. A timer, not rAF: the
+  // frame rate of a slow device must not decide whether the button ever becomes ready again.
   useEffect(() => {
     const el = ref.current;
     if (!el || run === seen.current) return;
@@ -247,19 +248,17 @@ export function NudgeButton({ runtime, store }: { runtime: LabRuntime; store: La
     el.setAttribute("aria-disabled", "true");
     el.style.setProperty("--nudge", "0");
     const t0 = performance.now();
-    let raf = 0;
-    const tick = () => {
-      if (runtime.nudge.cooling && performance.now() - t0 < 5000) {
-        el.style.setProperty("--nudge", runtime.nudge.progress.toFixed(3));
-        raf = requestAnimationFrame(tick);
-        return;
-      }
+    const done = () => {
+      window.clearInterval(timer);
       el.removeAttribute("data-cooling");
       el.removeAttribute("aria-disabled");
       el.style.removeProperty("--nudge");
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const timer = window.setInterval(() => {
+      if (runtime.nudge.cooling && performance.now() - t0 < 8000) el.style.setProperty("--nudge", runtime.nudge.progress.toFixed(3));
+      else done();
+    }, 60);
+    return () => window.clearInterval(timer);
   }, [run, runtime]);
   return (
     <button
