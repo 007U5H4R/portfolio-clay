@@ -155,6 +155,13 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
   return (
     <div className="fw-lift" data-featured-lift={project.slug}>
       <ObjectMotion />
+      {/* the resting shadow (two static blurred shapes: the old drop-shadow filter on the sheet re-rendered every frame the art moved) */}
+      <span className="fw-rest fw-rest-a" aria-hidden="true">
+        <span className="fw-shade-shape" data-featured={project.slug} />
+      </span>
+      <span className="fw-rest fw-rest-b" aria-hidden="true">
+        <span className="fw-shade-shape" data-featured={project.slug} />
+      </span>
       {/* the L2 shadow: a masked, statically blurred shape behind the sheet; only its opacity animates (EXE-61) */}
       <span className="fw-shade" aria-hidden="true">
         <span className="fw-shade-shape" data-featured={project.slug} />
@@ -191,13 +198,15 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
                 })}
               </ul>
             ) : null}
-            <ul className="fw-tags" aria-label={`${project.name} tags`}>
-              {project.tags.map((tag) => (
-                <li key={tag} className="fw-tag" data-micro-label="">
-                  {tag}
-                </li>
-              ))}
-            </ul>
+            {anchor ? (
+              <ul className="fw-tags" aria-label={`${project.name} tags`}>
+                {project.tags.map((tag) => (
+                  <li key={tag} className="fw-tag" data-micro-label="">
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <ExploreLink card={card} />
           </div>
           <FeaturedArt card={card} />

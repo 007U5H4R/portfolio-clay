@@ -13,6 +13,13 @@ const SLUGS = ["railcite", "slag-city", "campfire-board"] as const;
 const lift = (slug: string) => `.fw-lift[data-featured-lift="${slug}"]`;
 const width = (page: Page) => page.viewportSize()!.width;
 
+/** Centre a card in the viewport (Lenis may animate, so wait) and return its sheet's box. */
+async function paperBox(page: Page, slug: string) {
+  await page.locator(lift(slug)).evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await page.waitForTimeout(800);
+  return (await page.locator(`${lift(slug)} .fw-paper`).boundingBox())!;
+}
+
 async function gotoFeatured(page: Page) {
   await page.goto("/", { waitUntil: "load" });
   await page.locator(lift("railcite")).scrollIntoViewIfNeeded();
@@ -75,7 +82,7 @@ test.describe("@EVAL-043 signatures", () => {
       await page.waitForTimeout(700);
       const rest = await sig(page, slug);
 
-      const box = (await page.locator(`${lift(slug)} .fw-paper`).boundingBox())!;
+      const box = await paperBox(page, slug);
       await page.mouse.move(box.x + box.width * 0.55, box.y + box.height * 0.55, { steps: 8 });
       await page.waitForTimeout(2000);
       const hovered = await sig(page, slug);
@@ -129,7 +136,10 @@ test.describe("@EVAL-043 signatures", () => {
     await gotoFeatured(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(800);
-    const live = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running" && (a.effect as KeyframeEffect | null)?.target?.closest?.("#work-featured")).length);
+    // scroll-driven timelines (the torn-lag on the section) are scroll position, not running motion: count document-timeline animations inside the cards only
+    const live = await page.evaluate(() =>
+      document.getAnimations().filter((a) => a.playState === "running" && a.timeline instanceof DocumentTimeline && (a.effect as KeyframeEffect | null)?.target?.closest?.(".fw-lift")).length,
+    );
     expect(live).toBe(0);
   });
 });

@@ -20,6 +20,13 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(instrument);
 });
 
+/** Centre a card in the viewport (Lenis may animate, so wait) and return its sheet's box. */
+async function paperBox(page: Page, slug: string) {
+  await page.locator(lift(slug)).evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await page.waitForTimeout(800);
+  return (await page.locator(`${lift(slug)} .fw-paper`).boundingBox())!;
+}
+
 async function gotoFeatured(page: Page) {
   await page.goto("/", { waitUntil: "load" });
   await page.locator("#work-featured").scrollIntoViewIfNeeded();
@@ -63,7 +70,7 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
     await gotoFeatured(page);
     expect(await liveMotionListeners(page, "pointermove", "window")).toBe(1);
     for (const slug of SLUGS) {
-      const box = (await page.locator(`${lift(slug)} .fw-paper`).boundingBox())!;
+      const box = await paperBox(page, slug);
       for (const [sx, sy] of [[1, 1], [-1, -1], [1, -1], [-1, 1]] as const) {
         // the paper's corner (a hair inside: the torn mask) — the object's local pointer maps past ±1, clamped
         await page.mouse.move(box.x + box.width / 2 + (sx * box.width) / 2 - sx, box.y + box.height / 2 + (sy * box.height) / 2 - sy, { steps: 8 });
@@ -103,12 +110,14 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
         w.__maxActive = Math.max(w.__maxActive, document.querySelectorAll("[data-pm-active]").length);
       }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["data-pm-active"] });
     });
+    await page.locator("#work-featured .fw-grid").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(800);
     const a = (await page.locator(`${lift("railcite")} .fw-paper`).boundingBox())!;
     const b = (await page.locator(`${lift("slag-city")} .fw-paper`).boundingBox())!;
     await page.mouse.move(a.x + a.width * 0.7, a.y + a.height * 0.5, { steps: 6 });
     await page.mouse.move(b.x + b.width * 0.7, b.y + b.height * 0.5, { steps: 6 }); // straight from one card to the next
     await page.mouse.move(2, 2, { steps: 6 });
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(2500);
     const r = await page.evaluate(() => {
       const w = window as unknown as { __maxActive: number };
       return { maxActive: w.__maxActive, active: document.querySelectorAll("[data-pm-active]").length, owners: [...document.querySelectorAll("[data-pm-obj]")].filter((e) => (e as HTMLElement).style.getPropertyValue("--hx") !== "0" && (e as HTMLElement).style.getPropertyValue("--hx") !== "").length };
@@ -132,7 +141,7 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
       }, lift(slug));
     for (const slug of SLUGS) {
       const rest = await rel(slug);
-      const box = (await page.locator(`${lift(slug)} .fw-paper`).boundingBox())!;
+      const box = await paperBox(page, slug);
       await page.mouse.move(box.x + box.width - 3, box.y + box.height - 3, { steps: 8 });
       await layerOffsets(page, slug);
       const moved = await rel(slug);
@@ -145,7 +154,7 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
   test("no seam at ±max: every layer's image still covers its card's sheet", async ({ page }) => {
     await gotoFeatured(page);
     for (const slug of SLUGS) {
-      const paper = (await page.locator(`${lift(slug)} .fw-paper`).boundingBox())!;
+      const paper = await paperBox(page, slug);
       for (const [sx, sy] of [[1, 1], [-1, -1], [1, -1], [-1, 1]] as const) {
         await page.mouse.move(paper.x + paper.width / 2 + (sx * paper.width) / 2 - sx, paper.y + paper.height / 2 + (sy * paper.height) / 2 - sy, { steps: 8 });
         await layerOffsets(page, slug);
@@ -173,7 +182,7 @@ test.describe("@EVAL-041 object motion (fine pointer)", () => {
     const raf = (since: number) =>
       page.evaluate(([t, cs]) => (window as unknown as { __pw: PwRecord }).__pw.raf.filter((r) => r.t > (t as number) && (cs as string[]).some((c) => r.stack.includes(c))).length, [since, chunks] as const);
     const now = () => page.evaluate(() => performance.now());
-    const box = (await page.locator(`${lift("railcite")} .fw-paper`).boundingBox())!;
+    const box = await paperBox(page, "railcite");
     const t0 = await now();
     await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.5, { steps: 8 });
     expect(await raf(t0), "the loop runs while an object is followed").toBeGreaterThan(0);
@@ -212,7 +221,7 @@ test.describe("@EVAL-041 reduced motion", () => {
     test.skip(width(page) !== 1440, "pointer object motion is measured at w1440");
     await gotoFeatured(page);
     expect(await liveMotionListeners(page, "pointermove", "window")).toBe(0);
-    const box = (await page.locator(`${lift("railcite")} .fw-paper`).boundingBox())!;
+    const box = await paperBox(page, "railcite");
     await page.mouse.move(box.x + box.width - 3, box.y + box.height - 3, { steps: 8 });
     await page.waitForTimeout(600);
     const r = await page.evaluate((sel) => ({

@@ -2135,7 +2135,7 @@ html.lenis body {
     background: none;
     border-radius: 0;
     box-shadow: none;
-    filter: var(--fw-shadow);
+    /* the resting shadow is two static sibling shapes (`.fw-rest`, TASK-186 block): a filter here would re-render on every frame the art moves */
   }
   .fw-card > .paper-fastener {
     z-index: 3;
@@ -13569,6 +13569,28 @@ html[data-theme-vt]::view-transition-group(root) {
   filter: blur(14px);
   transition: opacity var(--dur-l2-out) var(--ease-paper);
 }
+.fw-rest {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.fw-rest-a {
+  opacity: 0.14;
+  translate: 0 8px;
+  filter: blur(8px);
+}
+.fw-rest-b {
+  opacity: 0.12;
+  translate: 0 1px;
+  filter: blur(0.75px);
+}
+.fw-rest-a .fw-shade-shape {
+  background: var(--color-terracotta);
+}
+.fw-rest-b .fw-shade-shape {
+  background: var(--color-navy);
+}
 .fw-shade-shape {
   position: absolute;
   inset: 0;
@@ -13906,9 +13928,10 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .fw-bridge-q {
   max-width: 34ch;
-  font-family: var(--font-hand);
-  font-size: clamp(22px, 2.1vw, 30px);
-  line-height: 1.2;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(20px, 1.8vw, 26px);
+  line-height: 1.25;
   color: var(--color-navy-2);
 }
 .fw-bridge-q span {
@@ -14222,6 +14245,7 @@ html[data-theme-vt]::view-transition-group(root) {
   :root .hit-slip,
   :root .hit-card:is(:hover, :has(:focus-visible)) .hit-slip {
     translate: none;
+    rotate: var(--slip-rot);
     transition: none;
   }
   :root .hit-paper-deep,
