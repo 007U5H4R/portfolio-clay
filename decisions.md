@@ -815,3 +815,6 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 - **Flaky on main and release alike:** EVAL-039 `/` smoothness. An A/B on the same machine passed the release 3/3 and main at least 2/3 (TASK-191).
 
 **Rejected.** Holding the release for flakes that main shares.
+
+## EXE-70 · TASK-181.3 the hero polaroid reaction (PLAN §4.5) is dropped — decided (Tushar 2026-10-09: dropped)
+The "View my work" hover/focus reaction on the three polaroids sat out of view at desktop sizes (banner scrolled away by the time the CTA is reachable). The Ask Tushky sticker, Contact stamp and Tushky reactions stay.
