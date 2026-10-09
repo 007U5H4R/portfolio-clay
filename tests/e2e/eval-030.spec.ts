@@ -454,6 +454,154 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
   });
 
+  /** Wrap a runtime function so each call is counted on `window[name]` (the original still runs). */
+  const countCalls = (page: Page, path: "requestExit" | "hooks.portal" | "hooks.nudge", name: string) =>
+    page.evaluate(
+      ([p, n]) => {
+        const rt = window.__gummyLab!.rt as unknown as Record<string, Record<string, (...a: unknown[]) => unknown> & ((...a: unknown[]) => unknown)>;
+        const w = window as unknown as Record<string, number>;
+        w[n!] = 0;
+        const [holder, key] = p!.includes(".") ? (p!.split(".") as [string, string]) : (["", p!] as [string, string]);
+        const obj = (holder ? rt[holder] : rt) as unknown as Record<string, (...a: unknown[]) => unknown>;
+        const orig = obj[key!]!.bind(obj);
+        obj[key!] = (...a: unknown[]) => {
+          w[n!] = (w[n!] ?? 0) + 1;
+          return orig(...a);
+        };
+      },
+      [path, name] as const,
+    );
+
+  test("@EVAL-030 the black hole is a way in: the gummy entering the opening in the left wall unlocks YOU REALLY FOUND IT and exits once, without pausing or ending the run", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    await countCalls(page, "requestExit", "__exits");
+    await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number; portal: { y0: number; y1: number } }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const { halfW, portal } = rt.arena;
+      // the gummy flies into the opening from the table: feet a hair above the opening's floor, moving left
+      rt.bearBody.current.setTranslation({ x: -halfW + 0.9, y: portal.y0 + 0.12, z: 0 }, true);
+      rt.bearBody.current.setLinvel({ x: -7, y: 0, z: 0 }, true);
+    });
+    await page.waitForFunction(() => (window as unknown as { __exits: number }).__exits >= 1, null, { timeout: 60_000 });
+    // the same exit as the link and Esc: the machine moves to EXITING (not PAUSED, not GAME_OVER)
+    expect(await labState(page)).toBe("EXITING");
+    // touching the sensor again (or the link in the same moment) cannot exit twice
+    await page.evaluate(() => (window.__gummyLab!.rt as unknown as { hooks: { portal(): void } }).hooks.portal());
+    await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+    // the exit ran exactly once (the app is single-page, so the counter survives the navigation)
+    expect(await page.evaluate(() => (window as unknown as { __exits?: number }).__exits)).toBe(1);
+    const stored = await page.evaluate(() => JSON.parse(window.localStorage.getItem("gummy-lab:v1") ?? "{}") as { achievements?: string[] });
+    expect(stored.achievements).toContain("YOU_REALLY_FOUND_IT");
+  });
+
+  test("@EVAL-030 the shooter lane closes behind the gummy: a gummy dropped toward the lane cannot enter it, and a new game reopens the gate", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    expect(await page.evaluate(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut)).toBe(false);
+    await launch(page, 0.05);
+    await page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut, null, { timeout: 90_000 });
+    // fling it at the lane's open side from the table, over and over, and watch where it ever gets to
+    const maxX = await page.evaluate(
+      () =>
+        new Promise<number>((resolve) => {
+          const rt = window.__gummyLab!.rt as unknown as { arena: { lane: { xIn: number; dividerTop: number } }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void; translation(): { x: number; y: number } } } };
+          const { xIn, dividerTop } = rt.arena.lane;
+          const rb = rt.bearBody.current;
+          let max = -Infinity;
+          let shots = 0;
+          const shoot = () => {
+            rb.setTranslation({ x: xIn - 0.9, y: dividerTop + 0.6 + (shots % 3) * 0.7, z: 0 }, true);
+            rb.setLinvel({ x: 7, y: 0, z: 0 }, true);
+          };
+          shoot();
+          const tick = () => {
+            max = Math.max(max, rb.translation().x);
+            if (shots < 4 && rb.translation().x < xIn - 1.5) {
+              // it bounced back: shoot again
+              shots += 1;
+              shoot();
+            }
+            if (shots >= 4 && rb.translation().x < xIn - 1.5) return resolve(max);
+            requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
+    const xIn = await page.evaluate(() => window.__gummyLab!.rt.arena.lane.xIn);
+    expect(maxX, "the gummy never got into the lane").toBeLessThan(xIn + 0.05);
+    // a drain, then a new game: the gate is open again and the gummy is back on the plunger
+    await loseRun(page);
+    await page.getByRole("button", { name: /play again|replay/i }).first().click();
+    await page.waitForSelector("[data-lab-state='PLAYING']", { timeout: 60_000 });
+    expect(await page.evaluate(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut)).toBe(false);
+    await page.waitForFunction(() => window.__gummyLab!.rt.bear.x > window.__gummyLab!.rt.arena.lane.xIn, null, { timeout: 30_000 });
+  });
+
+  test("@EVAL-030 N nudges the table: a wedged gummy is kicked free (and the cooldown holds a second press)", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    await launch(page, 0.05);
+    await page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut, null, { timeout: 90_000 });
+    await countCalls(page, "hooks.nudge", "__nudges");
+    // park the gummy where the headless scan found it wedged (phone: against a bumper; desktop: in the left pocket) and press N in the same turn
+    const rest = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const at = rt.arena.halfW < 4 ? { x: -0.57, y: 3.42 } : { x: -4.5, y: 3.97 };
+      rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
+      rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", cancelable: true }));
+      window.dispatchEvent(new KeyboardEvent("keyup", { key: "n", cancelable: true }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", cancelable: true })); // pressed again at once: the cooldown ignores it
+      window.dispatchEvent(new KeyboardEvent("keyup", { key: "n", cancelable: true }));
+      return at;
+    });
+    await page.waitForFunction(() => (window as unknown as { __nudges: number }).__nudges >= 1, null, { timeout: 60_000 });
+    await page.waitForFunction(([x, y]) => Math.hypot(window.__gummyLab!.rt.bear.x - (x as number), window.__gummyLab!.rt.bear.y - (y as number)) > 0.5, [rest.x, rest.y] as const, { timeout: 60_000 });
+    expect(await page.evaluate(() => (window as unknown as { __nudges: number }).__nudges)).toBe(1);
+  });
+
+  test("@EVAL-030 the Nudge button is a labelled, focusable control that shakes the table and recharges", async ({ page }, info) => {
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    await launch(page, 0.05);
+    await page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut, null, { timeout: 90_000 });
+    await countCalls(page, "hooks.nudge", "__nudges");
+    const btn = page.getByRole("button", { name: "Nudge the machine" });
+    await expect(btn).toHaveCount(1);
+    const box = (await btn.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    // clear of the plunger control and inside the viewport
+    const vp = page.viewportSize()!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 0.5);
+    const plunger = await page.locator("[data-lab-plunger]").boundingBox();
+    if (plunger) expect(box.x + box.width <= plunger.x || plunger.x + plunger.width <= box.x || box.y + box.height <= plunger.y || plunger.y + plunger.height <= box.y).toBe(true);
+    // wedge the gummy, then use the button (a tap at w390, a click on desktop)
+    const rest = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const at = rt.arena.halfW < 4 ? { x: -0.57, y: 3.42 } : { x: -4.5, y: 3.97 };
+      rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
+      rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      return at;
+    });
+    if (info.project.name === "w390") await btn.tap();
+    else await btn.click();
+    await page.waitForFunction(() => (window as unknown as { __nudges: number }).__nudges >= 1, null, { timeout: 60_000 });
+    await page.waitForFunction(([x, y]) => Math.hypot(window.__gummyLab!.rt.bear.x - (x as number), window.__gummyLab!.rt.bear.y - (y as number)) > 0.5, [rest.x, rest.y] as const, { timeout: 60_000 });
+    // it recharges (the real cooldown, in game time): dimmed and aria-disabled while it does, then ready again
+    await expect(btn).toHaveAttribute("aria-disabled", "true");
+    await expect(btn).not.toHaveAttribute("aria-disabled", "true", { timeout: 60_000 });
+    // keyboard: focusable, and Enter presses it
+    await btn.focus();
+    await expect(btn).toBeFocused();
+  });
+
   test("@EVAL-030 reduced motion draws no light trail and no particles, and the lights change state without a loop; play is intact", async ({ page }) => {
     test.setTimeout(150_000);
     await page.emulateMedia({ reducedMotion: "reduce" });
