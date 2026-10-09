@@ -11,10 +11,11 @@ import type { LabRuntime } from "@/components/lab/runtime";
 import { buildArena } from "@/lib/lab/arena";
 import { FLIP_COOLDOWN_S, FLIP_REST, flipperDir, flipperNormal, newFlipperState, stepFlipper } from "@/lib/lab/flippers";
 import { MAX_CHARGE_MS, MAX_FORCE, MIN_FORCE, Plunger } from "@/lib/lab/plunger";
+import { NUDGE_COOLDOWN_S, NUDGE_UP, NudgeState } from "@/lib/lab/nudge";
 
 function makeRt() {
   const arena = buildArena(5);
-  const hooks = { flip: vi.fn(), squish: vi.fn(), poke: vi.fn(), launch: vi.fn() };
+  const hooks = { flip: vi.fn(), squish: vi.fn(), poke: vi.fn(), launch: vi.fn(), nudge: vi.fn() };
   const rt = {
     arena,
     plunger: new Plunger(),
@@ -22,6 +23,9 @@ function makeRt() {
     syncInput: () => {},
     sinceLaunch: Infinity,
     launched: false,
+    laneGateShut: false,
+    nudge: new NudgeState(),
+    nudgeRequested: false,
     flippers: arena.flippers.map((layout) => ({ layout, state: newFlipperState(), pressed: false, cooldown: 0, body: { current: null } })),
     bear: { x: 0, y: 0, sinceBounce: 9 },
     env: { windX: 0 },
@@ -44,6 +48,10 @@ function fakeBody(x = 0, y = 0, vx = 0, vy = 0) {
       setLinvel: (v: { x: number; y: number }) => {
         body.vx = v.x;
         body.vy = v.y;
+      },
+      setTranslation: (p: { x: number; y: number }) => {
+        body.x = p.x;
+        body.y = p.y;
       },
       mass: () => 2,
       applyImpulse: (i: { x: number; y: number }) => {
@@ -332,5 +340,81 @@ describe("GummyController.update (fixed step)", () => {
     for (let i = 0; i < 200; i += 1) c.update(PHYSICS_DT, cradled.rb);
     expect(cradled.body.vx).toBe(0);
     expect(cradled.body.vy).toBe(0);
+  });
+});
+
+describe("the manual nudge (N)", () => {
+  it("N asks for a nudge; the kick lands on the next physics step; Shift is left alone", () => {
+    key("keydown", "n");
+    expect(rt.nudgeRequested).toBe(true);
+    const { body, rb } = fakeBody(0, 3);
+    c.update(PHYSICS_DT, rb);
+    expect(rt.nudgeRequested).toBe(false);
+    expect(body.vy).toBeCloseTo(NUDGE_UP, 6); // from rest: straight to the upward kick
+    expect(Math.abs(body.vx)).toBeGreaterThan(0.5); // a random sideways lean
+    expect(body.y).toBeGreaterThan(3); // and the body is moved a hair, so a wedge cannot undo the velocity
+    expect(hooks.nudge).toHaveBeenCalledTimes(1);
+    key("keyup", "n");
+    key("keydown", "Shift");
+    expect(rt.nudgeRequested).toBe(false); // Shift+Tab walks focus back; it must not shake the table
+  });
+
+  it("is on a cooldown of about 1.5 s: a second press 1 s later does nothing, one after the recharge works", () => {
+    const { body, rb } = fakeBody(0, 3);
+    rt.nudgeRequested = true;
+    c.update(PHYSICS_DT, rb);
+    expect(hooks.nudge).toHaveBeenCalledTimes(1);
+    body.vy = 0;
+    for (let i = 0; i < 60; i += 1) c.update(PHYSICS_DT, rb);
+    rt.nudgeRequested = true;
+    body.vy = 0;
+    c.update(PHYSICS_DT, rb);
+    expect(hooks.nudge).toHaveBeenCalledTimes(1);
+    expect(body.vy).toBe(0);
+    for (let i = 0; i < Math.ceil((NUDGE_COOLDOWN_S - 1) * 60) + 2; i += 1) c.update(PHYSICS_DT, rb);
+    rt.nudgeRequested = true;
+    c.update(PHYSICS_DT, rb);
+    expect(hooks.nudge).toHaveBeenCalledTimes(2);
+  });
+
+  it("does nothing while the game is not live, and never shakes the gummy waiting on the plunger", () => {
+    live = false;
+    key("keydown", "n");
+    expect(rt.nudgeRequested).toBe(false);
+    live = true;
+    const onPlunger = fakeBody(rt.arena.lane.x, rt.arena.lane.restY + 0.02);
+    rt.nudgeRequested = true;
+    c.update(PHYSICS_DT, onPlunger.rb);
+    expect(hooks.nudge).not.toHaveBeenCalled();
+    expect(onPlunger.body.vy).toBe(0);
+  });
+
+  it("prevents the default of N only while the game is live", () => {
+    const live1 = new KeyboardEvent("keydown", { key: "n", cancelable: true });
+    window.dispatchEvent(live1);
+    expect(live1.defaultPrevented).toBe(true);
+    live = false;
+    const dead = new KeyboardEvent("keydown", { key: "n", cancelable: true });
+    window.dispatchEvent(dead);
+    expect(dead.defaultPrevented).toBe(false);
+  });
+});
+
+describe("the lane gate latch", () => {
+  it("shuts once a launched gummy is out in the field, and not before", () => {
+    const { rb, body } = fakeBody(rt.arena.lane.x, 3);
+    rt.launched = true;
+    c.update(PHYSICS_DT, rb);
+    expect(rt.laneGateShut).toBe(false); // still in the lane
+    body.x = rt.arena.lane.xIn - 1;
+    body.y = rt.arena.lane.dividerTop + 1;
+    c.update(PHYSICS_DT, rb);
+    expect(rt.laneGateShut).toBe(true);
+  });
+  it("stays open for a gummy that has not launched", () => {
+    const { rb } = fakeBody(0, 5);
+    rt.launched = false;
+    c.update(PHYSICS_DT, rb);
+    expect(rt.laneGateShut).toBe(false);
   });
 });

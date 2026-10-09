@@ -8,9 +8,10 @@ describe("controls copy", () => {
     expect(HOW_TO_PLAY.every((h) => h.icon)).toBe(true);
   });
   it("has the flipper keyboard label, the live-region hint and the accessible names", () => {
-    expect(KEYBOARD_LABEL.rows).toEqual(["← → flip · Space launch · P pause · Esc exit"]);
+    expect(KEYBOARD_LABEL.rows).toEqual(["← → flip · Space launch · N nudge · P pause · Esc exit"]);
     expect(CONTROL_LABELS.flipLive).toBe("Left and right flip");
     expect(CONTROL_LABELS.pause).toBe("Pause");
+    expect(CONTROL_LABELS.nudge).toBe("Nudge the machine");
     expect(CONTROL_LABELS.soundOff).toMatch(/sound is off/i);
     expect(CONTROL_LABELS.plunger).toMatch(/hold to charge, release to launch/i);
     expect(CONTROL_LABELS.back).toBe("Back to Portfolio");

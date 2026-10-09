@@ -16,13 +16,14 @@ import {
   Vector3,
 } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import type { BumperSpec, GuideSpec, PadSpec, PlatformSpec, RailSpec, SlingSpec, TargetSpec } from "@/lib/lab/arena";
+import { portalSensor, wallBoxes, type BumperSpec, type GuideSpec, type PadSpec, type PlatformSpec, type RailSpec, type SlingSpec, type TargetSpec } from "@/lib/lab/arena";
 import { FLIPPER_THICK, FLIP_REST, FLIP_UP, flipperRotation, stepFlipper } from "@/lib/lab/flippers";
 import { mix, type RGB } from "@/lib/lab/tokens";
 import { BlackHole } from "./BlackHole";
 import { BOARD_Z, Machine } from "./Machine";
 import { col, createTintedPaper, tileUV } from "./materials";
 import { creamRGB, cssColor, disposeAll, flipperShape, glowMaterial, glowTexture, neonColors, shadowMaterial, shadowTextures, sheet, siteFont, starShape, textTexture } from "./paper-kit";
+import { TARGET_MIN_HIT } from "./hit-rules";
 import { PHYSICS_DT } from "./physics-step";
 import { useRuntime } from "./runtime";
 
@@ -101,6 +102,7 @@ export function Arena() {
         <Target key={t.id} spec={t} />
       ))}
       <Plunger />
+      <LaneGate />
       <BlackHole />
     </group>
     </ShadowCtx.Provider>
@@ -112,22 +114,92 @@ export function Arena() {
 function Walls() {
   const rt = useRuntime();
   const { arena } = rt;
-  const lane = arena.lane;
-  const hw = arena.halfW;
-  const divH = (lane.dividerTop + 8) / 2;
-  const ceilW = (lane.xOut + hw) / 2 + 1;
+  const sensor = portalSensor(arena);
   return (
-    <RigidBody type="fixed" colliders={false}>
-      <CuboidCollider args={[0.5, 20, 1.5]} position={[-hw - 0.5, 0, 0]} restitution={0.55} friction={0.1} />
-      {/* the divider between the table and the lane */}
-      <CuboidCollider args={[(lane.xIn - hw) / 2, divH, 1.5]} position={[(lane.xIn + hw) / 2, lane.dividerTop - divH, 0]} restitution={0.3} friction={0.05} />
-      <CuboidCollider args={[0.5, 20, 1.5]} position={[lane.xOut + 0.5, 0, 0]} restitution={0.4} friction={0.05} />
-      <CuboidCollider args={[ceilW, 0.5, 1.5]} position={[(lane.xOut - hw) / 2, arena.ceilingY + 0.5, 0]} restitution={0.5} friction={0.2} />
-      {/* No floor under the table: the gap between the flippers is the drain. This only catches a gummy that fell through. */}
-      <CuboidCollider args={[hw + 3, 0.5, 1.5]} position={[0, arena.floorY - 12, 0]} restitution={0.05} friction={0.9} />
-      {/* The lane has a solid floor well below the plunger's lowest point. */}
-      <CuboidCollider args={[(lane.xOut - lane.xIn) / 2, 0.3, 1.5]} position={[lane.x, lane.restY - lane.travel - 0.55, 0]} restitution={0.05} friction={0.4} />
-    </RigidBody>
+    <>
+      <RigidBody type="fixed" colliders={false}>
+        {wallBoxes(arena).map((w) => (
+          <CuboidCollider key={w.id} args={[w.hx, w.hy, 1.5]} position={[w.cx, w.cy, 0]} restitution={w.restitution} friction={w.friction} />
+        ))}
+      </RigidBody>
+      {/* the black hole's mouth: touching it sends the gummy back to the portfolio (a sensor, so it never pushes) */}
+      <RigidBody type="fixed" colliders={false}>
+        <CuboidCollider
+          args={[sensor.hx, sensor.hy, 1.5]}
+          position={[sensor.cx, sensor.cy, 0]}
+          sensor
+          onIntersectionEnter={(p) => {
+            if (p.other.rigidBodyObject?.name === "gummy") rt.hooks.portal();
+          }}
+        />
+      </RigidBody>
+    </>
+  );
+}
+
+/* ---- the lane's one-way gate -------------------------------------------------------------------------------------------------- */
+
+/** Seconds the gate takes to drop shut. */
+const GATE_SHUT_S = 0.16;
+
+/**
+ * The one-way gate on the shooter lane's open side (TASK-185 follow-up): a paper panel that rolls up into the arch while the lane
+ * is live (collider off, so any launch passes) and drops down in ~160 ms (a snap under reduced motion) once the launched gummy
+ * is clear of the lane (`rt.laneGateShut`, latched by the controller), turning its collider on: the gummy can never drop back
+ * into the lane. A new serve reopens it.
+ */
+function LaneGate() {
+  const rt = useRuntime();
+  const { gate } = rt.arena;
+  const rb = useRef<RapierRigidBody>(null);
+  const flap = useRef<Group>(null);
+  const swing = useRef(0);
+  const len = gate.y2 - gate.y1;
+  const enabled = useRef<boolean | null>(null);
+  const kit = useOwned(() => {
+    const tok = rt.palette.tok;
+    const g = new RoundedBoxGeometry(gate.thick * 2.2, len, 0.9, 3, 0.05);
+    tileUV(g, gate.thick, len);
+    const strip = new RoundedBoxGeometry(gate.thick * 0.8, len * 0.9, 0.05, 1, 0.02);
+    return {
+      g,
+      strip,
+      m: createTintedPaper(tint(tok.terracotta, tok.rust, 0.4), { lift: 0.06 }),
+      stripMat: new MeshBasicMaterial({ color: col(tint(tok.ivory, tok.kraft, 0.4)) }),
+    };
+  });
+  useBeforePhysicsStep(() => {
+    const on = rt.laneGateShut;
+    if (enabled.current !== on) {
+      enabled.current = on;
+      rb.current?.setEnabled(on);
+    }
+  });
+  useFrame((_, rawDt) => {
+    const dt = Math.min(rawDt, 1 / 30);
+    const target = rt.laneGateShut ? 1 : 0;
+    // 0 = rolled up, 1 = shut. Shutting takes GATE_SHUT_S; reduced motion snaps. Reopening (a new serve) is instant.
+    if (rt.reducedMotion || target === 0) swing.current = target;
+    else swing.current = Math.min(1, swing.current + dt / GATE_SHUT_S);
+    const ease = 1 - Math.pow(1 - swing.current, 3);
+    if (flap.current) {
+      flap.current.scale.y = Math.max(0.02, ease);
+      flap.current.visible = swing.current > 0;
+    }
+  });
+  return (
+    <>
+      <RigidBody ref={rb} type="fixed" colliders={false} position={[gate.x1, (gate.y1 + gate.y2) / 2, 0]}>
+        <CuboidCollider args={[gate.thick / 2, len / 2, DEPTH / 2 + 0.2]} restitution={0.35} friction={0.05} />
+      </RigidBody>
+      {/* hinged at the top (under the arch), hanging down */}
+      <group position={[gate.x1, gate.y2, 0.05]}>
+        <group ref={flap} visible={false}>
+          <mesh geometry={kit.g} material={kit.m} position={[0, -len / 2, 0]} />
+          <mesh geometry={kit.strip} material={kit.stripMat} position={[0, -len / 2, 0.47]} />
+        </group>
+      </group>
+    </>
   );
 }
 
@@ -554,6 +626,9 @@ function Target({ spec }: { spec: TargetSpec }) {
     if (!isBear(p) || cooldown.current > 0) return;
     const body = rt.bearBody.current;
     if (!body) return;
+    // A gummy resting or rolling on the plate is not a hit: without this a gummy in a pocket above a plate was kicked up again
+    // every half second for ever (TASK-185 flow check).
+    if (Math.hypot(rt.bear.vx, rt.bear.vy) < TARGET_MIN_HIT) return;
     cooldown.current = 0.5;
     hit.current = 1;
     done.current = true;

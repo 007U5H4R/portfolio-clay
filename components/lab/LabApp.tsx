@@ -138,6 +138,9 @@ export default function LabApp() {
       runtime.plunger.cancel();
       runtime.touchPlunger = false;
       runtime.launched = false;
+      runtime.laneGateShut = false;
+      runtime.nudge.reset();
+      runtime.nudgeRequested = false;
       runtime.sinceLaunch = Infinity;
       runtime.trail.clear();
       runtime.particles.clear();
@@ -221,7 +224,7 @@ export default function LabApp() {
         {runtime && onMachine ? <BackPortal runtime={runtime} onExit={() => exit("portal")} /> : null}
         {runtime && onMachine ? <LaunchControl runtime={runtime} store={store} /> : null}
         <div className={styles.opening} data-lab-opening="">
-          {running ? <Hud store={store} onPause={togglePause} /> : null}
+          {running ? <Hud store={store} onPause={togglePause} runtime={runtime ?? undefined} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />
           <TpEmblem store={store} />

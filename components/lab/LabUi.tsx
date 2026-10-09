@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { Pause, Play, Smartphone, Volume2, VolumeX } from "lucide-react";
 import type { LabStoreApi } from "@/lib/lab/store";
 import { CONTROL_LABELS, START_PLAQUE } from "./controls-copy";
 import type { LabRuntime } from "./runtime";
@@ -227,7 +227,58 @@ function Plate({ className, label, children }: { className: string | undefined; 
   );
 }
 
-export function Hud({ store, onPause }: { store: LabStoreApi; onPause: () => void }) {
+/**
+ * The Nudge button (TASK-185): shakes the table and kicks a stuck gummy free (the same press as N). A paper round button
+ * beside the pause button under the time plate (48 px, clear of the black hole, the flipper halves and the plunger). It recharges
+ * for 1.5 s after each nudge: the dim disc drains as it does (a plain dim under reduced motion), and `aria-disabled` says it for
+ * assistive tech while the button stays focusable.
+ */
+export function NudgeButton({ runtime, store }: { runtime: LabRuntime; store: LabStoreApi }) {
+  const run = store((s) => s.nudgeRun);
+  const ref = useRef<HTMLButtonElement>(null);
+  const seen = useRef(run); // a remount (after a pause) must not replay an old recharge
+  // The recharge follows the real cooldown (simulated time, so it stays true on a slow device): a 60 ms timer writes the fill straight
+  // to the element (no render per tick) and stops when the cooldown is over, on unmount, or after 30 s. A timer, not rAF: the
+  // frame rate of a slow device must not decide whether the button ever becomes ready again.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || run === seen.current) return;
+    seen.current = run;
+    el.setAttribute("data-cooling", "");
+    el.setAttribute("aria-disabled", "true");
+    el.style.setProperty("--nudge", "0");
+    const t0 = performance.now();
+    const done = () => {
+      window.clearInterval(timer);
+      el.removeAttribute("data-cooling");
+      el.removeAttribute("aria-disabled");
+      el.style.removeProperty("--nudge");
+    };
+    const timer = window.setInterval(() => {
+      if (runtime.nudge.cooling && performance.now() - t0 < 30000) el.style.setProperty("--nudge", runtime.nudge.progress.toFixed(3));
+      else done();
+    }, 60);
+    return () => window.clearInterval(timer);
+  }, [run, runtime]);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className={`${styles.round} ${styles.nudge}`}
+      data-lab-nudge=""
+      aria-label={CONTROL_LABELS.nudge}
+      onClick={(e) => {
+        if (store.getState().machine.running) runtime.nudgeRequested = true;
+        e.currentTarget.blur();
+      }}
+    >
+      <Smartphone size={20} aria-hidden="true" />
+      <span className={styles.nudgeLabel} aria-hidden="true" data-hand="cta">Nudge</span>
+    </button>
+  );
+}
+
+export function Hud({ store, onPause, runtime }: { store: LabStoreApi; onPause: () => void; runtime?: LabRuntime | undefined }) {
   const score = store((s) => s.score);
   const combo = store((s) => s.combo);
   const timeS = store((s) => s.timeS);
@@ -250,6 +301,7 @@ export function Hud({ store, onPause }: { store: LabStoreApi; onPause: () => voi
           <span className={styles.hudLabel}>Time</span>
           <span className={styles.hudValue} data-lab-time="">{fmtTime(timeS)}</span>
         </div>
+        {runtime && (state === "PLAYING" || state === "DANGER") ? <NudgeButton runtime={runtime} store={store} /> : null}
         {state === "PLAYING" || state === "DANGER" || state === "PAUSED" ? (
           <button type="button" className={`${styles.round} ${styles.pause}`} data-lab-pause="" aria-label={state === "PAUSED" ? CONTROL_LABELS.resume : CONTROL_LABELS.pause} onClick={(e) => {
             onPause();

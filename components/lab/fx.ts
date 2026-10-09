@@ -48,5 +48,11 @@ export function createFxHooks(rt: LabRuntime): LabHooks {
       burst(x - nx * 0.4, y - ny * 0.4, "sparkle", 5, 0);
     },
     poke() {},
+    // The cabinet is shoved: a short shake (the camera ignores it under reduced motion), a few sparks, and a buzz where supported (iOS ignores it).
+    nudge() {
+      rt.shake = Math.max(rt.shake, 0.55);
+      burst(rt.bear.x, rt.bear.y + 0.3, "sparkle", 4, 0);
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") navigator.vibrate(40);
+    },
   };
 }

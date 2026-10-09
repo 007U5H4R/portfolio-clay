@@ -50,7 +50,7 @@ describe("StallWatch (TASK-184)", () => {
     run(w, 1, (t) => ({ x: 0.2 + t * 3, y: 1 })); // moves well beyond the radius
     const again = run(w, STALL_AFTER_S + 0.2, () => ({ x: 3.5, y: 1 }));
     expect(again.length).toBe(1);
-    expect(Math.hypot(again[0]!.x, again[0]!.y)).toBeLessThan(5);
+    expect(Math.hypot(again[0]!.x, again[0]!.y)).toBeLessThan(8); // back to a first-try strength (not the escalated 16)
     expect(STALL_RADIUS).toBeGreaterThan(0.1);
   });
 });
