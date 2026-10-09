@@ -218,7 +218,7 @@ test.describe("@EVAL-040 stylesheet contract", () => {
     await page.goto("/", { waitUntil: "networkidle" });
     const result = await page.evaluate(() => {
       const SCOPE =
-        /\.(header-nav-link|hn-strip|header-pill|header-ask|theme-toggle|tt-window|hero-btn|cx-btn|fw-cta|hit-pill|acx-btn|pf-action|pf-play|pf-arrow|band-social|band-email|btn-arrow)\b/;
+        /\.(header-nav-link|hn-strip|header-pill|header-ask|theme-toggle|tt-window|hero-btn|ask-btn|think-btn|cx-btn|fw-cta|hit-pill|acx-btn|pf-action|pf-play|pf-arrow|band-social|band-email|btn-arrow)\b/;
       // Static current-page states keep a :hover variant only to out-rank the base hover rule (specificity), and the legacy
       // InkUnderline is dead code (PrimaryNav no longer renders it): both are exempt from the gate/twin walk.
       const EXEMPT = /\[aria-current|ink-underline/;

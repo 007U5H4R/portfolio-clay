@@ -1836,17 +1836,11 @@ html.lenis body {
     border: 1.5px solid var(--line);
     background: var(--color-ivory);
   }
-  .ask-btn-secondary:hover {
-    border-color: var(--color-navy-2);
-  }
   .ask-btn-ghost {
     border: 1.5px solid transparent;
     background: transparent;
     text-decoration: underline;
     text-underline-offset: 4px;
-  }
-  .ask-btn-ghost:hover {
-    border-color: var(--line);
   }
 
   /* AskPanel body rules moved to the TKT-104 block (end of file). */
@@ -3959,9 +3953,6 @@ html.lenis body {
   line-height: 1;
   cursor: pointer;
   transition: border-color 180ms ease;
-}
-.think-btn:hover {
-  border-color: var(--color-navy-2);
 }
 .thinking > .thinking-head > .paper-annotation {
   font-size: 21px;
@@ -13202,7 +13193,25 @@ html[data-theme-vt]::view-transition-group(root) {
 .fw-cta:focus-visible::before {
   background-color: var(--color-terracotta);
 }
+/* ask-btn / think-btn colour hovers (EXE-62): fine-pointer hover, focus twin, and a touch :active so a tap never leaves it stuck */
+.ask-btn-secondary:focus-visible,
+.ask-btn-secondary:active,
+.think-btn:focus-visible,
+.think-btn:active {
+  border-color: var(--color-navy-2);
+}
+.ask-btn-ghost:focus-visible,
+.ask-btn-ghost:active {
+  border-color: var(--line);
+}
 @media (hover: hover) and (pointer: fine) {
+  .ask-btn-secondary:hover,
+  .think-btn:hover {
+    border-color: var(--color-navy-2);
+  }
+  .ask-btn-ghost:hover {
+    border-color: var(--line);
+  }
   .hero-btn-secondary:hover {
     border-color: var(--color-navy-2);
   }
