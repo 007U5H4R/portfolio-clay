@@ -226,7 +226,7 @@ Consumes `Solution-PRD.md` §15 and `Design.md` §14.10. Decisions S35, EXE-59�
 | EVAL-041 | object-motion-single-source (one listener, one loop, `--hx/--hy` on one object, offsets within 1 px, no scroll activation, no edge gaps) | listeners 1 · loops 1 · idle rAF 0 · scroll activations 0 · edge gaps 0 | P2 (TASK-181.2); unit half in P1 |
 | EVAL-042 | interaction-rm-touch-parity | RM transforms 0 · touch writes 0 · sticky hovers 0 | P4 (TASK-181.4) |
 | EVAL-043 | project-signatures (distinct, finite, focus parity, off-screen 0, rest pose ≤ 0.5 %) | distinct 3/3 · infinite 0 · off-screen 0 · diff ≤ 0.5 % | P2 (TASK-181.2) |
-| EVAL-037 (wording) | adds `hit-pill`, `acx-btn`, `pf-action`, `pf-play`, `header-pill` and `.paper-lift` cards to the probe set | unchanged | P1/P2 |
+| EVAL-037 (wording) | P1: the 1 px hover / 1 px press probe adds `header-pill`, `hit-pill`, `acx-btn` and `pf-action` (`pf-play` is covered by EVAL-040's stylesheet walk); P2: `.paper-lift` cards join the probe set | unchanged | P1 / P2 |
 | EVAL-039 (wording) | adds a scripted hover sweep over the FeaturedWork trio and Portfolio thumbs | unchanged | P2 |
 
 EVAL-032 (1 listener, 1 loop, 0 idle rAF) and EVAL-037 (button hover −1 px, press +1 px; card −4 px ± 1) stay green and unweakened through every phase (EXE-38). Specs for EVAL-041/042/043 (and EVAL-040 until P1 lands) are listed in `DEFERRED_SPECS` in `scripts/eval-cases.ts` and removed as each lands.
