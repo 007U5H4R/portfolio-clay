@@ -12481,8 +12481,9 @@ html[data-theme-vt]::view-transition-group(root) {
 .site-header[data-scrolled] {
   border-bottom-color: transparent;
 }
+/* the header's height per tier (the sheet is one fixed height at each; e2e asserts it): compact phone, two-row tablet, one row */
 :root {
-  --header-h: 114px;
+  --header-h: 119px;
 }
 
 /* ---- the sheet ---- */
@@ -12861,7 +12862,7 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 @media (min-width: 768px) {
   :root {
-    --header-h: 130px;
+    --header-h: 137px;
   }
   .site-header {
     --nt-h: 50px;
@@ -12886,7 +12887,7 @@ html[data-theme-vt]::view-transition-group(root) {
 /* ---- one row (≥ 1280): the three zones, brand · tabs · utilities ---- */
 @media (min-width: 1280px) {
   :root {
-    --header-h: 128px;
+    --header-h: 124px;
   }
   .site-header {
     --nt-h: 56px;
@@ -12901,6 +12902,7 @@ html[data-theme-vt]::view-transition-group(root) {
     grid-template-columns: auto 1fr auto;
     grid-template-areas: none;
     column-gap: 20px;
+    min-height: calc(var(--header-h) - 1px);
     padding-block: 14px 34px;
     padding-inline: clamp(24px, 2.4vw, 56px);
   }

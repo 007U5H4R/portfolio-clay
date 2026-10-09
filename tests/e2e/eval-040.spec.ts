@@ -23,14 +23,17 @@ interface Surface {
   /** Expected hover/focus movement of the element itself (px). */
   dx?: number;
   dy?: number;
-  /** Optional pseudo-element carrying the movement (nav tab paper). */
+  /** Optional child element carrying the movement (the nav tab's `.nt-lift`); hover and focus act on `selector`. */
+  child?: string;
+  /** Optional pseudo-element carrying the movement. */
   pseudo?: "::before";
   /** Optional arrow inside the element and its expected dx. */
   arrow?: { selector: string; dx: number };
 }
 
 const SURFACES: Surface[] = [
-  { name: "nav tab", route: "/", selector: '.header-nav-link:not([aria-current="page"])', pseudo: "::before", dy: -1 },
+  // TASK-192 (spec §4.5: 2–4 px): the origami tab's paper, label and underline rise 3 px together (`.nt-lift`); the hit area stays put.
+  { name: "nav tab", route: "/", selector: '.header-nav-link:not([aria-current="page"])', child: ".nt-lift", dy: -3 },
   { name: "connect pill", route: "/", selector: ".header-pill", dy: -1, arrow: { selector: ".header-pill-arrow", dx: 3 } },
   { name: "hero primary", route: "/", selector: ".hero-btn-primary", dy: -1, arrow: { selector: ".btn-arrow", dx: 3 } },
   { name: "hero secondary", route: "/", selector: ".hero-btn-secondary", dy: -1 },
@@ -131,17 +134,18 @@ test.describe("@EVAL-040 L1 hover and focus parity", () => {
       await loc.scrollIntoViewIfNeeded();
       await still(loc);
       await poseSettled(loc); // let a one-shot Reveal on the surface finish before the rest pose is read
+      const mover = s.child ? loc.locator(s.child) : loc;
       const arrow = s.arrow ? loc.locator(s.arrow.selector).first() : undefined;
 
-      const rest = await read(loc, s.pseudo);
+      const rest = await read(mover, s.pseudo);
       const restArrow = arrow ? await read(arrow) : undefined;
-      const restPseudoAfter = s.pseudo ? await read(loc, "::after") : undefined;
+      const restPseudoAfter = s.pseudo ? await read(mover, "::after") : undefined;
       void restPseudoAfter;
 
       // 1. hover
       await loc.hover();
       await page.waitForTimeout(450);
-      const hov = await read(loc, s.pseudo);
+      const hov = await read(mover, s.pseudo);
       const hovArrow = arrow ? await read(arrow) : undefined;
       expect(hov.x - rest.x, `${s.name} hover dx`).toBeCloseTo(s.dx ?? 0, 0);
       expect(hov.y - rest.y, `${s.name} hover dy`).toBeCloseTo(s.dy ?? 0, 0);
@@ -152,14 +156,14 @@ test.describe("@EVAL-040 L1 hover and focus parity", () => {
       }
       checkTransitions(`${s.name} hover`, hov);
       if (hovArrow) checkTransitions(`${s.name} arrow`, hovArrow);
-      for (const ps of ["::before", "::after"]) checkTransitions(`${s.name} ${ps}`, await read(loc, ps));
+      for (const ps of ["::before", "::after"]) checkTransitions(`${s.name} ${ps}`, await read(mover, ps));
 
       // 2. keyboard focus gives the same movement
       await page.mouse.move(2, 2);
       await page.waitForTimeout(450);
       await keyboardFocus(page, loc);
       await page.waitForTimeout(450);
-      const foc = await read(loc, s.pseudo);
+      const foc = await read(mover, s.pseudo);
       const focArrow = arrow ? await read(arrow) : undefined;
       expect(foc.x - rest.x, `${s.name} focus dx`).toBeCloseTo(hov.x - rest.x, 0);
       expect(foc.y - rest.y, `${s.name} focus dy`).toBeCloseTo(hov.y - rest.y, 0);
@@ -169,7 +173,7 @@ test.describe("@EVAL-040 L1 hover and focus parity", () => {
     });
   }
 
-  test("nav: the strip wipes to half, the label does not move, press goes 1 px down", async ({ page, viewport }) => {
+  test("nav: the strip wipes to half, the hit area does not move, the paper rises 3 px and press goes 1 px below rest", async ({ page, viewport }) => {
     test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
     await page.goto("/", { waitUntil: "networkidle" });
     const link = page.locator('.header-nav-link:not([aria-current="page"])').first();
@@ -187,12 +191,13 @@ test.describe("@EVAL-040 L1 hover and focus parity", () => {
       const r = el.getBoundingClientRect();
       return { x: r.x, y: r.y, w: r.width, h: r.height };
     });
-    expect(hovered, "label box unchanged on hover").toEqual(label);
-    const before = await read(link, "::before");
+    expect(hovered, "hit area unchanged on hover").toEqual(label);
+    const lift = link.locator(".nt-lift");
+    const before = await read(lift);
     await page.mouse.down();
     await page.waitForTimeout(400);
-    const pressed = await read(link, "::before");
-    expect(pressed.y - before.y, "press moves the paper 2 px below its hover pose (hover −1 → press +1)").toBeCloseTo(2, 0);
+    const pressed = await read(lift);
+    expect(pressed.y - before.y, "press moves the paper 4 px below its hover pose (hover −3 → press +1)").toBeCloseTo(4, 0);
     await page.mouse.move(2, 2);
     await page.mouse.up();
   });
@@ -218,7 +223,7 @@ test.describe("@EVAL-040 stylesheet contract", () => {
     await page.goto("/", { waitUntil: "networkidle" });
     const result = await page.evaluate(() => {
       const SCOPE =
-        /\.(header-nav-link|hn-strip|header-pill|header-ask|theme-toggle|tt-window|hero-btn|ask-btn|think-btn|cx-btn|fw-cta|hit-pill|acx-btn|pf-action|pf-play|pf-arrow|band-social|band-email|btn-arrow)\b/;
+        /\.(header-nav-link|nt-lift|nt-shadow|nt-paper|hp-shadow|hn-strip|header-pill|header-ask|theme-toggle|tt-window|hero-btn|ask-btn|think-btn|cx-btn|fw-cta|hit-pill|acx-btn|pf-action|pf-play|pf-arrow|band-social|band-email|btn-arrow)\b/;
       // Static current-page states keep a :hover variant only to out-rank the base hover rule (specificity), and the legacy
       // InkUnderline is dead code (PrimaryNav no longer renders it): both are exempt from the gate/twin walk.
       const EXEMPT = /\[aria-current|ink-underline/;
@@ -270,6 +275,46 @@ test.describe("@EVAL-040 stylesheet contract", () => {
   });
 });
 
+test.describe("@EVAL-040 origami header rules (TASK-192)", () => {
+  test("the folded tabs' and the torn CTA's hover rules exist, sit inside (hover: hover) and (pointer: fine), have :focus-visible twins, and never transition a shadow or filter", async ({ page }) => {
+    await page.goto("/", { waitUntil: "networkidle" });
+    const r = await page.evaluate(() => {
+      const OURS = /\.(nt-lift|nt-shadow|hp-shadow|hn-strip)\b|\.header-pill:/;
+      const rows: { selector: string; media: string; tp: string }[] = [];
+      const walk = (rules: CSSRuleList, media: string) => {
+        for (const rule of Array.from(rules)) {
+          if (rule instanceof CSSStyleRule) rows.push({ selector: rule.selectorText, media, tp: rule.style.transitionProperty });
+          else if (rule instanceof CSSMediaRule) walk(rule.cssRules, `${media} @media ${rule.conditionText}`);
+          else if ("cssRules" in rule) walk((rule as CSSGroupingRule).cssRules, media);
+        }
+      };
+      for (const sheet of Array.from(document.styleSheets)) {
+        try {
+          walk(sheet.cssRules, "");
+        } catch {
+          /* cross-origin */
+        }
+      }
+      const ours = rows.filter((x) => OURS.test(x.selector));
+      const all = new Set(rows.map((x) => x.selector));
+      const hovers = ours.filter((x) => x.selector.includes(":hover") && !/\[aria-current/.test(x.selector));
+      const problems: string[] = [];
+      for (const h of hovers) {
+        if (!/hover:\s*hover/.test(h.media) || !/pointer:\s*fine/.test(h.media)) problems.push(`ungated: ${h.selector}`);
+        const twin = h.selector.replaceAll(":hover", ":focus-visible");
+        if (!all.has(twin)) problems.push(`no focus twin: ${h.selector}`);
+      }
+      for (const x of ours) if (/box-shadow|filter|(^|,\s*)all(\s*,|$)/.test(x.tp)) problems.push(`transitions ${x.tp}: ${x.selector}`);
+      // the touch press exists too, so a tap leaves nothing stuck
+      const press = ours.filter((x) => x.selector.includes(":active")).length;
+      return { hovers: hovers.length, press, problems };
+    });
+    expect(r.hovers, "hover rules found (the test is not vacuous)").toBeGreaterThanOrEqual(4);
+    expect(r.press, ":active press rules found").toBeGreaterThanOrEqual(3);
+    expect(r.problems).toEqual([]);
+  });
+});
+
 test.describe("@EVAL-040 touch and reduced motion", () => {
   test("touch: a tap leaves no hover state behind (hover rules never apply)", async ({ page, viewport }) => {
     test.skip(viewport!.width !== 390, "touch project");
@@ -302,11 +347,13 @@ test.describe("@EVAL-040 touch and reduced motion", () => {
     expect(hov.y - rest.y, "no lift under reduced motion").toBeCloseTo(0, 1);
     expect(hov.shadow, "the shadow swap is the feedback that stays").not.toBe(rest.shadow);
     const tab = page.locator('.header-nav-link:not([aria-current="page"])').first();
-    const tabRest = await read(tab, "::before");
+    const tabRest = await read(tab.locator(".nt-lift"));
+    const shadowOpacity = () => tab.locator(".nt-shadow").evaluate((el) => getComputedStyle(el, "::after").opacity);
+    expect(await shadowOpacity(), "lifted shadow off at rest").toBe("0");
     await tab.hover();
     await page.waitForTimeout(300);
-    const tabHov = await read(tab, "::before");
+    const tabHov = await read(tab.locator(".nt-lift"));
     expect(tabHov.y - tabRest.y, "no tab lift under reduced motion").toBeCloseTo(0, 1);
-    expect(tabHov.shadow, "the tab's shadow still swaps").not.toBe(tabRest.shadow);
+    expect(await shadowOpacity(), "the tab's lifted shadow still swaps in").toBe("1");
   });
 });
