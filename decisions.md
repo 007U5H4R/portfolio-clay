@@ -796,3 +796,22 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Context.** The Opus review of P1 (SHIP, no blockers) found three limits in the `paperMotion` object channel that no P1 surface can reach, because P1 registers no objects.
 **Decision.** Accepted for P1; P2 (TASK-181.2, the first consumer) fixes them before any card registers: (a) moving straight from object A to object B snaps A's `--hx`/`--hy` to 0 (`activate` calls `clearObj`); it needs a short decay or a second slot so A settles instead of jumping. (b) An active object never releases when the pointer leaves the window (no `pointermove` fires); add a passive `pointerout` with `relatedTarget === null`, or release on blur/visibility. (c) `decide()` reads `fineMq` once, so a hybrid device that changes its primary pointer is not re-evaluated; subscribe to the media query. Each gets a unit test with the fix.
 **Rejected.** Delaying P1 for code no surface exercises.
+
+## EXE-66 · TASK-185 pinball follow-up judgement calls — decided (on Tushar's behalf while he was AFK, 2026-10-09)
+**Context.** On preview, Tushar asked for four changes: the black hole reachable in play, the launch lane closed after a launch, a way to free a stuck gummy, and fewer, smaller bumpers on phones. The build agent's simulations raised four calls.
+**Decision.**
+- **(a) Phone drain left as is.** The phone table drains unattended in a median 5.8 s against 11.2 s on desktop, because it is half as wide. With a casual flipper bot the phone lasts longer: 47 s median against 34 s.
+- **(b) The black hole is a skill shot.** About 6 of 131 launch powers reach it, plus a rare desktop flipper shot. Nothing else opens the cabinet.
+- **(c) Desktop targets moved slightly.** The AI, DESIGN, PRODUCT and BUILD plates tilt and shift a little so the pocket is reachable and the lane gate never traps the gummy at the wall. The desktop bumper-to-plate floor is 0.60; the phone keeps at least 1.5 gummy widths.
+- **(d) N is the only Nudge key.** Shift clashes with Shift+Tab and capitals.
+
+**Rejected.** Adding a post to slow the phone drain, which would re-crowd the field Tushar asked to open up.
+
+## EXE-67 · 10/09 combined release ships with explained e2e failures — decided (on Tushar's behalf while he was AFK, 2026-10-09)
+**Context.** The release is TASK-181 P1, the TASK-185 follow-ups and TASK-180 on m013/release-1009. Its full gate: unit 1316 passed; e2e 2001 passed / 8 failed.
+**Decision.** Ship. The 8 failures are explained:
+- **Already failing on main:** EVAL-008 `/dev/artifacts` ×4 (TASK-178) and EVAL-033 tilt chip (TASK-173).
+- **Load flakes:** EVAL-008 `/dev/thinking` and EVAL-030 ESC exit both pass alone with `--workers=1`.
+- **Flaky on main and release alike:** EVAL-039 `/` smoothness. An A/B on the same machine passed the release 3/3 and main at least 2/3 (TASK-191).
+
+**Rejected.** Holding the release for flakes that main shares.
