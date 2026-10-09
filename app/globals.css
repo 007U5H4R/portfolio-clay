@@ -12945,6 +12945,11 @@ html[data-theme-vt]::view-transition-group(root) {
   --mat-terra-2: oklch(0.522 0.137 37.796);
   --mat-terra-3: oklch(0.565 0.142 40.048);
   --mat-side: oklch(0.392 0.09 39.084);
+  --mat-tab: oklch(0.98 0.013 86.828);
+  --mat-tab-fold: oklch(0.887 0.037 82.17);
+  --mat-tab-edge: oklch(0.781 0.054 82.178);
+  --mat-tab-on-fold: oklch(0.172 0.047 267.465);
+  --mat-tab-line: oklch(0.836 0.055 80.642);
 }
 /* M-011 mat:dark */
 [data-theme="dark"] {
@@ -12955,6 +12960,11 @@ html[data-theme-vt]::view-transition-group(root) {
   --mat-terra-2: oklch(0.422 0.109 35.345);
   --mat-terra-3: oklch(0.46 0.115 36.272);
   --mat-side: oklch(0.174 0.045 265.672);
+  --mat-tab: oklch(0.31 0.067 263.405);
+  --mat-tab-fold: oklch(0.228 0.055 265.582);
+  --mat-tab-edge: oklch(0.186 0.053 266.293);
+  --mat-tab-on-fold: oklch(0.785 0.064 83.41);
+  --mat-tab-line: oklch(0.581 0.097 78.189);
 }
 /* end M-011 material tier */
 
