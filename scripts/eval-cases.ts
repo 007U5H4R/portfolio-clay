@@ -62,10 +62,8 @@ const AUTOMATED_RUNNERS = [
  * the spec in the same change; remove the entry then.
  */
 const DEFERRED_SPECS: Record<string, string> = {
-  // M-012 (Solution-PRD §15, TASK-181): EVAL-040 landed in P1 (tests/e2e/eval-040.spec.ts); the rest wait for their phase.
-  "EVAL-041": "P2 (TASK-181.2): object-motion e2e lands with the layered project cards",
+  // M-012 (Solution-PRD §15, TASK-181): EVAL-040 landed in P1 (tests/e2e/eval-040.spec.ts), EVAL-041 and EVAL-043 in P2 (eval-041/043.spec.ts); EVAL-042 waits for P4.
   "EVAL-042": "P4 (TASK-181.4): reduced-motion/touch parity sweep lands once every surface exists",
-  "EVAL-043": "P2 (TASK-181.2): project signatures land with the featured art split",
 };
 
 const EvalCaseSchema = z
