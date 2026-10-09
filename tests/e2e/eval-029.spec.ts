@@ -293,3 +293,17 @@ test("the back-face panther sits in the bottom-left corner", tag, async ({ page 
   });
   expect(pos).toEqual({ leftHalf: true, lowerHalf: true });
 });
+
+// TASK-180 scar (2026-10-09): in WebKit a grain layer painted above the art washed the panther out (mix-blend-mode is
+// dropped inside the 3D flip). The front's grain must sit beneath the panther in paint order.
+test("the front grain layer sits beneath the panther art", tag, async ({ page }) => {
+  await page.goto("/card");
+  const order = await page.evaluate(() => {
+    const kids = [...document.querySelector('[data-face="front"]')!.children];
+    const art = kids.findIndex((k) => k.querySelector('[data-panther="front"]'));
+    const tex = kids.findIndex((k) => k.tagName === "I" && getComputedStyle(k).mixBlendMode !== "normal");
+    return { art, tex };
+  });
+  expect(order.tex).toBeGreaterThanOrEqual(0);
+  expect(order.tex).toBeLessThan(order.art);
+});
