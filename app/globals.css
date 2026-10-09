@@ -13173,7 +13173,9 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 /* colour feedback that rides the same states (non-motion: it stays under reduced motion) */
-.hero-btn-secondary:focus-visible,
+.hero-btn-secondary:focus-visible {
+  border-color: var(--color-navy-2);
+}
 .cx-btn-secondary:focus-visible {
   border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
 }
@@ -13356,8 +13358,8 @@ html[data-theme-vt]::view-transition-group(root) {
   transform: translateY(1px);
 }
 .header-ask:active,
-.pf-arrow:active {
-  translate: 0 1px;
+.pf-arrow[data-dir]:active {
+  translate: 0 1px; /* [data-dir] so the press out-ranks the [data-dir]:hover nudge */
 }
 
 /* ---- .pf-action (a torn strip whose silhouette needs a filter): the filter stays STATIC; the hover shadow is a pseudo-element
@@ -13513,7 +13515,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   :root .header-ask:active,
   :root .pf-arrow[data-dir]:is(:hover, :focus-visible, :active),
-  :root .pf-arrow:active {
+  :root .pf-arrow[data-dir]:active {
     translate: none;
   }
   :root .header-nav-link:nth-child(odd):is(:hover, :focus-visible, :active)::before {
