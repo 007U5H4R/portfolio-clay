@@ -56,6 +56,16 @@ interface PointerLike {
   timeStamp?: number;
 }
 
+interface Slot {
+  el: HTMLElement;
+  pos: number[];
+  vel: number[];
+  tgt: number[];
+  written: string[];
+  follow: boolean; // true while the pointer is over it (false = settling back to 0, then released)
+  rect?: { left: number; top: number; width: number; height: number } | undefined;
+}
+
 export function createPaperMotion({ win, doc }: MotionEnv) {
   const roots = new Set<HTMLElement>();
   const seen = new Set<HTMLElement>(); // intersecting roots
@@ -76,19 +86,16 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
   const vel = [0, 0];
   const tgt = [0, 0];
   const lp = [0, 0];
-  // object channel: `cur` is the one element whose --hx/--hy are being written; `follow` is true while the
-  // pointer is over it (false = settling back to 0, then released).
-  let cur: HTMLElement | undefined;
-  let follow = false;
-  let rect: { left: number; top: number; width: number; height: number } | undefined;
+  // object channel: `cur` is the one element whose --hx/--hy follow the pointer. `out` is the element it was
+  // just taken over from: it keeps its own spring and settles back to 0 (never snaps), then is released.
+  let cur: Slot | undefined;
+  let out: Slot | undefined;
   let lastTarget: unknown;
   let lastCandidate: HTMLElement | undefined;
   let scrollUntil = -Infinity;
   let sceneMoving = false;
-  const opos = [0, 0];
-  const ovel = [0, 0];
-  const otgt = [0, 0];
-  const oWritten = ["", ""];
+  let pointerOn = false; // the pointermove listener is attached
+  let leaving = false; // the pointerout / blur listeners are attached
 
   const ask = () => win.DeviceOrientationEvent?.requestPermission;
   const wantsGyro = () => !reducedMq.matches && !fineMq.matches && !!win.DeviceOrientationEvent && (!ask() || granted);
@@ -109,49 +116,87 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
     seen.forEach((r) => (r.dataset.ppMode = m));
   };
   const wake = () => {
-    if (!raf && (seen.size > 0 || cur) && doc.visibilityState !== "hidden") raf = win.requestAnimationFrame(tick);
+    if (!raf && (seen.size > 0 || cur || out) && doc.visibilityState !== "hidden") raf = win.requestAnimationFrame(tick);
   };
 
-  const writeObj = (force: boolean) => {
-    if (!cur) return;
+  const writeSlot = (o: Slot, force: boolean) => {
     for (let i = 0; i < 2; i++) {
-      const v = fmt(opos[i]!);
-      if (force || v !== oWritten[i]) {
-        cur.style.setProperty(i ? "--hy" : "--hx", v);
-        oWritten[i] = v;
+      const v = fmt(o.pos[i]!);
+      if (force || v !== o.written[i]) {
+        o.el.style.setProperty(i ? "--hy" : "--hx", v);
+        o.written[i] = v;
       }
     }
   };
-  /** Drop the current object at once: custom properties back to 0, marker removed, channel zeroed. */
-  const clearObj = () => {
-    if (cur) {
-      cur.style.setProperty("--hx", "0");
-      cur.style.setProperty("--hy", "0");
-      cur.removeAttribute("data-pm-active");
+  /** Step one object spring; true when it is at rest. */
+  const stepSlot = (o: Slot, dt: number) => {
+    let rest = true;
+    for (let i = 0; i < 2; i++) {
+      o.vel[i] = o.vel[i]! + (STIFFNESS * (o.tgt[i]! - o.pos[i]!) - DAMPING * o.vel[i]!) * dt;
+      o.pos[i] = o.pos[i]! + o.vel[i]! * dt;
+      if (Math.abs(o.tgt[i]! - o.pos[i]!) >= REST_POS || Math.abs(o.vel[i]!) >= REST_VEL) rest = false;
     }
-    cur = undefined;
-    follow = false;
-    rect = undefined;
-    opos[0] = opos[1] = ovel[0] = ovel[1] = otgt[0] = otgt[1] = 0;
-    oWritten[0] = oWritten[1] = "";
+    if (rest) {
+      o.pos[0] = o.tgt[0]!;
+      o.pos[1] = o.tgt[1]!;
+      o.vel[0] = o.vel[1] = 0;
+    }
+    writeSlot(o, false);
+    return rest;
   };
-  /** The pointer left the object, the page scrolled or the object left view: settle to 0, release at rest. */
+  /** Drop one slot at once: custom properties back to 0, marker removed. */
+  const zero = (o: Slot) => {
+    o.el.style.setProperty("--hx", "0");
+    o.el.style.setProperty("--hy", "0");
+    o.el.removeAttribute("data-pm-active");
+  };
+  /** Drop every object at once. */
+  const clearObj = () => {
+    if (cur) zero(cur);
+    if (out) zero(out);
+    cur = out = undefined;
+  };
+  /** Drop whichever slot holds `el` at once. */
+  const dropEl = (el: HTMLElement) => {
+    if (cur?.el === el) {
+      zero(cur);
+      cur = undefined;
+    }
+    if (out?.el === el) {
+      zero(out);
+      out = undefined;
+    }
+  };
+  /** The pointer left the object, the page scrolled or the window lost the pointer: settle to 0, release at rest. */
   const releaseObj = () => {
     if (!cur) return;
-    follow = false;
-    rect = undefined;
-    otgt[0] = otgt[1] = 0;
+    cur.follow = false;
+    cur.rect = undefined;
+    cur.tgt[0] = cur.tgt[1] = 0;
     wake();
   };
   const activate = (el: HTMLElement) => {
-    if (cur && cur !== el) clearObj();
-    if (cur !== el) {
-      cur = el;
-      el.setAttribute("data-pm-active", "");
-      oWritten[0] = oWritten[1] = "";
+    if (cur && cur.el !== el) {
+      // A -> B: A keeps its spring in the `out` slot and settles; whatever was settling before it is dropped
+      // (unless that is B itself, which then resumes from where it is).
+      const resume = out?.el === el ? out : undefined;
+      if (out && !resume) zero(out);
+      out = cur;
+      out.follow = false;
+      out.rect = undefined;
+      out.tgt[0] = out.tgt[1] = 0;
+      cur = resume;
     }
-    follow = true;
-    rect = el.getBoundingClientRect();
+    if (!cur && out?.el === el) {
+      cur = out;
+      out = undefined;
+    }
+    if (!cur) {
+      cur = { el, pos: [0, 0], vel: [0, 0], tgt: [0, 0], written: ["", ""], follow: false };
+      el.setAttribute("data-pm-active", "");
+    }
+    cur.follow = true;
+    cur.rect = el.getBoundingClientRect();
   };
 
   function tick(t: number) {
@@ -174,19 +219,19 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
 
     let objRest = true;
     if (cur) {
-      for (let i = 0; i < 2; i++) {
-        ovel[i] = ovel[i]! + (STIFFNESS * (otgt[i]! - opos[i]!) - DAMPING * ovel[i]!) * dt;
-        opos[i] = opos[i]! + ovel[i]! * dt;
-        if (Math.abs(otgt[i]! - opos[i]!) >= REST_POS || Math.abs(ovel[i]!) >= REST_VEL) objRest = false;
-      }
-      if (objRest) {
-        opos[0] = otgt[0]!;
-        opos[1] = otgt[1]!;
-        ovel[0] = ovel[1] = 0;
-      }
-      writeObj(false);
+      const r = stepSlot(cur, dt);
+      if (!r) objRest = false;
       // settled and no longer followed: write the final 0, drop the marker and the reference
-      if (objRest && !follow) clearObj();
+      else if (!cur.follow) {
+        zero(cur);
+        cur = undefined;
+      }
+    }
+    if (out) {
+      if (stepSlot(out, dt)) {
+        zero(out);
+        out = undefined;
+      } else objRest = false;
     }
     if (sceneRest && objRest) last = 0;
     else raf = win.requestAnimationFrame(tick);
@@ -206,17 +251,17 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
     if (objects.size > 0) {
       const c = candidateOf(e.target);
       const blocked = (e.timeStamp ?? 0) < scrollUntil;
-      if (cur && follow && (c !== cur || blocked)) releaseObj();
-      if (c && !blocked && objSeen.has(c) && (!cur || !follow || c !== cur)) activate(c);
-      if (cur && follow) {
-        const r = rect ?? (rect = cur.getBoundingClientRect());
-        otgt[0] = r.width ? clamp(((e.clientX - r.left) / r.width) * 2 - 1) : 0;
-        otgt[1] = r.height ? clamp(((e.clientY - r.top) / r.height) * 2 - 1) : 0;
+      if (cur?.follow && (c !== cur.el || blocked)) releaseObj();
+      if (c && !blocked && objSeen.has(c) && (!cur || !cur.follow || c !== cur.el)) activate(c);
+      if (cur?.follow) {
+        const r = cur.rect ?? (cur.rect = cur.el.getBoundingClientRect());
+        cur.tgt[0] = r.width ? clamp(((e.clientX - r.left) / r.width) * 2 - 1) : 0;
+        cur.tgt[1] = r.height ? clamp(((e.clientY - r.top) / r.height) * 2 - 1) : 0;
         wake();
       }
     }
     // scene channel: holds its target while an object is under the pointer (no motion competition)
-    if (seen.size === 0 || (cur && follow)) return;
+    if (seen.size === 0 || cur?.follow) return;
     setMode("pointer");
     tgt[0] = clamp((e.clientX / win.innerWidth) * 2 - 1);
     tgt[1] = clamp((e.clientY / win.innerHeight) * 2 - 1);
@@ -224,8 +269,13 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
   };
   const onScroll = (e: { timeStamp?: number }) => {
     scrollUntil = (e.timeStamp ?? 0) + SCROLL_WINDOW;
-    if (cur && follow) releaseObj();
+    if (cur?.follow) releaseObj();
   };
+  /** The pointer left the window (no element to move to) or the window lost focus: release the active object. */
+  const onLeave = (e: { relatedTarget?: unknown }) => {
+    if (e.relatedTarget === null) releaseObj();
+  };
+  const onBlur = () => releaseObj();
   const onOrient = (e: { gamma: number | null; beta: number | null }) => {
     if (seen.size === 0 || doc.visibilityState === "hidden") return;
     setMode("orientation");
@@ -264,11 +314,32 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
     if (on) win.addEventListener("scroll", onScroll, { passive: true });
     else win.removeEventListener("scroll", onScroll);
   };
+  /** pointermove follows the media query: a hybrid device that gains or loses a fine pointer attaches or detaches. */
+  const syncPointer = () => {
+    const on = attached && fineMq.matches;
+    if (on === pointerOn) return;
+    pointerOn = on;
+    if (on) win.addEventListener("pointermove", onPointer, { passive: true });
+    else win.removeEventListener("pointermove", onPointer);
+  };
+  /** pointerout (to nowhere) and blur release the active object; only while objects exist and a fine pointer does. */
+  const syncLeave = () => {
+    const on = attached && objects.size > 0 && fineMq.matches;
+    if (on === leaving) return;
+    leaving = on;
+    if (on) {
+      win.addEventListener("pointerout", onLeave, { passive: true });
+      win.addEventListener("blur", onBlur, { passive: true });
+    } else {
+      win.removeEventListener("pointerout", onLeave);
+      win.removeEventListener("blur", onBlur);
+    }
+  };
 
   const attach = () => {
     if (attached) return;
     attached = true;
-    if (fineMq.matches) win.addEventListener("pointermove", onPointer, { passive: true });
+    syncPointer();
     doc.addEventListener("visibilitychange", onVisibility);
     io = new win.IntersectionObserver((entries) => {
       for (const { target, isIntersecting } of entries) {
@@ -277,7 +348,7 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
           if (isIntersecting) objSeen.add(el);
           else {
             objSeen.delete(el);
-            if (cur === el) clearObj();
+            dropEl(el);
           }
           continue;
         }
@@ -287,24 +358,26 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
           write(el);
         } else seen.delete(el);
       }
-      if (seen.size === 0 && !cur) stop();
+      if (seen.size === 0 && !cur && !out) stop();
       else if (pos[0] !== tgt[0] || pos[1] !== tgt[1]) wake();
       syncOrientation();
     });
     roots.forEach((r) => io!.observe(r));
     objects.forEach((o) => io!.observe(o));
     syncScroll();
+    syncLeave();
   };
   const detach = () => {
     if (!attached) return;
     attached = false;
-    win.removeEventListener("pointermove", onPointer);
     doc.removeEventListener("visibilitychange", onVisibility);
     io?.disconnect();
     io = undefined;
     objSeen.clear();
     clearObj();
+    syncPointer();
     syncScroll();
+    syncLeave();
     syncOrientation();
     stop();
   };
@@ -323,16 +396,27 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
       if (was && reducedMq.matches) rest();
     } else attach();
   };
+  /** Either media query changed: re-evaluate every listener that depends on it. */
+  const onMedia = () => {
+    syncPointer();
+    syncScroll();
+    syncLeave();
+    syncOrientation();
+    if (!fineMq.matches) clearObj();
+    decide();
+  };
   let watching = false;
   const watch = () => {
     if (watching) return;
     watching = true;
-    reducedMq.addEventListener("change", decide);
+    reducedMq.addEventListener("change", onMedia);
+    fineMq.addEventListener("change", onMedia);
   };
   const unwatch = () => {
     if (roots.size > 0 || objects.size > 0) return;
     watching = false;
-    reducedMq.removeEventListener("change", decide);
+    reducedMq.removeEventListener("change", onMedia);
+    fineMq.removeEventListener("change", onMedia);
   };
 
   return {
@@ -346,7 +430,7 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
         roots.delete(root);
         seen.delete(root);
         io?.unobserve(root);
-        if (seen.size === 0 && !cur) stop();
+        if (seen.size === 0 && !cur && !out) stop();
         syncOrientation();
         unwatch();
         decide();
@@ -360,6 +444,7 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
       if (attached) {
         io?.observe(el);
         syncScroll();
+        syncLeave();
       }
       decide();
       return () => {
@@ -367,9 +452,10 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
         objSeen.delete(el);
         lastTarget = lastCandidate = undefined;
         io?.unobserve(el);
-        if (cur === el) clearObj();
-        if (seen.size === 0 && !cur) stop();
+        dropEl(el);
+        if (seen.size === 0 && !cur && !out) stop();
         syncScroll();
+        syncLeave();
         unwatch();
         decide();
       };
