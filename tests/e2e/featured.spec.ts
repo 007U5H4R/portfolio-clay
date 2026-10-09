@@ -222,6 +222,7 @@ const hoverStyles = async (page: Page, name: string) => {
       a: getComputedStyle(el.querySelector(".fw-cta-arrow")!).translate,
       f: getComputedStyle(el).filter,
       s: getComputedStyle(el).boxShadow,
+      o: getComputedStyle(el, "::after").opacity,
     }));
   const before = await read();
   await link.hover();
@@ -242,6 +243,9 @@ test("@EVAL-010 Explore hover lifts 1 px and steps the arrow 3 px; reduced motio
   // the paper-button contract's box-shadow swap (depth-1 → depth-2), which is never transitioned.
   expect(normal.after.f, "the filter stays static on hover (EXE-61)").toBe(normal.before.f);
   expect(normal.after.s, "stronger shadow on hover (the contract's box-shadow swap)").not.toBe(normal.before.s);
+  // the visible part: the masked ::after shadow crossfades by opacity (0 → 1), it is not a filter or box-shadow transition
+  expect(Number(normal.before.o), "torn shadow hidden at rest").toBe(0);
+  expect(Number(normal.after.o), "torn shadow shown on hover").toBe(1);
 
   await withReducedMotion(page);
   await page.goto("/", { waitUntil: "load" });
