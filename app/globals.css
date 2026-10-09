@@ -14061,7 +14061,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- How I think (TASK-186): the active stage lifts, the others recede, the example is a second paper layer ---- */
+/* ---- How I think (TASK-186): the active stage lifts, the others recede, the quote slip lifts as a second paper layer; nothing is hover-only ---- */
 .hit-card.paper-sheet {
   transition:
     translate var(--dur-l2-out) var(--ease-paper),
@@ -14076,64 +14076,26 @@ html[data-theme-vt]::view-transition-group(root) {
   opacity: 0;
   transition: opacity var(--dur-l2-out) var(--ease-paper);
 }
+.hit-slip {
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    rotate var(--dur-l2-out) var(--ease-paper);
+}
 .hit-paper-shade {
   transition: opacity var(--dur-l2-out) var(--ease-paper);
 }
 .jr-seg {
   transition: opacity var(--dur-l2-out) var(--ease-paper);
 }
-.hit-toggle {
-  display: none;
-}
-.hit-toggle-icon {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-}
 
-/* hover mode: a fine pointer at tablet width and up — the example waits behind the card */
-@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
-  .hit-journey {
-    padding-bottom: clamp(260px, 22vw, 320px);
-  }
-  .hit-more {
-    position: absolute;
-    top: calc(100% - 34px);
-    right: -7px;
-    left: -7px;
-    z-index: -2;
-    display: grid;
-    gap: 8px;
-    padding: 46px 12px 16px;
-    background: linear-gradient(170deg, color-mix(in oklab, var(--color-ivory) 90%, var(--color-kraft)), color-mix(in oklab, var(--color-ivory) 80%, var(--color-kraft)));
-    border: 1px solid var(--line-strong);
-    border-radius: 3px 3px 12px 8px;
-    box-shadow: var(--depth-2);
-    opacity: 0;
-    translate: 0 -26px;
-    pointer-events: none;
-    transition:
-      opacity var(--dur-l2-out) var(--ease-paper),
-      translate var(--dur-l2-out) var(--ease-paper);
-  }
-  .hit-more .hit-quote {
-    margin-top: 0;
-  }
-  .hit-more .hit-pill {
-    margin-top: 0;
-  }
-}
-@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+@media (hover: hover) and (pointer: fine) {
   .hit-card:hover {
     translate: 0 -6px;
     transition-duration: var(--dur-l2);
   }
-  .hit-card:hover .hit-more {
-    opacity: 1;
-    translate: 0 0;
-    pointer-events: auto;
-    transition-delay: 90ms;
+  .hit-card:hover .hit-slip {
+    translate: 0 -3px;
+    rotate: 0deg;
     transition-duration: var(--dur-l2);
   }
   .hit-stage:has(.hit-card:hover) {
@@ -14195,11 +14157,9 @@ html[data-theme-vt]::view-transition-group(root) {
   translate: 0 -6px;
   transition-duration: var(--dur-l2);
 }
-.hit-card:has(:focus-visible) .hit-more {
-  opacity: 1;
-  translate: 0 0;
-  pointer-events: auto;
-  transition-delay: 90ms;
+.hit-card:has(:focus-visible) .hit-slip {
+  translate: 0 -3px;
+  rotate: 0deg;
   transition-duration: var(--dur-l2);
 }
 .hit-stage:has(.hit-card :focus-visible) {
@@ -14253,68 +14213,15 @@ html[data-theme-vt]::view-transition-group(root) {
   opacity: 1;
 }
 
-/* touch, coarse pointers and phone widths: the example opens from a button */
-@media (hover: none), (pointer: coarse), (max-width: 767px) {
-  .hit-card.paper-sheet {
-    padding-right: 52px;
-  }
-  .hit-toggle {
-    position: absolute;
-    top: 8px;
-    right: 6px;
-    z-index: 3;
-    display: inline-grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    color: var(--color-terracotta);
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-  }
-  .hit-toggle-v {
-    transform-origin: 8px 8px;
-    transition:
-      transform var(--dur-l1) var(--ease-l1),
-      opacity var(--dur-l1) var(--ease-l1);
-  }
-  .hit-toggle[aria-expanded="true"] .hit-toggle-v {
-    transform: rotate(90deg);
-    opacity: 0;
-  }
-  .hit-more {
-    display: none;
-  }
-  .hit-stage[data-open] .hit-more {
-    display: grid;
-    gap: 8px;
-    animation: hit-open var(--dur-l2-out) var(--ease-paper) both;
-  }
-}
-@keyframes hit-open {
-  from {
-    opacity: 0;
-    translate: 0 -8px;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   :root .hit-card.paper-sheet,
   :root .hit-card.paper-sheet:is(:hover, :has(:focus-visible)) {
     translate: none;
     transition: none;
   }
-  :root .hit-more,
-  :root .hit-card:is(:hover, :has(:focus-visible)) .hit-more {
+  :root .hit-slip,
+  :root .hit-card:is(:hover, :has(:focus-visible)) .hit-slip {
     translate: none;
-    transition: none;
-    animation: none;
-  }
-  :root .hit-toggle-v {
     transition: none;
   }
   :root .hit-paper-deep,

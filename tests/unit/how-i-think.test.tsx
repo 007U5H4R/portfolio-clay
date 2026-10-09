@@ -10,7 +10,7 @@
  *   4/5. only the six pills are focusable; no roving tabindex / disclosure buttons remain.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -204,36 +204,12 @@ describe("HowIThink (TKT-76, TC-148)", () => {
     expect(edges.every((e) => e.startsWith("polygon("))).toBe(true);
   });
 
-  it("has only the six link pills and the six accordion toggles as focus stops (no roving tabindex); the toggles are real buttons (M-012 P2)", () => {
+  it("has only the six link pills as focus stops (no disclosure buttons, no roving tabindex)", () => {
     const section = renderSection(true);
     const focusable = section.querySelectorAll("a[href], button, input, select, textarea, [tabindex]");
-    expect(focusable).toHaveLength(12);
-    expect(section.querySelectorAll("a[href]")).toHaveLength(6);
-    expect(section.querySelectorAll("[tabindex]")).toHaveLength(0);
-    const toggles = Array.from(section.querySelectorAll("button"));
-    expect(toggles).toHaveLength(6);
-    toggles.forEach((button, i) => {
-      expect(button.getAttribute("type")).toBe("button");
-      expect(button.getAttribute("aria-expanded")).toBe("false");
-      // named after its stage, controlling the stage's example layer (quote + source + link)
-      expect(button.textContent).toBe(`${STAGES[i]!.label}: the example`);
-      const panel = section.querySelector(`#${button.getAttribute("aria-controls")}`);
-      expect(panel?.querySelector('blockquote[data-hand="quote"]')).not.toBeNull();
-      expect(panel?.querySelector("a[href]")).not.toBeNull();
-    });
-  });
-
-  it("a toggle opens its stage's example and mirrors it as data-open on the stage (touch / phone accordion)", () => {
-    const section = renderSection(false);
-    const stage = section.querySelector('li[data-stage="build"]')!;
-    const button = stage.querySelector("button")!;
-    expect(stage.hasAttribute("data-open")).toBe(false);
-    fireEvent.click(button);
-    expect(button.getAttribute("aria-expanded")).toBe("true");
-    expect(stage.hasAttribute("data-open")).toBe(true);
-    fireEvent.click(button);
-    expect(button.getAttribute("aria-expanded")).toBe("false");
-    expect(stage.hasAttribute("data-open")).toBe(false);
+    expect(focusable).toHaveLength(6);
+    for (const el of Array.from(focusable)) expect(el.tagName).toBe("A");
+    expect(section.querySelectorAll("[aria-expanded], [tabindex]")).toHaveLength(0);
   });
 
   it("source carries no roving-tabindex or expand logic (TC-148 step 5)", () => {
