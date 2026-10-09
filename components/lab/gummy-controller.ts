@@ -2,22 +2,28 @@ import { Plane, Raycaster, Vector2, Vector3, type Camera } from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
 import { clampSpeed } from "@/lib/lab/controls";
 import { SUPER_SQUISH_MULTIPLIER } from "@/lib/lab/engine";
-import { FLIP_COOLDOWN_S, StallWatch, flipImpulse, nearFlipper } from "@/lib/lab/flippers";
+import { FLIP_COOLDOWN_S, NUDGE_SHIFT, StallWatch, flipImpulse, nearFlipper } from "@/lib/lab/flippers";
+import { clearedLane } from "@/lib/lab/gate";
+import { MAX_FORCE, MIN_FORCE } from "@/lib/lab/plunger";
 import type { LabRuntime } from "./runtime";
 
 /**
- * Pinball controls (TASK-172). The player only works the two flippers; the gummy is the ball.
+ * Pinball controls (TASK-172, plunger TASK-185). The player works two flippers and a plunger; the gummy is the ball.
  *   touch / mouse / pen   hold the left half of the play area for the left flipper, the right half for the right one
- *                         (multi-touch: both at once); the half is decided where the press begins
- *   keyboard              ← or Z = left, → or M = right, Space = both
- * Nothing grabs, drags or flicks the gummy any more. The intro bear can still be poked (a small hidden delight).
- * Attached to the canvas element; the key handlers live on window. The flippers themselves are stepped in Arena.tsx.
+ *                         (multi-touch: both at once); the half is decided where the press begins. The plunger is its own
+ *                         on-screen control in the launch lane (LaunchControl in LabUi.tsx): hold to charge, release to launch
+ *   keyboard              ← or A or Z = left flipper, → or D or M = right flipper, Space = plunger (hold, release)
+ * Space/arrows are only taken while the run is live and focus is not in a button or link (a focused control keeps its own
+ * keys). Nothing grabs, drags or flicks the gummy. The intro bear can still be poked (a small hidden delight).
+ * Attached to the canvas element; the key handlers live on window. The flippers and plunger are drawn in Arena.tsx.
  */
-const MAX_SPEED = 24;
+const MAX_SPEED = 28;
 
 type Side = 0 | 1;
-const LEFT_KEYS = new Set(["ArrowLeft", "z", "Z"]);
-const RIGHT_KEYS = new Set(["ArrowRight", "m", "M"]);
+const LEFT_KEYS = new Set(["ArrowLeft", "a", "A", "z", "Z"]);
+const RIGHT_KEYS = new Set(["ArrowRight", "d", "D", "m", "M"]);
+/** The manual nudge (TASK-185): N. (Shift, the classic nudge key, is left alone: Shift+Tab walks focus back and Shift types capitals.) */
+const NUDGE_KEYS = new Set(["n", "N"]);
 
 export class GummyController {
   private keyLeft = false;
@@ -26,6 +32,8 @@ export class GummyController {
   /** pointerId → side it holds */
   private readonly held = new Map<number, Side>();
   private stall = new StallWatch();
+  /** A release's launch force, waiting for the next fixed step to hit the physics body. */
+  private pendingForce: number | null = null;
   private readonly ray = new Raycaster();
   private readonly plane = new Plane(new Vector3(0, 0, 1), 0);
   private readonly hit = new Vector3();
@@ -53,6 +61,7 @@ export class GummyController {
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
     window.addEventListener("blur", this.cancel);
+    this.rt.syncInput = () => this.sync();
   }
 
   detach() {
@@ -60,26 +69,40 @@ export class GummyController {
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
     window.removeEventListener("blur", this.cancel);
+    this.rt.syncInput = () => {};
   }
 
   /** Release every input (pause, game over, exit, window blur). */
   cancel = () => {
     this.keyLeft = this.keyRight = this.keySpace = false;
+    this.rt.touchPlunger = false;
     this.held.clear();
+    // A lost focus / pause abandons a charge: it never fires a launch the player did not ask for.
+    this.rt.plunger.cancel();
+    this.pendingForce = null;
     this.sync();
   };
 
-  /** The flippers' `pressed` flags are the one place input becomes game state. */
+  /** The flippers' `pressed` flags and the plunger's charge are the one place input becomes game state. */
   private sync() {
     const [l, r] = this.rt.flippers;
-    let pl = this.keyLeft || this.keySpace;
-    let pr = this.keyRight || this.keySpace;
+    let pl = this.keyLeft;
+    let pr = this.keyRight;
     for (const side of this.held.values()) {
       if (side === 0) pl = true;
       else pr = true;
     }
     l.pressed = pl;
     r.pressed = pr;
+    const plunger = this.rt.plunger;
+    if (!this.isLive()) {
+      plunger.cancel();
+      this.pendingForce = null;
+    } else if (this.keySpace || this.rt.touchPlunger) plunger.press();
+    else {
+      const force = plunger.release();
+      if (force !== null) this.pendingForce = force;
+    }
   }
 
   private sideOf(clientX: number): Side {
@@ -136,11 +159,18 @@ export class GummyController {
     if (!this.isLive()) return;
     const active = document.activeElement;
     if (active instanceof HTMLElement && active.matches("input, textarea, select, [contenteditable]")) return;
+    // A focused button or link keeps Space (and the browser's own arrow behaviour): the plunger waits for focus to leave it.
+    const onControl = active instanceof HTMLButtonElement || active instanceof HTMLAnchorElement;
+    if (NUDGE_KEYS.has(e.key)) {
+      if (!e.repeat) this.rt.nudgeRequested = true;
+      if (!onControl) e.preventDefault();
+      return;
+    }
     if (LEFT_KEYS.has(e.key)) this.keyLeft = true;
     else if (RIGHT_KEYS.has(e.key)) this.keyRight = true;
-    else if (e.key === " " && !(active instanceof HTMLButtonElement || active instanceof HTMLAnchorElement)) this.keySpace = true;
+    else if (e.key === " " && !onControl) this.keySpace = true;
     else return;
-    if (e.key.startsWith("Arrow") || e.key === " ") e.preventDefault();
+    if (!onControl && (e.key.startsWith("Arrow") || e.key === " ")) e.preventDefault();
     this.sync();
   };
 
@@ -163,6 +193,52 @@ export class GummyController {
     let vy = v.y;
     let changed = false;
     const centre = { x: pos.x, y: pos.y + 0.5 };
+    const lane = this.rt.arena.lane;
+    // On the plunger (or anywhere in the lane's straight): not a stall, not the drain.
+    const inLane = pos.x > lane.xIn - 0.05 && pos.y < lane.dividerTop - 0.3;
+
+    // The lane's one-way gate shuts as soon as a launched gummy is out in the field; only a new serve reopens it.
+    if (this.rt.launched && !this.rt.laneGateShut && clearedLane(this.rt.arena, pos)) this.rt.laneGateShut = true;
+
+    const shiftBody = (d: { x: number; y: number }) => {
+      const l = Math.hypot(d.x, d.y) || 1;
+      rb.setTranslation({ x: pos.x + (d.x / l) * NUDGE_SHIFT, y: pos.y + (d.y / l) * NUDGE_SHIFT, z: 0 }, true);
+    };
+
+    // The manual nudge: a press waits for the next fixed step, then kicks the gummy up with a random sideways lean (never on the plunger).
+    this.rt.nudge.step(dt);
+    if (this.rt.nudgeRequested) {
+      this.rt.nudgeRequested = false;
+      const k = inLane ? null : this.rt.nudge.fire();
+      if (k) {
+        vx += k.x;
+        vy = Math.max(vy, 0) + k.y;
+        changed = true;
+        shiftBody(k);
+        this.stall.reset();
+        this.rt.hooks.nudge(k.tilt);
+      }
+    }
+
+    // The plunger: its charge advances with the physics step, and a release fires a real impulse into the gummy's body.
+    this.rt.plunger.step(dt * 1000);
+    if (this.pendingForce !== null) {
+      const force = this.pendingForce;
+      this.pendingForce = null;
+      if (inLane && pos.y < lane.restY + 1.4) {
+        // Zero the gummy's velocity, then give it impulse = mass × force (force is the launch speed): the plunger's strength
+        // lands on the body, it is not an animation.
+        rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        rb.applyImpulse({ x: 0, y: rb.mass() * force, z: 0 }, true);
+        this.rt.bear.sinceBounce = 0;
+        this.rt.sinceLaunch = 0;
+        this.rt.launched = true;
+        const progress = (force - MIN_FORCE) / (MAX_FORCE - MIN_FORCE);
+        this.rt.hooks.launch(force, progress, pos.x, pos.y);
+        this.stall.reset();
+        return;
+      }
+    }
 
     for (const f of this.rt.flippers) {
       if (f.cooldown > 0) continue;
@@ -185,12 +261,15 @@ export class GummyController {
 
     // A gummy stuck anywhere but on a flipper is a soft-lock (the player cannot reach it): judged by position, so wind
     // and the low-gravity wobble can't hide it (TASK-184), then nudged on with an escalating, alternating kick.
-    const onFlipper = this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre));
+    // The black hole's pocket (past the left wall's line) is never a stall: the sensor sends the gummy away the moment it is in.
+    const inPocket = pos.x < -this.rt.arena.halfW - 0.05;
+    const onFlipper = inLane || inPocket || this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre));
     const n = this.stall.step(dt, { x: pos.x, y: pos.y }, onFlipper);
     if (n) {
       vx = n.x;
       vy = n.y;
       changed = true;
+      shiftBody(n);
     }
 
     if (changed) {

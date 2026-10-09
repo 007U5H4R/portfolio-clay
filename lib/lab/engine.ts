@@ -19,8 +19,11 @@ export const COUNTDOWN_S = 3;
 const DANGER_RECOVERY_PER_S = 0.6;
 const FARM_WINDOW_S = 2;
 
-export type ActionKind = "pad" | "ring" | "bumper" | "star" | "target" | "save" | "droplet";
-export const ACTION_POINTS: Record<ActionKind, number> = { pad: 25, ring: 100, bumper: 30, star: 150, target: 200, save: 100, droplet: 50 };
+export type ActionKind = "pad" | "ring" | "bumper" | "sling" | "star" | "target" | "save" | "droplet";
+/** Base points per action (before the combo and power-up multipliers). Bumpers are 100 (TASK-185, spec §10); a target's own value is in TARGET_POINTS. */
+export const ACTION_POINTS: Record<ActionKind, number> = { pad: 25, ring: 100, bumper: 100, sling: 30, star: 150, target: 200, save: 100, droplet: 50 };
+/** The four pinball targets (spec §19): what each is worth before the combo multiplier. */
+export const TARGET_POINTS: Record<TargetName, number> = { AI: 150, DESIGN: 200, PRODUCT: 250, BUILD: 300 };
 
 export type PowerUpType = "SUPER_SQUISH" | "LOW_GRAVITY" | "RAINBOW" | "GOLDEN" | "TIME_FREEZE";
 export const POWER_SECONDS: Record<PowerUpType, number> = { SUPER_SQUISH: 8, LOW_GRAVITY: 7, RAINBOW: 7, GOLDEN: 6, TIME_FREEZE: 3 };
@@ -202,8 +205,8 @@ export class GameEngine {
     }
   }
 
-  /** A useful action (pad, bumper, ring, star, target, save). Returns the points awarded. */
-  action(kind: ActionKind, id?: string | number): number {
+  /** A useful action (pad, bumper, ring, star, target, save). `base` overrides the kind's base points (targets). Returns the points awarded. */
+  action(kind: ActionKind, id?: string | number, base?: number): number {
     const farm = id !== undefined && id === this.lastActionId && this.time - this.lastActionAt < FARM_WINDOW_S;
     this.lastActionId = id;
     this.lastActionAt = this.time;
@@ -218,7 +221,7 @@ export class GameEngine {
       }
       if (this.chain >= COMBO_MAX) this.achieve("WOBBLE_MASTER");
     }
-    const points = ACTION_POINTS[kind] * (farm ? 0.2 : this.combo) * this.scoreMultiplier();
+    const points = (base ?? ACTION_POINTS[kind]) * (farm ? 0.2 : this.combo) * this.scoreMultiplier();
     this.bonus += points;
     return points;
   }
@@ -233,8 +236,9 @@ export class GameEngine {
     this.action(kind, id);
   }
 
-  hitTarget(name: TargetName) {
-    this.action("target", name);
+  /** A target was hit: its own points × the combo. Returns the points awarded. */
+  hitTarget(name: TargetName): number {
+    const points = this.action("target", name, TARGET_POINTS[name]);
     this.targets.add(name);
     if (this.targets.size === 4 && !this.tpMode) {
       this.tpMode = true;
@@ -242,6 +246,7 @@ export class GameEngine {
       this.emit({ type: "tp-mode" });
       this.achieve("PRODUCT_SENSE");
     }
+    return points;
   }
 
   activate(type: PowerUpType) {

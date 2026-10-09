@@ -10,6 +10,7 @@ import { PNG } from "pngjs";
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 import { PII_PATTERNS } from "@/scripts/forbidden-strings";
+import { qrSize } from "@/lib/card/qr";
 
 const tag = { tag: "@EVAL-029" };
 const FLIP = "[data-flip]";
@@ -139,8 +140,8 @@ test("pointer movement tilts the card and moves nearer layers further (fine poin
   await page.waitForTimeout(500);
   const shift = (id: string) =>
     page.locator(`[data-layer="${id}"]`).first().evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
-  const far = await shift("far");
-  const near = await shift("ripples");
+  const far = await shift("silhouette");
+  const near = await shift("eyes");
   expect(Math.abs(near)).toBeGreaterThan(Math.abs(far));
   expect(Math.abs(far)).toBeLessThan(10); // stays inside the bleed (§62)
   expect(Math.abs(near)).toBeLessThan(20);
@@ -176,4 +177,105 @@ test("reduced motion: crossfade, no 3D transform, tilt off", tag, async ({ page,
   s = await probe();
   expect(s.card).toBe("none");
   expect([s.front, s.back]).toEqual(["0", "1"]);
+});
+
+// ---- TASK-180: Panther Origami remodel ----
+
+const PANTHER_LAYERS = ["silhouette", "neck", "head", "face", "nose", "eyes"];
+
+for (const theme of ["light", "dark"] as const) {
+  test(`the panther's depth layers exist and load for the ${theme} theme`, tag, async ({ page, request }) => {
+    await page.goto("/card");
+    await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+    const ids = await page.locator('[data-face="front"] [data-panther-layer]').evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.pantherLayer));
+    expect(ids).toEqual(PANTHER_LAYERS);
+    for (const id of PANTHER_LAYERS) {
+      const bg = await page.locator(`[data-face="front"] [data-panther-layer="${id}"]`).evaluate((e) => getComputedStyle(e).backgroundImage);
+      expect(bg, id).toContain(`/media/card/panther/${id}-${theme}.webp`);
+      const res = await request.get(`/media/card/panther/${id}-${theme}.webp`);
+      expect(res.status(), id).toBe(200);
+      expect(res.headers()["content-type"]).toBe("image/webp");
+      expect((await res.body()).length, id).toBeLessThan(250 * 1024);
+    }
+    // the back carries a small cropped silhouette, not the full stack
+    expect(await page.locator('[data-face="back"] [data-panther-layer]').count()).toBe(2);
+  });
+}
+
+test("no panther layer box exceeds the card box at rest or at maximum tilt (no clipping)", tag, async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 1024, "tilt is the fine-pointer path");
+  await page.goto("/card");
+  const inside = () =>
+    page.evaluate(() => {
+      const c = document.querySelector("[data-card]")!.getBoundingClientRect();
+      const bad: string[] = [];
+      document.querySelectorAll('[data-face="front"] [data-panther-layer]').forEach((el) => {
+        const r = el.getBoundingClientRect();
+        // "silhouette" is blurred by design; its box is still inside the card
+        if (r.left < c.left - 0.5 || r.right > c.right + 0.5 || r.top < c.top - 0.5 || r.bottom > c.bottom + 0.5)
+          bad.push((el as HTMLElement).dataset.pantherLayer!);
+      });
+      return bad;
+    });
+  expect(await inside()).toEqual([]);
+  const box = (await page.locator("[data-card]").boundingBox())!;
+  for (const [fx, fy] of [[0.99, 0.01], [0.01, 0.99], [0.99, 0.99], [0.01, 0.01]] as const) {
+    await page.mouse.move(box.x + box.width * fx, box.y + box.height * fy, { steps: 6 });
+    await page.waitForTimeout(450);
+    expect(await inside(), `${fx},${fy}`).toEqual([]);
+  }
+});
+
+test("the QR keeps its module count and quiet zone, and nothing overlaps it", tag, async ({ page }) => {
+  await page.goto("/card");
+  await flipToBack(page);
+  const origin = new URL((await page.locator('link[rel="canonical"]').getAttribute("href"))!).origin;
+  const n = qrSize(`${origin}/card`);
+  const geo = await page.locator("[data-qr]").evaluate((svg) => {
+    const vb = (svg as SVGSVGElement).viewBox.baseVal;
+    const r = svg.getBoundingClientRect();
+    const rects = [...document.querySelectorAll('[data-face="back"] [class*="bracket"]')].map((b) => b.getBoundingClientRect());
+    const overlaps = rects.filter((b) => b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top).length;
+    return { vb: vb.width, w: r.width, overlaps };
+  });
+  expect(geo.vb).toBe(n + 6); // 3-module quiet zone each side
+  expect(geo.overlaps).toBe(0);
+  expect(geo.w / geo.vb).toBeGreaterThan(3); // modules stay >3 css px
+});
+
+test("Save contact is the black pill that downloads /card/vcard", tag, async ({ page }) => {
+  await page.goto("/card");
+  await flipToBack(page);
+  const save = page.locator("[data-save-contact]");
+  await expect(save).toHaveAttribute("href", "/card/vcard");
+  await expect(save).toContainText("Save contact");
+  const [dl] = await Promise.all([page.waitForEvent("download"), save.click()]);
+  expect(dl.suggestedFilename()).toMatch(/\.vcf$/);
+});
+
+test("reduced motion: panther layers are static, no tilt or parallax", tag, async ({ page, withReducedMotion }) => {
+  await withReducedMotion(page);
+  await page.goto("/card");
+  const box = (await page.locator("[data-card]").boundingBox())!;
+  await page.mouse.move(box.x + 10, box.y + 10);
+  await page.mouse.move(box.x + box.width - 10, box.y + box.height - 10, { steps: 5 });
+  await page.waitForTimeout(400);
+  const t = await page.locator("[data-panther-layer]").evaluateAll((els) => els.map((e) => getComputedStyle(e).transform));
+  expect(new Set(t)).toEqual(new Set(["none"]));
+  expect(await page.locator("[data-card-root]").evaluate((e) => (e as HTMLElement).style.getPropertyValue("--ny"))).toBe("");
+});
+
+test("no infinite animation runs on /card (it sleeps at rest)", tag, async ({ page }) => {
+  await page.goto("/card");
+  await page.waitForTimeout(800);
+  const infinite = await page.evaluate(() =>
+    document
+      .getAnimations()
+      .filter((a) => {
+        const el = (a.effect as KeyframeEffect | null)?.target as Element | null;
+        return el?.closest("[data-card-root]") && a.effect?.getComputedTiming().iterations === Infinity;
+      })
+      .length,
+  );
+  expect(infinite).toBe(0);
 });

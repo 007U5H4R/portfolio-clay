@@ -1,5 +1,6 @@
 "use client";
 
+import { portalOnce } from "./portal-exit";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { ACHIEVEMENTS } from "@/lib/lab/storage";
@@ -83,6 +84,8 @@ export function Driver() {
           break;
         }
         case "game-over":
+          // The drain took it (spec §22): say so for a beat while the gummy melts.
+          banner("DRAINED", 1400);
           audio.play("gameover");
           burst(rt.bear.x, rt.bear.y + 0.3, "droplet", 18, 0);
           rt.shake = 0.6;
@@ -107,18 +110,34 @@ export function Driver() {
       },
       bumper(id, x, y) {
         fx.bumper(id, x, y);
-        engine.action("bumper", id);
+        const pts = engine.action("bumper", id);
+        rt.popup(`+${Math.round(pts)}`, x, y + 0.9);
         audio.play("bounce");
       },
       target(id, x, y) {
         fx.target(id, x, y);
-        engine.hitTarget(id);
+        const pts = engine.hitTarget(id);
+        rt.popup(`+${Math.round(pts)}`, x, y + 0.7);
         audio.play("star");
       },
-      portal() {
-        if (!store.getState().machine.running) return;
-        engine.foundHiddenInteraction();
-        rt.requestExit("portal");
+      sling(id, x, y) {
+        fx.sling(id, x, y);
+        engine.action("sling", id);
+        audio.play("bounce");
+      },
+      launch(force, progress, x, y) {
+        fx.launch(force, progress, x, y);
+        audio.play(progress > 0.5 ? "bounce" : "squish");
+        // The start plaque is only for before the first launch (store.launched drives it); the one-line hint starts now.
+        st().patch({ launched: true });
+        if (acc.current.hint <= 1) hint(2, HINTS.first);
+      },
+      portal: portalOnce(() => store.getState().machine.running, () => engine.foundHiddenInteraction(), () => rt.requestExit("portal")),
+      nudge(tilt) {
+        fx.nudge(tilt);
+        st().patch({ nudgeRun: st().nudgeRun + 1 });
+        audio.play("squish");
+        if (tilt) banner("TILT!", 1100);
       },
       pickup(id) {
         const item = rt.spawner.items.find((i) => i.id === id);
@@ -175,10 +194,11 @@ export function Driver() {
   // A new run: first-session hint restarts only until the visitor has seen it through once.
   const runId = rt.store((s) => s.runId);
   useEffect(() => {
+    // TASK-185: no overlay before the launch (the start plaque is the only instruction); the one-line hint begins at the launch.
     if (runId === 0 || hintsFinished) return;
-    acc.current.hint = 1;
+    acc.current.hint = 0;
     acc.current.hintAge = 0;
-    rt.store.getState().patch({ hint: HINTS.first });
+    rt.store.getState().patch({ hint: null });
   }, [rt, runId]);
 
   useFrame((_, rawDt) => {

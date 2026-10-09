@@ -162,7 +162,7 @@ export function Hero() {
 
           <div className="hero-cta-row">
             <Link href="/projects" className="hero-btn hero-btn-primary focus-ring">
-              View my work →
+              View my work <span className="btn-arrow">→</span>
             </Link>
             <div className="hero-ask">
               {/* TKT-113: opens the Ask Tushky drawer (spec §24); `#ask` stays the no-JS fallback. */}

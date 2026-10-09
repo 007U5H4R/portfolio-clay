@@ -10,7 +10,7 @@ const NEXT = resolve(process.cwd(), ".next");
 const HOME = resolve(NEXT, "server/app/index.html");
 const built = existsSync(HOME);
 
-const MARKERS = ["data-card-root", "paper-light.webp", "paper-dark.webp", "sailboat.webp", "qrcode-generator"];
+const MARKERS = ["data-card-root", "paper-light.webp", "paper-dark.webp", "sailboat.webp", "media/card/panther", "qrcode-generator"];
 
 describe.skipIf(!built)("card bundle isolation (home first-load set)", () => {
   it("home HTML and its first-load chunks carry no card markers", () => {

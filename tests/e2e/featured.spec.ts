@@ -221,6 +221,8 @@ const hoverStyles = async (page: Page, name: string) => {
       t: getComputedStyle(el).translate,
       a: getComputedStyle(el.querySelector(".fw-cta-arrow")!).translate,
       f: getComputedStyle(el).filter,
+      s: getComputedStyle(el).boxShadow,
+      o: getComputedStyle(el, "::after").opacity,
     }));
   const before = await read();
   await link.hover();
@@ -237,7 +239,13 @@ test("@EVAL-010 Explore hover lifts 1 px and steps the arrow 3 px; reduced motio
   const normal = await hoverStyles(page, "RailCite");
   expect(normal.after.t).toBe("0px -1px");
   expect(normal.after.a).toBe("3px");
-  expect(normal.after.f, "stronger shadow on hover").not.toBe(normal.before.f);
+  // EXE-61 (TASK-181): the torn silhouette's drop-shadow filter is static and never changes on hover; the hover shadow is
+  // the paper-button contract's box-shadow swap (depth-1 → depth-2), which is never transitioned.
+  expect(normal.after.f, "the filter stays static on hover (EXE-61)").toBe(normal.before.f);
+  expect(normal.after.s, "stronger shadow on hover (the contract's box-shadow swap)").not.toBe(normal.before.s);
+  // the visible part: the masked ::after shadow crossfades by opacity (0 → 1), it is not a filter or box-shadow transition
+  expect(Number(normal.before.o), "torn shadow hidden at rest").toBe(0);
+  expect(Number(normal.after.o), "torn shadow shown on hover").toBe(1);
 
   await withReducedMotion(page);
   await page.goto("/", { waitUntil: "load" });

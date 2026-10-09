@@ -31,6 +31,24 @@ export const easings = {
   hover: "cubic-bezier(0.23,1,0.32,1)",
   panel: "cubic-bezier(0.32,0.72,0,1)",
   vt: "cubic-bezier(.77,0,.175,1)",
+  /** M-012 interaction tokens (`--ease-paper`, `--ease-l1`, `--ease-press`; Design.md §14.10). */
+  paper: "cubic-bezier(0.22,1,0.36,1)",
+  l1: "cubic-bezier(0.25,1,0.5,1)",
+  press: "cubic-bezier(0.3,0.7,0.4,1.4)",
+} as const;
+
+/**
+ * M-012 motion levels in ms (`--dur-l1`, `--dur-l1-out`, `--dur-l2`, `--dur-l2-out`, `--dur-l3`, `--dur-press` in
+ * `app/globals.css @theme`). Bands (Design.md §14.10): L1 150–250 · L2 300–700 · L3 500–1200. `l1Out`/`l2Out` are the
+ * leave durations, a little shorter than the enter.
+ */
+export const interactionDurations = {
+  l1: 180,
+  l1Out: 150,
+  l2: 420,
+  l2Out: 320,
+  l3: 700,
+  press: 90,
 } as const;
 
 /**

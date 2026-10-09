@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Color, DynamicDrawUsage, IcosahedronGeometry, InstancedMesh, MeshBasicMaterial, Object3D } from "three";
-import { col } from "./materials";
+import { neonColors } from "./paper-kit";
 import { useRuntime } from "./runtime";
 
 /**
@@ -15,8 +15,12 @@ export function Particles() {
   const mesh = useRef<InstancedMesh>(null);
   const dummy = useMemo(() => new Object3D(), []);
   const geo = useMemo(() => new IcosahedronGeometry(1, 0), []);
-  const mat = useMemo(() => new MeshBasicMaterial({ color: new Color(1, 1, 1), transparent: true, opacity: 0.9, depthWrite: false }), []);
-  const colors = useMemo(() => [col(rt.palette.peach), col(rt.palette.pink), col(rt.palette.gold), col(rt.palette.cream), col(rt.palette.cyan)], [rt.palette]);
+  const mat = useMemo(() => new MeshBasicMaterial({ color: new Color(1, 1, 1), transparent: true, opacity: 0.9, depthWrite: false, toneMapped: false }), []);
+  // Slots (TASK-185): 0 amber, 1 magenta, 2 warm white, 3 cream-white, 4 cyan. Restrained: a few tiny sparks, never confetti.
+  const colors = useMemo(() => {
+    const n = neonColors(rt.palette);
+    return [n.amber, n.magenta, n.white, n.white.clone().lerp(n.amber, 0.3), n.cyan];
+  }, [rt.palette]);
   useEffect(() => {
     const m = mesh.current;
     if (!m) return;
@@ -43,7 +47,7 @@ export function Particles() {
       if (a <= 0) {
         dummy.scale.setScalar(0);
       } else {
-        dummy.position.set(p.x[i]!, p.y[i]!, 0.4);
+        dummy.position.set(p.x[i]!, p.y[i]!, 0.45);
         dummy.scale.setScalar(p.size[i]! * (0.4 + a * 0.8));
         m.setColorAt(i, colors[p.color[i]! % colors.length]!);
       }
@@ -53,5 +57,7 @@ export function Particles() {
     m.instanceMatrix.needsUpdate = true;
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
   });
+  // Reduced motion: a pool of capacity 0 (create-runtime.ts) draws nothing at all.
+  if (rt.particles.capacity === 0) return null;
   return <instancedMesh ref={mesh} args={[geo, mat, rt.particles.capacity]} frustumCulled={false} renderOrder={6} />;
 }

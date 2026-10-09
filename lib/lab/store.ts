@@ -45,10 +45,14 @@ export interface LabSnapshot {
   assetStatus: "loading" | "ready" | "failed";
   summary: RunSummary | null;
   toasts: Toast[];
+  /** The gummy has left the plunger at least once this run (the start plaque shows until then). */
+  launched: boolean;
   /** Bumped on every new run so scene parts can key off it. */
   runId: number;
   /** Bumped whenever pickups spawn, expire or are collected (the scene re-reads the spawner). */
   pickupsVersion: number;
+  /** Bumped on every manual nudge (the Nudge button shows its recharge from it). */
+  nudgeRun: number;
 }
 
 export interface LabStore extends LabSnapshot {
@@ -76,8 +80,10 @@ const initial = (): Omit<LabSnapshot, "state"> => ({
   assetStatus: "loading",
   summary: null,
   toasts: [],
+  launched: false,
   runId: 0,
   pickupsVersion: 0,
+  nudgeRun: 0,
 });
 
 /** One store per lab mount (never shared across enter/exit cycles: no leaked state). */

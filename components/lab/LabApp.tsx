@@ -13,7 +13,7 @@ import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { Diorama } from "./Diorama";
 import { IntroBack, IntroFront } from "./IntroScene";
-import { CenterText, Chrome, FlipLive, Hint, Hud, PauseCard, PowerChips, Results, Toasts, TpEmblem } from "./LabUi";
+import { BackPortal, CenterText, Chrome, FlipLive, Hint, Hud, LaunchControl, PauseCard, PowerChips, Results, ScorePops, StartPlaque, Toasts, TpEmblem } from "./LabUi";
 import { Fallback } from "./Fallback";
 import { GUMMY_URL } from "./gummy-url";
 import type { LabRuntime } from "./runtime";
@@ -55,10 +55,12 @@ export default function LabApp() {
   // The diorama's art is only requested once the canvas exists, so the lab's own first load is unchanged.
   const [art, setArt] = useState(false);
 
+  const [exitedFromMachine, setExitedFromMachine] = useState(false);
   const exit = useCallback(
     (via: "portal" | "button" = "button") => {
       const s = store.getState();
       if (s.state === "EXITING") return;
+      setExitedFromMachine(s.machine.live || s.state === "COUNTDOWN");
       s.send("EXIT");
       if (runtime) runtime.exit = { via, t: 0 };
       const monogram = document.querySelector("[data-site-header] .header-monogram");
@@ -132,7 +134,17 @@ export default function LabApp() {
       runtime.jelly.reset();
       runtime.melt = 0;
       runtime.reform = 0;
-      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], tpMode: false, banner: null, hint: null, summary: null });
+      // Every run starts on the plunger at 0%: the gummy parks at the launcher (Gummy.tsx), the charge, the trail and the plaque reset.
+      runtime.plunger.cancel();
+      runtime.touchPlunger = false;
+      runtime.launched = false;
+      runtime.laneGateShut = false;
+      runtime.nudge.reset();
+      runtime.nudgeRequested = false;
+      runtime.sinceLaunch = Infinity;
+      runtime.trail.clear();
+      runtime.particles.clear();
+      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], tpMode: false, banner: null, hint: null, summary: null, launched: false });
     },
     [store, runtime],
   );
@@ -172,6 +184,9 @@ export default function LabApp() {
   }, [state, runtime]);
   const introOn = mode === "canvas" && (state === "DISCOVERED" || state === "INTRO" || leaving);
   const running = state === "PLAYING" || state === "DANGER" || state === "PAUSED" || state === "COUNTDOWN";
+  // The machine is on screen (Arena.tsx shows it for these states): the black hole is the exit and the plunger control is live.
+  // Leaving keeps whichever layout the visitor was in (an exit from the intro or the results never zooms the frame).
+  const onMachine = state === "EXITING" ? exitedFromMachine : running || state === "GAME_OVER";
 
   return (
     <div
@@ -182,6 +197,7 @@ export default function LabApp() {
       data-lab-path={LAB_PATH}
       data-intro={introOn ? (leaving ? "leaving" : "on") : undefined}
       data-theme-mode={tp ? "tp" : undefined}
+      data-machine={mode === "canvas" && onMachine ? "" : undefined}
       data-lenis-prevent=""
       onClickCapture={(e) => {
         if ((e.target as Element).closest("button, a")) runtime?.audio.play("click");
@@ -195,7 +211,7 @@ export default function LabApp() {
           </div>
         </Diorama>
       ) : null}
-      {mode === "canvas" ? <Chrome store={store} onExit={() => exit("button")} onMute={toggleMute} /> : (
+      {mode === "canvas" ? <Chrome store={store} onExit={() => exit("button")} onMute={toggleMute} showBack={!onMachine} /> : (
         <div className={styles.chrome}>
           <Link className={styles.back} href="/" onClick={(e) => { e.preventDefault(); exit("button"); }}>
             <span aria-hidden="true">←</span> Back to Portfolio
@@ -205,13 +221,17 @@ export default function LabApp() {
       {mode === "canvas" ? (
         <>
         {introOn ? <IntroFront art={art} text={state === "INTRO" || leaving} leaving={leaving} onPlay={() => startRun("PLAY")} /> : null}
+        {runtime && onMachine ? <BackPortal runtime={runtime} onExit={() => exit("portal")} /> : null}
+        {runtime && onMachine ? <LaunchControl runtime={runtime} store={store} /> : null}
         <div className={styles.opening} data-lab-opening="">
-          {running ? <Hud store={store} onPause={togglePause} /> : null}
+          {running ? <Hud store={store} onPause={togglePause} runtime={runtime ?? undefined} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />
           <TpEmblem store={store} />
           <Hint store={store} />
           <FlipLive store={store} />
+          {runtime ? <StartPlaque runtime={runtime} store={store} /> : null}
+          {runtime ? <ScorePops runtime={runtime} /> : null}
           <Toasts store={store} />
           {debug && runtime ? <DebugPanel runtime={runtime} /> : null}
           {state === "DISCOVERED" ? <p className={styles.loading} role="status">Warming up the Gummy Lab…</p> : null}

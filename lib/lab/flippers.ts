@@ -152,12 +152,21 @@ export function nearFlipper(l: FlipperLayout, s: FlipperState, ball: Vec2): bool
  * wedged between the green ball and the blue rail, never freed). Each nudge flips direction and grows, and every second
  * try pushes DOWN, so a gummy pinned under a rail is pulled out instead of being driven further into it.
  */
-export const STALL_AFTER_S = 1.1;
+export const STALL_AFTER_S = 0.9;
 export const STALL_RADIUS = 0.35;
 /** Distance from the last stuck point beyond which the gummy counts as freed. */
 export const STALL_ESCAPED = 1.2;
-const NUDGE_BASE = 3.2;
+const NUDGE_BASE = 6;
+/** Sideways lean of the upward tries, in turn: nearly straight up, then a steep diagonal, then straight up with full strength. */
+const NUDGE_LEANS = [0.25, 0.9, 0];
 const NUDGE_GROWTH = 1.35;
+const NUDGE_MAX_SPEED = 16;
+/**
+ * A nudge also moves the body this far along its direction. A gummy wedged between two bumpers is held by the contact solver, so
+ * a velocity alone is undone on the next step (the headless scan in tests/unit/lab-wedge.test.ts: 45 of 300 drops stayed stuck with
+ * velocity-only nudges, none with the shift).
+ */
+export const NUDGE_SHIFT = 0.08;
 const NUDGE_MAX_TRIES = 4;
 
 export class StallWatch {
@@ -183,8 +192,12 @@ export class StallWatch {
     const k = Math.min(this.tries, NUDGE_MAX_TRIES);
     const away = pos.x >= 0 ? -1 : 1;
     const side = k % 2 === 0 ? away : -away;
-    const mag = NUDGE_BASE * Math.pow(NUDGE_GROWTH, k);
-    const nudge = { x: side * mag, y: k % 2 === 0 ? mag * 0.9 : -mag * 0.6 };
+    const mag = Math.min(NUDGE_MAX_SPEED, NUDGE_BASE * Math.pow(NUDGE_GROWTH, k));
+    // Even tries go UP (leaning a little to one side): a gummy wedged in a pocket between two bumpers, which it fell into from
+    // above, only comes out straight up (TASK-185: the 2026-10-08 phone screenshot). Odd tries go sideways and DOWN to pull a
+    // gummy out from under a rail (TASK-184). Each try flips side and grows.
+    const lean = NUDGE_LEANS[(k >> 1) % NUDGE_LEANS.length]!;
+    const nudge = k % 2 === 0 ? { x: side * mag * lean, y: mag } : { x: side * mag, y: -mag * 0.6 };
     this.tries += 1;
     this.still = 0;
     this.anchor = { x: pos.x, y: pos.y };

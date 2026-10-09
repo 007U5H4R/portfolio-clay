@@ -216,3 +216,17 @@ Any motion under reduced motion · a permission prompt without a gesture · scro
 
 ### 10.6 Site-wide latency budget (TASK-155, Tushar 2026-10-06) — binding on every M-011 track
 Tushar: "the site must not lag and must have no latency issues." TASK-155 (another session) owns the measurement and a runtime-smoothness eval (no long animation frame > 50 ms during scroll). M-011 adopts it rather than duplicating it: every track's gate runs EVAL-004 (Lighthouse Perf ≥ 90 mobile + desktop), EVAL-005 and the TASK-155 smoothness check on the routes it touches, alongside EVAL-032/035/036. Rules already encoded above: nothing animates off-screen or covered; transform/opacity only; layers lazy, only the page's own LCP image preloaded (TASK-149's route-prefetch preloads are not to be repeated by layers); one rAF loop with spring smoothing; passive listeners.
+
+## 11. M-012 addendum — Premium interaction system (Stage 3, 2026-10-08; approved with S35, Solution-PRD §15)
+Consumes `Solution-PRD.md` §15 and `Design.md` §14.10. Decisions S35, EXE-59…EXE-64. **Rule of the addendum (same as §8–§10):** every earlier row and threshold carries forward; this section adds four rows (EVAL-040…043) and rewords two (EVAL-037, EVAL-039) in wording only. Nothing is lowered (EV2). Data: `evals/eval-cases.json` v1.4.0.
+
+| Id | Feature | Threshold | Lands |
+|---|---|---|---|
+| EVAL-040 | interaction-hierarchy-contract (no box-shadow/filter/backdrop-filter/layout in hover transitions, no hover scale-ups, focus-visible twins, hover gated to fine pointers, level duration bands) | 0 forbidden transition props · 0 hover scale-ups · 0 hover-only feedback · 0 sticky hovers | P1 (TASK-181.1) |
+| EVAL-041 | object-motion-single-source (one listener, one loop, `--hx/--hy` on one object, offsets within 1 px, no scroll activation, no edge gaps) | listeners 1 · loops 1 · idle rAF 0 · scroll activations 0 · edge gaps 0 | P2 (TASK-181.2); unit half in P1 |
+| EVAL-042 | interaction-rm-touch-parity | RM transforms 0 · touch writes 0 · sticky hovers 0 | P4 (TASK-181.4) |
+| EVAL-043 | project-signatures (distinct, finite, focus parity, off-screen 0, rest pose ≤ 0.5 %) | distinct 3/3 · infinite 0 · off-screen 0 · diff ≤ 0.5 % | P2 (TASK-181.2) |
+| EVAL-037 (wording) | P1: the 1 px hover / 1 px press probe adds `header-pill`, `hit-pill`, `acx-btn` and `pf-action` (`pf-play` is covered by EVAL-040's stylesheet walk); P2: `.paper-lift` cards join the probe set | unchanged | P1 / P2 |
+| EVAL-039 (wording) | adds a scripted hover sweep over the FeaturedWork trio and Portfolio thumbs | unchanged | P2 |
+
+EVAL-032 (1 listener, 1 loop, 0 idle rAF) and EVAL-037 (button hover −1 px, press +1 px; card −4 px ± 1) stay green and unweakened through every phase (EXE-38). Specs for EVAL-041/042/043 (and EVAL-040 until P1 lands) are listed in `DEFERRED_SPECS` in `scripts/eval-cases.ts` and removed as each lands.

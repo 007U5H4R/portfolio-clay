@@ -207,7 +207,7 @@ test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)"
     await expect(page.getByText("Keep the Gummy Alive")).toBeVisible();
     const how = page.getByRole("list", { name: "How to play" });
     await expect(how.getByRole("listitem")).toHaveCount(4);
-    for (const t of ["Tap left / right", "Keep the gummy", "Hit", "Don't let it drain"]) await expect(how.getByText(t, { exact: true })).toBeAttached();
+    for (const t of ["Hold Space", "Tap left / right", "Hit", "Don't let it drain"]) await expect(how.getByText(t, { exact: true })).toBeAttached();
     const cta = page.getByRole("button", { name: /^let.s play/i });
     await expect(cta).toBeVisible();
     const b = (await cta.boundingBox())!;
@@ -245,7 +245,7 @@ test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)"
       expect(r.back).toEqual(["bg", "arch", "stage", "props-left", "props-right"]);
       expect(r.front).toEqual(["fg"]);
       expect(r.keys).toBe(true);
-      await expect(page.locator("[data-lab-keys]")).toContainText("← → flip · Space both · P pause · Esc exit");
+      await expect(page.locator("[data-lab-keys]")).toContainText("← → flip · Space launch · N nudge · P pause · Esc exit");
     }
     await expect.poll(async () => (await page.evaluate(() => Array.from(document.querySelectorAll<HTMLImageElement>("[data-lab-intro-back] img, [data-lab-intro-front] img")).filter((i) => i.offsetParent !== null).every((i) => i.complete && i.naturalWidth > 0))), { timeout: 20_000 }).toBe(true);
   });
