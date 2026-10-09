@@ -17,8 +17,10 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     # The full suite (~2,950 Playwright tests across four widths, plus Lighthouse) outgrew 30 min at
-    # one worker: the TASK-133 run (PR #4) was cancelled at test 2225. 60 min leaves headroom.
-    timeout-minutes: 60
+    # one worker: the TASK-133 run (PR #4) was cancelled at test 2225. 60 min left headroom until the
+    # suite grew past ~3,800 tests (M-010/M-011); from 2026-10-08 every main run was cancelled at the
+    # 60-min limit (TASK-190). 120 min covers the current ~65 min run with room to grow.
+    timeout-minutes: 120
     # `pnpm build` / `pnpm eval` / `pnpm test:e2e` wrap their command in `dotenv -e .env.tooling`,
     # which pins TMPDIR + PLAYWRIGHT_BROWSERS_PATH to this machine's E Drive (machine constraint).
     # dotenv-cli never overrides a variable already present in the environment, so setting both
