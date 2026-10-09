@@ -279,3 +279,17 @@ test("no infinite animation runs on /card (it sleeps at rest)", tag, async ({ pa
   );
   expect(infinite).toBe(0);
 });
+
+// TASK-180 follow-up (Tushar, 2026-10-09): the faded back-face panther sits in the bottom-LEFT corner,
+// clear of the navy/gold fold in the bottom-right.
+test("the back-face panther sits in the bottom-left corner", tag, async ({ page }) => {
+  await page.goto("/card");
+  await flipToBack(page);
+  const pos = await page.evaluate(() => {
+    const back = document.querySelector('[data-face="back"]')!.getBoundingClientRect();
+    const p = document.querySelector('[data-face="back"] [data-panther="back"]')!.getBoundingClientRect();
+    const cx = (Math.max(p.left, back.left) + Math.min(p.right, back.right)) / 2; // centre of the visible part
+    return { leftHalf: cx < back.left + back.width / 2, lowerHalf: p.top > back.top + back.height / 2 };
+  });
+  expect(pos).toEqual({ leftHalf: true, lowerHalf: true });
+});
