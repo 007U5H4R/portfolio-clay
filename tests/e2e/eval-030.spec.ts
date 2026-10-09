@@ -595,6 +595,39 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
       return at;
     });
     await page.waitForFunction(() => (window as unknown as { __nudges: number }).__nudges >= 1, null, { timeout: 60_000 });
+    await page.waitForFunction(([x, y]) => Math.hypot(window.__gummyLab!.rt.bear.x - (x as number), window.__gummyLab!.rt.bear.y - (y as number)) > 0.5, [rest.x, rest.y] as const, { timeout: 60_000 });
+    expect(await page.evaluate(() => (window as unknown as { __nudges: number }).__nudges)).toBe(1);
+  });
+
+  test("@EVAL-030 the Nudge button is a labelled, focusable control that shakes the table and recharges", async ({ page }, info) => {
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    await launch(page, 0.05);
+    await page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut, null, { timeout: 90_000 });
+    await countCalls(page, "hooks.nudge", "__nudges");
+    const btn = page.getByRole("button", { name: "Nudge the machine" });
+    await expect(btn).toHaveCount(1);
+    const box = (await btn.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    // clear of the plunger control and inside the viewport
+    const vp = page.viewportSize()!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 0.5);
+    const plunger = await page.locator("[data-lab-plunger]").boundingBox();
+    if (plunger) expect(box.x + box.width <= plunger.x || plunger.x + plunger.width <= box.x || box.y + box.height <= plunger.y || plunger.y + plunger.height <= box.y).toBe(true);
+    // wedge the gummy, then use the button (a tap at w390, a click on desktop)
+    const rest = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const at = rt.arena.halfW < 4 ? { x: -0.57, y: 3.42 } : { x: -4.5, y: 3.97 };
+      rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
+      rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      return at;
+    });
+    if (info.project.name === "w390") await btn.tap();
+    else await btn.click();
+    await page.waitForFunction(() => (window as unknown as { __nudges: number }).__nudges >= 1, null, { timeout: 60_000 });
     // it recharges (the real cooldown, in game time): dimmed and aria-disabled the moment it fires, ready again once it is over
     await expect(btn).toHaveAttribute("aria-disabled", "true");
     await page.waitForFunction(([x, y]) => Math.hypot(window.__gummyLab!.rt.bear.x - (x as number), window.__gummyLab!.rt.bear.y - (y as number)) > 0.5, [rest.x, rest.y] as const, { timeout: 60_000 });
