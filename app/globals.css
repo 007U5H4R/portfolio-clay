@@ -13021,6 +13021,20 @@ html[data-theme-vt]::view-transition-group(root) {
   :root .header-nav-link:is(:hover, :focus-visible, :active) .nt-lift {
     transform: none;
   }
+  /* the underline does not wipe: it is always full width and only its opacity says current / hover / focus */
+  :root .header-nav-link .hn-strip {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+  :root .header-nav-link:is(:hover, :focus-visible) .hn-strip {
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
+  :root .header-nav-link[aria-current="page"] .hn-strip,
+  :root .header-nav-link[aria-current="page"]:is(:hover, :focus-visible) .hn-strip {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 /* end M-013 header */
 

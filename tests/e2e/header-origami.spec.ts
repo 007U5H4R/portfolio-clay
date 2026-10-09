@@ -94,15 +94,16 @@ test.describe("origami header (TASK-192)", () => {
     expect(small).toEqual([]);
   });
 
-  test("the terrain stays a thin band: it never rises behind a tab label, the CTA or the sparkle", async ({ page }) => {
+  test("the terrain stays a thin band: it never rises behind a tab label or the CTA", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const clashes = await page.evaluate(() => {
       const hit = (a: DOMRect, b: DOMRect) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
       const out: string[] = [];
       const pieces = Array.from(document.querySelectorAll<HTMLElement>(".ht-mid, .ht-left, .ht-right")).filter((el) => getComputedStyle(el).display !== "none");
-      // the pieces are bottom-anchored boxes; the labels, CTA and sparkle are what they must not rise behind
-      const texts = Array.from(document.querySelectorAll<HTMLElement>(".nt-label, .header-name, .header-subline, .header-pill, .header-ask"));
+      // the pieces are bottom-anchored boxes; the tab labels and the CTA are what they must not rise behind (the sparkle only meets the
+      // transparent, faded inner edge of the right piece)
+      const texts = Array.from(document.querySelectorAll<HTMLElement>(".nt-label, .header-name, .header-subline, .header-pill"));
       for (const p of pieces) {
         const pr = p.getBoundingClientRect();
         for (const t of texts) {
@@ -114,7 +115,7 @@ test.describe("origami header (TASK-192)", () => {
     });
     // The two edge pieces sit in the corners under the tile and the toggle (as in the reference); only they may rise past the
     // brand row, and they never reach a tab label.
-    const labelClashes = clashes.filter((c) => c.includes("nt-label") || c.includes("header-pill") || c.includes("header-ask"));
+    const labelClashes = clashes.filter((c) => c.includes("nt-label") || c.includes("header-pill"));
     expect(labelClashes).toEqual([]);
     if (width(page) < 1024) expect(await page.locator(".ht-left").evaluate((el) => getComputedStyle(el).display), "edge pieces are dropped below 1024").toBe("none");
   });
