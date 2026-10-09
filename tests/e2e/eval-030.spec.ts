@@ -104,6 +104,40 @@ async function launch(page: Page, charge = 0.05) {
   });
 }
 
+/**
+ * Fire the plunger at EXACTLY `charge` (0-1). The hold is not timed (a wall-clock wait for the meter to reach a value is what made this
+ * flaky on a software-GL host, where the sim advances a fraction of a second per rendered frame and each launch took tens of seconds):
+ * press Space through the controller's own handler, set the plunger's elapsed charge, freeze its clock for that instant and release.
+ * The controller turns the release into a real impulse on the body on the next fixed step; returns the force it fired with.
+ */
+async function launchExactly(page: Page, charge: number) {
+  await page.evaluate((c) => {
+    const w = window as unknown as { __launches: number[]; __launchVy: number[]; __hookWrapped?: boolean };
+    w.__launches = [];
+    w.__launchVy = [];
+    const rt = window.__gummyLab!.rt as unknown as { hooks: { launch: (...a: number[]) => void }; bearBody: { current: { linvel(): { y: number } } }; plunger: { elapsedMs: number; step: (ms: number) => void; charging: boolean } };
+    if (!w.__hookWrapped) {
+      w.__hookWrapped = true;
+      const orig = rt.hooks.launch.bind(rt.hooks);
+      // the hook runs straight after the impulse is applied, so the body's own vertical velocity then IS what the impulse gave it
+      rt.hooks.launch = (...a: number[]) => {
+        w.__launches.push(a[0]!);
+        w.__launchVy.push(rt.bearBody.current.linvel().y);
+        orig(...a);
+      };
+    }
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: " ", cancelable: true }));
+    if (!rt.plunger.charging) throw new Error("Space did not start a charge");
+    const step = rt.plunger.step;
+    rt.plunger.elapsedMs = c * 1500;
+    rt.plunger.step = () => {};
+    window.dispatchEvent(new KeyboardEvent("keyup", { key: " ", cancelable: true }));
+    rt.plunger.step = step;
+  }, charge);
+  await page.waitForFunction(() => (window as unknown as { __launches: number[] }).__launches.length > 0, null, { timeout: 60_000 });
+  return page.evaluate(() => (window as unknown as { __launches: number[] }).__launches[0]!);
+}
+
 /** The body's vertical velocity the instant the last plunger launch was applied (see `launch`). */
 const launchVy = (page: Page) => page.evaluate(() => (window as unknown as { __launchVy: number[] }).__launchVy[0]!);
 
@@ -366,8 +400,7 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(["PLAYING", "DANGER"]).toContain(await labState(page));
   });
 
-  test("@EVAL-030 the plunger: holding Space longer launches the gummy with a stronger real force (it hits the physics body, not just an animation)", async ({ page }, info) => {
-    test.skip(info.project.name === "w390", "desktop project; the touch plunger has its own test on w390");
+  test("@EVAL-030 the plunger: holding Space longer launches the gummy with a stronger real force (it hits the physics body, not just an animation)", async ({ page }) => {
     await openGame(page);
     await startRun(page);
     // the gummy waits on the plunger in the right-hand lane at 0%
@@ -390,10 +423,12 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
         rt.bearBody.current!.setLinvel({ x: 0, y: 0, z: 0 }, true);
       }, rest);
       await page.waitForFunction(() => !window.__gummyLab!.rt.plunger.charging && window.__gummyLab!.rt.plunger.phase === "idle", null, { timeout: 30_000 });
-      forces.push(await launch(page, charge));
+      forces.push(await launchExactly(page, charge));
       speeds.push(await launchVy(page));
     }
     // the force the plunger fired with grows with the hold, from MIN to MAX …
+    // the plunger fired with exactly the force that charge is worth (the charge is set, not timed, so a slow frame rate cannot blur it)
+    forces.forEach((f, i) => expect(f).toBeCloseTo(21 + (27.5 - 21) * [0.02, 0.5, 0.97][i]!, 6));
     expect(forces[0]!).toBeGreaterThanOrEqual(21);
     expect(forces[1]!).toBeGreaterThan(forces[0]! + 1);
     expect(forces[2]!).toBeGreaterThan(forces[1]! + 1);
