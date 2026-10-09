@@ -849,7 +849,8 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await page.goto("/lab?debug");
     await waitLab(page);
     await page.waitForSelector("[data-lab-state='INTRO']", { timeout: 40_000 });
-    expect(await page.locator("[data-lab-asset]").getAttribute("data-lab-asset")).toBe("failed");
+    // INTRO shows 500 ms after arrival whether or not the GLB is there, and the failure lands a moment later: poll, do not read once
+    await expect(page.locator("[data-lab-asset]")).toHaveAttribute("data-lab-asset", "failed", { timeout: 40_000 });
     await startRun(page);
     await loseRun(page); // a stand-in gummy is a full gummy: it plays through to results
   });
