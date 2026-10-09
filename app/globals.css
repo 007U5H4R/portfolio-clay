@@ -3074,9 +3074,7 @@ html.lenis body {
   .essay-entry-title a {
     transition: color 0.18s ease;
   }
-  .essay-entry-title a:hover {
-    color: var(--color-rust);
-  }
+  /* hover/focus: the TASK-181.4 block (essay row) */
   .essay-entry-dek {
     max-width: 58ch;
     font-size: 16px;
@@ -4373,11 +4371,7 @@ html.lenis body {
     gap: 10px;
     align-content: start;
     padding: 26px 26px 22px;
-    transition: translate 0.25s ease, box-shadow 0.25s ease;
-  }
-  .pg-board .pg-ex:hover {
-    translate: 0 -3px;
-    box-shadow: var(--shadow-paper-hover);
+    /* lift + shadow crossfade: `.paper-lift` (class on the card) and the TASK-181.4 block */
   }
   .pg-board .pg-ex-1 { grid-column: 1 / 8; grid-row: 1; padding: 30px 32px 26px; }
   .pg-board .pg-ex-2 { grid-column: 8 / 13; grid-row: 1; margin-top: 26px; background: var(--color-kraft); padding: 24px 22px 20px; }
@@ -4470,9 +4464,7 @@ html.lenis body {
     .pg-caption { font-size: 18px; right: 16px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .pg-board .pg-ex,
     .pg-ex-live { transition: none; }
-    .pg-board .pg-ex:hover { translate: none; }
   }
 }
 /* end TKT-88 */
@@ -7131,23 +7123,13 @@ html.lenis body {
       opacity 200ms var(--ease-hover),
       scale 200ms var(--ease-hover);
   }
-  .cert-paper {
-    transition: filter 240ms var(--ease-hover);
-  }
   .cert-link:focus-visible .cert-corner {
     opacity: 1;
   }
-  .cert-link:focus-visible .cert-paper {
-    filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
-      drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
-  }
-  @media (hover: hover) {
+  /* the raised shadow is a second, static layer that fades in (TASK-181.4 block); the filter is never transitioned */
+  @media (hover: hover) and (pointer: fine) {
     .cert-link:hover .cert-corner {
       opacity: 1;
-    }
-    .cert-link:hover .cert-paper {
-      filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
-        drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
     }
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -7155,13 +7137,14 @@ html.lenis body {
       translate: 0 -4px;
       rotate: -0.6deg;
     }
-    .cert-link:focus-visible .cert-badge {
+    .cert-link:focus-visible .cert-badge,
+    .cert-link:focus-visible .cert-sticky {
       translate: 0 -3px;
     }
     .cert-link:focus-visible .cert-cta-arrow {
       translate: 2px -2px;
     }
-    @media (hover: hover) {
+    @media (hover: hover) and (pointer: fine) {
       .cert-link:hover .cert-card {
         translate: 0 -4px;
         rotate: -0.6deg;
@@ -7178,8 +7161,7 @@ html.lenis body {
   @media (prefers-reduced-motion: reduce) {
     .cert-lift,
     .cert-cta-arrow,
-    .cert-corner,
-    .cert-paper {
+    .cert-corner {
       transition: none;
     }
   }
@@ -7559,8 +7541,7 @@ html.lenis body {
     box-shadow: var(--shadow-paper);
     transition:
       translate 220ms var(--ease-hover),
-      rotate 220ms var(--ease-hover),
-      box-shadow 220ms var(--ease-hover);
+      rotate 220ms var(--ease-hover);
   }
   .certm-item:nth-child(odd) .certm-tile {
     rotate: -0.4deg;
@@ -7608,14 +7589,7 @@ html.lenis body {
   .certm-tile .cert-cta {
     font-size: 19px;
   }
-  .certm-tile:focus-visible {
-    box-shadow: var(--shadow-paper-hover);
-  }
-  @media (hover: hover) {
-    .certm-tile:hover {
-      box-shadow: var(--shadow-paper-hover);
-    }
-  }
+  /* the raised shadow crossfades on `.certm-tile::after` (TASK-181.4 block) */
   @media (prefers-reduced-motion: no-preference) {
     .certm-tile:focus-visible .cert-cta-arrow {
       translate: 2px -2px;
@@ -7624,7 +7598,7 @@ html.lenis body {
       translate: 0 -3px;
       rotate: 0.6deg;
     }
-    @media (hover: hover) {
+    @media (hover: hover) and (pointer: fine) {
       .certm-item .certm-tile:hover {
         translate: 0 -3px;
         rotate: 0.6deg;
@@ -13553,3 +13527,160 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end M-012 P1 */
+
+/* === TASK-181.4 === */
+/* M-012 P4 (Design.md §14.10 rows "Thinking rows" and "pg-ex"; decisions EXE-61, EXE-62, EXE-63).
+   Thinking essay row (L1), Playground bench cards (L2, via .paper-lift), certification cards (L2 shadow crossfade).
+   Hover only on a fine pointer, with a focus-visible twin; no box-shadow / filter transition; no scale; reduced motion = no movement. */
+
+/* ---- Thinking: the essay row ---- */
+.essay-entry-title,
+.essay-num {
+  transition: translate 250ms var(--ease-l1);
+}
+.essay-entry-arrow {
+  display: inline-block;
+  margin-left: 0.3em;
+  color: var(--color-ink-soft);
+  opacity: 0.55;
+  white-space: nowrap;
+  transition:
+    translate 250ms var(--ease-l1),
+    color 250ms var(--ease-l1),
+    opacity 250ms var(--ease-l1);
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-title {
+  translate: 3px 0;
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-title a {
+  color: var(--color-rust);
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-arrow {
+  translate: 4px 0;
+  color: var(--color-rust);
+  opacity: 1;
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-num {
+  translate: 0 -1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .essay-entry:hover .essay-entry-title {
+    translate: 3px 0;
+  }
+  .essay-entry:hover .essay-entry-title a {
+    color: var(--color-rust);
+  }
+  .essay-entry:hover .essay-entry-arrow {
+    translate: 4px 0;
+    color: var(--color-rust);
+    opacity: 1;
+  }
+  .essay-entry:hover .essay-num {
+    translate: 0 -1px;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .essay-entry-title a:active {
+    color: var(--color-rust);
+  }
+}
+
+/* ---- Playground bench: the card is a .paper-lift (class in PlaygroundGrid); the tape answers it ---- */
+.pg-ex > .paper-tape {
+  transition: transform var(--dur-l2-out) var(--ease-paper);
+}
+.pg-ex:focus-within:has(:focus-visible) > .paper-tape {
+  transform: translateY(-1px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pg-ex:hover > .paper-tape {
+    transform: translateY(-1px);
+  }
+}
+
+/* ---- Certifications: the raised shadow is a second, static layer that fades in (L2) ---- */
+.cert-card.cert-lift {
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    rotate var(--dur-l2-out) var(--ease-paper);
+}
+.cert-paper-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+    drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.cert-paper-shade > i {
+  position: absolute;
+  inset: 0;
+  background: var(--color-ivory);
+}
+.cert-link:focus-visible .cert-paper-shade {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.certm-tile {
+  position: relative;
+  isolation: isolate;
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    rotate var(--dur-l2-out) var(--ease-paper);
+}
+.certm-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--shadow-paper-hover);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.certm-tile:focus-visible::after {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cert-link:hover .cert-paper-shade,
+  .certm-tile:hover::after {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+}
+/* touch: a tap presses the card down, no hover is left behind */
+@media (hover: none) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .cert-link:active .cert-card,
+  .certm-tile:active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+
+/* ---- reduced motion: nothing moves; the shadow layers and the colours still change (instantly) ---- */
+@media (prefers-reduced-motion: reduce) {
+  :root .essay-entry:is(:hover, :focus-within) :is(.essay-entry-title, .essay-entry-arrow, .essay-num) {
+    translate: none;
+  }
+  :root .essay-entry-title,
+  :root .essay-num,
+  :root .essay-entry-arrow,
+  :root .pg-ex > .paper-tape,
+  :root .cert-paper-shade,
+  :root .certm-tile,
+  :root .certm-tile::after {
+    transition: none;
+  }
+  :root .pg-ex:is(:hover, :focus-within) > .paper-tape {
+    transform: none;
+  }
+  :root .certm-tile:is(:hover, :focus-visible, :active) {
+    translate: none;
+    rotate: none;
+  }
+}
+/* === end TASK-181.4 === */
