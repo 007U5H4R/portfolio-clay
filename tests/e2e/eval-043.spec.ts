@@ -102,7 +102,7 @@ test.describe("@EVAL-043 signatures", () => {
       expect(differing(rest, await sig(page, slug)), `${slug}: parts left displaced after the hover`).toEqual([]);
 
       // keyboard focus: the same awake pose with no pointer anywhere near
-      await page.locator(`${lift(slug)} .fw-cta`).focus({ preventScroll: true });
+      await page.locator(`${lift(slug)} .fw-cta`).focus();
       await page.keyboard.press("Shift+Tab");
       await page.keyboard.press("Tab"); // :focus-visible by keyboard
       await page.waitForTimeout(2000);
