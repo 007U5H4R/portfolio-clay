@@ -13599,7 +13599,7 @@ html[data-theme-vt]::view-transition-group(root) {
 
 /* === TASK-181.3 === */
 /* ====================================================================================================================
-   M-012 · TASK-181 (P3) · L3 signatures: the hero, Tushky and Contact (PLAN §4.5–4.7; Design.md §14.10; EXE-62…64).
+   M-012 · TASK-181 (P3) · L3 signatures: the hero sticker, Tushky and Contact (the polaroid reaction was dropped, EXE-68) (PLAN §4.5–4.7; Design.md §14.10; EXE-62…64).
    Restrained and physical: each reaction is the related paper object answering the control that is hovered or focused.
    Only translate / rotate / transform / opacity move; nothing scales up; nothing is infinite (TASK-143). Hover sits
    inside (hover: hover) and (pointer: fine) with an identical :focus-visible twin; touch gets the existing :active
@@ -13612,46 +13612,6 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* ---- hero: "View my work" wakes the three taped polaroids (translate up, rotate toward upright, 0/60/120 ms stagger).
-     The rest rotations are `Hero.tsx` POLAROIDS: -1.6 / 2 / -1.2 deg; each eases 0.6 deg toward 0. ---- */
-  .hero-polaroid {
-    transition:
-      translate var(--dur-l3) var(--ease-paper),
-      rotate var(--dur-l3) var(--ease-paper);
-  }
-  .hero-polaroid:nth-child(2) {
-    transition-delay: 60ms;
-  }
-  .hero-polaroid:nth-child(3) {
-    transition-delay: 120ms;
-  }
-  .hero:has(.hero-btn-primary:focus-visible) .hero-polaroid {
-    translate: 0 calc(-5 * var(--cpx));
-  }
-  .hero:has(.hero-btn-primary:focus-visible) .hero-polaroid:nth-child(1) {
-    rotate: -1deg;
-  }
-  .hero:has(.hero-btn-primary:focus-visible) .hero-polaroid:nth-child(2) {
-    rotate: 1.4deg;
-  }
-  .hero:has(.hero-btn-primary:focus-visible) .hero-polaroid:nth-child(3) {
-    rotate: -0.6deg;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .hero:has(.hero-btn-primary:hover) .hero-polaroid {
-      translate: 0 calc(-5 * var(--cpx));
-    }
-    .hero:has(.hero-btn-primary:hover) .hero-polaroid:nth-child(1) {
-      rotate: -1deg;
-    }
-    .hero:has(.hero-btn-primary:hover) .hero-polaroid:nth-child(2) {
-      rotate: 1.4deg;
-    }
-    .hero:has(.hero-btn-primary:hover) .hero-polaroid:nth-child(3) {
-      rotate: -0.6deg;
-    }
-  }
-
   /* ---- hero: "Ask Tushky" straightens the sticker head (6 -> 0 deg, one small physical overshoot) and nudges its pointer ---- */
   .hero-tushky-img {
     transition:

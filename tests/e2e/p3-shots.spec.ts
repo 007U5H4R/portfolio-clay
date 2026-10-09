@@ -22,7 +22,7 @@ test.describe("P3 screenshots", () => {
       await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
       await page.waitForTimeout(600);
 
-      // hero: banner + polaroids at rest, then the two CTA reactions
+      // hero: banner at rest, then the Ask Tushky sticker reaction
       await shot("hero-rest");
       await page.locator(".hero-cta-row").scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
@@ -31,11 +31,7 @@ test.describe("P3 screenshots", () => {
         await page.mouse.move(0, 0);
         await page.evaluate(() => window.scrollTo(0, 0));
         await page.waitForTimeout(400);
-        const btn = page.locator(".hero-btn-primary").first();
-        await btn.scrollIntoViewIfNeeded();
-        await btn.hover();
-        await page.waitForTimeout(1100);
-        await shot("hero-view-work-hover");
+        await page.locator(".hero-btn-secondary").first().scrollIntoViewIfNeeded();
         await page.locator(".hero-btn-secondary").first().hover();
         await page.waitForTimeout(800);
         await shot("hero-ask-hover");
@@ -68,21 +64,6 @@ test.describe("P3 screenshots", () => {
         await page.waitForTimeout(900);
         await shot("contact-email-hover");
       }
-    });
-  }
-  // At 1440x900 the banner is scrolled out of view by the time "View my work" is reachable; a tall viewport shows the reaction.
-  for (const theme of ["light", "dark"] as const) {
-    test(`p3 hero polaroids ${theme}`, async ({ page }) => {
-      test.skip(page.viewportSize()!.width < 1024, "hover is a fine-pointer behaviour");
-      mkdirSync(OUT, { recursive: true });
-      await page.setViewportSize({ width: 1440, height: 2100 });
-      await page.goto("/", { waitUntil: "networkidle" });
-      await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
-      await page.waitForTimeout(800);
-      await page.screenshot({ path: `${OUT}/hero-tall-rest-${theme}-1440.png`, clip: { x: 0, y: 0, width: 1440, height: 1500 } });
-      await page.locator(".hero-btn-primary").first().hover();
-      await page.waitForTimeout(1100);
-      await page.screenshot({ path: `${OUT}/hero-tall-view-work-hover-${theme}-1440.png`, clip: { x: 0, y: 0, width: 1440, height: 1500 } });
     });
   }
 });

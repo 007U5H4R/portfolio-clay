@@ -1,8 +1,7 @@
 /**
  * interaction-p3.spec.ts (`@TASK-181.3`, PLAN §4.5–4.7, EXE-62…64) — the L3 surfaces of the interaction system: the home hero,
  * Tushky (Home launcher + drawer controls) and Contact. On the built site, measured on computed styles:
- *   hero     "View my work" hover/focus lifts the three polaroids a few px and straightens them 0.6 deg (stagger 0/60/120 ms);
- *            "Ask Tushky" straightens the sticker head 6 -> 0 deg and lifts it 3 px; nothing moves under reduced motion
+ *   hero     "Ask Tushky" straightens the sticker head 6 -> 0 deg and lifts it 3 px; nothing moves under reduced motion
  *   contact  the stamp moves only while the primary CTA is hovered/focused (<= 3 px), the arrow follows 120 ms late
  *   tushky   breathing is finite (3 breaths, then `getAnimations()` is empty), the mascot leans <= 2 deg as a whole image on
  *            hover, lifts 4 px and leans 2 deg toward the composer when it is focused; touch/RM: no lean, no loop
@@ -41,50 +40,6 @@ async function gotoHome(page: Page) {
 }
 
 test.describe("@TASK-181.3 hero", () => {
-  test("View my work: the polaroids wake (hover and focus alike), stay on their papers, stagger 0/60/120 ms", async ({ page }) => {
-    test.skip(!wide(page), "hover is a fine-pointer behaviour");
-    await gotoHome(page);
-    const btn = page.locator(".hero-btn-primary").first();
-    await btn.scrollIntoViewIfNeeded();
-    const polaroids = page.locator(".hero-polaroid");
-    await expect(polaroids).toHaveCount(3);
-    const rest = [];
-    for (let i = 0; i < 3; i++) rest.push(await pose(polaroids.nth(i)));
-    const restBox = await polaroids.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
-
-    const delays = await polaroids.evaluateAll((els) => els.map((e) => getComputedStyle(e).transitionDelay.split(",")[0]));
-    expect(delays, "0 / 60 / 120 ms stagger").toEqual(["0s", "0.06s", "0.12s"]);
-
-    await btn.hover();
-    await page.waitForTimeout(1100);
-    const hov = [];
-    for (let i = 0; i < 3; i++) hov.push(await pose(polaroids.nth(i)));
-    const hovBox = await polaroids.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
-    for (let i = 0; i < 3; i++) {
-      const dy = hov[i]!.y - rest[i]!.y;
-      expect(dy, `polaroid ${i} lifts`).toBeLessThan(-1);
-      expect(dy, `polaroid ${i} lifts a few px at most`).toBeGreaterThanOrEqual(-4);
-      expect(Math.abs(hov[i]!.rot), `polaroid ${i} rotates toward upright`).toBeLessThan(Math.abs(rest[i]!.rot));
-      expect(Math.abs(rest[i]!.rot) - Math.abs(hov[i]!.rot), `polaroid ${i} straightens by ~0.6 deg`).toBeCloseTo(0.6, 0);
-      // registration (EXE-51): the reaction pose stays within a few px of the resting box, so the polaroid stays on its paper
-      expect(Math.abs(hovBox[i]!.top - restBox[i]!.top), `polaroid ${i} top`).toBeLessThanOrEqual(5);
-      expect(Math.abs(hovBox[i]!.left - restBox[i]!.left), `polaroid ${i} left`).toBeLessThanOrEqual(3);
-      expect(hov[i]!.scaleY, `polaroid ${i} never scales up`).toBeLessThanOrEqual(1.0001);
-    }
-
-    await page.mouse.move(2, 2);
-    await page.waitForTimeout(1100);
-    expect((await pose(polaroids.nth(0))).y, "released to rest").toBeCloseTo(rest[0]!.y, 1);
-
-    await keyboardFocus(page, btn);
-    await page.waitForTimeout(1100);
-    for (let i = 0; i < 3; i++) {
-      const foc = await pose(polaroids.nth(i));
-      expect(foc.y, `focus twin ${i} (y)`).toBeCloseTo(hov[i]!.y, 0);
-      expect(foc.rot, `focus twin ${i} (rotate)`).toBeCloseTo(hov[i]!.rot, 1);
-    }
-  });
-
   test("Ask Tushky: the sticker head straightens 6 -> 0 deg and lifts 3 px, its pointer nudges 2 px, hover = focus", async ({ page }) => {
     test.skip(!wide(page), "hover is a fine-pointer behaviour");
     await gotoHome(page);
@@ -113,32 +68,19 @@ test.describe("@TASK-181.3 hero", () => {
     expect(foc.y, "focus twin lift").toBeCloseTo(hov.y, 0);
   });
 
-  test("reduced motion: the polaroids and the sticker stay at rest on hover and focus", async ({ page }) => {
+  test("reduced motion: the sticker stays at rest on hover and focus", async ({ page }) => {
     test.skip(!wide(page), "hover is a fine-pointer behaviour");
     await page.emulateMedia({ reducedMotion: "reduce" });
     await gotoHome(page);
-    const btn = page.locator(".hero-btn-primary").first();
-    await btn.scrollIntoViewIfNeeded();
-    const polaroid = page.locator(".hero-polaroid").first();
+    const ask = page.locator(".hero-btn-secondary").first();
+    await ask.scrollIntoViewIfNeeded();
     const head = page.locator(".hero-tushky-img");
-    const rest = [await pose(polaroid), await pose(head)];
-    await btn.hover();
+    const rest = await pose(head);
+    await ask.hover();
     await page.waitForTimeout(400);
-    expect(await pose(polaroid)).toEqual(rest[0]);
-    await page.locator(".hero-btn-secondary").first().hover();
-    await page.waitForTimeout(400);
-    expect(await pose(head)).toEqual(rest[1]);
+    expect(await pose(head)).toEqual(rest);
   });
 
-  test("touch: a tap leaves the hero at rest (no sticky reaction)", async ({ page, viewport }) => {
-    test.skip(viewport!.width >= 768, "touch project only");
-    await gotoHome(page);
-    const polaroid = page.locator(".hero-polaroid").first();
-    const rest = await pose(polaroid);
-    await page.locator(".hero-btn-primary").first().evaluate((el) => el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" })));
-    await page.waitForTimeout(900);
-    expect(await pose(polaroid)).toEqual(rest);
-  });
 });
 
 test.describe("@TASK-181.3 contact", () => {
@@ -280,7 +222,7 @@ test.describe("@TASK-181.3 tushky", () => {
   test("the Tushky controls swap their shadow (never transition it), gate hover and twin it on focus", async ({ page }) => {
     await gotoHome(page);
     const out = await page.evaluate(() => {
-      const SCOPE = /\.(tk-card|hat-card|tk-close|tk-voice-disc|tk-voice-main|hat-dog|hero-tushky-img|hero-tushky-arrow|cx-stamp-wrap|hero-polaroid)\b/;
+      const SCOPE = /\.(tk-card|hat-card|tk-close|tk-voice-disc|tk-voice-main|hat-dog|hero-tushky-img|hero-tushky-arrow|cx-stamp-wrap)\b/;
       const hits: { selector: string; media: string; style: CSSStyleDeclaration }[] = [];
       const walk = (rules: CSSRuleList, media: string) => {
         for (const rule of Array.from(rules)) {
