@@ -13553,3 +13553,533 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end M-012 P1 */
+
+/* === TASK-187 === "What I Bring" ambiguity-to-impact paper journey (components/experience/WhatIBringJourney.tsx).
+   Interaction contract (TASK-181 P1): all hover/focus state keys off [data-active] (set by JS from a fine-pointer hover,
+   :focus-visible or a tap), so there is no :hover rule to gate and a tap leaves nothing stuck; shadows crossfade by
+   pseudo-element opacity; only translate / transform / opacity animate; nothing scales up; no infinite animation.
+   Parallax is <= 6 px (2/4/6) and stage after-states on Ambiguity and Impact stay <= 3 px (their masks overlap).
+   Colours are existing tokens only (EVAL-020). ======================================================================= */
+.wib-head {
+  margin-bottom: clamp(24px, 3.5vw, 48px);
+}
+.wib-statement {
+  margin-top: 12px;
+  max-width: 28ch;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.2;
+  color: var(--color-navy);
+}
+.wib {
+  position: relative;
+}
+.wib-scene {
+  position: relative;
+}
+.wib-strip,
+.wib-road {
+  display: none;
+}
+.wib-stages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-hint {
+  margin-top: 20px;
+  font-size: 15px;
+  color: var(--color-ink-soft);
+}
+.wib-card {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  padding: 12px 16px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-cream);
+  color: var(--color-navy);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--depth-2);
+  position: relative;
+  isolation: isolate;
+  translate: 0 var(--lift, 0px);
+  transition: translate var(--dur-l2-out) var(--ease-paper);
+}
+.wib-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--depth-3);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.wib-stage[data-active] .wib-card {
+  --lift: -4px;
+  transition-duration: var(--dur-l2);
+}
+.wib-stage[data-active] .wib-card::after {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.wib-card:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 3px;
+}
+.wib-num {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--color-rust);
+}
+.wib-title {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.wib-principle {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--color-navy-2);
+}
+.wib-principle span {
+  display: block;
+}
+.wib-art {
+  position: relative;
+  aspect-ratio: 1;
+}
+.wib-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transition:
+    translate 140ms var(--ease-l1),
+    transform var(--dur-l2-out) var(--ease-paper);
+}
+.wib-layer[data-layer="back"] {
+  translate: calc(var(--px, 0) * 2px) calc(var(--py, 0) * 2px);
+}
+.wib-layer[data-layer="mid"] {
+  translate: calc(var(--px, 0) * 4px) calc(var(--py, 0) * 4px);
+}
+.wib-layer[data-layer="front"] {
+  translate: calc(var(--px, 0) * 6px) calc(var(--py, 0) * 6px);
+}
+.wib-marker {
+  display: none;
+}
+.wib-panel {
+  display: none;
+}
+.wib-panel[data-open] {
+  display: block;
+}
+.wib-panel-inner {
+  margin-top: 8px;
+  padding: 16px 18px 18px;
+  border-radius: 3px 12px 3px 10px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  color: var(--color-navy);
+}
+.wib-panel-h {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.15;
+}
+.wib-caps {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-caps li {
+  position: relative;
+  padding: 3px 0 3px 22px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.wib-caps li::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 2px;
+  width: 9px;
+  height: 5px;
+  border-bottom: 1.5px solid var(--color-forest);
+  border-left: 1.5px solid var(--color-forest);
+  rotate: -50deg;
+}
+.wib-flow {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.wib-flow li:not(:last-child)::after {
+  content: "\2192";
+  margin-left: 6px;
+}
+.wib-tools {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--color-navy-2);
+}
+.wib-tools-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-rust);
+}
+.wib-evidence {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wib-evidence li {
+  padding: 4px 12px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-kraft);
+  color: var(--color-ivory);
+  font-size: 13px;
+}
+.wib-proof {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+}
+.wib-proof b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 600;
+}
+.wib-proof span,
+.wib-proof i {
+  display: block;
+  font-size: 13px;
+  font-style: normal;
+  color: var(--color-navy-2);
+}
+
+/* ---- mobile / tablet: a vertical paper trail, tap a stage to expand its detail (spec §18) ---- */
+@media (max-width: 1099.98px) {
+  .wib-stages {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    padding-left: 22px;
+  }
+  .wib-stages::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 5px;
+    border-left: 2px dashed color-mix(in oklab, var(--color-navy) 40%, transparent);
+  }
+  .wib-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-areas: "art card" "panel panel";
+    gap: 0 12px;
+    align-items: center;
+  }
+  .wib-stage > .wib-card {
+    grid-area: card;
+    min-height: 84px;
+  }
+  .wib-stage > .wib-art {
+    grid-area: art;
+  }
+  .wib-stage > .wib-panel {
+    grid-area: panel;
+  }
+  .wib-stage > .wib-marker {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: -22px;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--color-rust);
+    box-shadow: 0 0 0 3px var(--color-paper);
+  }
+  .wib-stage[data-active] > .wib-marker {
+    background: var(--color-forest);
+  }
+  .wib-stage:has(> .wib-panel[data-open]) > .wib-marker {
+    margin-top: -6px;
+  }
+  .wib-hint {
+    display: none;
+  }
+}
+
+/* ---- desktop: one continuous landscape; the strip, a stitched road and seven stages along it ---- */
+@media (min-width: 1100px) {
+  .wib {
+    padding-bottom: 300px;
+  }
+  .wib-scene {
+    aspect-ratio: 2400 / 1028;
+  }
+  .wib-strip {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .wib-road {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .wib-road path {
+    fill: none;
+    stroke: var(--color-navy);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 0.007 0.009;
+    opacity: 0.28;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib-road path[data-on] {
+    opacity: 0.85;
+    transition-duration: var(--dur-l2);
+  }
+  .wib-stage {
+    --cx: calc((var(--i) + 0.5) / 7 * 100%);
+    --art: 15.4%;
+  }
+  .wib-stage > .wib-card {
+    position: absolute;
+    top: 1%;
+    left: var(--cx);
+    width: 13.2%;
+    margin-left: -6.6%;
+    z-index: 2;
+  }
+  .wib-stage > .wib-art {
+    position: absolute;
+    left: var(--cx);
+    bottom: calc(100% - var(--my) + 1.5%);
+    width: calc(var(--art) * var(--s, 1));
+    margin-left: calc(var(--art) * var(--s, 1) / -2);
+    z-index: 1;
+  }
+  .wib-stage > .wib-marker {
+    display: block;
+    position: absolute;
+    left: var(--mx);
+    top: var(--my);
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    background: var(--color-rust);
+    box-shadow: 0 0 0 2px var(--color-ivory);
+    z-index: 1;
+  }
+  .wib-stage > .wib-marker::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border: 1.5px solid var(--color-rust);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib-stage[data-active] > .wib-marker::after {
+    opacity: 1;
+  }
+  .wib-stage > .wib-panel {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 18px;
+    z-index: 0;
+    visibility: hidden;
+    opacity: 0;
+    translate: 0 -28px;
+    transition:
+      translate var(--dur-l2-out) var(--ease-paper),
+      opacity var(--dur-l2-out) var(--ease-paper),
+      visibility 0s linear var(--dur-l2-out);
+  }
+  .wib-stage > .wib-panel[data-open] {
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+    z-index: 3;
+    transition-delay: 0s;
+    transition-duration: var(--dur-l2);
+  }
+  .wib-panel-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "h caps right" "h caps right";
+    gap: 6px 36px;
+    align-items: start;
+    padding: 22px 28px 24px;
+  }
+  .wib-panel-h {
+    grid-area: h;
+    font-size: 28px;
+  }
+  .wib-caps {
+    grid-area: caps;
+    margin-top: 0;
+  }
+  .wib-flow,
+  .wib-tools,
+  .wib-evidence,
+  .wib-proof {
+    grid-column: 3;
+    margin-top: 0;
+  }
+  .wib-flow {
+    margin-bottom: 8px;
+  }
+  .wib-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 120px;
+    text-align: center;
+    margin: 0;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib[data-active] .wib-hint {
+    opacity: 0;
+  }
+  /* the rest of the journey recedes, never hides */
+  .wib[data-active] .wib-stage:not([data-active]) > :is(.wib-card, .wib-art) {
+    opacity: 0.72;
+  }
+  .wib-stage > :is(.wib-card, .wib-art) {
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib-stage > .wib-card {
+    transition:
+      translate var(--dur-l2-out) var(--ease-paper),
+      opacity var(--dur-l2-out) var(--ease-paper);
+  }
+}
+
+/* ---- per-stage art scale (the scenes are not scale-locked) and after-states: each stage moves its own layers ---- */
+.wib-stage[data-stage="technology"] {
+  --s: 0.82;
+}
+.wib-stage[data-stage="ai-genai"] {
+  --s: 1.06;
+}
+.wib-stage[data-stage="product"] {
+  --s: 0.96;
+}
+/* ambiguity: the notes tidy up (<= 3 px + 2 deg, masks overlap) */
+.wib-stage[data-stage="ambiguity"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translate(-2px, 1px) rotate(-2deg);
+}
+.wib-stage[data-stage="ambiguity"][data-active] .wib-layer[data-layer="front"] {
+  transform: translate(2px, -2px) rotate(2deg);
+}
+/* discovery: the magnifier drifts across the notebook */
+.wib-stage[data-stage="discovery"][data-active] .wib-layer[data-layer="front"] {
+  transform: translate(6px, -3px);
+}
+.wib-stage[data-stage="discovery"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translate(-3px, 0);
+}
+/* product: the blueprint unfolds upward */
+.wib-stage[data-stage="product"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateY(-4px);
+}
+.wib-stage[data-stage="product"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-8px);
+}
+/* ai: the layers activate in a staggered rise */
+.wib-stage[data-stage="ai-genai"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateY(-5px);
+}
+.wib-stage[data-stage="ai-genai"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-10px);
+  transition-delay: 0s, 60ms;
+}
+/* technology: the architecture layers separate */
+.wib-stage[data-stage="technology"][data-active] .wib-layer[data-layer="back"] {
+  transform: translateY(6px);
+}
+.wib-stage[data-stage="technology"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-8px);
+}
+/* execution: the delivery notes progress along the board */
+.wib-stage[data-stage="execution"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateX(6px);
+}
+.wib-stage[data-stage="execution"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateX(10px);
+}
+/* impact: the flag and chart rise (<= 3 px, masks overlap) */
+.wib-stage[data-stage="impact"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-3px);
+}
+.wib-stage[data-stage="impact"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateY(-1px);
+}
+
+/* ---- reduced motion: no movement at all; the panel still appears (opacity), the colour/shadow feedback stays ---- */
+@media (prefers-reduced-motion: reduce) {
+  :root .wib-layer,
+  :root .wib-stage[data-active] .wib-layer,
+  :root .wib-stage[data-active] .wib-card,
+  :root .wib-card {
+    transform: none;
+    translate: none;
+    transition: none;
+  }
+  :root .wib-stage > .wib-panel,
+  :root .wib-stage > .wib-panel[data-open] {
+    translate: none;
+    transition-property: opacity, visibility;
+    transition-duration: 120ms, 0s;
+  }
+}
+/* === end TASK-187 === */
