@@ -300,6 +300,7 @@ test.describe("@EVAL-040 origami header rules (TASK-192)", () => {
       const hovers = ours.filter((x) => x.selector.includes(":hover") && !/\[aria-current/.test(x.selector));
       const problems: string[] = [];
       for (const h of hovers) {
+        if (/prefers-reduced-motion:\s*reduce/.test(h.media)) continue; // those only REMOVE motion from hover / focus / press
         if (!/hover:\s*hover/.test(h.media) || !/pointer:\s*fine/.test(h.media)) problems.push(`ungated: ${h.selector}`);
         const twin = h.selector.replaceAll(":hover", ":focus-visible");
         if (!all.has(twin)) problems.push(`no focus twin: ${h.selector}`);

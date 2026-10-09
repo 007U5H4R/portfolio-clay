@@ -12910,6 +12910,11 @@ html[data-theme-vt]::view-transition-group(root) {
   .header-actions {
     grid-area: auto;
   }
+  /* the taller header gives back what it took from the hero's top padding, so the home fold (scene, then the copy and both CTAs
+     within one scroll, EVAL-001) is where it was with the 72 px header */
+  .hero-copy {
+    padding-top: max(20px, calc(clamp(36px, 5.4vw, 80px) - (var(--header-h) - 72px)));
+  }
   .header-brand {
     gap: 14px;
   }
@@ -12996,8 +13001,8 @@ html[data-theme-vt]::view-transition-group(root) {
     gap: 8px;
   }
   .header-name {
-    font-size: 11px;
-    letter-spacing: 0.07em;
+    font-size: 12px; /* EVAL-008: micro-labels are never below 12 px */
+    letter-spacing: 0.04em;
     white-space: nowrap;
   }
   .site-header-row {
