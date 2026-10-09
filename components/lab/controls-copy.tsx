@@ -53,13 +53,15 @@ export const HOW_TO_PLAY: readonly { main: string; sub?: string; icon: ReactNode
 /** The tiny editorial keyboard label (hidden on portrait phones by CSS). */
 export const KEYBOARD_LABEL = {
   title: "Keyboard",
-  rows: ["← → flip · Space launch · P pause · Esc exit"],
+  rows: ["← → flip · Space launch · N nudge · P pause · Esc exit"],
 } as const;
 
 /** Accessible names and region labels for the control surfaces. */
 export const CONTROL_LABELS = {
   introRegion: "Gummy Lab",
   howToPlay: "How to play",
+  /** The Nudge button (and N): shakes the table to free a stuck gummy. */
+  nudge: "Nudge the machine",
   pause: "Pause",
   resume: "Resume",
   soundOff: "Sound is off. Turn sound on",

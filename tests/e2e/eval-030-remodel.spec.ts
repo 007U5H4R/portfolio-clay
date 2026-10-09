@@ -245,7 +245,7 @@ test.describe("@EVAL-030 the intro: the entrance to the paper lab (canvas path)"
       expect(r.back).toEqual(["bg", "arch", "stage", "props-left", "props-right"]);
       expect(r.front).toEqual(["fg"]);
       expect(r.keys).toBe(true);
-      await expect(page.locator("[data-lab-keys]")).toContainText("← → flip · Space launch · P pause · Esc exit");
+      await expect(page.locator("[data-lab-keys]")).toContainText("← → flip · Space launch · N nudge · P pause · Esc exit");
     }
     await expect.poll(async () => (await page.evaluate(() => Array.from(document.querySelectorAll<HTMLImageElement>("[data-lab-intro-back] img, [data-lab-intro-front] img")).filter((i) => i.offsetParent !== null).every((i) => i.complete && i.naturalWidth > 0))), { timeout: 20_000 }).toBe(true);
   });

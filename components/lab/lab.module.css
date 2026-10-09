@@ -1349,3 +1349,47 @@
     top: 4%;
   }
 }
+
+/* The Nudge button (TASK-185): a round paper button beside the pause button, recharging for 1.5 s after each use. */
+.nudge {
+  position: absolute;
+  right: 58px;
+  top: calc(100% - 4px);
+  pointer-events: auto;
+  overflow: visible;
+}
+.nudge::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lab-ink) 55%, transparent);
+  opacity: 0;
+  transform-origin: bottom;
+  /* the dim disc drains as the cooldown recharges (--nudge runs 0 → 1, written each frame by NudgeButton) */
+  transform: scaleY(calc(1 - var(--nudge, 1)));
+  pointer-events: none;
+}
+.nudge[data-cooling]::after {
+  opacity: 1;
+}
+.nudge[data-cooling] {
+  opacity: 0.7;
+}
+.nudgeLabel {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50% -2px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--lab-ink);
+  white-space: nowrap;
+  text-shadow: 0 0 3px var(--color-paper);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nudge[data-cooling]::after {
+    transform: none;
+    opacity: 0.5;
+  }
+}
