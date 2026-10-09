@@ -76,15 +76,19 @@ async function hangAt(page: Page, at: (a: Handle["rt"]["arena"]) => { x: number;
   await page.waitForFunction(
     (t) => {
       const rt = (window as unknown as Win).__gummyLab.rt;
-      if ((rt as unknown as { time: number }).time - t.t > 0.2 && Math.hypot(rt.bear.x - t.x, rt.bear.y - t.y) < 0.9) {
+      if ((rt as unknown as { time: number }).time - t.t > 0.2 && Math.hypot(rt.bear.x - t.x, rt.bear.y - t.y) < 2.2) {
         window.dispatchEvent(new KeyboardEvent("keydown", { key: "p" }));
         return true;
       }
       return false;
     },
     target,
-    { timeout: 120_000, polling: 4 },
-  );
+    { timeout: 60_000, polling: 4 },
+  ).catch(async () => {
+    // never lose a whole run to one staging miss: freeze where it is and say so
+    console.log("hangAt: the gummy was not near its mark; freezing anyway", await page.evaluate(() => JSON.stringify((window as unknown as Win).__gummyLab.rt.bear)));
+    await page.keyboard.press("p");
+  });
 }
 
 async function launchOut(page: Page) {
