@@ -51,6 +51,8 @@ export interface LabSnapshot {
   runId: number;
   /** Bumped whenever pickups spawn, expire or are collected (the scene re-reads the spawner). */
   pickupsVersion: number;
+  /** Bumped on every manual nudge (the Nudge button shows its recharge from it). */
+  nudgeRun: number;
 }
 
 export interface LabStore extends LabSnapshot {
@@ -81,6 +83,7 @@ const initial = (): Omit<LabSnapshot, "state"> => ({
   launched: false,
   runId: 0,
   pickupsVersion: 0,
+  nudgeRun: 0,
 });
 
 /** One store per lab mount (never shared across enter/exit cycles: no leaked state). */
