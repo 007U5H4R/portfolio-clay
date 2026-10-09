@@ -173,3 +173,27 @@ export function backEdgeLayers(): Layer[] {
     { id: "back-near", z: 16, k: 2, d: ridge([[-20, 646], [60, 632], [150, 648], [240, 630], [330, 646], [440, 634]], 720, 83) },
   ];
 }
+
+/**
+ * Panther Origami (TASK-180): the restrained folded-paper corner accents, same card units and the
+ * same BLEED overshoot as the layers above. The front carries a top-right and a bottom-right fold plus
+ * the back carries a top-left and a bottom-right fold. Each is an independent sheet.
+ */
+export function foldLayers(side: "front" | "back"): Layer[] {
+  const p = (pts: Pt[]) => polyPath(pts);
+  if (side === "front") {
+    return [
+      { id: "fold-tr-navy", z: 30, k: 5, d: p([[300, -20], [440, -20], [440, 176], [408, 100], [356, 46]]) },
+      { id: "fold-tr-kraft", z: 26, k: 5, d: p([[236, -20], [300, -20], [356, 46], [326, 50]]) },
+      { id: "fold-tr-ivory", z: 36, k: 5, d: p([[366, -20], [440, -20], [440, 58], [404, 24]]) },
+      { id: "fold-br-navy", z: 30, k: 5, d: p([[440, 566], [440, 700], [304, 700]]) },
+      { id: "fold-br-kraft", z: 36, k: 5, d: p([[440, 548], [440, 590], [372, 700], [352, 700]]) },
+    ];
+  }
+  return [
+    { id: "fold-tl-kraft", z: 26, k: 5, d: p([[-20, -20], [138, -20], [-20, 156]]) },
+    { id: "fold-tl-navy", z: 32, k: 5, d: p([[-20, -20], [76, -20], [-20, 100]]) },
+    { id: "fold-br-navy", z: 30, k: 5, d: p([[440, 560], [440, 700], [296, 700]]) },
+    { id: "fold-br-kraft", z: 36, k: 5, d: p([[440, 536], [440, 580], [370, 700], [350, 700]]) },
+  ];
+}

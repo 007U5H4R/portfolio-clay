@@ -12,11 +12,27 @@ export interface CardBackProps {
 }
 
 const LINKS = [
-  { label: "Email", href: `mailto:${site.email}`, external: false },
-  { label: "LinkedIn", href: site.linkedin, external: true },
-  { label: "Portfolio", href: "/", external: false },
-  { label: "GitHub", href: site.github, external: true },
+  { label: "Email", href: `mailto:${site.email}`, external: false, icon: "mail" },
+  { label: "LinkedIn", href: site.linkedin, external: true, icon: "in" },
+  { label: "Portfolio", href: "/", external: false, icon: "globe" },
+  { label: "GitHub", href: site.github, external: true, icon: "branch" },
 ] as const;
+
+/** Small stroke icons (decorative: the link text carries the name). */
+function Icon({ name }: { name: "mail" | "in" | "globe" | "branch" | "person" }) {
+  const paths = {
+    mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3.5 7 8.5 6.5L20.5 7" /></>,
+    in: <><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10.5V17M8 7.4v.1M12 17v-6.5M12 13c0-1.6 1-2.6 2.4-2.6 1.5 0 2.1 1 2.1 2.6V17" /></>,
+    globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" /></>,
+    branch: <><circle cx="7" cy="6" r="2" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="9" r="2" /><path d="M7 8v8M17 11c0 4-6 3-10 5" /></>,
+    person: <><circle cx="12" cy="8.5" r="3.5" /><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6" /></>,
+  } as const;
+  return (
+    <svg className={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      {paths[name]}
+    </svg>
+  );
+}
 
 /**
  * The back (§8, §16, §56, §57): paper landscape edge, a raised paper panel holding a flat,
@@ -34,6 +50,10 @@ export function CardBack({ url, hidden }: CardBackProps) {
       <div className={styles.backBody}>
         {d ? (
           <div className={styles.qrPanel} data-qr-panel>
+            <i className={styles.bracket} data-b="tl" aria-hidden="true" />
+            <i className={styles.bracket} data-b="tr" aria-hidden="true" />
+            <i className={styles.bracket} data-b="bl" aria-hidden="true" />
+            <i className={styles.bracket} data-b="br" aria-hidden="true" />
             <svg
               className={styles.qr}
               viewBox={`0 0 ${box} ${box}`}
@@ -49,6 +69,7 @@ export function CardBack({ url, hidden }: CardBackProps) {
         ) : null}
         <p className={styles.pocket}>Keep me in your pocket.</p>
         <a className={styles.save} href={VCARD_PATH} download data-save-contact>
+          <Icon name="person" />
           Save contact
         </a>
         <ul className={styles.links}>
@@ -58,12 +79,12 @@ export function CardBack({ url, hidden }: CardBackProps) {
                 href={l.href}
                 {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
+                <Icon name={l.icon} />
                 {l.label}
               </a>
             </li>
           ))}
         </ul>
-        <span className={styles.mono} aria-hidden="true">TP</span>
       </div>
       <i className={styles.texture} aria-hidden="true" />
     </div>
