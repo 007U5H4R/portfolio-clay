@@ -61,7 +61,16 @@ async function open(width: 390 | 1440, theme: "light" | "dark") {
  * Put the gummy somewhere (at rest), let the running game draw it there for a couple of frames, then freeze the game on that frame
  * (P). A teleport into a paused world is not drawn until the next physics step, so the pause waits for the gummy to show up.
  */
+async function ensureLive(page: Page) {
+  const state = () => page.locator("[data-lab-state]").first().getAttribute("data-lab-state");
+  if ((await state()) === "PAUSED") {
+    await key(page, "keydown", "p");
+    await page.waitForSelector("[data-lab-state='PLAYING']", { timeout: 60_000 });
+  }
+}
+
 async function hangAt(page: Page, at: (a: Handle["rt"]["arena"]) => { x: number; y: number }) {
+  await ensureLive(page);
   const target = await page.evaluate((src) => {
     const lab = (window as unknown as Win).__gummyLab;
     const rt = lab.rt;
@@ -87,7 +96,6 @@ async function hangAt(page: Page, at: (a: Handle["rt"]["arena"]) => { x: number;
   ).catch(async () => {
     // never lose a whole run to one staging miss: freeze where it is and say so
     console.log("hangAt: the gummy was not near its mark; freezing anyway", await page.evaluate(() => JSON.stringify((window as unknown as Win).__gummyLab.rt.bear)));
-    await page.keyboard.press("p");
   });
 }
 
@@ -98,7 +106,16 @@ async function launchOut(page: Page) {
     (window as unknown as Win).__gummyLab.rt.plunger.elapsedMs = 0.2 * 1500;
   });
   await key(page, "keyup", " ");
-  await page.waitForFunction(() => (window as unknown as Win).__gummyLab.rt.laneGateShut, null, { timeout: 240_000, polling: 8 });
+  // freeze the game the instant the gate shuts, so the gummy cannot drain while the host catches up
+  await page.waitForFunction(
+    () => {
+      if (!(window as unknown as Win).__gummyLab.rt.laneGateShut) return false;
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "p" }));
+      return true;
+    },
+    null,
+    { timeout: 240_000, polling: 4 },
+  );
 }
 
 async function main() {
@@ -107,11 +124,9 @@ async function main() {
   // 1440 light: the open path into the black hole, and the closed lane gate
   {
     const { browser, page, shot } = await open(1440, "light");
-    await launchOut(page);
-    await hangAt(page, (a) => ({ x: 0, y: a.portal.y0 - 1.6 }));
+    await launchOut(page); // frozen the instant the gate shuts, with the gummy just out of the lane
     await page.waitForTimeout(3500);
     await shot("lane-gate-closed-1440");
-    await page.keyboard.press("p");
     await hangAt(page, (a) => ({ x: -a.halfW + 1.5, y: a.portal.y0 + 0.5 }));
     await page.waitForTimeout(3000);
     await shot("portal-path-1440");
@@ -127,7 +142,6 @@ async function main() {
     await hangAt(page, (a) => ({ x: -a.halfW + 1.3, y: a.portal.y0 + 0.5 }));
     await page.waitForTimeout(3000);
     await shot("portal-path-390");
-    await page.keyboard.press("p");
     await hangAt(page, () => ({ x: 0.2, y: 1.5 }));
     await page.waitForTimeout(3000);
     await shot("mobile-arena-390-light");
