@@ -363,13 +363,11 @@ test.describe("@EVAL-042 What I Bring tool chips (TASK-201)", () => {
     // keyboard: the same label and lift
     await page.mouse.move(2, 2);
     await page.waitForTimeout(500);
-    await page.locator(`${STAGE} .wib-card`).focus();
-    await page.keyboard.press("Shift+Tab");
-    await page.keyboard.press("Tab");
+    await keyboardFocus(page, page.locator(`${STAGE} .wib-card`));
+    await expect(page.locator(`${STAGE} .wib-card`)).toHaveAttribute("aria-expanded", "true");
     await keyboardFocus(page, chip);
-    await page.waitForTimeout(500);
-    expect((await read(chip)).y - rest.c.y, "focus twin lift").toBeCloseTo(-2, 0);
-    expect((await read(note)).opacity, "focus twin label").toBe(1);
+    await expect.poll(async () => (await read(chip)).y - rest.c.y, { message: "focus twin lift" }).toBeCloseTo(-2, 0);
+    await expect.poll(async () => (await read(note)).opacity, { message: "focus twin label" }).toBe(1);
   });
 
   test("reduced motion: no lift, the label still shows on focus", async ({ page, viewport }) => {
