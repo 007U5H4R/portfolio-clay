@@ -63,7 +63,7 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
         w: img.getAttribute("width"),
         h: img.getAttribute("height"),
         loading: img.getAttribute("loading"),
-        shown: getComputedStyle(img).display !== "none",
+        shown: img.getClientRects().length > 0,
         ok: img.complete && img.naturalWidth > 0,
         ratio: img.naturalWidth / img.naturalHeight,
         attrRatio: Number(img.getAttribute("width")) / Number(img.getAttribute("height")),
@@ -118,7 +118,7 @@ test("the desk, the map and the notebook swap with the theme; the box never chan
     await page.locator("section#desk").scrollIntoViewIfNeeded();
     for (const [sel, name] of [[".bdx-art", "desk"], [".crx-map", "map"], [".rvx-notebook", "notebook"]] as const) {
       await page.locator(sel).scrollIntoViewIfNeeded();
-      const shown = await page.locator(`${sel} img`).evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== "none").map((e) => (e as HTMLImageElement).dataset.paperArt));
+      const shown = await page.locator(`${sel} img.pa-light, ${sel} img.pa-dark`).evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== "none").map((e) => (e as HTMLImageElement).dataset.paperArt));
       expect(shown, `${name} in ${theme}`).toEqual([`${name === "map" ? "pin-map" : name}-${theme}`]);
       const b = await page.locator(sel).boundingBox();
       (boxes[name] ??= []).push(Math.round(b!.width), Math.round(b!.height));
