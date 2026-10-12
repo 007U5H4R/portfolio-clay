@@ -58,16 +58,17 @@ Screenshots: `docs/screenshots/m-013/task-199/` (23 files, staged with `scripts/
 | `pnpm typecheck` | pass |
 | `pnpm lint` | 0 errors, 2 warnings (both on main: `scripts/lcp-probe.ts`, `tests/e2e/eval-037.spec.ts`) |
 | `pnpm tokens:check` | pass (13/13, 13/13 dark, 7/7 + 7/7 material, 69/69 contrast) |
-| `ALLOW_DEV_ROUTES=1 pnpm build` | pass, 20 static routes |
-| `pnpm test` | **1375 passed, 4 skipped**, 122 files (new: lab-bumpers, lab-slings, lab-pinball-sim, trail burst, wedge/portal/arena/clearance rewrites) |
-| Full `ALLOW_DEV_ROUTES=1 pnpm test:e2e --retries=0` (w390/768/1024/1440, 4004 tests) | **1994 passed, 25 failed, 1985 skipped** on the first run; after fixing the two lab tests below, all eval-030* specs: **162 passed, 86 skipped, 0 failed** at the four widths |
+| `ALLOW_DEV_ROUTES=1 pnpm build` | pass, 20 static routes (before and after merging main) |
+| `pnpm test` | **1392 passed, 4 skipped**, 124 files, after merging main (1375 / 122 before the merge; new here: lab-bumpers, lab-slings, lab-pinball-sim, trail burst, wedge/portal/arena/clearance rewrites) |
+| Full `ALLOW_DEV_ROUTES=1 pnpm test:e2e --retries=0` (w390/768/1024/1440, 4004 tests) | **1994 passed, 25 failed, 1985 skipped** on the first run; after fixing the two lab tests below, all eval-030* specs: **162 passed, 86 skipped, 0 failed** at the four widths. After merging `origin/main` (What I Bring, TASK-187; no lab files touched) the eval-030* run was 161 passed, 1 failed (the reduced-motion test at w390, see below), 86 skipped |
 
 **The 25 first-run failures:**
 - **2 were mine, both in eval-030, both fixed (tests only):** (a) *the black hole is a way in* (w1440) put the gummy a gummy's width and a bit from the sensor; on this host's ~1.5 fps a long frame fits many physics steps and the gummy fell past the hole first. It now starts at the sensor's edge. (b) *the Nudge button recharges* (w390): the parked gummy drained or, with the random nudge lean, wandered into the (now reachable) black hole and left the lab. The Nudge tests now park the gummy on the right, switch the sensor off for the test, and keep the gummy in play. 16/16 repeats pass; the Nudge-key test too.
+- **After the merge, one more lab test failed once:** *reduced motion draws no light trail* (w390). It launches at 90 % and plays 2.5 s; `loseRun` then hit "null pointer passed to rust", i.e. the scene had been disposed, which fits the gummy having reached the phone table's black hole and left the lab (the hole is reachable by design). It passed 6/6 and 2/2 on re-runs; the test now switches the sensor off (it is about reduced motion, not the way out). Other long-play tests passed in every run and were left alone.
 - **23 are not the lab** and fail identically when re-run alone with `--workers=1` (23 failed / 457 passed): EVAL-008 `/dev/artifacts` ×4 (known, TASK-178); `eval-011-dead-controls` and `playground` live URLs ("fetch failed": no outbound network here); `eval-014`, `media-player` ×2, `portfolio-video` ×10 (YouTube iframes never come up: no network); `fallback-glyphs` ×4 (system font fallback on this host). None of them loads `/lab`, and this branch changes only `lib/lab`, `components/lab`, tests, scripts and docs. EVAL-033 and EVAL-039 did not fail this time.
 - Not loosened: no threshold or assertion was relaxed; the 2 lab tests were made robust to frame rate, not weaker.
 
-**eval-030 assertions changed** (all in `tests/e2e/eval-030.spec.ts`): the black-hole link position check (desktop: top-left of the canvas as before; phone: left half, inside the viewport); the "way in" test (aims at the in-table hole instead of the wall opening); the two Nudge tests (open-space parking, sensor off, keep-alive); the title/comments that said "opening in the left wall" and "corner". **Added:** a layout test (four bumper types or pop + turbo, the four slings WL/WR/SL/SR, no `targets` in the arena, hole inside the table, no PRODUCT / BUILD / DESIGN text in the lab). The removed bricks had no eval-030 assertion of their own; nothing tested target scores or TP MODE outside the unit tests, where `lab-engine`, `lab-hud`, `lab-storage`, `lab-controls-copy`, `lab-arena` and `lab-arena-clearance` were updated.
+**eval-030 assertions changed** (all in `tests/e2e/eval-030.spec.ts`): the black-hole link position check (desktop: top-left of the canvas as before; phone: left half, inside the viewport); the "way in" test (aims at the in-table hole instead of the wall opening); the two Nudge tests (open-space parking, sensor off, keep-alive); the title/comments that said "opening in the left wall" and "corner". the reduced-motion test (sensor off); **added:** a layout test (four bumper types or pop + turbo, the four slings WL/WR/SL/SR, no `targets` in the arena, hole inside the table, no PRODUCT / BUILD / DESIGN text in the lab). The removed bricks had no eval-030 assertion of their own; nothing tested target scores or TP MODE outside the unit tests, where `lab-engine`, `lab-hud`, `lab-storage`, `lab-controls-copy`, `lab-arena` and `lab-arena-clearance` were updated.
 
 ## Screenshots (`docs/screenshots/m-013/task-199/`)
 
@@ -90,4 +91,6 @@ Screenshots: `docs/screenshots/m-013/task-199/` (23 files, staged with `scripts/
 - `542dd0b` Colour the wall slingshots green, move the hole's label clear of the bumpers, update eval-030 for the new table (TASK-199)
 - `59c8012` Add TASK-199 review screenshots and the script that stages them (TASK-199)
 - `6ef4f6c` Make the eval-030 black-hole and Nudge tests robust on a slow host (TASK-199)
+- merge of `origin/main` (clean, no conflicts)
+- `Stop the reduced-motion e2e from leaving the lab through the black hole (TASK-199)`
 - this report (committed last)
