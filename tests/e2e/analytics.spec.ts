@@ -34,13 +34,14 @@ function isMixpanelUrl(url: string): boolean {
   }
 }
 
-/** Decode a Mixpanel /track request (form field `data`, base64 JSON array/object) into events. */
+/** Decode a Mixpanel /track request (form field `data`: JSON, or base64 JSON, array or object) into events. */
 function decode(req: Request): MpEvent[] {
   const body = req.postData() ?? "";
   const data = new URLSearchParams(body).get("data") ?? new URL(req.url()).searchParams.get("data");
   if (!data) return [];
   try {
-    const parsed = JSON.parse(Buffer.from(data, "base64").toString("utf8")) as MpEvent | MpEvent[];
+    const text = /^\s*[[{]/.test(data) ? data : Buffer.from(data, "base64").toString("utf8");
+    const parsed = JSON.parse(text) as MpEvent | MpEvent[];
     return Array.isArray(parsed) ? parsed : [parsed];
   } catch {
     return [];
@@ -53,10 +54,12 @@ async function captureMixpanel(page: Page) {
   const raw: Array<{ url: string; body: string }> = [];
   await page.route(MIXPANEL_ROUTE, async (route: Route) => {
     const req = route.request();
-    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-headers": "*" } });
+    // The SDK posts with credentials, so the response must echo the origin (not "*") like Mixpanel's does.
+    const cors = { "access-control-allow-origin": req.headers()["origin"] ?? "*", "access-control-allow-credentials": "true", "access-control-allow-headers": "*" };
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: cors });
     raw.push({ url: req.url(), body: req.postData() ?? "" });
     events.push(...decode(req));
-    return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "1" });
+    return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: "1" });
   });
   return {
     events,
@@ -104,11 +107,12 @@ test.describe("analytics without a token (TASK-194)", () => {
     await page.waitForTimeout(5000); // longer than the idle-load timeout: it must still not have loaded anything
 
     expect(mixpanelRequests).toEqual([]);
-    // No script on any page mentions Mixpanel (the lazy chunk is not even emitted without a token).
+    // No script on any page carries the SDK or its endpoint (the lazy chunk is not even emitted without a
+    // token). Case-study copy may say "Mixpanel" in prose, so match the SDK's own markers, not the word.
     const offenders: string[] = [];
     for (const url of new Set(scripts)) {
       const body = await (await page.request.get(url)).text();
-      if (/mixpanel/i.test(body)) offenders.push(url);
+      if (/api-js\.mixpanel\.com|api-eu\.mixpanel\.com|mp_lib|\$device_id|__ptMixpanel/.test(body)) offenders.push(url);
     }
     expect(offenders).toEqual([]);
     await expect(page.locator("[data-analytics-sentinels]")).toHaveCount(0);
@@ -184,6 +188,23 @@ test.describe("analytics with a stub token (TASK-194)", () => {
   test.afterAll(() => {
     server?.kill();
   });
+
+  /** The page uses Lenis smooth scrolling: wait until the element has stopped moving inside the viewport before a real click. */
+  async function settled(page: Page, selector: string) {
+    const el = page.locator(selector).first();
+    await el.scrollIntoViewIfNeeded();
+    let last = "";
+    await expect
+      .poll(async () => {
+        const box = await el.boundingBox();
+        const now = box ? `${Math.round(box.x)},${Math.round(box.y)}` : "";
+        const stable = now === last && box !== null && box.y >= 0 && box.y < page.viewportSize()!.height;
+        last = now;
+        return stable;
+      }, { intervals: [200, 200, 300, 300, 400, 400, 500], timeout: 10_000 })
+      .toBe(true);
+    return el;
+  }
 
   const go = (page: Page, path: string) => page.goto(`${origin}${path}`, { waitUntil: "load" });
   const widthOf = (page: Page) => page.viewportSize()!.width;
@@ -325,7 +346,7 @@ test.describe("analytics with a stub token (TASK-194)", () => {
     const third = await active();
     expect(third).not.toBe(second);
 
-    const target = page.locator(`.pf-thumb[data-product]:not([aria-selected="true"])`).last();
+    const target = await settled(page, `.pf-thumb[data-product]:not([aria-selected="true"])`);
     const targetId = await target.getAttribute("data-product");
     await target.click();
     await expect(page.locator(".pf-feature")).toHaveAttribute("data-active-product", targetId!);
