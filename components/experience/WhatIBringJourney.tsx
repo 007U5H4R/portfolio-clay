@@ -145,7 +145,7 @@ export function WhatIBringJourney() {
                   onFocus={(e) => onFocus(e, s.id)}
                   onBlur={onBlur}
                 >
-                  <span className="wib-num">{s.number}</span>
+                  <span className="wib-num" data-micro-label="">{s.number}</span>
                   <span className="wib-title">{s.title}</span>
                   <span className="wib-principle">
                     {s.principle.map((line) => (
@@ -195,7 +195,7 @@ export function WhatIBringJourney() {
                     ) : null}
                     {s.tools.length > 0 ? (
                       <p className="wib-tools">
-                        <span className="wib-tools-label">Tools I use</span>
+                        <span className="wib-tools-label" data-micro-label="">Tools I use</span>
                         {s.tools.map((t) => t.label).join(" · ")}
                       </p>
                     ) : null}

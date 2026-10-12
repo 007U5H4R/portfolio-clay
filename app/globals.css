@@ -13635,9 +13635,9 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .wib-num {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
-  color: var(--color-rust);
+  color: var(--color-terracotta);
 }
 .wib-title {
   display: block;
@@ -13649,7 +13649,7 @@ html[data-theme-vt]::view-transition-group(root) {
 .wib-principle {
   display: block;
   margin-top: 6px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.35;
   color: var(--color-navy-2);
 }
@@ -13731,10 +13731,8 @@ html[data-theme-vt]::view-transition-group(root) {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 6px;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-ink-soft);
+  font-size: 14px;
+  color: var(--color-navy-2);
 }
 .wib-flow li:not(:last-child)::after {
   content: "\2192";
@@ -13747,10 +13745,10 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .wib-tools-label {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-rust);
+  color: var(--color-terracotta);
 }
 .wib-evidence {
   margin: 12px 0 0;
@@ -13764,8 +13762,8 @@ html[data-theme-vt]::view-transition-group(root) {
   padding: 4px 12px;
   border-radius: 3px 10px 3px 8px;
   background: var(--mat-kraft);
-  color: var(--color-ivory);
-  font-size: 13px;
+  color: var(--color-navy);
+  font-size: 14px;
 }
 .wib-proof {
   margin: 14px 0 0;
@@ -13785,7 +13783,7 @@ html[data-theme-vt]::view-transition-group(root) {
 .wib-proof span,
 .wib-proof i {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-style: normal;
   color: var(--color-navy-2);
 }
@@ -14067,8 +14065,8 @@ html[data-theme-vt]::view-transition-group(root) {
 
 /* ---- reduced motion: no movement at all; the panel still appears (opacity), the colour/shadow feedback stays ---- */
 @media (prefers-reduced-motion: reduce) {
-  :root .wib-layer,
-  :root .wib-stage[data-active] .wib-layer,
+  :root .wib-stage[data-stage] .wib-layer[data-layer],
+  :root .wib-stage[data-stage][data-active] .wib-layer[data-layer],
   :root .wib-stage[data-active] .wib-card,
   :root .wib-card {
     transform: none;
