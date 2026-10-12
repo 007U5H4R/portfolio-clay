@@ -19,8 +19,8 @@ const tabId = (id: string) => `pf-tab-${id}`;
 
 /**
  * Section 1's interactive core (TASK-116, spec §3, §6, §8–§10, §18, §50): media stage (left, ~62 %),
- * product panel (right, ~38 %), carousel (full width below). Mobile order is the DOM order: intro →
- * media → details → actions → carousel (spec §46; fidelity spec §29).
+ * product panel (right, ~38 %), carousel (full width below). TASK-197: the DOM order is intro →
+ * carousel → panel; on a phone CSS lays the panel out as details → media → actions (`.pf-info` is `display: contents`).
  *
  * TASK-127 (fidelity spec §2): at ≥ 1024 the intro, stage, sheet and carousel share one grid
  * (`.pf-showcase`, the tabpanel is a subgrid), so the sheet rises beside the intro and the whole top
@@ -85,6 +85,9 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   return (
     <div className="pf-showcase">
       {intro}
+      {/* TASK-197: the carousel precedes the panel it controls, so a phone reads intro → carousel → details → video → actions
+          (the picker stays above the video); ≥ 1024 places it by grid row, so the desktop arrangement is unchanged. */}
+      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
       <div
         id={PANEL_ID}
         className="pf-feature"
@@ -104,7 +107,6 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
           headingId={NAME_ID}
         />
       </div>
-      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
     </div>
   );
 }

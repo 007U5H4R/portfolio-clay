@@ -91,10 +91,14 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         <p id="pf-select" className="pf-select">
           Select a product
         </p>
-        <p className="pf-count" aria-live="polite">
+        <p className="pf-count">
           {activeIndex + 1} / {products.length}
         </p>
       </div>
+      {/* the announced position (TASK-197): "Railcite, 2 of 13" is read out whenever the selection changes */}
+      <p className="sr-only" role="status" data-testid="pf-announce">
+        {products[activeIndex]?.name}, {activeIndex + 1} of {products.length}
+      </p>
       <button type="button" className="pf-arrow focus-ring" data-dir="prev" aria-label="Previous product" onClick={() => step(-1, "arrow")}>
         <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
       </button>

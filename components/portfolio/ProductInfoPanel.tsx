@@ -57,6 +57,9 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   if (product.githubUrl) externals.push({ kind: "github", href: product.githubUrl });
   if (product.prdUrl) externals.push({ kind: "prd", href: product.prdUrl });
 
+  // the strips + the case study: the phone lays them out as one 2-column grid (an odd count lets the case study span)
+  const actionCount = (product.pitchVideo ? 1 : 0) + (product.demoVideo ? 1 : 0) + externals.length + 1;
+
   const mediaButton = (target: MediaMode, label: string, hint: string, Icon: LucideIcon) => (
     <li>
       <button
@@ -76,6 +79,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
     <Sheet as="div" variant="card" rotate={0.6} className="pf-info">
       <Pin tone="rust" className="pf-info-pin" />
       <Tape side="r" rotate={8} className="pf-info-tape" />
+      <div className="pf-info-head">
       <p className="pf-info-meta">
         <span className="pf-info-code">{product.code}</span>
         <span aria-hidden="true">·</span>
@@ -86,6 +90,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
       <p className="pf-info-desc">{product.description}</p>
+      </div>
+      <div className="pf-action-set" data-odd={actionCount % 2 === 1 ? "" : undefined}>
       <ul className="pf-actions" aria-label={`${product.name} actions`}>
         {product.pitchVideo ? mediaButton("pitch", "Pitch video", "Plays here", Play) : null}
         {product.demoVideo ? mediaButton("demo", "Demo video", "See it in action", Video) : null}
@@ -119,10 +125,11 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
           <BookOpen aria-hidden="true" focusable="false" strokeWidth={1.75} />
         </span>
         <span className="pf-action-label">
-          Read the case study <span aria-hidden="true">→</span>
+          <span className="pf-case-lead">Read the </span><span className="pf-case-name">case study</span> <span className="pf-case-arrow" aria-hidden="true">→</span>
           <NewTabHint />
         </span>
       </Link>
+      </div>
     </Sheet>
   );
 }
