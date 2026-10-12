@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { publishRoute } from "@/lib/analytics/track";
+import { publishRoute, setWake } from "@/lib/analytics/track";
 
 /**
  * The only analytics code in the first-load bundle besides `track()` (TASK-194): a render-less client
@@ -25,9 +25,16 @@ export function AnalyticsLoader() {
   useEffect(() => {
     if (!ENABLED) return;
     let cancelled = false;
+    let requested = false;
     const run = () => {
-      if (!cancelled) void import("@/lib/analytics/runtime").then((m) => m.start()).catch(() => undefined);
+      if (cancelled || requested) return;
+      requested = true;
+      void import("@/lib/analytics/runtime").then((m) => m.start()).catch(() => undefined);
     };
+    // An interaction that has to wait for the SDK asks for it now (only once the page has loaded).
+    setWake(() => {
+      if (document.readyState === "complete") run();
+    });
     const schedule = () => {
       const idle = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
       if (idle) idle(run, { timeout: 4000 });
@@ -37,6 +44,7 @@ export function AnalyticsLoader() {
     else window.addEventListener("load", schedule, { once: true });
     return () => {
       cancelled = true;
+      setWake(null);
       window.removeEventListener("load", schedule);
     };
   }, []);

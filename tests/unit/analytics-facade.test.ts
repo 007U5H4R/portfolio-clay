@@ -59,6 +59,17 @@ describe("track() facade (TASK-194)", () => {
     expect(() => m.track("linkedin_profile_clicked", { cta_location: "hero" })).not.toThrow();
   });
 
+  it("asks the loader for the runtime as soon as an event has to wait", async () => {
+    const m = await load("0123456789abcdef0123456789abcdef");
+    const wake = vi.fn();
+    m.setWake(wake);
+    m.track("linkedin_profile_clicked", { cta_location: "hero" });
+    expect(wake).toHaveBeenCalledTimes(1);
+    m.attachHandler(() => undefined);
+    m.track("linkedin_profile_clicked", { cta_location: "hero" });
+    expect(wake).toHaveBeenCalledTimes(1); // once the handler is attached nothing waits
+  });
+
   it("publishes a route once and replays the current one to a late subscriber", async () => {
     const m = await load("0123456789abcdef0123456789abcdef");
     m.publishRoute("/projects");

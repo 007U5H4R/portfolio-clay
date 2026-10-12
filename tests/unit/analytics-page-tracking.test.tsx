@@ -123,7 +123,7 @@ describe("page tracking (TASK-194)", () => {
       io.fire(blocks[0]!, { height: 800 });
       io.fire(blocks[0]!, { height: 800 });
       io.fire(blocks[1]!, { height: 800 });
-      io.fire(blocks[3]!, { height: 800 }); // a jump straight to 90 %: 75 % was skipped and is not invented
+      io.fire(blocks[3]!, { height: 800 }); // 90 % reported on its own (in a browser a jump to the bottom intersects all four)
       const depths = events.filter(([n]) => n === "scroll_depth_reached").map(([, p]) => p.depth_percent);
       expect(depths).toEqual([25, 50, 90]);
       add.mockRestore();

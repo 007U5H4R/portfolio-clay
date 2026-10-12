@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  */
 const TOKEN = "0123456789abcdef0123456789abcdef";
 const sink = { track: vi.fn(), register: vi.fn(), registerOnce: vi.fn(), optOut: vi.fn(), optIn: vi.fn() };
-const createMixpanelSink = vi.fn(async (_cfg?: unknown) => sink);
+const createMixpanelSink = vi.fn<(cfg?: unknown) => Promise<typeof sink>>(async () => sink);
 vi.mock("@/lib/analytics/client", () => ({ createMixpanelSink: (cfg: unknown) => createMixpanelSink(cfg), BLOCKED_SDK_PROPERTIES: [], sdkConfig: () => ({}) }));
 vi.mock("@/lib/analytics/page-tracking", async () => {
   const actual = await vi.importActual<typeof import("@/lib/analytics/page-tracking")>("@/lib/analytics/page-tracking");

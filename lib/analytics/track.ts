@@ -12,16 +12,28 @@ const ENABLED = Boolean(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN);
 const QUEUE_LIMIT = 40;
 
 let handler: Handler | null = null;
+// The loader registers this so the first event that has to wait (a click that happens before the idle
+// load) asks for the runtime NOW instead of at idle — otherwise a five-click Lab entry or a quick
+// outbound click could leave the page before the SDK arrived. Still after `load`, still never the LCP.
+let wake: (() => void) | null = null;
 let queue: Array<[EventName, unknown]> | null = ENABLED ? [] : null;
 
 export function track<N extends EventName>(name: N, props: EventProps<N>): void {
   if (!ENABLED) return;
   try {
     if (handler) handler(name, props);
-    else if (queue && queue.length < QUEUE_LIMIT) queue.push([name, props]);
+    else if (queue && queue.length < QUEUE_LIMIT) {
+      queue.push([name, props]);
+      wake?.();
+    }
   } catch {
     /* analytics must never break the page */
   }
+}
+
+/** Registered by the loader; see `wake` above. */
+export function setWake(fn: (() => void) | null): void {
+  wake = fn;
 }
 
 /** Called by the runtime once gated and ready: flush what waited, then deliver live. */
@@ -44,6 +56,7 @@ export function resetTrackFacade(): void {
   queue = ENABLED ? [] : null;
   currentRoute = null;
   routeListener = null;
+  wake = null;
 }
 
 // ---- route seam -----------------------------------------------------------------------------------
