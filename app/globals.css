@@ -4146,11 +4146,6 @@ html.lenis body {
     padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
   }
 
-  .acap-langs {
-    margin-top: clamp(28px, 3vw, 40px);
-    font-size: 15px;
-    color: var(--color-navy-2);
-  }
   @media (max-width: 900px) {
     .about-head {
       grid-template-columns: 1fr;

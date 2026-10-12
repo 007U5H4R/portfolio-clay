@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, within } from "@testing-library/react";
 import ExperiencePage from "@/app/work/page";
-import { education, languages } from "@/data/credentials";
+import { education } from "@/data/credentials";
 import { experience } from "@/data/experience";
 import { wibStages } from "@/data/what-i-bring";
 
@@ -143,7 +143,7 @@ describe("/work Experience page (TKT-101)", () => {
     }
   });
 
-  it("What I Bring is the seven-stage journey (TASK-187, replaces the four skill sheets), then the languages line; torn = its one decoration", () => {
+  it("What I Bring is the seven-stage journey (TASK-187, replaces the four skill sheets), with no languages line (TASK-200); torn = its one decoration", () => {
     const { container } = render(<ExperiencePage />);
     const skillsSection = section(container, "skills");
     const stages = Array.from(skillsSection.querySelectorAll("ol.wib-stages > li"));
@@ -153,7 +153,7 @@ describe("/work Experience page (TKT-101)", () => {
       expect(li.querySelector(".wib-num")?.textContent).toBe(wibStages[i]!.number);
       expect(Array.from(li.querySelectorAll(".wib-caps li")).map((c) => c.textContent)).toEqual(wibStages[i]!.capabilities);
     });
-    expect(skillsSection.querySelector(".acap-langs")?.textContent).toBe(`Languages: ${languages.join(", ")}.`);
+    expect(skillsSection.textContent).not.toContain("Languages:"); // removed at Tushar's request (TASK-200)
     expect(Array.from(skillsSection.querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"))).toEqual(["torn"]);
   });
 });
