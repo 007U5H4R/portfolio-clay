@@ -119,10 +119,14 @@ export function observeLab(store: LabStoreApi, options: LabObserverOptions = {})
     exit(via, fallback = false) {
       if (exited) return;
       exited = true;
-      const s = store.getState();
-      // Left during the 1.3 s between GAME_OVER and the results card: report the run with the last HUD values.
-      if (overPending && overReported !== s.runId) reportOver(s.score, s.timeS, s.runId);
-      track("game_exited_to_portfolio", { exit_location: exitLocationFor(s.state, via, fallback) });
+      try {
+        const s = store.getState();
+        // Left during the 1.3 s between GAME_OVER and the results card: report the run with the last HUD values.
+        if (overPending && overReported !== s.runId) reportOver(s.score, s.timeS, s.runId);
+        track("game_exited_to_portfolio", { exit_location: exitLocationFor(s.state, via, fallback) });
+      } catch {
+        /* analytics must never get in the way of leaving the lab */
+      }
     },
     dispose: unsubscribe,
   };

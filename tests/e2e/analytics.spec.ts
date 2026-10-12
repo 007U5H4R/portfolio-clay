@@ -554,6 +554,8 @@ test.describe("analytics with a stub token (TASK-194)", () => {
     await expectEvents(cap, "game_exited_to_portfolio", 1, 20_000);
     expect(cap.named("game_exited_to_portfolio")).toHaveLength(1);
     expect(cap.named("easter_egg_discovered")).toHaveLength(1);
+    // Instrumentation must not trap the visitor: Esc still takes them back to the portfolio.
+    await page.waitForURL((url) => !url.pathname.startsWith("/lab"), { timeout: 20_000 });
   });
 
   test.describe("privacy switches: nothing is requested at all", () => {
