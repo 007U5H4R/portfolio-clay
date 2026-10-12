@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { projects } from "@/data/projects";
 import { wibHeading, wibStages, wibStatement } from "@/data/what-i-bring";
 
 /**
@@ -72,5 +73,22 @@ describe("data/what-i-bring (TASK-187)", () => {
     for (const s of wibStages)
       for (const layer of ["back", "mid", "front"]) expect(statSync(resolve(process.cwd(), `public/media/what-i-bring/${s.id}/${layer}.webp`)).size).toBeGreaterThan(1000);
     expect(statSync(resolve(process.cwd(), "public/media/what-i-bring/landscape/strip.webp")).size).toBeGreaterThan(1000);
+  });
+
+  it("every tool-to-project pairing exists in data/projects (TASK-201): the slug, the display name and the evidence term in that project's record", () => {
+    const paired = wibStages.flatMap((st) => st.tools.filter((t) => t.project).map((t) => ({ stage: st.id, tool: t })));
+    expect(paired.length).toBeGreaterThan(0);
+    for (const { stage, tool } of paired) {
+      const pr = tool.project!;
+      const project = projects.find((p) => p.slug === pr.slug);
+      expect(project, `${stage}: ${tool.label} -> unknown project slug "${pr.slug}"`).toBeDefined();
+      expect(project!.name.toLowerCase(), `${stage}: ${tool.label} -> "${pr.name}" is not (part of) the project name`).toContain(pr.name.toLowerCase());
+      expect(JSON.stringify(project).toLowerCase(), `${stage}: ${tool.label} -> "${pr.evidence}" not in the ${pr.slug} record`).toContain(pr.evidence.toLowerCase());
+    }
+  });
+
+  it("never pairs a tool the data does not back: Interviews, JTBD, Vertex AI, BigQuery, Jira, Azure DevOps and SAFe stay label-less", () => {
+    const bare = new Set(["Interviews", "JTBD", "Vertex AI", "BigQuery", "Jira", "Azure DevOps", "SAFe"]);
+    for (const t of wibStages.flatMap((s) => s.tools)) if (bare.has(t.label)) expect(t.project, t.label).toBeUndefined();
   });
 });
