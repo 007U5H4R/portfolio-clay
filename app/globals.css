@@ -5802,10 +5802,16 @@ html.lenis body {
     background: var(--color-ivory);
     color: var(--color-navy);
     box-shadow: 0 2px 6px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
-    transition: box-shadow 180ms var(--ease-hover), transform 180ms var(--ease-hover);
+    /* TASK-181.3 (EXE-61/62): the hover shadow swaps (never transitioned); hover is fine-pointer only, focus-visible twins it */
+    transition: transform 180ms var(--ease-hover);
   }
-  .tk-close:hover {
+  .tk-close:focus-visible {
     box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 18%, transparent);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tk-close:hover {
+      box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 18%, transparent);
+    }
   }
   /* chat mode: a small header with the avatar (spec §16) */
   .tk-head[data-compact] {
@@ -5969,9 +5975,9 @@ html.lenis body {
     line-height: 1.3;
     color: var(--color-navy);
     text-align: left;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the paper moves */
     transition:
       transform 180ms var(--ease-hover),
-      box-shadow 180ms var(--ease-hover),
       border-color 180ms var(--ease-hover);
   }
   /* TKT-113: the six category pastels are shared by the drawer rows and the Home launcher cards. */
@@ -6021,7 +6027,16 @@ html.lenis body {
     color: var(--color-navy);
     transition: transform 180ms var(--ease-hover);
   }
-  @media (hover: hover) {
+  /* TASK-181.3 (EXE-62): fine-pointer hover, the same state on :focus-visible, and a touch press */
+  .tk-card:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+    box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
+  }
+  .tk-card:focus-visible .tk-card-arrow {
+    transform: translateX(3px);
+  }
+  @media (hover: hover) and (pointer: fine) {
     .tk-card:hover {
       transform: translateY(-1px);
       border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
@@ -6029,6 +6044,12 @@ html.lenis body {
     }
     .tk-card:hover .tk-card-arrow {
       transform: translateX(3px);
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .tk-card:active {
+      transform: translateY(1px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
     }
   }
 
@@ -6326,8 +6347,8 @@ html.lenis body {
     .tk-head[data-generating] .tk-head-avatar {
       animation: none !important;
     }
-    .tk-card:hover,
-    .tk-card:hover .tk-card-arrow {
+    .tk-card:is(:hover, :focus-visible, :active),
+    .tk-card:is(:hover, :focus-visible) .tk-card-arrow {
       transform: none;
     }
   }
@@ -6435,9 +6456,8 @@ html.lenis body {
     box-shadow:
       0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
       0 2px 5px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
-    transition:
-      transform 140ms ease,
-      box-shadow 140ms ease;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the disc moves */
+    transition: transform 140ms ease;
   }
   .tk-voice-icon {
     fill: currentColor;
@@ -6450,11 +6470,19 @@ html.lenis body {
   .tk-voice[data-state="ended"] .tk-voice-icon {
     fill: none;
   }
-  .tk-voice-main:hover .tk-voice-disc {
+  .tk-voice-main:focus-visible .tk-voice-disc {
     transform: translateY(-1px);
     box-shadow:
       0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
       0 4px 9px color-mix(in oklab, var(--color-terracotta) 45%, transparent);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tk-voice-main:hover .tk-voice-disc {
+      transform: translateY(-1px);
+      box-shadow:
+        0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
+        0 4px 9px color-mix(in oklab, var(--color-terracotta) 45%, transparent);
+    }
   }
   .tk-voice-main:active .tk-voice-disc,
   .tk-voice[data-state="pending"] .tk-voice-disc {
@@ -6640,7 +6668,7 @@ html.lenis body {
     .tk-speaking-marks {
       transition: none;
     }
-    .tk-voice-main:hover .tk-voice-disc,
+    .tk-voice-main:is(:hover, :focus-visible) .tk-voice-disc,
     .tk-voice-main:active .tk-voice-disc,
     .tk-voice[data-state="pending"] .tk-voice-disc {
       transform: none;
@@ -9260,9 +9288,9 @@ html.lenis body {
     line-height: 1.35;
     color: var(--color-navy);
     text-align: left;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the paper moves */
     transition:
       transform 180ms var(--ease-hover),
-      box-shadow 180ms var(--ease-hover),
       border-color 180ms var(--ease-hover);
   }
   .hat-card-icon {
@@ -9284,7 +9312,16 @@ html.lenis body {
     color: var(--color-navy);
     transition: transform 180ms var(--ease-hover);
   }
-  @media (hover: hover) {
+  /* TASK-181.3 (EXE-62): fine-pointer hover, the same state on :focus-visible, and a touch press */
+  .hat-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+    box-shadow: 0 8px 16px -4px color-mix(in oklab, var(--color-navy) 16%, transparent);
+  }
+  .hat-card:focus-visible .hat-card-arrow {
+    transform: translateX(3px);
+  }
+  @media (hover: hover) and (pointer: fine) {
     .hat-card:hover {
       transform: translateY(-2px);
       border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
@@ -9292,6 +9329,12 @@ html.lenis body {
     }
     .hat-card:hover .hat-card-arrow {
       transform: translateX(3px);
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .hat-card:active {
+      transform: translateY(1px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
     }
   }
   @media (min-width: 1024px) {
@@ -9398,8 +9441,8 @@ html.lenis body {
     .hat-card-arrow {
       transition: none;
     }
-    .hat-card:hover,
-    .hat-card:hover .hat-card-arrow {
+    .hat-card:is(:hover, :focus-visible, :active),
+    .hat-card:is(:hover, :focus-visible) .hat-card-arrow {
       transform: none;
     }
   }
@@ -15501,3 +15544,110 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-197 === */
+
+
+/* === TASK-181.3 === */
+/* ====================================================================================================================
+   M-012 · TASK-181 (P3) · L3 signatures: the hero sticker, Tushky and Contact (the polaroid reaction was dropped, EXE-70) (PLAN §4.5–4.7; Design.md §14.10; EXE-62…64).
+   Restrained and physical: each reaction is the related paper object answering the control that is hovered or focused.
+   Only translate / rotate / transform / opacity move; nothing scales up; nothing is infinite (TASK-143). Hover sits
+   inside (hover: hover) and (pointer: fine) with an identical :focus-visible twin; touch gets the existing :active
+   press only; reduced motion keeps every object at rest.
+   ==================================================================================================================== */
+@property --tk-lean {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---- hero: "Ask Tushky" straightens the sticker head (6 -> 0 deg, one small physical overshoot) and nudges its pointer ---- */
+  .hero-tushky-img {
+    transition:
+      rotate 500ms cubic-bezier(0.3, 1.4, 0.5, 1),
+      translate 500ms var(--ease-paper);
+  }
+  .hero-tushky-arrow {
+    transition: translate 500ms var(--ease-paper);
+  }
+  .hero-btn-secondary:focus-visible ~ .hero-tushky .hero-tushky-img {
+    rotate: 0deg;
+    translate: 0 -3px;
+  }
+  .hero-btn-secondary:focus-visible ~ .hero-tushky .hero-tushky-arrow {
+    translate: 2px -2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hero-btn-secondary:hover ~ .hero-tushky .hero-tushky-img {
+      rotate: 0deg;
+      translate: 0 -3px;
+    }
+    .hero-btn-secondary:hover ~ .hero-tushky .hero-tushky-arrow {
+      translate: 2px -2px;
+    }
+  }
+
+  /* ---- Contact: "Email me" in sequence: the button lifts 1 px (contract), the stamp wakes (lifts 2 px, rotates 1.5 deg
+     toward upright), then the arrow nudges 3 px, 120 ms late, so it reads object -> movement -> arrow. ---- */
+  .cx-stamp-wrap {
+    transition:
+      translate 500ms var(--ease-paper),
+      rotate 500ms var(--ease-paper);
+  }
+  .cx-card:has(.cx-btn-primary:focus-visible) .cx-stamp-wrap {
+    translate: 0 -2px;
+    rotate: 3.5deg;
+  }
+  .cx-btn-primary:focus-visible .cx-btn-arrow {
+    transition-delay: 120ms;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .cx-card:has(.cx-btn-primary:hover) .cx-stamp-wrap {
+      translate: 0 -2px;
+      rotate: 3.5deg;
+    }
+    .cx-btn-primary:hover .cx-btn-arrow {
+      transition-delay: 120ms;
+    }
+  }
+
+  /* ---- Tushky (Home launcher): finite breathing, three 2.4 s breaths once the section has revealed, then still (EXE-64).
+     The whole image grows 1.2 % from the paws; the delay lets the 520 ms entrance finish first. ---- */
+  .hat-grid[data-in] .hat-dog {
+    transform-origin: 50% 100%;
+    animation: tk-breathe 2400ms ease-in-out 900ms 3;
+  }
+  @keyframes tk-breathe {
+    50% {
+      scale: 1 1.012;
+    }
+  }
+}
+
+/* Tushky leans as a whole image: `--hx` (-1…1) is written by paperMotion on the hovered `.hat-mascot` (ObjectMotion), so
+   the lean follows the cursor with the shared spring and needs no transition; the lift and the attentive lean are
+   transitions. The "attentive" state is tied to real controls: a suggestion pressed, or the composer focused. */
+@media (prefers-reduced-motion: no-preference) {
+  .hat-dog {
+    transform-origin: 50% 100%;
+    rotate: calc(var(--hx, 0) * 2deg + var(--tk-lean));
+    translate: 0 var(--tk-lift, 0px);
+    transition:
+      translate 400ms var(--ease-paper),
+      --tk-lean 500ms var(--ease-paper);
+  }
+  .hat-mascot[data-pm-active] .hat-dog {
+    will-change: rotate;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hat-mascot:hover .hat-dog {
+      --tk-lift: -3px;
+    }
+  }
+  .hat-grid:has(.hat-card:active) .hat-dog,
+  .hat-grid:has(.hat-composer:focus-within) .hat-dog {
+    --tk-lift: -4px;
+    --tk-lean: 2deg;
+  }
+}
+/* === end TASK-181.3 === */

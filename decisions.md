@@ -846,3 +846,5 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 **Decision.** (a) A second slot: moving straight from A to B keeps A's own spring in an `out` slot and settles it to 0 (returning to A resumes from where it is; a third object drops the oldest). (b) A passive `pointerout` with `relatedTarget === null` and `blur` release the active object (attached only while objects exist and the pointer is fine). (c) Both media queries are subscribed; a hybrid device attaches or detaches `pointermove`, the leave listeners, the scroll window and the orientation listener as its primary pointer changes. Each has unit tests (`tests/unit/paper-motion.test.ts`); commit 905f81a.
 **Rejected.** A decay-only fix (it cannot resume a still-settling object).
 
+## EXE-70 · TASK-181.3 the hero polaroid reaction (PLAN §4.5) is dropped — decided (Tushar 2026-10-09: dropped)
+The "View my work" hover/focus reaction on the three polaroids sat out of view at desktop sizes (banner scrolled away by the time the CTA is reachable). The Ask Tushky sticker, Contact stamp and Tushky reactions stay.
