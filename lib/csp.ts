@@ -18,9 +18,14 @@ import { frameSources, type VideoProvider } from "./video-providers";
  * a Blob URL (and the silent clip that unlocks playback on iOS). The POST itself is same-origin, which
  * `connect-src 'self'` already allows. Nothing else changes.
  *
+ * `opts.analyticsHost` (TASK-194): the ONE Mixpanel ingestion origin, added to `connect-src` only when a
+ * Mixpanel token is configured at build time (next.config.ts). The SDK is bundled and served from `'self'`, so
+ * `script-src` needs nothing; no session-replay / CDN host is allowed because replay is off. A build without a
+ * token has exactly the policy it had before.
+ *
  * `opts.wasm` (TASK-143): the `/lab` variant adds `'wasm-unsafe-eval'` to `script-src` and changes nothing else.
  */
-export function buildCsp(usedProviders: Iterable<VideoProvider>, opts: { wasm?: boolean } = {}): string {
+export function buildCsp(usedProviders: Iterable<VideoProvider>, opts: { wasm?: boolean; analyticsHost?: string | undefined } = {}): string {
   const frameSrc = frameSources(["youtube", ...usedProviders]);
   // TASK-143 (Gummy Lab, S30): ONLY `/lab` may compile WebAssembly (the Rapier physics engine). The
   // token is `'wasm-unsafe-eval'` — never `'unsafe-eval'`: it permits compiling wasm, not eval()/new Function().
@@ -33,7 +38,7 @@ export function buildCsp(usedProviders: Iterable<VideoProvider>, opts: { wasm?: 
     "media-src 'self' blob:",
     `frame-src ${frameSrc.join(" ")}`,
     "font-src 'self'",
-    "connect-src 'self'",
+    `connect-src 'self'${opts.analyticsHost ? ` ${opts.analyticsHost}` : ""}`,
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

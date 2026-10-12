@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import Image from "next/image";
 import { AlertTriangle, Play } from "lucide-react";
+import { useVideoAnalytics } from "@/lib/analytics/use-video-analytics";
 import {
   embedOrigin,
   embedUrl,
@@ -28,6 +29,8 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
   fallbackPoster?: ReactNode;
   /** Test/QA hook — the production default is `READY_TIMEOUT_MS`. */
   readyTimeoutMs?: number;
+  /** TASK-194: which product / mode this player belongs to. Absent (the QA boards) → no analytics. */
+  analytics?: { projectId: string; videoType: "pitch" | "demo" } | undefined;
 }
 
 /**
@@ -47,12 +50,19 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
  * The host keys this component by product + mode, so a switch unmounts it — stopping playback — and
  * the next one starts at its poster, from the beginning (§5, §13). One instance → at most one iframe.
  */
-export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, ...rest }: ProductMediaPlayerProps) {
+export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, ...rest }: ProductMediaPlayerProps) {
   const [state, setState] = useState<PlayerState>("poster");
   const [src, setSrc] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [loaded, setLoaded] = useState(false);
   const label = providerLabel(media.provider);
+  // TASK-194: reports "started" only once the player says it is playing, never on the Play press.
+  useVideoAnalytics(frameRef, Boolean(analytics) && (state === "loading" || state === "ready"), {
+    projectId: analytics?.projectId ?? "",
+    videoType: analytics?.videoType ?? "pitch",
+    provider: media.provider,
+    origin: embedOrigin(media.provider),
+  });
 
   // While loading: listen for the player's answer and for a CSP block; give up after the budget.
   useEffect(() => {

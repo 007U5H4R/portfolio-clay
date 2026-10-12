@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { observeLab, type LabObserver } from "@/lib/analytics/lab";
 import { canGoBackToPortfolio, LAB_PATH, readReturnRoute } from "@/lib/lab/session";
 import { createLabStore } from "@/lib/lab/store";
 import { stopSmoothScroll } from "@/lib/smooth-scroll";
@@ -52,6 +53,17 @@ export default function LabApp() {
     }
   }, [runtime, store]);
 
+  // TASK-194: a read-only observer of the HUD store (lib/analytics/lab.ts); it never touches the engine.
+  const analytics = useRef<LabObserver | null>(null);
+  useEffect(() => {
+    const observer = observeLab(store);
+    analytics.current = observer;
+    return () => {
+      observer.dispose();
+      analytics.current = null;
+    };
+  }, [store]);
+
   // The diorama's art is only requested once the canvas exists, so the lab's own first load is unchanged.
   const [art, setArt] = useState(false);
 
@@ -60,6 +72,7 @@ export default function LabApp() {
     (via: "portal" | "button" = "button") => {
       const s = store.getState();
       if (s.state === "EXITING") return;
+      analytics.current?.exit(via, mode === "fallback");
       setExitedFromMachine(s.machine.live || s.state === "COUNTDOWN");
       s.send("EXIT");
       if (runtime) runtime.exit = { via, t: 0 };

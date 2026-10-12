@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    ".next-analytics/**", // TASK-194: the token-configured fixture build (pnpm build:analytics-fixture)
     "out/**",
     "build/**",
     "next-env.d.ts",

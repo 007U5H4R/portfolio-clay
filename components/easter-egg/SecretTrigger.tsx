@@ -3,6 +3,7 @@
 import "./secret-trigger.css";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { track } from "@/lib/analytics/track";
 import { createClickDetector } from "@/lib/lab/click-detector";
 import { LAB_PATH, rememberEntry } from "@/lib/lab/session";
 
@@ -50,6 +51,7 @@ export function SecretTrigger() {
         // Hold the home navigation of the 5th click: the overlay performs the route change.
         event.preventDefault();
         brand.removeAttribute("data-gummy-step");
+        track("easter_egg_discovered", { trigger_type: "brand_click_sequence" });
         rememberEntry(window.location.pathname + window.location.search);
         void import("./transition").then((m) =>
           m.playEntry({

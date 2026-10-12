@@ -45,7 +45,7 @@ export function MainMediaStage({ product, mode, enter, id }: MainMediaStageProps
       </span>
       <span className="pf-doodle pf-doodle-burst" aria-hidden="true" />
       {media ? (
-        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} />
+        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} />
       ) : (
         <div id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode}>
           {cover}
