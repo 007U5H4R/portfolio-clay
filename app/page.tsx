@@ -6,6 +6,7 @@ import { HowIThink, type HowIThinkStage } from "@/components/home/HowIThink";
 import { getProject } from "@/data/projects";
 import { thinkingFramework } from "@/data/thinking-framework";
 import { orderStages } from "@/lib/stages";
+import { OG_HOME_ALT } from "@/lib/og-home";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -29,6 +30,10 @@ export const metadata: Metadata = buildMetadata({
   description: site.tagline,
   path: "/",
   ogFamily: `${site.name} — ${site.title}`,
+  // TASK-195: the static paper-cut share card. The previous generated card is still served at
+  // /opengraph-image (app/opengraph-image.tsx) - repoint `image` there to roll back.
+  image: "/og.jpg",
+  imageAlt: OG_HOME_ALT,
 });
 
 export default function Home() {
