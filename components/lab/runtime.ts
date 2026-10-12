@@ -1,3 +1,4 @@
+import type { BootTracker } from "@/lib/lab/boot";
 import { createContext, useContext } from "react";
 import type { NudgeState } from "@/lib/lab/nudge";
 import type { RapierRigidBody } from "@react-three/rapier";
@@ -182,6 +183,8 @@ export interface LabRuntime {
   superSquish: boolean;
   /** Called once when the intro bear is poked, etc. */
   onAsset(status: "ready" | "failed"): void;
+  /** The real boot lifecycle (TASK-198): the loader renders it, the scene marks its milestones on it. */
+  boot: BootTracker;
 }
 
 export const RuntimeContext = createContext<LabRuntime | null>(null);
