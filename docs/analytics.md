@@ -329,7 +329,7 @@ Names are `snake_case`; each event is defined once in `lib/analytics/events.ts` 
 - **Trigger:** Once per run each: 30 s survived, 60 s survived, combo x5, all four targets (TP MODE).
 - **Code:** `lib/analytics/lab.ts`
 - **Properties:**
-  - `milestone_type`: `survived_30s` \| `survived_60s` \| `combo_5` \| `tp_mode`
+  - `milestone_type`: `survived_30s` \| `survived_60s` \| `combo_5` (`tp_mode` was retired with the target bricks in TASK-199)
 
 #### `game_over`
 
@@ -519,7 +519,7 @@ Open the production project → *Events → Live View*, then use a normal window
 | Click a source link in an answer | `chatbot_cta_clicked` (`destination_type`) | |
 | Close the drawer | `chatbot_closed` (`session_message_count` = questions asked) | Reopening starts a new session. |
 | Click the name/monogram five times | `easter_egg_discovered`, then in `/lab`: `page_viewed` (`gummy_lab`), `game_intro_viewed` | Fewer clicks / too slow ⇒ nothing. |
-| Play the Lab | `game_started` (first run), `game_interaction_performed` (`launch`, `nudge`, `power_up`, `danger_escape`, each at most once per run), `game_milestone_reached` (`survived_30s`, `survived_60s`, `combo_5`, `tp_mode`, once each per run), `game_over` (once per run) | Replay ⇒ `game_replayed` (`previous_score`). |
+| Play the Lab | `game_started` (first run), `game_interaction_performed` (`launch`, `nudge`, `power_up`, `danger_escape`, each at most once per run), `game_milestone_reached` (`survived_30s`, `survived_60s`, `combo_5`, once each per run), `game_over` (once per run) | Replay ⇒ `game_replayed` (`previous_score`). |
 | Leave the Lab (portal, button, Esc) | `game_exited_to_portfolio` (`exit_location`) | Once per visit. |
 | Visit with Do Not Track on, or `?analytics=off` | nothing at all (Network tab: no `mixpanel.com` request) | Stays silent on later visits in that browser. |
 
