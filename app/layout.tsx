@@ -16,6 +16,7 @@ import { BandFooter } from "@/components/layout/BandFooter";
 import { HideOnLab } from "@/components/layout/HideOnLab";
 import { AskProvider } from "@/components/ai/AskProvider";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
+import { AnalyticsLoader } from "@/components/analytics/AnalyticsLoader";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
 // plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
@@ -95,6 +96,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         {/* Lenis for fine pointers only, native under reduced motion / touch (TKT-94, EXE-16). */}
         <SmoothScroll />
+        {/* TASK-194: Mixpanel is loaded lazily after idle, only when a token is configured; see docs/analytics.md. */}
+        <AnalyticsLoader />
         <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
           <SkipLink />
           <Header />

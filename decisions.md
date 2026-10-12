@@ -816,7 +816,21 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 
 **Rejected.** Holding the release for flakes that main shares.
 
-## EXE-68 · TASK-186 / TASK-181.2 Home Featured Work and How I Think are built on the object channel with existing art and existing copy — decided (on Tushar's behalf while he was AFK, 2026-10-09)
+## EXE-68 · TASK-194 Mixpanel analytics: lazy, token-gated, anonymous, no free text — decided (on Tushar's behalf while he was AFK, 2026-10-12)
+**Context.** Tushar's spec (`docs/specs/TASK-194-mixpanel-spec.md`) asks for a structured Mixpanel system. The site is static, has a strict CSP, a 5 kB first-load headroom on `/projects`, no cookie banner, and no Mixpanel token yet.
+**Decision.**
+- **(a) No token, no analytics.** `NEXT_PUBLIC_MIXPANEL_TOKEN` empty means no script, no request, no error. Localhost and `*.vercel.app` previews stay silent unless `NEXT_PUBLIC_ANALYTICS_ENV` names an environment.
+- **(b) Lazy, off the LCP path.** A ~0.3 kB loader waits for `load` and an idle slot (or the first interaction that has to wait), then imports the runtime; `mixpanel-browser` is a dynamic import behind every privacy gate. The SDK is served from `'self'`, so the CSP gains one origin: the Mixpanel ingestion host in `connect-src`, only in builds that have a token.
+- **(c) Anonymous, cookie-less, no IP.** `localStorage` persistence, `ip: false`, no replay, no autocapture, no `identify()`. The SDK's own URL, referrer and UTM capture are switched off and replaced with sanitised equivalents (five `utm_*` keys, referrer host only).
+- **(d) Consent is opt-out by default.** Do Not Track and Global Privacy Control always win; `?analytics=off` is a persistent opt-out; `NEXT_PUBLIC_ANALYTICS_CONSENT=opt-in` is the strict switch for when a banner exists. No banner was built (out of scope; the spec says not to build a consent platform).
+- **(e) Closed property vocabulary.** The catalogue (`lib/analytics/events.ts`) has no string kind: enums, bounded slugs, paths, bounded integers, booleans. Ask Tushky text is reduced to one of six categories locally; the words never leave the browser.
+- **(f) Events for UI that does not exist were not invented.** No `contact_form_*` (no form), `meeting_link_clicked` (no scheduling link), `resume_downloaded` (the résumé is a Drive view link). Swipe is not a selection method (the strip scrolls natively). The Lab is a pinball game, so its interactions are `launch`, `nudge`, `power_up`, `danger_escape`, not drag/flick/squish. One event was added: `chatbot_response_failed`.
+- **(g) Video from the player's own reports.** Start and 25/50/75/100 come from YouTube's iframe `postMessage` (already used for the ready handshake); milestones follow watching, not position, so a seek never reports completion.
+- **(h) Nothing was verified against live Mixpanel.** Events were checked against a stub token with the network intercepted. Tushar's Live View pass (docs/analytics.md §8) is still owed.
+
+**Rejected.** Mixpanel's snippet from its CDN (needs `script-src` for a third party and loads on the critical path); `track_pageview` / autocapture (full URLs, DOM text); a scroll listener for depth (main-thread work on scroll); instrumenting the Lab's physics hooks (the HUD store is a safe, low-rate boundary); a cookie banner in this ticket.
+
+## EXE-71 · TASK-186 / TASK-181.2 Home Featured Work and How I Think are built on the object channel with existing art and existing copy — decided (on Tushar's behalf while he was AFK, 2026-10-09)
 **Context.** The plan (PLAN.md §4–§6) and Tushar's home spec ask for paper-object cards with layered art, per-project signatures, RailCite evidence slips and a How I Think journey with hover emphasis. DECISIONS (2026-10-08) bound it: no card scale, layers 2/4/6 px plus RailCite's ~8 px foreground, existing copy only, reuse existing art, generate only where needed.
 **Decision.**
 - **Art: reused, none generated.** The three Featured Work collages are code-generated cut paper, so they were split into depth layers by the generator (same seeds and order; the stack is byte-identical to the old single SVG, proved by sha256 in `tests/unit/featured-layers.test.ts`). Signature overlays (halo, glow, lit windows, slag core, smoke) are new code-drawn pieces in the same kit; sparks are CSS paper chips. 0 Higgsfield credits. The reference image's photographic 3D look is not copied (Design.md outranks the brief: the cut-paper collage language stays).
@@ -827,7 +841,7 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 - **Bridge.** Featured Work ends with the spec's "Three products. One recurring question" line and a stitched dashed path toward How I think.
 **Rejected.** Generating photoreal layered art with Higgsfield (off style, credits, and the existing art already splits cleanly). A scale on the active How I think card (S35 bans card scale). Hiding How I think's quote behind hover or an accordion (breaks EVAL-013 and the no-hover-only rule). Reveal-on-hover only for the evidence (fails touch and keyboard).
 
-## EXE-69 · The paperMotion object channel settles the outgoing object instead of snapping it — decided (on Tushar's behalf while he was AFK, 2026-10-09)
+## EXE-72 · The paperMotion object channel settles the outgoing object instead of snapping it — decided (on Tushar's behalf while he was AFK, 2026-10-09)
 **Context.** EXE-65 listed three P1 limits that P2 must fix before any card registers.
 **Decision.** (a) A second slot: moving straight from A to B keeps A's own spring in an `out` slot and settles it to 0 (returning to A resumes from where it is; a third object drops the oldest). (b) A passive `pointerout` with `relatedTarget === null` and `blur` release the active object (attached only while objects exist and the pointer is fine). (c) Both media queries are subscribed; a hybrid device attaches or detaches `pointermove`, the leave listeners, the scroll window and the orientation listener as its primary pointer changes. Each has unit tests (`tests/unit/paper-motion.test.ts`); commit 905f81a.
 **Rejected.** A decay-only fix (it cannot resume a still-settling object).

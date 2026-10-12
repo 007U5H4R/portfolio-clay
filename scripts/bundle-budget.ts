@@ -21,7 +21,8 @@ import { resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 
 const ROOT = process.cwd();
-const NEXT_DIR = resolve(ROOT, ".next");
+// TASK-194: NEXT_DIST_DIR points the scan at the analytics fixture build (.next-analytics).
+const NEXT_DIR = resolve(ROOT, process.env.NEXT_DIST_DIR ?? ".next");
 const BUDGET_KB_DEFAULT = 180;
 
 function arg(flag: string): string | undefined {

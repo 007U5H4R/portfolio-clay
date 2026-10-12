@@ -279,3 +279,30 @@ test("no infinite animation runs on /card (it sleeps at rest)", tag, async ({ pa
   );
   expect(infinite).toBe(0);
 });
+
+// TASK-180 follow-up (Tushar, 2026-10-09): the faded back-face panther sits in the bottom-LEFT corner,
+// clear of the navy/gold fold in the bottom-right.
+test("the back-face panther sits in the bottom-left corner", tag, async ({ page }) => {
+  await page.goto("/card");
+  await flipToBack(page);
+  const pos = await page.evaluate(() => {
+    const back = document.querySelector('[data-face="back"]')!.getBoundingClientRect();
+    const p = document.querySelector('[data-face="back"] [data-panther="back"]')!.getBoundingClientRect();
+    const cx = (Math.max(p.left, back.left) + Math.min(p.right, back.right)) / 2; // centre of the visible part
+    return { leftHalf: cx < back.left + back.width / 2, lowerHalf: p.top > back.top + back.height / 2 };
+  });
+  expect(pos).toEqual({ leftHalf: true, lowerHalf: true });
+});
+
+// TASK-193 scar: WebKit ignores backface-visibility in this 3D stack and painted the back over the front (Safari showed
+// a washed-out panther). The turned-away face must be visibility:hidden at rest, on both sides.
+test("the turned-away face is hidden at rest, so no engine can paint it over the visible face", tag, async ({ page }) => {
+  await page.goto("/card");
+  const vis = () => page.evaluate(() => ({
+    front: getComputedStyle(document.querySelector('[data-face="front"]')!).visibility,
+    back: getComputedStyle(document.querySelector('[data-face="back"]')!).visibility,
+  }));
+  expect(await vis()).toEqual({ front: "visible", back: "hidden" });
+  await flipToBack(page);
+  expect(await vis()).toEqual({ front: "hidden", back: "visible" });
+});

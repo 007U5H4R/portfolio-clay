@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { track } from "@/lib/analytics/track";
 import { parseProductParam, productHref, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { MainMediaStage } from "./MainMediaStage";
 import { ProductCarousel } from "./ProductCarousel";
@@ -57,7 +58,9 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   }, [products]);
 
   const selectProduct = useCallback(
-    (id: string) => {
+    (id: string, source: "click" | "keyboard" | "arrow" = "click") => {
+      // TASK-194: only a real change of product counts (re-choosing the active one just restarts its stage).
+      if (id !== activeProductId) track("project_selected", { project_id: id, selection_method: source === "click" ? "direct_selection" : source });
       // Re-choosing the current product still does what spec §18 asks of a thumbnail click: back to
       // its pitch poster (a fresh stage — any playing video stops), never a silent no-op.
       if (id === activeProductId) setStageNonce((n) => n + 1);
@@ -73,10 +76,11 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   const changeMode = useCallback(
     (mode: MediaMode) => {
       if (mode === mediaMode) return;
+      track("project_asset_opened", { project_id: activeProductId, asset_type: mode === "pitch" ? "pitch_video" : "demo_video" });
       setMediaMode(mode);
       setEnter("mode");
     },
-    [mediaMode],
+    [mediaMode, activeProductId],
   );
 
   const product = products.find((p) => p.id === activeProductId) ?? first;

@@ -36,3 +36,6 @@ tests/forbidden.local.json
 .DS_Store
 content/media/**/*.mov
 content/media/**/raw/
+
+# TASK-194: token-configured copy of the build used only by the analytics e2e (pnpm build:analytics-fixture)
+/.next-analytics

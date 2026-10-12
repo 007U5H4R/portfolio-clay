@@ -1,63 +1,29 @@
-import { languages } from "@/data/credentials";
-import { skills } from "@/data/skills";
+import { wibHeading, wibStatement } from "@/data/what-i-bring";
 import { Container } from "@/components/layout/Container";
-import { Sheet, TornEdge } from "@/components/paper";
-
-/** Mockup rotations (about.html `.sheet.s1…s4`), within the Sheet's ±0.9° cap. */
-const ROTATIONS = [-0.6, 0.5, 0.4, -0.8] as const;
-/** Tick ink per sheet (about.html: rust on 1 and 4, forest on 2 and 3). */
-const TICKS = ["rust", "forest", "forest", "rust"] as const;
+import { TornEdge } from "@/components/paper";
+import { WhatIBringJourney } from "./WhatIBringJourney";
 
 /**
- * `/work` Skills — "What I Bring" (TKT-86 S86.02 on `/about`; moved to Experience by TASK-136, Tushar's
- * About redesign spec §30–§33: a skills list is résumé content, so it lives beside the roles and the
- * education it came from). `section#skills` after Education, on `paper` under its torn edge. Server
- * component.
+ * `/work` "What I Bring" (TKT-86 S86.02 on `/about`; moved to Experience by TASK-136; redesigned by TASK-187 as the
+ * ambiguity-to-impact paper journey, Tushar's spec 2026-10-08). `section#skills` after Education, on `paper` under its
+ * torn edge. The four skill-cluster sheets are gone: the seven stages (data/what-i-bring.ts) carry the capabilities,
+ * tools and proof, every claim traced to `data/` by tests/unit/what-i-bring.test.ts. The languages line was removed at Tushar's request
+ * (TASK-200, 2026-10-12). Server component; the journey is the one client island.
  *
- * The four `data/skills.ts` clusters, verbatim (D7), as ruled notebook sheets on a 12-column grid
- * (5 / 7 / 7 / 5, ±0.4–0.8°), full width below 900. Each item is an Inter 15 px `li` on the sheet's
- * 32 px rules with a hand-drawn tick drawn by CSS (`.acap-list li::before` — list chrome, not a
- * decoration). "SAFe" stays a bare methodology label, never a credential. Then the languages line
- * (Inter, Dev-04; it moved with the Education row it sat under on `/about`).
- *
- * Decorations (§3.3): torn only = 1. The notebooks are content paper (`data-paper="notebook"`).
+ * Decorations (§3.3): torn only = 1. The art is content (layered paper-cut images), not a decoration.
  */
 export function Skills() {
   return (
     <section id="skills" className="acap" aria-labelledby="skills-heading">
       <TornEdge fill="paper" />
       <Container className="acap-wrap">
-        <div className="about-head">
-          <div>
-            <p className="about-eyebrow" data-micro-label="">
-              Skills
-            </p>
-            <h2 id="skills-heading" className="about-h2">
-              What I Bring
-            </h2>
-          </div>
-          <p className="about-lead">Product, AI, technology, and execution — the range behind the roadmap.</p>
+        <div className="wib-head">
+          <h2 id="skills-heading" className="about-h2">
+            {wibHeading}
+          </h2>
+          <p className="wib-statement">{wibStatement}</p>
         </div>
-
-        <div className="acap-sheets">
-          {skills.map((cluster, index) => (
-            <Sheet
-              key={cluster.id}
-              as="article"
-              variant="notebook"
-              rotate={ROTATIONS[index % ROTATIONS.length]}
-              className="acap-sheet"
-            >
-              <h3 className="acap-h3">{cluster.name}</h3>
-              <ul className="acap-list" data-tick={TICKS[index % TICKS.length]}>
-                {cluster.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </Sheet>
-          ))}
-        </div>
-        {languages.length > 0 ? <p className="acap-langs">Languages: {languages.join(", ")}.</p> : null}
+        <WhatIBringJourney />
       </Container>
     </section>
   );
