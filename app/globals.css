@@ -13746,7 +13746,7 @@ html[data-theme-vt]::view-transition-group(root) {
 /* ---- desktop: one continuous landscape; the strip, a stitched road and seven stages along it ---- */
 @media (min-width: 1100px) {
   .wib {
-    padding-bottom: 260px;
+    padding-bottom: 340px;
   }
   .wib-scene {
     aspect-ratio: 2400 / 1028;
@@ -13830,7 +13830,7 @@ html[data-theme-vt]::view-transition-group(root) {
     top: 100%;
     left: 0;
     right: 0;
-    margin-top: 18px;
+    margin-top: 64px;
     z-index: 0;
     visibility: hidden;
     opacity: 0;
@@ -13855,6 +13855,7 @@ html[data-theme-vt]::view-transition-group(root) {
     gap: 6px 36px;
     align-items: start;
     padding: 22px 28px 24px;
+    min-height: 250px;
   }
   .wib-panel-h {
     grid-area: h;
@@ -13875,12 +13876,8 @@ html[data-theme-vt]::view-transition-group(root) {
     margin-bottom: 8px;
   }
   .wib-hint {
-    margin-top: 28px;
+    margin-top: 20px;
     text-align: center;
-    transition: opacity var(--dur-l2-out) var(--ease-paper);
-  }
-  .wib[data-active] .wib-hint {
-    opacity: 0;
   }
   /* the rest of the journey recedes, never hides */
   .wib[data-active] .wib-stage:not([data-active]) > :is(.wib-card, .wib-art) {

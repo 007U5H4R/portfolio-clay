@@ -56,7 +56,21 @@ test.describe("@TASK-187 What I Bring journey", () => {
     await expect(page.locator("#wib-panel-ai-genai")).toContainText("TeachSpark");
   });
 
-  test("a tap or Enter expands a stage and everything is reachable without hover", async ({ page }) => {
+  test("desktop: the detail panel is never empty, stage 01 is selected on load; mobile starts collapsed", async ({ page, viewport }) => {
+    const first = page.locator(".wib-stage[data-stage='ambiguity']");
+    if (viewport!.width >= 1100) {
+      await expect(first.locator(".wib-card")).toHaveAttribute("aria-expanded", "true");
+      await expect(page.locator("#wib-panel-ambiguity")).toBeVisible();
+      await expect(page.locator("#wib-panel-ambiguity")).toContainText("I ask the right questions.");
+      await expect(page.locator(".wib-hint")).toBeVisible();
+      expect(await page.locator(".wib-panel:visible").count()).toBe(1);
+    } else {
+      await expect(page.locator(".wib-panel:visible")).toHaveCount(0);
+      await expect(first.locator(".wib-card")).toHaveAttribute("aria-expanded", "false");
+    }
+  });
+
+  test("a tap or Enter expands a stage and everything is reachable without hover", async ({ page, viewport }) => {
     const card = page.locator(".wib-stage[data-stage='impact'] .wib-card");
     await card.click();
     const panel = page.locator("#wib-panel-impact");
@@ -65,8 +79,14 @@ test.describe("@TASK-187 What I Bring journey", () => {
     await expect(panel).toContainText("features in 11 months");
     await expect(panel).toContainText("30%");
     await expect(panel).toContainText("self-reported");
-    await card.click();
-    await expect(card).toHaveAttribute("aria-expanded", "false");
+    if (viewport!.width < 1100) {
+      await card.click();
+      await expect(card).toHaveAttribute("aria-expanded", "false");
+    } else {
+      // desktop keeps the last selection shown
+      await card.click();
+      await expect(panel).toBeVisible();
+    }
   });
 
   test("reduced motion: no layer movement and no card lift", async ({ page, withReducedMotion }) => {
@@ -87,10 +107,11 @@ test.describe("@TASK-187 What I Bring journey", () => {
 
   test("desktop: hover opens a stage, the others recede but stay visible, parallax stays within 6 px", async ({ page, viewport }) => {
     test.skip(viewport!.width < 1100, "the landscape layout and fine-pointer hover are desktop-only");
-    const stage = page.locator(".wib-stage[data-stage='ambiguity']");
+    const stage = page.locator(".wib-stage[data-stage='discovery']");
     await stage.locator(".wib-card").hover();
-    await expect(page.locator("#wib-panel-ambiguity")).toBeVisible();
-    await expect(page.locator("#wib-panel-ambiguity")).toContainText("I ask the right questions.");
+    await expect(page.locator("#wib-panel-discovery")).toBeVisible();
+    await expect(page.locator("#wib-panel-discovery")).toContainText("I find clarity in complexity.");
+    await expect(page.locator("#wib-panel-ambiguity")).toBeHidden();
     const other = await page.locator(".wib-stage[data-stage='product'] .wib-card").evaluate((el) => getComputedStyle(el).opacity);
     expect(Number(other)).toBeGreaterThan(0.5);
     const art = await stage.locator(".wib-art").boundingBox();
@@ -104,8 +125,9 @@ test.describe("@TASK-187 What I Bring journey", () => {
       }),
     );
     for (const v of px) expect(v).toBeLessThanOrEqual(6.05);
-    // leaving the journey releases the hover state
+    // leaving the journey keeps the last-selected stage shown (no collapse back to empty)
     await page.mouse.move(2, 2);
-    await expect(stage.locator(".wib-card")).toHaveAttribute("aria-expanded", "false");
+    await expect(stage.locator(".wib-card")).toHaveAttribute("aria-expanded", "true");
+    await expect(page.locator("#wib-panel-discovery")).toBeVisible();
   });
 });

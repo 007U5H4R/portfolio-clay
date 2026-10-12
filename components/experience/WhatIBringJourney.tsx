@@ -8,6 +8,8 @@ import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
  * "What I Bring" journey (TASK-187). One list of seven stages; CSS lays it out as a continuous paper landscape
  * (>= 1100 px) or a vertical tap-to-expand trail (below). Behaviour contract (TASK-181 P1, EXE-59…64):
  *  - one active stage at a time: a fine pointer activates on hover, the keyboard on :focus-visible, a tap or Enter pins;
+ *  - desktop (the landscape layout) never shows an empty detail panel: stage 01 is selected on load and the last-selected
+ *    stage stays shown after the pointer or focus leaves. The mobile trail keeps its own collapsed-by-default state;
  *  - all hover/focus styling keys off `data-active` (no `:hover` rules), so a tap leaves nothing stuck;
  *  - pointer parallax (<= 6 px, `--px/--py` in [-1, 1]) is computed for the active stage only, from one element-level
  *    listener, one write per frame, no loop; reduced motion and coarse pointers never attach it;
@@ -45,13 +47,16 @@ function segment(i: number): string {
 type Mode = "hover" | "pin";
 
 export function WhatIBringJourney() {
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<string | null>(null); // hovered / focused / tapped right now
+  const [selected, setSelected] = useState<string>(wibStages[0]!.id); // last selection; desktop keeps it shown
+  const [isDesktop, setIsDesktop] = useState(false);
   const modeRef = useRef<Mode>("hover");
   const listRef = useRef<HTMLOListElement>(null);
 
   const open = useCallback((id: string, mode: Mode) => {
     modeRef.current = mode;
     setActive(id);
+    setSelected(id);
   }, []);
 
   const onPointerEnter = (e: PointerEvent, id: string) => {
@@ -70,6 +75,14 @@ export function WhatIBringJourney() {
     if (active === id && modeRef.current === "pin") setActive(null);
     else open(id, "pin");
   };
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1100px)");
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   // Pointer parallax for the active stage only (fine pointer, motion allowed).
   useEffect(() => {
@@ -99,10 +112,12 @@ export function WhatIBringJourney() {
     };
   }, [active]);
 
-  const activeIndex = wibStages.findIndex((s) => s.id === active);
+  // what the page shows: the landscape keeps the last selection, the trail only what is expanded
+  const shown = isDesktop ? selected : active;
+  const activeIndex = wibStages.findIndex((s) => s.id === shown);
 
   return (
-    <div className="wib" data-active={active ?? undefined}>
+    <div className="wib" data-active={shown ?? undefined}>
       <div className="wib-scene">
         <Image
           className="wib-strip"
@@ -125,7 +140,7 @@ export function WhatIBringJourney() {
         </svg>
         <ol className="wib-stages" ref={listRef} onPointerLeave={onPointerLeave}>
           {wibStages.map((s, i) => {
-            const isActive = active === s.id;
+            const isActive = shown === s.id;
             const [mx, my] = ROAD[i]!;
             return (
               <li
