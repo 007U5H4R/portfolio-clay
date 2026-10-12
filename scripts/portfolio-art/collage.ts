@@ -172,3 +172,51 @@ export interface Collage {
   slug: string;
   render(): string;
 }
+
+/**
+ * M-012 P2 (TASK-181.2): a Featured Work collage split into depth layers. Each part is one transparent
+ * SVG file, drawn exactly as the monolithic collage drew it (same functions, same seeds, same order), so
+ * the parts stacked in order are the rest pose. Parts flagged `extra` are the hover signatures' additions
+ * (glow, lit windows, smoke, halo…): they are NOT in the composite and sit at opacity 0 until hover/focus.
+ * Every layer SVG carries `BLEED` user units of extra canvas left, right and below (the art's own overshoot
+ * beyond the card edge, which the composite clips), so a layer that moves a few px under the pointer never
+ * shows a seam at the card edge.
+ */
+export const BLEED = 32;
+export type Depth = "bg" | "art" | "fg" | "top";
+export interface Part {
+  name: string;
+  depth: Depth;
+  extra?: boolean;
+  draw(defs: string[]): string;
+}
+export interface LayeredCollage extends Collage {
+  w: number;
+  h: number;
+  parts: readonly Part[];
+  /** The layer files: the first part keeps the manifest name `featured-<slug>.svg`. */
+  layers(): { file: string; part: Part; svg: string }[];
+}
+
+export function layeredCollage(slug: string, w: number, h: number, ink: string, parts: readonly Part[]): LayeredCollage {
+  return {
+    slug,
+    w,
+    h,
+    parts,
+    // the rest pose: every non-extra part, one shared defs list, the original header
+    render() {
+      const defs: string[] = [screens(ink, "#fff6df")];
+      const body = parts.filter((p) => !p.extra).map((p) => p.draw(defs));
+      return collageSvg(w, h, defs.join(""), body.join(""));
+    },
+    layers() {
+      return parts.map((part, i) => {
+        const defs: string[] = [screens(ink, "#fff6df")];
+        const body = part.draw(defs);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w + 2 * BLEED} ${h + BLEED}" width="${w + 2 * BLEED}" height="${h + BLEED}"><defs>${defs.join("")}</defs><g transform="translate(${BLEED} 0)">${body}</g></svg>`;
+        return { file: i === 0 ? `featured-${slug}.svg` : `featured-${slug}--${part.name}.svg`, part, svg };
+      });
+    },
+  };
+}

@@ -430,7 +430,7 @@ describe("paperMotion — object channel", () => {
     expect(obj.getBoundingClientRect).toHaveBeenCalledTimes(1);
   });
 
-  it("activates at most one object: moving to a second releases the first at once", () => {
+  it("follows at most one object: moving straight to a second lets the first settle to 0 instead of snapping (EXE-65a)", () => {
     const f = fakeEnv();
     const m = createPaperMotion(f.env);
     const a = fakeObject();
@@ -443,9 +443,128 @@ describe("paperMotion — object channel", () => {
     f.frames(400);
     expect(hx(a)).toBeCloseTo(1, 2);
     over(f, b, 800, 200);
+    // A is not zeroed at once: it keeps its offset and its marker while it settles
+    expect(a.vars["--hx"]).not.toBe("0");
+    expect(hx(a)).toBeCloseTo(1, 2);
+    expect(a.attrs.has("data-pm-active")).toBe(true);
+    expect(b.attrs.has("data-pm-active")).toBe(true);
+    f.frame();
+    f.frame();
+    expect(hx(a)).toBeLessThan(1);
+    expect(hx(a)).toBeGreaterThan(0.5); // eased, not a jump
+    f.frames(600);
+    expect(hx(a)).toBe(0);
+    expect(a.attrs.has("data-pm-active")).toBe(false);
+    expect(f.pending()).toBe(0);
+  });
+
+  it("a third object takes over while the first still settles: the oldest is dropped, never more than two marked", () => {
+    const f = fakeEnv();
+    const m = createPaperMotion(f.env);
+    const a = fakeObject();
+    const b = fakeObject({ left: 600, top: 100, width: 400, height: 200 });
+    const c = fakeObject({ left: 1100, top: 100, width: 400, height: 200 });
+    [a, b, c].forEach((o) => {
+      m.registerObject(o);
+      f.intersect(o, true);
+    });
+    over(f, a, 500, 300);
+    f.frames(400);
+    over(f, b, 800, 200);
+    over(f, c, 1300, 200);
     expect(a.attrs.has("data-pm-active")).toBe(false);
     expect(hx(a)).toBe(0);
     expect(b.attrs.has("data-pm-active")).toBe(true);
+    expect(c.attrs.has("data-pm-active")).toBe(true);
+  });
+
+  it("returning to the object that is still settling resumes from where it is", () => {
+    const f = fakeEnv();
+    const m = createPaperMotion(f.env);
+    const a = fakeObject();
+    const b = fakeObject({ left: 600, top: 100, width: 400, height: 200 });
+    m.registerObject(a);
+    m.registerObject(b);
+    f.intersect(a, true);
+    f.intersect(b, true);
+    over(f, a, 500, 300);
+    f.frames(400);
+    over(f, b, 800, 200);
+    f.frames(3);
+    const mid = hx(a);
+    over(f, a, 500, 300);
+    expect(hx(a)).toBeCloseTo(mid, 3);
+    f.frames(400);
+    expect(hx(a)).toBeCloseTo(1, 2);
+  });
+
+  it("releases the active object when the pointer leaves the window: passive pointerout to null, and blur (EXE-65b)", () => {
+    const { f, obj } = setupObject();
+    expect(f.added.find((a) => a.type === "pointerout")?.passive).toBe(true);
+    over(f, obj, 500, 200);
+    f.frames(400);
+    expect(obj.attrs.has("data-pm-active")).toBe(true);
+    f.fire("pointerout", { relatedTarget: obj }); // moving between elements: ignored
+    f.frame();
+    expect(hx(obj)).toBeCloseTo(1, 1);
+    f.fire("pointerout", { relatedTarget: null });
+    f.frames(600);
+    expect(hx(obj)).toBe(0);
+    expect(obj.attrs.has("data-pm-active")).toBe(false);
+    expect(f.pending()).toBe(0);
+
+    over(f, obj, 500, 200);
+    f.frames(400);
+    f.fire("blur", {});
+    f.frames(600);
+    expect(obj.attrs.has("data-pm-active")).toBe(false);
+    expect(hx(obj)).toBe(0);
+  });
+
+  it("pointerout and blur listeners exist only while objects are registered, and leave with them", () => {
+    const { f, off } = setupObject();
+    expect(f.count("pointerout")).toBe(1);
+    expect(f.count("blur")).toBe(1);
+    off();
+    expect(f.count("pointerout")).toBe(0);
+    expect(f.count("blur")).toBe(0);
+    const scenes = setup();
+    expect(scenes.f.count("pointerout")).toBe(0);
+  });
+
+  it("re-evaluates the fine-pointer query: a hybrid device attaches and detaches pointermove (EXE-65c)", () => {
+    const { f } = setupObject({ fine: false });
+    expect(f.count("pointermove")).toBe(0);
+    expect(f.observed.size).toBe(0);
+    f.media.fine = true; // a mouse is plugged in
+    f.changeMedia();
+    expect(f.count("pointermove")).toBe(1);
+    expect(f.count("pointerout")).toBe(1);
+    expect(f.observed.size).toBe(1);
+    f.media.fine = false; // and unplugged again
+    f.changeMedia();
+    expect(f.count("pointermove")).toBe(0);
+    expect(f.count("pointerout")).toBe(0);
+    expect(f.count("scroll")).toBe(0);
+  });
+
+  it("losing the fine pointer drops the active object and keeps a scene attached for touch", () => {
+    const f = fakeEnv();
+    const m = createPaperMotion(f.env);
+    const root = fakeRoot();
+    const obj = fakeObject();
+    m.register(root);
+    m.registerObject(obj);
+    f.intersect(root, true);
+    f.intersect(obj, true);
+    over(f, obj, 500, 200);
+    f.frames(5);
+    f.media.fine = false;
+    f.changeMedia();
+    expect(f.count("pointermove")).toBe(0);
+    expect(obj.attrs.has("data-pm-active")).toBe(false);
+    expect(hx(obj)).toBe(0);
+    expect(f.docCount("visibilitychange")).toBe(1); // scenes still run (gyro)
   });
 
   it("activates only intersecting objects", () => {

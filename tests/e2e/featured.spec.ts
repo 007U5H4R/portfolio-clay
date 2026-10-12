@@ -107,7 +107,9 @@ test("every Explore CTA is on top at rest with full motion (not under the next s
   await page.goto("/", { waitUntil: "load" });
   for (const { name } of FEATURED) {
     const link = explore(page, name);
-    await link.scrollIntoViewIfNeeded();
+    // park the CTA at the BOTTOM edge of the viewport (where the next sheet's slide-over reaches it first), not wherever the
+    // previous card's scroll happened to leave it (a CTA that is already "in view" can sit under the sticky header)
+    await link.evaluate((el) => el.scrollIntoView({ block: "end" }));
     await page.waitForTimeout(700); // the scroll-driven lag + one-shot entrance settle
     const onTop = await link.evaluate((el) => {
       const r = el.getBoundingClientRect();

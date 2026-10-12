@@ -48,20 +48,22 @@ if (only.size === 0 || only.has("decor")) {
     console.log(`✓ decor/${asset.file}  ${Buffer.byteLength(svg)} bytes`);
   }
 }
-// TASK-133: the home Featured Work paper collages (same ≤ 40 kB budget; sha256 → the provenance README).
+// TASK-133 / TASK-181.2: the home Featured Work paper collages, one SVG per depth layer (same ≤ 40 kB budget per
+// file; sha256 → the provenance README). The first layer of each card keeps the manifest name featured-<slug>.svg.
 if (only.size === 0 || only.has("featured")) {
   mkdirSync(FEATURED_DIR, { recursive: true });
   for (const collage of featuredCollages) {
-    const svg = collage.render();
-    const bytes = Buffer.byteLength(svg);
-    const sha = createHash("sha256").update(svg).digest("hex");
-    if (bytes > COVER_BUDGET_BYTES) {
-      failed = true;
-      console.error(`✗ featured-${collage.slug}.svg is ${bytes} bytes (budget ${COVER_BUDGET_BYTES})`);
-      continue;
+    for (const { file, svg } of collage.layers()) {
+      const bytes = Buffer.byteLength(svg);
+      const sha = createHash("sha256").update(svg).digest("hex");
+      if (bytes > COVER_BUDGET_BYTES) {
+        failed = true;
+        console.error(`✗ ${file} is ${bytes} bytes (budget ${COVER_BUDGET_BYTES})`);
+        continue;
+      }
+      writeFileSync(join(FEATURED_DIR, file), svg);
+      console.log(`✓ ${file}  ${bytes} bytes  sha256 ${sha}`);
     }
-    writeFileSync(join(FEATURED_DIR, `featured-${collage.slug}.svg`), svg);
-    console.log(`✓ featured-${collage.slug}.svg  ${bytes} bytes  sha256 ${sha}`);
   }
 }
 if (failed) process.exit(1);

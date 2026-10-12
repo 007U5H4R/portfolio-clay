@@ -2135,7 +2135,7 @@ html.lenis body {
     background: none;
     border-radius: 0;
     box-shadow: none;
-    filter: var(--fw-shadow);
+    /* the resting shadow is two static sibling shapes (`.fw-rest`, TASK-186 block): a filter here would re-render on every frame the art moves */
   }
   .fw-card > .paper-fastener {
     z-index: 3;
@@ -2307,18 +2307,18 @@ html.lenis body {
     aspect-ratio: 16 / 10;
     overflow: hidden;
   }
-  .fw-art img {
+  .fw-stage {
     position: absolute;
     right: 0;
     bottom: 0;
     width: auto;
-    max-width: none;
     height: 118%;
+    aspect-ratio: var(--w) / var(--h);
   }
   .fw-card-anchor .fw-art {
     aspect-ratio: 6 / 5;
   }
-  .fw-card-anchor .fw-art img {
+  .fw-card-anchor .fw-stage {
     height: 128%;
   }
   /* phones: the two proof points stack (no room side by side), without the separator */
@@ -2361,7 +2361,7 @@ html.lenis body {
     }
     /* width-fit, bottom-anchored: the collage is transparent above, so a card taller than the art
        simply shows more paper at the top — the calm copy zone is never cropped away */
-    .fw-card-anchor .fw-art img {
+    .fw-card-anchor .fw-stage {
       inset: auto 0 0;
       width: 100%;
       height: auto;
@@ -2411,7 +2411,7 @@ html.lenis body {
       z-index: 0;
       aspect-ratio: auto;
     }
-    .fw-card-side .fw-art img {
+    .fw-card-side .fw-stage {
       inset: auto 0 0;
       width: 100%;
       height: auto;
@@ -5802,10 +5802,16 @@ html.lenis body {
     background: var(--color-ivory);
     color: var(--color-navy);
     box-shadow: 0 2px 6px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
-    transition: box-shadow 180ms var(--ease-hover), transform 180ms var(--ease-hover);
+    /* TASK-181.3 (EXE-61/62): the hover shadow swaps (never transitioned); hover is fine-pointer only, focus-visible twins it */
+    transition: transform 180ms var(--ease-hover);
   }
-  .tk-close:hover {
+  .tk-close:focus-visible {
     box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 18%, transparent);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tk-close:hover {
+      box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 18%, transparent);
+    }
   }
   /* chat mode: a small header with the avatar (spec §16) */
   .tk-head[data-compact] {
@@ -5969,9 +5975,9 @@ html.lenis body {
     line-height: 1.3;
     color: var(--color-navy);
     text-align: left;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the paper moves */
     transition:
       transform 180ms var(--ease-hover),
-      box-shadow 180ms var(--ease-hover),
       border-color 180ms var(--ease-hover);
   }
   /* TKT-113: the six category pastels are shared by the drawer rows and the Home launcher cards. */
@@ -6021,7 +6027,16 @@ html.lenis body {
     color: var(--color-navy);
     transition: transform 180ms var(--ease-hover);
   }
-  @media (hover: hover) {
+  /* TASK-181.3 (EXE-62): fine-pointer hover, the same state on :focus-visible, and a touch press */
+  .tk-card:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+    box-shadow: 0 4px 10px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
+  }
+  .tk-card:focus-visible .tk-card-arrow {
+    transform: translateX(3px);
+  }
+  @media (hover: hover) and (pointer: fine) {
     .tk-card:hover {
       transform: translateY(-1px);
       border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
@@ -6029,6 +6044,12 @@ html.lenis body {
     }
     .tk-card:hover .tk-card-arrow {
       transform: translateX(3px);
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .tk-card:active {
+      transform: translateY(1px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
     }
   }
 
@@ -6326,8 +6347,8 @@ html.lenis body {
     .tk-head[data-generating] .tk-head-avatar {
       animation: none !important;
     }
-    .tk-card:hover,
-    .tk-card:hover .tk-card-arrow {
+    .tk-card:is(:hover, :focus-visible, :active),
+    .tk-card:is(:hover, :focus-visible) .tk-card-arrow {
       transform: none;
     }
   }
@@ -6435,9 +6456,8 @@ html.lenis body {
     box-shadow:
       0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
       0 2px 5px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
-    transition:
-      transform 140ms ease,
-      box-shadow 140ms ease;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the disc moves */
+    transition: transform 140ms ease;
   }
   .tk-voice-icon {
     fill: currentColor;
@@ -6450,11 +6470,19 @@ html.lenis body {
   .tk-voice[data-state="ended"] .tk-voice-icon {
     fill: none;
   }
-  .tk-voice-main:hover .tk-voice-disc {
+  .tk-voice-main:focus-visible .tk-voice-disc {
     transform: translateY(-1px);
     box-shadow:
       0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
       0 4px 9px color-mix(in oklab, var(--color-terracotta) 45%, transparent);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tk-voice-main:hover .tk-voice-disc {
+      transform: translateY(-1px);
+      box-shadow:
+        0 1px 0 color-mix(in oklab, var(--color-ivory) 25%, transparent) inset,
+        0 4px 9px color-mix(in oklab, var(--color-terracotta) 45%, transparent);
+    }
   }
   .tk-voice-main:active .tk-voice-disc,
   .tk-voice[data-state="pending"] .tk-voice-disc {
@@ -6640,7 +6668,7 @@ html.lenis body {
     .tk-speaking-marks {
       transition: none;
     }
-    .tk-voice-main:hover .tk-voice-disc,
+    .tk-voice-main:is(:hover, :focus-visible) .tk-voice-disc,
     .tk-voice-main:active .tk-voice-disc,
     .tk-voice[data-state="pending"] .tk-voice-disc {
       transform: none;
@@ -9260,9 +9288,9 @@ html.lenis body {
     line-height: 1.35;
     color: var(--color-navy);
     text-align: left;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the paper moves */
     transition:
       transform 180ms var(--ease-hover),
-      box-shadow 180ms var(--ease-hover),
       border-color 180ms var(--ease-hover);
   }
   .hat-card-icon {
@@ -9284,7 +9312,16 @@ html.lenis body {
     color: var(--color-navy);
     transition: transform 180ms var(--ease-hover);
   }
-  @media (hover: hover) {
+  /* TASK-181.3 (EXE-62): fine-pointer hover, the same state on :focus-visible, and a touch press */
+  .hat-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+    box-shadow: 0 8px 16px -4px color-mix(in oklab, var(--color-navy) 16%, transparent);
+  }
+  .hat-card:focus-visible .hat-card-arrow {
+    transform: translateX(3px);
+  }
+  @media (hover: hover) and (pointer: fine) {
     .hat-card:hover {
       transform: translateY(-2px);
       border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
@@ -9292,6 +9329,12 @@ html.lenis body {
     }
     .hat-card:hover .hat-card-arrow {
       transform: translateX(3px);
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .hat-card:active {
+      transform: translateY(1px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
     }
   }
   @media (min-width: 1024px) {
@@ -9398,8 +9441,8 @@ html.lenis body {
     .hat-card-arrow {
       transition: none;
     }
-    .hat-card:hover,
-    .hat-card:hover .hat-card-arrow {
+    .hat-card:is(:hover, :focus-visible, :active),
+    .hat-card:is(:hover, :focus-visible) .hat-card-arrow {
       transform: none;
     }
   }
@@ -10657,24 +10700,16 @@ html.lenis body {
     box-shadow:
       0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
       0 9px 14px -6px color-mix(in oklab, var(--color-terracotta) 36%, transparent);
-    transition: translate 200ms var(--ease-hover), box-shadow 200ms var(--ease-hover);
+    /* M-012 P2: the hover lift is `translate`; the deeper shadow is `.pf-thumb-shade`'s opacity (TASK-186 block) */
+    isolation: isolate;
+    transition: translate var(--dur-l2-out) var(--ease-paper);
   }
   /* controlled irregularity: covers sit between −0.8° and +0.8° */
   .pf-thumb:nth-child(4n + 1) { --pf-tilt: -0.7deg; }
   .pf-thumb:nth-child(4n + 2) { --pf-tilt: 0.5deg; }
   .pf-thumb:nth-child(4n + 3) { --pf-tilt: -0.25deg; }
   .pf-thumb:nth-child(4n + 4) { --pf-tilt: 0.8deg; }
-  .pf-thumb:hover {
-    translate: 0 -4px;
-    box-shadow:
-      0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
-      0 16px 20px -8px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
-  }
-  .pf-thumb:hover .pf-cover-name {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-  }
+  /* (hover / focus lift, the name underline and the shadow crossfade: the TASK-186 / P2 block at the end of this file) */
   /* selected: rises 8 px, a longer shadow, a hand-drawn marker frame, a pin and a marker swipe on the
      plate (shape cues, never colour alone) */
   .pf-thumb[aria-selected="true"] {
@@ -10853,7 +10888,7 @@ html.lenis body {
     border: 0;
     border-radius: 2px;
     box-shadow: none;
-    transition: translate 180ms var(--ease-hover);
+    transition: translate var(--dur-l2-out) var(--ease-paper);
   }
   .pf-case.paper-sheet::before,
   .pf-case.paper-sheet::after {
@@ -10883,7 +10918,6 @@ html.lenis body {
     box-shadow:
       0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
       0 8px 14px -8px color-mix(in oklab, var(--color-terracotta) 22%, transparent);
-    transition: box-shadow 180ms var(--ease-hover);
   }
   /* the paperclip, over the top edge */
   .pf-case-clip {
@@ -10899,14 +10933,7 @@ html.lenis body {
     rotate: 8deg;
     pointer-events: none;
   }
-  .pf-case.paper-sheet:hover {
-    translate: 0 -2px;
-  }
-  .pf-case.paper-sheet:hover::after {
-    box-shadow:
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-      0 14px 20px -10px color-mix(in oklab, var(--color-terracotta) 28%, transparent);
-  }
+  /* (hover / focus lift and the shadow crossfade: `.pf-case-shade`, the TASK-186 / P2 block at the end of this file) */
   /* the folder tab: a neutral "Case file 0N" stamp — says nothing factual */
   .pf-case-stamp {
     position: absolute;
@@ -14503,3 +14530,1124 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-187 === */
+
+
+/* === TASK-186 / P2 === TASK-181.2 + TASK-186 · home Featured Work and How I Think as paper objects (Design.md §14.10).
+   Object channel: `ObjectMotion` marks each card `.fw-lift[data-pm-obj]`; `paperMotion` writes --hx/--hy on the hovered one.
+   Contract (EXE-61, EXE-71): hover only under (hover: hover) and (pointer: fine) with a :focus-visible twin; the shadow
+   crossfades by opacity (a masked, statically blurred shape — no box-shadow / filter transition); nothing scales, nothing
+   loops; reduced motion moves nothing. (Generated parts: the awake rules are one list, emitted once for :hover and once
+   for the :focus-visible twin.) ---- */
+.pm-layer[data-pm-depth="top"] {
+  --pm-r: var(--pm-r-top, 8px);
+}
+[data-pm-obj][data-pm-active] [data-pm-tilt] {
+  will-change: transform;
+}
+
+/* the lifted object and its shadow */
+.fw-lift {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-width: 0;
+  transition: translate var(--dur-l2-out) var(--ease-paper);
+}
+.fw-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  translate: 5px 11px;
+  filter: blur(14px);
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.fw-rest {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.fw-rest-a {
+  opacity: 0.14;
+  translate: 0 8px;
+  filter: blur(8px);
+}
+.fw-rest-b {
+  opacity: 0.12;
+  translate: 0 1px;
+  filter: blur(0.75px);
+}
+.fw-rest-a .fw-shade-shape {
+  background: var(--color-terracotta);
+}
+.fw-rest-b .fw-shade-shape {
+  background: var(--color-navy);
+}
+.fw-shade-shape {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--color-navy) 40%, transparent);
+  -webkit-mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
+  mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
+}
+.fw-shade-shape[data-featured="railcite"] {
+  -webkit-mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
+  mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
+}
+.fw-shade-shape[data-featured="campfire-board"] {
+  -webkit-mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
+  mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
+}
+
+/* the art: depth layers on the stage; each SVG carries its own bleed so a moving layer never shows a seam */
+.fw-layer {
+  position: absolute;
+  inset: 0;
+}
+.fw-layer img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+  left: calc(var(--bx) / var(--w) * -100%);
+  bottom: calc(var(--bb) / var(--h) * -100%);
+  width: calc((var(--w) + 2 * var(--bx)) / var(--w) * 100%);
+}
+/* rest poses of the signature parts; the awake poses are generated below */
+.fw-layer img[data-sig] {
+  transition:
+    translate var(--dur-l3) var(--ease-paper),
+    opacity var(--dur-l2-out) var(--ease-paper),
+    transform var(--dur-l2-out) var(--ease-paper);
+}
+.fw-layer img:is([data-sig~="halo"], [data-sig~="glow"], [data-sig~="lit"], [data-sig~="hot"], [data-sig~="puff"]) {
+  opacity: 0;
+}
+.fw-layer img[data-sig~="flames"] {
+  transform-origin: 71.5% 82.7%;
+}
+.fw-layer img[data-sig="note note0"] {
+  transform-origin: 62.6% 16.8%;
+}
+.fw-layer img[data-sig="note note1"] {
+  transform-origin: 81.7% 15.8%;
+}
+.fw-layer img[data-sig="note note2"] {
+  transform-origin: 62.6% 36.6%;
+}
+.fw-layer img[data-sig="note note3"] {
+  transform-origin: 82.8% 36%;
+}
+.fw-spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: color-mix(in oklab, var(--color-rust) 55%, var(--color-note));
+  clip-path: polygon(50% 0, 100% 40%, 82% 100%, 12% 86%, 0 30%);
+  opacity: 0;
+  pointer-events: none;
+}
+.fw-spark[data-sig~="spark0"] {
+  left: 70.3%;
+  top: 53%;
+}
+.fw-spark[data-sig~="spark1"] {
+  left: 74.7%;
+  top: 49.7%;
+}
+.fw-spark[data-sig~="spark2"] {
+  left: 76.5%;
+  top: 56.3%;
+}
+@keyframes fw-spark {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 var(--rise, -10px);
+  }
+}
+
+/* tags, evidence slips and the information slip */
+.fw-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: clamp(14px, 1.4vw, 20px);
+  list-style: none;
+}
+.fw-tag {
+  padding: 4px 12px 5px;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--color-navy-2);
+  background: color-mix(in oklab, var(--color-paper) 70%, transparent);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+}
+.fw-proof {
+  gap: 8px;
+}
+.fw-proof-item {
+  padding: 8px 10px 8px 9px;
+  background: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory));
+  border-radius: 3px;
+  box-shadow: var(--depth-1);
+  rotate: -0.5deg;
+  opacity: 0;
+  translate: 0 12px;
+  transition:
+    opacity var(--dur-l2-out) var(--ease-paper),
+    translate var(--dur-l2-out) var(--ease-paper);
+}
+.fw-proof-item + .fw-proof-item {
+  padding-left: 9px;
+  border-left: 0;
+  rotate: 0.5deg;
+}
+.fw-proof-item:last-child {
+  padding-right: 10px;
+}
+.fw-slip {
+  position: absolute;
+  right: clamp(14px, 1.6vw, 24px);
+  bottom: clamp(52px, 4.4vw, 64px);
+  z-index: 2;
+  padding: 7px 13px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-navy);
+  background: color-mix(in oklab, var(--color-paper) 92%, var(--color-ivory));
+  border-radius: 3px;
+  box-shadow: var(--depth-1);
+  rotate: 1deg;
+  opacity: 0;
+  translate: 0 10px;
+  transition:
+    opacity var(--dur-l2-out) var(--ease-paper),
+    translate var(--dur-l2-out) var(--ease-paper);
+}
+/* the slips sit side by side, below the copy (touch, reduced motion, narrow); on a fine pointer they are laid OVER the card's lower
+   left (paper on the landscape), so they take no layout space at rest and the card has no hole */
+.fw-proof {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 24px clamp(22px, 3vw, 56px);
+}
+@media (min-width: 700px) {
+  .fw-card-anchor .fw-proof {
+    flex-wrap: nowrap;
+    width: max-content;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (min-width: 700px) {
+  .fw-card-anchor .fw-proof {
+    position: absolute;
+    bottom: clamp(16px, 2vw, 28px);
+    left: clamp(32px, 3vw, 56px);
+    margin: 0;
+    pointer-events: none;
+  }
+}
+/* touch and no-hover: nothing hides behind a hover — the slips are simply there */
+@media (hover: none), (pointer: coarse) {
+  .fw-proof-item,
+  .fw-slip {
+    opacity: 1;
+    translate: none;
+  }
+  .fw-lift:active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+
+/* the awake pose: hover (fine pointer) and its keyboard twin */
+@media (hover: hover) and (pointer: fine) {
+  .fw-lift:hover {
+    translate: 0 -4px;
+    transition-duration: var(--dur-l2);
+  }
+  .fw-lift:hover .fw-shade {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+  .fw-lift:hover [data-sig~="train"] {
+    translate: 6px 0.5px;
+  }
+  .fw-lift:hover [data-sig~="halo"] {
+    opacity: 0.8;
+    transition-duration: 400ms;
+  }
+  .fw-lift:hover [data-sig~="glow"] {
+    opacity: 0.55;
+    transition-duration: 500ms;
+  }
+  .fw-lift:hover [data-sig~="lit"] {
+    opacity: 1;
+    transition-duration: 500ms;
+  }
+  .fw-lift:hover [data-sig~="hot"] {
+    opacity: 1;
+    transition-duration: 500ms;
+  }
+  .fw-lift:hover [data-sig~="puff"] {
+    translate: 0 -8px;
+    opacity: 0.85;
+    transition-duration: 900ms;
+  }
+  .fw-lift:hover [data-sig~="puff1"] {
+    transition-delay: 0ms;
+  }
+  .fw-lift:hover [data-sig~="puff2"] {
+    transition-delay: 150ms;
+  }
+  .fw-lift:hover [data-sig~="puff3"] {
+    transition-delay: 300ms;
+  }
+  .fw-lift:hover [data-sig~="flames"] {
+    transform: scale(1, 1.05) rotate(0.8deg);
+    transition-duration: 600ms;
+  }
+  .fw-lift:hover [data-sig="note note0"] {
+    transform: translate(-1px, -1px) rotate(-0.8deg);
+  }
+  .fw-lift:hover [data-sig="note note1"] {
+    transform: translate(1px, -2px) rotate(0.8deg);
+  }
+  .fw-lift:hover [data-sig="note note2"] {
+    transform: translate(-1px, 1px) rotate(0.8deg);
+  }
+  .fw-lift:hover [data-sig="note note3"] {
+    transform: translate(1px, 1px) rotate(-0.8deg);
+  }
+  .fw-lift:hover [data-sig~="spark0"] {
+    animation: fw-spark 800ms var(--ease-paper) both;
+    --rise: -8px;
+  }
+  .fw-lift:hover [data-sig~="spark1"] {
+    animation: fw-spark 800ms var(--ease-paper) 120ms both;
+    --rise: -11px;
+  }
+  .fw-lift:hover [data-sig~="spark2"] {
+    animation: fw-spark 800ms var(--ease-paper) 240ms both;
+    --rise: -14px;
+  }
+  .fw-lift:hover .fw-proof-item {
+    opacity: 1;
+    translate: 0 0;
+    transition-delay: calc(var(--slip, 0) * 80ms);
+    transition-duration: var(--dur-l2);
+  }
+  .fw-lift:hover .fw-slip {
+    opacity: 1;
+    translate: 0 0;
+    transition-duration: var(--dur-l2);
+  }
+  .fw-lift:hover:active {
+    translate: 0 -2px;
+    transition-duration: var(--dur-press);
+  }
+}
+.fw-lift:has(:focus-visible) {
+  translate: 0 -4px;
+  transition-duration: var(--dur-l2);
+}
+.fw-lift:has(:focus-visible) .fw-shade {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.fw-lift:has(:focus-visible) [data-sig~="train"] {
+  translate: 6px 0.5px;
+}
+.fw-lift:has(:focus-visible) [data-sig~="halo"] {
+  opacity: 0.8;
+  transition-duration: 400ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="glow"] {
+  opacity: 0.55;
+  transition-duration: 500ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="lit"] {
+  opacity: 1;
+  transition-duration: 500ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="hot"] {
+  opacity: 1;
+  transition-duration: 500ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="puff"] {
+  translate: 0 -8px;
+  opacity: 0.85;
+  transition-duration: 900ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="puff1"] {
+  transition-delay: 0ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="puff2"] {
+  transition-delay: 150ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="puff3"] {
+  transition-delay: 300ms;
+}
+.fw-lift:has(:focus-visible) [data-sig~="flames"] {
+  transform: scale(1, 1.05) rotate(0.8deg);
+  transition-duration: 600ms;
+}
+.fw-lift:has(:focus-visible) [data-sig="note note0"] {
+  transform: translate(-1px, -1px) rotate(-0.8deg);
+}
+.fw-lift:has(:focus-visible) [data-sig="note note1"] {
+  transform: translate(1px, -2px) rotate(0.8deg);
+}
+.fw-lift:has(:focus-visible) [data-sig="note note2"] {
+  transform: translate(-1px, 1px) rotate(0.8deg);
+}
+.fw-lift:has(:focus-visible) [data-sig="note note3"] {
+  transform: translate(1px, 1px) rotate(-0.8deg);
+}
+.fw-lift:has(:focus-visible) [data-sig~="spark0"] {
+  animation: fw-spark 800ms var(--ease-paper) both;
+  --rise: -8px;
+}
+.fw-lift:has(:focus-visible) [data-sig~="spark1"] {
+  animation: fw-spark 800ms var(--ease-paper) 120ms both;
+  --rise: -11px;
+}
+.fw-lift:has(:focus-visible) [data-sig~="spark2"] {
+  animation: fw-spark 800ms var(--ease-paper) 240ms both;
+  --rise: -14px;
+}
+.fw-lift:has(:focus-visible) .fw-proof-item {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: calc(var(--slip, 0) * 80ms);
+  transition-duration: var(--dur-l2);
+}
+.fw-lift:has(:focus-visible) .fw-slip {
+  opacity: 1;
+  translate: 0 0;
+  transition-duration: var(--dur-l2);
+}
+
+/* the bridge into How I think: it lives in the section's own bottom padding (no added height), the stitched path runs down to the tear */
+.fw-wrap {
+  position: relative;
+}
+.fw-bridge {
+  position: absolute;
+  bottom: clamp(6px, 1vw, 14px);
+  left: clamp(0px, 2vw, 32px);
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(8px, 1.4vw, 20px);
+  pointer-events: none;
+}
+.fw-bridge-q {
+  max-width: 34ch;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(16px, 1.5vw, 22px);
+  line-height: 1.25;
+  color: var(--color-navy-2);
+}
+.fw-bridge-q span {
+  display: inline;
+}
+.fw-bridge-q q {
+  display: block;
+  color: var(--color-terracotta);
+  quotes: "\201C" "\201D";
+}
+.fw-bridge-path {
+  width: clamp(90px, 11vw, 160px);
+  height: auto;
+  aspect-ratio: 400 / 220;
+  overflow: visible;
+}
+.fw-bridge-path path {
+  fill: none;
+  stroke: color-mix(in oklab, var(--color-navy-2) 70%, transparent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 3 9;
+  vector-effect: non-scaling-stroke;
+}
+.fw-bridge-path circle {
+  fill: var(--color-terracotta);
+}
+
+/* reduced motion: nothing moves; the shadow still comes up, the slips show as plain content, the tilt is off */
+@media (prefers-reduced-motion: reduce) {
+  :root .fw-lift,
+  :root .fw-lift:is(:hover, :has(:focus-visible), :active) {
+    translate: none;
+    transition: none;
+  }
+  :root .fw-layer img[data-sig],
+  :root .fw-layer img[data-sig][data-sig] {
+    translate: none;
+    transform: none;
+    transition: none;
+  }
+  :root .fw-lift .fw-spark {
+    animation: none;
+    opacity: 0;
+  }
+  :root .fw-proof-item,
+  :root .fw-slip {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+  :root .fw-shade {
+    transition: none;
+  }
+}
+
+/* ---- /projects covers and case files (TASK-181.2 §4.4): L2-lite — the lift is `translate`, the deeper shadow is a
+   pre-rendered box-shadow on a child whose opacity crossfades; the cover art shifts 2 px under the keyline ---- */
+.pf-thumb-shade,
+.pf-case-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.pf-thumb-shade {
+  border-radius: 4px;
+  box-shadow:
+    0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
+    0 16px 20px -8px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
+}
+.pf-case-shade {
+  border-radius: 2px;
+  box-shadow:
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
+    0 14px 20px -10px color-mix(in oklab, var(--color-terracotta) 28%, transparent);
+}
+/* the art is a hair larger than the cover (the keyline hides the bleed) so a 2 px shift never shows a seam */
+.pf-cover[data-size="thumb"] .pf-cover-art {
+  inset: -3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pf-thumb:not([aria-selected="true"]):hover {
+    translate: 0 -4px;
+    transition-duration: var(--dur-l2);
+  }
+  .pf-thumb:hover .pf-thumb-shade {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+  .pf-thumb:hover .pf-cover-name {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .pf-thumb:not([aria-selected="true"]):hover:active {
+    translate: 0 -2px;
+    transition-duration: var(--dur-press);
+  }
+  .pf-case.paper-sheet:hover {
+    translate: 0 -2px;
+    transition-duration: var(--dur-l2);
+  }
+  .pf-case.paper-sheet:hover .pf-case-shade {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+}
+.pf-thumb:not([aria-selected="true"]):focus-visible {
+  translate: 0 -4px;
+  transition-duration: var(--dur-l2);
+}
+.pf-thumb:focus-visible .pf-thumb-shade {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.pf-thumb:focus-visible .pf-cover-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.pf-case.paper-sheet:has(:focus-visible) {
+  translate: 0 -2px;
+  transition-duration: var(--dur-l2);
+}
+.pf-case.paper-sheet:has(:focus-visible) .pf-case-shade {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+/* touch: a press, not a sticky hover */
+@media (hover: none), (pointer: coarse) {
+  .pf-thumb:not([aria-selected="true"]):active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .pf-thumb:is(:hover, :focus-visible, :active),
+  :root .pf-case.paper-sheet:is(:hover, :has(:focus-visible)) {
+    translate: none;
+    transition: none;
+  }
+  :root .pf-thumb-shade,
+  :root .pf-case-shade {
+    transition: none;
+  }
+}
+
+/* ---- How I think (TASK-186): the active stage lifts, the others recede, the quote slip lifts as a second paper layer; nothing is hover-only ---- */
+.hit-card.paper-sheet {
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    opacity var(--dur-l2-out) var(--ease-paper);
+}
+/* the deeper shadow: the rim's torn outline again, offset further, crossfaded by opacity (never a box-shadow / filter transition) */
+.hit-paper-deep {
+  position: absolute;
+  inset: 0;
+  translate: 5px 13px;
+  background: color-mix(in oklab, var(--color-navy) 24%, transparent);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.hit-slip {
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    rotate var(--dur-l2-out) var(--ease-paper);
+}
+.hit-paper-shade {
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.jr-seg {
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hit-card:hover {
+    translate: 0 -6px;
+    transition-duration: var(--dur-l2);
+  }
+  .hit-card:hover .hit-slip {
+    translate: 0 -3px;
+    rotate: 0deg;
+    transition-duration: var(--dur-l2);
+  }
+  .hit-stage:has(.hit-card:hover) {
+    position: relative;
+    z-index: 5;
+  }
+  .hit-card:hover .hit-paper-deep {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+  .hit-stages:has(.hit-card:hover) .hit-card:not(:hover) {
+    opacity: 0.72;
+  }
+  .hit-stages:has(.hit-card:hover) .hit-card:not(:hover) .hit-paper-shade {
+    opacity: 0.45;
+  }
+  .hit-journey:has(.hit-stage:nth-child(1) .hit-card:hover) .jr-seg {
+    opacity: 0.55;
+  }
+  .hit-journey:has(.hit-stage:nth-child(1) .hit-card:hover) .jr-seg:is(:nth-child(1), :nth-child(2)) {
+    opacity: 1;
+  }
+  .hit-journey:has(.hit-stage:nth-child(2) .hit-card:hover) .jr-seg {
+    opacity: 0.55;
+  }
+  .hit-journey:has(.hit-stage:nth-child(2) .hit-card:hover) .jr-seg:is(:nth-child(2), :nth-child(3)) {
+    opacity: 1;
+  }
+  .hit-journey:has(.hit-stage:nth-child(3) .hit-card:hover) .jr-seg {
+    opacity: 0.55;
+  }
+  .hit-journey:has(.hit-stage:nth-child(3) .hit-card:hover) .jr-seg:is(:nth-child(3), :nth-child(4)) {
+    opacity: 1;
+  }
+  .hit-journey:has(.hit-stage:nth-child(4) .hit-card:hover) .jr-seg {
+    opacity: 0.55;
+  }
+  .hit-journey:has(.hit-stage:nth-child(4) .hit-card:hover) .jr-seg:is(:nth-child(4), :nth-child(5)) {
+    opacity: 1;
+  }
+  .hit-journey:has(.hit-stage:nth-child(5) .hit-card:hover) .jr-seg {
+    opacity: 0.55;
+  }
+  .hit-journey:has(.hit-stage:nth-child(5) .hit-card:hover) .jr-seg:is(:nth-child(5), :nth-child(6)) {
+    opacity: 1;
+  }
+  .hit-journey:has(.hit-stage:nth-child(6) .hit-card:hover) .jr-seg {
+    opacity: 0.55;
+  }
+  .hit-journey:has(.hit-stage:nth-child(6) .hit-card:hover) .jr-seg:is(:nth-child(6), :nth-child(7)) {
+    opacity: 1;
+  }
+  .hit-card:hover:active {
+    translate: 0 -3px;
+    transition-duration: var(--dur-press);
+  }
+}
+.hit-card:has(:focus-visible) {
+  translate: 0 -6px;
+  transition-duration: var(--dur-l2);
+}
+.hit-card:has(:focus-visible) .hit-slip {
+  translate: 0 -3px;
+  rotate: 0deg;
+  transition-duration: var(--dur-l2);
+}
+.hit-stage:has(.hit-card :focus-visible) {
+  position: relative;
+  z-index: 5;
+}
+.hit-card:has(:focus-visible) .hit-paper-deep {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.hit-stages:has(.hit-card :focus-visible) .hit-card:not(:has(:focus-visible)) {
+  opacity: 0.72;
+}
+.hit-stages:has(.hit-card :focus-visible) .hit-card:not(:has(:focus-visible)) .hit-paper-shade {
+  opacity: 0.45;
+}
+.hit-journey:has(.hit-stage:nth-child(1) .hit-card :focus-visible) .jr-seg {
+  opacity: 0.55;
+}
+.hit-journey:has(.hit-stage:nth-child(1) .hit-card :focus-visible) .jr-seg:is(:nth-child(1), :nth-child(2)) {
+  opacity: 1;
+}
+.hit-journey:has(.hit-stage:nth-child(2) .hit-card :focus-visible) .jr-seg {
+  opacity: 0.55;
+}
+.hit-journey:has(.hit-stage:nth-child(2) .hit-card :focus-visible) .jr-seg:is(:nth-child(2), :nth-child(3)) {
+  opacity: 1;
+}
+.hit-journey:has(.hit-stage:nth-child(3) .hit-card :focus-visible) .jr-seg {
+  opacity: 0.55;
+}
+.hit-journey:has(.hit-stage:nth-child(3) .hit-card :focus-visible) .jr-seg:is(:nth-child(3), :nth-child(4)) {
+  opacity: 1;
+}
+.hit-journey:has(.hit-stage:nth-child(4) .hit-card :focus-visible) .jr-seg {
+  opacity: 0.55;
+}
+.hit-journey:has(.hit-stage:nth-child(4) .hit-card :focus-visible) .jr-seg:is(:nth-child(4), :nth-child(5)) {
+  opacity: 1;
+}
+.hit-journey:has(.hit-stage:nth-child(5) .hit-card :focus-visible) .jr-seg {
+  opacity: 0.55;
+}
+.hit-journey:has(.hit-stage:nth-child(5) .hit-card :focus-visible) .jr-seg:is(:nth-child(5), :nth-child(6)) {
+  opacity: 1;
+}
+.hit-journey:has(.hit-stage:nth-child(6) .hit-card :focus-visible) .jr-seg {
+  opacity: 0.55;
+}
+.hit-journey:has(.hit-stage:nth-child(6) .hit-card :focus-visible) .jr-seg:is(:nth-child(6), :nth-child(7)) {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .hit-card.paper-sheet,
+  :root .hit-card.paper-sheet:is(:hover, :has(:focus-visible)) {
+    translate: none;
+    transition: none;
+  }
+  :root .hit-slip,
+  :root .hit-card:is(:hover, :has(:focus-visible)) .hit-slip {
+    translate: none;
+    rotate: var(--slip-rot);
+    transition: none;
+  }
+  :root .hit-paper-deep,
+  :root .hit-paper-shade,
+  :root .jr-seg {
+    transition: none;
+  }
+}
+/* === end TASK-186 / P2 === */
+
+/* ---- /projects carousel + selected-project detail (TASK-197; Tushar's "Carousel V2" spec, 2026-10-12) ----
+   DOM: intro → carousel → panel (stage, sheet). ≥ 1024 places everything by grid row, so the desktop spread is the same;
+   below 1024 the explorer is recomposed into ONE phone screen: counter + carousel (arrows overlaid on the neighbours),
+   details (code · status, name, tagline, 2-line description), the 16:9 pitch video, then the actions as a 2 × 2 grid.
+   `.pf-info` is `display: contents` there so its head, the strips and the case study become the panel grid's items;
+   the head carries its own small torn sheet. Hover stays under (hover: hover) and (pointer: fine) (the block above). */
+.pf-action-set {
+  display: contents;
+}
+.pf-case-lead,
+.pf-case-arrow {
+  display: inline;
+}
+.pf-info-head {
+  display: contents;
+}
+/* the active cover is the biggest and sharpest; its neighbours sit slightly back (a static scale ≤ 1, never a hover) */
+.pf-thumb {
+  scale: 0.94;
+  transform-origin: 50% 70%;
+}
+.pf-thumb[aria-selected="true"] {
+  scale: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pf-thumb {
+    transition:
+      translate var(--dur-l2-out) var(--ease-paper),
+      scale var(--dur-l2-out) var(--ease-paper);
+  }
+}
+.pf-count {
+  font-size: 15px;
+}
+
+@media (max-width: 1023px) {
+  .pf-showcase {
+    gap: 12px;
+  }
+  .pf-feature {
+    gap: 14px;
+  }
+  /* carousel: a slim counter row, the arrows float over the track's two ends (as in the mock) */
+  .pf-carousel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "track";
+    gap: 4px;
+    padding-top: 0;
+  }
+  .pf-carousel-tag {
+    justify-self: stretch;
+    justify-content: space-between;
+    padding: 4px 14px 5px;
+    rotate: -0.6deg;
+  }
+  .pf-arrow {
+    position: absolute;
+    top: calc(50% + 14px);
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    translate: 0 -50%;
+  }
+  .pf-arrow[data-dir="prev"] {
+    left: 2px;
+  }
+  .pf-arrow[data-dir="next"] {
+    right: 2px;
+  }
+  .pf-track {
+    --pf-thumb-w: min(46%, 168px);
+    padding: 18px 14px 10px;
+  }
+  .pf-band {
+    inset: -14px calc(50% - 50vw) -12px;
+  }
+
+  /* the panel: details → video → actions */
+  .pf-feature {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pf-info.paper-sheet {
+    display: contents;
+  }
+  .pf-info > .paper-fastener,
+  .pf-info > .pf-info-pin,
+  .pf-info > .pf-info-tape {
+    display: none;
+  }
+  .pf-info-head {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    position: relative;
+    isolation: isolate;
+    display: block;
+    padding: 14px 18px 16px;
+    filter: var(--pf-contact) var(--pf-ambient);
+  }
+  .pf-info-head::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-ivory);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-info-meta {
+    letter-spacing: 0.02em;
+  }
+  .pf-info-name {
+    margin-top: 4px;
+    padding-right: 0;
+    font-size: 2rem;
+  }
+  .pf-info-tagline {
+    margin-top: 3px;
+    font-size: 1.1rem;
+  }
+  .pf-info-desc {
+    margin-top: 6px;
+    font-size: 15px;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .pf-stage.paper-sheet {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    width: min(100%, 260px);
+  }
+  .pf-action-set {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .pf-actions {
+    display: contents;
+  }
+  .pf-actions > li {
+    display: contents;
+  }
+  .pf-action-set .pf-action,
+  .pf-action-set .pf-case-link.pf-action {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 48px;
+    margin: 0;
+    width: 100%;
+    padding: 4px 10px 4px 5px;
+    rotate: none;
+  }
+  .pf-action-set .pf-action-hint {
+    display: none;
+  }
+  .pf-action-set .pf-action-label {
+    font-size: 15px;
+  }
+  .pf-action-set .pf-action-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .pf-action-set .pf-case-link {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  /* "Read the case study →" reads "Case study" + the strip's arrow; the full name stays for assistive tech */
+  .pf-case-lead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pf-case-name {
+    display: inline-block;
+  }
+  .pf-case-name::first-letter {
+    text-transform: uppercase;
+  }
+  .pf-action-set[data-odd] .pf-case-link {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 639px) {
+  /* the poster is narrower here (≤ 280 px): the lettering scales with it (still ≥ 16 px, inside the cover) */
+  .pf-cover[data-size="stage"] .pf-cover-name {
+    font-size: clamp(16px, 7.6cqi, 84px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="script"] .pf-cover-name {
+    font-size: clamp(18px, 9.4cqi, 104px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="mono"] .pf-cover-name,
+  .pf-cover[data-size="stage"][data-lettering="slab"] .pf-cover-name {
+    font-size: clamp(16px, 6.6cqi, 72px);
+  }
+  .pf-products-wrap {
+    padding-block: 14px 96px;
+  }
+  .pf-select-note {
+    display: none;
+  }
+  .pf-intro {
+    gap: 2px;
+  }
+  .pf-h1 {
+    font-size: 1.2rem;
+    line-height: 1.15;
+  }
+  .pf-intro .pf-eyebrow,
+  .pf-sub {
+    display: none;
+  }
+}
+/* the shortest phones (375 × 667): a deliberate compact fallback — smaller video and covers, a one-line description */
+@media (max-width: 639px) and (max-height: 720px) {
+  .pf-stage.paper-sheet {
+    width: min(100%, 200px);
+  }
+  .pf-track {
+    --pf-thumb-w: min(38%, 136px);
+    padding-block: 12px 8px;
+  }
+  .pf-info-desc {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+  .pf-feature,
+  .pf-showcase {
+    gap: 8px;
+  }
+}
+/* the carousel's code is an archive tag: cream card stock, a punched hole, a strip of tape, a slight tilt (identical in both themes) */
+.pf-cover[data-size="thumb"] .pf-cover-code {
+  top: 11px;
+  left: 8px;
+  padding: 2px 8px 2px 16px;
+  color: var(--color-navy);
+  background-color: var(--color-ivory);
+  background-image: radial-gradient(circle at 8px 50%, var(--color-navy) 0 2px, transparent 2.5px), var(--pf-fibers);
+  background-size: auto, 420px 420px;
+  rotate: -3deg;
+  box-shadow:
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent),
+    0 4px 6px -2px color-mix(in oklab, var(--shadow-ink) 30%, transparent);
+}
+.pf-cover[data-size="thumb"] .pf-cover-code::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  width: 22px;
+  height: 9px;
+  rotate: 28deg;
+  background: color-mix(in oklab, var(--color-kraft) 62%, transparent);
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .pf-stage.paper-sheet {
+    width: min(100%, 460px);
+  }
+}
+/* === end TASK-197 === */
+
+
+/* === TASK-181.3 === */
+/* ====================================================================================================================
+   M-012 · TASK-181 (P3) · L3 signatures: the hero sticker, Tushky and Contact (the polaroid reaction was dropped, EXE-70) (PLAN §4.5–4.7; Design.md §14.10; EXE-62…64).
+   Restrained and physical: each reaction is the related paper object answering the control that is hovered or focused.
+   Only translate / rotate / transform / opacity move; nothing scales up; nothing is infinite (TASK-143). Hover sits
+   inside (hover: hover) and (pointer: fine) with an identical :focus-visible twin; touch gets the existing :active
+   press only; reduced motion keeps every object at rest.
+   ==================================================================================================================== */
+@property --tk-lean {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---- hero: "Ask Tushky" straightens the sticker head (6 -> 0 deg, one small physical overshoot) and nudges its pointer ---- */
+  .hero-tushky-img {
+    transition:
+      rotate 500ms cubic-bezier(0.3, 1.4, 0.5, 1),
+      translate 500ms var(--ease-paper);
+  }
+  .hero-tushky-arrow {
+    transition: translate 500ms var(--ease-paper);
+  }
+  .hero-btn-secondary:focus-visible ~ .hero-tushky .hero-tushky-img {
+    rotate: 0deg;
+    translate: 0 -3px;
+  }
+  .hero-btn-secondary:focus-visible ~ .hero-tushky .hero-tushky-arrow {
+    translate: 2px -2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hero-btn-secondary:hover ~ .hero-tushky .hero-tushky-img {
+      rotate: 0deg;
+      translate: 0 -3px;
+    }
+    .hero-btn-secondary:hover ~ .hero-tushky .hero-tushky-arrow {
+      translate: 2px -2px;
+    }
+  }
+
+  /* ---- Contact: "Email me" in sequence: the button lifts 1 px (contract), the stamp wakes (lifts 2 px, rotates 1.5 deg
+     toward upright), then the arrow nudges 3 px, 120 ms late, so it reads object -> movement -> arrow. ---- */
+  .cx-stamp-wrap {
+    transition:
+      translate 500ms var(--ease-paper),
+      rotate 500ms var(--ease-paper);
+  }
+  .cx-card:has(.cx-btn-primary:focus-visible) .cx-stamp-wrap {
+    translate: 0 -2px;
+    rotate: 3.5deg;
+  }
+  .cx-btn-primary:focus-visible .cx-btn-arrow {
+    transition-delay: 120ms;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .cx-card:has(.cx-btn-primary:hover) .cx-stamp-wrap {
+      translate: 0 -2px;
+      rotate: 3.5deg;
+    }
+    .cx-btn-primary:hover .cx-btn-arrow {
+      transition-delay: 120ms;
+    }
+  }
+
+  /* ---- Tushky (Home launcher): finite breathing, three 2.4 s breaths once the section has revealed, then still (EXE-64).
+     The whole image grows 1.2 % from the paws; the delay lets the 520 ms entrance finish first. ---- */
+  .hat-grid[data-in] .hat-dog {
+    transform-origin: 50% 100%;
+    animation: tk-breathe 2400ms ease-in-out 900ms 3;
+  }
+  @keyframes tk-breathe {
+    50% {
+      scale: 1 1.012;
+    }
+  }
+}
+
+/* Tushky leans as a whole image: `--hx` (-1…1) is written by paperMotion on the hovered `.hat-mascot` (ObjectMotion), so
+   the lean follows the cursor with the shared spring and needs no transition; the lift and the attentive lean are
+   transitions. The "attentive" state is tied to real controls: a suggestion pressed, or the composer focused. */
+@media (prefers-reduced-motion: no-preference) {
+  .hat-dog {
+    transform-origin: 50% 100%;
+    rotate: calc(var(--hx, 0) * 2deg + var(--tk-lean));
+    translate: 0 var(--tk-lift, 0px);
+    transition:
+      translate 400ms var(--ease-paper),
+      --tk-lean 500ms var(--ease-paper);
+  }
+  .hat-mascot[data-pm-active] .hat-dog {
+    will-change: rotate;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hat-mascot:hover .hat-dog {
+      --tk-lift: -3px;
+    }
+  }
+  .hat-grid:has(.hat-card:active) .hat-dog,
+  .hat-grid:has(.hat-composer:focus-within) .hat-dog {
+    --tk-lift: -4px;
+    --tk-lean: 2deg;
+  }
+}
+/* === end TASK-181.3 === */
