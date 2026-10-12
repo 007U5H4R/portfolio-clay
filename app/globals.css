@@ -13848,7 +13848,7 @@ html[data-theme-vt]::view-transition-group(root) {
 /* ---- desktop: one continuous landscape; the strip, a stitched road and seven stages along it ---- */
 @media (min-width: 1100px) {
   .wib {
-    padding-bottom: 300px;
+    padding-bottom: 260px;
   }
   .wib-scene {
     aspect-ratio: 2400 / 1028;
@@ -13977,10 +13977,6 @@ html[data-theme-vt]::view-transition-group(root) {
     margin-bottom: 8px;
   }
   .wib-hint {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
     margin-top: 28px;
     text-align: center;
     transition: opacity var(--dur-l2-out) var(--ease-paper);

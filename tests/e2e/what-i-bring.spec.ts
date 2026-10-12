@@ -77,7 +77,7 @@ test.describe("@TASK-187 What I Bring journey", () => {
     const moved = await page.evaluate(() =>
       Array.from(document.querySelectorAll(".wib-layer")).some((el) => {
         const s = getComputedStyle(el);
-        return s.transform !== "none" || (s.translate !== "none" && s.translate !== "0px" && s.translate !== "0px 0px");
+        return !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(s.transform) || (s.translate !== "none" && s.translate !== "0px" && s.translate !== "0px 0px");
       }),
     );
     expect(moved).toBe(false);
