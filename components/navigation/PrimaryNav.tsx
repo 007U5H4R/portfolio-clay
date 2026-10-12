@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems } from "@/lib/nav";
+import { activeNavHref, navItems } from "@/lib/nav";
 
 /** Keep a scrolled-to tab this far clear of the strip's edges (the right-edge fade is 32 px). */
 const EDGE_CLEARANCE_PX = 40;
@@ -81,7 +81,7 @@ export function PrimaryNav() {
         }
       >
         {navItems.map((item) => {
-          const active = pathname === item.href;
+          const active = activeNavHref(pathname) === item.href;
           return (
             <Link
               key={item.href}
@@ -89,8 +89,14 @@ export function PrimaryNav() {
               aria-current={active ? "page" : undefined}
               className="header-nav-link focus-ring"
             >
-              {item.label}
-              <span className="hn-strip" aria-hidden="true" />
+              <span className="nt-shadow" aria-hidden="true" />
+              <span className="nt-lift">
+                <span className="nt-paper" aria-hidden="true">
+                  <span className="nt-under" />
+                </span>
+                <span className="nt-label">{item.label}</span>
+                <span className="hn-strip" aria-hidden="true" />
+              </span>
             </Link>
           );
         })}

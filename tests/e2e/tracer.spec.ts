@@ -243,8 +243,9 @@ test("header keeps one height as an opaque paper sheet; scrolling only deepens i
   const header = page.locator("header").first();
 
   const restBox = await header.boundingBox();
-  expect(restBox!.height, `rest height ${restBox!.height} should be ~72`).toBeGreaterThanOrEqual(70);
-  expect(restBox!.height).toBeLessThanOrEqual(74);
+  // TASK-192: the origami sheet is one fixed ~124 px at 1440 (it was ~72 px before the terrain band and the 56 px tabs).
+  expect(restBox!.height, `rest height ${restBox!.height} should be ~124`).toBeGreaterThanOrEqual(122);
+  expect(restBox!.height).toBeLessThanOrEqual(126);
   const headerFilter = () =>
     header.evaluate((el) => {
       const s = getComputedStyle(el);

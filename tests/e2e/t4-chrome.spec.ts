@@ -29,7 +29,11 @@ test.describe("T4 chrome", () => {
     await expect(page.locator("header").getByRole("button", { name: "Ask AI" })).toBeVisible();
     const current = nav.locator('a[aria-current="page"]');
     await expect(current).toHaveCount(1);
-    expect(await current.locator(".hn-strip").evaluate((el) => getComputedStyle(el).transform)).not.toBe("matrix(1, 0, 0, 1, 0, 0)");
+    // TASK-192: the active underline is drawn full-width (scaleX 1, no rotation any more); resting tabs' are collapsed
+    const drawn = (loc: import("@playwright/test").Locator) =>
+      loc.locator(".hn-strip").evaluate((el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).a);
+    await expect.poll(() => drawn(current)).toBeGreaterThan(0.95);
+    await expect.poll(() => drawn(nav.locator('a:not([aria-current="page"])').first())).toBeLessThan(0.05);
     await nav.locator("a").first().focus();
     for (let i = 0; i < navItems.length - 1; i++) await page.keyboard.press("Tab");
     const focused = await page.evaluate(() => document.activeElement?.getAttribute("href"));

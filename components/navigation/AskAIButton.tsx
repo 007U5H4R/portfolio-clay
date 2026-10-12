@@ -21,7 +21,6 @@ export function AskAIButton() {
   const glyph = (
     <svg className="ask-glyph" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
       <path d="M10 2.5 C 10.6 6.2, 13.8 9.4, 17.5 10 C 13.8 10.6, 10.6 13.8, 10 17.5 C 9.4 13.8, 6.2 10.6, 2.5 10 C 6.2 9.4, 9.4 6.2, 10 2.5 Z" />
-      <path d="M15.5 2.5 C 15.7 3.7, 16.3 4.3, 17.5 4.5 C 16.3 4.7, 15.7 5.3, 15.5 6.5 C 15.3 5.3, 14.7 4.7, 13.5 4.5 C 14.7 4.3, 15.3 3.7, 15.5 2.5 Z" />
     </svg>
   );
 

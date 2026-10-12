@@ -90,7 +90,7 @@ function Experiment({ project, variant, slot, rotate, fasteners }: BenchEntry) {
   if (!links.live) return null; // defensive: every sanctioned entry carries a live URL (schema `links.live`)
 
   return (
-    <Sheet as="article" variant={variant} rotate={rotate} className={`pg-ex pg-ex-${slot}`}>
+    <Sheet as="article" variant={variant} rotate={rotate} className={`pg-ex pg-ex-${slot} paper-lift`}>
       {fasteners}
       <Hand kind="label" className="pg-ex-num">
         {String(slot).padStart(2, "0")}
