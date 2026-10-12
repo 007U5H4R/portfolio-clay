@@ -128,3 +128,54 @@ describe("the trail is longest at speed and fades with the spec's gradient", () 
     expect(t.alpha(0)).toBeGreaterThan(0.9);
   });
 });
+
+describe("the turbo bumper's trail burst (TASK-199)", () => {
+  const record = (t: TrailBuffer, n: number) => {
+    for (let i = 0; i < n; i += 1) {
+      t.push(i * 0.2, 0, 22, 1 / 60);
+      t.update(1 / 60);
+    }
+  };
+
+  it("lengthens the live samples and the ones recorded while it runs, then lets go", () => {
+    const calm = new TrailBuffer(56);
+    const burst = new TrailBuffer(56);
+    record(calm, 20);
+    record(burst, 20);
+    burst.burst(0.7);
+    for (const t of [calm, burst]) for (let i = 0; i < 30; i += 1) t.update(1 / 60);
+    expect(burst.count).toBeGreaterThan(calm.count);
+    // ... and it ends by itself
+    for (let i = 0; i < 60; i += 1) burst.update(1 / 60);
+    expect(burst.boostLeft).toBe(0);
+  });
+
+  it("allocates nothing: the buffers are the same fixed arrays and never grow", () => {
+    const t = new TrailBuffer(24);
+    const arrays = [t.x, t.y, t.age, t.life, t.speed];
+    for (let k = 0; k < 40; k += 1) {
+      t.burst(0.7);
+      record(t, 10);
+    }
+    expect([t.x, t.y, t.age, t.life, t.speed]).toEqual(arrays);
+    expect(t.x).toBe(arrays[0]);
+    expect(t.count).toBeLessThanOrEqual(24);
+    expect(t.x.length).toBe(24);
+  });
+
+  it("does nothing while the trail is off (reduced motion)", () => {
+    const t = new TrailBuffer(24);
+    t.enabled = false;
+    t.burst(0.7);
+    expect(t.boostLeft).toBe(0);
+  });
+
+  it("a second burst while the first runs only extends the clock, it does not stretch the live samples twice", () => {
+    const t = new TrailBuffer(56);
+    record(t, 10);
+    t.burst(0.7);
+    const after = Array.from({ length: t.count }, (_, k) => t.life[t.slot(k)]);
+    t.burst(0.7);
+    expect(Array.from({ length: t.count }, (_, k) => t.life[t.slot(k)])).toEqual(after);
+  });
+});

@@ -1,4 +1,9 @@
+import { BUMPER_TUNE } from "@/lib/lab/bumpers";
+import { TURBO_BURST_S } from "@/lib/lab/trail";
 import type { LabHooks, LabRuntime } from "./runtime";
+
+/** The table shake a thumper hit gives (the same strength as the manual Nudge's). */
+export const THUMPER_SHAKE = 0.55;
 
 /**
  * Impact feedback that does not depend on the rules (gummy-bear.md §14, §25): jelly energy, sparkles,
@@ -17,14 +22,18 @@ export function createFxHooks(rt: LabRuntime): LabHooks {
       burst(x, y + 0.2, "droplet", 8, 1);
       rt.zoom = Math.max(rt.zoom, 0.4);
     },
-    // A bumper hit (spec §10): the trail flashes and a few tiny sparks fly; the bumper itself compresses and glows.
-    bumper(_id, x, y) {
-      burst(x, y, "sparkle", 7, 0);
+    // A bumper hit (spec §10): the trail flashes and a few tiny sparks fly; the bumper itself compresses and glows. The kinds add
+    // their own (TASK-199): a thumper shakes the table (the Nudge's shake, which the camera drops under reduced motion), a turbo
+    // sends a short burst down the trail (the pooled ribbon is lengthened for a moment; nothing is allocated).
+    bumper(_id, kind, x, y) {
+      burst(x, y, "sparkle", kind === "jet" ? 10 : 7, 0);
       rt.trailFlash = 1;
-    },
-    target(_id, x, y) {
-      burst(x, y, "star", 8, 4);
-      rt.trailFlash = 1;
+      const tune = BUMPER_TUNE[kind];
+      if (tune.shake && !rt.reducedMotion) rt.shake = Math.max(rt.shake, THUMPER_SHAKE);
+      if (tune.trailBurst) {
+        rt.trail.burst(TURBO_BURST_S);
+        rt.trailFlash = 1.4;
+      }
     },
     sling(_id, x, y) {
       burst(x, y, "sparkle", 5, 0);

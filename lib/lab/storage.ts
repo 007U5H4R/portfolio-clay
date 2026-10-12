@@ -16,7 +16,6 @@ export const ACHIEVEMENTS = {
   CURIOUS_MIND: { title: "Curious mind", body: "Discovered the secret lab." },
   WOBBLE_MASTER: { title: "Wobble master", body: "Reached a x10 combo." },
   GUMMY_OPERATOR: { title: "Gummy operator", body: "Survived 30 seconds." },
-  PRODUCT_SENSE: { title: "Product sense", body: "Hit all four special targets in one run." },
   YOU_REALLY_FOUND_IT: { title: "You really found it", body: "Discovered a hidden interaction." },
 } as const;
 export type AchievementId = keyof typeof ACHIEVEMENTS;

@@ -261,9 +261,10 @@ export class GummyController {
 
     // A gummy stuck anywhere but on a flipper is a soft-lock (the player cannot reach it): judged by position, so wind
     // and the low-gravity wobble can't hide it (TASK-184), then nudged on with an escalating, alternating kick.
-    // The black hole's pocket (past the left wall's line) is never a stall: the sensor sends the gummy away the moment it is in.
-    const inPocket = pos.x < -this.rt.arena.halfW - 0.05;
-    const onFlipper = inLane || inPocket || this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre));
+    // A gummy in the black hole's mouth is never a stall: the sensor sends it away the moment it touches.
+    const hole = this.rt.arena.portal;
+    const inHole = Math.hypot(pos.x - hole.x, centre.y - hole.y) < hole.r;
+    const onFlipper = inLane || inHole || this.rt.flippers.some((f) => nearFlipper(f.layout, f.state, centre));
     const n = this.stall.step(dt, { x: pos.x, y: pos.y }, onFlipper);
     if (n) {
       vx = n.x;

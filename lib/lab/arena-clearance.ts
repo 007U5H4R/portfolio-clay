@@ -1,8 +1,8 @@
-import type { Anchor, ArenaSpec, TargetSpec } from "./arena";
+import type { Anchor, ArenaSpec, SlingSpec } from "./arena";
 
 /**
  * Clearance maths for the arena layout (TASK-185 mobile pass). The gummy's hull is about 0.65 wide, and a gap narrower than
- * 1.5 of those can wedge it (Tushar's phone screenshots), so bumpers, targets, walls and pickup spawns must keep MIN_CLEAR
+ * 1.5 of those can wedge it (Tushar's phone screenshots), so bumpers, side slingshots, walls and pickup spawns must keep MIN_CLEAR
  * between their edges. Pure geometry, used by tests/unit/lab-arena-clearance.test.ts and the layout tuning.
  */
 export const GUMMY_W = 0.65;
@@ -10,11 +10,9 @@ export const MIN_CLEAR = 1.5 * GUMMY_W;
 
 type P = [number, number];
 
-/** The four corners of a target plate in world space. */
-export function plateCorners(t: TargetSpec): P[] {
-  const c = Math.cos(t.angle);
-  const s = Math.sin(t.angle);
-  return ([[-1, -1], [1, -1], [1, 1], [-1, 1]] as P[]).map(([ux, uy]) => [t.x + ux * t.hw * c - uy * t.hh * s, t.y + ux * t.hw * s + uy * t.hh * c] as P);
+/** A sling's corners as points (for the polygon maths below). */
+export function slingPoly(s: SlingSpec): P[] {
+  return s.pts.map((p) => [p.x, p.y] as P);
 }
 
 function segDist(p: P, a: P, b: P): number {
@@ -50,31 +48,39 @@ export function polyToPoly(a: P[], b: P[]): number {
   return d;
 }
 
-/** Edge-to-edge clearance of a point (a pickup's centre, radius 0) from everything solid in the table: bumpers, plates, side walls. */
+/** The side (wall) slingshots: the ones that stand out into the open table. */
+const wallSlings = (a: ArenaSpec) => a.slings.filter((s) => s.kind === "wall");
+
+/** Edge-to-edge clearance of a point (a pickup's centre, radius 0) from everything solid in the table: bumpers, side slingshots, walls, the spinner's sweep. */
 export function pointClearance(a: ArenaSpec, p: Anchor): number {
   let d = Math.min(p.x + a.halfW, a.halfW - p.x);
-  for (const b of a.bumpers) if (!b.spin) d = Math.min(d, Math.hypot(p.x - b.x, p.y - b.y) - b.r);
-  for (const t of a.targets) d = Math.min(d, pointToPoly([p.x, p.y], plateCorners(t)));
+  for (const b of a.bumpers) d = Math.min(d, Math.hypot(p.x - b.x, p.y - b.y) - (b.spin ? b.spin.len / 2 + 0.11 : b.r));
+  for (const s of wallSlings(a)) d = Math.min(d, pointToPoly([p.x, p.y], slingPoly(s)));
+  d = Math.min(d, Math.hypot(p.x - a.portal.x, p.y - a.portal.y) - a.portal.r);
   return d;
 }
 
 export interface Clearances {
   bumperBumper: number;
   bumperWall: number;
-  bumperTarget: number;
-  targetTarget: number;
+  bumperSling: number;
+  /** Spinner's swept circle to the nearest bumper's edge (Infinity when there is no spinner). */
+  spinnerBumper: number;
+  slingSling: number;
 }
 /** The smallest edge-to-edge gaps in the layout (Infinity when there is no such pair). */
 export function layoutClearances(a: ArenaSpec): Clearances {
   const bumpers = a.bumpers.filter((b) => !b.spin);
-  const out: Clearances = { bumperBumper: Infinity, bumperWall: Infinity, bumperTarget: Infinity, targetTarget: Infinity };
+  const out: Clearances = { bumperBumper: Infinity, bumperWall: Infinity, bumperSling: Infinity, spinnerBumper: Infinity, slingSling: Infinity };
+  const walls = wallSlings(a);
   bumpers.forEach((b, i) => {
     for (const o of bumpers.slice(i + 1)) out.bumperBumper = Math.min(out.bumperBumper, Math.hypot(b.x - o.x, b.y - o.y) - b.r - o.r);
     out.bumperWall = Math.min(out.bumperWall, a.halfW - Math.abs(b.x) - b.r);
-    for (const t of a.targets) out.bumperTarget = Math.min(out.bumperTarget, pointToPoly([b.x, b.y], plateCorners(t)) - b.r);
+    for (const s of walls) out.bumperSling = Math.min(out.bumperSling, pointToPoly([b.x, b.y], slingPoly(s)) - b.r);
   });
-  a.targets.forEach((t, i) => {
-    for (const o of a.targets.slice(i + 1)) out.targetTarget = Math.min(out.targetTarget, polyToPoly(plateCorners(t), plateCorners(o)));
+  for (const sp of a.bumpers.filter((b) => b.spin)) for (const b of bumpers) out.spinnerBumper = Math.min(out.spinnerBumper, Math.hypot(sp.x - b.x, sp.y - b.y) - b.r - (sp.spin!.len / 2 + 0.11));
+  walls.forEach((s, i) => {
+    for (const o of walls.slice(i + 1)) out.slingSling = Math.min(out.slingSling, polyToPoly(slingPoly(s), slingPoly(o)));
   });
   return out;
 }
