@@ -247,20 +247,20 @@
   stop-color: color-mix(in oklab, var(--color-terracotta) 80%, var(--color-rust));
 }
 .gummyShine {
-  fill: color-mix(in oklab, #fff 70%, transparent);
+  fill: color-mix(in oklab, var(--color-ivory) 80%, transparent);
 }
 .gummyEye {
-  fill: color-mix(in oklab, var(--color-navy) 80%, #000);
+  fill: var(--color-navy);
 }
 :global([data-theme="dark"]) .gummyEye {
   fill: var(--color-paper);
 }
 .gummyNose {
-  fill: color-mix(in oklab, var(--color-terracotta) 85%, #000);
+  fill: color-mix(in oklab, var(--color-terracotta) 85%, var(--color-navy));
 }
 .gummySmile {
   fill: none;
-  stroke: color-mix(in oklab, var(--color-terracotta) 85%, #000);
+  stroke: color-mix(in oklab, var(--color-terracotta) 85%, var(--color-navy));
   stroke-width: 1.6;
   stroke-linecap: round;
 }
