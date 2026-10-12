@@ -123,13 +123,13 @@ export const EVENTS = {
   project_video_started: {
     group: "projects",
     trigger: "The embedded player REPORTS playback (YouTube playerState 1). Pressing Play alone does not count.",
-    where: "components/portfolio/ProductMediaPlayer.tsx → lib/analytics/video.ts",
+    where: "components/portfolio/ProductMediaPlayer.tsx → lib/analytics/use-video-analytics.ts",
     props: define({ project_id: slug(40), video_type: oneOf(...VIDEO_TYPES) }),
   },
   project_video_progressed: {
     group: "projects",
     trigger: "Playback passes 25 / 50 / 75 / 100 % by watching (seeks do not credit), once per milestone per play session.",
-    where: "components/portfolio/ProductMediaPlayer.tsx → lib/analytics/video.ts",
+    where: "components/portfolio/ProductMediaPlayer.tsx → lib/analytics/use-video-analytics.ts",
     props: define({ project_id: slug(40), video_type: oneOf(...VIDEO_TYPES), progress_percent: int(25, 100) }),
   },
   case_study_viewed: {
