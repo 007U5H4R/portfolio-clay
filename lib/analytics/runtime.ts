@@ -7,6 +7,7 @@
 import { installClickDelegation } from "./click-delegation";
 import { createMixpanelSink, type MixpanelSink } from "./client";
 import { readBrowserContext, readPublicEnv, resolveConfig } from "./config";
+import { deviceTypeFor } from "./device";
 import { applyConsentParam, consentAllows, readConsent, writeConsent } from "./consent";
 import { SCHEMA_VERSION } from "./events";
 import { startPage } from "./page-tracking";
@@ -27,11 +28,6 @@ interface Live {
   stops: Array<() => void>;
 }
 let live: Live | null = null;
-
-/** mobile < 768 ≤ tablet < 1024 ≤ desktop, from the viewport width at the page view (docs/analytics.md). */
-export function deviceTypeFor(width: number): "mobile" | "tablet" | "desktop" {
-  return width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
-}
 
 function readSessionType(): "new" | "returning" {
   try {

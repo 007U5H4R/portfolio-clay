@@ -24,6 +24,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { track } from "@/lib/analytics/track";
 import { createDefaultProvider, type Answer, type AnswerProvider } from "@/lib/ask";
 import { AskPanelLazy } from "./AskPanelLazy";
 
@@ -239,6 +240,8 @@ export function useAskChat(providerOverride?: AnswerProvider): UseAskChat {
   const epoch = useRef(0);
   // Every question asked in this conversation, oldest first (the history each new turn is asked with).
   const asked = useRef<string[]>([]);
+  // TASK-194: turns whose successful response was already reported (a retry never reports it twice).
+  const reported = useRef(new Set<number>());
 
   const resolve = useCallback(
     async (turnId: number, query: string, history: readonly string[]) => {
@@ -248,14 +251,25 @@ export function useAskChat(providerOverride?: AnswerProvider): UseAskChat {
         setMessages((all) => all.map((m) => (m.id === turnId && m.role === "tushky" ? { ...m, ...patch } : m)));
       };
       update({ status: "loading", answer: null });
+      const t0 = performance.now();
       try {
         const floor = delay(SKELETON_FLOOR_MS);
         const answer = await provider.ask(query, { surface: "panel", history });
+        // TASK-194: latency is the provider's own time (monotonic clock), before the cosmetic skeleton floor.
+        const latency = Math.round(performance.now() - t0);
         if (!isCacheHit(answer)) await floor;
         update({ status: answer.kind === "answer" ? "answer" : "empty", answer });
+        if (started === epoch.current && !reported.current.has(turnId)) {
+          reported.current.add(turnId);
+          track("chatbot_response_received", {
+            response_status: answer.kind !== "answer" ? "no_match" : answer.sourceType === "faq-cache" ? "answered_faq" : "answered_index",
+            latency_ms: latency,
+          });
+        }
       } catch (err) {
         console.error("[ask] provider failed", err); // never silent (SF-6 / A12)
         update({ status: "error", answer: null });
+        if (started === epoch.current) track("chatbot_response_failed", { latency_ms: Math.round(performance.now() - t0) });
       }
     },
     [provider],
@@ -294,6 +308,7 @@ export function useAskChat(providerOverride?: AnswerProvider): UseAskChat {
   const reset = useCallback(() => {
     epoch.current++;
     asked.current = [];
+    reported.current.clear();
     setMessages([]);
   }, []);
 

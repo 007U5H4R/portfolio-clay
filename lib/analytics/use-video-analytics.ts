@@ -27,9 +27,15 @@ export function useVideoAnalytics(frameRef: RefObject<HTMLIFrameElement | null>,
   useEffect(() => {
     if (!active || target.provider !== "youtube") return;
     const progress = new VideoProgress();
+    let subscribed = false;
     const onMessage = (event: MessageEvent) => {
       const frame = frameRef.current;
       if (!frame || event.origin !== targetRef.current.origin || event.source !== frame.contentWindow) return;
+      if (!subscribed) {
+        // YouTube's documented iframe protocol: ask the (already listening) player to push state changes.
+        subscribed = true;
+        frame.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"], id: 1, channel: "widget" }), targetRef.current.origin);
+      }
       const sample = readYouTubeSample(event.data);
       if (!sample) return;
       const { projectId, videoType } = targetRef.current;

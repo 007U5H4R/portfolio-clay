@@ -28,6 +28,8 @@
  */
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { track } from "@vercel/analytics";
+import { track as trackEvent } from "@/lib/analytics/track";
+import { categorizeMessage, categoryFromSuggestion } from "@/lib/analytics/chat";
 import { durations, useReducedMotionSafe } from "@/lib/motion";
 import { lockBackground } from "@/lib/focus";
 import type { FaqEntry, FaqLookupEvent } from "@/lib/ask/faq";
@@ -37,6 +39,7 @@ import faqData from "@/data/tushky/faq.json";
 import faqAudioData from "@/data/tushky/faq-audio.json";
 import { useAskChat, useAskContext } from "./AskProvider";
 import { ChatComposer, ChatConversation, TushkyEmptyState, TushkyHeader } from "./AskTushky";
+import { TUSHKY_SUGGESTIONS } from "./tushky-questions";
 import { TushkyVoiceProvider } from "./voice/TushkyVoicePlayer";
 
 export interface AskPanelProps {
@@ -71,6 +74,22 @@ function trackLookup({ lookup }: FaqLookupEvent): void {
     // Analytics must never block an answer.
   }
 }
+/** TASK-194: which control opened the drawer, from the element focus will return to (never from content). */
+function entryPointOf(trigger: HTMLElement | null): "header_button" | "hero_cta" | "home_section" | "other" {
+  if (!trigger) return "other";
+  if (trigger.closest("[data-site-header]")) return "header_button";
+  if (trigger.closest(".hero")) return "hero_cta";
+  if (trigger.closest("#ask")) return "home_section";
+  return "other";
+}
+
+/** TASK-194: a chosen suggestion / follow-up → its category, derived locally; the text is never sent. */
+function promptCategory(label: string, query: string) {
+  const suggestion = TUSHKY_SUGGESTIONS.find((s) => s.label === label);
+  return categoryFromSuggestion(suggestion?.category, query);
+}
+const isSuggestion = (label: string) => TUSHKY_SUGGESTIONS.some((s) => s.label === label);
+
 /** Close slide duration — mirrors `.ask-panel` `transition` in globals.css (spec §3: 250–320 ms). */
 const CLOSE_MS = Math.min(durations.panel, 280);
 
@@ -85,6 +104,20 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
   const faqAudio = useMemo(() => freshFaqAudio(FAQ, FAQ_AUDIO, faqFreshIds), [faqFreshIds]);
   const { messages, isGenerating, ask, retry, reset } = useAskChat(faqProvider);
   const reduced = useReducedMotionSafe();
+
+  // TASK-194: open/close edges of the drawer. Declared before the reset effect below so the close event
+  // still sees the conversation's question count.
+  const questionCount = messages.filter((m) => m.role === "user").length;
+  const questionCountRef = useRef(questionCount);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    questionCountRef.current = questionCount;
+  });
+  useEffect(() => {
+    if (panelOpen && !wasOpen.current) trackEvent("chatbot_opened", { entry_point: entryPointOf(triggerRef.current) });
+    if (!panelOpen && wasOpen.current) trackEvent("chatbot_closed", { session_message_count: Math.min(questionCountRef.current, 500) });
+    wasOpen.current = panelOpen;
+  }, [panelOpen, triggerRef]);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -153,6 +186,9 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
   useEffect(() => {
     if (!panelOpen || !pendingAsk || consumedAsk.current === pendingAsk.id) return;
     consumedAsk.current = pendingAsk.id;
+    // TASK-194: the Home launcher's suggestion card is a selected prompt; typed text is a sent message.
+    if (isSuggestion(pendingAsk.label)) trackEvent("chatbot_prompt_selected", { prompt_category: promptCategory(pendingAsk.label, pendingAsk.query) });
+    else trackEvent("chatbot_message_sent", { message_category: categorizeMessage(pendingAsk.query) });
     ask(pendingAsk.label, pendingAsk.query);
     clearPendingAsk(pendingAsk.id);
   }, [panelOpen, pendingAsk, ask, clearPendingAsk]);
@@ -173,6 +209,7 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
   }, [lastUserId, lastStatus, reduced]);
 
   const onAsk = (label: string, query: string) => {
+    trackEvent("chatbot_prompt_selected", { prompt_category: promptCategory(label, query) });
     ask(label, query);
     // The clicked card / chip may unmount; keep focus in the drawer, on the composer.
     requestAnimationFrame(() => inputRef.current?.focus());
@@ -182,6 +219,7 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
     event.preventDefault(); // never navigate
     const text = value.trim();
     if (!text) return;
+    trackEvent("chatbot_message_sent", { message_category: categorizeMessage(text) });
     ask(text);
     setValue("");
   };
