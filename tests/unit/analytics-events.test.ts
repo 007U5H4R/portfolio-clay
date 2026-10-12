@@ -15,6 +15,7 @@ function sample(spec: PropSpec): string | number | boolean {
   switch (spec.kind) {
     case "enum": return spec.values[0]!;
     case "slug": return "sample";
+    case "path": return "/sample";
     case "int": return spec.min;
     case "bool": return true;
   }
@@ -103,7 +104,7 @@ describe("event catalogue (TASK-194)", () => {
     for (const name of EVENT_NAMES) {
       for (const [prop, spec] of Object.entries(schemaOf(name))) {
         expect(prop, `${name}.${prop}`).not.toMatch(forbiddenNames);
-        if (spec.kind === "slug") expect(spec.max, `${name}.${prop} must be length-bounded`).toBeLessThanOrEqual(120);
+        if (spec.kind === "slug" || spec.kind === "path") expect(spec.max, `${name}.${prop} must be length-bounded`).toBeLessThanOrEqual(120);
       }
     }
   });
@@ -164,6 +165,12 @@ describe("property validation", () => {
     expect(validateProps(schemaOf("chatbot_response_received"), { response_status: "answered_faq", latency_ms: -1 }).ok).toBe(false);
     expect(validateProps(schemaOf("chatbot_response_received"), { response_status: "answered_faq", latency_ms: 1.5 }).ok).toBe(false);
     expect(validateProps(schemaOf("chatbot_response_received"), { response_status: "answered_faq", latency_ms: "12" }).ok).toBe(false);
+  });
+
+  it("paths accept site paths only: no host, query, fragment, uppercase or protocol-relative", () => {
+    const ok = (page_path: string) => validateProps(schemaOf("page_viewed"), { ...validInput("page_viewed"), page_path }).ok;
+    for (const good of ["/", "/projects", "/work/teachspark", "/thinking/refusal-is-a-feature"]) expect(ok(good), good).toBe(true);
+    for (const bad of ["projects", "https://x.test/", "//evil.test", "/a?b=1", "/a#b", "/A", "/a b", "/" + "a".repeat(121), ""]) expect(ok(bad), bad).toBe(false);
   });
 
   it("slugs accept identifiers and reject free text, URLs, emails and over-long values", () => {

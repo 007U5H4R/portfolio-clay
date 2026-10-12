@@ -9,6 +9,7 @@
 export type PropSpec =
   | { readonly kind: "enum"; readonly values: readonly string[]; readonly optional?: true }
   | { readonly kind: "slug"; readonly max: number; readonly optional?: true }
+  | { readonly kind: "path"; readonly max: number; readonly optional?: true }
   | { readonly kind: "int"; readonly min: number; readonly max: number; readonly optional?: true }
   | { readonly kind: "bool"; readonly optional?: true };
 
@@ -18,6 +19,8 @@ export const oneOf = <const V extends readonly string[]>(...values: V) => ({ kin
 export const optEnum = <const V extends readonly string[]>(...values: V) => ({ kind: "enum", values, optional: true }) as const;
 export const slug = (max = 60) => ({ kind: "slug", max }) as const;
 export const optSlug = (max = 60) => ({ kind: "slug", max, optional: true }) as const;
+/** A site path such as `/work/teachspark`: leading slash, then `[a-z0-9/_.-]` only (no query, no fragment, no host). */
+export const path = (max = 120) => ({ kind: "path", max }) as const;
 export const int = (min = 0, max = 1_000_000) => ({ kind: "int", min, max }) as const;
 export const optInt = (min = 0, max = 1_000_000) => ({ kind: "int", min, max, optional: true }) as const;
 export const bool = () => ({ kind: "bool" }) as const;
@@ -25,7 +28,7 @@ export const bool = () => ({ kind: "bool" }) as const;
 type Opt<S> = S extends { optional: true } ? true : false;
 type ValueOf<S> = S extends { kind: "enum"; values: infer V extends readonly string[] }
   ? V[number]
-  : S extends { kind: "slug" }
+  : S extends { kind: "slug" | "path" }
     ? string
     : S extends { kind: "int" }
       ? number
@@ -41,6 +44,7 @@ export type PropsOf<T extends Schema> = {
 };
 
 const SLUG = /^[a-z0-9][a-z0-9_.-]*$/;
+const PATH = /^\/[a-z0-9/_.-]*$/;
 
 export interface Validation {
   ok: boolean;
@@ -70,6 +74,10 @@ export function validateProps(schema: Schema, input: Readonly<Record<string, unk
       case "slug":
         if (typeof value === "string" && value.length <= spec.max && SLUG.test(value)) props[key] = value;
         else errors.push(`"${key}" must be a slug of at most ${spec.max} characters`);
+        break;
+      case "path":
+        if (typeof value === "string" && value.length <= spec.max && PATH.test(value) && !value.includes("//")) props[key] = value;
+        else errors.push(`"${key}" must be a site path of at most ${spec.max} characters`);
         break;
       case "int":
         if (typeof value === "number" && Number.isInteger(value) && value >= spec.min && value <= spec.max) props[key] = value;

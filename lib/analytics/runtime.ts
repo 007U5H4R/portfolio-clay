@@ -18,16 +18,18 @@ import { createTracker, type Tracker } from "./tracker";
 
 const SEEN_KEY = "pt-analytics-seen";
 
-declare global {
-  var __ptAnalyticsStarted: boolean | undefined;
-}
-
 interface Live {
   sink: MixpanelSink;
   tracker: Tracker;
   stops: Array<() => void>;
 }
-let live: Live | null = null;
+
+// Held on globalThis, not in module scope: if the bundler ever evaluates this module twice (hot reload,
+// a duplicated chunk), listeners and state are still shared, so nothing can be installed twice.
+declare global {
+  var __ptAnalyticsStarted: boolean | undefined;
+  var __ptAnalyticsLive: Live | null | undefined;
+}
 
 function readSessionType(): "new" | "returning" {
   try {
@@ -75,7 +77,8 @@ export async function start(): Promise<void> {
   }
   const tracker = createTracker({ sink, onInvalid: process.env.NODE_ENV === "production" ? "silent" : "warn" });
   const stops: Array<() => void> = [];
-  live = { sink, tracker, stops };
+  const live: Live = { sink, tracker, stops };
+  globalThis.__ptAnalyticsLive = live;
 
   // Super properties: sent with every event. Smallest useful set (docs/analytics.md).
   const utm = sanitizeUtm(location.search);
@@ -126,18 +129,25 @@ export async function start(): Promise<void> {
   attachHandler((name, props) => void tracker.track(name, props));
 }
 
+/** Tear everything down: listeners, observers, the track() handler. Idempotent. */
+export function stop(): void {
+  detachHandler();
+  const current = globalThis.__ptAnalyticsLive;
+  globalThis.__ptAnalyticsLive = null;
+  current?.stops.forEach((fn) => fn());
+  globalThis.__ptAnalyticsStarted = false;
+}
+
 /** Consent changed after start (a banner, or `setAnalyticsConsent`). Withdrawal wipes the SDK's local data. */
 export async function applyConsent(state: "granted" | "denied"): Promise<void> {
   writeConsent(state);
   if (state === "denied") {
-    detachHandler();
-    live?.stops.forEach((stop) => stop());
-    live?.sink.optOut();
-    live = null;
-    globalThis.__ptAnalyticsStarted = false;
+    const sink = globalThis.__ptAnalyticsLive?.sink ?? globalThis.__ptMixpanel;
+    stop();
+    sink?.optOut();
     return;
   }
-  if (!live) {
+  if (!globalThis.__ptAnalyticsLive) {
     globalThis.__ptMixpanel?.optIn(); // re-granting after a withdrawal in this same page life
     globalThis.__ptAnalyticsStarted = false;
     await start();

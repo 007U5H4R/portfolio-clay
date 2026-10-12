@@ -13,7 +13,7 @@
  * `meeting_link_clicked` (no scheduling link), `resume_downloaded` (the résumé is a Google Drive view
  * link that opens in a new tab: an open, never a verifiable download).
  */
-import { bool, int, oneOf, optEnum, optInt, optSlug, slug, type PropsOf } from "./schema";
+import { bool, int, oneOf, optEnum, optInt, optSlug, path, slug, type PropsOf } from "./schema";
 
 /** Bump when a property is renamed/removed or an event's meaning changes; sent as `schema_version`. */
 export const SCHEMA_VERSION = 1;
@@ -47,7 +47,7 @@ interface EventDef {
   readonly props: Parameters<typeof define>[0];
 }
 
-function define<const S extends Record<string, ReturnType<typeof oneOf> | ReturnType<typeof optEnum> | ReturnType<typeof slug> | ReturnType<typeof optSlug> | ReturnType<typeof int> | ReturnType<typeof optInt> | ReturnType<typeof bool>>>(props: S): S {
+function define<const S extends Record<string, ReturnType<typeof oneOf> | ReturnType<typeof optEnum> | ReturnType<typeof slug> | ReturnType<typeof optSlug> | ReturnType<typeof path> | ReturnType<typeof int> | ReturnType<typeof optInt> | ReturnType<typeof bool>>>(props: S): S {
   return props;
 }
 
@@ -59,7 +59,7 @@ export const EVENTS = {
     where: "lib/analytics/runtime.ts",
     props: define({
       page_name: oneOf(...PAGE_NAMES),
-      page_path: slug(120),
+      page_path: path(120),
       navigation_type: oneOf("direct", "client_navigation", "back_forward", "reload"),
       is_landing: bool(),
       session_type: oneOf("new", "returning"),
@@ -76,7 +76,7 @@ export const EVENTS = {
     group: "website",
     trigger: "An internal link is activated in the header or the footer band.",
     where: "lib/analytics/runtime.ts (click delegation)",
-    props: define({ destination: slug(120), navigation_location: oneOf("header", "footer", "other") }),
+    props: define({ destination: path(120), navigation_location: oneOf("header", "footer", "other") }),
   },
   outbound_link_clicked: {
     group: "website",

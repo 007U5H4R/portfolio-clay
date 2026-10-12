@@ -156,3 +156,29 @@ describe("/lab CSP (TASK-143)", () => {
     expect(await servedCsp()).not.toContain("wasm-unsafe-eval");
   });
 });
+
+describe("analytics CSP (TASK-194)", () => {
+  const THIRD_PARTY = /https?:\/\/(?!va\.vercel-scripts\.com|www\.youtube-nocookie\.com|player\.vimeo\.com)[^\s;]+/g;
+
+  it("a build without a Mixpanel token has no Mixpanel host and no other third party beyond the existing ones", async () => {
+    const csp = await servedCsp();
+    expect(csp).not.toMatch(/mixpanel|mxpnl/i);
+    expect(csp.match(THIRD_PARTY) ?? []).toEqual([]);
+  });
+
+  it("adds exactly one origin, to connect-src only, when an analytics host is configured", () => {
+    const withHost = directives(buildCsp(["youtube"], { analyticsHost: "https://api-js.mixpanel.com" }));
+    const without = directives(buildCsp(["youtube"]));
+    expect(withHost.get("connect-src")).toBe("'self' https://api-js.mixpanel.com");
+    withHost.delete("connect-src");
+    without.delete("connect-src");
+    expect(Object.fromEntries(withHost)).toEqual(Object.fromEntries(without));
+  });
+
+  it("never allows a Mixpanel script host, a wildcard or an SDK CDN (the SDK is bundled; replay is off)", () => {
+    const csp = buildCsp(["youtube"], { analyticsHost: "https://api-eu.mixpanel.com", wasm: true });
+    expect(csp).not.toMatch(/cdn\.mxpnl\.com|\*\.mixpanel|\*|https:\s|;\s*connect-src[^;]*https:\s*;/);
+    expect(directives(csp).get("script-src")).not.toMatch(/mixpanel|mxpnl/);
+    expect(directives(csp).get("default-src")).toBe("'self'");
+  });
+});
