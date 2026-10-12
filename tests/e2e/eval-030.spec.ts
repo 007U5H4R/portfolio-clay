@@ -516,8 +516,9 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await page.evaluate(() => {
       const rt = window.__gummyLab!.rt as unknown as { arena: { portal: { x: number; y: number } }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
       const { portal } = rt.arena;
-      // the gummy flies into the hole from the table: its body level with the hole, a gummy's width and a bit away, moving left
-      rt.bearBody.current.setTranslation({ x: portal.x + 0.9, y: portal.y - 0.5, z: 0 }, true);
+      // the gummy flies into the hole from the table: its body level with the hole and its edge just inside the sensor, moving left (close
+      // enough that a long frame on a slow host, which fits many physics steps, cannot let it fall past the hole before the first one)
+      rt.bearBody.current.setTranslation({ x: portal.x + 0.6, y: portal.y - 0.5, z: 0 }, true);
       rt.bearBody.current.setLinvel({ x: -7, y: 0, z: 0 }, true);
     });
     await page.waitForFunction(() => (window as unknown as { __exits: number }).__exits >= 1, null, { timeout: 60_000 });
@@ -603,10 +604,11 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await launch(page, 0.05);
     await page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut, null, { timeout: 90_000 });
     await countCalls(page, "hooks.nudge", "__nudges");
-    // park the gummy in open space on the table (TASK-199: the new layout has no wedge to find, so any rest will do) and press N in the same turn
+    // park the gummy in open space on the table's right side, far from the black hole (TASK-199: the new layout has no wedge to find, so any rest will do) and press N in the same turn
     const rest = await page.evaluate(() => {
-      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
-      const at = rt.arena.halfW < 4 ? { x: -1.2, y: 1.8 } : { x: -3.0, y: 3.2 };
+      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; hooks: { portal(): void }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const at = rt.arena.halfW < 4 ? { x: 1.4, y: 1.8 } : { x: 3.0, y: 3.2 };
+      rt.hooks.portal = () => {}; // about the Nudge, not the way out (a nudged gummy that wandered into the black hole would leave the lab)
       rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
       rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", cancelable: true }));
@@ -638,12 +640,22 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 0.5);
     const plunger = await page.locator("[data-lab-plunger]").boundingBox();
     if (plunger) expect(box.x + box.width <= plunger.x || plunger.x + plunger.width <= box.x || box.y + box.height <= plunger.y || plunger.y + plunger.height <= box.y).toBe(true);
-    // park the gummy in open space (the new layout has no wedge), then use the button (a tap at w390, a click on desktop)
+    // park the gummy in open space (the new layout has no wedge), then use the button (a tap at w390, a click on desktop). The button only
+    // exists while the game is live and its cooldown runs on game time, and a gummy that is not wedged would drain before the recharge
+    // finishes on a slow host: so keep it in play (lift it back above the flippers whenever it falls low) until the test is done.
     const rest = await page.evaluate(() => {
-      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
-      const at = rt.arena.halfW < 4 ? { x: -1.2, y: 1.8 } : { x: -3.0, y: 3.2 };
+      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bear: { y: number }; hooks: { portal(): void }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const at = rt.arena.halfW < 4 ? { x: 1.4, y: 1.8 } : { x: 3.0, y: 3.2 };
+      // this test is about the Nudge, not the way out: a nudged gummy that wanders into the black hole would leave the lab, so the sensor does nothing here
+      rt.hooks.portal = () => {};
       rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
       rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      (window as unknown as { __keepAlive: number }).__keepAlive = window.setInterval(() => {
+        if (rt.bear.y < -0.5) {
+          rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
+          rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        }
+      }, 100);
       return at;
     });
     if (info.project.name === "w390") await btn.tap();
@@ -653,6 +665,7 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await expect(btn).toHaveAttribute("aria-disabled", "true");
     await page.waitForFunction(([x, y]) => Math.hypot(window.__gummyLab!.rt.bear.x - (x as number), window.__gummyLab!.rt.bear.y - (y as number)) > 0.5, [rest.x, rest.y] as const, { timeout: 60_000 });
     await expect(btn).not.toHaveAttribute("aria-disabled", "true", { timeout: 90_000 });
+    await page.evaluate(() => window.clearInterval((window as unknown as { __keepAlive: number }).__keepAlive));
     // keyboard: focusable, and Enter presses it
     await btn.focus();
     await expect(btn).toBeFocused();
