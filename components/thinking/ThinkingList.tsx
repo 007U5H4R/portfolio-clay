@@ -87,6 +87,9 @@ export function ThinkingList({ essays }: ThinkingListProps) {
                             <Link href={`/thinking/${essay.slug}`} className="focus-ring">
                               {essay.title}
                             </Link>
+                            <span className="essay-entry-arrow" aria-hidden="true">
+                              →
+                            </span>
                           </h3>
                           <p className="essay-entry-dek">{essay.dek}</p>
                           <p className="essay-meta">
