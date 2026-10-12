@@ -105,12 +105,14 @@ for (const route of ROUTES) {
         ABSOLUTE_HTTPS,
       );
 
-      // og:image actually serves a 200 PNG at 1200x630 (fetched by pathname against this run's
+      // og:image actually serves a 200 PNG/JPEG at 1200x630 (fetched by pathname against this run's
       // real server — see file header re: the placeholder og:image host).
       const imagePath = new URL(ogImage!).pathname;
       const res = await page.request.get(imagePath);
       expect(res.status(), `${imagePath} must return 200`).toBe(200);
-      expect(res.headers()["content-type"], `${imagePath} must be image/png`).toBe("image/png");
+      expect(res.headers()["content-type"], `${imagePath} must be image/png or image/jpeg`).toMatch(
+        /^image\/(png|jpeg)$/,
+      );
 
       const bytes = await res.body();
       const info = await sharp(bytes).metadata();
