@@ -288,8 +288,8 @@ test.describe("@EVAL-042 Experience timeline entries (TASK-201)", () => {
       expect(r.scale).toBeLessThanOrEqual(1.0001);
     }
     expect(hov.s.props, "the shadow layer transitions opacity only").toEqual(["opacity"]);
-    expect(hov.s.durations[0], "shadow in 420 ms").toBeCloseTo(0.42, 2);
-    expect(hov.p.durations[0], "pin 180 ms").toBeCloseTo(0.18, 2);
+    expect(hov.s.durations[0], "shadow in 420 ms").toBeCloseTo(420, 0);
+    expect(hov.p.durations[0], "pin 180 ms").toBeCloseTo(180, 0);
 
     await page.mouse.move(2, 2);
     await page.waitForTimeout(800);
