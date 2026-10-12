@@ -24,12 +24,29 @@ export const ABOUT_HERO = {
   notes: ["Research → products → real-world impact.", "Complex ideas. Real people. Bigger impact."],
 } as const;
 
+/**
+ * TASK-196 — the builder's desk, the first body section under the hero. Every word is already on the page or in
+ * `data/*`: the two lines are the hero's own handwritten notes, and each discipline is named by a career era.
+ */
+export const DESK = {
+  eyebrow: "The desk",
+  title: "Where the work starts.",
+  route: ABOUT_HERO.notes[0],
+  sub: ABOUT_HERO.notes[1],
+  disciplines: ["Research", "Engineering", "Cloud", "Product", "AI"],
+} as const;
+
+/** TASK-196 — the knot in the middle of the career pinboard: the section's own title phrase, nothing new. */
+export const PINBOARD_CENTER = "Common thread";
+
 export interface Chapter {
   id: "builder" | "operator" | "researcher";
   number: string;
   title: string;
   body: string;
   art: AboutArtId;
+  /** TASK-196 — the chapter's keywords, each a word the chapter body or the career eras already say. */
+  tags: readonly string[];
 }
 
 export const CHAPTERS_HEAD = { eyebrow: "Three chapters", title: "The arc of my journey.", note: "Different hats. Same curiosity." } as const;
@@ -42,6 +59,7 @@ export const CHAPTERS: readonly Chapter[] = [
     title: "Builder",
     body: "Started with machines and research. Learned to go deep, work with ambiguity, and stay curious.",
     art: "chapter-builder",
+    tags: ["Engineering", "Research"],
   },
   {
     id: "operator",
@@ -49,6 +67,7 @@ export const CHAPTERS: readonly Chapter[] = [
     title: "Operator",
     body: "Moved into cloud, data and enterprise platforms. Built and shipped at scale with cross-functional teams.",
     art: "chapter-operator",
+    tags: ["Cloud", "Data", "Enterprise"],
   },
   {
     id: "researcher",
@@ -56,6 +75,7 @@ export const CHAPTERS: readonly Chapter[] = [
     title: "Researcher (Still)",
     body: "Research thinking still shapes how I approach problems — from first principles to real-world constraints.",
     art: "chapter-researcher",
+    tags: ["Research", "First principles"],
   },
 ];
 

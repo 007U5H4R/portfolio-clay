@@ -2,7 +2,8 @@ import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Annotation, Sheet, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { CHAPTERS, CHAPTERS_HEAD } from "./about-content";
-import { AboutArtImg } from "./AboutArtImg";
+import { CHAPTER_ART } from "./about-paper-art";
+import { PaperImg } from "./PaperImg";
 
 /** Per-card paper (spec §11): its own tint, a subtle rotation, light tape. */
 const PLACEMENT: readonly { rotate: number; tape: TapeSide; tint: "peach" | "blue" | "sage" }[] = [
@@ -19,7 +20,8 @@ const PLACEMENT: readonly { rotate: number; tape: TapeSide; tint: "peach" | "blu
  *
  * ≥ 1024 three columns · 640–1023 two + one (the third card centred) · < 640 stacked.
  * EVAL-018: torn · the "Different hats. Same curiosity." annotation = 2.
- * Motion (spec §56–§57): cards settle in 90 ms apart, once; a 2 px lift on hover. None under reduced motion.
+ * Motion (spec §56–§57): cards settle in 90 ms apart, once; the P1 lift on hover (TASK-196). None under reduced motion.
+ * TASK-196: the print is a Higgsfield origami miniature (WebP) and each card ends in its keyword tags.
  */
 export function ThreeChapters() {
   return (
@@ -51,8 +53,13 @@ export function ThreeChapters() {
                           <span className="chx-num">{chapter.number}</span>
                           <span className="chx-name">{chapter.title}</span>
                         </h3>
-                        <AboutArtImg id={chapter.art} className="chx-art" />
+                        <PaperImg id={CHAPTER_ART[chapter.id]} className="chx-art" />
                         <p className="chx-text">{chapter.body}</p>
+                        <ul className="chx-tags" aria-label={`${chapter.title} keywords`}>
+                          {chapter.tags.map((tag) => (
+                            <li key={tag}>{tag}</li>
+                          ))}
+                        </ul>
                       </div>
                     </Sheet>
                   </Reveal>

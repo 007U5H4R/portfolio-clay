@@ -47,10 +47,11 @@ describe("/about (TASK-136)", () => {
     const { container } = render(<AboutPage />);
     expect((container.firstElementChild as HTMLElement).getAttribute("data-opener")).toBe("scene-about");
     const ids = Array.from(container.querySelectorAll(":scope > section")).map((s) => s.id || s.getAttribute("aria-labelledby"));
-    expect(ids).toEqual([null, "about-hero-heading", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta"]);
+    expect(ids).toEqual([null, "about-hero-heading", "desk", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta"]);
     const headings = Array.from(container.querySelectorAll("h1, h2")).map((h) => h.textContent);
     expect(headings).toEqual([
       "A builder who connects deep tech to real-world impact.",
+      "Where the work starts.",
       "The arc of my journey.",
       "Different problems, common thread.",
       "From labs to lasting ideas.",
@@ -79,6 +80,16 @@ describe("/about (TASK-136)", () => {
       "/about/books-stack.svg",
     ]);
     for (const img of imgs) expect(img.getAttribute("alt")).toBe("");
+  });
+
+  it("The desk (TASK-196): the notebook page and the desk art, decoration beside real HTML (EVAL-018 = torn)", () => {
+    const { container } = render(<AboutPage />);
+    const section = container.querySelector("section#desk")!;
+    expect(section.querySelector("h2")?.textContent).toBe("Where the work starts.");
+    expect(Array.from(section.querySelectorAll(".bdx-chips li")).map((li) => li.textContent)).toEqual(["Research", "Engineering", "Cloud", "Product", "AI"]);
+    expect(section.querySelector(".bdx-art")?.getAttribute("aria-hidden")).toBe("true");
+    for (const img of Array.from(section.querySelectorAll("img"))) expect(img.getAttribute("alt")).toBe("");
+    expect(decor(section)).toEqual(["torn"]);
   });
 
   it("Three Chapters: exactly three torn cards 01 Builder · 02 Operator · 03 Researcher (Still), each one art print + the spec lines", () => {

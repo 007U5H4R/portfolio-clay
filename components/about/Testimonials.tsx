@@ -4,6 +4,7 @@ import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Sheet, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { TESTIMONIALS_HEAD } from "./about-content";
+import { PaperImg } from "./PaperImg";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** "2026-01-25" → "Jan 2026". */
@@ -36,6 +37,7 @@ const PLACEMENT: readonly { rotate: number; tape: TapeSide; tint: "note" | "blue
  * initials, the author's name, a short role from their own headline, and LinkedIn's relationship line +
  * month. One link to read them all on LinkedIn.
  *
+ * TASK-196: an origami grove sits beside the cards (outside them: a card holds no image).
  * ≥ 900 three columns; stacked below. EVAL-018: torn = 1. Motion: cards settle in 90 ms apart, once.
  */
 export function Testimonials() {
@@ -52,6 +54,9 @@ export function Testimonials() {
                 {TESTIMONIALS_HEAD.title}
               </h2>
             </div>
+          </div>
+          <div className="tsx-deco" aria-hidden="true">
+            <PaperImg id="grove" className="tsx-grove" />
           </div>
           <ul className="tsx-list">
             {shown.map((t, index) => {

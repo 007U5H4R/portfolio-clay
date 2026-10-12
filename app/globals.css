@@ -11476,7 +11476,6 @@ html.lenis body {
     border-radius: 0;
     box-shadow: none;
     filter: var(--ab-shadow);
-    transition: translate 250ms ease;
   }
   .chx-card > .paper-fastener {
     z-index: 3;
@@ -11531,11 +11530,6 @@ html.lenis body {
     line-height: 1.5;
     color: var(--color-navy-2);
   }
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .chx-card.paper-sheet:hover {
-      translate: 0 -2px;
-    }
-  }
   @media (min-width: 640px) {
     .chx-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -11557,127 +11551,7 @@ html.lenis body {
     }
   }
 
-  /* ---- Career Across Contexts ---- */
-  .crx-body {
-    background: var(--color-paper);
-  }
-  .crx-strip {
-    position: relative;
-  }
-  .crx-thread {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    width: 100%;
-    height: 22px;
-    stroke: color-mix(in oklab, var(--color-navy-2) 55%, transparent);
-    stroke-width: 1.8;
-  }
-  .crx-thread path {
-    vector-effect: non-scaling-stroke;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-  .crx-list {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 24px clamp(20px, 2.4vw, 36px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .crx-era {
-    position: relative;
-    display: grid;
-    align-content: start;
-    justify-items: start;
-  }
-  .crx-icon {
-    width: 40px;
-    height: 40px;
-    fill: none;
-    stroke: var(--color-navy-2);
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .crx-era[data-era="ai"] .crx-icon,
-  .crx-era[data-era="research"] .crx-icon {
-    stroke: var(--color-terracotta);
-  }
-  .crx-dot {
-    position: absolute;
-    top: 55px;
-    left: 14px;
-    width: 12px;
-    height: 12px;
-    border: 2.5px solid var(--color-paper);
-    border-radius: 50%;
-    background: var(--color-rust);
-    box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--color-rust) 60%, transparent);
-  }
-  .crx-name {
-    margin-top: 44px;
-    font-size: clamp(20px, 1.6vw, 23px);
-    line-height: 1.12;
-    color: var(--color-navy);
-  }
-  .crx-desc {
-    margin-top: 6px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--color-terracotta);
-  }
-  .crx-focus {
-    margin-top: 4px;
-    max-width: 30ch;
-    font-size: 15px;
-    line-height: 1.45;
-    color: var(--color-navy-2);
-  }
-  .crx-refs {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--line-sketch);
-    font-size: 14px;
-    letter-spacing: 0.02em;
-    color: var(--color-ink-soft);
-  }
-  @media (max-width: 899px) {
-    .crx-strip .crx-thread {
-      display: none;
-    }
-    .crx-list {
-      grid-template-columns: minmax(0, 1fr);
-      padding-left: 30px;
-    }
-    .crx-list::before {
-      content: "";
-      position: absolute;
-      top: 10px;
-      bottom: 10px;
-      left: 7px;
-      border-left: 1.8px solid color-mix(in oklab, var(--color-navy-2) 45%, transparent);
-    }
-    .crx-era {
-      grid-template-columns: 48px minmax(0, 1fr);
-      column-gap: 14px;
-    }
-    .crx-era > :not(.crx-dot, .crx-icon) {
-      grid-column: 2;
-    }
-    .crx-icon {
-      grid-row: 1 / span 4;
-    }
-    .crx-dot {
-      top: 14px;
-      left: -29px;
-    }
-    .crx-name {
-      margin-top: 0;
-    }
-  }
+  /* ---- Career Across Contexts: the pinboard (TASK-196, below) ---- */
 
   /* ---- Research + What Drives Me ---- */
   .rvx-body {
@@ -13553,3 +13427,644 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end M-012 P1 */
+
+/* TASK-196 · `/about` body redesign — origami layered research notebook (Tushar's About-page spec 2026-10-12;
+   Higgsfield art in public/media/about-paper/, see docs/about-paper-art.md). Seven sections between the
+   unchanged hero and the unchanged footer: the desk → Three Chapters → Career pinboard → Research →
+   What Drives Me → Recognition → Recommendations. Tokens and `color-mix()` only (EVAL-020), so the dark
+   treatment comes from the role tokens; the art has light and dark pairs where it carries the lamp.
+
+   Interaction contract (P1, EXE-59…64, Design.md §14.10): hover only under `(hover: hover) and (pointer:
+   fine)`; the `:focus-visible` twin lifts the same way; touch gets a 1 px `:active` press; objects lift 4 px
+   with `translate` (the sheets already use `rotate`); the deeper shadow is a pre-rendered pseudo that
+   CROSSFADES by opacity (never a `box-shadow` or `filter` transition); no scale, no infinite animation; under
+   reduced motion nothing moves and the shadow simply shows. */
+@layer components {
+  /* ---- theme pairs: the hidden one never downloads (lazy + display:none) ---- */
+  :root:not([data-theme="dark"]) .pa-dark,
+  [data-theme="dark"] .pa-light {
+    display: none;
+  }
+
+  .bdx,
+  .chx,
+  .crx,
+  .rvx,
+  .rcx,
+  .tsx {
+    --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
+    --ab-fibers: url("/media/portfolio/decor/paper-fibers.svg");
+    --ab-shadow: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent))
+      drop-shadow(0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
+    --pa-lift: 4px;
+  }
+
+  /* ---- the lifting objects: a crossfading shadow pseudo ---- */
+  .crx-card,
+  .rvx-artifact.paper-sheet,
+  .rvx-plist li,
+  .rcx-item,
+  .bdx-page.paper-sheet {
+    position: relative;
+    isolation: isolate;
+    transition: translate var(--dur-l2-out) var(--ease-paper);
+  }
+  .crx-card::after,
+  .rvx-artifact.paper-sheet::after,
+  .rvx-plist li::after,
+  .rcx-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    box-shadow: var(--shadow-paper-hover);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  /* the masked torn cards: same tear, flat fill, static blur, opacity only */
+  .chx-card.paper-sheet,
+  .tsx-card.paper-sheet {
+    isolation: isolate;
+    transition: translate var(--dur-l2-out) var(--ease-paper);
+  }
+  .chx-card.paper-sheet::before,
+  .tsx-card.paper-sheet::before {
+    content: "";
+    position: absolute;
+    inset: 10px 6px -8px;
+    z-index: -1;
+    background: color-mix(in oklab, var(--shadow-ink) 34%, transparent);
+    -webkit-mask: url("/media/portfolio/decor/tear-wide-b.svg") 0 0 / 100% 100% no-repeat;
+    mask: url("/media/portfolio/decor/tear-wide-b.svg") 0 0 / 100% 100% no-repeat;
+    filter: blur(14px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .crx-card:hover::after,
+    .crx-era[data-on] .crx-card::after,
+    .crx-card:has(:focus-visible)::after,
+    .rvx-artifact.paper-sheet:hover::after,
+    .rvx-plist li:hover::after,
+    .rcx-item:hover::after,
+    .chx-card.paper-sheet:hover::before,
+    .chx-card.paper-sheet:has(:focus-visible)::before,
+    .tsx-card.paper-sheet:hover::before {
+      opacity: 1;
+      transition-duration: var(--dur-l2);
+    }
+  }
+  .crx-era[data-on] .crx-card::after,
+  .crx-card:has(:focus-visible)::after {
+    opacity: 1;
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .crx-card:hover,
+    .crx-era[data-on] .crx-card,
+    .crx-card:has(:focus-visible),
+    .rvx-artifact.paper-sheet:hover,
+    .rvx-plist li:hover,
+    .rcx-item:hover,
+    .chx-card.paper-sheet:hover,
+    .chx-card.paper-sheet:has(:focus-visible),
+    .tsx-card.paper-sheet:hover {
+      translate: 0 calc(var(--pa-lift) * -1);
+      transition-duration: var(--dur-l2);
+    }
+    .chx-card.paper-sheet:hover .chx-art,
+    .chx-card.paper-sheet:has(:focus-visible) .chx-art {
+      translate: 0 -3px;
+      rotate: -1.5deg;
+    }
+    .crx-card:hover .crx-photo,
+    .crx-era[data-on] .crx-photo,
+    .crx-card:has(:focus-visible) .crx-photo {
+      translate: 0 -3px;
+      rotate: 0deg;
+    }
+    .rvx-plist li:hover .rvx-part {
+      translate: 0 -3px;
+      rotate: -1.5deg;
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .crx-era[data-on] .crx-card::after {
+      opacity: 1;
+    }
+  }
+  @media (hover: none) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+    .crx-card:active,
+    .rvx-artifact.paper-sheet:active,
+    .rvx-plist li:active,
+    .rcx-item:active,
+    .chx-card.paper-sheet:active,
+    .tsx-card.paper-sheet:active {
+      translate: 0 1px;
+      transition-duration: var(--dur-press);
+    }
+  }
+  .chx-art,
+  .crx-photo,
+  .rvx-part {
+    transition: translate var(--dur-l2-out) var(--ease-paper), rotate var(--dur-l2-out) var(--ease-paper);
+  }
+
+  /* ---- 1 · the desk ---- */
+  .bdx-body {
+    background: var(--color-paper);
+    overflow-x: clip;
+  }
+  .bdx-wrap {
+    padding-block: clamp(14px, 1.6vw, 24px) clamp(80px, 7vw, 108px);
+  }
+  .bdx-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+    align-items: center;
+  }
+  .bdx-page.paper-sheet {
+    display: grid;
+    gap: 12px;
+    padding: 30px 26px 28px 56px;
+    background-color: var(--ab-cream);
+    background-image: var(--ab-fibers);
+    background-size: 420px 420px;
+    border-radius: 6px 22px 6px 6px;
+    box-shadow: var(--shadow-paper);
+  }
+  .bdx-rings {
+    position: absolute;
+    top: 26px;
+    bottom: 26px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .bdx-rings i {
+    display: block;
+    width: 30px;
+    height: 9px;
+    margin-left: -10px;
+    border-radius: 5px;
+    background: var(--color-navy-2);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--color-ivory) 60%, transparent);
+    opacity: 0.72;
+  }
+  .bdx-route {
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2vw, 28px);
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+  .bdx-sub {
+    font-size: clamp(16px, 1.2vw, 18px);
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .bdx-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bdx-chips li {
+    padding: 6px 14px;
+    border: 1.5px dashed var(--line-sketch);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-navy-2);
+  }
+  .bdx-art {
+    position: relative;
+    aspect-ratio: 1200 / 869;
+    display: grid;
+    place-items: center;
+  }
+  .bdx-desk {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 14px 16px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
+  }
+  .bdx-grove {
+    position: absolute;
+    left: -3%;
+    bottom: -6%;
+    width: 17%;
+    height: auto;
+    pointer-events: none;
+  }
+  [data-theme="dark"] .bdx-art::before {
+    content: "";
+    position: absolute;
+    inset: -4% 6% 30% 14%;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--color-note) 34%, transparent), transparent);
+    pointer-events: none;
+  }
+  @media (min-width: 900px) {
+    .bdx-grid {
+      grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
+    }
+  }
+
+  /* ---- 2 · three chapters: miniatures + tags ---- */
+  .chx-art {
+    width: min(100%, 300px);
+    height: auto;
+    justify-self: center;
+    filter: drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
+  }
+  .chx-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .chx-tags li {
+    padding: 4px 11px;
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--color-note) 70%, var(--color-ivory));
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--shadow-ink) 18%, transparent);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+
+  /* ---- 3 · career across contexts: the pinboard ---- */
+  .crx-board {
+    position: relative;
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+  .crx-map {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 6px;
+  }
+  .crx-map-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+  }
+  .crx-thread,
+  .crx-links {
+    display: none;
+  }
+  .crx-center {
+    position: relative;
+    z-index: 2;
+    justify-self: center;
+    padding: 16px 26px 14px;
+    background-color: color-mix(in oklab, var(--color-note) 78%, var(--color-ivory));
+    background-image: var(--ab-fibers);
+    background-size: 320px 320px;
+    box-shadow: var(--shadow-paper);
+    rotate: -2.5deg;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  }
+  .crx-center-text {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.2vw, 30px);
+    line-height: 1.05;
+    font-style: italic;
+    color: var(--color-navy);
+  }
+  .crx-center-pin,
+  .crx-dot {
+    position: absolute;
+    z-index: 4;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--color-rust) 60%, var(--color-ivory)), var(--color-rust) 60%);
+    box-shadow: 0 2px 2px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+  }
+  .crx-center-pin-top {
+    top: 5px;
+    left: 50%;
+    translate: -50% 0;
+  }
+  .crx-center-pin-bottom {
+    display: none;
+  }
+  .crx-list {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .crx-era {
+    position: relative;
+  }
+  .crx-dot {
+    display: none;
+  }
+  .crx-card {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: start;
+    padding: 14px 16px 14px 14px;
+    border-radius: 4px;
+    background-color: var(--ab-cream);
+    background-image: var(--ab-fibers);
+    background-size: 420px 420px;
+    box-shadow: var(--shadow-paper);
+  }
+  .crx-card > :not(.crx-photo) {
+    grid-column: 2;
+  }
+  .crx-photo {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    width: 84px;
+    height: auto;
+    rotate: -4deg;
+    filter: drop-shadow(0 4px 5px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
+  }
+  .crx-era:nth-child(even) .crx-photo {
+    rotate: 3deg;
+  }
+  .crx-name {
+    font-size: clamp(19px, 1.5vw, 22px);
+    line-height: 1.12;
+    color: var(--color-navy);
+  }
+  .crx-pick {
+    display: block;
+    min-height: 44px;
+    margin: -8px 0 -4px;
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .crx-pick:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .crx-desc {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-terracotta);
+  }
+  .crx-focus {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--color-navy-2);
+  }
+  .crx-refs {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line-sketch);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    color: var(--color-ink-soft);
+  }
+  @media (min-width: 640px) and (max-width: 899px) {
+    .crx-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    .crx-board {
+      display: block;
+      aspect-ratio: 1000 / 690;
+      padding: 0;
+    }
+    .crx-map-img {
+      opacity: 1;
+      filter: drop-shadow(0 12px 16px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+    }
+    .crx-map {
+      overflow: visible;
+    }
+    .crx-thread,
+    .crx-links {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      fill: none;
+      pointer-events: none;
+    }
+    .crx-strip .crx-thread {
+      display: block;
+      stroke: var(--color-rust);
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      opacity: 0.55;
+    }
+    .crx-link path {
+      fill: none;
+      stroke: var(--color-rust);
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .crx-link-base {
+      stroke-width: 2.2;
+      opacity: 0.9;
+    }
+    .crx-link-hi {
+      stroke-width: 5;
+      opacity: 0;
+      transition: opacity var(--dur-l2-out) var(--ease-paper);
+    }
+    .crx-board[data-selected="research"] .crx-link[data-era="research"] .crx-link-hi,
+    .crx-board[data-selected="cloud"] .crx-link[data-era="cloud"] .crx-link-hi,
+    .crx-board[data-selected="enterprise"] .crx-link[data-era="enterprise"] .crx-link-hi,
+    .crx-board[data-selected="ai"] .crx-link[data-era="ai"] .crx-link-hi,
+    .crx-board:has(.crx-era[data-era="research"] :focus-visible) .crx-link[data-era="research"] .crx-link-hi,
+    .crx-board:has(.crx-era[data-era="cloud"] :focus-visible) .crx-link[data-era="cloud"] .crx-link-hi,
+    .crx-board:has(.crx-era[data-era="enterprise"] :focus-visible) .crx-link[data-era="enterprise"] .crx-link-hi,
+    .crx-board:has(.crx-era[data-era="ai"] :focus-visible) .crx-link[data-era="ai"] .crx-link-hi {
+      opacity: 0.85;
+    }
+    .crx-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 24%;
+      translate: -50% -50%;
+      padding: 22px 18px 20px;
+      text-align: center;
+    }
+    .crx-center-pin-top {
+      top: -6px;
+    }
+    .crx-center-pin-bottom {
+      display: block;
+      bottom: -6px;
+      left: 50%;
+      translate: -50% 0;
+    }
+    .crx-list {
+      position: absolute;
+      inset: 0;
+      display: block;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .crx-era {
+      position: absolute;
+      width: 32%;
+      pointer-events: auto;
+    }
+    .crx-era[data-era="research"] {
+      top: 4%;
+      left: 2.5%;
+    }
+    .crx-era[data-era="ai"] {
+      top: 4%;
+      right: 2.5%;
+    }
+    .crx-era[data-era="cloud"] {
+      top: 56.5%;
+      left: 2.5%;
+    }
+    .crx-era[data-era="enterprise"] {
+      top: 56.5%;
+      right: 2.5%;
+    }
+    .crx-dot {
+      display: block;
+      top: -7px;
+      left: 50%;
+      translate: -50% 0;
+    }
+    .crx-card {
+      grid-template-columns: 96px minmax(0, 1fr);
+    }
+    .crx-photo {
+      width: 96px;
+    }
+  }
+
+  /* ---- 4 · research: the open notebook ---- */
+  .rvx-head {
+    display: grid;
+    gap: 14px;
+  }
+  .rvx-notebook {
+    aspect-ratio: 1100 / 845;
+    max-width: 440px;
+    display: grid;
+    margin-inline: auto;
+  }
+  .rvx-notebook-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 14px color-mix(in oklab, var(--shadow-ink) 16%, transparent));
+  }
+  @media (min-width: 640px) {
+    .rvx-head {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      align-items: center;
+      gap: 24px;
+    }
+    .rvx-notebook {
+      margin-inline: 0;
+    }
+  }
+
+  /* ---- 5 · what drives me: one paper artifact per principle ---- */
+  .rvx-plist li {
+    grid-template-columns: 112px 30px minmax(0, 1fr);
+    gap: 12px;
+    padding: 6px 4px;
+    border-radius: 6px;
+  }
+  .rvx-part {
+    grid-column: 1;
+    width: 100%;
+    max-height: 84px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 5px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+  }
+  .rvx-picon {
+    width: 28px;
+    height: 28px;
+  }
+  .rvx-plist li > span {
+    min-width: 0;
+  }
+
+  /* ---- 6 · recognition: a folded trophy per award ---- */
+  .rcx-item {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 4px;
+    background-color: var(--ab-cream);
+    background-image: var(--ab-fibers);
+    background-size: 420px 420px;
+    box-shadow: var(--shadow-paper);
+  }
+  .rcx-art {
+    width: 64px;
+    height: auto;
+    filter: drop-shadow(0 4px 5px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
+  }
+  @media (min-width: 900px) {
+    .rcx-list {
+      gap: clamp(14px, 1.6vw, 24px);
+    }
+    .rcx-item,
+    .rcx-item:first-child {
+      padding: 14px 18px;
+      border-left: 0;
+    }
+  }
+
+  /* ---- 7 · recommendations ---- */
+  .tsx-body {
+    overflow-x: clip;
+  }
+  .tsx-deco {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .tsx-deco {
+      display: block;
+      position: relative;
+      height: 0;
+    }
+    .tsx-grove {
+      position: absolute;
+      right: 0;
+      bottom: 12px;
+      width: 120px;
+      height: auto;
+    }
+  }
+}
+/* end TASK-196 */

@@ -7,6 +7,8 @@ import { Reveal } from "@/components/interactions/Reveal";
 import { Annotation, Illustration, Sheet, Tape, TornEdge } from "@/components/paper";
 import { PRINCIPLES, RESEARCH_ARTIFACTS, RESEARCH_HEAD, VALUES_HEAD } from "./about-content";
 import { AboutArtImg } from "./AboutArtImg";
+import { PRINCIPLE_ART } from "./about-paper-art";
+import { PaperImg, ThemedPaperImg } from "./PaperImg";
 
 /** Hand-drawn principle icons (spec §25): a lightbulb, a gear, a leaf on a growth arrow. `currentColor`. */
 const PRINCIPLE_ICONS: Record<(typeof PRINCIPLES)[number]["icon"], ReactNode> = {
@@ -44,6 +46,7 @@ const PRINCIPLE_ICONS: Record<(typeof PRINCIPLES)[number]["icon"], ReactNode> = 
  *   #values    eyebrow, h2, one paper card with exactly three principles and their icons, beside the
  *              `polaroid-sunrise` print (content paper, manifest alt) and a hand note.
  *
+ * TASK-196: the research head carries the open-notebook art; each principle sits on its own paper artifact.
  * EVAL-018: torn · the "Same curiosity. Broader horizons." annotation = 2. Motion: the artifacts settle
  * in once, 90 ms apart (spec §57); none under reduced motion.
  */
@@ -54,11 +57,18 @@ export function ResearchValues() {
       <div className="rvx-body">
         <Container className="rvx-wrap">
           <div id="research" role="region" aria-labelledby="research-heading" className="rvx-research">
-            <p className="ab-eyebrow">{RESEARCH_HEAD.eyebrow}</p>
-            <h2 id="research-heading" className="ab-h2">
-              {RESEARCH_HEAD.title}
-            </h2>
-            <p className="ab-lead">{RESEARCH_HEAD.lead}</p>
+            <div className="rvx-head">
+              <div className="rvx-head-copy">
+                <p className="ab-eyebrow">{RESEARCH_HEAD.eyebrow}</p>
+                <h2 id="research-heading" className="ab-h2">
+                  {RESEARCH_HEAD.title}
+                </h2>
+                <p className="ab-lead">{RESEARCH_HEAD.lead}</p>
+              </div>
+              <div className="rvx-notebook" aria-hidden="true">
+                <ThemedPaperImg id="notebook" className="rvx-notebook-img" />
+              </div>
+            </div>
             <ul className="rvx-artifacts">
               {RESEARCH_ARTIFACTS.map((artifact, index) => (
                 <li key={artifact.id} className="rvx-slot">
@@ -110,6 +120,7 @@ export function ResearchValues() {
                 <ul className="rvx-plist">
                   {PRINCIPLES.map((principle) => (
                     <li key={principle.id} data-principle={principle.id}>
+                      <PaperImg id={PRINCIPLE_ART[principle.id]} className="rvx-part" />
                       <svg className="rvx-picon" viewBox="0 0 36 36" aria-hidden="true" focusable="false">
                         {PRINCIPLE_ICONS[principle.icon]}
                       </svg>
