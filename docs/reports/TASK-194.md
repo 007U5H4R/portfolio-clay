@@ -1,6 +1,6 @@
 # TASK-194 report — Mixpanel analytics for tusharpathak.com
 
-Branch `m013/mixpanel` (main `a6d2572` merged in, no conflicts). Full guide for Tushar: [`docs/analytics.md`](../analytics.md). Decisions: `decisions.md` EXE-68.
+Branch `m013/mixpanel` (`origin/main` `f94e665` merged in last, no conflicts; main's TASK-195 OG-image change landed after the full e2e, so on the merged tree I re-ran typecheck, lint, tokens, build, the full unit suite (133 files, 1547 passed, 4 skipped) and the token-less analytics + EVAL-017 e2e at all four widths (22 passed); first-load JS still 168.0 kB `/` and 176.1 kB `/projects`). Full guide for Tushar: [`docs/analytics.md`](../analytics.md). Decisions: `decisions.md` EXE-68.
 
 **Headline.** Complete, typed, privacy-first analytics is in and tested, and it is **off until Tushar adds a Mixpanel token**. With no token there is no script, no request and no error. Nothing has been verified against a real Mixpanel project (none existed): events were checked end to end in a real browser against a stub token with every Mixpanel request intercepted. The Live View pass in `docs/analytics.md` §8 is still owed.
 
