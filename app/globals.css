@@ -14484,4 +14484,33 @@ html[data-theme-vt]::view-transition-group(root) {
     gap: 8px;
   }
 }
+/* the carousel's code is an archive tag: cream card stock, a punched hole, a strip of tape, a slight tilt (identical in both themes) */
+.pf-cover[data-size="thumb"] .pf-cover-code {
+  top: 11px;
+  left: 8px;
+  padding: 2px 8px 2px 16px;
+  color: var(--color-navy);
+  background-color: var(--color-ivory);
+  background-image: radial-gradient(circle at 8px 50%, var(--color-navy) 0 2px, transparent 2.5px), var(--pf-fibers);
+  background-size: auto, 420px 420px;
+  rotate: -3deg;
+  box-shadow:
+    0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent),
+    0 4px 6px -2px color-mix(in oklab, var(--shadow-ink) 30%, transparent);
+}
+.pf-cover[data-size="thumb"] .pf-cover-code::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  width: 22px;
+  height: 9px;
+  rotate: 28deg;
+  background: color-mix(in oklab, var(--color-kraft) 62%, transparent);
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .pf-stage.paper-sheet {
+    width: min(100%, 460px);
+  }
+}
 /* === end TASK-197 === */

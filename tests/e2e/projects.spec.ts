@@ -240,7 +240,7 @@ test("@EVAL-013 enterprise: six grouped case files below the showcase, no budget
 // ---------------------------------------------------------------------------
 // GENERAL — layout, EVAL-018, EVAL-008, EVAL-006
 // ---------------------------------------------------------------------------
-test("layout: ~62/38 stage/panel at ≥1024; media → details → actions → carousel when stacked", async ({ page }) => {
+test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → actions when stacked (TASK-197: the picker sits above the video)", async ({ page }) => {
   await page.goto("/projects", { waitUntil: "load" });
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
   const stage = await box(".pf-stage");
@@ -254,9 +254,11 @@ test("layout: ~62/38 stage/panel at ≥1024; media → details → actions → c
     expect(ratio).toBeLessThan(0.66);
     expect(carousel.y).toBeGreaterThan(stage.y + stage.height - 1);
   } else {
-    expect(info.y).toBeGreaterThan(stage.y + stage.height - 1);
-    expect(actions.y).toBeGreaterThan(info.y);
-    expect(carousel.y).toBeGreaterThan(actions.y);
+    const head = await box(".pf-info-head");
+    expect(head.y).toBeGreaterThan(carousel.y + carousel.height - 1);
+    expect(stage.y).toBeGreaterThan(head.y + head.height - 1);
+    expect(actions.y).toBeGreaterThan(stage.y + stage.height - 1);
+    void info;
   }
 });
 

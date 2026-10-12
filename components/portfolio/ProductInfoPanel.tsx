@@ -125,7 +125,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
           <BookOpen aria-hidden="true" focusable="false" strokeWidth={1.75} />
         </span>
         <span className="pf-action-label">
-          <span className="pf-case-lead">Read the </span><span className="pf-case-name">case study</span> <span className="pf-case-arrow" aria-hidden="true">→</span>
+          <span className="pf-case-lead">Read the</span>{" "}
+          <span className="pf-case-name">case study</span> <span className="pf-case-arrow" aria-hidden="true">→</span>
           <NewTabHint />
         </span>
       </Link>
