@@ -14062,11 +14062,14 @@ html[data-theme-vt]::view-transition-group(root) {
 /* ---- reduced motion: no movement at all; the panel still appears (opacity), the colour/shadow feedback stays ---- */
 @media (prefers-reduced-motion: reduce) {
   :root .wib-stage[data-stage] .wib-layer[data-layer],
-  :root .wib-stage[data-stage][data-active] .wib-layer[data-layer],
-  :root .wib-stage[data-active] .wib-card,
-  :root .wib-card {
+  :root .wib-stage[data-stage][data-active] .wib-layer[data-layer] {
     transform: none;
-    translate: none;
+    transition: none;
+  }
+  /* the lift is a custom property (a bare `translate: none` is rewritten by the CSS minifier into a transform) */
+  :root .wib-stage[data-stage][data-active] .wib-card,
+  :root .wib-stage[data-stage] .wib-card {
+    --lift: 0px;
     transition: none;
   }
   :root .wib-stage > .wib-panel,
