@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const sdk = vi.hoisted(() => ({
   init: vi.fn(), track: vi.fn(), register: vi.fn(), register_once: vi.fn(), opt_out_tracking: vi.fn(), opt_in_tracking: vi.fn(),
 }));
-vi.mock("mixpanel-browser", () => ({ default: sdk }));
+vi.mock("mixpanel-browser/dist/mixpanel-core.cjs.js", () => ({ default: sdk }));
 
 const CFG = { enabled: true as const, token: "0123456789abcdef0123456789abcdef", environment: "production" as const, apiHost: "https://api-eu.mixpanel.com", consentMode: "opt-out" as const };
 

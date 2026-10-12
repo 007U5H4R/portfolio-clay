@@ -1,6 +1,6 @@
 /**
  * The Mixpanel client (TASK-194): the only module that imports the SDK, and only ever through a dynamic
- * `import()`, so `mixpanel-browser` is a separate lazy chunk that is not in any route's first-load JS and
+ * `import()`, so `mixpanel-browser` (core build, no recorder) is a separate lazy chunk that is not in any route's first-load JS and
  * is not fetched at all unless every gate in config.ts / consent.ts passes.
  *
  * Privacy configuration (each line is deliberate; docs/analytics.md "Privacy"):
@@ -66,7 +66,9 @@ declare global {
 
 export async function createMixpanelSink(cfg: EnabledConfig): Promise<MixpanelSink> {
   if (globalThis.__ptMixpanel) return globalThis.__ptMixpanel;
-  const { default: mixpanel } = await import("mixpanel-browser");
+  // The "core" build: the default `mixpanel-browser` entry bundles the session-replay recorder (+~90 kB gz).
+  // Replay is off for this site, and the core build refuses to load a recorder at all.
+  const { default: mixpanel } = await import("mixpanel-browser/dist/mixpanel-core.cjs.js");
   if (globalThis.__ptMixpanel) return globalThis.__ptMixpanel; // lost a race with a second start()
   mixpanel.init(cfg.token, sdkConfig(cfg) as unknown as Parameters<typeof mixpanel.init>[1]);
   const sink: MixpanelSink = {
