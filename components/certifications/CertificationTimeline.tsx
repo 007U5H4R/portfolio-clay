@@ -113,6 +113,9 @@ function CertificationItem({ cert, index }: { cert: Certification; index: number
         <span className="cert-dot" aria-hidden="true" />
 
         <div className="cert-card cert-lift">
+          <span className="cert-paper-shade" aria-hidden="true">
+            <i style={{ clipPath: deckle(seed, CARD_RIM) }} />
+          </span>
           <span className="cert-paper" aria-hidden="true">
             <i className="cert-paper-rim" style={{ clipPath: deckle(seed, CARD_RIM) }} />
             <i className="cert-paper-face" style={{ clipPath: deckle(seed + 1, CARD_FACE) }} />

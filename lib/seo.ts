@@ -44,6 +44,8 @@ export interface BuildMetadataInput {
    * the home path) — technical-plan.md §A8.
    */
   image?: string;
+  /** Alt text for `image` when it needs more than the `ogFamily` label (TASK-195 home card). */
+  imageAlt?: string;
   type?: "website" | "article";
 }
 
@@ -56,6 +58,7 @@ export function buildMetadata({
   path,
   ogFamily,
   image,
+  imageAlt,
   type = "website",
 }: BuildMetadataInput): Metadata {
   const base = siteUrl();
@@ -73,7 +76,7 @@ export function buildMetadata({
       title,
       description,
       siteName: site.name,
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: ogFamily }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: imageAlt ?? ogFamily }],
     },
     twitter: {
       card: "summary_large_image",
