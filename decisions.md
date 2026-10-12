@@ -815,3 +815,17 @@ The crude `grep -c -- '--color-' app/globals.css == 13` proxy in several step ga
 - **Flaky on main and release alike:** EVAL-039 `/` smoothness. An A/B on the same machine passed the release 3/3 and main at least 2/3 (TASK-191).
 
 **Rejected.** Holding the release for flakes that main shares.
+
+## EXE-68 · TASK-194 Mixpanel analytics: lazy, token-gated, anonymous, no free text — decided (on Tushar's behalf while he was AFK, 2026-10-12)
+**Context.** Tushar's spec (`docs/specs/TASK-194-mixpanel-spec.md`) asks for a structured Mixpanel system. The site is static, has a strict CSP, a 5 kB first-load headroom on `/projects`, no cookie banner, and no Mixpanel token yet.
+**Decision.**
+- **(a) No token, no analytics.** `NEXT_PUBLIC_MIXPANEL_TOKEN` empty means no script, no request, no error. Localhost and `*.vercel.app` previews stay silent unless `NEXT_PUBLIC_ANALYTICS_ENV` names an environment.
+- **(b) Lazy, off the LCP path.** A ~0.3 kB loader waits for `load` and an idle slot (or the first interaction that has to wait), then imports the runtime; `mixpanel-browser` is a dynamic import behind every privacy gate. The SDK is served from `'self'`, so the CSP gains one origin: the Mixpanel ingestion host in `connect-src`, only in builds that have a token.
+- **(c) Anonymous, cookie-less, no IP.** `localStorage` persistence, `ip: false`, no replay, no autocapture, no `identify()`. The SDK's own URL, referrer and UTM capture are switched off and replaced with sanitised equivalents (five `utm_*` keys, referrer host only).
+- **(d) Consent is opt-out by default.** Do Not Track and Global Privacy Control always win; `?analytics=off` is a persistent opt-out; `NEXT_PUBLIC_ANALYTICS_CONSENT=opt-in` is the strict switch for when a banner exists. No banner was built (out of scope; the spec says not to build a consent platform).
+- **(e) Closed property vocabulary.** The catalogue (`lib/analytics/events.ts`) has no string kind: enums, bounded slugs, paths, bounded integers, booleans. Ask Tushky text is reduced to one of six categories locally; the words never leave the browser.
+- **(f) Events for UI that does not exist were not invented.** No `contact_form_*` (no form), `meeting_link_clicked` (no scheduling link), `resume_downloaded` (the résumé is a Drive view link). Swipe is not a selection method (the strip scrolls natively). The Lab is a pinball game, so its interactions are `launch`, `nudge`, `power_up`, `danger_escape`, not drag/flick/squish. One event was added: `chatbot_response_failed`.
+- **(g) Video from the player's own reports.** Start and 25/50/75/100 come from YouTube's iframe `postMessage` (already used for the ready handshake); milestones follow watching, not position, so a seek never reports completion.
+- **(h) Nothing was verified against live Mixpanel.** Events were checked against a stub token with the network intercepted. Tushar's Live View pass (docs/analytics.md §8) is still owed.
+
+**Rejected.** Mixpanel's snippet from its CDN (needs `script-src` for a third party and loads on the critical path); `track_pageview` / autocapture (full URLs, DOM text); a scroll listener for depth (main-thread work on scroll); instrumenting the Lab's physics hooks (the HUD store is a safe, low-rate boundary); a cookie banner in this ticket.
