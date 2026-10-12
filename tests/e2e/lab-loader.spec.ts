@@ -53,7 +53,7 @@ test.describe("@TASK-198 lab loader", () => {
       await page.waitForTimeout(150);
     }
     expect([...seen].sort((a, b) => a - b)).toEqual(seen);
-    expect(Math.max(...seen)).toBeGreaterThan(seen[0]);
+    expect(Math.max(...seen)).toBeGreaterThan(seen[0] ?? 0);
     await page.waitForSelector("[data-lab-state='INTRO']", { timeout: 40_000 });
     await expect(page.locator(LOADER)).toHaveCount(0);
   });
