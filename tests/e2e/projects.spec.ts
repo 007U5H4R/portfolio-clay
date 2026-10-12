@@ -245,7 +245,7 @@ test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → 
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
   const stage = await box(".pf-stage");
   const info = await box(".pf-info");
-  const actions = await box(".pf-actions");
+  const actions = await box(".pf-action-set .pf-action"); // the strips (their list is `display: contents` on a phone)
   const carousel = await box(".pf-carousel");
   if (width(page) >= 1024) {
     expect(stage.x).toBeLessThan(info.x);
@@ -258,7 +258,6 @@ test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → 
     expect(head.y).toBeGreaterThan(carousel.y + carousel.height - 1);
     expect(stage.y).toBeGreaterThan(head.y + head.height - 1);
     expect(actions.y).toBeGreaterThan(stage.y + stage.height - 1);
-    void info;
   }
 });
 

@@ -28,7 +28,7 @@ test("carousel precedes the details, video and actions; at 390 × 844 the explor
   const carousel = await box(".pf-carousel");
   const head = await box(".pf-info-head");
   const stage = await box(".pf-stage");
-  const actions = await box(".pf-actions");
+  const actions = await box(".pf-action-set .pf-action");
   expect(head.y).toBeGreaterThan(carousel.y + carousel.height - 1);
   expect(stage.y).toBeGreaterThan(head.y + head.height - 1);
   expect(actions.y).toBeGreaterThan(stage.y + stage.height - 1);

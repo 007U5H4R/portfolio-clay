@@ -14328,8 +14328,8 @@ html[data-theme-vt]::view-transition-group(root) {
     right: 2px;
   }
   .pf-track {
-    --pf-thumb-w: min(42%, 168px);
-    padding: 18px 14px 14px;
+    --pf-thumb-w: min(46%, 168px);
+    padding: 18px 14px 10px;
   }
   .pf-band {
     inset: -14px calc(50% - 50vw) -12px;
@@ -14367,9 +14367,6 @@ html[data-theme-vt]::view-transition-group(root) {
     -webkit-mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
     mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
   }
-  .pf-info-meta {
-    font-size: 12px;
-  }
   .pf-info-name {
     margin-top: 4px;
     padding-right: 0;
@@ -14390,7 +14387,7 @@ html[data-theme-vt]::view-transition-group(root) {
     grid-column: 1 / -1;
     grid-row: 2;
     justify-self: center;
-    width: min(100%, 280px);
+    width: min(100%, 260px);
   }
   .pf-action-set {
     grid-column: 1 / -1;
@@ -14448,6 +14445,17 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 @media (max-width: 639px) {
+  /* the poster is narrower here (≤ 280 px): the lettering scales with it (still ≥ 16 px, inside the cover) */
+  .pf-cover[data-size="stage"] .pf-cover-name {
+    font-size: clamp(16px, 7.6cqi, 84px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="script"] .pf-cover-name {
+    font-size: clamp(18px, 9.4cqi, 104px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="mono"] .pf-cover-name,
+  .pf-cover[data-size="stage"][data-lettering="slab"] .pf-cover-name {
+    font-size: clamp(16px, 6.6cqi, 72px);
+  }
   .pf-products-wrap {
     padding-block: 14px 96px;
   }
