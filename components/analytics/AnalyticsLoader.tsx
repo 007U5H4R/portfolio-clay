@@ -13,7 +13,7 @@ import { publishRoute, setWake } from "@/lib/analytics/track";
  * With no `NEXT_PUBLIC_MIXPANEL_TOKEN` at build time the `ENABLED` branch is compiled out and this
  * component renders nothing and loads nothing. Never on the LCP path: the import waits for `load` + idle.
  */
-const ENABLED = Boolean(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN);
+const ENABLED = !!process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
 
 export function AnalyticsLoader() {
   const pathname = usePathname();

@@ -8,7 +8,7 @@ import type { EventName, EventProps } from "./events";
 
 type Handler = <N extends EventName>(name: N, props: EventProps<N>) => void;
 
-const ENABLED = Boolean(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN);
+const ENABLED = !!process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
 const QUEUE_LIMIT = 40;
 
 let handler: Handler | null = null;
