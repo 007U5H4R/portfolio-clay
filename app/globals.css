@@ -14367,6 +14367,9 @@ html[data-theme-vt]::view-transition-group(root) {
     -webkit-mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
     mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
   }
+  .pf-info-meta {
+    letter-spacing: 0.02em;
+  }
   .pf-info-name {
     margin-top: 4px;
     padding-right: 0;
