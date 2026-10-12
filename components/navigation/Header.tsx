@@ -19,9 +19,11 @@ import { PrimaryNav } from "./PrimaryNav";
  * scroll-hysteresis hook, the padding animation and the active-link pill are deleted with the
  * motion system (D12).
  *
- * ≥ 1440, one row, grid `auto 1fr auto`: brand · `PrimaryNav` · pill + Ask ghost. Below 1440 two rows
- * (TASK-112, Tushar 2026-09-27: tabs, no hamburger): brand · pill + Ask on row 1, and the seven tabs
- * as a full-width, horizontally scrollable strip on row 2. There is no menu button at any width.
+ * ≥ 1280, one row, grid `auto 1fr auto`: brand · `PrimaryNav` · pill + Ask + theme toggle. Below 1280 two rows
+ * (TASK-112, Tushar 2026-09-27: tabs, no hamburger): brand · pill + Ask + toggle on row 1, and the five
+ * folded-paper tabs as a full-width strip on row 2 (it scrolls horizontally when they do not fit). There is no menu button at any width.
+ * TASK-192 (origami paper tabs): the sheet carries a paper-grain image and a thin terrain band; each tab is CSS
+ * geometry (`clip-path` face, thickness, fold, one upper-left light) built in `PrimaryNav`.
  * The brand's Caveat subline is the header's single counted decoration (§3.3: header = 1); it goes
  * through `MediaGate min={640}` so it is removed from the DOM below 640 (TP14), not hidden by CSS.
  * The wordmark is Inter 600 13 px — a brand micro-label (`data-micro-label`, EXE-7), not content.
@@ -31,16 +33,21 @@ export function Header() {
     <header data-site-header="" className="site-header">
       <HeaderScroll />
       <SecretTrigger />
-      {/* M-010 T4 (TASK-145.1): the paper strip — decorative layers behind the real HTML (paper-cut-2 §172–§176). */}
+      {/* TASK-192: the paper sheet (grain, torn lower edge) with the thin terrain band inside it — decorative layers behind the real HTML. */}
       <span className="header-paper" aria-hidden="true">
-        <span className="header-paper-sheet" />
-        <span className="header-scrap header-scrap-graph" />
-        <span className="header-scrap header-scrap-rust" />
-        <span className="header-scrap header-scrap-kraft" />
+        <span className="header-paper-sheet">
+          <span className="header-terrain">
+            <span className="ht-mid" />
+            <span className="ht-left" />
+            <span className="ht-right" />
+          </span>
+        </span>
       </span>
       <Container className="site-header-row">
         <Link href="/" aria-label={`${site.name} — home`} className="header-brand focus-ring">
-          <Monogram />
+          <span className="header-tile" aria-hidden="true">
+            <Monogram />
+          </span>
           <span className="header-wordmark">
             <span className="header-name" data-micro-label="">
               {site.name}
@@ -57,6 +64,7 @@ export function Header() {
 
         <div className="header-actions">
           <Link href="/contact" data-hand="cta" className="header-pill font-hand focus-ring">
+            <span className="hp-shadow" aria-hidden="true" />
             {/* < 640 the pill reads "Connect →"; "Let's" stays in the accessible name (TASK-112). */}
             <span>
               <span className="max-sm:sr-only">Let&apos;s </span>
