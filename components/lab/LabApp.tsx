@@ -13,7 +13,7 @@ import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { Diorama } from "./Diorama";
 import { IntroBack, IntroFront } from "./IntroScene";
-import { BackPortal, CenterText, Chrome, FlipLive, Hint, Hud, LaunchControl, PauseCard, PowerChips, Results, ScorePops, StartPlaque, Toasts, TpEmblem } from "./LabUi";
+import { BackPortal, CenterText, Chrome, FlipLive, Hint, Hud, LaunchControl, PauseCard, PowerChips, Results, ScorePops, StartPlaque, Toasts } from "./LabUi";
 import { Fallback } from "./Fallback";
 import { GUMMY_URL } from "./gummy-url";
 import type { LabRuntime } from "./runtime";
@@ -144,7 +144,7 @@ export default function LabApp() {
       runtime.sinceLaunch = Infinity;
       runtime.trail.clear();
       runtime.particles.clear();
-      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], tpMode: false, banner: null, hint: null, summary: null, launched: false });
+      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], banner: null, hint: null, summary: null, launched: false });
     },
     [store, runtime],
   );
@@ -177,7 +177,6 @@ export default function LabApp() {
   // `?debug=panel` also shows the tuning panel (spec §47); plain `?debug` only exposes the handles.
   const [debug] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "panel");
   const state = store((s) => s.state);
-  const tp = store((s) => s.tpMode);
   // Paper rustle as the intro, pause and results cards open (a no-op while muted).
   useEffect(() => {
     if (state === "INTRO" || state === "PAUSED" || state === "RESULTS") runtime?.audio.play("rustle");
@@ -196,7 +195,6 @@ export default function LabApp() {
       data-lab-asset={asset}
       data-lab-path={LAB_PATH}
       data-intro={introOn ? (leaving ? "leaving" : "on") : undefined}
-      data-theme-mode={tp ? "tp" : undefined}
       data-machine={mode === "canvas" && onMachine ? "" : undefined}
       data-lenis-prevent=""
       onClickCapture={(e) => {
@@ -227,7 +225,6 @@ export default function LabApp() {
           {running ? <Hud store={store} onPause={togglePause} runtime={runtime ?? undefined} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />
-          <TpEmblem store={store} />
           <Hint store={store} />
           <FlipLive store={store} />
           {runtime ? <StartPlaque runtime={runtime} store={store} /> : null}

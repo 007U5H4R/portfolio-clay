@@ -4,11 +4,14 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { useFrame } from "@react-three/fiber";
 import { BallCollider, ConvexHullCollider, CuboidCollider, RigidBody, useBeforePhysicsStep, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
 import {
+  AdditiveBlending,
   CylinderGeometry,
   Group,
+  Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  RingGeometry,
   Shape,
   TorusGeometry,
   TubeGeometry,
@@ -16,22 +19,24 @@ import {
   Vector3,
 } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { portalSensor, wallBoxes, type BumperSpec, type GuideSpec, type PadSpec, type PlatformSpec, type RailSpec, type SlingSpec, type TargetSpec } from "@/lib/lab/arena";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { portalSensor, wallBoxes, type BumperSpec, type GuideSpec, type PadSpec, type PlatformSpec, type RailSpec, type SlingSpec } from "@/lib/lab/arena";
+import { BUMPER_TUNE, bumperKick, type BumperKind } from "@/lib/lab/bumpers";
+import { slingFacing, slingKick } from "@/lib/lab/slings";
 import { FLIPPER_THICK, FLIP_REST, FLIP_UP, flipperRotation, stepFlipper } from "@/lib/lab/flippers";
 import { mix, type RGB } from "@/lib/lab/tokens";
 import { BlackHole } from "./BlackHole";
 import { BOARD_Z, Machine } from "./Machine";
 import { col, createTintedPaper, tileUV } from "./materials";
-import { creamRGB, cssColor, disposeAll, flipperShape, glowMaterial, glowTexture, neonColors, shadowMaterial, shadowTextures, sheet, siteFont, starShape, textTexture } from "./paper-kit";
-import { TARGET_MIN_HIT } from "./hit-rules";
+import { creamRGB, disposeAll, flipperShape, glowMaterial, glowTexture, neonColors, shadowMaterial, shadowTextures, sheet, starShape } from "./paper-kit";
 import { PHYSICS_DT } from "./physics-step";
 import { useRuntime } from "./runtime";
 
 /**
  * The arena (gummy-bear.md §15, §29, §33; pinball since TASK-172; a paper-cut machine since TASK-185): every collider and
  * every moving part. Colliders are fixed or kinematic and unchanged in kind from the old arena; what changed is the body
- * around them: layered cardstock, lit edges, bumpers that compress and flash, mounted targets that sit back when hit,
- * slingshots, a real plunger and the lane it fires into. The static scenery (table, cabinet, lights, drain) is Machine.tsx.
+ * around them: layered cardstock, lit edges, four kinds of bumper that compress and flash, slingshots, a real plunger and the
+ * lane it fires into. The static scenery (table, cabinet, lights, drain) is Machine.tsx.
  * All per-frame motion reads the runtime's env knobs (difficulty) and refs: no React state per frame.
  */
 const isBear = (p: CollisionEnterPayload) => p.other.rigidBodyObject?.name === "gummy";
@@ -95,11 +100,8 @@ export function Arena() {
       {arena.pads.map((p) => (
         <Pad key={p.id} spec={p} />
       ))}
-      {arena.bumpers.map((b, i) => (
-        <Bumper key={b.id} spec={b} index={i} />
-      ))}
-      {arena.targets.map((t) => (
-        <Target key={t.id} spec={t} />
+      {arena.bumpers.map((b) => (
+        <Bumper key={b.id} spec={b} />
       ))}
       <Plunger />
       <LaneGate />
@@ -122,11 +124,11 @@ function Walls() {
           <CuboidCollider key={w.id} args={[w.hx, w.hy, 1.5]} position={[w.cx, w.cy, 0]} restitution={w.restitution} friction={w.friction} />
         ))}
       </RigidBody>
-      {/* the black hole's mouth: touching it sends the gummy back to the portfolio (a sensor, so it never pushes) */}
+      {/* the black hole in the playfield's top-left: touching it sends the gummy back to the portfolio (a sensor, so it never pushes) */}
       <RigidBody type="fixed" colliders={false}>
-        <CuboidCollider
-          args={[sensor.hx, sensor.hy, 1.5]}
-          position={[sensor.cx, sensor.cy, 0]}
+        <BallCollider
+          args={[sensor.r]}
+          position={[sensor.x, sensor.y, 0]}
           sensor
           onIntersectionEnter={(p) => {
             if (p.other.rigidBodyObject?.name === "gummy") rt.hooks.portal();
@@ -448,47 +450,95 @@ function Pad({ spec }: { spec: PadSpec }) {
 
 /* ---- bumpers ------------------------------------------------------------------------------------------------------------------- */
 
-const BUMPER_TINTS = ["rust", "steel", "sage", "note"] as const;
+/** Each kind's paper: the colour of its ring and cap (a role token), its lit ring's light, and the cap's silhouette (sides: 36 = round). */
+const BUMPER_LOOK: Record<BumperKind, { tint: "note" | "rust" | "steel" | "sage"; sides: number; light: "amber" | "magenta" | "cyan" | "white" }> = {
+  pop: { tint: "note", sides: 36, light: "amber" },
+  jet: { tint: "rust", sides: 8, light: "magenta" },
+  thumper: { tint: "steel", sides: 4, light: "cyan" },
+  turbo: { tint: "sage", sides: 3, light: "white" },
+};
+
+/** The mark on a cap: pop a five-point star, jet an eight-point burst, thumper a ring (a target), turbo a pair of chevrons. */
+function capMark(kind: BumperKind, R: number) {
+  if (kind === "pop") return sheet(starShape(R * 0.42, 0.46), 0.04, 0.01);
+  if (kind === "jet") return sheet(starShape(R * 0.44, 0.55, 8), 0.04, 0.01);
+  if (kind === "thumper") {
+    const ring = new Shape();
+    ring.absarc(0, 0, R * 0.34, 0, Math.PI * 2, false);
+    const hole = new Shape();
+    hole.absarc(0, 0, R * 0.2, 0, Math.PI * 2, true);
+    ring.holes.push(hole);
+    return sheet(ring, 0.04, 0.01);
+  }
+  // turbo: two stacked chevrons pointing up (the way it throws you)
+  const w = R * 0.4;
+  const t = R * 0.16;
+  const chevron = (y: number) => {
+    const c = new Shape();
+    c.moveTo(-w, y);
+    c.lineTo(0, y + w * 0.8);
+    c.lineTo(w, y);
+    c.lineTo(w, y - t);
+    c.lineTo(0, y + w * 0.8 - t * 1.4);
+    c.lineTo(-w, y - t);
+    c.closePath();
+    return sheet(c, 0.04, 0.01).toNonIndexed();
+  };
+  return mergeGeometries([chevron(-R * 0.22), chevron(R * 0.18)], false)!;
+}
 
 /**
- * A pinball bumper (spec §11, §18): a paper skirt, a coloured ring, a raised button with a star, and a recessed lit ring.
- * On a hit the button presses in and the ring flashes, then both ease back over about 300 ms. At rest the ring only glows softly.
+ * A pinball bumper (spec §11, §18; four kinds since TASK-199): a round paper skirt, a ring and a raised cap whose shape says what it does
+ * (pop round, jet eight-sided, thumper square, turbo three-sided), a mark on the cap and a recessed lit ring. On a hit the cap presses in
+ * and the ring flashes, then both ease back over about 300 ms; a jet also throws a ring of light out from the cap. At rest the ring only
+ * glows softly. The kick and the extra effects come from lib/lab/bumpers.ts; the table shake (thumper) and the trail burst (turbo) are
+ * the fx hook's. Everything is built once; per frame only existing meshes' scale and opacity change (no allocation).
  */
-function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
+function Bumper({ spec }: { spec: BumperSpec }) {
   const rt = useRuntime();
   const rb = useRef<RapierRigidBody>(null);
   const group = useRef<Group>(null);
   const button = useRef<Group>(null);
+  const flash = useRef<Mesh>(null);
   const hit = useRef(0);
   const cooldown = useRef(0);
   const angle = useRef(0);
   const appear = useRef(spec.minPhase === 0 ? 1 : 0);
   const shadows = useShadows();
   const neon = useMemo(() => neonColors(rt.palette), [rt.palette]);
-  const lightCol = [neon.amber, neon.cyan, neon.magenta, neon.amber][index % 4]!;
+  const look = BUMPER_LOOK[spec.kind];
+  const tune = BUMPER_TUNE[spec.kind];
+  const lightCol = look.light === "white" ? neon.white.clone().lerp(neon.amber, 0.35) : neon[look.light];
   const kit = useOwned(() => {
     const tok = rt.palette.tok;
     const R = spec.r;
-    const base = tok[BUMPER_TINTS[index % BUMPER_TINTS.length]!];
+    const base = tok[look.tint];
     const rotX = (g: { rotateX(a: number): unknown }) => g.rotateX(Math.PI / 2);
+    // square: turn the 4-sided cylinder an eighth so it has flat sides to the table's axes; the others have a vertex up
+    const turn = (g: { rotateY(a: number): unknown }) => (look.sides === 4 ? g.rotateY(Math.PI / 4) : look.sides === 3 ? g.rotateY(Math.PI) : g);
     const skirt = new CylinderGeometry(R * 1.2, R * 1.26, 0.2, 36);
     rotX(skirt);
-    const ring = new CylinderGeometry(R * 1.0, R * 1.04, 0.32, 36);
+    const ring = new CylinderGeometry(R * 1.0, R * 1.04, spec.kind === "thumper" ? 0.4 : 0.32, look.sides);
+    turn(ring);
     rotX(ring);
-    const btn = new CylinderGeometry(R * 0.66, R * 0.72, 0.3, 32);
+    const btn = new CylinderGeometry(R * 0.66, R * 0.72, 0.3, look.sides);
+    turn(btn);
     rotX(btn);
-    const star = sheet(starShape(R * 0.42, 0.46), 0.04, 0.01);
+    const star = capMark(spec.kind, R);
     const lit = new TorusGeometry(R * 1.1, 0.034, 8, 48);
     const barGeo = spec.spin ? new RoundedBoxGeometry(spec.spin.len, 0.22, 0.5, 3, 0.1) : null;
     const skirtMat = createTintedPaper(tint(tok.ivory, tok.kraft, 0.3), { lift: 0.05 });
-    const ringMat = createTintedPaper(tint(base, tok.ivory, 0.18), { lift: 0.05 });
+    const ringMat = createTintedPaper(tint(base, tok.ivory, spec.kind === "pop" ? 0.18 : 0.12), { lift: 0.05 });
     const btnMat = createTintedPaper(tint(base, tok.ivory, 0.34), { lift: 0.07 });
     const starMat = createTintedPaper(creamRGB(rt.palette), { lift: 0.14 });
     const litMat = new MeshBasicMaterial({ color: lightCol.clone(), toneMapped: false });
     const tex = glowTexture(128, 2);
     const halo = new PlaneGeometry(R * 4.4, R * 4.4);
     const haloMat = glowMaterial(lightCol, tex, 0.16);
-    return { skirt, ring, btn, star, lit, barGeo, skirtMat, ringMat, btnMat, starMat, litMat, tex, halo, haloMat };
+    // the jet's ring flash: a thin additive ring that spreads out from the cap and fades (hidden at rest)
+    const flashGeo = tune.ringFlash ? new RingGeometry(R * 1.14, R * 1.26, 48) : null;
+    const flashMat = tune.ringFlash ? new MeshBasicMaterial({ color: lightCol.clone(), transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false, toneMapped: false }) : null;
+    return { skirt, ring, btn, star, lit, barGeo, skirtMat, ringMat, btnMat, starMat, litMat, tex, halo, haloMat, flashGeo, flashMat };
   });
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30);
@@ -502,13 +552,21 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
     const h = rm ? (hit.current > 0.35 ? 1 : 0) : hit.current;
     const press = rm ? 0 : Math.sin(Math.min(1, h * 1.15) * Math.PI * 0.5);
     if (group.current) {
-      group.current.scale.setScalar(appear.current * (1 + 0.05 * press));
+      group.current.scale.setScalar(appear.current * (1 + (spec.kind === "thumper" ? 0.08 : 0.05) * press));
       group.current.visible = appear.current > 0.03;
     }
-    if (button.current) button.current.position.z = 0.18 - 0.12 * press;
+    if (button.current) button.current.position.z = 0.18 - (spec.kind === "thumper" ? 0.16 : 0.12) * press;
     // ambient glow at rest, a bright pulse on a hit, then a smooth decay
     kit.litMat.color.copy(lightCol).multiplyScalar(0.5 + 1.1 * h * h);
     kit.haloMat.opacity = 0.12 + 0.5 * h;
+    const fl = flash.current;
+    if (fl && kit.flashMat) {
+      // the ring leaves the cap and widens as `h` falls from 1 to 0; a reduced-motion ring just lights and goes out where it is
+      const k = rm ? 0.35 : 1 - h;
+      fl.scale.setScalar(rm ? 1.3 : 1 + k * 0.9);
+      kit.flashMat.opacity = h > 0 ? 0.85 * h : 0;
+      fl.visible = h > 0.02;
+    }
     rb.current?.setEnabled(active);
     if (spec.spin && rb.current) {
       angle.current += dt * spec.spin.speed * (0.6 + 0.4 * Math.min(2, Math.max(1, rt.env.motion)));
@@ -525,12 +583,13 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
     const b = rt.bear;
     const dx = b.x - spec.x;
     const dy = b.y + 0.5 - spec.y;
-    const len = Math.hypot(dx, dy) || 1;
-    const speed = Math.max(7.5, Math.hypot(b.vx, b.vy) * 0.8 + 3) * rt.bounceMul;
-    body.setLinvel({ x: (dx / len) * speed, y: (dy / len) * speed, z: 0 }, true);
+    const incoming = Math.hypot(b.vx, b.vy);
+    const v = bumperKick(spec.kind, dx, dy, incoming, rt.bounceMul);
+    body.setLinvel({ x: v.x, y: v.y, z: 0 }, true);
     b.sinceBounce = 0;
-    rt.jelly.impact(-dx / len, -dy / len, 14);
-    rt.hooks.bumper(spec.id, spec.x, spec.y);
+    const len = Math.hypot(dx, dy) || 1;
+    rt.jelly.impact(-dx / len, -dy / len, 14 + Math.max(0, Math.hypot(v.x, v.y) - 9) * 0.5);
+    rt.hooks.bumper(spec.id, spec.kind, spec.x, spec.y);
   };
   return (
     <RigidBody ref={rb} type={spec.spin ? "kinematicPosition" : "fixed"} colliders={false} position={[spec.x, spec.y, 0]} onCollisionEnter={onEnter}>
@@ -548,6 +607,7 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
             <mesh geometry={kit.skirt} material={kit.skirtMat} position={[0, 0, -0.34]} />
             <mesh geometry={kit.ring} material={kit.ringMat} position={[0, 0, -0.1]} />
             <mesh geometry={kit.lit} material={kit.litMat} position={[0, 0, 0.1]} />
+            {kit.flashGeo && kit.flashMat ? <mesh ref={flash} geometry={kit.flashGeo} material={kit.flashMat} position={[0, 0, 0.14]} visible={false} renderOrder={3} /> : null}
             <group ref={button} position={[0, 0, 0.18]}>
               <mesh geometry={kit.btn} material={kit.btnMat} />
               <mesh geometry={kit.star} material={kit.starMat} position={[0, 0, 0.16]} />
@@ -559,111 +619,12 @@ function Bumper({ spec, index }: { spec: BumperSpec; index: number }) {
   );
 }
 
-/* ---- targets ------------------------------------------------------------------------------------------------------------------- */
-
-const TARGET_TINT: Record<string, (typeof BUMPER_TINTS)[number] | "terracotta" | "forest"> = { AI: "steel", DESIGN: "sage", PRODUCT: "rust", BUILD: "terracotta" };
-
-/**
- * A mounted pinball target (spec §19): a raised, slightly angled plate on two posts with its name in Fraunces and a lit edge
- * beneath it. A hit pushes the plate back, flashes its light, and the score pops (the hook); it springs forward again.
- */
-function Target({ spec }: { spec: TargetSpec }) {
-  const rt = useRuntime();
-  const { palette } = rt;
-  const shadows = useShadows();
-  const plate = useRef<Group>(null);
-  const hit = useRef(0);
-  const cooldown = useRef(0);
-  const done = useRef(false);
-  const neon = useMemo(() => neonColors(palette), [palette]);
-  const W = spec.hw * 2;
-  const H = spec.hh * 2;
-  const kit = useOwned(() => {
-    const tok = palette.tok;
-    const base = tok[TARGET_TINT[spec.id] ?? "steel"];
-    const g = new RoundedBoxGeometry(W, H, 0.32, 3, 0.07);
-    tileUV(g, W, H);
-    const rimG = new RoundedBoxGeometry(W + 0.14, H + 0.14, 0.2, 3, 0.09);
-    const bodyMat = createTintedPaper(tint(base, tok.ivory, 0.12), { lift: 0.06 });
-    const rimMat = createTintedPaper(tint(tok.ivory, tok.kraft, 0.4), { lift: 0.04 });
-    const post = new CylinderGeometry(0.07, 0.09, 0.7, 10);
-    post.rotateX(Math.PI / 2);
-    const postMat = new MeshStandardMaterial({ color: col(tint(tok.kraft, tok.ivory, 0.5)), metalness: 0.7, roughness: 0.35 });
-    const label = textTexture(320, 160, (g2, w, h) => {
-      g2.textAlign = "center";
-      g2.textBaseline = "middle";
-      g2.fillStyle = cssColor(creamRGB(palette));
-      const size = spec.id.length > 5 ? 54 : spec.id.length > 3 ? 62 : 80;
-      g2.font = `700 ${size}px ${siteFont("display")}`;
-      g2.fillText(spec.id, w / 2, h * 0.54);
-    });
-    const labelGeo = new PlaneGeometry(W * 0.92, H * 0.92);
-    const labelMat = new MeshBasicMaterial({ map: label.tex, transparent: true, toneMapped: false });
-    const strip = new RoundedBoxGeometry(W * 0.84, 0.05, 0.05, 1, 0.02);
-    const stripMat = new MeshBasicMaterial({ color: neon.cyan.clone(), toneMapped: false });
-    const tex = glowTexture(128, 2);
-    const halo = new PlaneGeometry(W * 1.9, H * 3);
-    const haloMat = glowMaterial(neon.cyan, tex, 0.1);
-    return { g, rimG, bodyMat, rimMat, post, postMat, label, labelGeo, labelMat, strip, stripMat, tex, halo, haloMat };
-  });
-  const runId = rt.store((s) => s.runId);
-  useEffect(() => {
-    done.current = false;
-  }, [runId]);
-  useFrame((_, dt) => {
-    cooldown.current = Math.max(0, cooldown.current - dt);
-    hit.current = Math.max(0, hit.current - dt * 2.6);
-    const rm = rt.reducedMotion;
-    const h = rm ? (hit.current > 0.35 ? 1 : 0) : hit.current;
-    // back ~0.22 u and spring home (a little overshoot on the way back); a reduced-motion plate stays put and only its light changes
-    const back = !rm && h > 0 ? Math.sin(Math.min(1, h) * Math.PI) * 0.22 * (h > 0.5 ? 1 : 0.8) : 0;
-    if (plate.current) plate.current.position.z = 0.1 - back;
-    const idle = done.current ? 0.8 : 0.45;
-    kit.stripMat.color.copy(neon.cyan).multiplyScalar(idle + 1.3 * h);
-    kit.haloMat.opacity = 0.06 + (done.current ? 0.06 : 0) + 0.4 * h;
-  });
-  const onEnter = (p: CollisionEnterPayload) => {
-    if (!isBear(p) || cooldown.current > 0) return;
-    const body = rt.bearBody.current;
-    if (!body) return;
-    // A gummy resting or rolling on the plate is not a hit: without this a gummy in a pocket above a plate was kicked up again
-    // every half second for ever (TASK-185 flow check).
-    if (Math.hypot(rt.bear.vx, rt.bear.vy) < TARGET_MIN_HIT) return;
-    cooldown.current = 0.5;
-    hit.current = 1;
-    done.current = true;
-    const b = rt.bear;
-    const dx = b.x - spec.x;
-    const dy = b.y + 0.5 - spec.y;
-    const len = Math.hypot(dx, dy) || 1;
-    const speed = Math.max(6, Math.hypot(b.vx, b.vy) * 0.7 + 2.5);
-    body.setLinvel({ x: (dx / len) * speed, y: (dy / len) * speed + 1, z: 0 }, true);
-    b.sinceBounce = 0;
-    rt.jelly.impact(-dx / len, -dy / len, 12);
-    rt.hooks.target(spec.id, spec.x, spec.y);
-  };
-  return (
-    <RigidBody type="fixed" colliders={false} position={[spec.x, spec.y, 0]} rotation={[0, 0, spec.angle]} onCollisionEnter={onEnter}>
-      <CuboidCollider args={[spec.hw, spec.hh, 0.6]} restitution={0.8} />
-      {rt.tier.tier === "low" ? null : <mesh geometry={kit.halo} material={kit.haloMat} position={[0, 0, -0.45]} renderOrder={2} />}
-      <mesh geometry={shadows.unit} material={shadows.blobMat} position={[0.16, -0.22, -0.5]} scale={[W * 1.5, H * 2.6, 1]} />
-      <mesh geometry={kit.post} material={kit.postMat} position={[-spec.hw * 0.6, -spec.hh * 0.4, -0.3]} />
-      <mesh geometry={kit.post} material={kit.postMat} position={[spec.hw * 0.6, -spec.hh * 0.4, -0.3]} />
-      <group ref={plate} position={[0, 0, 0.1]}>
-        <mesh geometry={kit.rimG} material={kit.rimMat} position={[0, 0, -0.1]} />
-        <mesh geometry={kit.g} material={kit.bodyMat} />
-        <mesh geometry={kit.labelGeo} material={kit.labelMat} position={[0, 0, 0.17]} />
-        <mesh geometry={kit.strip} material={kit.stripMat} position={[0, -spec.hh - 0.06, 0.05]} />
-      </group>
-    </RigidBody>
-  );
-}
-
 /* ---- slingshots ---------------------------------------------------------------------------------------------------------------- */
 
 /**
- * A slingshot (spec §20): a paper triangle on the in-lane guide. A gummy that hits the kicking face is pushed away along its
- * normal; the face's lit strip flashes and the trim presses in for a beat, then releases.
+ * A slingshot (spec §20; the side trapezia TASK-199): a paper shape on a guide or against a wall. A gummy that hits the kicking face is
+ * pushed away along its normal (lib/lab/slings.ts); the face's lit strip flashes and the trim presses in for a beat, then releases. The
+ * wall ones carry no label: just cardstock, a cream face and a lit strip.
  */
 function Sling({ spec }: { spec: SlingSpec }) {
   const rt = useRuntime();
@@ -672,33 +633,32 @@ function Sling({ spec }: { spec: SlingSpec }) {
   const hit = useRef(0);
   const cooldown = useRef(0);
   const neon = useMemo(() => neonColors(rt.palette), [rt.palette]);
-  const [a, b, apex] = spec.pts;
+  const [f0, f1] = spec.face;
   const kit = useOwned(() => {
     const tok = rt.palette.tok;
-    const local = (p: { x: number; y: number }) => [p.x - spec.mid.x, p.y - spec.mid.y] as const;
     const s = new Shape();
-    const [ax, ay] = local(a);
-    const [bx, by] = local(b);
-    const [cx, cy] = local(apex);
-    s.moveTo(ax, ay);
-    s.lineTo(bx, by);
-    s.lineTo(cx, cy);
+    spec.pts.forEach((p, i) => {
+      const x = p.x - spec.mid.x;
+      const y = p.y - spec.mid.y;
+      if (i === 0) s.moveTo(x, y);
+      else s.lineTo(x, y);
+    });
     s.closePath();
     const depth = 0.75;
     const body = sheet(s, depth, 0.04);
     body.translate(0, 0, -depth / 2);
-    const faceLen = Math.hypot(apex.x - b.x, apex.y - b.y);
+    const faceLen = Math.hypot(f1.x - f0.x, f1.y - f0.y);
     const bar = new RoundedBoxGeometry(faceLen, 0.1, 0.34, 2, 0.04);
     const strip = new RoundedBoxGeometry(faceLen * 0.82, 0.05, 0.05, 1, 0.02);
     const button = new CylinderGeometry(0.1, 0.1, 0.12, 14);
     button.rotateX(Math.PI / 2);
-    const bodyMat = createTintedPaper(tint(tok.rust, tok.ivory, 0.2), { lift: 0.08 });
+    const bodyMat = createTintedPaper(spec.kind === "wall" ? tint(tok.rust, tok.kraft, 0.22) : tint(tok.rust, tok.ivory, 0.2), { lift: 0.08 });
     const barMat = createTintedPaper(tint(creamRGB(rt.palette), tok.kraft, 0.1), { lift: 0.1 });
     const stripMat = new MeshBasicMaterial({ color: neon.amber.clone(), toneMapped: false });
     const buttonMat = new MeshBasicMaterial({ color: neon.amber.clone(), toneMapped: false });
     // hull for the collider: the prism, in world coordinates
     const hull = new Float32Array(
-      [a, b, apex].flatMap((p) => [
+      spec.pts.flatMap((p) => [
         [p.x, p.y, -0.6],
         [p.x, p.y, 0.6],
       ]).flat(),
@@ -724,18 +684,17 @@ function Sling({ spec }: { spec: SlingSpec }) {
     if (!body) return;
     const bear = rt.bear;
     // only a gummy on the kicking face's side is kicked (never one that clipped the back or the base)
-    const side = (bear.x - spec.mid.x) * spec.normal.x + (bear.y + 0.5 - spec.mid.y) * spec.normal.y;
-    if (side <= 0.05) return;
+    if (!slingFacing(spec, bear.x, bear.y + 0.5)) return;
     cooldown.current = 0.22;
     hit.current = 1;
-    const speed = Math.max(9, Math.hypot(bear.vx, bear.vy) * 0.6 + 5) * rt.bounceMul;
-    body.setLinvel({ x: spec.normal.x * speed, y: spec.normal.y * speed + 1, z: 0 }, true);
+    const v = slingKick(spec, Math.hypot(bear.vx, bear.vy), rt.bounceMul);
+    body.setLinvel({ x: v.x, y: v.y, z: 0 }, true);
     bear.sinceBounce = 0;
     rt.jelly.impact(-spec.normal.x, -spec.normal.y, 12);
     rt.hooks.sling(spec.id, spec.mid.x, spec.mid.y);
   };
-  // the face runs apex → b; angle of that edge
-  const faceAng = Math.atan2(b.y - apex.y, b.x - apex.x);
+  // the face runs f0 → f1; angle of that edge
+  const faceAng = Math.atan2(f1.y - f0.y, f1.x - f0.x);
   return (
     <RigidBody type="fixed" colliders={false} onCollisionEnter={onEnter}>
       <ConvexHullCollider args={[kit.hull]} restitution={0.5} friction={0.05} />
@@ -748,7 +707,7 @@ function Sling({ spec }: { spec: SlingSpec }) {
             <mesh geometry={kit.strip} material={kit.stripMat} position={[0, 0.06, 0.2]} />
           </group>
         </group>
-        <mesh geometry={kit.button} material={kit.buttonMat} position={[(apex.x + b.x) / 2 - spec.mid.x - spec.normal.x * 0.0, (apex.y + b.y) / 2 - spec.mid.y, 0.42]} />
+        <mesh geometry={kit.button} material={kit.buttonMat} position={[0, 0, 0.42]} />
       </group>
     </RigidBody>
   );

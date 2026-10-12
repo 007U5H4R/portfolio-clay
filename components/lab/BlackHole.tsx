@@ -9,13 +9,15 @@ import { glowMaterial, glowTexture, neonColors, rng, tornCircle } from "./paper-
 import { useRuntime } from "./runtime";
 
 /**
- * The black hole (TASK-185, spec §23): the way back to the portfolio, drawn as a tear in the cabinet's top-left corner with
- * a torn paper lip, a deep black centre, a purple-and-amber ring that slowly swirls and a handful of tiny stars in orbit.
+ * The black hole (TASK-185, spec §23; inside the table since TASK-199): the way back to the portfolio, drawn as a tear in the
+ * playfield's top-left corner (a sensor pocket the gummy can reach) with a torn paper lip, a deep black centre, a purple-and-amber ring that slowly swirls and a handful of tiny stars in orbit.
  * Hovering or focusing the real link (LabUi's BackPortal sets `rt.blackHoleHover`) swells it, speeds the stars and the
  * swirl, pulls the stars in a little and bends the paper lip toward the centre. Under reduced motion nothing orbits or
  * swirls; the hover still swells it (a state change, not a loop).
  */
 const STARS = 14;
+/** The hole is painted on the board (below the gummy, which passes in front of it and then spirals in), not laid over the glass. */
+const HOLE_Z = -0.32;
 export function BlackHole() {
   const rt = useRuntime();
   const { arena, palette } = rt;
@@ -84,7 +86,8 @@ export function BlackHole() {
   const orbit = useRef(0);
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30);
-    const target = rt.blackHoleHover ? 1 : 0;
+    // hovered or focused link, or the gummy on its way in (the exit spiral): swell and spin faster
+    const target = rt.blackHoleHover || rt.exit?.via === "portal" ? 1 : 0;
     hoverK.current += (target - hoverK.current) * (1 - Math.exp(-7 * dt));
     const k = hoverK.current;
     const still = rt.reducedMotion;
@@ -125,7 +128,7 @@ export function BlackHole() {
     }
   });
   return (
-    <group position={[x, y, 0.9]}>
+    <group position={[x, y, HOLE_Z]}>
       <mesh geometry={kit.glowGeo} material={kit.glowMat} position={[0, 0, -0.05]} renderOrder={2} />
       <group ref={group}>
         <mesh geometry={kit.lip1} material={kit.lip1Mat} position={[0, 0, 0]} />

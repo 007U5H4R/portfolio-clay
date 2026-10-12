@@ -16,7 +16,6 @@ export interface RunSummary {
   score: number;
   timeS: number;
   combo: number;
-  targets: number;
   powerUps: number;
   saves: number;
   newBest: boolean;
@@ -38,7 +37,6 @@ export interface LabSnapshot {
   dangerLeft: number | null;
   countdown: number;
   powers: PowerChip[];
-  tpMode: boolean;
   banner: string | null;
   hint: string | null;
   muted: boolean;
@@ -73,7 +71,6 @@ const initial = (): Omit<LabSnapshot, "state"> => ({
   dangerLeft: null,
   countdown: 0,
   powers: [],
-  tpMode: false,
   banner: null,
   hint: null,
   muted: true,

@@ -55,9 +55,6 @@
     --o-h: calc(100dvh * 0.668);
   }
 }
-.root[data-theme-mode="tp"] {
-  --lab-top: color-mix(in oklab, var(--color-note) 55%, var(--color-ivory));
-}
 .canvasWrap {
   position: absolute;
   left: calc(var(--o-l) - var(--ext-x));
@@ -374,24 +371,6 @@
   right: 4px;
   top: calc(100% - 4px);
   pointer-events: auto;
-}
-
-.emblem {
-  position: absolute;
-  left: 50%;
-  top: 80px;
-  transform: translateX(-50%);
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  color: var(--color-ivory);
-  background: radial-gradient(circle at 35% 30%, var(--color-note), var(--color-rust) 75%);
-  box-shadow: 0 0 18px color-mix(in oklab, var(--color-rust) 55%, transparent);
-  pointer-events: none;
-  z-index: 2;
-  animation: pop 800ms var(--ease-hover);
 }
 
 /* ---- danger / countdown / toasts / banners ------------------------------------------------- */
@@ -726,7 +705,6 @@
   .count,
   .banner,
   .results,
-  .emblem,
   .powerChip,
   .hint,
   .flutter,
@@ -1195,9 +1173,9 @@
 /* a torn tab of cream card beside the hole, like the old Back tab */
 .portalLabel {
   position: absolute;
-  /* beside the hole, out over the sky and off the table */
-  right: 52%;
-  top: 86%;
+  /* just below the hole, on the table's top-left (TASK-199: the hole is inside the table now) */
+  left: 40%;
+  top: 98%;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1342,11 +1320,10 @@
   }
 }
 @media (max-width: 480px) {
-  /* on a phone the table fills the width: the label goes to the right of the hole, on the cabinet's top rail, off the table */
+  /* on a phone the hole is nearer the wall: the label sits under it and runs to the right */
   .portalLabel {
-    right: auto;
-    left: 92%;
-    top: 4%;
+    left: 20%;
+    top: 100%;
   }
 }
 
