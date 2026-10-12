@@ -13737,6 +13737,13 @@ html[data-theme-vt]::view-transition-group(root) {
     opacity var(--dur-l2-out) var(--ease-paper),
     translate var(--dur-l2-out) var(--ease-paper);
 }
+/* the slips sit side by side and may run past the copy column onto the art (they are paper laid on it) */
+@media (min-width: 700px) {
+  .fw-card-anchor .fw-proof {
+    flex-wrap: nowrap;
+    width: max-content;
+  }
+}
 /* touch and no-hover: nothing hides behind a hover — the slips are simply there */
 @media (hover: none), (pointer: coarse) {
   .fw-proof-item,
