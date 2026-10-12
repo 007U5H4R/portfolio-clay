@@ -89,14 +89,11 @@ test.describe("header tabs (TASK-112)", () => {
     }
   });
 
-  test("header height: ≤ 112 px below 1440 (two rows), the single ~72 px row at ≥ 1440", async ({ page }) => {
+  test("header height (TASK-192): one fixed sheet per tier — ~119 px phone, ~137 px two-row tablet, ~124 px one row at ≥ 1280", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     const h = (await page.locator("header[data-site-header]").boundingBox())!.height;
     test.info().annotations.push({ type: "header-height", description: `${width(page)}: ${h}px` });
-    if (width(page) < 1440) expect(h).toBeLessThanOrEqual(112);
-    else {
-      expect(h).toBeGreaterThanOrEqual(70);
-      expect(h).toBeLessThanOrEqual(74);
-    }
+    const expected = width(page) < 768 ? 119 : width(page) < 1280 ? 137 : 124;
+    expect(Math.abs(h - expected), `header ${h}px at ${width(page)} vs --header-h ${expected}`).toBeLessThanOrEqual(2);
   });
 });

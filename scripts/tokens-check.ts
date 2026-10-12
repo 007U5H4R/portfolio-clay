@@ -66,6 +66,12 @@ const MATERIAL: Record<string, string> = {
   "--mat-terra-2": "#A94728",
   "--mat-terra-3": "#B9532D",
   "--mat-side": "#6D321E",
+  // M-013 (TASK-192) origami header tabs: paper face, fold, thickness edge, active-tab fold, active underline.
+  "--mat-tab": "#FCF8EF",
+  "--mat-tab-fold": "#E6D8BF",
+  "--mat-tab-edge": "#C9B591",
+  "--mat-tab-on-fold": "#070E24",
+  "--mat-tab-line": "#DCC6A1",
 };
 const MATERIAL_DARK: Record<string, string> = {
   "--mat-bg": "#0E1934",
@@ -75,6 +81,11 @@ const MATERIAL_DARK: Record<string, string> = {
   "--mat-terra-2": "#7E3320",
   "--mat-terra-3": "#8C3C26",
   "--mat-side": "#070F24",
+  "--mat-tab": "#1E2F52",
+  "--mat-tab-fold": "#101B36",
+  "--mat-tab-edge": "#08112A",
+  "--mat-tab-on-fold": "#CDB68A",
+  "--mat-tab-line": "#9A7330",
 };
 
 const BLOCKS = [
@@ -142,6 +153,8 @@ const MAT_PAIRS = {
     ["ivory", "mat-terra-1", 4.5, "label on deep terracotta"],
     ["ivory", "mat-terra-2", 4.5, "label on mid terracotta"],
     ["terracotta", "mat-cream", 4.5, "accent text on cream"],
+    ["navy", "mat-tab", 4.5, "label on a resting header tab"],
+    ["mat-tab-line", "navy", 3, "active-tab underline on the active face (non-text)"],
   ],
   dark: [
     ["navy", "mat-bg", 4.5, "text on scene paper"],
@@ -151,6 +164,8 @@ const MAT_PAIRS = {
     ["navy", "mat-terra-1", 4.5, "label on deep terracotta"],
     ["navy", "mat-terra-2", 4.5, "label on mid terracotta"],
     ["terracotta", "mat-cream", 4.5, "accent text on cream"],
+    ["navy", "mat-tab", 4.5, "label on a resting header tab"],
+    ["mat-tab-line", "navy", 3, "active-tab underline on the active face (non-text)"],
   ],
 } as const;
 

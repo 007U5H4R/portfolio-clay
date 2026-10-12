@@ -1,0 +1,76 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import { wibHeading, wibStages, wibStatement } from "@/data/what-i-bring";
+
+/**
+ * TASK-187 — the "What I Bring" journey data. The reference image invented tools; this suite keeps the page honest:
+ * seven stages in the spec's order, every tool / example / proof figure traceable to `data/`, and the five
+ * verified-absent names never present.
+ */
+const dataDir = resolve(process.cwd(), "data");
+function walk(dir: string): string[] {
+  return readdirSync(dir).flatMap((f) => {
+    const p = join(dir, f);
+    return statSync(p).isDirectory() ? walk(p) : /\.(ts|json)$/.test(f) && f !== "what-i-bring.ts" ? [p] : [];
+  });
+}
+const corpus = walk(dataDir)
+  .map((f) => readFileSync(f, "utf8"))
+  .join("\n")
+  .toLowerCase();
+
+describe("data/what-i-bring (TASK-187)", () => {
+  it("has the 7 stages in journey order, numbered 01-07", () => {
+    expect(wibStages.map((s) => s.id)).toEqual(["ambiguity", "discovery", "product", "ai-genai", "technology", "execution", "impact"]);
+    expect(wibStages.map((s) => s.number)).toEqual(["01", "02", "03", "04", "05", "06", "07"]);
+    expect(wibHeading).toBe("What I Bring");
+    expect(wibStatement).toBe("I turn ambiguous problems into shipped products.");
+  });
+
+  it("gives every stage a heading, 5-7 capabilities and a principle", () => {
+    for (const s of wibStages) {
+      expect(s.heading.length, s.id).toBeGreaterThan(10);
+      expect(s.capabilities.length, s.id).toBeGreaterThanOrEqual(5);
+      expect(s.capabilities.length, s.id).toBeLessThanOrEqual(7);
+      expect(s.principle.length, s.id).toBeGreaterThan(0);
+    }
+  });
+
+  it("every tool, example and proof figure exists in data/ (evidence term found in the corpus)", () => {
+    const claims = wibStages.flatMap((s) => [
+      ...s.tools.map((t) => [s.id, t.label, t.evidence] as const),
+      ...(s.examples ?? []).map((e) => [s.id, e.name, e.evidence] as const),
+      ...(s.proof ?? []).map((p) => [s.id, p.label, p.evidence] as const),
+    ]);
+    expect(claims.length).toBeGreaterThan(15);
+    for (const [stage, label, evidence] of claims) {
+      expect(corpus.includes(evidence.toLowerCase()), `${stage}: "${label}" needs "${evidence}" in data/`).toBe(true);
+    }
+  });
+
+  it("the technology capabilities that name a product are in data/", () => {
+    const named = ["BigQuery", "Spanner", "Supabase", "Next.js", "Vercel", "Railway", "GCP", "AWS", "Jira", "Azure DevOps", "SAFe", "Kanban", "Scrum"];
+    for (const n of named) expect(corpus.includes(n.toLowerCase()), n).toBe(true);
+    const text = wibStages.flatMap((s) => s.capabilities).join(" | ");
+    for (const n of ["BigQuery", "Spanner", "Supabase", "Next.js", "Vercel", "Railway", "Jira", "Azure DevOps", "SAFe"]) expect(text).toContain(n);
+  });
+
+  it("never mentions the tools the reference image invented (LangChain, Planview, Confluence, Miro, OKR)", () => {
+    const text = JSON.stringify(wibStages);
+    expect(text).not.toMatch(/langchain|planview|confluence|miro\b|\bokrs?\b|workshops?/i);
+  });
+
+  it("keeps the self-reported label on both proof figures, and invents no other number", () => {
+    const impact = wibStages.find((s) => s.id === "impact")!;
+    expect(impact.proof?.map((p) => `${p.value} ${p.label}`)).toEqual(["12 features in 11 months", "30% delivery-cycle reduction"]);
+    for (const p of impact.proof!) expect(p.note).toBe("self-reported");
+    for (const s of wibStages.filter((s) => s.id !== "impact")) expect(s.proof).toBeUndefined();
+  });
+
+  it("ships the layered art for every stage plus the strip", () => {
+    for (const s of wibStages)
+      for (const layer of ["back", "mid", "front"]) expect(statSync(resolve(process.cwd(), `public/media/what-i-bring/${s.id}/${layer}.webp`)).size).toBeGreaterThan(1000);
+    expect(statSync(resolve(process.cwd(), "public/media/what-i-bring/landscape/strip.webp")).size).toBeGreaterThan(1000);
+  });
+});

@@ -3074,9 +3074,7 @@ html.lenis body {
   .essay-entry-title a {
     transition: color 0.18s ease;
   }
-  .essay-entry-title a:hover {
-    color: var(--color-rust);
-  }
+  /* hover/focus: the TASK-181.4 block (essay row) */
   .essay-entry-dek {
     max-width: 58ch;
     font-size: 16px;
@@ -4148,59 +4146,6 @@ html.lenis body {
     padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
   }
 
-  /* capabilities (section#capability-clusters — paper, torn) */
-  .acap-sheets {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 30px 28px;
-  }
-  .acap-sheet:nth-child(1) {
-    grid-column: span 5;
-  }
-  .acap-sheet:nth-child(2) {
-    grid-column: span 7;
-    margin-top: 18px;
-  }
-  .acap-sheet:nth-child(3) {
-    grid-column: span 7;
-  }
-  .acap-sheet:nth-child(4) {
-    grid-column: span 5;
-    margin-top: 22px;
-  }
-  .acap-h3 {
-    font-size: 28px;
-    line-height: 32px;
-    color: var(--color-navy);
-  }
-  .acap-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .acap-list li {
-    position: relative;
-    padding-left: 22px;
-    font-size: 15px;
-    line-height: 32px;
-    color: var(--color-navy);
-  }
-  /* hand-drawn tick — list chrome, not a counted decoration */
-  .acap-list li::before {
-    content: "";
-    position: absolute;
-    top: 12px;
-    left: 0;
-    width: 9px;
-    height: 5px;
-    border-bottom: 1.5px solid var(--color-rust);
-    border-left: 1.5px solid var(--color-rust);
-    rotate: -50deg;
-  }
-  .acap-list[data-tick="forest"] li::before {
-    border-color: var(--color-forest);
-  }
-
   .acap-langs {
     margin-top: clamp(28px, 3vw, 40px);
     font-size: 15px;
@@ -4212,16 +4157,6 @@ html.lenis body {
     }
     .about-lead {
       justify-self: start;
-    }
-    .acap-sheet:nth-child(n) {
-      grid-column: 1 / -1;
-      margin-top: 0;
-    }
-  }
-  @media (max-width: 640px) {
-    .acap-sheet.paper-sheet {
-      padding-left: 46px;
-      padding-right: 20px;
     }
   }
 }
@@ -4373,11 +4308,7 @@ html.lenis body {
     gap: 10px;
     align-content: start;
     padding: 26px 26px 22px;
-    transition: translate 0.25s ease, box-shadow 0.25s ease;
-  }
-  .pg-board .pg-ex:hover {
-    translate: 0 -3px;
-    box-shadow: var(--shadow-paper-hover);
+    /* lift + shadow crossfade: `.paper-lift` (class on the card) and the TASK-181.4 block */
   }
   .pg-board .pg-ex-1 { grid-column: 1 / 8; grid-row: 1; padding: 30px 32px 26px; }
   .pg-board .pg-ex-2 { grid-column: 8 / 13; grid-row: 1; margin-top: 26px; background: var(--color-kraft); padding: 24px 22px 20px; }
@@ -4470,9 +4401,7 @@ html.lenis body {
     .pg-caption { font-size: 18px; right: 16px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .pg-board .pg-ex,
     .pg-ex-live { transition: none; }
-    .pg-board .pg-ex:hover { translate: none; }
   }
 }
 /* end TKT-88 */
@@ -7131,23 +7060,13 @@ html.lenis body {
       opacity 200ms var(--ease-hover),
       scale 200ms var(--ease-hover);
   }
-  .cert-paper {
-    transition: filter 240ms var(--ease-hover);
-  }
   .cert-link:focus-visible .cert-corner {
     opacity: 1;
   }
-  .cert-link:focus-visible .cert-paper {
-    filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
-      drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
-  }
-  @media (hover: hover) {
+  /* the raised shadow is a second, static layer that fades in (TASK-181.4 block); the filter is never transitioned */
+  @media (hover: hover) and (pointer: fine) {
     .cert-link:hover .cert-corner {
       opacity: 1;
-    }
-    .cert-link:hover .cert-paper {
-      filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
-        drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
     }
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -7155,13 +7074,14 @@ html.lenis body {
       translate: 0 -4px;
       rotate: -0.6deg;
     }
-    .cert-link:focus-visible .cert-badge {
+    .cert-link:focus-visible .cert-badge,
+    .cert-link:focus-visible .cert-sticky {
       translate: 0 -3px;
     }
     .cert-link:focus-visible .cert-cta-arrow {
       translate: 2px -2px;
     }
-    @media (hover: hover) {
+    @media (hover: hover) and (pointer: fine) {
       .cert-link:hover .cert-card {
         translate: 0 -4px;
         rotate: -0.6deg;
@@ -7178,8 +7098,7 @@ html.lenis body {
   @media (prefers-reduced-motion: reduce) {
     .cert-lift,
     .cert-cta-arrow,
-    .cert-corner,
-    .cert-paper {
+    .cert-corner {
       transition: none;
     }
   }
@@ -7559,8 +7478,7 @@ html.lenis body {
     box-shadow: var(--shadow-paper);
     transition:
       translate 220ms var(--ease-hover),
-      rotate 220ms var(--ease-hover),
-      box-shadow 220ms var(--ease-hover);
+      rotate 220ms var(--ease-hover);
   }
   .certm-item:nth-child(odd) .certm-tile {
     rotate: -0.4deg;
@@ -7608,14 +7526,7 @@ html.lenis body {
   .certm-tile .cert-cta {
     font-size: 19px;
   }
-  .certm-tile:focus-visible {
-    box-shadow: var(--shadow-paper-hover);
-  }
-  @media (hover: hover) {
-    .certm-tile:hover {
-      box-shadow: var(--shadow-paper-hover);
-    }
-  }
+  /* the raised shadow crossfades on `.certm-tile::after` (TASK-181.4 block) */
   @media (prefers-reduced-motion: no-preference) {
     .certm-tile:focus-visible .cert-cta-arrow {
       translate: 2px -2px;
@@ -7624,7 +7535,7 @@ html.lenis body {
       translate: 0 -3px;
       rotate: 0.6deg;
     }
-    @media (hover: hover) {
+    @media (hover: hover) and (pointer: fine) {
       .certm-item .certm-tile:hover {
         translate: 0 -3px;
         rotate: 0.6deg;
@@ -12433,13 +12344,47 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 /* ==================================================================================================
-   M-010 T4 (TASK-145.1) · paper-cut nav — paper-cut-2 §169–§210. Unlayered, grouped, tokens only.
-   Layers (back to front): backing scraps → main paper strip (.header-paper-sheet) → paper tabs
-   (.header-nav-link::before) → terracotta active layer (.hn-strip) → labels. Every extra layer is a
-   pseudo-element or an absolutely positioned decorative span, so no layout box changes size (QA-010
-   spacing and the 108 / 72 px header heights are untouched). Shadows come from --shadow-ink.
+   M-013 (TASK-192) · origami paper tabs header. Replaces the M-010 T4 paper-cut nav (scraps, tab cards, terracotta strip).
+   Unlayered, grouped, tokens only (EVAL-020). Layers, back to front: the paper sheet (grain image + torn lower edge) → the thin
+   terrain band (left / mid / right pieces, tinted toward slate in dark) → the torn lip → per tab: soft shadow (rest + lifted
+   crossfade) · thickness · face · fold · label · underline. One light, upper left, so every shadow falls down and right.
+   Shadows are blurred shapes (a static blur on the parent of a clip-path'd child); the lifted shadow crossfades by opacity and no
+   box-shadow / filter is ever transitioned (EXE-61). The only motion is the tab's own `transform`, under the L1 fine-pointer gate.
    ================================================================================================== */
+:root {
+  --poly-sheet: polygon(0 0, 100% 0, 100.00% calc(100% - 1.9px), 98.44% calc(100% - 1.5px), 96.88% calc(100% - 2.3px), 95.31% calc(100% - 4.7px), 93.75% calc(100% - 1.7px), 92.19% calc(100% - 2.1px), 90.62% calc(100% - 3.4px), 89.06% calc(100% - 1.9px), 87.50% calc(100% - 3.9px), 85.94% calc(100% - 4.8px), 84.38% calc(100% - 0.9px), 82.81% calc(100% - 0.8px), 81.25% calc(100% - 2.3px), 79.69% calc(100% - 3.9px), 78.12% calc(100% - 4.5px), 76.56% calc(100% - 1.7px), 75.00% calc(100% - 1.4px), 73.44% calc(100% - 3.5px), 71.88% calc(100% - 3.2px), 70.31% calc(100% - 4.3px), 68.75% calc(100% - 1.1px), 67.19% calc(100% - 5.0px), 65.62% calc(100% - 4.4px), 64.06% calc(100% - 1.0px), 62.50% calc(100% - 1.1px), 60.94% calc(100% - 0.8px), 59.38% calc(100% - 1.8px), 57.81% calc(100% - 1.1px), 56.25% calc(100% - 2.0px), 54.69% calc(100% - 3.5px), 53.12% calc(100% - 3.7px), 51.56% calc(100% - 3.5px), 50.00% calc(100% - 0.3px), 48.44% calc(100% - 3.0px), 46.88% calc(100% - 2.5px), 45.31% calc(100% - 0.6px), 43.75% calc(100% - 3.2px), 42.19% calc(100% - 2.2px), 40.62% calc(100% - 2.8px), 39.06% calc(100% - 3.3px), 37.50% calc(100% - 0.2px), 35.94% calc(100% - 2.1px), 34.38% calc(100% - 2.8px), 32.81% calc(100% - 3.5px), 31.25% calc(100% - 2.3px), 29.69% calc(100% - 2.6px), 28.12% calc(100% - 1.3px), 26.56% calc(100% - 2.6px), 25.00% calc(100% - 3.5px), 23.44% calc(100% - 0.5px), 21.88% calc(100% - 2.7px), 20.31% calc(100% - 4.8px), 18.75% calc(100% - 1.8px), 17.19% calc(100% - 3.2px), 15.62% calc(100% - 1.3px), 14.06% calc(100% - 1.0px), 12.50% calc(100% - 0.7px), 10.94% calc(100% - 4.4px), 9.38% calc(100% - 1.6px), 7.81% calc(100% - 4.9px), 6.25% calc(100% - 0.7px), 4.69% calc(100% - 2.8px), 3.12% calc(100% - 1.5px), 1.56% calc(100% - 2.6px), 0.00% calc(100% - 1.7px));
+  --poly-lip: polygon(0.00% 2.0px, 1.56% 2.7px, 3.12% 0.4px, 4.69% 0.1px, 6.25% 0.9px, 7.81% 1.6px, 9.38% 1.7px, 10.94% 3.2px, 12.50% 2.5px, 14.06% 0.5px, 15.62% 2.8px, 17.19% 3.1px, 18.75% 2.0px, 20.31% 3.0px, 21.88% 1.8px, 23.44% 1.7px, 25.00% 0.3px, 26.56% 3.8px, 28.12% 2.8px, 29.69% 2.5px, 31.25% 1.9px, 32.81% 2.5px, 34.38% 1.0px, 35.94% 1.7px, 37.50% 1.8px, 39.06% 2.5px, 40.62% 3.4px, 42.19% 1.8px, 43.75% 0.7px, 45.31% 1.2px, 46.88% 1.3px, 48.44% 0.6px, 50.00% 1.7px, 51.56% 2.6px, 53.12% 3.5px, 54.69% 2.4px, 56.25% 1.7px, 57.81% 1.9px, 59.38% 3.2px, 60.94% 0.4px, 62.50% 1.8px, 64.06% 3.6px, 65.62% 3.1px, 67.19% 2.5px, 68.75% 3.0px, 70.31% 1.5px, 71.88% 1.4px, 73.44% 1.4px, 75.00% 0.6px, 76.56% 2.0px, 78.12% 1.2px, 79.69% 2.7px, 81.25% 2.5px, 82.81% 3.3px, 84.38% 4.0px, 85.94% 2.9px, 87.50% 2.1px, 89.06% 2.2px, 90.62% 2.5px, 92.19% 3.6px, 93.75% 0.4px, 95.31% 1.6px, 96.88% 1.6px, 98.44% 1.2px, 100.00% 3.8px, 100% 100%, 0 100%);
+  --poly-pill: polygon(0 11px, 3.3px 3.3px, 11px 0, 11.1% 0.7px, 22.2% 0.3px, 33.3% 1.4px, 44.4% 0.2px, 55.6% 1.2px, 66.7% 0.8px, 77.8% 0.1px, 88.9% 1.1px, calc(100% - 11px) 0, calc(100% - 3.3px) 3.3px, 100% 11px, calc(100% - 0.1px) 35%, calc(100% - 1.0px) 70%, 100% calc(100% - 11px), calc(100% - 3.3px) calc(100% - 3.3px), calc(100% - 11px) 100%, 88.9% calc(100% - 0.2px), 77.8% calc(100% - 0.2px), 66.7% calc(100% - 0.9px), 55.6% calc(100% - 1.8px), 44.4% calc(100% - 0.3px), 33.3% calc(100% - 0.5px), 22.2% calc(100% - 1.4px), 11.1% calc(100% - 2.1px), 11px 100%, 3.3px calc(100% - 3.3px), 0 calc(100% - 11px), 1.3px 70%, 0.9px 35%);
+  /* tab silhouette: a broad face, the top-left corner cut, the right edge leaning in toward the bottom (spec §4.1) */
+  --poly-tab: polygon(6px 0, 100% 2px, calc(100% - 17px) calc(100% - 1px), 0 100%);
+  --poly-tab-on: polygon(11px 0, 100% 3px, calc(100% - 21px) 100%, 0 calc(100% - 5px));
+  --tab-shadow: color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+  --tab-hi: color-mix(in oklab, var(--color-ivory) 85%, transparent);
+  --tab-hi-on: color-mix(in oklab, var(--color-ivory) 16%, transparent);
+  --hdr-grain: url("/header/paper-grain-light.webp");
+  --hdr-tile: url("/header/tp-tile-light.webp");
+  --hdr-left: url("/header/terrain-light-left.webp");
+  --hdr-right: url("/header/terrain-light-right.webp");
+  --hdr-mid: url("/header/terrain-light-mid.webp");
+}
+[data-theme="dark"] {
+  --tab-shadow: color-mix(in oklab, var(--shadow-ink) 72%, transparent);
+  --tab-hi: color-mix(in oklab, var(--color-navy) 9%, transparent);
+  --tab-hi-on: color-mix(in oklab, var(--color-ivory) 10%, transparent);
+  --hdr-grain: url("/header/paper-grain-dark.webp");
+  --hdr-tile: url("/header/tp-tile-dark.webp");
+  --hdr-left: url("/header/terrain-dark-left.webp");
+  --hdr-right: url("/header/terrain-dark-right.webp");
+  --hdr-mid: url("/header/terrain-dark-mid.webp");
+}
 .site-header {
+  /* the tunables: tab height / side padding / label size, the monogram tile, the terrain scale */
+  --nt-h: 46px;
+  --nt-pad: 18px;
+  --nt-font: 16px;
+  --hdr-tile-px: 44px;
+  --ht-edge-w: 0px;
+  --ht-mid-h: 16px;
   background: transparent;
   backdrop-filter: none;
   border-bottom-color: transparent;
@@ -12447,6 +12392,12 @@ html[data-theme-vt]::view-transition-group(root) {
 .site-header[data-scrolled] {
   border-bottom-color: transparent;
 }
+/* the header's height per tier (the sheet is one fixed height at each; e2e asserts it): compact phone, two-row tablet, one row */
+:root {
+  --header-h: 119px;
+}
+
+/* ---- the sheet ---- */
 .header-paper {
   position: absolute;
   inset: 0;
@@ -12462,117 +12413,338 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .header-paper-sheet {
   position: absolute;
-  inset: 0 0 -5px 0;
-  background:
-    var(--grain-a) 0 0 / 7px 7px,
-    var(--grain-b) 3px 4px / 11px 11px,
-    var(--color-ivory);
-  /* hand-cut lower edge: a few small steps, never a straight rule */
-  clip-path: polygon(
-    0 0, 100% 0, 100% calc(100% - 3px), 94% calc(100% - 1px), 81% 100%, 67% calc(100% - 2px), 52% calc(100% - 1px),
-    38% 100%, 23% calc(100% - 2px), 9% calc(100% - 1px), 0 calc(100% - 3px)
-  );
+  inset: 0 0 -6px 0;
+  background: var(--hdr-grain) 0 0 / 320px 320px, var(--color-paper-2);
+  clip-path: var(--poly-sheet);
 }
-.header-scrap {
-  position: absolute;
-  bottom: -9px;
-  height: 11px;
-  border-radius: 2px;
-}
-.header-scrap-graph {
-  left: 4%;
-  width: 90px;
-  transform: rotate(-1.2deg);
-  background:
-    repeating-linear-gradient(0deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
-    repeating-linear-gradient(90deg, var(--rule-blue-card) 0 1px, transparent 1px 7px),
-    color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
-}
-.header-scrap-rust {
-  right: 12%;
-  width: 70px;
-  transform: rotate(0.9deg);
-  background: color-mix(in oklab, var(--color-rust) 70%, var(--color-ivory));
-}
-.header-scrap-kraft {
-  left: 46%;
-  width: 56px;
-  transform: rotate(-0.6deg);
-  background: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
-}
-.header-scrap-kraft {
-  display: none;
-}
-@media (min-width: 1024px) {
-  .header-scrap-kraft {
-    display: block;
-  }
-}
-
-/* identity: the monogram sits on its own small paper card */
-.header-monogram {
-  padding: 3px;
-  border-radius: 8px;
-  background: var(--color-paper);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 22%, transparent), 0 3px 5px -2px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
-  transform: rotate(-2deg);
-}
-
-/* paper tabs: the card is a pseudo-element that overhangs the hit area (no width change) */
-.header-nav-link {
-  isolation: isolate;
-}
-.header-nav-link::before {
+/* the torn bottom lip: a paper strip with its own torn upper edge, lying over the foot of the terrain */
+.header-paper-sheet::after {
   content: "";
   position: absolute;
-  inset: 5px -6px;
-  z-index: -2;
-  border-radius: 7px;
-  background: var(--color-paper);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 16%, transparent), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
-  /* M-012 (EXE-61): the shadow swaps with the state; only the paper moves (hover/focus/press rules: the TASK-181 block) */
+  inset: auto 0 0 0;
+  height: 11px;
+  background: var(--mat-tab);
+  opacity: 0.9;
+  clip-path: var(--poly-lip);
+}
+
+/* ---- the terrain: a thin band, never behind the labels ---- */
+.header-terrain {
+  position: absolute;
+  inset: 0;
+}
+.ht-mid,
+.ht-left,
+.ht-right {
+  position: absolute;
+  bottom: 0;
+}
+.ht-mid {
+  left: 0;
+  right: 0;
+  height: var(--ht-mid-h);
+  background: var(--hdr-mid) 0 100% / auto 100% repeat-x;
+}
+.ht-left,
+.ht-right {
+  display: none;
+  width: var(--ht-edge-w);
+  aspect-ratio: 480 / 330;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.ht-left {
+  left: 0;
+  background-image: var(--hdr-left);
+  /* the inner side fades into the mid band so no step shows where the two meet */
+  -webkit-mask-image: linear-gradient(to right, #000 55%, transparent);
+  mask-image: linear-gradient(to right, #000 55%, transparent);
+}
+.ht-right {
+  right: 0;
+  background-image: var(--hdr-right);
+  -webkit-mask-image: linear-gradient(to left, #000 55%, transparent);
+  mask-image: linear-gradient(to left, #000 55%, transparent);
+}
+/* dark: the generated terrain is a saturated blue; a slate veil, masked by the piece itself, tones it down */
+[data-theme="dark"] .ht-mid::after,
+[data-theme="dark"] .ht-left::after,
+[data-theme="dark"] .ht-right::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--color-ink-soft) 30%, var(--color-paper));
+  opacity: 0.3;
+  -webkit-mask: var(--ht-src) 0 100% / var(--ht-size, 100% 100%) var(--ht-rep, no-repeat);
+  mask: var(--ht-src) 0 100% / var(--ht-size, 100% 100%) var(--ht-rep, no-repeat);
+}
+[data-theme="dark"] .ht-mid {
+  --ht-src: var(--hdr-mid);
+  --ht-size: auto 100%;
+  --ht-rep: repeat-x;
+}
+[data-theme="dark"] .ht-left {
+  --ht-src: var(--hdr-left);
+}
+[data-theme="dark"] .ht-right {
+  --ht-src: var(--hdr-right);
+}
+
+/* ---- identity: the TP monogram on its own paper tile ---- */
+.header-brand {
+  gap: 12px;
+}
+.header-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--hdr-tile-px);
+  height: var(--hdr-tile-px);
+  background: var(--hdr-tile) 0 0 / 100% 100% no-repeat;
+  /* a static CSS shadow (the tile art carries none); upper-left light, so it falls down and right */
+  filter: drop-shadow(1px 2px 1.5px color-mix(in oklab, var(--shadow-ink) 28%, transparent))
+    drop-shadow(3px 6px 5px color-mix(in oklab, var(--shadow-ink) 20%, transparent));
+}
+.header-monogram {
+  width: 66%;
+  height: 66%;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+.header-name {
+  letter-spacing: 0.12em;
+}
+
+/* ---- the folded tabs ---- */
+.header-nav-link {
+  isolation: isolate;
+  height: var(--nt-h);
+  padding: 0;
+  font-size: var(--nt-font);
+  border-radius: 0;
+}
+.nt-lift {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-inline: var(--nt-pad);
   transition: transform var(--dur-l1) var(--ease-l1);
 }
-.header-nav-link:nth-child(odd)::before {
-  transform: rotate(-0.5deg);
+.nt-label {
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+  padding-bottom: 3px;
 }
-.header-nav-link:nth-child(even)::before {
-  transform: rotate(0.4deg);
+/* the paper: thickness (.nt-under), face (::before) and fold (::after), sized a little wider than the hit area */
+.nt-paper {
+  position: absolute;
+  inset: 0 -6px;
+  z-index: 0;
 }
-.header-nav-link[aria-current="page"]::before {
-  background: color-mix(in oklab, var(--color-terracotta) 12%, var(--color-ivory));
+.nt-under,
+.nt-paper::before,
+.nt-paper::after,
+.nt-shadow::before,
+.nt-shadow::after {
+  content: "";
+  position: absolute;
 }
+.nt-under {
+  inset: 0;
+  z-index: 0;
+  translate: 1px 4px;
+  background: var(--mat-tab-edge);
+  clip-path: var(--poly-tab);
+}
+.nt-paper::before {
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(158deg, var(--tab-hi) 0, transparent 46%),
+    var(--grain-a) 0 0 / 7px 7px,
+    var(--mat-tab);
+  clip-path: var(--poly-tab);
+}
+/* the fold: a darker triangular flap at the lower right, hanging past the face onto the neighbour's side */
+.nt-paper::after {
+  right: -2px;
+  bottom: -9px;
+  z-index: 2;
+  width: 22px;
+  height: 18px;
+  background: linear-gradient(150deg, var(--mat-tab-fold) 20%, var(--mat-tab-edge));
+  clip-path: polygon(0 0, 100% 0, 45% 100%);
+  box-shadow: none;
+}
+/* the contact shadow: a static blur on the parent, the lifted twin crossfades by opacity */
+.nt-shadow {
+  position: absolute;
+  inset: 0 -6px;
+  z-index: -1;
+  filter: blur(4px);
+  pointer-events: none;
+}
+.nt-shadow::before {
+  inset: 0;
+  translate: 3px 7px;
+  background: var(--tab-shadow);
+  clip-path: var(--poly-tab);
+}
+.nt-shadow::after {
+  inset: 2px -2px -2px 0;
+  translate: 5px 11px;
+  background: var(--tab-shadow);
+  clip-path: var(--poly-tab);
+  opacity: 0;
+  transition: opacity var(--dur-l1) var(--ease-l1);
+}
+/* the underline: collapsed on resting tabs, drawn on the current page (half on hover / focus) */
 .hn-strip {
   position: absolute;
-  z-index: -1;
-  left: -3px;
-  right: -3px;
-  bottom: 7px;
-  height: 7px;
+  z-index: 3;
+  left: var(--nt-pad);
+  right: calc(var(--nt-pad) + 8px);
+  bottom: 9px;
+  height: 3px;
   border-radius: 2px;
-  background: var(--color-terracotta);
-  box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
-  transform: scaleX(0) rotate(-0.8deg);
+  background: color-mix(in oklab, var(--color-rust) 80%, var(--mat-tab));
+  transform: scaleX(0);
   transform-origin: left center;
   transition: transform 200ms var(--ease-l1);
   pointer-events: none;
 }
+.header-nav-link[aria-current="page"] {
+  color: var(--color-ivory);
+}
+.header-nav-link[aria-current="page"] .nt-paper::before {
+  background:
+    linear-gradient(158deg, var(--tab-hi-on) 0, transparent 46%),
+    var(--color-navy);
+}
+.header-nav-link[aria-current="page"] .nt-paper::before,
+.header-nav-link[aria-current="page"] .nt-under,
+.header-nav-link[aria-current="page"] .nt-shadow::before {
+  clip-path: var(--poly-tab-on);
+}
+.header-nav-link[aria-current="page"] .nt-under {
+  background: var(--mat-tab-on-fold);
+}
+.header-nav-link[aria-current="page"] .nt-paper::after {
+  background: linear-gradient(150deg, var(--mat-tab-on-fold) 30%, var(--mat-tab-on-fold));
+}
 .header-nav-link[aria-current="page"] .hn-strip,
 .header-nav-link[aria-current="page"]:hover .hn-strip,
 .header-nav-link[aria-current="page"]:focus-visible .hn-strip {
-  transform: scaleX(1) rotate(-0.8deg);
+  background: var(--mat-tab-line);
+  transform: scaleX(1);
+}
+.header-nav-link[aria-current="page"] .nt-shadow::before {
+  translate: 3px 9px;
+}
+/* hover / keyboard focus (the twin): the paper rises 3 px, the lifted shadow fades in, the underline wipes to half */
+.header-nav-link:focus-visible .nt-lift {
+  transform: translateY(-3px);
+}
+.header-nav-link:focus-visible .nt-shadow::after {
+  opacity: 1;
+}
+.header-nav-link:focus-visible .hn-strip {
+  transform: scaleX(0.5);
+}
+@media (hover: hover) and (pointer: fine) {
+  .header-nav-link:hover .nt-lift {
+    transform: translateY(-3px);
+  }
+  .header-nav-link:hover .nt-shadow::after {
+    opacity: 1;
+  }
+  .header-nav-link:hover .hn-strip {
+    transform: scaleX(0.5);
+  }
+}
+/* touch / press: the paper settles 1 px below rest and the lifted shadow goes */
+.header-nav-link:active .nt-lift {
+  transform: translateY(1px);
+}
+.header-nav-link:active .nt-shadow::after {
+  opacity: 0;
 }
 
-/* Connect CTA: a navy paper layer with a lifted ivory-edge top and a contact shadow */
+/* ---- Connect CTA: a torn strip of navy paper (cream in dark) with thickness and a soft shadow ---- */
 .header-pill {
-  background: var(--color-navy);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
-    0 5px 8px -3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+  position: relative;
+  isolation: isolate;
+  min-height: 48px;
+  padding: 6px 26px 8px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--color-ivory);
+  font-size: 24px;
+}
+.header-pill::before,
+.header-pill::after,
+.hp-shadow::before,
+.hp-shadow::after {
+  content: "";
+  position: absolute;
+  clip-path: var(--poly-pill);
+}
+.header-pill::before {
+  inset: 0;
+  z-index: -1;
+  background: var(--grain-a) 0 0 / 7px 7px, var(--color-navy);
+}
+.header-pill::after {
+  inset: 0;
+  z-index: -2;
+  translate: 0.5px 3px;
+  background: var(--mat-tab-on-fold);
+}
+.hp-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  filter: blur(4px);
+  pointer-events: none;
+}
+.hp-shadow::before {
+  inset: 0;
+  translate: 3px 7px;
+  background: var(--tab-shadow);
+}
+.hp-shadow::after {
+  inset: 0;
+  translate: 4px 10px;
+  background: var(--tab-shadow);
+  opacity: 0;
+  transition: opacity var(--dur-l1) var(--ease-l1);
+}
+.header-pill:focus-visible .hp-shadow::after {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .header-pill:hover .hp-shadow::after {
+    opacity: 1;
+  }
+}
+.header-pill:active .hp-shadow::after {
+  opacity: 0;
 }
 .header-pill-arrow {
   display: inline-block;
+}
+
+/* the sparkle (Ask AI): a single small four-point glyph in the ink colour */
+.ask-glyph {
+  width: 22px;
+  height: 22px;
 }
 
 /* theme control: just the capsule switch — no paper chip behind it (Tushar, 2026-10-06; TASK-154) */
@@ -12582,20 +12754,200 @@ html[data-theme-vt]::view-transition-group(root) {
   flex: none;
 }
 
-/* the right-edge scroll fade must match the paper strip, not the page */
-@media (max-width: 1439px) {
+/* ---- the compact layout (< 1280): two rows, brand + actions over the tab strip (TASK-112) ---- */
+.site-header-row {
+  padding-block: 8px 0;
+}
+.header-tabs::after {
+  background: linear-gradient(to right, color-mix(in oklab, var(--color-paper-2) 0%, transparent), var(--color-paper-2));
+}
+.header-nav {
+  padding: 8px 12px 12px;
+  gap: 16px;
+}
+.header-nav > :first-child {
+  margin-inline-start: auto;
+}
+.header-nav > :last-child {
+  margin-inline-end: auto;
+}
+@media (min-width: 768px) {
+  :root {
+    --header-h: 137px;
+  }
+  .site-header {
+    --nt-h: 50px;
+    --nt-pad: 22px;
+    --nt-font: 17px;
+    --hdr-tile-px: 52px;
+    --ht-mid-h: 24px;
+  }
+  .header-nav {
+    padding: 8px 12px 18px;
+  }
+}
+@media (min-width: 1024px) {
+  .site-header {
+    --ht-edge-w: 140px;
+  }
+  .ht-left,
+  .ht-right {
+    display: block;
+  }
+}
+/* ---- one row (≥ 1280): the three zones, brand · tabs · utilities ---- */
+@media (min-width: 1280px) {
+  :root {
+    --header-h: 124px;
+  }
+  .site-header {
+    --nt-h: 56px;
+    --nt-pad: 19px;
+    --nt-font: 18px;
+    --hdr-tile-px: 74px;
+    --ht-edge-w: 184px;
+    --ht-mid-h: 36px;
+  }
+  .site-header-row {
+    max-width: 1600px;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: none;
+    column-gap: 20px;
+    min-height: calc(var(--header-h) - 1px);
+    padding-block: 14px 34px;
+    padding-inline: clamp(24px, 2.4vw, 56px);
+  }
+  .header-brand,
+  .header-actions {
+    grid-area: auto;
+  }
+  /* the taller header gives back what it took from the hero's top padding, so the home fold (scene, then the copy and both CTAs
+     within one scroll, EVAL-001) is where it was with the 72 px header */
+  .hero-copy {
+    padding-top: max(20px, calc(clamp(36px, 5.4vw, 80px) - (var(--header-h) - 72px)));
+  }
+  .header-brand {
+    gap: 14px;
+  }
+  .header-name {
+    font-size: 15px;
+  }
+  .header-subline {
+    font-size: 21px;
+  }
+  .header-tabs {
+    display: contents;
+  }
   .header-tabs::after {
-    background: linear-gradient(to right, color-mix(in srgb, var(--color-ivory) 0%, transparent), var(--color-ivory));
+    display: none;
+  }
+  .header-nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 0;
+    overflow: visible;
+  }
+  .header-nav > :first-child,
+  .header-nav > :last-child {
+    margin-inline: 0;
+  }
+  .header-nav-link {
+    font-size: var(--nt-font);
+  }
+  .header-actions {
+    gap: 12px;
+  }
+  .header-pill {
+    min-height: 56px;
+    padding: 6px 30px 8px;
+    font-size: 27px;
+  }
+  .theme-toggle {
+    width: 124px;
+    height: 50px;
+  }
+}
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .site-header {
+    --nt-pad: 14px;
+    --nt-font: 16px;
+    --hdr-tile-px: 62px;
+  }
+  .header-brand {
+    gap: 10px;
+  }
+  .header-name {
+    font-size: 14px;
+  }
+  .header-pill {
+    min-height: 50px;
+    padding-inline: 20px;
+    font-size: 22px;
+  }
+  .header-subline {
+    font-size: 18px;
+  }
+  .header-actions {
+    gap: 8px;
+  }
+  .theme-toggle {
+    width: 108px;
+    height: 44px;
+  }
+}
+@media (max-width: 639px) {
+  .header-pill {
+    min-height: 44px;
+    padding: 2px 12px 4px;
+    font-size: 19px;
+  }
+  .site-header {
+    --hdr-tile-px: 40px;
+  }
+  .header-actions {
+    gap: 4px;
+  }
+  .header-brand {
+    gap: 8px;
+  }
+  .header-name {
+    font-size: 12px; /* EVAL-008: micro-labels are never below 12 px */
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .site-header-row {
+    padding-inline: 12px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header-nav-link::before,
-  .hn-strip {
+  .nt-lift,
+  .hn-strip,
+  .nt-shadow::after,
+  .hp-shadow::after {
     transition: none;
   }
+  /* no lift or press; the lifted-shadow swap and the underline remain as the non-motion feedback */
+  :root .header-nav-link:is(:hover, :focus-visible, :active) .nt-lift {
+    transform: none;
+  }
+  /* the underline does not wipe: it is always full width and only its opacity says current / hover / focus */
+  :root .header-nav-link .hn-strip {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+  :root .header-nav-link:is(:hover, :focus-visible) .hn-strip {
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
+  :root .header-nav-link[aria-current="page"] .hn-strip,
+  :root .header-nav-link[aria-current="page"]:is(:hover, :focus-visible) .hn-strip {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
-/* end M-010 T4 nav */
+/* end M-013 header */
 
 /* ==================================================================================================
    M-010 T4 (TASK-145.3) · footer ocean — three seamless wave tracks at three speeds, the paper ship
@@ -12923,9 +13275,7 @@ html[data-theme-vt]::view-transition-group(root) {
   filter: none; /* full-bleed scenes are the page's layer, not a cut-out on it */
 }
 /* header pieces sit on the same rungs */
-.header-nav-link::before,
-.header-chip::before,
-.header-monogram {
+.header-chip::before {
   box-shadow: var(--depth-1), 0 3px 5px -3px color-mix(in oklab, var(--shadow-ink) calc(24% * var(--depth-w)), transparent);
 }
 /* end M-010 T4 depth */
@@ -12945,6 +13295,11 @@ html[data-theme-vt]::view-transition-group(root) {
   --mat-terra-2: oklch(0.522 0.137 37.796);
   --mat-terra-3: oklch(0.565 0.142 40.048);
   --mat-side: oklch(0.392 0.09 39.084);
+  --mat-tab: oklch(0.98 0.013 86.828);
+  --mat-tab-fold: oklch(0.887 0.037 82.17);
+  --mat-tab-edge: oklch(0.781 0.054 82.178);
+  --mat-tab-on-fold: oklch(0.172 0.047 267.465);
+  --mat-tab-line: oklch(0.836 0.055 80.642);
 }
 /* M-011 mat:dark */
 [data-theme="dark"] {
@@ -12955,6 +13310,11 @@ html[data-theme-vt]::view-transition-group(root) {
   --mat-terra-2: oklch(0.422 0.109 35.345);
   --mat-terra-3: oklch(0.46 0.115 36.272);
   --mat-side: oklch(0.174 0.045 265.672);
+  --mat-tab: oklch(0.31 0.067 263.405);
+  --mat-tab-fold: oklch(0.228 0.055 265.582);
+  --mat-tab-edge: oklch(0.186 0.053 266.293);
+  --mat-tab-on-fold: oklch(0.785 0.064 83.41);
+  --mat-tab-line: oklch(0.581 0.097 78.189);
 }
 /* end M-011 material tier */
 
@@ -12969,45 +13329,6 @@ html[data-theme-vt]::view-transition-group(root) {
    end of this file, which also adds the focus twins, the fine-pointer gate and the .hit-pill / .acx-btn / .header-pill /
    .pf-action / .pf-play family members. */
 
-/* M-011 P4 (TASK-160, spec §22–§23, EXE-53) · skills as paper tags, the experience rail as a paper strip.
-   Unlayered overrides of the TKT-86 / TKT-101 rules above; markup and copy are untouched (D7). */
-.acap-sheet .acap-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 8px;
-  padding-top: 8px;
-}
-.acap-sheet .acap-list li {
-  padding: 5px 14px 5px 24px;
-  border-radius: 3px 12px 12px 3px;
-  background: var(--mat-cream);
-  color: var(--color-navy);
-  font-size: 14px;
-  line-height: 1.35;
-  box-shadow: var(--depth-side), var(--depth-1);
-}
-.acap-sheet .acap-list li:nth-child(4n + 2) {
-  background: var(--mat-kraft);
-}
-.acap-sheet .acap-list li:nth-child(3n + 1) {
-  rotate: -0.8deg;
-}
-.acap-sheet .acap-list li:nth-child(3n + 2) {
-  rotate: 0.7deg;
-}
-/* the punched hole at the tag's tied end replaces the hand-drawn tick */
-.acap-sheet .acap-list li::before,
-.acap-sheet .acap-list[data-tick="forest"] li::before {
-  top: calc(50% - 3px);
-  left: 9px;
-  width: 6px;
-  height: 6px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--color-ivory);
-  box-shadow: inset 1px 1px 0 var(--mat-side);
-  rotate: none;
-}
 @media (min-width: 768px) {
   .ct-list.ct-list::before {
     width: 10px;
@@ -13146,12 +13467,6 @@ html[data-theme-vt]::view-transition-group(root) {
 .acx-btn:focus-visible {
   box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
 }
-.header-pill:focus-visible {
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
-    0 8px 11px -3px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
-}
 @media (hover: hover) and (pointer: fine) {
   .hit-pill:hover {
     box-shadow: var(--shadow-paper-hover);
@@ -13159,17 +13474,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .acx-btn:hover {
     box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
   }
-  .header-pill:hover {
-    box-shadow:
-      inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent),
-      0 8px 11px -3px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
-  }
-}
-.header-pill:active {
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 18%, transparent),
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
 }
 
 /* colour feedback that rides the same states (non-motion: it stays under reduced motion) */
@@ -13282,32 +13586,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- header nav: the tab paper lifts 1 px and squares up, its shadow swaps, the terracotta strip wipes to half; the
-   label never moves (EVAL-040) ---- */
-.header-nav-link:focus-visible::before {
-  /* one `transform` (rotation + lift): lightningcss rewrites a `translate` + `transform` pair in one block and breaks the press */
-  transform: translateY(-1px) rotate(0deg);
-  box-shadow:
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
-    0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
-}
-.header-nav-link:focus-visible .hn-strip {
-  transform: scaleX(0.5) rotate(-0.8deg);
-}
-@media (hover: hover) and (pointer: fine) {
-  .header-nav-link:hover::before {
-    transform: translateY(-1px) rotate(0deg);
-    box-shadow:
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
-      0 6px 8px -4px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
-  }
-  .header-nav-link:hover .hn-strip {
-    transform: scaleX(0.5) rotate(-0.8deg);
-  }
-}
-.header-nav-link:active::before {
-  transform: translateY(1px) rotate(0deg);
-}
+/* ---- header nav and the Connect pill: the folded tabs and the torn strip have their hover / focus / press rules in the M-013 header block ---- */
 
 /* ---- icons and small controls (L1): the existing travel, now with focus twins, the fine-pointer gate and a touch press ---- */
 .band-social a:focus-visible {
@@ -13518,12 +13797,6 @@ html[data-theme-vt]::view-transition-group(root) {
   :root .pf-arrow[data-dir]:active {
     translate: none;
   }
-  :root .header-nav-link:nth-child(odd):is(:hover, :focus-visible, :active)::before {
-    transform: rotate(-0.5deg);
-  }
-  :root .header-nav-link:nth-child(even):is(:hover, :focus-visible, :active)::before {
-    transform: rotate(0.4deg);
-  }
   :root .band-social a:is(:hover, :focus-visible, :active),
   :root .theme-toggle:is(:hover, :focus-visible, :active) {
     transform: none;
@@ -13553,3 +13826,685 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end M-012 P1 */
+
+/* === TASK-181.4 === */
+/* M-012 P4 (Design.md §14.10 rows "Thinking rows" and "pg-ex"; decisions EXE-61, EXE-62, EXE-63).
+   Thinking essay row (L1), Playground bench cards (L2, via .paper-lift), certification cards (L2 shadow crossfade).
+   Hover only on a fine pointer, with a focus-visible twin; no box-shadow / filter transition; no scale; reduced motion = no movement. */
+
+/* ---- Thinking: the essay row ---- */
+.essay-entry-title,
+.essay-num {
+  transition: translate 250ms var(--ease-l1);
+}
+.essay-entry-arrow {
+  display: inline-block;
+  margin-left: 0.3em;
+  color: var(--color-ink-soft);
+  opacity: 0.55;
+  white-space: nowrap;
+  transition:
+    translate 250ms var(--ease-l1),
+    color 250ms var(--ease-l1),
+    opacity 250ms var(--ease-l1);
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-title {
+  translate: 3px 0;
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-title a {
+  color: var(--color-rust);
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-arrow {
+  translate: 4px 0;
+  color: var(--color-rust);
+  opacity: 1;
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-num {
+  translate: 0 -1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .essay-entry:hover .essay-entry-title {
+    translate: 3px 0;
+  }
+  .essay-entry:hover .essay-entry-title a {
+    color: var(--color-rust);
+  }
+  .essay-entry:hover .essay-entry-arrow {
+    translate: 4px 0;
+    color: var(--color-rust);
+    opacity: 1;
+  }
+  .essay-entry:hover .essay-num {
+    translate: 0 -1px;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .essay-entry-title a:active {
+    color: var(--color-rust);
+  }
+}
+
+/* ---- Playground bench: the card is a .paper-lift (class in PlaygroundGrid); the tape answers it ---- */
+.pg-ex > .paper-tape {
+  transition: transform var(--dur-l2-out) var(--ease-paper);
+}
+.pg-ex:focus-within:has(:focus-visible) > .paper-tape {
+  transform: translateY(-1px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pg-ex:hover > .paper-tape {
+    transform: translateY(-1px);
+  }
+}
+
+/* ---- Certifications: the raised shadow is a second, static layer that fades in (L2) ---- */
+.cert-card.cert-lift {
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    rotate var(--dur-l2-out) var(--ease-paper);
+}
+.cert-paper-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+    drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.cert-paper-shade > i {
+  position: absolute;
+  inset: 0;
+  background: var(--color-ivory);
+}
+.cert-link:focus-visible .cert-paper-shade {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.certm-tile {
+  position: relative;
+  isolation: isolate;
+  transition:
+    translate var(--dur-l2-out) var(--ease-paper),
+    rotate var(--dur-l2-out) var(--ease-paper);
+}
+.certm-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--shadow-paper-hover);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.certm-tile:focus-visible::after {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cert-link:hover .cert-paper-shade,
+  .certm-tile:hover::after {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+}
+/* touch: a tap presses the card down, no hover is left behind */
+@media (hover: none) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .cert-link:active .cert-card,
+  .certm-tile:active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+
+/* ---- reduced motion: nothing moves; the shadow layers and the colours still change (instantly) ---- */
+@media (prefers-reduced-motion: reduce) {
+  :root .essay-entry:is(:hover, :focus-within) :is(.essay-entry-title, .essay-entry-arrow, .essay-num) {
+    translate: none;
+  }
+  :root .essay-entry-title,
+  :root .essay-num,
+  :root .essay-entry-arrow,
+  :root .pg-ex > .paper-tape,
+  :root .cert-paper-shade,
+  :root .certm-tile,
+  :root .certm-tile::after {
+    transition: none;
+  }
+  :root .pg-ex:is(:hover, :focus-within) > .paper-tape {
+    transform: none;
+  }
+  :root .certm-tile:is(:hover, :focus-visible, :active) {
+    translate: none;
+    rotate: none;
+  }
+}
+/* === end TASK-181.4 === */
+
+
+/* === TASK-187 === "What I Bring" ambiguity-to-impact paper journey (components/experience/WhatIBringJourney.tsx).
+   Interaction contract (TASK-181 P1): all hover/focus state keys off [data-active] (set by JS from a fine-pointer hover,
+   :focus-visible or a tap), so there is no :hover rule to gate and a tap leaves nothing stuck; shadows crossfade by
+   pseudo-element opacity; only translate / transform / opacity animate; nothing scales up; no infinite animation.
+   Parallax is <= 6 px (2/4/6) and stage after-states on Ambiguity and Impact stay <= 3 px (their masks overlap).
+   Colours are existing tokens only (EVAL-020). ======================================================================= */
+.wib-head {
+  margin-bottom: clamp(24px, 3.5vw, 48px);
+}
+.wib-statement {
+  margin-top: 12px;
+  max-width: 28ch;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.2;
+  color: var(--color-navy);
+}
+.wib {
+  position: relative;
+}
+.wib-scene {
+  position: relative;
+}
+.wib-strip,
+.wib-road {
+  display: none;
+}
+.wib-stages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-hint {
+  margin-top: 20px;
+  font-size: 15px;
+  color: var(--color-ink-soft);
+}
+.wib-card {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  padding: 12px 16px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-cream);
+  color: var(--color-navy);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--depth-2);
+  position: relative;
+  isolation: isolate;
+  translate: 0 var(--lift, 0px);
+  transition: translate var(--dur-l2-out) var(--ease-paper);
+}
+.wib-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--depth-3);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.wib-stage[data-active] .wib-card {
+  --lift: -4px;
+  transition-duration: var(--dur-l2);
+}
+.wib-stage[data-active] .wib-card::after {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+.wib-card:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 3px;
+}
+.wib-num {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--color-terracotta);
+}
+.wib-title {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.wib-principle {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--color-navy-2);
+}
+.wib-principle span {
+  display: block;
+}
+.wib-art {
+  position: relative;
+  aspect-ratio: 1;
+}
+.wib-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transition:
+    translate 140ms var(--ease-l1),
+    transform var(--dur-l2-out) var(--ease-paper);
+}
+.wib-layer[data-layer="back"] {
+  translate: calc(var(--px, 0) * 2px) calc(var(--py, 0) * 2px);
+}
+.wib-layer[data-layer="mid"] {
+  translate: calc(var(--px, 0) * 4px) calc(var(--py, 0) * 4px);
+}
+.wib-layer[data-layer="front"] {
+  translate: calc(var(--px, 0) * 6px) calc(var(--py, 0) * 6px);
+}
+.wib-marker {
+  display: none;
+}
+.wib-panel {
+  display: none;
+}
+.wib-panel[data-open] {
+  display: block;
+}
+.wib-panel-inner {
+  margin-top: 8px;
+  padding: 16px 18px 18px;
+  border-radius: 3px 12px 3px 10px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  color: var(--color-navy);
+}
+.wib-panel-h {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.15;
+}
+.wib-caps {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-caps li {
+  position: relative;
+  padding: 3px 0 3px 22px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.wib-caps li::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 2px;
+  width: 9px;
+  height: 5px;
+  border-bottom: 1.5px solid var(--color-forest);
+  border-left: 1.5px solid var(--color-forest);
+  rotate: -50deg;
+}
+.wib-flow {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  font-size: 14px;
+  color: var(--color-navy-2);
+}
+.wib-flow li:not(:last-child)::after {
+  content: "\2192";
+  margin-left: 6px;
+}
+.wib-tools {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--color-navy-2);
+}
+.wib-tools-label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+}
+.wib-evidence {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wib-evidence li {
+  padding: 4px 12px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-kraft);
+  color: var(--color-navy);
+  font-size: 14px;
+}
+.wib-proof {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+}
+.wib-proof b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 600;
+}
+.wib-proof span,
+.wib-proof i {
+  display: block;
+  font-size: 14px;
+  font-style: normal;
+  color: var(--color-navy-2);
+}
+
+/* ---- mobile / tablet: a vertical paper trail, tap a stage to expand its detail (spec §18) ---- */
+@media (max-width: 1099.98px) {
+  .wib-stages {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    padding-left: 22px;
+  }
+  .wib-stages::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 5px;
+    border-left: 2px dashed color-mix(in oklab, var(--color-navy) 40%, transparent);
+  }
+  .wib-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-areas: "art card" "panel panel";
+    gap: 0 12px;
+    align-items: center;
+  }
+  .wib-stage > .wib-card {
+    grid-area: card;
+    min-height: 84px;
+  }
+  .wib-stage > .wib-art {
+    grid-area: art;
+  }
+  .wib-stage > .wib-panel {
+    grid-area: panel;
+  }
+  .wib-stage > .wib-marker {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: -22px;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--color-rust);
+    box-shadow: 0 0 0 3px var(--color-paper);
+  }
+  .wib-stage[data-active] > .wib-marker {
+    background: var(--color-forest);
+  }
+  .wib-stage:has(> .wib-panel[data-open]) > .wib-marker {
+    margin-top: -6px;
+  }
+  .wib-hint {
+    display: none;
+  }
+}
+
+/* ---- desktop: one continuous landscape; the strip, a stitched road and seven stages along it ---- */
+@media (min-width: 1100px) {
+  .wib {
+    padding-bottom: 340px;
+  }
+  .wib-scene {
+    aspect-ratio: 2400 / 1028;
+  }
+  .wib-strip {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .wib-road {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .wib-road path {
+    fill: none;
+    stroke: var(--color-navy);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 0.007 0.009;
+    opacity: 0.28;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib-road path[data-on] {
+    opacity: 0.85;
+    transition-duration: var(--dur-l2);
+  }
+  .wib-stage {
+    --cx: calc((var(--i) + 0.5) / 7 * 100%);
+    --art: 15.4%;
+  }
+  .wib-stage > .wib-card {
+    position: absolute;
+    top: 1%;
+    left: var(--cx);
+    width: 13.2%;
+    margin-left: -6.6%;
+    z-index: 2;
+  }
+  .wib-stage > .wib-art {
+    position: absolute;
+    left: var(--cx);
+    bottom: calc(100% - var(--my) + 1.5%);
+    width: calc(var(--art) * var(--s, 1));
+    margin-left: calc(var(--art) * var(--s, 1) / -2);
+    z-index: 1;
+  }
+  .wib-stage > .wib-marker {
+    display: block;
+    position: absolute;
+    left: var(--mx);
+    top: var(--my);
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    background: var(--color-rust);
+    box-shadow: 0 0 0 2px var(--color-ivory);
+    z-index: 1;
+  }
+  .wib-stage > .wib-marker::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border: 1.5px solid var(--color-rust);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib-stage[data-active] > .wib-marker::after {
+    opacity: 1;
+  }
+  .wib-stage > .wib-panel {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 64px;
+    z-index: 0;
+    visibility: hidden;
+    opacity: 0;
+    translate: 0 -28px;
+    transition:
+      translate var(--dur-l2-out) var(--ease-paper),
+      opacity var(--dur-l2-out) var(--ease-paper),
+      visibility 0s linear var(--dur-l2-out);
+  }
+  .wib-stage > .wib-panel[data-open] {
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+    z-index: 3;
+    transition-delay: 0s;
+    transition-duration: var(--dur-l2);
+  }
+  .wib-panel-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "h caps right" "h caps right";
+    gap: 6px 36px;
+    align-items: start;
+    padding: 22px 28px 24px;
+    min-height: 250px;
+  }
+  .wib-panel-h {
+    grid-area: h;
+    font-size: 28px;
+  }
+  .wib-caps {
+    grid-area: caps;
+    margin-top: 0;
+  }
+  .wib-flow,
+  .wib-tools,
+  .wib-evidence,
+  .wib-proof {
+    grid-column: 3;
+    margin-top: 0;
+  }
+  .wib-flow {
+    margin-bottom: 8px;
+  }
+  .wib-hint {
+    margin-top: 20px;
+    text-align: center;
+  }
+  /* the rest of the journey recedes, never hides */
+  .wib[data-active] .wib-stage:not([data-active]) > :is(.wib-card, .wib-art) {
+    opacity: 0.72;
+  }
+  .wib-stage > :is(.wib-card, .wib-art) {
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .wib-stage > .wib-card {
+    transition:
+      translate var(--dur-l2-out) var(--ease-paper),
+      opacity var(--dur-l2-out) var(--ease-paper);
+  }
+}
+
+/* ---- per-stage art scale (the scenes are not scale-locked) and after-states: each stage moves its own layers ---- */
+.wib-stage[data-stage="technology"] {
+  --s: 0.82;
+}
+.wib-stage[data-stage="ai-genai"] {
+  --s: 1.06;
+}
+.wib-stage[data-stage="product"] {
+  --s: 0.96;
+}
+/* ambiguity: the notes tidy up (<= 3 px + 2 deg, masks overlap) */
+.wib-stage[data-stage="ambiguity"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translate(-2px, 1px) rotate(-2deg);
+}
+.wib-stage[data-stage="ambiguity"][data-active] .wib-layer[data-layer="front"] {
+  transform: translate(2px, -2px) rotate(2deg);
+}
+/* discovery: the magnifier drifts across the notebook */
+.wib-stage[data-stage="discovery"][data-active] .wib-layer[data-layer="front"] {
+  transform: translate(6px, -3px);
+}
+.wib-stage[data-stage="discovery"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translate(-3px, 0);
+}
+/* product: the blueprint unfolds upward */
+.wib-stage[data-stage="product"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateY(-4px);
+}
+.wib-stage[data-stage="product"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-8px);
+}
+/* ai: the layers activate in a staggered rise */
+.wib-stage[data-stage="ai-genai"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateY(-5px);
+}
+.wib-stage[data-stage="ai-genai"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-10px);
+  transition-delay: 0s, 60ms;
+}
+/* technology: the architecture layers separate */
+.wib-stage[data-stage="technology"][data-active] .wib-layer[data-layer="back"] {
+  transform: translateY(6px);
+}
+.wib-stage[data-stage="technology"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-8px);
+}
+/* execution: the delivery notes progress along the board */
+.wib-stage[data-stage="execution"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateX(6px);
+}
+.wib-stage[data-stage="execution"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateX(10px);
+}
+/* impact: the flag and chart rise (<= 3 px, masks overlap) */
+.wib-stage[data-stage="impact"][data-active] .wib-layer[data-layer="front"] {
+  transform: translateY(-3px);
+}
+.wib-stage[data-stage="impact"][data-active] .wib-layer[data-layer="mid"] {
+  transform: translateY(-1px);
+}
+
+/* ---- reduced motion: no movement at all; the panel still appears (opacity), the colour/shadow feedback stays ---- */
+@media (prefers-reduced-motion: reduce) {
+  :root .wib-stage[data-stage] .wib-layer[data-layer],
+  :root .wib-stage[data-stage][data-active] .wib-layer[data-layer] {
+    transform: none;
+    transition: none;
+  }
+  /* the lift is a custom property (a bare `translate: none` is rewritten by the CSS minifier into a transform) */
+  :root .wib-stage[data-stage][data-active] .wib-card,
+  :root .wib-stage[data-stage] .wib-card {
+    --lift: 0px;
+    transition: none;
+  }
+  :root .wib-stage > .wib-panel,
+  :root .wib-stage > .wib-panel[data-open] {
+    translate: none;
+    transition-property: opacity, visibility;
+    transition-duration: 120ms, 0s;
+  }
+}
+/* === end TASK-187 === */
