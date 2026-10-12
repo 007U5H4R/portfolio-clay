@@ -1,5 +1,5 @@
 import { circle, ellipse, g, line, path, pine, poly, polyline, rect, smooth, type P } from "../kit";
-import { box, collageSvg, piece, prng, ridgePts, ring, screens, strokes, torn, type Collage } from "../collage";
+import { box, layeredCollage, piece, prng, ridgePts, ring, strokes, torn, type LayeredCollage } from "../collage";
 
 /**
  * RailCite — the home Featured Work anchor (TASK-133 fidelity pass: Tushar's reference image is the
@@ -265,19 +265,23 @@ function scraps(defs: string[]): string {
   );
 }
 
-export const railciteFeatured: Collage = {
-  slug: "railcite",
-  render() {
-    const defs: string[] = [screens(NAVY, "#fff6df")];
-    const body = [
-      piece(defs, "rc-sun", torn(ring(1300, 214, 188, 40), 5, 4, 14), { fill: SUN, screen: ["hl", 0.22] }, SHADE),
-      documents(defs),
-      landscape(defs),
-      viaduct(defs),
-      track(),
-      train(),
-      scraps(defs),
-    ];
-    return collageSvg(W, H, defs.join(""), body.join(""));
-  },
-};
+/** The headlight halo (a signature extra): two flat cream discs around the lamp; the page fades it in on hover/focus. */
+function halo(defs: string[]): string {
+  return (
+    piece(defs, "rc-halo2", torn(ring(1263, 648, 92, 28), 71, 3, 10), { fill: "#fff2cc", shadow: 0, extra: { opacity: 0.35 } }, SHADE) +
+    piece(defs, "rc-halo1", torn(ring(1263, 648, 54, 24), 73, 2, 8), { fill: "#fff6df", shadow: 0, extra: { opacity: 0.6 } }, SHADE)
+  );
+}
+
+/**
+ * Depth layers (z order = file order): back = the sun and the circulars (2 px) · land = ridges, forest, viaduct
+ * and track (4 px) · train (6 px; the signature eases it toward the viewer) + its halo · scraps (the ~8 px
+ * foreground the Tushar decision gives RailCite).
+ */
+export const railciteFeatured: LayeredCollage = layeredCollage("railcite", W, H, NAVY, [
+  { name: "back", depth: "bg", draw: (defs) => piece(defs, "rc-sun", torn(ring(1300, 214, 188, 40), 5, 4, 14), { fill: SUN, screen: ["hl", 0.22] }, SHADE) + documents(defs) },
+  { name: "land", depth: "art", draw: (defs) => landscape(defs) + viaduct(defs) + track() },
+  { name: "train", depth: "fg", draw: () => train() },
+  { name: "halo", depth: "fg", extra: true, draw: halo },
+  { name: "scraps", depth: "top", draw: scraps },
+]);

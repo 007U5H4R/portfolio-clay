@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { stepIndex, type PortfolioProduct } from "@/lib/portfolio";
+import { ObjectMotion } from "@/components/paper-world/ObjectMotion";
 import { ProductCover } from "./ProductCover";
 
 export interface ProductCarouselProps {
@@ -24,6 +25,9 @@ export interface ProductCarouselProps {
  * the carousel loops), Home/End jump; the selected tab is scrolled into view inside the track only
  * (its own `scrollLeft`, never the page). The arrow buttons also wrap, so they are never dead. A
  * click selects in place — the page never navigates (spec §18).
+ *
+ * M-012 P2 (TASK-181.2): every cover is a paper object — `ObjectMotion` lets `paperMotion` write `--hx/--hy` on the hovered one, and
+ * the cover art (one `pm-layer`, 2 px) shifts under the keyline while the cover lifts 4 px; no tilt, no signature.
  */
 export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }: ProductCarouselProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -87,10 +91,14 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         <p id="pf-select" className="pf-select">
           Select a product
         </p>
-        <p className="pf-count" aria-live="polite">
+        <p className="pf-count">
           {activeIndex + 1} / {products.length}
         </p>
       </div>
+      {/* the announced position (TASK-197): "Railcite, 2 of 13" is read out whenever the selection changes */}
+      <p className="sr-only" role="status" data-testid="pf-announce">
+        {products[activeIndex]?.name}, {activeIndex + 1} of {products.length}
+      </p>
       <button type="button" className="pf-arrow focus-ring" data-dir="prev" aria-label="Previous product" onClick={() => step(-1, "arrow")}>
         <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
       </button>
@@ -118,6 +126,9 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(product.id, "click")}
             >
+              <ObjectMotion />
+              {/* the L2 shadow: a pre-rendered box-shadow whose opacity crossfades on hover / focus (EXE-61) */}
+              <span className="pf-thumb-shade" aria-hidden="true" />
               <ProductCover product={product} size="thumb" />
               <span className="sr-only">
                 {product.name}: {product.tagline}

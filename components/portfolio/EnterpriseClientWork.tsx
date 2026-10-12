@@ -45,6 +45,7 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
           {cases.map((item, index) => (
             <li key={item.id} className="pf-case-item">
               <Sheet as="article" variant="card" className="pf-case">
+                <span className="pf-case-shade" aria-hidden="true" />
                 <span className="pf-case-clip" aria-hidden="true" />
                 <p className="pf-case-stamp">Case file {String(index + 1).padStart(2, "0")}</p>
                 <h3 className="pf-case-client">{item.client}</h3>
