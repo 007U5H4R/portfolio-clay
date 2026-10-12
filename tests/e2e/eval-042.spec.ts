@@ -2,7 +2,7 @@
  * eval-042.spec.ts (`@EVAL-042`, evaluation-plan §11, M-012 P4 / TASK-181.4) — reduced-motion and touch parity, plus the P4
  * hover contract, for the surfaces this phase owns: the Thinking essay row, the Playground bench cards (`.pg-ex`) and the
  * certification cards (`.cert-card`, `.certm-tile`). Other phases extend this file with their own surfaces
- * (the Experience timeline and Skills chips are not built yet: TASK-187).
+ * (TASK-201 adds the Experience timeline entries and the What I Bring tool chips below).
  *   - hover and keyboard focus-visible move the same amount (the focus twin); the shadow is a pseudo / layer whose OPACITY fades;
  *   - no transition-property on the element, its pseudos or the shade layer contains box-shadow, filter, backdrop-filter or `all`;
  *   - essay: the title shifts 3 px (≤ 4), the arrow 4 px, the meta row's box does not move;
@@ -253,5 +253,153 @@ test.describe("@EVAL-042 certification cards", () => {
     await page.waitForTimeout(500);
     expect((await read(card)).y - rest.y, "no sticky lift").toBeCloseTo(0, 1);
     expect((await read(link.locator(".cert-paper-shade"))).opacity, "no sticky shade").toBe(0);
+  });
+});
+
+// ---- TASK-201: Experience timeline entries (PLAN §4.8) ----
+async function rotateDeg(loc: Locator) {
+  return loc.evaluate((el) => Number.parseFloat(getComputedStyle(el).rotate) || 0);
+}
+
+test.describe("@EVAL-042 Experience timeline entries (TASK-201)", () => {
+  test("hover and focus lift the card 3 px, the shadow layer fades by opacity, the pin presses 1 px, the logo turns 0.6° toward upright", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
+    await page.goto("/work", { waitUntil: "networkidle" });
+    const item = page.locator(".ct-item:has(.ct-details-summary)").first();
+    await item.scrollIntoViewIfNeeded();
+    const card = item.locator(".ct-card");
+    const shade = item.locator(".ct-paper-lift");
+    const pin = item.locator(".ct-pin");
+    const logo = item.locator(".ct-logo");
+    const text = card.locator(".ct-name");
+    const rest = { c: await read(card), s: await read(shade), p: await read(pin), r: await rotateDeg(logo), t: await box(text), cb: await box(card) };
+    expect(rest.s.opacity, "shadow layer hidden at rest").toBe(0);
+    await card.hover();
+    await page.waitForTimeout(800);
+    const hov = { c: await read(card), s: await read(shade), p: await read(pin), r: await rotateDeg(logo), t: await box(text), cb: await box(card) };
+    expect(hov.c.y - rest.c.y, "card lift").toBeCloseTo(-3, 0);
+    expect(hov.s.opacity, "shadow layer shown").toBe(1);
+    expect(hov.p.y - rest.p.y, "pin presses 1 px").toBeCloseTo(1, 0);
+    expect(Math.abs(hov.r), "logo is closer to upright").toBeLessThan(Math.abs(rest.r));
+    expect(Math.abs(rest.r) - Math.abs(hov.r), "logo turns 0.6°").toBeCloseTo(0.6, 1);
+    expect(hov.t.y - hov.cb.y, "text stays static relative to the card").toBeCloseTo(rest.t.y - rest.cb.y, 0);
+    for (const r of [hov.c, hov.s, hov.p]) {
+      noForbiddenTransitions("ct", r);
+      expect(r.scale).toBeLessThanOrEqual(1.0001);
+    }
+    expect(hov.s.props, "the shadow layer transitions opacity only").toEqual(["opacity"]);
+    expect(hov.s.durations[0], "shadow in 420 ms").toBeCloseTo(0.42, 2);
+    expect(hov.p.durations[0], "pin 180 ms").toBeCloseTo(0.18, 2);
+
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(800);
+    await keyboardFocus(page, item.locator(".ct-details-summary"));
+    await page.waitForTimeout(800);
+    expect((await read(card)).y - rest.c.y, "focus twin lift").toBeCloseTo(-3, 0);
+    expect((await read(shade)).opacity, "focus twin shadow").toBe(1);
+  });
+
+  test("reduced motion: no lift, no pin press, no logo turn — the shadow still shows", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/work", { waitUntil: "networkidle" });
+    const item = page.locator(".ct-item").first();
+    await item.scrollIntoViewIfNeeded();
+    const card = item.locator(".ct-card");
+    const rest = { c: await read(card), p: await read(item.locator(".ct-pin")), r: await rotateDeg(item.locator(".ct-logo")) };
+    await card.hover();
+    await page.waitForTimeout(600);
+    expect((await read(card)).y - rest.c.y, "RM: no lift").toBeCloseTo(0, 1);
+    expect((await read(item.locator(".ct-pin"))).y - rest.p.y, "RM: no pin press").toBeCloseTo(0, 1);
+    expect(await rotateDeg(item.locator(".ct-logo")), "RM: no logo turn").toBeCloseTo(rest.r, 2);
+    expect((await read(item.locator(".ct-paper-lift"))).opacity, "RM: shadow feedback stays").toBe(1);
+  });
+
+  test("touch: a tap leaves no hover state behind", async ({ page, viewport }) => {
+    test.skip(viewport!.width !== 390, "touch project");
+    await page.goto("/work", { waitUntil: "networkidle" });
+    const item = page.locator(".ct-item").first();
+    await item.scrollIntoViewIfNeeded();
+    const card = item.locator(".ct-card");
+    const rest = await read(card);
+    await card.locator(".ct-name").tap();
+    await page.waitForTimeout(600);
+    expect((await read(card)).y - rest.y, "no sticky lift").toBeCloseTo(0, 1);
+    expect((await read(item.locator(".ct-paper-lift"))).opacity, "no sticky shadow").toBe(0);
+  });
+});
+
+// ---- TASK-201: What I Bring tool chips ----
+test.describe("@EVAL-042 What I Bring tool chips (TASK-201)", () => {
+  const STAGE = ".wib-stage[data-stage='technology']";
+
+  test("hover and keyboard focus lift a chip 2 px and show the project from data; a chip with no project lifts and shows no label", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 1100, "the landscape layout and fine-pointer hover");
+    await page.goto("/work", { waitUntil: "networkidle" });
+    await page.locator("section#skills").scrollIntoViewIfNeeded();
+    await page.locator(`${STAGE} .wib-card`).hover();
+    const chip = page.locator(`${STAGE} .wib-chip`, { hasText: "Supabase" });
+    const note = chip.locator(".wib-chip-note");
+    await expect(note).toHaveText("→ TeachSpark");
+    const rest = { c: await read(chip), n: await read(note) };
+    expect(rest.n.opacity, "label hidden at rest").toBe(0);
+    await chip.hover();
+    await page.waitForTimeout(500);
+    const hov = { c: await read(chip), n: await read(note) };
+    expect(hov.c.y - rest.c.y, "chip lift").toBeCloseTo(-2, 0);
+    expect(hov.n.opacity, "label shown").toBe(1);
+    noForbiddenTransitions("chip", hov.c);
+    noForbiddenTransitions("chip note", hov.n);
+    expect(hov.c.scale).toBeLessThanOrEqual(1.0001);
+
+    // an unpaired chip: lifts, no label element at all
+    const bare = page.locator(`${STAGE} .wib-chip`, { hasText: "BigQuery" });
+    await expect(bare.locator(".wib-chip-note")).toHaveCount(0);
+    const bareRest = await read(bare);
+    await bare.hover();
+    await page.waitForTimeout(500);
+    expect((await read(bare)).y - bareRest.y, "unpaired chip lift").toBeCloseTo(-2, 0);
+
+    // keyboard: the same label and lift
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500);
+    await page.locator(`${STAGE} .wib-card`).focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await keyboardFocus(page, chip);
+    await page.waitForTimeout(500);
+    expect((await read(chip)).y - rest.c.y, "focus twin lift").toBeCloseTo(-2, 0);
+    expect((await read(note)).opacity, "focus twin label").toBe(1);
+  });
+
+  test("reduced motion: no lift, the label still shows on focus", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 1100, "the landscape layout and fine-pointer hover");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/work", { waitUntil: "networkidle" });
+    await page.locator("section#skills").scrollIntoViewIfNeeded();
+    await page.locator(`${STAGE} .wib-card`).hover();
+    const chip = page.locator(`${STAGE} .wib-chip`, { hasText: "Railway" });
+    const rest = await read(chip);
+    await chip.hover();
+    await page.waitForTimeout(400);
+    expect((await read(chip)).y - rest.y, "RM: no lift").toBeCloseTo(0, 1);
+    expect((await read(chip.locator(".wib-chip-note"))).opacity, "RM: label shows").toBe(1);
+  });
+
+  test("touch: a tap shows the project label and a second tap hides it; nothing latches from hover", async ({ page, viewport }) => {
+    test.skip(viewport!.width !== 390, "touch project");
+    await page.goto("/work", { waitUntil: "networkidle" });
+    await page.locator("section#skills").scrollIntoViewIfNeeded();
+    await page.locator(`${STAGE} .wib-card`).tap();
+    const chip = page.locator(`${STAGE} .wib-chip`, { hasText: "Supabase" });
+    const note = chip.locator(".wib-chip-note");
+    await chip.scrollIntoViewIfNeeded();
+    expect((await read(note)).opacity, "hidden before the tap").toBe(0);
+    await chip.tap();
+    await page.waitForTimeout(400);
+    expect((await read(note)).opacity, "tap shows the label").toBe(1);
+    await chip.tap();
+    await page.waitForTimeout(400);
+    expect((await read(note)).opacity, "second tap hides it").toBe(0);
   });
 });

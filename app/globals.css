@@ -14243,6 +14243,59 @@ html[data-theme-vt]::view-transition-group(root) {
   text-transform: uppercase;
   color: var(--color-terracotta);
 }
+.wib-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-chip {
+  position: relative;
+  padding: 4px 12px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-kraft);
+  color: var(--color-navy);
+  font-size: 14px;
+  cursor: default;
+  transition: translate 180ms var(--ease-paper);
+}
+.wib-chip-note {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 3;
+  padding: 3px 9px;
+  border-radius: 3px 8px 3px 6px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  color: var(--color-terracotta);
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease-paper);
+}
+@media (hover: hover) and (pointer: fine) {
+  .wib-chip:hover .wib-chip-note {
+    opacity: 1;
+  }
+}
+.wib-chip:focus-visible .wib-chip-note,
+.wib-chip[data-tap] .wib-chip-note {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .wib-chip:hover {
+    translate: 0 -2px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wib-chip:focus-visible {
+    translate: 0 -2px;
+  }
+}
 .wib-evidence {
   margin: 12px 0 0;
   padding: 0;
