@@ -201,6 +201,14 @@
   color: var(--c-ink);
 }
 .back { transform: rotateY(180deg) translateZ(6px); }
+/* WebKit (Safari) ignores backface-visibility inside this 3D stack and paints the back face over the front, which washed
+   the panther out (TASK-193). Hide whichever face is turned away; the swap lands at the flip's midpoint (170 ms delay +
+   425 ms, half of the 850 ms turn), so the hand-over is invisible in every engine. */
+/* the incoming face shows at once (so keyboard focus can land on the back right after a flip); only the outgoing face
+   waits for the midpoint before it hides */
+.face { transition: visibility 0s; }
+.scene:not([data-side="back"]) .back,
+.scene[data-side="back"] .front { visibility: hidden; transition: visibility 0s linear 595ms; }
 
 /* fine paper grain over the whole face, under the type */
 .texture {
@@ -513,5 +521,6 @@
   .front { opacity: 1; }
   .back { transform: none; opacity: 0; }
   .scene[data-side="back"] .front { opacity: 0; }
+  .scene[data-card-root] .face { visibility: visible; } /* no 3D here: the opacity fade above does the swap */
   .scene[data-side="back"] .back { opacity: 1; }
 }
