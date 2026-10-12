@@ -47,6 +47,10 @@ import { HowIThinkCollage } from "./HowIThinkCollage";
  * (`components/motion/journey/*`). It replaces the generic `Reveal` stagger. SSR / no-JS / reduced
  * motion render the final composition; see those files for the a11y and CLS rules.
  *
+ * M-012 P2 (TASK-186): everything above stays readable at rest (no hover-only content, EVAL-013). On hover and focus the
+ * active stage lifts and deepens its shadow, its quote slip lifts as a second paper layer, the others recede and the path into and
+ * out of it firms up (CSS only; no pointer tracking, no scale).
+ *
  * Copy: stage label, principle, quote and attribution are rendered verbatim from
  * `data/thinking-framework.ts` (D7); the project name is resolved server-side in `app/page.tsx`.
  */
@@ -127,6 +131,7 @@ export function HowIThink({ stages }: HowIThinkProps) {
                     <Pin tone={stagePin[stage.id]} />
                     <span className="hit-paper" aria-hidden="true">
                       <span className="hit-paper-shade" style={{ clipPath: edges.rim }} />
+                      <span className="hit-paper-deep" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-ink" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-rim" style={{ clipPath: edges.rim }} />
                       <span className="hit-paper-face" style={{ clipPath: edges.face }} />

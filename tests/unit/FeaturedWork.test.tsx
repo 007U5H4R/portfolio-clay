@@ -59,8 +59,13 @@ describe("Featured Work data", () => {
 });
 
 describe("<FeaturedWork />", () => {
-  // The one-shot `Reveal` entrance observes on mount; jsdom has no IntersectionObserver.
+  // The one-shot `Reveal` entrance observes on mount; jsdom has no IntersectionObserver. The cards register with
+  // `paperMotion` (ObjectMotion, M-012 P2), which reads matchMedia; jsdom has none either.
   beforeEach(() => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
     vi.stubGlobal(
       "IntersectionObserver",
       class {

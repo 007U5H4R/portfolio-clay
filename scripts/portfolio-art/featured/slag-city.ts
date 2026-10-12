@@ -1,5 +1,5 @@
 import { g, path, pine, rect, smooth, type P } from "../kit";
-import { box, collageSvg, piece, ridgePts, ring, screens, strokes, torn, type Collage } from "../collage";
+import { box, layeredCollage, piece, ridgePts, ring, strokes, torn, type LayeredCollage } from "../collage";
 
 /**
  * Slag City — Featured Work, top-right card (TASK-133 fidelity pass). A FULL-CARD cut-paper collage
@@ -26,6 +26,7 @@ const SUN = "#c0613f";
 const OCHRE = "#d99a3e";
 const RIM = "#fffaf0";
 const SHADE = "#2a2218";
+const LIT: [number, number][] = [[648, 330], [668, 330], [648, 356], [700, 280], [720, 280], [904, 360], [924, 360], [904, 386], [1046, 330], [1066, 330], [1046, 356], [974, 368], [1000, 368], [974, 396], [1000, 396]];
 
 function map(defs: string[]): string {
   const c: P = [1100, 200];
@@ -47,7 +48,7 @@ function map(defs: string[]): string {
   );
 }
 
-function city(defs: string[]): string {
+function skyline(defs: string[]): string {
   const out: string[] = [];
   // industrial-blue far skyline
   const far: P[] = [
@@ -61,6 +62,11 @@ function city(defs: string[]): string {
   out.push(rect(636, 170, 30, 7, { fill: RUST }), rect(636, 186, 30, 5, { fill: RUST }));
   out.push(rect(884, 168, 24, 300, { fill: CHAR2, stroke: NAVY, "stroke-width": 2 }));
   out.push(rect(884, 200, 24, 6, { fill: RUST }));
+  return out.join("");
+}
+
+function works(defs: string[]): string {
+  const out: string[] = [];
   // the foundry: sheds, a blast furnace, a rust brick block, a tall hall
   // the right-hand hall block (a lighter navy, behind) and the front works (charcoal)
   const hall: P[] = [[840, 520], [840, 330], [880, 330], [880, 280], [960, 280], [960, 340], [1030, 340], [1030, 300], [1090, 300], [1090, 380], [1150, 380], [1150, 520]];
@@ -73,8 +79,7 @@ function city(defs: string[]): string {
   out.push(piece(defs, "sc-works", torn(works, 111, 2.5, 12), { fill: CHAR, rim: RIM, rimWidth: 4, screen: ["ht", 0.1], extra: { stroke: NAVY, "stroke-width": 2 } }, SHADE));
   out.push(piece(defs, "sc-brick", torn(box(962, 346, 70, 120), 113, 1.5, 10), { fill: RUST, shadow: 0.4, screen: ["hs", 0.25] }, SHADE));
   out.push(strokes([[[782, 270], [828, 270]], [[780, 300], [832, 300]]], { stroke: "#56607a", "stroke-width": 5 }));
-  const lit: [number, number][] = [[648, 330], [668, 330], [648, 356], [700, 280], [720, 280], [904, 360], [924, 360], [904, 386], [1046, 330], [1066, 330], [1046, 356], [974, 368], [1000, 368], [974, 396], [1000, 396]];
-  out.push(g({}, ...lit.map(([x, y]) => rect(x, y, 11, 14, { fill: OCHRE, opacity: 0.9 }))));
+  out.push(g({}, ...LIT.map(([x, y]) => rect(x, y, 11, 14, { fill: OCHRE, opacity: 0.9 }))));
   // the conveyor truss climbing to the furnace
   const lattice: [P, P][] = [[[440, 506], [800, 344]], [[450, 526], [806, 364]]];
   for (let i = 0; i < 12; i += 1) {
@@ -109,16 +114,36 @@ function ground(defs: string[]): string {
   return out.join("");
 }
 
-export const slagCityFeatured: Collage = {
-  slug: "slag-city",
-  render() {
-    const defs: string[] = [screens(NAVY, "#fff6df")];
-    const body = [
-      map(defs),
-      piece(defs, "sc-sun", torn(ring(850, 250, 112, 32), 83, 4, 14), { fill: SUN, screen: ["hl", 0.22] }, SHADE),
-      city(defs),
-      ground(defs),
-    ];
-    return collageSvg(W, H, defs.join(""), body.join(""));
-  },
-};
+/** The lit windows, as an overlay: the same rects in a paler flame yellow; the page fades it in on hover/focus (a signature extra). */
+function lit(): string {
+  return g({}, ...LIT.map(([x, y]) => rect(x, y, 11, 14, { fill: "#ffe3a1" })));
+}
+/** A flat ochre torn disc behind the works — only its rim shows around the silhouette (opacity-only, no blur filter). */
+function glow(defs: string[]): string {
+  return piece(defs, "sc-glow", torn(ring(800, 330, 190, 40), 151, 6, 14), { fill: OCHRE, shadow: 0 }, SHADE);
+}
+/** One smoke puff over a stack: a cream torn blob (three of them, staggered by the page). */
+function puff(cx: number, cy: number, r: number, seed: number) {
+  return (defs: string[]) => piece(defs, `sc-puff${seed}`, torn(ring(cx, cy, r, 20), seed, 3, 8), { fill: "#e9e2d3", rim: RIM, rimWidth: 3, shadow: 0.5 }, SHADE);
+}
+/** The brighter core of the molten run-off (the slag highlight rising to full on hover). */
+function slagHot(): string {
+  return path(smooth([[812, 486], [790, 526], [738, 556], [690, 590]]), { fill: "none", stroke: "#fff0b8", "stroke-width": 8, "stroke-linecap": "round" });
+}
+
+/**
+ * Depth layers: back = map, sun, far skyline, stacks (2 px) · art = the glow behind, the foundry, its lit windows,
+ * three smoke puffs (4 px) · front = the ground, slag, water, pine (6 px) + the hot slag core. The signature
+ * "the works activate": windows and glow rise, the slag core brightens, smoke lifts off the stacks.
+ */
+export const slagCityFeatured: LayeredCollage = layeredCollage("slag-city", W, H, NAVY, [
+  { name: "back", depth: "bg", draw: (defs) => map(defs) + piece(defs, "sc-sun", torn(ring(850, 250, 112, 32), 83, 4, 14), { fill: SUN, screen: ["hl", 0.22] }, SHADE) + skyline(defs) },
+  { name: "glow", depth: "art", extra: true, draw: glow },
+  { name: "works", depth: "art", draw: works },
+  { name: "lit", depth: "art", extra: true, draw: lit },
+  { name: "puff1", depth: "art", extra: true, draw: puff(651, 96, 26, 161) },
+  { name: "puff2", depth: "art", extra: true, draw: puff(668, 58, 19, 163) },
+  { name: "puff3", depth: "art", extra: true, draw: puff(896, 136, 21, 165) },
+  { name: "front", depth: "fg", draw: ground },
+  { name: "slaghot", depth: "fg", extra: true, draw: slagHot },
+]);
