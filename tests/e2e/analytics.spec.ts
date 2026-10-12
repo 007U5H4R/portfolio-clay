@@ -329,6 +329,8 @@ test.describe("analytics with a stub token (TASK-194)", () => {
   });
 
   test("project selection: arrows, keyboard and a direct tap are tracked; init and re-selecting the active project are not", async ({ page }) => {
+    // Reduced motion makes the page's smooth scroll (Lenis) native, so a real click cannot land on a moving target.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     const cap = await captureMixpanel(page);
     await go(page, "/projects");
     await expectEvents(cap, "page_viewed");
@@ -368,6 +370,7 @@ test.describe("analytics with a stub token (TASK-194)", () => {
   });
 
   test("the product sheet: pitch/demo switches and the case-study link are project assets, with stable ids", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await blockExternal(page);
     const cap = await captureMixpanel(page);
     await go(page, "/projects");
