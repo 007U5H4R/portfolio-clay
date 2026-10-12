@@ -13925,36 +13925,39 @@ html[data-theme-vt]::view-transition-group(root) {
   transition-duration: var(--dur-l2);
 }
 
-/* the bridge into How I think */
-.fw-bridge {
+/* the bridge into How I think: it lives in the section's own bottom padding (no added height), the stitched path runs down to the tear */
+.fw-wrap {
   position: relative;
-  display: grid;
-  justify-items: start;
-  margin-top: clamp(36px, 4.4vw, 68px);
-  padding-left: clamp(0px, 2vw, 32px);
+}
+.fw-bridge {
+  position: absolute;
+  bottom: clamp(6px, 1vw, 14px);
+  left: clamp(0px, 2vw, 32px);
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(8px, 1.4vw, 20px);
+  pointer-events: none;
 }
 .fw-bridge-q {
   max-width: 34ch;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(20px, 1.8vw, 26px);
+  font-size: clamp(16px, 1.5vw, 22px);
   line-height: 1.25;
   color: var(--color-navy-2);
 }
 .fw-bridge-q span {
-  display: block;
+  display: inline;
 }
 .fw-bridge-q q {
   display: block;
-  margin-top: 4px;
   color: var(--color-terracotta);
   quotes: "\201C" "\201D";
 }
 .fw-bridge-path {
-  width: clamp(150px, 20vw, 280px);
+  width: clamp(90px, 11vw, 160px);
   height: auto;
   aspect-ratio: 400 / 220;
-  margin-top: 8px;
   overflow: visible;
 }
 .fw-bridge-path path {
