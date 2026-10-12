@@ -293,3 +293,16 @@ test("the back-face panther sits in the bottom-left corner", tag, async ({ page 
   });
   expect(pos).toEqual({ leftHalf: true, lowerHalf: true });
 });
+
+// TASK-193 scar: WebKit ignores backface-visibility in this 3D stack and painted the back over the front (Safari showed
+// a washed-out panther). The turned-away face must be visibility:hidden at rest, on both sides.
+test("the turned-away face is hidden at rest, so no engine can paint it over the visible face", tag, async ({ page }) => {
+  await page.goto("/card");
+  const vis = () => page.evaluate(() => ({
+    front: getComputedStyle(document.querySelector('[data-face="front"]')!).visibility,
+    back: getComputedStyle(document.querySelector('[data-face="back"]')!).visibility,
+  }));
+  expect(await vis()).toEqual({ front: "visible", back: "hidden" });
+  await flipToBack(page);
+  expect(await vis()).toEqual({ front: "hidden", back: "visible" });
+});
