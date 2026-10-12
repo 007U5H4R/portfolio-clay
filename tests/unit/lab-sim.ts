@@ -66,6 +66,8 @@ export class LabSim {
   private pending: number | null = null;
   private readonly stall = new StallWatch();
   private plungerCap: R;
+  private spinBody: R = null;
+  private spinAngle = 0;
   maxY = -Infinity;
   /** Every bumper and sling kick the sim gave (for the scoring and "all four get hit" checks). */
   bumperHits: { id: string; kind: string; t: number }[] = [];
@@ -82,8 +84,11 @@ export class LabSim {
   /** True if the gummy ever stood back inside the lane (x past the divider, below its top) after it had cleared the lane. */
   reenteredLane = false;
 
-  /** `portal` overrides the black hole's place (for tuning scans; the game's own layout is `buildArena`'s); `extraPosts` adds fixed round posts (tests only). */
-  constructor(halfW = 5, portal?: { x: number; y: number; r: number; catchR: number }, extraPosts: { x: number; y: number; r: number }[] = []) {
+  /**
+   * `portal` overrides the black hole's place (for tuning scans; the game's own layout is `buildArena`'s); `extraPosts` adds fixed round
+   * posts (tests only); `spinner` builds the phase-1 spinning bar too (it turns at the game's rate, `spin.speed` rad/s).
+   */
+  constructor(halfW = 5, portal?: { x: number; y: number; r: number; catchR: number }, extraPosts: { x: number; y: number; r: number }[] = [], spinner = false) {
     const a = (this.arena = buildArena(halfW));
     if (portal) a.portal = { ...a.portal, ...portal };
     const w = (this.world = new RAPIER.World({ x: 0, y: GRAVITY, z: 0 }));
@@ -119,7 +124,12 @@ export class LabSim {
     for (const p of a.platforms) box(fixed(p.x, p.y, p.angle ?? 0), p.w / 2, p.h / 2, 1.0, 0.2, 0.1);
     a.pads.forEach((p, i) => tag(box(fixed(p.x, p.y, p.angle ?? 0), p.w / 2, 0.1, 0.6, 0, 0.5, 0, 0.1), "pad", i));
     a.bumpers.forEach((b, i) => {
-      if (b.spin) return;
+      if (b.spin) {
+        if (!spinner) return;
+        this.spinBody = w.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(b.x, b.y, 0));
+        tag(box(this.spinBody, b.spin.len / 2, 0.11, 0.5, 0.9, 0.5), "bumper", i);
+        return;
+      }
       const c = w.createCollider(RAPIER.ColliderDesc.ball(b.r).setTranslation(b.x, b.y, 0).setRestitution(1), fixed());
       tag(c, "bumper", i);
     });
@@ -266,6 +276,11 @@ export class LabSim {
   }
 
   private advance() {
+    if (this.spinBody) {
+      const spin = this.arena.bumpers.find((b) => b.spin)!.spin!;
+      this.spinAngle += PHYSICS_DT * spin.speed;
+      this.spinBody.setNextKinematicRotation(rotZ(this.spinAngle));
+    }
     this.world.step(this.queue);
     this.t += PHYSICS_DT;
     this.queue.drainCollisionEvents((h1: number, h2: number, started: boolean) => {

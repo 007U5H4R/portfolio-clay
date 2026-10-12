@@ -12,7 +12,7 @@
  *   • mobile: touch halves work the flippers (multi-touch), the HUD fits 390 px, controls are ≥ 44 px; keyboard play works;
  *   • pinball (TASK-172): the player works two flippers, the gummy is the ball, and falling through the drain ends the run;
  *   • the paper-cut machine (TASK-185): Space is the plunger (hold to charge, release to launch, longer = harder), A/D/arrows/Z/M
- *     are the flippers, the black hole in the corner is the real "Back to Portfolio" link, reduced motion draws no trail/particles.
+ *     are the flippers, the black hole on the table is the real "Back to Portfolio" link, reduced motion draws no trail/particles.
  * Frame rate (§39) is profiled manually (informational). Chromium is launched with the SwiftShader
  * flags so the canvas path runs where the host has no GPU; the no-WebGL path is forced explicitly.
  */
@@ -462,12 +462,13 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     const box = (await hole.boundingBox())!;
     expect(box.width).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeGreaterThanOrEqual(44);
-    // it sits over the machine's top-left corner, inside the canvas
+    // it sits inside the canvas, on the table's left half: in the top-left of the playfield on the wide table (TASK-199: the black hole is inside the table now)
     const canvas = (await page.locator("[data-lab-canvas] canvas").boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(canvas.x - 2);
     expect(box.y).toBeGreaterThanOrEqual(canvas.y - 2);
-    expect(box.x + box.width / 2, "top-left").toBeLessThan(canvas.x + canvas.width / 2);
-    expect(box.y + box.height / 2, "top-left").toBeLessThan(canvas.y + canvas.height / 3);
+    expect(box.x + box.width / 2, "left half").toBeLessThan(canvas.x + canvas.width / 2);
+    const wide = await page.evaluate(() => (window.__gummyLab!.rt as unknown as { arena: { halfW: number } }).arena.halfW > 4);
+    if (wide) expect(box.y + box.height / 2, "top-left").toBeLessThan(canvas.y + canvas.height / 3);
     await axe(page, { include: "[data-lab]" });
     // Space on the focused link must not charge the plunger (a focused control keeps its keys)
     await page.keyboard.down("Space");
@@ -507,16 +508,16 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
       [path, name] as const,
     );
 
-  test("@EVAL-030 the black hole is a way in: the gummy entering the opening in the left wall unlocks YOU REALLY FOUND IT and exits once, without pausing or ending the run", async ({ page }) => {
+  test("@EVAL-030 the black hole is a way in: the gummy entering the hole in the table unlocks YOU REALLY FOUND IT and exits once, without pausing or ending the run", async ({ page }) => {
     await openGame(page);
     await startRun(page);
     await settled(page);
     await countCalls(page, "requestExit", "__exits");
     await page.evaluate(() => {
-      const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number; portal: { y0: number; y1: number } }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
-      const { halfW, portal } = rt.arena;
-      // the gummy flies into the opening from the table: feet a hair above the opening's floor, moving left
-      rt.bearBody.current.setTranslation({ x: -halfW + 0.9, y: portal.y0 + 0.12, z: 0 }, true);
+      const rt = window.__gummyLab!.rt as unknown as { arena: { portal: { x: number; y: number } }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
+      const { portal } = rt.arena;
+      // the gummy flies into the hole from the table: its body level with the hole, a gummy's width and a bit away, moving left
+      rt.bearBody.current.setTranslation({ x: portal.x + 0.9, y: portal.y - 0.5, z: 0 }, true);
       rt.bearBody.current.setLinvel({ x: -7, y: 0, z: 0 }, true);
     });
     await page.waitForFunction(() => (window as unknown as { __exits: number }).__exits >= 1, null, { timeout: 60_000 });
@@ -529,6 +530,26 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(await page.evaluate(() => (window as unknown as { __exits?: number }).__exits)).toBe(1);
     const stored = await page.evaluate(() => JSON.parse(window.localStorage.getItem("gummy-lab:v1") ?? "{}") as { achievements?: string[] });
     expect(stored.achievements).toContain("YOU_REALLY_FOUND_IT");
+  });
+
+  test("@EVAL-030 the table is the TASK-199 layout: four bumper types (phone: pop + turbo), two unlabelled wall slingshots, no AI / DESIGN / PRODUCT / BUILD bricks, the hole inside the table", async ({ page }) => {
+    await openGame(page);
+    await startRun(page);
+    await settled(page);
+    const t = await page.evaluate(() => {
+      const rt = window.__gummyLab!.rt as unknown as {
+        arena: { halfW: number; bumpers: { kind: string; spin?: unknown }[]; slings: { id: string; kind: string }[]; portal: { x: number } };
+      };
+      const a = rt.arena;
+      return { halfW: a.halfW, kinds: a.bumpers.filter((b) => !b.spin).map((b) => b.kind).sort(), slings: a.slings.map((s) => s.id).sort(), portalX: a.portal.x, hasTargets: "targets" in a };
+    });
+    expect(t.kinds).toEqual(t.halfW > 4 ? ["jet", "pop", "thumper", "turbo"] : ["pop", "turbo"]);
+    expect(t.slings).toEqual(["SL", "SR", "WL", "WR"]);
+    expect(t.portalX, "the hole is inside the table, not outside the frame").toBeGreaterThan(-t.halfW);
+    expect(t.hasTargets).toBe(false);
+    // the page carries no brick labels (they were drawn into the canvas; nothing else in the lab names them either)
+    const text = await page.locator("[data-lab]").innerText();
+    for (const name of ["PRODUCT", "BUILD", "DESIGN"]) expect(text).not.toContain(name);
   });
 
   test("@EVAL-030 the shooter lane closes behind the gummy: a gummy dropped toward the lane cannot enter it, and a new game reopens the gate", async ({ page }) => {
@@ -582,10 +603,10 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     await launch(page, 0.05);
     await page.waitForFunction(() => (window.__gummyLab!.rt as unknown as { laneGateShut: boolean }).laneGateShut, null, { timeout: 90_000 });
     await countCalls(page, "hooks.nudge", "__nudges");
-    // park the gummy where the headless scan found it wedged (phone: against a bumper; desktop: in the left pocket) and press N in the same turn
+    // park the gummy in open space on the table (TASK-199: the new layout has no wedge to find, so any rest will do) and press N in the same turn
     const rest = await page.evaluate(() => {
       const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
-      const at = rt.arena.halfW < 4 ? { x: -0.57, y: 3.42 } : { x: -4.5, y: 3.97 };
+      const at = rt.arena.halfW < 4 ? { x: -1.2, y: 1.8 } : { x: -3.0, y: 3.2 };
       rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
       rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", cancelable: true }));
@@ -617,10 +638,10 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 0.5);
     const plunger = await page.locator("[data-lab-plunger]").boundingBox();
     if (plunger) expect(box.x + box.width <= plunger.x || plunger.x + plunger.width <= box.x || box.y + box.height <= plunger.y || plunger.y + plunger.height <= box.y).toBe(true);
-    // wedge the gummy, then use the button (a tap at w390, a click on desktop)
+    // park the gummy in open space (the new layout has no wedge), then use the button (a tap at w390, a click on desktop)
     const rest = await page.evaluate(() => {
       const rt = window.__gummyLab!.rt as unknown as { arena: { halfW: number }; bearBody: { current: { setTranslation(p: object, w: boolean): void; setLinvel(v: object, w: boolean): void } } };
-      const at = rt.arena.halfW < 4 ? { x: -0.57, y: 3.42 } : { x: -4.5, y: 3.97 };
+      const at = rt.arena.halfW < 4 ? { x: -1.2, y: 1.8 } : { x: -3.0, y: 3.2 };
       rt.bearBody.current.setTranslation({ x: at.x, y: at.y, z: 0 }, true);
       rt.bearBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
       return at;
@@ -972,7 +993,7 @@ test.describe("@EVAL-030 mobile plunger (touch)", () => {
     expect(await page.evaluate(() => window.__gummyLab!.rt.launched)).toBe(true);
   });
 
-  test("@EVAL-030 the black hole link is a 44 px+ target on a phone and sits in the top-left of the table", async ({ page }) => {
+  test("@EVAL-030 the black hole link is a 44 px+ target on a phone and sits on the table (inside the viewport)", async ({ page }) => {
     await page.goto("/lab?debug");
     await waitLab(page);
     test.skip((await labMode(page)) !== "canvas", "no WebGL on this host");

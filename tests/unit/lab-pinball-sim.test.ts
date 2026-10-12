@@ -31,12 +31,12 @@ export interface Launch {
   slings: string[];
 }
 
-export function randomLaunches(hw: number, n: number, seed: number): Launch[] {
+export function randomLaunches(hw: number, n: number, seed: number, spinner = false): Launch[] {
   const r = rng(seed);
   const out: Launch[] = [];
   for (let i = 0; i < n; i += 1) {
     const force = MIN_FORCE + r() * (MAX_FORCE - MIN_FORCE);
-    const s = new LabSim(hw);
+    const s = new LabSim(hw, undefined, [], spinner);
     const a = s.arena;
     s.launch(force);
     let anchor = { x: s.x, y: s.y, t: 0 };
@@ -62,12 +62,13 @@ export function randomLaunches(hw: number, n: number, seed: number): Launch[] {
 }
 
 describe.each([
-  { name: "desktop table", hw: 5 },
-  { name: "phone table", hw: 2.7 },
-])("50 random launches on the $name", ({ name, hw }) => {
+  { name: "desktop table", hw: 5, spinner: false },
+  { name: "desktop table with the spinner turning (phase 1+)", hw: 5, spinner: true },
+  { name: "phone table", hw: 2.7, spinner: false },
+])("50 random launches on the $name", ({ name, hw, spinner }) => {
   let runs: Launch[] = [];
   beforeAll(() => {
-    runs = randomLaunches(hw, 50, hw > 4 ? 199 : 991);
+    runs = randomLaunches(hw, 50, hw > 4 ? 199 : 991, spinner);
     const n = (e: Launch["end"]) => runs.filter((l) => l.end === e).length;
     console.info(
       `[pinball-sim] ${name}: flippers ${n("flippers")}/50, hole ${n("hole")}/50, neither ${n("neither")}/50, longest stillness ${Math.max(...runs.map((l) => l.stillMax)).toFixed(2)} s`,

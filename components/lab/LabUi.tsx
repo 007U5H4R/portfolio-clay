@@ -91,6 +91,7 @@ export function BackPortal({ runtime, onExit }: { runtime: LabRuntime; onExit: (
       href="/"
       aria-label={CONTROL_LABELS.back}
       data-lab-portal=""
+      data-narrow={runtime.arena.halfW < 4 ? "" : undefined}
       onClick={(e) => {
         e.preventDefault();
         onExit();

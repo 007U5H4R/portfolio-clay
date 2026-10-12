@@ -624,7 +624,7 @@ function Bumper({ spec }: { spec: BumperSpec }) {
 /**
  * A slingshot (spec §20; the side trapezia TASK-199): a paper shape on a guide or against a wall. A gummy that hits the kicking face is
  * pushed away along its normal (lib/lab/slings.ts); the face's lit strip flashes and the trim presses in for a beat, then releases. The
- * wall ones carry no label: just cardstock, a cream face and a lit strip.
+ * wall ones carry no label: green cardstock (so they stand out from the orange cabinet), a cream face and a lit strip.
  */
 function Sling({ spec }: { spec: SlingSpec }) {
   const rt = useRuntime();
@@ -652,7 +652,7 @@ function Sling({ spec }: { spec: SlingSpec }) {
     const strip = new RoundedBoxGeometry(faceLen * 0.82, 0.05, 0.05, 1, 0.02);
     const button = new CylinderGeometry(0.1, 0.1, 0.12, 14);
     button.rotateX(Math.PI / 2);
-    const bodyMat = createTintedPaper(spec.kind === "wall" ? tint(tok.rust, tok.kraft, 0.22) : tint(tok.rust, tok.ivory, 0.2), { lift: 0.08 });
+    const bodyMat = createTintedPaper(spec.kind === "wall" ? tint(tok.forest, tok.sage, 0.3) : tint(tok.rust, tok.ivory, 0.2), { lift: 0.08 });
     const barMat = createTintedPaper(tint(creamRGB(rt.palette), tok.kraft, 0.1), { lift: 0.1 });
     const stripMat = new MeshBasicMaterial({ color: neon.amber.clone(), toneMapped: false });
     const buttonMat = new MeshBasicMaterial({ color: neon.amber.clone(), toneMapped: false });
