@@ -13737,11 +13737,26 @@ html[data-theme-vt]::view-transition-group(root) {
     opacity var(--dur-l2-out) var(--ease-paper),
     translate var(--dur-l2-out) var(--ease-paper);
 }
-/* the slips sit side by side and may run past the copy column onto the art (they are paper laid on it) */
+/* the slips sit side by side, below the copy (touch, reduced motion, narrow); on a fine pointer they are laid OVER the card's lower
+   left (paper on the landscape), so they take no layout space at rest and the card has no hole */
+.fw-proof {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 24px clamp(22px, 3vw, 56px);
+}
 @media (min-width: 700px) {
   .fw-card-anchor .fw-proof {
     flex-wrap: nowrap;
     width: max-content;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (min-width: 700px) {
+  .fw-card-anchor .fw-proof {
+    position: absolute;
+    bottom: clamp(16px, 2vw, 28px);
+    left: clamp(32px, 3vw, 56px);
+    margin: 0;
+    pointer-events: none;
   }
 }
 /* touch and no-hover: nothing hides behind a hover — the slips are simply there */

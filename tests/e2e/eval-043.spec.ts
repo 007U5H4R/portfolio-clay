@@ -132,6 +132,28 @@ test.describe("@EVAL-043 signatures", () => {
     }
   });
 
+  test("RailCite's evidence slips are laid over the card on a fine pointer: no layout space at rest, inside the sheet, hidden until hover", async ({ page }) => {
+    await gotoFeatured(page);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(700);
+    const r = await page.evaluate(() => {
+      const paper = document.querySelector('.fw-lift[data-featured-lift="railcite"] .fw-paper')!.getBoundingClientRect();
+      const proof = document.querySelector('.fw-lift[data-featured-lift="railcite"] .fw-proof') as HTMLElement;
+      const box = proof.getBoundingClientRect();
+      const copy = document.querySelector('.fw-lift[data-featured-lift="railcite"] .fw-copy')!.getBoundingClientRect();
+      return {
+        position: getComputedStyle(proof).position,
+        inside: box.left >= paper.left && box.right <= paper.right && box.top >= paper.top && box.bottom <= paper.bottom,
+        belowCopy: box.top >= copy.bottom - 1,
+        opacity: [...proof.children].map((c) => getComputedStyle(c).opacity),
+      };
+    });
+    expect(r.position).toBe("absolute");
+    expect(r.inside, "slips stay inside the sheet").toBe(true);
+    expect(r.belowCopy, "slips sit below the copy, not over its text").toBe(true);
+    expect(r.opacity).toEqual(["0", "0"]);
+  });
+
   test("no signature runs while the section is off-screen", async ({ page }) => {
     await gotoFeatured(page);
     await page.evaluate(() => window.scrollTo(0, 0));

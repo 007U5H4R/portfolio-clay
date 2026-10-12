@@ -175,29 +175,6 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
             </h3>
             <p className="fw-tagline">{card.tagline}</p>
             {presentation.line ? <p className="fw-line">{presentation.line}</p> : null}
-            {metrics.length > 0 ? (
-              <ul className="fw-proof" aria-label={`${project.name} proof points`}>
-                {metrics.map((metric, i) => {
-                  const Icon = METRIC_ICON[metric.kind];
-                  return (
-                    <li key={metric.label} className="fw-proof-item" data-metric={metric.kind} style={{ "--slip": i } as CSSProperties}>
-                      <Icon className="fw-proof-icon" aria-hidden="true" strokeWidth={1.5} />
-                      <span className="fw-proof-body">
-                        <b className="fw-proof-value" data-metric-value="">
-                          {metric.value}
-                        </b>{" "}
-                        <span className="fw-proof-label" data-metric-label="">
-                          {metric.label}
-                        </span>
-                        <span className="fw-proof-kind" data-metric-kind="" data-micro-label="">
-                          {metricKindNote(metric)}
-                        </span>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : null}
             {anchor ? (
               <ul className="fw-tags" aria-label={`${project.name} tags`}>
                 {project.tags.map((tag) => (
@@ -209,6 +186,30 @@ function Card({ card, index }: { card: FeaturedCard; index: number }) {
             ) : null}
             <ExploreLink card={card} />
           </div>
+          {/* RailCite's evidence slips: laid over the card on a fine pointer (no layout space at rest), in flow on touch and under reduced motion */}
+          {metrics.length > 0 ? (
+            <ul className="fw-proof" aria-label={`${project.name} proof points`}>
+              {metrics.map((metric, i) => {
+                const Icon = METRIC_ICON[metric.kind];
+                return (
+                  <li key={metric.label} className="fw-proof-item" data-metric={metric.kind} style={{ "--slip": i } as CSSProperties}>
+                    <Icon className="fw-proof-icon" aria-hidden="true" strokeWidth={1.5} />
+                    <span className="fw-proof-body">
+                      <b className="fw-proof-value" data-metric-value="">
+                        {metric.value}
+                      </b>{" "}
+                      <span className="fw-proof-label" data-metric-label="">
+                        {metric.label}
+                      </span>
+                      <span className="fw-proof-kind" data-metric-kind="" data-micro-label="">
+                        {metricKindNote(metric)}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
           <FeaturedArt card={card} />
           {/* the contextual information slip of the supporting cards: the record's own status line (hover, focus, touch) */}
           {anchor ? null : <span className="fw-slip">{project.statusLabel}</span>}
