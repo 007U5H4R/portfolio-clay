@@ -77,6 +77,7 @@ export function WhatIBringJourney() {
   };
 
   useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia("(min-width: 1100px)");
     const sync = () => setIsDesktop(mq.matches);
     sync();
@@ -87,7 +88,7 @@ export function WhatIBringJourney() {
   // Pointer parallax for the active stage only (fine pointer, motion allowed).
   useEffect(() => {
     if (!active) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)").matches) return;
+    if (typeof window.matchMedia !== "function" || !window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)").matches) return;
     const el = listRef.current?.querySelector<HTMLElement>(`[data-stage="${active}"]`);
     if (!el) return;
     let raf = 0;
