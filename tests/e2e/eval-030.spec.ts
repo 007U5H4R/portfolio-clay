@@ -683,7 +683,11 @@ test.describe("@EVAL-030 gameplay (canvas path)", () => {
     expect(before.reduced).toBe(true);
     expect(before.enabled).toBe(false);
     expect(before.particles).toBe(0);
-    // a full-power launch and some play: nothing is ever recorded or emitted
+    // a full-power launch and some play: nothing is ever recorded or emitted. (This test is about reduced motion, not the way out: a hard shot
+    // on the narrow table can reach the black hole, and leaving the lab mid-test would dispose the scene, so the sensor does nothing here.)
+    await page.evaluate(() => {
+      (window.__gummyLab!.rt as unknown as { hooks: { portal(): void } }).hooks.portal = () => {};
+    });
     await launch(page, 0.9);
     await page.waitForTimeout(2500);
     const after = await page.evaluate(() => {
