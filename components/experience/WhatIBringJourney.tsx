@@ -88,10 +88,18 @@ export function WhatIBringJourney() {
     dispatch({ type: "ACTIVATE", id, reduced });
   };
   const onClick = (id: string) => {
-    if (active === id && modeRef.current === "pin") {
-      setActive(null);
-      if (isDesktop) activate(id); // the landscape keeps the stage shown: a second press replays its sequence
-    } else {
+    if (isDesktop) {
+      // the landscape: a press selects the stage (hover keeps working for the others) and (re)plays its sequence
+      modeRef.current = "hover";
+      setActive(id);
+      setSelected(id);
+      activate(id);
+      return;
+    }
+    // the trail: the first press expands and plays; once played, the next press collapses (TASK-187 contract). A keyboard
+    // user who only focused the stage (phase still "rest") plays it with Enter instead of collapsing it.
+    if (active === id && modeRef.current === "pin" && sceneOf(scenes, id).phase !== "rest") setActive(null);
+    else {
       open(id, "pin");
       activate(id);
     }
