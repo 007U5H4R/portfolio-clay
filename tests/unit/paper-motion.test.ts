@@ -285,17 +285,36 @@ describe("paperMotion — orientation", () => {
     expect(f.count("deviceorientation")).toBe(0);
   });
 
-  it("low-passes sensor input (α 0.15) and clamps tilt to ±25°", () => {
+  it("clamps tilt to ±25° and settles on the clamped target once the sensor stops firing", () => {
     const { f, root } = setup({ fine: false });
     tilt(f, 80);
     f.frames(2000);
-    // one event: target = 0.15 × clamp(80°, ±25°)/25° = 0.15
-    expect(x(root)).toBeCloseTo(0.15, 2);
-    for (let i = 0; i < 80; i++) tilt(f, 80);
-    f.frames(2000);
-    expect(x(root)).toBeCloseTo(1, 1);
+    // the low-pass runs on frames, not on events: one event is enough to reach the full deflection
+    expect(x(root)).toBeCloseTo(1, 2);
     expect(x(root)).toBeLessThanOrEqual(1);
     expect(root.dataset.ppMode).toBe("orientation");
+  });
+
+  // TASK-173: the low-pass used to advance once per sensor event, so a short burst (a flick of the wrist, an iOS
+  // sensor that only reports changes) froze the target at 1 - 0.85^n (85 % after ~11 events) until the next event.
+  it("a short burst of events ends at the full deflection, not at 85 %", () => {
+    const { f, root } = setup({ fine: false });
+    for (let i = 0; i < 11; i++) tilt(f, 80);
+    f.frames(2000);
+    expect(x(root)).toBeCloseTo(1, 2);
+    for (let i = 0; i < 3; i++) tilt(f, -80, 45);
+    f.frames(2000);
+    expect(x(root)).toBeCloseTo(-1, 2);
+  });
+
+  it("smooths the approach over frames (no jump) and sleeps once settled", () => {
+    const { f, root } = setup({ fine: false });
+    tilt(f, 80);
+    f.frames(2);
+    expect(x(root)).toBeGreaterThan(0);
+    expect(x(root)).toBeLessThan(0.2);
+    f.frames(2000);
+    expect(f.pending()).toBe(0);
   });
 
   it("does not call requestPermission on registration, scroll-less load or intersection", () => {
