@@ -147,3 +147,32 @@ describe("the sensor fires the exit exactly once", () => {
     expect(s.portalHits).toBe(0);
   });
 });
+
+describe("a slow frame cannot swallow the black hole (fixed-step overlap check, EVAL-030)", () => {
+  // react-three-rapier drains collision events ONCE per rendered frame, after all of the frame's fixed steps, and for an "entered"
+  // sensor event it asks whether the pair overlaps NOW. A frame of up to 0.5 s (30 steps) lets a fast gummy go in and out of the hole
+  // before that question is asked, so the event path alone misses it. Arena.tsx therefore also asks `world.intersectionPair` after
+  // every step; this pins the premise that makes that necessary and sufficient.
+  it("a gummy flying through the hole is overlapping it during the frame but not at the end of it", () => {
+    for (const hw of [5, 2.7]) {
+      const s = new LabSim(hw);
+      const a = s.arena;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let sensor: any = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      s.world.forEachCollider((c: any) => {
+        if (c.isSensor()) sensor = c;
+      });
+      expect(sensor, `hw ${hw}: the sensor exists`).not.toBeNull();
+      const gummy = s.gummy.collider(0);
+      s.place(a.portal.x + 0.6, a.portal.y - 0.5, -7, 0);
+      let during = false;
+      for (let i = 0; i < 30; i += 1) {
+        s.step();
+        if (s.world.intersectionPair(sensor, gummy)) during = true;
+      }
+      expect(during, `hw ${hw}: overlapped on some step`).toBe(true);
+      expect(s.world.intersectionPair(sensor, gummy), `hw ${hw}: gone by the end of a 30-step frame`).toBe(false);
+    }
+  });
+});

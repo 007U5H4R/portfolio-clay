@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { BallCollider, ConvexHullCollider, CuboidCollider, RigidBody, useBeforePhysicsStep, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
+import { BallCollider, ConvexHullCollider, CuboidCollider, RigidBody, useAfterPhysicsStep, useBeforePhysicsStep, useRapier, type CollisionEnterPayload, type RapierRigidBody } from "@react-three/rapier";
 import {
   AdditiveBlending,
   CylinderGeometry,
@@ -117,6 +117,17 @@ function Walls() {
   const rt = useRuntime();
   const { arena } = rt;
   const sensor = portalSensor(arena);
+  const { world } = useRapier();
+  const sensorBody = useRef<RapierRigidBody>(null);
+  // react-three-rapier drains collision events once per rendered frame, after ALL of that frame's fixed steps, and drops an
+  // "entered" sensor event if the pair has stopped overlapping by then. On a slow frame (a loaded phone, a throttled tab, CI:
+  // up to 30 steps at once) a gummy flying through the hole is in and out before the drain and the exit never fires. So the
+  // overlap is also asked after every step; `hooks.portal` fires the exit only once, so the two paths cannot double up.
+  useAfterPhysicsStep(() => {
+    const hole = sensorBody.current?.collider(0);
+    const gummy = rt.bearBody.current?.collider(0);
+    if (hole && gummy && world.intersectionPair(hole, gummy)) rt.hooks.portal();
+  });
   return (
     <>
       <RigidBody type="fixed" colliders={false}>
@@ -125,7 +136,7 @@ function Walls() {
         ))}
       </RigidBody>
       {/* the black hole in the playfield's top-left: touching it sends the gummy back to the portfolio (a sensor, so it never pushes) */}
-      <RigidBody type="fixed" colliders={false}>
+      <RigidBody ref={sensorBody} type="fixed" colliders={false}>
         <BallCollider
           args={[sensor.r]}
           position={[sensor.x, sensor.y, 0]}
