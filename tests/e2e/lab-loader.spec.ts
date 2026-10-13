@@ -18,25 +18,34 @@ test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-s
 const LOADER = "[data-lab-loader]";
 const BAR = `${LOADER} [role=progressbar]`;
 
-/** Holds the model back so the loader has time on screen; the held request is answered after `ms`. */
-async function slowGlb(page: Page, ms: number) {
+/**
+ * Holds the model back until the test lets it go (or, as a backstop, `maxMs` has passed), so the loader stays on screen for as long
+ * as the test needs it. It is not a fixed delay: on a loaded host the page's main thread can be blocked for several seconds at a
+ * time (SwiftShader compiling the machine's shaders), and a fixed hold runs out before the test has even read the first value.
+ */
+async function holdGlb(page: Page, maxMs = 45_000) {
+  let release!: () => void;
+  const released = new Promise<void>((r) => (release = r));
   await page.route("**/lab/gummy.glb", async (route) => {
     try {
       const res = await route.fetch();
-      await new Promise((r) => setTimeout(r, ms));
+      await Promise.race([released, new Promise((r) => setTimeout(r, maxMs))]);
       await route.fulfill({ response: res });
     } catch {
       // the page closed while the request was held
     }
   });
+  return release;
 }
 
 const now = (page: Page) => page.locator(BAR).getAttribute("aria-valuenow").then((v) => Number(v));
 
 test.describe("@TASK-198 lab loader", () => {
   test("shows with progressbar semantics, rises monotonically, hands off to the intro and leaves the DOM", async ({ page, consoleErrors }) => {
+    // the model is held while the rest of the boot runs, then the hand-off is awaited: far more than the default 30 s on a loaded host
+    test.setTimeout(120_000);
     void consoleErrors;
-    await slowGlb(page, 2500);
+    const release = await holdGlb(page);
     await page.goto("/lab?debug");
     await page.locator(LOADER).waitFor({ state: "visible", timeout: 20_000 });
     const bar = page.locator(BAR);
@@ -46,7 +55,12 @@ test.describe("@TASK-198 lab loader", () => {
     await expect(page.locator(`${LOADER} [role=status]`)).not.toBeEmpty();
     const seen: number[] = [await now(page)];
     expect(seen[0]).toBeLessThan(100);
-    // sample while it loads
+    // the model is held back, so the rest of the boot (canvas, physics) moves the bar on its own, but it cannot finish
+    await expect.poll(() => now(page), { timeout: 40_000 }).toBeGreaterThan(seen[0]!);
+    seen.push(await now(page));
+    expect(seen.at(-1)).toBeLessThan(100);
+    release();
+    // sample while it finishes
     for (let i = 0; i < 40 && (await page.locator(LOADER).count()) > 0; i += 1) {
       const v = await page.locator(BAR).getAttribute("aria-valuenow", { timeout: 500 }).catch(() => null);
       if (v !== null) seen.push(Number(v));
@@ -59,7 +73,7 @@ test.describe("@TASK-198 lab loader", () => {
   });
 
   test("runs no infinite animation and no looping transition while it is on screen", async ({ page }) => {
-    await slowGlb(page, 2500);
+    const release = await holdGlb(page);
     await page.goto("/lab?debug");
     await page.locator(LOADER).waitFor({ state: "visible", timeout: 20_000 });
     const infinite = await page.evaluate(() =>
@@ -70,11 +84,12 @@ test.describe("@TASK-198 lab loader", () => {
         .map((a) => (a as CSSAnimation).animationName ?? "?"),
     );
     expect(infinite).toEqual([]);
+    release();
   });
 
   test("reduced motion: nothing rotates or travels, the fill and the percentage still update", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await slowGlb(page, 5000);
+    const release = await holdGlb(page);
     await page.goto("/lab?debug");
     await page.locator(LOADER).waitFor({ state: "visible", timeout: 20_000 });
     const m = await page.evaluate(() => {
@@ -96,20 +111,22 @@ test.describe("@TASK-198 lab loader", () => {
     expect(m.hop).toBe("none");
     const first = await now(page);
     await expect.poll(() => now(page).catch(() => 100), { timeout: 30_000 }).toBeGreaterThan(first);
+    release();
   });
 
   test("390 px: no horizontal overflow and the percentage and stage stay readable", async ({ page }, info) => {
     test.skip(info.project.name !== "w390", "phone layout");
-    await slowGlb(page, 2500);
+    const release = await holdGlb(page);
     await page.goto("/lab?debug");
     await page.locator(LOADER).waitFor({ state: "visible", timeout: 20_000 });
     const o = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, r: document.querySelector("[data-lab-loader]")!.scrollWidth <= document.querySelector("[data-lab-loader]")!.clientWidth }));
     expect(o.sw).toBeLessThanOrEqual(o.cw);
     expect(o.r).toBe(true);
+    release();
   });
 
   test("a hung load offers a retry, and Escape still exits", async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
     await page.route("**/lab/gummy.glb", () => new Promise(() => undefined)); // never answered
     await page.goto("/");
     await page.goto("/lab?debug");
