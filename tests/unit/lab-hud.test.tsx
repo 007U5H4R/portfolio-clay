@@ -23,13 +23,14 @@ describe("Hud (paper plates)", () => {
     expect(document.querySelector("[data-lab-time]")?.textContent).toBe("00:24");
   });
 
-  it("updates when the store changes, and labels the TP combo", () => {
+  it("updates when the store changes (the combo label is plain: TP MODE is gone)", () => {
     const store = setup();
     render(<Hud store={store} onPause={() => {}} />);
-    act(() => store.setState({ score: 2400, combo: 4, timeS: 61, tpMode: true }));
+    act(() => store.setState({ score: 2400, combo: 4, timeS: 61 }));
     expect(document.querySelector("[data-lab-score]")?.textContent).toBe("2,400");
     expect(document.querySelector("[data-lab-time]")?.textContent).toBe("01:01");
-    expect(screen.getByText("Combo · TP")).toBeTruthy();
+    expect(screen.getByText("Combo")).toBeTruthy();
+    expect(screen.queryByText(/TP/)).toBeNull();
   });
 
   it("has a real Pause button that becomes Resume while paused", () => {

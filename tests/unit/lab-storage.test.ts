@@ -32,7 +32,8 @@ describe("lab storage", () => {
     expect(unlock("CURIOUS_MIND")).toBe(true);
     expect(unlock("CURIOUS_MIND")).toBe(false);
     expect(loadStored().achievements).toEqual(["CURIOUS_MIND"]);
-    expect(Object.keys(ACHIEVEMENTS)).toHaveLength(5);
+    // four: Product sense (hit all four target bricks) went with the bricks (TASK-199)
+    expect(Object.keys(ACHIEVEMENTS)).toHaveLength(4);
   });
 
   it("survives corrupt data and blocked storage without throwing", () => {

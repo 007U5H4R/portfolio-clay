@@ -1,14 +1,14 @@
 import { difficultyAt, type Difficulty, type Phase } from "./difficulty";
-import type { TargetName } from "./arena";
+import { BUMPER_POINTS } from "./bumpers";
 import type { GameMachine } from "./state-machine";
 import { recordRun, unlock, type AchievementId } from "./storage";
 import type { PowerChip, RunSummary } from "./store";
 
 /**
  * The Gummy Lab rules engine (gummy-bear.md §15–23, §32–35): survival clock, danger countdown and
- * rescue, score + combo, power-ups, the four meta targets and TP MODE, achievements, results. Pure
+ * rescue, score + combo, power-ups, achievements, results. Pure
  * TypeScript with no three.js — the scene feeds it `{ inDanger }` every frame and calls `action()` /
- * `collect()` / `hitTarget()` on physics events, and reads `snapshot()` / `env()` back. Unit-tested
+ * `collect()` on physics events, and reads `snapshot()` / `env()` back. Unit-tested
  * (tests/unit/lab-engine.test.ts).
  */
 export const DANGER_SECONDS = 1.2;
@@ -19,11 +19,12 @@ export const COUNTDOWN_S = 3;
 const DANGER_RECOVERY_PER_S = 0.6;
 const FARM_WINDOW_S = 2;
 
-export type ActionKind = "pad" | "ring" | "bumper" | "sling" | "star" | "target" | "save" | "droplet";
-/** Base points per action (before the combo and power-up multipliers). Bumpers are 100 (TASK-185, spec §10); a target's own value is in TARGET_POINTS. */
-export const ACTION_POINTS: Record<ActionKind, number> = { pad: 25, ring: 100, bumper: 100, sling: 30, star: 150, target: 200, save: 100, droplet: 50 };
-/** The four pinball targets (spec §19): what each is worth before the combo multiplier. */
-export const TARGET_POINTS: Record<TargetName, number> = { AI: 150, DESIGN: 200, PRODUCT: 250, BUILD: 300 };
+export type ActionKind = "pad" | "ring" | "bumper" | "sling" | "star" | "save" | "droplet";
+/**
+ * Base points per action (before the combo and power-up multipliers). Every bumper type is 100 (TASK-185, spec §10; TASK-199: the four
+ * types differ in feel, not value) and a slingshot, flipper-side or wall, is 30. The AI / DESIGN / PRODUCT / BUILD targets are gone (TASK-199).
+ */
+export const ACTION_POINTS: Record<ActionKind, number> = { pad: 25, ring: 100, bumper: BUMPER_POINTS, sling: 30, star: 150, save: 100, droplet: 50 };
 
 export type PowerUpType = "SUPER_SQUISH" | "LOW_GRAVITY" | "RAINBOW" | "GOLDEN" | "TIME_FREEZE";
 export const POWER_SECONDS: Record<PowerUpType, number> = { SUPER_SQUISH: 8, LOW_GRAVITY: 7, RAINBOW: 7, GOLDEN: 6, TIME_FREEZE: 3 };
@@ -35,7 +36,6 @@ export type EngineEvent =
   | { type: "save" }
   | { type: "powerup"; power: PowerUpType }
   | { type: "powerup-end"; power: PowerUpType }
-  | { type: "tp-mode" }
   | { type: "achievement"; id: AchievementId }
   | { type: "game-over" }
   | { type: "combo"; combo: number };
@@ -44,7 +44,6 @@ export interface EngineEnv extends Difficulty {
   rainbow: number;
   gold: number;
   lowGravity: number;
-  tpGlow: number;
   bounceMul: number;
   superSquish: boolean;
 }
@@ -56,11 +55,9 @@ export interface EngineSnapshot {
   dangerLeft: number | null;
   countdown: number;
   powers: PowerChip[];
-  tpMode: boolean;
 }
 
-export function statusFor({ timeS, tpMode }: { timeS: number; tpMode: boolean }): string {
-  if (tpMode) return "TP-certified. The gummy is thrilled.";
+export function statusFor({ timeS }: { timeS: number }): string {
   if (timeS >= 45) return "Certified Gummy Operator";
   if (timeS >= 25) return "A solid wobble.";
   if (timeS >= 10) return "The gummy survived... mostly.";
@@ -84,8 +81,6 @@ export class GameEngine {
   private saves = 0;
   private powerUps = 0;
   private powers = new Map<PowerUpType, number>();
-  private targets = new Set<TargetName>();
-  private tpMode = false;
   private phase: Phase = 0;
   private countdownLeft = COUNTDOWN_S;
   private diff: Difficulty = difficultyAt(0);
@@ -126,8 +121,6 @@ export class GameEngine {
     this.saves = 0;
     this.powerUps = 0;
     this.powers.clear();
-    this.targets.clear();
-    this.tpMode = false;
     this.phase = 0;
     this.countdownLeft = COUNTDOWN_S;
     this.diff = difficultyAt(0);
@@ -138,7 +131,7 @@ export class GameEngine {
   }
 
   scoreMultiplier(): number {
-    return (this.powers.has("GOLDEN") ? 2 : 1) * (this.powers.has("RAINBOW") ? 1.5 : 1) * (this.tpMode ? 1.5 : 1);
+    return (this.powers.has("GOLDEN") ? 2 : 1) * (this.powers.has("RAINBOW") ? 1.5 : 1);
   }
 
   update(rawDt: number, input: { inDanger: boolean }) {
@@ -205,7 +198,7 @@ export class GameEngine {
     }
   }
 
-  /** A useful action (pad, bumper, ring, star, target, save). `base` overrides the kind's base points (targets). Returns the points awarded. */
+  /** A useful action (pad, bumper, sling, ring, star, save). `base` overrides the kind's base points. Returns the points awarded. */
   action(kind: ActionKind, id?: string | number, base?: number): number {
     const farm = id !== undefined && id === this.lastActionId && this.time - this.lastActionAt < FARM_WINDOW_S;
     this.lastActionId = id;
@@ -236,19 +229,6 @@ export class GameEngine {
     this.action(kind, id);
   }
 
-  /** A target was hit: its own points × the combo. Returns the points awarded. */
-  hitTarget(name: TargetName): number {
-    const points = this.action("target", name, TARGET_POINTS[name]);
-    this.targets.add(name);
-    if (this.targets.size === 4 && !this.tpMode) {
-      this.tpMode = true;
-      this.bonus += 500;
-      this.emit({ type: "tp-mode" });
-      this.achieve("PRODUCT_SENSE");
-    }
-    return points;
-  }
-
   activate(type: PowerUpType) {
     this.powers.set(type, POWER_SECONDS[type]);
     this.powerUps += 1;
@@ -277,7 +257,6 @@ export class GameEngine {
       rainbow: rainbow ? 1 : 0,
       gold: this.powers.has("GOLDEN") ? 1 : 0,
       lowGravity: low ? 1 : 0,
-      tpGlow: this.tpMode ? 1 : 0,
       bounceMul: rainbow ? 1.15 : 1,
       superSquish: this.powers.has("SUPER_SQUISH"),
     };
@@ -291,7 +270,6 @@ export class GameEngine {
       dangerLeft: this.machine.state === "DANGER" ? this.dangerLeft : null,
       countdown: Math.max(0, Math.ceil(this.countdownLeft)),
       powers: [...this.powers].map(([type, left]) => ({ type, left })),
-      tpMode: this.tpMode,
     };
   }
 
@@ -300,7 +278,6 @@ export class GameEngine {
       score: Math.floor(this.survival + this.bonus),
       timeS: Math.floor(this.time),
       combo: this.maxCombo,
-      targets: this.targets.size,
       powerUps: this.powerUps,
       saves: this.saves,
     };
@@ -315,7 +292,7 @@ export class GameEngine {
       ...base,
       newBest,
       best: { score: stored.bestScore, timeS: stored.bestTime, combo: stored.maxCombo },
-      status: statusFor({ timeS: this.time, tpMode: this.tpMode }),
+      status: statusFor({ timeS: this.time }),
     };
   }
 }

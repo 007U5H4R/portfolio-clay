@@ -25,7 +25,7 @@ let hintsFinished = false;
  * Binds the rules engine to the scene (gummy-bear.md §15–26, §45): every frame it feeds the engine
  * `{ inDanger }`, mirrors the difficulty/power-up environment into the runtime knobs the arena reads,
  * pushes a throttled HUD snapshot to the store, runs the game-over → results hand-off, and wires the
- * physics hooks (pads, bumpers, targets, pickups, squish…) to scoring, sound and particles.
+ * physics hooks (pads, bumpers, slings, pickups, squish…) to scoring, sound and particles.
  */
 export function Driver() {
   const rt = useRuntime();
@@ -71,12 +71,6 @@ export function Driver() {
           rt.zoom = 0.7;
           burst(rt.bear.x, rt.bear.y + 0.5, "star", 10, 4);
           break;
-        case "tp-mode":
-          banner("TP MODE", 3200);
-          audio.play("secret");
-          rt.zoom = 1;
-          burst(rt.bear.x, rt.bear.y + 0.5, "star", 14, 2);
-          break;
         case "achievement": {
           const a = ACHIEVEMENTS[e.id];
           st().toast(a.title, a.body);
@@ -108,17 +102,11 @@ export function Driver() {
         audio.play("bounce");
         if (acc.current.hint === 3) hint(4, null);
       },
-      bumper(id, x, y) {
-        fx.bumper(id, x, y);
+      bumper(id, kind, x, y) {
+        fx.bumper(id, kind, x, y);
         const pts = engine.action("bumper", id);
         rt.popup(`+${Math.round(pts)}`, x, y + 0.9);
         audio.play("bounce");
-      },
-      target(id, x, y) {
-        fx.target(id, x, y);
-        const pts = engine.hitTarget(id);
-        rt.popup(`+${Math.round(pts)}`, x, y + 0.7);
-        audio.play("star");
       },
       sling(id, x, y) {
         fx.sling(id, x, y);
@@ -223,7 +211,6 @@ export function Driver() {
     e.rainbow = env.rainbow;
     e.gold = env.gold;
     e.lowGravity = env.lowGravity;
-    e.tpGlow = env.tpGlow;
     rt.bounceMul = env.bounceMul * rt.tune.bounce;
     rt.superSquish = env.superSquish;
 
@@ -254,7 +241,7 @@ export function Driver() {
     if (A.hud >= 0.1) {
       A.hud = 0;
       const s = engine.snapshot();
-      const key = [s.score, s.combo, Math.floor(s.timeS * 10), s.dangerLeft === null ? "-" : s.dangerLeft.toFixed(1), s.countdown, s.powers.map((p) => `${p.type}${Math.ceil(p.left)}`).join(","), s.tpMode].join("|");
+      const key = [s.score, s.combo, Math.floor(s.timeS * 10), s.dangerLeft === null ? "-" : s.dangerLeft.toFixed(1), s.countdown, s.powers.map((p) => `${p.type}${Math.ceil(p.left)}`).join(",")].join("|");
       // A soft tick for each whole second of the danger countdown and each countdown step.
       const tickKey = s.dangerLeft !== null ? `d${Math.ceil(s.dangerLeft)}` : machine.state === "COUNTDOWN" ? `c${s.countdown}` : "";
       if (tickKey !== A.tickKey) {
@@ -270,7 +257,6 @@ export function Driver() {
           dangerLeft: s.dangerLeft === null ? null : Math.round(s.dangerLeft * 10) / 10,
           countdown: s.countdown,
           powers: s.powers.map((p) => ({ type: p.type, left: Math.ceil(p.left) })),
-          tpMode: s.tpMode,
         });
       }
     }

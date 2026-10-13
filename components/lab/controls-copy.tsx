@@ -31,7 +31,7 @@ export const HOW_TO_PLAY: readonly { main: string; sub?: string; icon: ReactNode
   },
   {
     main: "Hit",
-    sub: "bumpers & targets",
+    sub: "bumpers & slingshots",
     icon: (
       <svg {...ICON}>
         <circle cx="16" cy="16" r="9" />

@@ -454,7 +454,7 @@ function GummyBody({ model }: { model: Prepared | "fallback" }) {
     uniforms.uJelly.value = rt.reducedMotion ? jelly.energy * 0.4 : jelly.energy;
     uniforms.uImpactDir.value.set(jelly.impactX, jelly.impactY, 0);
     const dangerGlow = b.inDanger && machine.running ? 0.9 : gs === "GAME_OVER" ? 0.4 : 0;
-    uniforms.uGlow.value += (Math.max(dangerGlow, rt.env.tpGlow * 0.5) - uniforms.uGlow.value) * EASE(8, dt);
+    uniforms.uGlow.value += (dangerGlow - uniforms.uGlow.value) * EASE(8, dt);
     uniforms.uRainbow.value += (rt.env.rainbow - uniforms.uRainbow.value) * EASE(6, dt);
     uniforms.uGold.value += (rt.env.gold - uniforms.uGold.value) * EASE(6, dt);
 

@@ -350,8 +350,8 @@ function Lights() {
     runs.push({ pts: archPts, z: Z, radius: 0.05, ramp: (t) => ramp2(amber, magenta, 0.7, 1)(t) });
     // The lane's own guide: a cool line up the divider's lane side ("illuminated guide").
     runs.push({ pts: [[lane.xIn + 0.1, -4.9], [lane.xIn + 0.1, lane.dividerTop - 0.05]], z: Z - 0.1, radius: 0.04, ramp: ramp2(cyan, cyan) });
-    // Left and right walls of the table, and the corner deflector
-    runs.push({ pts: [[-hw + 0.16, -1.9], [-hw + 0.16, arena.ceilingY - 1.75], [-hw + 1.7 - 0.05, arena.ceilingY - 0.3]], z: Z - 0.04, radius: 0.04, ramp: ramp2(amber, cyan, 0.55, 1) });
+    // The left wall of the table, up to just under the black hole (which sits in the top-left corner)
+    runs.push({ pts: [[-hw + 0.16, -1.9], [-hw + 0.16, arena.portal.y - arena.portal.r * 1.7]], z: Z - 0.04, radius: 0.04, ramp: ramp2(amber, cyan, 0.55, 1) });
     // The in-lane guides, down to the flippers
     for (const g of arena.guides) {
       runs.push({ pts: [[g.x1 + (g.x1 < 0 ? 0.1 : -0.1), g.y1 + 0.17], [g.x2, g.y2 + 0.17]], z: Z - 0.06, radius: 0.036, ramp: ramp2(warm, amber) });

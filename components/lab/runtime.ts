@@ -1,8 +1,10 @@
+import type { BootTracker } from "@/lib/lab/boot";
 import { createContext, useContext } from "react";
 import type { NudgeState } from "@/lib/lab/nudge";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { MeshPhysicalMaterial, Object3D } from "three";
-import type { ArenaSpec, PadSpec, TargetName } from "@/lib/lab/arena";
+import type { ArenaSpec, PadSpec } from "@/lib/lab/arena";
+import type { BumperKind } from "@/lib/lab/bumpers";
 import type { FlipperLayout, FlipperSide, FlipperState } from "@/lib/lab/flippers";
 import type { LabAudio } from "./audio";
 import type { GameEngine } from "@/lib/lab/engine";
@@ -54,14 +56,13 @@ export interface EnvKnobs {
   rainbow: number;
   gold: number;
   lowGravity: number;
-  tpGlow: number;
 }
 
 export interface LabHooks {
   impact(speed: number, dirX: number, dirY: number, x: number, y: number): void;
   pad(spec: PadSpec, x: number, y: number): void;
-  bumper(id: string, x: number, y: number): void;
-  target(id: TargetName, x: number, y: number): void;
+  /** A bumper of `kind` kicked the gummy at (x, y). */
+  bumper(id: string, kind: BumperKind, x: number, y: number): void;
   portal(): void;
   /** A rapier sensor overlap with a collectible. */
   pickup(id: number): void;
@@ -182,6 +183,8 @@ export interface LabRuntime {
   superSquish: boolean;
   /** Called once when the intro bear is poked, etc. */
   onAsset(status: "ready" | "failed"): void;
+  /** The real boot lifecycle (TASK-198): the loader renders it, the scene marks its milestones on it. */
+  boot: BootTracker;
 }
 
 export const RuntimeContext = createContext<LabRuntime | null>(null);
@@ -214,14 +217,13 @@ export function createTuning(): Tuning {
 }
 
 export function createEnv(): EnvKnobs {
-  return { phase: 0, motion: 0, gravityMul: 1, windX: 0, dangerRise: 0, vanish: false, padShift: 0, rainbow: 0, gold: 0, lowGravity: 0, tpGlow: 0 };
+  return { phase: 0, motion: 0, gravityMul: 1, windX: 0, dangerRise: 0, vanish: false, padShift: 0, rainbow: 0, gold: 0, lowGravity: 0 };
 }
 
 export const noopHooks: LabHooks = {
   impact() {},
   pad() {},
   bumper() {},
-  target() {},
   portal() {},
   pickup() {},
   squish() {},
