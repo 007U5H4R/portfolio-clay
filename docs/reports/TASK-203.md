@@ -44,3 +44,22 @@ Shared model: `lib/wib/scene-machine.ts` (rest, playing, settled, resetting; per
 ## Gate results
 
 See the "Final gate" section appended below.
+
+## Final gate
+
+Everything went through `/Volumes/E Drive/Dev/.scratch/heavy-gate.sh` (the lock was held by other lanes for hours at a time; two of my runs queued 2 to 3 hours each).
+
+| Gate | Result |
+| --- | --- |
+| typecheck (`pnpm typecheck`) | pass |
+| lint | pass, 0 errors; 2 warnings, both pre-existing (`scripts/lcp-probe.ts`, `tests/e2e/eval-037.spec.ts`) |
+| tokens (`pnpm tokens:check`) | pass, 73/73 contrast pairs AA, light and dark |
+| build | pass (`next build` + `assert-static`) |
+| unit | first run 1599 pass, 1 fail: `what-i-bring.test.ts` still checked the retired layer files I had just deleted (fixed in the next commit to check every scene part in both themes; single file re-run 9/9 green; the full unit suite was not re-run after that fix) |
+| `wib-scenes.spec.ts` (all 4 widths: hover and focus lift without playing, Enter / click plays to a settled end state per stage, tap, replay x3 plus a click storm, stage change mid-sequence, no infinite animation and transform / opacity / stroke-dashoffset only, reduced motion, overflow, flow labels, no added figure, night art served and the light set never requested, live theme swap) | after one reduced-motion fix (the CSS minifier turns a bare `translate: none` into a transform, so reduced motion now neutralises hover and parallax through custom properties): all pass at w390 / w768 / w1024 / w1440 (the last run: 560 passed, 127 skipped across wib-scenes, what-i-bring, eval-040, eval-042, eval-023, eval-008) |
+| existing what-i-bring, eval-042 (tool chip hover labels), eval-040 (extended scope) | pass |
+| full e2e suite (4420 tests, 1.8 h), run on the build BEFORE the reduced-motion fix | 2210 passed, 2201 skipped, 9 failed: the 4 reduced-motion `wib-scenes` cases (fixed, see above, re-verified green), EVAL-008 `/dev/artifacts` x4 (pre-existing, known), EVAL-023 system flip at w1440 (see below) |
+
+Not re-run in full after the fix: the full e2e suite (the only change since is the reduced-motion CSS inside the TASK-203 block, the test files and the removal of the unreferenced art). EVAL-023 "a runtime system flip is followed with no saved choice" failed once in the full run (w1440) and once in the final targeted run (w390) and passed on the other widths; it exercises the home page and the theme store, which this ticket does not touch (the scenes only READ the theme). It is not in the known-failure list, so treat it as an intermittent, unreproduced-on-main item until someone runs it on main.
+
+Screenshots: `docs/screenshots/m-013/task-203/` (light and dark; 1440 rest and settled per scene, journey overview, and 390 settled per scene plus the 390 journey).
