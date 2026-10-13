@@ -2,6 +2,7 @@ import { Container } from "@/components/layout/Container";
 import { Annotation } from "@/components/paper/Annotation";
 import { Sticky } from "@/components/paper/Sticky";
 import { TornEdge } from "@/components/paper/TornEdge";
+import { ObjectMotion } from "@/components/paper-world/ObjectMotion";
 import { illustration } from "@/lib/illustrations";
 import { HomeAskTushkyStage } from "./HomeAskTushkyStage";
 import { Paw } from "./Paw";
@@ -73,6 +74,8 @@ function TushkyIntro() {
 function TushkyMascot() {
   return (
     <div className="hat-mascot hat-in-dog">
+      {/* TASK-181.3: paperMotion writes --hx/--hy here while the pointer is over the mascot; CSS leans the whole image (EXE-64) */}
+      <ObjectMotion />
       <Annotation arrow="down" rotate={-4} size="md" className="hat-callout">
         That’s Tushky! <Paw className="hat-callout-paw" />
       </Annotation>

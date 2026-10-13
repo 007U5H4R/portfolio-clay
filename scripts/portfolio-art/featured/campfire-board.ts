@@ -1,5 +1,5 @@
 import { circle, ellipse, g, path, pine, poly, polyline, rect, smooth, type P } from "../kit";
-import { box, collageSvg, piece, prng, ridgePts, ring, screens, strokes, torn, type Collage } from "../collage";
+import { box, layeredCollage, piece, prng, ridgePts, ring, strokes, torn, type LayeredCollage } from "../collage";
 
 /**
  * Campfire Board — Featured Work, bottom-right card (TASK-133 fidelity pass). A FULL-CARD cut-paper
@@ -74,32 +74,45 @@ function board(defs: string[]): string {
       circle(980, 230, 6, { fill: RUST }),
     ),
   );
-  // four pinned notes (scribble only), one taped
+  return out.join("");
+}
+
+/** One of the four pinned notes (scribble only); the taped one carries the tape strip after it. */
+function note(i: number) {
+  return (defs: string[]): string => {
+  const out: string[] = [];
   const notes: [number, number, number, number, string][] = [
     [732, 70, 104, 86, NOTE],
     [982, 64, 104, 84, "#d98b5a"],
     [736, 206, 96, 80, "#f3ead7"],
     [1000, 196, 96, 92, NOTE],
   ];
-  notes.forEach(([x, y, w, h, fill], i) => {
+  {
+    const [x, y, w, h, fill] = notes[i]!;
     const rot = [-4, 5, 3, -3][i]!;
     out.push(piece(defs, `cf-note${i}`, torn(box(x, y, w, h, rot), 220 + i, 2, 6), { fill, shadow: 0.6 }, SHADE));
     out.push(g({ transform: `rotate(${rot} ${x + w / 2} ${y + h / 2})` }, scribble(x + 16, y + 30, w - 30, 3, 300 + i)));
     out.push(circle(x + w / 2, y + 10, 5, { fill: [RUST, NAVY2, GREEN, RUST][i]!, stroke: NAVY, "stroke-width": 1.5 }));
-  });
-  out.push(piece(defs, "cf-tape", torn(box(840, 22, 120, 30, -3), 251, 2, 6), { fill: "#d8c29c", extra: { opacity: 0.8 }, shadow: 0.3 }, SHADE));
+  }
+  if (i === 3) out.push(piece(defs, "cf-tape", torn(box(840, 22, 120, 30, -3), 251, 2, 6), { fill: "#d8c29c", extra: { opacity: 0.8 }, shadow: 0.3 }, SHADE));
   return out.join("");
+  };
 }
 
 function meadow(defs: string[]): string {
   return piece(defs, "cf-meadow", torn(ridgePts([[-20, 612], [200, 604], [380, 580], [520, 552], [680, 540], [840, 552], [1000, 536], [1260, 548]], 680), 279, 4, 14, 3), { fill: GREEN, rim: RIM, rimWidth: 3, screen: ["ht", 0.12] }, SHADE);
 }
 
-function fire(defs: string[]): string {
+function fireBase(): string {
+  return [
+    ellipse(900, 560, 190, 50, { fill: OCHRE, opacity: 0.22 }),
+    g({ transform: "rotate(-14 900 560)" }, rect(838, 550, 124, 22, { rx: 10, fill: WOOD, stroke: NAVY, "stroke-width": 2.5 })),
+    g({ transform: "rotate(16 900 560)" }, rect(838, 550, 124, 22, { rx: 10, fill: WOOD2, stroke: NAVY, "stroke-width": 2.5 })),
+  ].join("");
+}
+
+function flames(defs: string[]): string {
   const out: string[] = [];
-  out.push(ellipse(900, 560, 190, 50, { fill: OCHRE, opacity: 0.22 }));
-  out.push(g({ transform: "rotate(-14 900 560)" }, rect(838, 550, 124, 22, { rx: 10, fill: WOOD, stroke: NAVY, "stroke-width": 2.5 })));
-  out.push(g({ transform: "rotate(16 900 560)" }, rect(838, 550, 124, 22, { rx: 10, fill: WOOD2, stroke: NAVY, "stroke-width": 2.5 })));
   const flame = (cx: number, base: number, w: number, h: number): P[] => [
     [cx - w / 2, base], [cx - w * 0.46, base - h * 0.3], [cx - w * 0.28, base - h * 0.5], [cx - w * 0.34, base - h * 0.74], [cx - w * 0.12, base - h * 0.56],
     [cx - w * 0.06, base - h * 0.86], [cx + w * 0.04, base - h], [cx + w * 0.12, base - h * 0.66], [cx + w * 0.3, base - h * 0.8], [cx + w * 0.3, base - h * 0.5],
@@ -109,11 +122,18 @@ function fire(defs: string[]): string {
   out.push(piece(defs, "cf-f2", torn(flame(902, 556, 92, 148), 263, 3, 7), { fill: ORANGE, shadow: 0 }, SHADE));
   out.push(piece(defs, "cf-f3", torn(flame(898, 556, 60, 98), 265, 2.5, 6), { fill: OCHRE, shadow: 0 }, SHADE));
   out.push(piece(defs, "cf-f4", torn(flame(900, 556, 28, 50), 267, 2, 5), { fill: "#f7dc9a", shadow: 0 }, SHADE));
+  return out.join("");
+}
+
+/** The ember dots, the ring of stones and (after them, as before) the framing pine. */
+function fireFront(): string {
+  const out: string[] = [];
   for (const [x, y, r] of [[872, 340, 3.5], [926, 318, 3], [948, 360, 3]] as const) out.push(circle(x, y, r, { fill: OCHRE }));
   for (const [x, y, rx] of [[818, 576, 26], [862, 590, 28], [910, 594, 30], [958, 588, 28], [998, 574, 24]] as const) {
     out.push(ellipse(x, y, rx, 14, { fill: "#8e8f96", stroke: NAVY, "stroke-width": 2.2 }));
     out.push(ellipse(x - 5, y - 4, rx * 0.5, 4, { fill: "#b9bac0", opacity: 0.8 }));
   }
+  out.push(pine(1236, 660, 280, 110, { fill: FOREST, stroke: NAVY, "stroke-width": 2, "stroke-linejoin": "round" }));
   return out.join("");
 }
 
@@ -134,23 +154,32 @@ function chair(x: number, y: number, s: number, flip: boolean): string {
   return g({ transform: t }, ...parts);
 }
 
-export const campfireBoardFeatured: Collage = {
-  slug: "campfire-board",
-  render() {
-    const defs: string[] = [screens(NAVY, "#fff6df")];
-    const body = [
-      backdrop(defs),
-      board(defs),
-      meadow(defs),
-      chair(660, 610, 0.95, false),
-      chair(1170, 606, 0.95, true),
-      // a tin mug on the left chair's arm
-      rect(752, 504, 20, 24, { rx: 3, fill: "#f3ead7", stroke: NAVY, "stroke-width": 2.2 }),
-      path("M772,510 q9,0 9,6 q0,6 -9,6", { fill: "none", stroke: NAVY, "stroke-width": 2.2 }),
-      polyline([[756, 496], [760, 486], [756, 478]], { stroke: RIM, "stroke-width": 2, opacity: 0.8 }),
-      fire(defs),
-      pine(1236, 660, 280, 110, { fill: FOREST, stroke: NAVY, "stroke-width": 2, "stroke-linejoin": "round" }),
-    ];
-    return collageSvg(W, H, defs.join(""), body.join(""));
-  },
-};
+/** The meadow, the two chairs and the tin mug on the left chair's arm. */
+function camp(defs: string[]): string {
+  return [
+    meadow(defs),
+    chair(660, 610, 0.95, false),
+    chair(1170, 606, 0.95, true),
+    rect(752, 504, 20, 24, { rx: 3, fill: "#f3ead7", stroke: NAVY, "stroke-width": 2.2 }),
+    path("M772,510 q9,0 9,6 q0,6 -9,6", { fill: "none", stroke: NAVY, "stroke-width": 2.2 }),
+    polyline([[756, 496], [760, 486], [756, 478]], { stroke: RIM, "stroke-width": 2, opacity: 0.8 }),
+  ].join("");
+}
+
+/**
+ * Depth layers: back = hills, lake, sun, pines (2 px) · art = the easel board and its four notes (4 px; each note
+ * is its own file so the signature can turn them separately) · fg = meadow, chairs, fire base, the flames (own file:
+ * the signature lifts them), stones and the framing pine (6 px). The three sparks are CSS chips, not art.
+ */
+export const campfireBoardFeatured: LayeredCollage = layeredCollage("campfire-board", W, H, NAVY, [
+  { name: "back", depth: "bg", draw: backdrop },
+  { name: "board", depth: "art", draw: board },
+  { name: "note0", depth: "art", draw: note(0) },
+  { name: "note1", depth: "art", draw: note(1) },
+  { name: "note2", depth: "art", draw: note(2) },
+  { name: "note3", depth: "art", draw: note(3) },
+  { name: "camp", depth: "fg", draw: camp },
+  { name: "firebase", depth: "fg", draw: fireBase },
+  { name: "flames", depth: "fg", draw: flames },
+  { name: "front", depth: "fg", draw: fireFront },
+]);

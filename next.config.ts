@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { portfolioEntries } from "./data/portfolio";
 import { buildCsp, providersInUse } from "./lib/csp";
+import { DEFAULT_API_HOST, MIXPANEL_API_HOSTS } from "./lib/analytics/config";
 
 // Security headers (decision TP9). Every page is static (TP1 — no SSR, no middleware, no
 // per-request rendering; TASK-134 added the one server function, `POST /api/tushky/speech`, and a
@@ -27,9 +28,15 @@ import { buildCsp, providersInUse } from "./lib/csp";
 // plus `player.vimeo.com` only while some product uses Vimeo. Only after the viewer presses play,
 // one player at a time; nothing else may frame.
 const USED_PROVIDERS = providersInUse(portfolioEntries);
-const CSP = buildCsp(USED_PROVIDERS);
+// TASK-194: with a Mixpanel token configured, `connect-src` gains exactly one more origin: the chosen
+// Mixpanel ingestion host (US default; EU / IN only when NEXT_PUBLIC_MIXPANEL_API_HOST names them). Without a
+// token, or with a host that is not one of the three known ones, the policy is unchanged.
+const requestedHost = (process.env.NEXT_PUBLIC_MIXPANEL_API_HOST ?? "").trim().replace(/\/+$/, "") || DEFAULT_API_HOST;
+const ANALYTICS_HOST =
+  process.env.NEXT_PUBLIC_MIXPANEL_TOKEN?.trim() && (MIXPANEL_API_HOSTS as readonly string[]).includes(requestedHost) ? requestedHost : undefined;
+const CSP = buildCsp(USED_PROVIDERS, { analyticsHost: ANALYTICS_HOST });
 // TASK-143: the hidden /lab route runs Rapier (WebAssembly), so it alone carries `'wasm-unsafe-eval'`.
-const LAB_CSP = buildCsp(USED_PROVIDERS, { wasm: true });
+const LAB_CSP = buildCsp(USED_PROVIDERS, { wasm: true, analyticsHost: ANALYTICS_HOST });
 
 const securityHeaders = (csp: string) => [
   { key: "Content-Security-Policy", value: csp },
@@ -44,6 +51,9 @@ const securityHeaders = (csp: string) => [
 ];
 
 const nextConfig: NextConfig = {
+  // TASK-194: lets `pnpm build:analytics-fixture` build a token-configured copy beside the normal `.next`
+  // (the analytics e2e needs a build that contains a stub token). Unset in every normal build.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {

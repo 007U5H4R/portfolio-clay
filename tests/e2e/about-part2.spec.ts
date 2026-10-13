@@ -126,6 +126,6 @@ test("Experience holds what left About: every role's scope & outcomes behind a k
   const box = await first.locator("summary").boundingBox();
   expect(box!.height).toBeGreaterThanOrEqual(44);
   await expect(page.locator("section#skills h2")).toHaveText("What I Bring");
-  await expect(page.locator("section#skills .acap-langs")).toHaveText(/^Languages: /);
+  await expect(page.locator("section#skills")).not.toContainText("Languages:"); // removed (TASK-200)
   await axe(page);
 });

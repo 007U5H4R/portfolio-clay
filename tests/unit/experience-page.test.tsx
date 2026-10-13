@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, within } from "@testing-library/react";
 import ExperiencePage from "@/app/work/page";
-import { education, languages } from "@/data/credentials";
+import { education } from "@/data/credentials";
 import { experience } from "@/data/experience";
-import { skills } from "@/data/skills";
+import { wibStages } from "@/data/what-i-bring";
 
 // TKT-101 (Tushar direction 2026-09-26; Design.md §7.2, §11 Dev-90…45): `/work` is the Experience page —
 // Work Experience then Education, as collage timelines. Copy is the data's, verbatim (D7): every name,
@@ -143,16 +143,17 @@ describe("/work Experience page (TKT-101)", () => {
     }
   });
 
-  it("Skills lists the four data/skills.ts clusters verbatim, then the languages line; torn = its one decoration", () => {
+  it("What I Bring is the seven-stage journey (TASK-187, replaces the four skill sheets), with no languages line (TASK-200); torn = its one decoration", () => {
     const { container } = render(<ExperiencePage />);
     const skillsSection = section(container, "skills");
-    const sheets = Array.from(skillsSection.querySelectorAll("article"));
-    expect(sheets).toHaveLength(skills.length);
-    sheets.forEach((sheet, i) => {
-      expect(sheet.querySelector("h3")?.textContent).toBe(skills[i]!.name);
-      expect(Array.from(sheet.querySelectorAll("li")).map((li) => li.textContent)).toEqual(skills[i]!.items);
+    const stages = Array.from(skillsSection.querySelectorAll("ol.wib-stages > li"));
+    expect(stages).toHaveLength(wibStages.length);
+    stages.forEach((li, i) => {
+      expect(li.querySelector(".wib-title")?.textContent).toBe(wibStages[i]!.title);
+      expect(li.querySelector(".wib-num")?.textContent).toBe(wibStages[i]!.number);
+      expect(Array.from(li.querySelectorAll(".wib-caps li")).map((c) => c.textContent)).toEqual(wibStages[i]!.capabilities);
     });
-    expect(skillsSection.querySelector(".acap-langs")?.textContent).toBe(`Languages: ${languages.join(", ")}.`);
+    expect(skillsSection.textContent).not.toContain("Languages:"); // removed at Tushar's request (TASK-200)
     expect(Array.from(skillsSection.querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"))).toEqual(["torn"]);
   });
 });

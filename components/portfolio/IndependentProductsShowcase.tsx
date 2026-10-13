@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { track } from "@/lib/analytics/track";
 import { parseProductParam, productHref, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { MainMediaStage } from "./MainMediaStage";
 import { ProductCarousel } from "./ProductCarousel";
@@ -19,8 +20,8 @@ const tabId = (id: string) => `pf-tab-${id}`;
 
 /**
  * Section 1's interactive core (TASK-116, spec §3, §6, §8–§10, §18, §50): media stage (left, ~62 %),
- * product panel (right, ~38 %), carousel (full width below). Mobile order is the DOM order: intro →
- * media → details → actions → carousel (spec §46; fidelity spec §29).
+ * product panel (right, ~38 %), carousel (full width below). TASK-197: the DOM order is intro →
+ * carousel → panel; on a phone CSS lays the panel out as details → media → actions (`.pf-info` is `display: contents`).
  *
  * TASK-127 (fidelity spec §2): at ≥ 1024 the intro, stage, sheet and carousel share one grid
  * (`.pf-showcase`, the tabpanel is a subgrid), so the sheet rises beside the intro and the whole top
@@ -57,7 +58,9 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   }, [products]);
 
   const selectProduct = useCallback(
-    (id: string) => {
+    (id: string, source: "click" | "keyboard" | "arrow" = "click") => {
+      // TASK-194: only a real change of product counts (re-choosing the active one just restarts its stage).
+      if (id !== activeProductId) track("project_selected", { project_id: id, selection_method: source === "click" ? "direct_selection" : source });
       // Re-choosing the current product still does what spec §18 asks of a thumbnail click: back to
       // its pitch poster (a fresh stage — any playing video stops), never a silent no-op.
       if (id === activeProductId) setStageNonce((n) => n + 1);
@@ -73,10 +76,11 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   const changeMode = useCallback(
     (mode: MediaMode) => {
       if (mode === mediaMode) return;
+      track("project_asset_opened", { project_id: activeProductId, asset_type: mode === "pitch" ? "pitch_video" : "demo_video" });
       setMediaMode(mode);
       setEnter("mode");
     },
-    [mediaMode],
+    [mediaMode, activeProductId],
   );
 
   const product = products.find((p) => p.id === activeProductId) ?? first;
@@ -85,6 +89,9 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   return (
     <div className="pf-showcase">
       {intro}
+      {/* TASK-197: the carousel precedes the panel it controls, so a phone reads intro → carousel → details → video → actions
+          (the picker stays above the video); ≥ 1024 places it by grid row, so the desktop arrangement is unchanged. */}
+      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
       <div
         id={PANEL_ID}
         className="pf-feature"
@@ -104,7 +111,6 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
           headingId={NAME_ID}
         />
       </div>
-      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
     </div>
   );
 }
