@@ -40,7 +40,8 @@ export interface MotionEnv {
 
 const STIFFNESS = 120;
 const DAMPING = 20; // mass 1
-const ALPHA = 0.15; // low-pass on sensor input
+const ALPHA = 0.15; // low-pass on sensor input, per 60 fps frame (applied per frame, not per event)
+const TAU = -1 / 60 / Math.log(1 - ALPHA); // the same low-pass as a time constant, s
 const TILT_MAX = 25; // degrees
 const REST_POS = 0.001;
 const REST_VEL = 0.01;
@@ -85,7 +86,8 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
   const pos = [0, 0];
   const vel = [0, 0];
   const tgt = [0, 0];
-  const lp = [0, 0];
+  const lp = [0, 0]; // low-passed sensor value, advanced by the frame loop toward `raw`
+  const raw = [0, 0]; // latest clamped sensor reading
   // object channel: `cur` is the one element whose --hx/--hy follow the pointer. `out` is the element it was
   // just taken over from: it keeps its own spring and settles back to 0 (never snaps), then is released.
   let cur: Slot | undefined;
@@ -209,6 +211,15 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
       pos[i] = pos[i]! + vel[i]! * dt;
       if (Math.abs(tgt[i]! - pos[i]!) >= REST_POS || Math.abs(vel[i]!) >= REST_VEL) sceneRest = false;
     }
+    // sensor low-pass (TASK-173): per frame, so a short burst of events still lands on its raw target
+    const a = 1 - Math.exp(-dt / TAU);
+    for (let i = 0; i < 2; i++) {
+      if (lp[i] === raw[i]) continue;
+      lp[i] = lp[i]! + a * (raw[i]! - lp[i]!);
+      if (Math.abs(raw[i]! - lp[i]!) < REST_POS) lp[i] = raw[i]!;
+      else sceneRest = false;
+      tgt[i] = lp[i]!;
+    }
     if (sceneRest) {
       pos[0] = tgt[0]!;
       pos[1] = tgt[1]!;
@@ -279,13 +290,12 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
   const onOrient = (e: { gamma: number | null; beta: number | null }) => {
     if (seen.size === 0 || doc.visibilityState === "hidden") return;
     setMode("orientation");
-    const raw = [(e.gamma ?? 0) / TILT_MAX, ((e.beta ?? 45) - 45) / TILT_MAX];
+    const next = [clamp((e.gamma ?? 0) / TILT_MAX), clamp(((e.beta ?? 45) - 45) / TILT_MAX)];
     let moved = false;
     for (let i = 0; i < 2; i++) {
-      lp[i] = lp[i]! + ALPHA * (clamp(raw[i]!) - lp[i]!);
       // Sensor jitter below the spring's own rest threshold must not wake the loop on a phone lying still.
-      if (Math.abs(lp[i]! - tgt[i]!) >= 2 * REST_POS) {
-        tgt[i] = lp[i]!;
+      if (Math.abs(next[i]! - raw[i]!) >= 2 * REST_POS || Math.abs(next[i]! - lp[i]!) >= 2 * REST_POS) {
+        raw[i] = next[i]!;
         moved = true;
       }
     }
@@ -382,7 +392,7 @@ export function createPaperMotion({ win, doc }: MotionEnv) {
     stop();
   };
   const rest = () => {
-    pos[0] = pos[1] = vel[0] = vel[1] = tgt[0] = tgt[1] = lp[0] = lp[1] = 0;
+    pos[0] = pos[1] = vel[0] = vel[1] = tgt[0] = tgt[1] = lp[0] = lp[1] = raw[0] = raw[1] = 0;
     roots.forEach(write);
     seen.clear();
     clearObj();
