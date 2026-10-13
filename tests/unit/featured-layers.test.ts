@@ -1,105 +1,83 @@
 /**
- * The layered Featured Work art (M-012 P2, TASK-181.2; EVAL-043 unit half). The stack of layers must BE the rest pose of
- * the original single collage, every layer file must follow the collage contract, and the CSS must target exactly the
- * signature parts the data names.
+ * The layered Featured Work art (TASK-202; supersedes the M-012 P2 SVG collage test). Each card is three transparent
+ * raster layers (back · mid · front) in WebP + AVIF; the data, the files, the manifest and the CSS signature rules must agree.
  */
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { featuredCollages } from "../../scripts/portfolio-art/featured";
-import { BLEED } from "../../scripts/portfolio-art/collage";
 import { featuredLayers, featuredLayerSrc } from "@/data/featured-layers";
 import { ILLUSTRATIONS } from "@/content/media/illustrations/manifest";
 
 const PUBLIC = join(process.cwd(), "public");
+const SLUGS = ["railcite", "slag-city", "campfire-board"];
+const names = (slug: string) => featuredLayers[slug]!.groups.flatMap((g) => g.items.map((i) => i.name));
 
-/** sha256 of the three single-file collages as shipped before the split (TASK-133, a4c64e0^). Never edited to pass. */
-const ORIGINAL_SHA: Record<string, string> = {
-  railcite: "37d20e8a48c72842312e7afe85f5bdf0b516c5b14feb5cd4559d62365966f48a",
-  "slag-city": "8fa48f3571f1dd3330c01e1b197b30b98dfc9b24251d6669e721c733e3950852",
-  "campfire-board": "48bdca44d29f3ad145ce34d01757b997f2ab545d7d2827fcc6c89080d8781238",
-};
-const sha = (text: string) => createHash("sha256").update(text).digest("hex");
-
-describe("featured layers: the rest pose is the original collage", () => {
-  for (const collage of featuredCollages) {
-    it(`${collage.slug}: the stacked non-extra parts render byte-identical to the original single SVG`, () => {
-      expect(sha(collage.render())).toBe(ORIGINAL_SHA[collage.slug]);
-    });
-  }
+describe("featured layers: data", () => {
+  it("lists the three cards, each with back, mid and front layers in back-to-front depth order (bg 2 · art 4 · fg 6)", () => {
+    expect(Object.keys(featuredLayers).sort()).toEqual([...SLUGS].sort());
+    for (const slug of SLUGS) {
+      const data = featuredLayers[slug]!;
+      expect(names(slug), slug).toEqual(["back", "mid", "front"]);
+      expect(data.groups.map((g) => g.depth), slug).toEqual(["bg", "art", "fg"]);
+    }
+  });
 });
 
-describe("featured layers: files and data", () => {
-  it("data/featured-layers.ts lists exactly the generator's parts, in order, with the same extra flags and depths", () => {
-    for (const collage of featuredCollages) {
-      const data = featuredLayers[collage.slug]!;
-      expect(data, collage.slug).toBeDefined();
-      expect([data.w, data.h, data.bleed]).toEqual([collage.w, collage.h, BLEED]);
-      const items = data.groups.flatMap((g) => g.items.map((item) => ({ ...item, depth: g.depth })));
-      expect(items.map((i) => [i.name, i.depth, Boolean(i.extra)])).toEqual(collage.parts.map((p) => [p.name, p.depth, Boolean(p.extra)]));
-      // groups are in back-to-front depth order and never repeat
-      expect(data.groups.map((g) => g.depth)).toEqual(["bg", "art", "fg", "top"].filter((d) => data.groups.some((g) => g.depth === d)));
-    }
-  });
-
-  it("every layer file exists, is a self-contained text-free transparent SVG ≤ 40 kB with the bleed canvas", () => {
-    for (const collage of featuredCollages) {
-      for (const { file, svg } of collage.layers()) {
-        const path = join(PUBLIC, "media", "illustrations", "featured", file);
-        expect(existsSync(path), file).toBe(true);
-        expect(readFileSync(path, "utf8"), `${file} is stale: run pnpm exec tsx scripts/portfolio-art/build.ts featured`).toBe(svg);
-        expect(Buffer.byteLength(svg), file).toBeLessThanOrEqual(40_000);
-        const w = collage.w + 2 * BLEED;
-        const h = collage.h + BLEED;
-        expect(svg.startsWith(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`), file).toBe(true);
-        expect(svg, `${file} draws text`).not.toMatch(/<text|<tspan|<foreignObject/);
-        expect(svg, `${file} is not self-contained`).not.toMatch(/<image|<script|<style|href="(?!#)|url\((?!#)/);
-        // transparent: no full-canvas background rect
-        expect(svg, `${file} paints a background`).not.toMatch(new RegExp(`<rect[^>]*width="${w}"[^>]*height="${h}"`));
-      }
-    }
-  });
-
-  it("the first layer of each card is its manifest entry (alt text and size include the bleed); the others are never in the manifest", () => {
-    for (const collage of featuredCollages) {
-      const entry = ILLUSTRATIONS.find((e) => e.id === `featured-${collage.slug}`)!;
-      expect(entry.publicSrc).toBe(featuredLayerSrc(collage.slug, "back"));
-      expect([entry.width, entry.height]).toEqual([collage.w + 2 * BLEED, collage.h + BLEED]);
-      for (const part of collage.parts.slice(1)) {
-        expect(ILLUSTRATIONS.some((e) => e.publicSrc === featuredLayerSrc(collage.slug, part.name)), part.name).toBe(false);
-      }
-    }
-  });
-
-  it("signature extras exist only as overlays: every `extra` part carries a signature, and each card's signature tokens are distinct", () => {
-    const perCard: Record<string, Set<string>> = {};
-    for (const [slug, data] of Object.entries(featuredLayers)) {
-      const tokens = new Set<string>();
-      for (const group of data.groups) {
-        for (const item of group.items) {
-          if (item.extra) expect(item.sig, `${slug}/${item.name}`).toBeDefined();
-          item.sig?.split(" ").forEach((t) => tokens.add(t));
+describe("featured layers: files", () => {
+  for (const slug of SLUGS) {
+    for (const name of ["back", "mid", "front"]) {
+      it(`${slug}/${name}: WebP + AVIF exist, carry alpha, match the bleed canvas and stay ≤ 100 kB`, async () => {
+        const data = featuredLayers[slug]!;
+        const w = data.w + 2 * data.bleed;
+        const h = data.h + data.bleed;
+        for (const ext of ["webp", "avif"] as const) {
+          const path = join(PUBLIC, featuredLayerSrc(slug, name, ext).replace(/^\//, ""));
+          expect(existsSync(path), path).toBe(true);
+          expect(statSync(path).size, path).toBeLessThanOrEqual(100_000);
+          const meta = await sharp(path).metadata();
+          expect([meta.width, meta.height], path).toEqual([w, h]);
+          expect(meta.hasAlpha, `${path} is transparent`).toBe(true);
         }
-      }
-      perCard[slug] = tokens;
+        // the bleed strip is fully transparent (a moving layer never shows a seam)
+        const { data: px, info } = await sharp(join(PUBLIC, featuredLayerSrc(slug, name).replace(/^\//, ""))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+        const alphaAt = (x: number, y: number) => px[(y * info.width + x) * info.channels + 3]!;
+        for (let y = 0; y < info.height; y += 7) expect(alphaAt(0, y), `${slug}/${name} left bleed`).toBe(0);
+        for (let x = 0; x < info.width; x += 7) expect(alphaAt(x, info.height - 1), `${slug}/${name} bottom bleed`).toBe(0);
+      });
     }
-    // CampFire's CSS sparks share the card's token set (rendered by FeaturedWork, not part of the art)
-    perCard["campfire-board"]!.add("spark");
-    const all = Object.values(perCard).flatMap((t) => [...t]);
-    // the card-level families are distinct: no two cards share a signature token
+  }
+
+  it("the back layer of each card is its manifest entry (alt text, size incl. bleed); mid and front are never in the manifest", () => {
+    for (const slug of SLUGS) {
+      const data = featuredLayers[slug]!;
+      const entry = ILLUSTRATIONS.find((e) => e.id === `featured-${slug}`)!;
+      expect(entry.publicSrc).toBe(featuredLayerSrc(slug, "back"));
+      expect([entry.width, entry.height]).toEqual([data.w + 2 * data.bleed, data.h + data.bleed]);
+      for (const name of ["mid", "front"]) {
+        expect(ILLUSTRATIONS.some((e) => e.publicSrc === featuredLayerSrc(slug, name)), `${slug}/${name}`).toBe(false);
+      }
+    }
+  });
+});
+
+describe("featured layers: signatures", () => {
+  it("every card has two signature layers and no signature token is shared between cards", () => {
+    const perCard = SLUGS.map((slug) => featuredLayers[slug]!.groups.flatMap((g) => g.items.flatMap((i) => i.sig?.split(" ") ?? [])));
+    for (const tokens of perCard) expect(tokens.length).toBe(2);
+    const all = perCard.flatMap((t) => [...new Set(t)]);
     expect(new Set(all).size).toBe(all.length);
   });
 
-  it("the CSS targets exactly the signature tokens the data (and the sparks) use", () => {
+  it("the CSS targets exactly the signature tokens the data uses (hover and focus twins)", () => {
     const css = readFileSync(join(process.cwd(), "app", "globals.css"), "utf8");
     const block = css.slice(css.indexOf("/* === TASK-186 / P2 ==="), css.indexOf("/* === end TASK-186 / P2 === */"));
-    const targeted = new Set([...block.matchAll(/\[data-sig(?:~|)="([^"]+)"\]/g)].flatMap((m) => m[1]!.split(" ")));
+    const targeted = new Set([...block.matchAll(/\[data-sig~="([^"]+)"\]/g)].map((m) => m[1]!));
     const used = new Set(Object.values(featuredLayers).flatMap((d) => d.groups.flatMap((g) => g.items.flatMap((i) => i.sig?.split(" ") ?? []))));
-    for (const t of ["spark", "spark0", "spark1", "spark2"]) used.add(t);
-    // `note`, `puff` and `spark` are family tokens (their members note0..3, puff1..3, spark0..2 carry the rules)
-    const isFamily = (t: string) => [...used].some((u) => u !== t && u.replace(/\d$/, "") === t);
-    for (const t of used) if (!isFamily(t)) expect(targeted.has(t), `no CSS rule for data-sig token "${t}"`).toBe(true);
-    for (const t of targeted) expect(used.has(t), `CSS targets unknown data-sig token "${t}"`).toBe(true);
+    expect([...targeted].sort()).toEqual([...used].sort());
+    for (const t of used) {
+      expect(block.includes(`.fw-lift:hover [data-sig~="${t}"]`), `hover rule for ${t}`).toBe(true);
+      expect(block.includes(`.fw-lift:has(:focus-visible) [data-sig~="${t}"]`), `focus twin for ${t}`).toBe(true);
+    }
   });
 });
