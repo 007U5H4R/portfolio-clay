@@ -1,0 +1,71 @@
+{
+  "390": {
+    "opener": {
+      "html": "858de35638365",
+      "style": "1dc8819dbc6179",
+      "elements": 31
+    },
+    "hero": {
+      "html": "2b10f5f4eb6bd",
+      "style": "7d876e5acca0b",
+      "elements": 17
+    },
+    "footer": {
+      "html": "194e14dcecec1b",
+      "style": "535bf48ce90e0",
+      "elements": 55
+    }
+  },
+  "768": {
+    "opener": {
+      "html": "858de35638365",
+      "style": "1bb72ce05b206e",
+      "elements": 31
+    },
+    "hero": {
+      "html": "2b10f5f4eb6bd",
+      "style": "fe918c4c79569",
+      "elements": 17
+    },
+    "footer": {
+      "html": "194e14dcecec1b",
+      "style": "eb63d7b8526a4",
+      "elements": 55
+    }
+  },
+  "1024": {
+    "opener": {
+      "html": "858de35638365",
+      "style": "1c77e0f704298e",
+      "elements": 31
+    },
+    "hero": {
+      "html": "2b10f5f4eb6bd",
+      "style": "54649c36cc3d1",
+      "elements": 17
+    },
+    "footer": {
+      "html": "194e14dcecec1b",
+      "style": "50e071258933f",
+      "elements": 55
+    }
+  },
+  "1440": {
+    "opener": {
+      "html": "858de35638365",
+      "style": "1e4479bce7cc62",
+      "elements": 31
+    },
+    "hero": {
+      "html": "2b10f5f4eb6bd",
+      "style": "1b91cab7ec63b9",
+      "elements": 17
+    },
+    "footer": {
+      "html": "194e14dcecec1b",
+      "style": "b77bbe0479960",
+      "elements": 55
+    }
+  },
+  "_capturedFrom": "026da48b"
+}
