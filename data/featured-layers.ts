@@ -38,7 +38,7 @@ export const featuredLayers: Readonly<Record<string, FeaturedLayers>> = {
     ],
   },
   "slag-city": {
-    w: 1152,
+    w: 1252,
     h: 576,
     bleed: 24,
     groups: [
@@ -48,7 +48,7 @@ export const featuredLayers: Readonly<Record<string, FeaturedLayers>> = {
     ],
   },
   "campfire-board": {
-    w: 1152,
+    w: 1252,
     h: 576,
     bleed: 24,
     groups: [

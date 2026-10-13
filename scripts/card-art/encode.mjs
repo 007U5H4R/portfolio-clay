@@ -3,7 +3,7 @@
  *   node scripts/card-art/encode.mjs <masters-dir>
  * Masters live outside the repo (E Drive scratch: raw/<name>.png); provenance (model, prompt, job ids, credits) is in
  * public/media/illustrations/card-art-README.md. Covers: 16:9 → 1344×756 WebP. Featured Work layers: the transparent
- * master is cropped to the card's aspect, padded with a transparent bleed either side and below (the parallax
+ * master is cropped to the card's aspect (the side cards keep ~92 % of their art width as transparent paper on the left, so the copy stays clear), padded with a transparent bleed either side and below (the parallax
  * contract, data/featured-layers.ts) and written as WebP + AVIF.
  */
 import sharp from "sharp";
@@ -27,8 +27,8 @@ const COVERS = {
 // card → [w, h, bleed, crop-left px, masters back/mid/front]
 const FEATURED = {
   railcite: { w: 1024, h: 688, bleed: 22, left: 0, files: { back: "f-railcite-back", mid: "f-railcite-mid", front: "f-railcite-front2" } },
-  "slag-city": { w: 1152, h: 576, bleed: 24, left: 192, files: { back: "g-slag-back", mid: "g-slag-mid", front: "g-slag-front" } },
-  "campfire-board": { w: 1152, h: 576, bleed: 24, left: 192, files: { back: "g-camp-back", mid: "g-camp-mid", front: "g-camp-front" } },
+  "slag-city": { w: 1252, h: 576, bleed: 24, left: 92, files: { back: "g-slag-back", mid: "g-slag-mid", front: "g-slag-front" } },
+  "campfire-board": { w: 1252, h: 576, bleed: 24, left: 92, files: { back: "g-camp-back", mid: "g-camp-mid", front: "g-camp-front" } },
 };
 
 for (const [slug, file] of Object.entries(COVERS)) {

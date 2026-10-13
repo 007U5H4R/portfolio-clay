@@ -2411,10 +2411,9 @@ html.lenis body {
       z-index: 0;
       aspect-ratio: auto;
     }
-    /* TASK-202: the paper-cut layers reach further left than the old collage, so the side stages sit at 92 % width, right-anchored, to keep the copy clear of the art */
     .fw-card-side .fw-stage {
-      inset: auto 0 0 auto;
-      width: 92%;
+      inset: auto 0 0;
+      width: 100%;
       height: auto;
     }
   }
