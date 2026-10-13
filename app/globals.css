@@ -3501,7 +3501,7 @@ html.lenis body {
 }
 .artifact-eyebrow {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -3510,14 +3510,14 @@ html.lenis body {
 .artifact-src {
   margin-top: 10px;
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0;
   text-transform: none;
 }
 .artifact-caption {
   margin-top: 8px;
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--color-navy-2);
 }
@@ -3605,7 +3605,7 @@ html.lenis body {
   border-radius: 999px;
   background: color-mix(in oklab, var(--color-ivory) 55%, transparent);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-navy);
 }
@@ -3643,7 +3643,7 @@ html.lenis body {
 }
 .metric-lbl {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -3665,7 +3665,7 @@ html.lenis body {
   padding-top: 10px;
   border-top: 1px dashed var(--line);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--color-ink-soft);
 }
 .metric-foot .artifact-src {
@@ -3679,7 +3679,7 @@ html.lenis body {
   border: 1.5px solid currentColor;
   border-radius: 999px;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -3864,7 +3864,7 @@ html.lenis body {
   padding: 16px;
   text-align: center;
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   color: var(--color-ink-soft);
 }
@@ -3912,7 +3912,7 @@ html.lenis body {
 }
 .artifact-doc .artifact-note {
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--color-navy-2);
   margin-top: 8px;
@@ -4004,7 +4004,7 @@ html.lenis body {
   padding: 4px 12px;
   background: var(--color-paper-2);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -4053,7 +4053,7 @@ html.lenis body {
    has settled (axe-verified at 390 + 1440). */
 .node-src {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-rust);
   text-decoration: underline;
@@ -4065,7 +4065,7 @@ html.lenis body {
 }
 .node-src-plain {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-ink-soft);
 }
 /* The chain sketch is the connector now — drop TKT-21's per-node line. */
