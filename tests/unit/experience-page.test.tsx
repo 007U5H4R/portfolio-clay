@@ -11,6 +11,9 @@ import { wibStages } from "@/data/what-i-bring";
 
 afterEach(cleanup);
 
+// TASK-203: the What I Bring scenes read the theme (`useTheme`), which subscribes to matchMedia; jsdom has none.
+window.matchMedia ??= ((q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} })) as unknown as typeof window.matchMedia;
+
 // TASK-114 (Dev-103): the page opens on `SceneOpener`, whose static image import is a bare URL under jsdom
 // (next/image rejects it — the reason SceneBanner is not in the paper barrel). Stub it to its outer contract;
 // the real opener is covered by tests/e2e/scene-opener.spec.ts.
