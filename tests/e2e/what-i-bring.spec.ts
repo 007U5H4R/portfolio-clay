@@ -40,9 +40,10 @@ test.describe("@TASK-187 What I Bring journey", () => {
 
   test("keyboard focus shows a visible ring and opens the stage detail", async ({ page }) => {
     const card = page.locator(".wib-stage[data-stage='ai-genai'] .wib-card");
+    // TASK-201: the open stage's tool chips are now tab stops, so Shift+Tab/Tab no longer returns to this card; focus it
+    // directly after a key press so it is keyboard-visible (the :focus-visible heuristic).
+    await page.keyboard.press("Shift");
     await card.focus();
-    await page.keyboard.press("Shift+Tab");
-    await page.keyboard.press("Tab");
     await expect(card).toBeFocused();
     const ring = await card.evaluate((el) => {
       const s = getComputedStyle(el);

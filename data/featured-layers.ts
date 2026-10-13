@@ -1,11 +1,11 @@
 /**
- * The depth layers of the three Featured Work collages (M-012 P2, TASK-181.2; generator and rest-pose proof:
- * `scripts/portfolio-art/featured/`, `tests/unit/featured-layers.test.ts`). Each item is one transparent SVG,
- * `featured-<slug>.svg` for the first (the manifest entry, the only one with alt text) and
- * `featured-<slug>--<name>.svg` for the rest; items stack in this order inside their depth group, groups in
- * back-to-front order. `depth` picks the parallax range (bg 2 · art 4 · fg 6 · top 8 px, `--hx/--hy` × range);
- * `sig` names the hover/focus signature the item belongs to (`[data-sig~=…]` in `app/globals.css`) — an item with
- * `extra` is an overlay that exists only for the signature and rests at opacity 0.
+ * The depth layers of the three Featured Work collages (TASK-202: 3D paper-cut art generated with Higgsfield,
+ * provenance in `public/media/illustrations/card-art-README.md`; encoder `scripts/card-art/encode.mjs`;
+ * `tests/unit/featured-layers.test.ts`). Each card is three transparent rasters, back · mid · front, shipped as
+ * AVIF + WebP: `featured-<slug>.*` for the back layer (the manifest entry, the only one with alt text) and
+ * `featured-<slug>--mid.*` / `--front.*`. `depth` picks the parallax range (bg 2 · art 4 · fg 6 · top 8 px,
+ * `--hx/--hy` × range); `sig` names the hover/focus signature the item belongs to (`[data-sig~=…]` in
+ * `app/globals.css`): the layer nudges a few px, never an overlay.
  */
 export type FeaturedDepth = "bg" | "art" | "fg" | "top";
 export interface FeaturedLayerItem {
@@ -26,65 +26,40 @@ export interface FeaturedLayers {
   groups: readonly FeaturedLayerGroup[];
 }
 
-const BLEED = 32;
-
 export const featuredLayers: Readonly<Record<string, FeaturedLayers>> = {
   railcite: {
-    w: 1450,
-    h: 1000,
-    bleed: BLEED,
+    w: 1024,
+    h: 688,
+    bleed: 22,
     groups: [
       { depth: "bg", items: [{ name: "back" }] },
-      { depth: "art", items: [{ name: "land" }] },
-      { depth: "fg", items: [{ name: "train", sig: "train" }, { name: "halo", sig: "train halo", extra: true }] },
-      { depth: "top", items: [{ name: "scraps" }] },
+      { depth: "art", items: [{ name: "mid", sig: "train" }] },
+      { depth: "fg", items: [{ name: "front", sig: "train" }] },
     ],
   },
   "slag-city": {
-    w: 1240,
-    h: 620,
-    bleed: BLEED,
+    w: 1252,
+    h: 576,
+    bleed: 24,
     groups: [
       { depth: "bg", items: [{ name: "back" }] },
-      {
-        depth: "art",
-        items: [
-          { name: "glow", sig: "glow", extra: true },
-          { name: "works" },
-          { name: "lit", sig: "lit", extra: true },
-          { name: "puff1", sig: "puff puff1", extra: true },
-          { name: "puff2", sig: "puff puff2", extra: true },
-          { name: "puff3", sig: "puff puff3", extra: true },
-        ],
-      },
-      { depth: "fg", items: [{ name: "front" }, { name: "slaghot", sig: "hot", extra: true }] },
+      { depth: "art", items: [{ name: "mid", sig: "works" }] },
+      { depth: "fg", items: [{ name: "front", sig: "slag" }] },
     ],
   },
   "campfire-board": {
-    w: 1240,
-    h: 640,
-    bleed: BLEED,
+    w: 1252,
+    h: 576,
+    bleed: 24,
     groups: [
       { depth: "bg", items: [{ name: "back" }] },
-      {
-        depth: "art",
-        items: [
-          { name: "board" },
-          { name: "note0", sig: "note note0" },
-          { name: "note1", sig: "note note1" },
-          { name: "note2", sig: "note note2" },
-          { name: "note3", sig: "note note3" },
-        ],
-      },
-      {
-        depth: "fg",
-        items: [{ name: "camp" }, { name: "firebase" }, { name: "flames", sig: "flames" }, { name: "front" }],
-      },
+      { depth: "art", items: [{ name: "mid", sig: "board" }] },
+      { depth: "fg", items: [{ name: "front", sig: "camp" }] },
     ],
   },
 };
 
-/** The published path of one layer (the first layer of a card is its manifest file). */
-export function featuredLayerSrc(slug: string, name: string): string {
-  return `/media/illustrations/featured/featured-${slug}${name === "back" ? "" : `--${name}`}.svg`;
+/** The published path (without extension) of one layer; the first layer of a card is its manifest file. */
+export function featuredLayerSrc(slug: string, name: string, ext: "webp" | "avif" = "webp"): string {
+  return `/media/illustrations/featured/featured-${slug}${name === "back" ? "" : `--${name}`}.${ext}`;
 }
