@@ -29,9 +29,18 @@ test.describe("TASK-205 screenshots", () => {
       for (const [name, route] of ROUTES) {
         const res = await page.goto(route, { waitUntil: "load" });
         if (!res || res.status() >= 400) continue;
-        await page.waitForTimeout(1200);
+        await page.waitForTimeout(name === "lab" ? 6000 : 1200);
         await page.screenshot({ path: `${OUT}/${name}-${theme}-${w}-top.png` });
-        if (name !== "lab") await page.screenshot({ path: `${OUT}/${name}-${theme}-${w}-full.png`, fullPage: true });
+        if (name === "lab") continue;
+        // Scroll through once so one-shot reveals have fired, then capture the whole page.
+        const h = await page.evaluate(() => document.documentElement.scrollHeight);
+        for (let y = 0; y < h; y += 600) {
+          await page.evaluate((top) => window.scrollTo(0, top), y);
+          await page.waitForTimeout(250);
+        }
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await page.waitForTimeout(600);
+        await page.screenshot({ path: `${OUT}/${name}-${theme}-${w}-full.png`, fullPage: true });
       }
       if (w < 640) {
         await page.goto("/", { waitUntil: "load" });
@@ -40,8 +49,14 @@ test.describe("TASK-205 screenshots", () => {
           await more.click();
           await page.waitForTimeout(500);
           await page.screenshot({ path: `${OUT}/more-menu-${theme}-${w}.png` });
+          await page.keyboard.press("Escape");
         }
       }
+      // Ask Tushky (the existing panel, opened from the header) at every width.
+      await page.goto("/", { waitUntil: "load" });
+      await page.locator("header").getByRole("button", { name: "Ask AI" }).click();
+      await page.waitForTimeout(900);
+      await page.screenshot({ path: `${OUT}/ask-${theme}-${w}.png` });
     });
   }
 });
