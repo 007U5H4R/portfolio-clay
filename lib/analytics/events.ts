@@ -252,7 +252,7 @@ export const EVENTS = {
     group: "game",
     trigger: "Once per run each: 30 s survived, 60 s survived, combo x5, all four targets (TP MODE).",
     where: "lib/analytics/lab.ts",
-    props: define({ milestone_type: oneOf("survived_30s", "survived_60s", "combo_5", "tp_mode") }),
+    props: define({ milestone_type: oneOf("survived_30s", "survived_60s", "combo_5") }),
   },
   game_over: {
     group: "game",

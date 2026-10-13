@@ -6,13 +6,14 @@ import { clampSpeed } from "@/lib/lab/controls";
 import { clearedLane } from "@/lib/lab/gate";
 import { NudgeState } from "@/lib/lab/nudge";
 import { FLIPPER_THICK, FLIP_COOLDOWN_S, NUDGE_SHIFT, StallWatch, flipImpulse, flipperRotation, newFlipperState, nearFlipper, stepFlipper, type FlipperState } from "@/lib/lab/flippers";
-import { TARGET_MIN_HIT } from "@/components/lab/hit-rules";
+import { bumperKick } from "@/lib/lab/bumpers";
+import { slingFacing, slingKick } from "@/lib/lab/slings";
 import { GRAVITY, PHYSICS_DT } from "@/components/lab/physics-step";
 
 /**
  * A headless copy of the lab's physics (TASK-185): the same colliders Arena.tsx builds, the gummy's body from Gummy.tsx, and the
  * controller's per-step rules (flipper hits, launch impulse, speed cap, stall watch, the lane gate latch) with the kicks the
- * bumpers, targets, slings and pad give. The cabinet shell comes from `wallBoxes()` (shared with Arena.tsx); the other parts are
+ * bumpers (all four kinds), slings (flipper and wall) and pad give. The cabinet shell comes from `wallBoxes()` (shared with Arena.tsx); the other parts are
  * mirrored by hand, so if a part's collider changes in Arena.tsx change it here too. Moving ramps and the phase-1 spinner are
  * left out (they only arrive later in a run). The gummy's collider is the GummyCollider hull read straight from public/lab/gummy.glb.
  */
@@ -60,12 +61,17 @@ export class LabSim {
   portalHits = 0;
   private readonly queue: R;
   private readonly gate: R;
-  private readonly kinds = new Map<number, { kind: "sensor" | "bumper" | "target" | "sling" | "pad"; i: number }>();
+  private readonly kinds = new Map<number, { kind: "sensor" | "bumper" | "sling" | "pad"; i: number }>();
   private readonly cool = new Map<string, number>();
   private pending: number | null = null;
   private readonly stall = new StallWatch();
   private plungerCap: R;
+  private spinBody: R = null;
+  private spinAngle = 0;
   maxY = -Infinity;
+  /** Every bumper and sling kick the sim gave (for the scoring and "all four get hit" checks). */
+  bumperHits: { id: string; kind: string; t: number }[] = [];
+  slingHits: { id: string; t: number }[] = [];
   /** Every anti-stall nudge the controller applied. */
   nudges: { t: number; x: number; y: number; vx: number; vy: number }[] = [];
   /** Switch the anti-stall off (to find where a gummy really rests). */
@@ -78,15 +84,20 @@ export class LabSim {
   /** True if the gummy ever stood back inside the lane (x past the divider, below its top) after it had cleared the lane. */
   reenteredLane = false;
 
-  constructor(halfW = 5) {
+  /**
+   * `portal` overrides the black hole's place (for tuning scans; the game's own layout is `buildArena`'s); `extraPosts` adds fixed round
+   * posts (tests only); `spinner` builds the phase-1 spinning bar too (it turns at the game's rate, `spin.speed` rad/s).
+   */
+  constructor(halfW = 5, portal?: { x: number; y: number; r: number; catchR: number }, extraPosts: { x: number; y: number; r: number }[] = [], spinner = false) {
     const a = (this.arena = buildArena(halfW));
+    if (portal) a.portal = { ...a.portal, ...portal };
     const w = (this.world = new RAPIER.World({ x: 0, y: GRAVITY, z: 0 }));
     w.timestep = PHYSICS_DT;
     this.queue = new RAPIER.EventQueue(true);
     const fixed = (x = 0, y = 0, ang = 0) => w.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(x, y, 0).setRotation(rotZ(ang)));
     const box = (body: R, hx: number, hy: number, hz: number, e: number, f: number, x = 0, y = 0) =>
       w.createCollider(RAPIER.ColliderDesc.cuboid(hx, hy, hz).setTranslation(x, y, 0).setRestitution(e).setFriction(f), body);
-    const tag = (c: R, kind: "sensor" | "bumper" | "target" | "sling" | "pad", i: number) => {
+    const tag = (c: R, kind: "sensor" | "bumper" | "sling" | "pad", i: number) => {
       c.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
       this.kinds.set(c.handle, { kind, i });
     };
@@ -94,7 +105,7 @@ export class LabSim {
     const shell = fixed();
     for (const b of wallBoxes(a)) box(shell, b.hx, b.hy, 1.5, b.restitution, b.friction, b.cx, b.cy);
     const s = portalSensor(a);
-    const sensor = w.createCollider(RAPIER.ColliderDesc.cuboid(s.hx, s.hy, 1.5).setTranslation(s.cx, s.cy, 0).setSensor(true), fixed());
+    const sensor = w.createCollider(RAPIER.ColliderDesc.ball(s.r).setTranslation(s.x, s.y, 0).setSensor(true), fixed());
     tag(sensor, "sensor", 0);
 
     for (const r of a.rails) {
@@ -113,17 +124,23 @@ export class LabSim {
     for (const p of a.platforms) box(fixed(p.x, p.y, p.angle ?? 0), p.w / 2, p.h / 2, 1.0, 0.2, 0.1);
     a.pads.forEach((p, i) => tag(box(fixed(p.x, p.y, p.angle ?? 0), p.w / 2, 0.1, 0.6, 0, 0.5, 0, 0.1), "pad", i));
     a.bumpers.forEach((b, i) => {
-      if (b.spin) return;
+      if (b.spin) {
+        if (!spinner) return;
+        this.spinBody = w.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(b.x, b.y, 0));
+        tag(box(this.spinBody, b.spin.len / 2, 0.11, 0.5, 0.9, 0.5), "bumper", i);
+        return;
+      }
       const c = w.createCollider(RAPIER.ColliderDesc.ball(b.r).setTranslation(b.x, b.y, 0).setRestitution(1), fixed());
       tag(c, "bumper", i);
     });
-    a.targets.forEach((t, i) => tag(box(fixed(t.x, t.y, t.angle), t.hw, t.hh, 0.6, 0.8, 0.5), "target", i));
     a.slings.forEach((sl, i) => {
       const verts: number[] = [];
-      for (const z of [-0.375, 0.375]) for (const p of sl.pts) verts.push(p.x, p.y, z);
+      for (const z of [-0.6, 0.6]) for (const p of sl.pts) verts.push(p.x, p.y, z);
       const c = w.createCollider(RAPIER.ColliderDesc.convexHull(new Float32Array(verts)).setRestitution(0.5).setFriction(0.05), fixed());
       tag(c, "sling", i);
     });
+    // test-only posts (a deliberately too-narrow gap, to make a wedge on purpose for the anti-stall tests)
+    for (const p of extraPosts) w.createCollider(RAPIER.ColliderDesc.ball(p.r).setTranslation(p.x, p.y, 0).setRestitution(0.5), fixed());
     this.plungerCap = w.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(a.lane.x, a.lane.restY - 0.1, 0));
     box(this.plungerCap, 0.5, 0.1, 0.6, 0.05, 0.5);
 
@@ -231,8 +248,8 @@ export class LabSim {
       f.cooldown = FLIP_COOLDOWN_S;
       changed = true;
     });
-    const inPocket = pos.x < -a.halfW - 0.05;
-    const onFlipper = inLane || inPocket || this.flippers.some((f, i) => nearFlipper(a.flippers[i]!, f.state, centre));
+    const inHole = Math.hypot(pos.x - a.portal.x, centre.y - a.portal.y) < a.portal.r;
+    const onFlipper = inLane || inHole || this.flippers.some((f, i) => nearFlipper(a.flippers[i]!, f.state, centre));
     const n = this.stallOff ? null : this.stall.step(dt, { x: pos.x, y: pos.y }, onFlipper);
     if (n) {
       this.nudges.push({ t: this.t, x: pos.x, y: pos.y, vx: n.x, vy: n.y });
@@ -259,6 +276,11 @@ export class LabSim {
   }
 
   private advance() {
+    if (this.spinBody) {
+      const spin = this.arena.bumpers.find((b) => b.spin)!.spin!;
+      this.spinAngle += PHYSICS_DT * spin.speed;
+      this.spinBody.setNextKinematicRotation(rotZ(this.spinAngle));
+    }
     this.world.step(this.queue);
     this.t += PHYSICS_DT;
     this.queue.drainCollisionEvents((h1: number, h2: number, started: boolean) => {
@@ -279,27 +301,16 @@ export class LabSim {
       const a = this.arena;
       if (other.kind === "bumper") {
         const b = a.bumpers[other.i]!;
-        const dx = p.x - b.x;
-        const dy = p.y + 0.5 - b.y;
-        const len = Math.hypot(dx, dy) || 1;
-        const sp = Math.max(7.5, speed0 * 0.8 + 3);
-        this.gummy.setLinvel({ x: (dx / len) * sp, y: (dy / len) * sp, z: 0 }, true);
+        const v2 = bumperKick(b.kind, p.x - b.x, p.y + 0.5 - b.y, speed0);
+        this.gummy.setLinvel({ x: v2.x, y: v2.y, z: 0 }, true);
+        this.bumperHits.push({ id: b.id, kind: b.kind, t: this.t });
         this.cool.set(k, this.t + 0.2);
-      } else if (other.kind === "target") {
-        if (speed0 < TARGET_MIN_HIT) return;
-        const tg = a.targets[other.i]!;
-        const dx = p.x - tg.x;
-        const dy = p.y + 0.5 - tg.y;
-        const len = Math.hypot(dx, dy) || 1;
-        const sp = Math.max(6, speed0 * 0.7 + 2.5);
-        this.gummy.setLinvel({ x: (dx / len) * sp, y: (dy / len) * sp + 1, z: 0 }, true);
-        this.cool.set(k, this.t + 0.5);
       } else if (other.kind === "sling") {
         const sl = a.slings[other.i]!;
-        const side = (p.x - sl.mid.x) * sl.normal.x + (p.y + 0.5 - sl.mid.y) * sl.normal.y;
-        if (side <= 0.05) return;
-        const sp = Math.max(9, speed0 * 0.6 + 5);
-        this.gummy.setLinvel({ x: sl.normal.x * sp, y: sl.normal.y * sp + 1, z: 0 }, true);
+        if (!slingFacing(sl, p.x, p.y + 0.5)) return;
+        const v2 = slingKick(sl, speed0);
+        this.gummy.setLinvel({ x: v2.x, y: v2.y, z: 0 }, true);
+        this.slingHits.push({ id: sl.id, t: this.t });
         this.cool.set(k, this.t + 0.22);
       } else {
         const pd = a.pads[other.i]!;

@@ -91,6 +91,7 @@ export function BackPortal({ runtime, onExit }: { runtime: LabRuntime; onExit: (
       href="/"
       aria-label={CONTROL_LABELS.back}
       data-lab-portal=""
+      data-narrow={runtime.arena.halfW < 4 ? "" : undefined}
       onClick={(e) => {
         e.preventDefault();
         onExit();
@@ -282,7 +283,6 @@ export function Hud({ store, onPause, runtime }: { store: LabStoreApi; onPause: 
   const score = store((s) => s.score);
   const combo = store((s) => s.combo);
   const timeS = store((s) => s.timeS);
-  const tp = store((s) => s.tpMode);
   const state = store((s) => s.state);
   return (
     <div className={styles.hud} data-lab-hud="">
@@ -292,7 +292,7 @@ export function Hud({ store, onPause, runtime }: { store: LabStoreApi; onPause: 
       {/* Remounting on each change replays the lift + flutter once; reduced motion turns the animation off in CSS. */}
       <div key={combo} className={`${styles.plate} ${styles.plateCombo} ${combo > 1 ? styles.flutter : ""}`} data-lab-combo-plate="">
         <div className={styles.plateInner}>
-          <span className={styles.hudLabel}>Combo{tp ? " · TP" : ""}</span>
+          <span className={styles.hudLabel}>Combo</span>
           <span className={`${styles.hudValue} ${styles.combo}`} data-hot={combo >= 3} data-lab-combo="">x{combo}</span>
         </div>
       </div>
@@ -342,23 +342,6 @@ export function CenterText({ store }: { store: LabStoreApi }) {
         {state === "COUNTDOWN" ? "Get ready" : state === "DANGER" ? "Danger: save the gummy" : state === "PAUSED" ? "Paused" : banner ?? ""}
       </p>
     </>
-  );
-}
-
-/** The TP gummy emblem (§33): the monogram on a gummy-coloured badge, shown for the rest of a TP MODE run. */
-export function TpEmblem({ store }: { store: LabStoreApi }) {
-  const tp = store((s) => s.tpMode);
-  const state = store((s) => s.state);
-  if (!tp || (state !== "PLAYING" && state !== "DANGER" && state !== "PAUSED")) return null;
-  return (
-    <div className={styles.emblem} aria-hidden="true" data-lab-emblem="">
-      <svg viewBox="0 0 40 40" width="28" height="28" fill="none" stroke="currentColor" strokeLinecap="round">
-        <path d="M6 9 C 14 7, 22 8, 30 7" strokeWidth="2.6" />
-        <path d="M17 8 C 15 16, 13 24, 12 33" strokeWidth="2.6" />
-        <path d="M23 12 C 24 20, 22 27, 21 33" strokeWidth="2.4" />
-        <path d="M23 12 C 30 10, 35 13, 34 18 C 33 23, 27 24, 22 22" strokeWidth="2.4" />
-      </svg>
-    </div>
   );
 }
 
@@ -458,7 +441,6 @@ export function Results({ store, onReplay, onExit }: { store: LabStoreApi; onRep
           <div className={styles.stat}><dt>Best score</dt><dd data-lab-best="">{fmtScore(summary.best.score)}</dd></div>
           <div className={styles.stat}><dt>Time survived</dt><dd>{fmtTime(summary.timeS)}</dd></div>
           <div className={styles.stat}><dt>Best combo</dt><dd>x{summary.combo}</dd></div>
-          <div className={styles.stat}><dt>Targets hit</dt><dd>{summary.targets}</dd></div>
           <div className={styles.stat}><dt>Power-ups used</dt><dd>{summary.powerUps}</dd></div>
           <div className={styles.stat}><dt>Saves</dt><dd>{summary.saves}</dd></div>
         </dl>

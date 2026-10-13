@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-/** TASK-143.4 — score, combo, danger/rescue, power-ups, TP MODE, achievements, replay (gummy-bear.md §15–23, §32–35). */
+/** TASK-143.4 — score, combo, danger/rescue, power-ups, achievements, replay (gummy-bear.md §15–23, §32–35). */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { COMBO_MAX, DANGER_SECONDS, GameEngine, statusFor } from "@/lib/lab/engine";
 import { GameMachine } from "@/lib/lab/state-machine";
-import { loadStored } from "@/lib/lab/storage";
+import { ACHIEVEMENTS, loadStored } from "@/lib/lab/storage";
 
 function setup() {
   const machine = new GameMachine();
@@ -244,31 +244,18 @@ describe("power-ups", () => {
   });
 });
 
-describe("TP MODE and achievements", () => {
-  it("hitting all four special targets in one run triggers TP MODE (once)", () => {
-    const { machine, engine, events } = setup();
-    play(machine, engine);
-    for (const t of ["AI", "PRODUCT", "DESIGN"] as const) engine.hitTarget(t);
-    expect(engine.snapshot().tpMode).toBe(false);
-    engine.hitTarget("AI");
-    expect(engine.snapshot().tpMode).toBe(false);
-    engine.hitTarget("BUILD");
-    expect(engine.snapshot().tpMode).toBe(true);
-    expect(events.filter((e) => e === "tp-mode")).toHaveLength(1);
-    expect(loadStored().achievements).toContain("PRODUCT_SENSE");
-    expect(engine.summary().targets).toBe(4);
-  });
-
-  it("TP MODE raises the score multiplier and lights the environment", () => {
+describe("achievements (TASK-199: TP MODE and Product sense went with the target bricks)", () => {
+  it("has no TP MODE any more: the engine has no target hits, no TP mode and no Product sense achievement", () => {
     const { machine, engine } = setup();
     play(machine, engine);
+    expect((engine as unknown as Record<string, unknown>).hitTarget).toBeUndefined();
+    expect(Object.keys(engine.snapshot())).not.toContain("tpMode");
+    expect(Object.keys(engine.env())).not.toContain("tpGlow");
+    expect(Object.keys(engine.summary())).not.toContain("targets");
+    expect(Object.keys(ACHIEVEMENTS)).not.toContain("PRODUCT_SENSE");
     expect(engine.scoreMultiplier()).toBe(1);
-    expect(engine.env().tpGlow).toBe(0);
-    for (const t of ["AI", "PRODUCT", "DESIGN", "BUILD"] as const) engine.hitTarget(t);
-    expect(engine.scoreMultiplier()).toBeGreaterThan(1);
-    expect(engine.env().tpGlow).toBe(1);
     engine.activate("GOLDEN");
-    expect(engine.scoreMultiplier()).toBeCloseTo(2 * 1.5, 5);
+    expect(engine.scoreMultiplier()).toBe(2);
   });
 
   it("surviving 30 s unlocks GUMMY OPERATOR", () => {
@@ -316,17 +303,15 @@ describe("game over, results and replay", () => {
     engine.beginRun();
     const s = engine.snapshot();
     expect(machine.state).toBe("COUNTDOWN");
-    expect(s).toMatchObject({ score: 0, combo: 1, timeS: 0, dangerLeft: null, tpMode: false, powers: [] });
+    expect(s).toMatchObject({ score: 0, combo: 1, timeS: 0, dangerLeft: null, powers: [] });
     expect(engine.env().gold).toBe(0);
-    expect(engine.summary().targets).toBe(0);
     expect(loadStored().bestScore).toBe(first.score);
   });
 
   it("status lines escalate with survival time", () => {
-    expect(statusFor({ timeS: 5, tpMode: false })).toMatch(/briefly/i);
-    expect(statusFor({ timeS: 18, tpMode: false })).toMatch(/mostly/i);
-    expect(statusFor({ timeS: 50, tpMode: false })).toBe("Certified Gummy Operator");
-    expect(statusFor({ timeS: 5, tpMode: true })).toMatch(/TP/);
+    expect(statusFor({ timeS: 5 })).toMatch(/briefly/i);
+    expect(statusFor({ timeS: 18 })).toMatch(/mostly/i);
+    expect(statusFor({ timeS: 50 })).toBe("Certified Gummy Operator");
   });
 });
 
@@ -341,43 +326,39 @@ describe("difficulty feeds the environment", () => {
   });
 });
 
-describe("pinball scoring (TASK-185)", () => {
-  it("each target scores its own value and a bumper scores 100, fed through the same combo", () => {
-    for (const [name, value] of [["AI", 150], ["DESIGN", 200], ["PRODUCT", 250], ["BUILD", 300]] as const) {
+describe("pinball scoring (TASK-185, TASK-199)", () => {
+  it("a bumper scores 100 and a slingshot 30, fed through the same combo (all four bumper types are worth the same)", () => {
+    for (const id of ["B1", "B2", "B3", "B4"]) {
       const { machine, engine } = setup();
       play(machine, engine);
       const before = engine.snapshot().score;
-      const pts = engine.hitTarget(name);
-      expect(pts, name).toBe(value); // first action of the run: combo ×1
-      expect(engine.snapshot().score - before, name).toBe(value);
+      expect(engine.action("bumper", id)).toBe(100); // first action of the run: combo ×1
+      expect(engine.snapshot().score - before).toBe(100);
     }
-    const { machine, engine } = setup();
-    play(machine, engine);
-    const before = engine.snapshot().score;
-    expect(engine.action("bumper", "B1")).toBe(100);
-    expect(engine.snapshot().score - before).toBe(100);
   });
 
-  it("the combo multiplies a target's own value: a second action doubles, a third triples", () => {
+  it("the combo multiplies a slingshot's value: a second action doubles, a third triples", () => {
     const { machine, engine } = setup();
     play(machine, engine);
     engine.action("bumper", "B1"); // ×1 → 100
-    expect(engine.hitTarget("BUILD")).toBe(300 * 2);
-    expect(engine.hitTarget("AI")).toBe(150 * 3);
+    expect(engine.action("sling", "WL")).toBe(30 * 2);
+    expect(engine.action("sling", "WR")).toBe(30 * 3);
   });
 
-  it("hitting the same target again straight away is farming: 20% of its value, no combo", () => {
+  it("hitting the same bumper again straight away is farming: 20% of its value, no combo", () => {
     const { machine, engine } = setup();
     play(machine, engine);
-    engine.hitTarget("PRODUCT");
+    engine.action("bumper", "B2");
     const combo = engine.snapshot().combo;
-    expect(engine.hitTarget("PRODUCT")).toBeCloseTo(250 * 0.2 * combo, 6);
+    expect(engine.action("bumper", "B2")).toBeCloseTo(100 * 0.2 * combo, 6);
     expect(engine.snapshot().combo).toBe(combo);
   });
 
-  it("a slingshot kick is a small scoring action (30)", () => {
-    const { machine, engine } = setup();
-    play(machine, engine);
-    expect(engine.action("sling", "SL")).toBe(30);
+  it("a slingshot kick is a small scoring action (30), the side ones as much as the flipper ones", () => {
+    for (const id of ["SL", "SR", "WL", "WR"]) {
+      const { machine, engine } = setup();
+      play(machine, engine);
+      expect(engine.action("sling", id), id).toBe(30);
+    }
   });
 });

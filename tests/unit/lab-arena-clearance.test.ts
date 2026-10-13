@@ -1,7 +1,8 @@
 /**
  * TASK-185 (Tushar, phone screenshots: "the bouncers are very near to each other ... make the bouncers lesser and smaller"):
  * the layout keeps real room around everything a gummy can roll into. A gap narrower than 1.5 gummy widths can wedge it, so
- * the phone table's bumpers, plates and pickup spawns keep at least that much clear edge to edge.
+ * the bumpers (both tables, TASK-199: the tighter desktop diamond too), the side slingshots and the pickup spawns keep at least that
+ * much clear edge to edge.
  */
 import { describe, expect, it } from "vitest";
 import { buildArena, portraitHalfWidth } from "@/lib/lab/arena";
@@ -18,8 +19,9 @@ describe("the phone table is chosen by aspect, like the 390 layout", () => {
 });
 
 describe("phone table: fewer, smaller, well-spaced bumpers", () => {
-  it("has two bumpers (no spinner) at about 72 % of the desktop radius", () => {
+  it("has two bumpers (pop + turbo, no spinner) at about 72 % of the desktop radius", () => {
     expect(phone.bumpers).toHaveLength(2);
+    expect(phone.bumpers.map((b) => b.kind).sort()).toEqual(["pop", "turbo"]);
     expect(phone.bumpers.some((b) => b.spin)).toBe(false);
     const desktop = wide.bumpers.find((b) => !b.spin)!.r;
     for (const b of phone.bumpers) {
@@ -29,20 +31,14 @@ describe("phone table: fewer, smaller, well-spaced bumpers", () => {
     expect(wide.bumpers.filter((b) => !b.spin).length).toBe(4); // the desktop layout keeps its four
   });
 
-  it("keeps all four targets, none overlapping", () => {
-    expect(phone.targets.map((t) => t.id).sort()).toEqual(["AI", "BUILD", "DESIGN", "PRODUCT"]);
-    expect(layoutClearances(phone).targetTarget).toBeGreaterThan(0.3);
-    expect(layoutClearances(wide).targetTarget).toBeGreaterThan(0.3);
-  });
-
-  it(`leaves at least ${MIN_CLEAR.toFixed(2)} (1.5 gummy widths) between bumpers, walls and plates`, () => {
+  it(`leaves at least ${MIN_CLEAR.toFixed(2)} (1.5 gummy widths) between bumpers, walls and the side slingshots`, () => {
     const c = layoutClearances(phone);
     expect(c.bumperBumper).toBeGreaterThanOrEqual(MIN_CLEAR);
     expect(c.bumperWall).toBeGreaterThanOrEqual(MIN_CLEAR);
-    expect(c.bumperTarget).toBeGreaterThanOrEqual(MIN_CLEAR);
+    expect(c.bumperSling).toBeGreaterThanOrEqual(MIN_CLEAR);
   });
 
-  it("keeps the middle of the field open above the slings: no bumper or plate in the central strip", () => {
+  it("keeps the middle of the field open above the flipper slings: no bumper or slingshot in the central strip", () => {
     for (const b of phone.bumpers) expect(Math.abs(b.x) - b.r).toBeGreaterThan(0.0);
     // a gummy-wide column down the middle, from just above the slings to the first bumper's underside, is clear of everything
     const low = Math.min(...phone.bumpers.map((b) => b.y - b.r));
@@ -50,20 +46,48 @@ describe("phone table: fewer, smaller, well-spaced bumpers", () => {
   });
 });
 
-describe("desktop table: the layout is kept, and still roomy", () => {
-  it("keeps bumpers apart and off the walls by at least 1.5 gummy widths", () => {
-    const c = layoutClearances(wide);
+describe("desktop table: the tighter diamond, still roomy", () => {
+  const c = layoutClearances(wide);
+  const major = wide.bumpers.filter((b) => !b.spin);
+
+  it(`keeps the four bumpers apart by at least ${MIN_CLEAR.toFixed(2)} (1.5 gummy widths) and off the walls and the side slingshots`, () => {
     expect(c.bumperBumper).toBeGreaterThanOrEqual(MIN_CLEAR);
     expect(c.bumperWall).toBeGreaterThanOrEqual(MIN_CLEAR);
+    expect(c.bumperSling).toBeGreaterThanOrEqual(MIN_CLEAR);
   });
-  it("never lets a bumper squeeze against a plate (a floor under today's layout; the plates were already this close)", () => {
-    expect(layoutClearances(wide).bumperTarget).toBeGreaterThanOrEqual(0.6);
+
+  it("is tighter than the TASK-185 diamond (left and right were at x = ±2.0 with a 2.7-high column) while keeping the clearance", () => {
+    const l = major.find((b) => b.x < 0)!;
+    const r = major.find((b) => b.x > 0)!;
+    expect(r.x).toBeLessThan(2.0);
+    expect(-l.x).toBeLessThan(2.0);
+    // the whole diamond is smaller than before, by its width and its area (half the product of the two diagonals)
+    const w = r.x - l.x;
+    const h = Math.max(...major.map((b) => b.y)) - Math.min(...major.map((b) => b.y));
+    expect(w).toBeLessThan(4.0);
+    expect((w * h) / 2).toBeLessThan((4.0 * 2.7) / 2);
+  });
+
+  it("leaves a gap under the top bumper that is taller than a gummy (0.98), so nothing wedges against the ceiling", () => {
+    const top = Math.max(...major.map((b) => b.y + b.r));
+    expect(wide.ceilingY - top).toBeGreaterThan(1.1);
+  });
+
+  it("keeps the spinner's sweep clear of the bottom bumper (the spinner turns, so this is smaller than the bumper gap)", () => {
+    expect(c.spinnerBumper).toBeGreaterThan(0.45);
+  });
+
+  it("keeps the two side slingshots out in the open: nowhere near each other, nowhere near the diamond", () => {
+    expect(c.slingSling).toBeGreaterThan(5);
   });
 });
 
 describe("pickup and power-up spawns (anchors)", () => {
-  it("keep 1.5 gummy widths from bumpers, plates and walls on the phone table", () => {
+  it("keep 1.5 gummy widths from bumpers, slingshots, the black hole and walls on the phone table", () => {
     for (const p of phone.anchors) expect(pointClearance(phone, p), `anchor ${p.x},${p.y}`).toBeGreaterThanOrEqual(MIN_CLEAR);
+  });
+  it("keep a gummy's width and a bit from everything on the desktop table (they are looser there)", () => {
+    for (const p of wide.anchors) expect(pointClearance(wide, p), `anchor ${p.x},${p.y}`).toBeGreaterThanOrEqual(0.8);
   });
   it("never sit in the feed from the bumpers to the flippers, nor in the lane", () => {
     const lowest = Math.min(...phone.bumpers.map((b) => b.y - b.r));

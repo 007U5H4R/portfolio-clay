@@ -1,3 +1,4 @@
+import { createBoot } from "@/lib/lab/boot";
 import { buildArena, portraitHalfWidth } from "@/lib/lab/arena";
 import { NudgeState } from "@/lib/lab/nudge";
 import { newFlipperState } from "@/lib/lab/flippers";
@@ -69,5 +70,6 @@ export function createRuntime(store: LabStoreApi): LabRuntime {
     bounceMul: 1,
     superSquish: false,
     onAsset: () => {},
+    boot: createBoot(),
   };
 }

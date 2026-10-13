@@ -104,12 +104,32 @@ function OverlaySync() {
   return null;
 }
 
+/** Marks the physics world as mounted: <Physics> only renders its children once Rapier's WASM has initialised. */
+function PhysicsReady() {
+  const rt = useRuntime();
+  useEffect(() => rt.boot.mark("physics"), [rt]);
+  return null;
+}
+
+/** Marks the first rendered frame that has the physics world in it; a no-op ref check afterwards. */
+function FirstFrame() {
+  const rt = useRuntime();
+  const done = useRef(false);
+  useFrame(() => {
+    if (done.current || !rt.boot.get().physics) return;
+    done.current = true;
+    rt.boot.mark("frame");
+  });
+  return null;
+}
+
 function World() {
   const rt = useRuntime();
   const paused = rt.store((s) => s.state === "PAUSED");
   return (
     <Suspense fallback={null}>
       <Physics gravity={[0, GRAVITY, 0]} paused={paused} timeStep={PHYSICS_DT} interpolate>
+        <PhysicsReady />
         <Arena />
         <Pickups />
         <Gummy />
@@ -130,6 +150,7 @@ export default function GameScene({ runtime, onReady }: { runtime: LabRuntime; o
         runtime.scene = scene;
         runtime.renderInfo = () => ({ calls: gl.info.render.calls, triangles: gl.info.render.triangles });
         gl.setClearColor(0x000000, 0);
+        runtime.boot.mark("canvas");
         onReady?.();
         gl.toneMapping = NeutralToneMapping;
         gl.toneMappingExposure = runtime.palette.isDark ? 0.95 : 1.02;
@@ -145,6 +166,7 @@ export default function GameScene({ runtime, onReady }: { runtime: LabRuntime; o
         <OverlaySync />
         <DangerRing />
         <Driver />
+        <FirstFrame />
         <AdaptiveDpr onDpr={setDpr} min={1} max={runtime.tier.maxDpr} />
         <ContextCleanup />
       </RuntimeContext.Provider>

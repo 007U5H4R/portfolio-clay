@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,8 +14,10 @@ import { DebugPanel } from "./DebugPanel";
 import { createFxHooks } from "./fx";
 import { Diorama } from "./Diorama";
 import { IntroBack, IntroFront } from "./IntroScene";
-import { BackPortal, CenterText, Chrome, FlipLive, Hint, Hud, LaunchControl, PauseCard, PowerChips, Results, ScorePops, StartPlaque, Toasts, TpEmblem } from "./LabUi";
+import { BackPortal, CenterText, Chrome, FlipLive, Hint, Hud, LaunchControl, PauseCard, PowerChips, Results, ScorePops, StartPlaque, Toasts } from "./LabUi";
 import { Fallback } from "./Fallback";
+import { BootLoader, LOADER_FINISH_MS } from "./BootLoader";
+import { trackFetch } from "@/lib/lab/boot";
 import { GUMMY_URL } from "./gummy-url";
 import type { LabRuntime } from "./runtime";
 import { webglAvailable } from "./webgl";
@@ -25,6 +27,9 @@ const GameScene = dynamic(() => import("./GameScene"), { ssr: false });
 
 /** Elements of the portfolio chrome that must not be reachable while the lab covers the page. */
 const CHROME_SELECTOR = "header[data-site-header], footer, a[href='#main']";
+
+const noopSubscribe = () => () => undefined;
+const getNull = () => null;
 
 type Mode = "canvas" | "fallback";
 
@@ -37,9 +42,13 @@ export default function LabApp() {
     // TASK-155: the lab's boot was a serial chain (LabApp chunk -> GameScene chunk -> rapier wasm init -> only then the
     // GLB fetch, inside Suspense). Start the GLB fetch now so it warms the HTTP cache in parallel with the engine
     // chunks. In the initializer, not at module top level, so the module stays side-effect free (EVAL-027 chunk layout).
-    void fetch(GUMMY_URL).catch(() => undefined);
     const rt = createRuntime(store);
-    rt.onAsset = (status) => store.getState().patch({ assetStatus: status });
+    // TASK-198: the same warm-up fetch, now reading the stream so the loader reports the bytes actually received.
+    void trackFetch(GUMMY_URL, rt.boot);
+    rt.onAsset = (status) => {
+      store.getState().patch({ assetStatus: status });
+      rt.boot.mark("model");
+    };
     rt.hooks = createFxHooks(rt);
     // A remembered "sound on" shows the toggle on; the audio context itself waits for the first gesture (audio.ts).
     store.getState().patch({ muted: rt.audio.muted });
@@ -66,6 +75,10 @@ export default function LabApp() {
 
   // The diorama's art is only requested once the canvas exists, so the lab's own first load is unchanged.
   const [art, setArt] = useState(false);
+  const mountedAt = useRef(0);
+  useEffect(() => {
+    mountedAt.current = performance.now();
+  }, []);
 
   const [exitedFromMachine, setExitedFromMachine] = useState(false);
   const exit = useCallback(
@@ -120,13 +133,24 @@ export default function LabApp() {
     store.getState().send("DISCOVER");
     runtime.engine.discover();
   }, [runtime, store]);
-  // TASK-155: the intro never waits on the GLB (the bear shows its procedural fallback body until the model lands),
-  // so a slow network no longer holds the intro for up to the old 9 s guard.
+  // TASK-198: the intro now follows the real boot. It appears once the world has rendered its first frame and the asset has
+  // settled (a failed GLB settles on the procedural body, so it never strands the visitor), or after the loader's finish
+  // beat when the loader was on screen. A fast boot keeps the old 500 ms floor so the intro never lands on a half-built frame.
+  const bootSnap = useSyncExternalStore(
+    runtime ? runtime.boot.subscribe : noopSubscribe,
+    runtime ? runtime.boot.get : getNull,
+    getNull,
+  );
+  const [loaderShown, setLoaderShown] = useState(false);
+  const onLoaderShown = useCallback(() => setLoaderShown(true), []);
+  const bootReadyNow = bootSnap?.ready ?? false;
   useEffect(() => {
-    if (!runtime) return;
-    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), 500);
+    if (!runtime || !bootReadyNow) return;
+    const elapsed = performance.now() - mountedAt.current;
+    const wait = loaderShown ? (runtime.reducedMotion ? 250 : LOADER_FINISH_MS) : Math.max(0, 500 - elapsed);
+    const t = window.setTimeout(() => store.getState().send("INTRO_READY"), wait);
     return () => window.clearTimeout(t);
-  }, [runtime, store]);
+  }, [runtime, store, bootReadyNow, loaderShown]);
 
   // The intro stays mounted while it animates out (the paper opens onto the game world).
   const [leaving, setLeaving] = useState(false);
@@ -157,7 +181,7 @@ export default function LabApp() {
       runtime.sinceLaunch = Infinity;
       runtime.trail.clear();
       runtime.particles.clear();
-      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], tpMode: false, banner: null, hint: null, summary: null, launched: false });
+      store.setState({ runId: s.runId + 1, score: 0, combo: 1, timeS: 0, dangerLeft: null, countdown: 3, powers: [], banner: null, hint: null, summary: null, launched: false });
     },
     [store, runtime],
   );
@@ -190,7 +214,6 @@ export default function LabApp() {
   // `?debug=panel` also shows the tuning panel (spec §47); plain `?debug` only exposes the handles.
   const [debug] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "panel");
   const state = store((s) => s.state);
-  const tp = store((s) => s.tpMode);
   // Paper rustle as the intro, pause and results cards open (a no-op while muted).
   useEffect(() => {
     if (state === "INTRO" || state === "PAUSED" || state === "RESULTS") runtime?.audio.play("rustle");
@@ -209,7 +232,6 @@ export default function LabApp() {
       data-lab-asset={asset}
       data-lab-path={LAB_PATH}
       data-intro={introOn ? (leaving ? "leaving" : "on") : undefined}
-      data-theme-mode={tp ? "tp" : undefined}
       data-machine={mode === "canvas" && onMachine ? "" : undefined}
       data-lenis-prevent=""
       onClickCapture={(e) => {
@@ -233,6 +255,7 @@ export default function LabApp() {
       )}
       {mode === "canvas" ? (
         <>
+        {state === "DISCOVERED" && runtime ? <BootLoader boot={runtime.boot} reducedMotion={runtime.reducedMotion} onShown={onLoaderShown} /> : null}
         {introOn ? <IntroFront art={art} text={state === "INTRO" || leaving} leaving={leaving} onPlay={() => startRun("PLAY")} /> : null}
         {runtime && onMachine ? <BackPortal runtime={runtime} onExit={() => exit("portal")} /> : null}
         {runtime && onMachine ? <LaunchControl runtime={runtime} store={store} /> : null}
@@ -240,14 +263,12 @@ export default function LabApp() {
           {running ? <Hud store={store} onPause={togglePause} runtime={runtime ?? undefined} /> : null}
           <CenterText store={store} />
           <PowerChips store={store} />
-          <TpEmblem store={store} />
           <Hint store={store} />
           <FlipLive store={store} />
           {runtime ? <StartPlaque runtime={runtime} store={store} /> : null}
           {runtime ? <ScorePops runtime={runtime} /> : null}
           <Toasts store={store} />
           {debug && runtime ? <DebugPanel runtime={runtime} /> : null}
-          {state === "DISCOVERED" ? <p className={styles.loading} role="status">Warming up the Gummy Lab…</p> : null}
           {state === "PAUSED" ? <PauseCard onResume={togglePause} onExit={() => exit("button")} /> : null}
           {state === "RESULTS" ? <Results store={store} onReplay={() => startRun("REPLAY")} onExit={() => exit("button")} /> : null}
         </div>
