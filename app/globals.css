@@ -16001,4 +16001,99 @@ html[data-theme-vt]::view-transition-group(root) {
     display: none;
   }
 }
+
+/* ---- TASK-205 phase 6 · Experience (/work) on phones: the board's compact timeline ----
+   One left rail with the taped logo as a small paper node, the date as a quiet chip beside it and the deckled card under the
+   date — instead of the stacked date blob → 150 px logo card → card. Same DOM (`.ct-when` becomes `display: contents`), same
+   copy, same disclosure; the collage object stays in the DOM (EVAL-018 count unchanged) but is not painted on phones. */
+@media (max-width: 639px) {
+  .ct-title {
+    padding: 10px 24px 14px 18px;
+    font-size: 40px;
+  }
+  .ct-title-sparks {
+    display: none;
+  }
+  .ct-aside.paper-annotation {
+    font-size: 20px;
+  }
+  .ct-collage {
+    visibility: hidden;
+  }
+  .ct-grid {
+    row-gap: 22px;
+  }
+  .ct-list::before {
+    display: block;
+    left: 21px;
+    top: 30px;
+    bottom: 10px;
+    border-left-width: 1.5px;
+  }
+  .ct-list::after {
+    display: none;
+  }
+  .ct-item {
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-areas:
+      "logo date"
+      ". card";
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: center;
+  }
+  .ct-when {
+    display: contents;
+  }
+  .ct-when .ct-logo.paper-sheet {
+    grid-area: logo;
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    min-height: 44px;
+    height: 44px;
+    padding: 5px;
+    border-radius: 10px;
+    rotate: 0deg;
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
+      0 6px 12px -8px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+  }
+  .ct-when .ct-logo .paper-tape {
+    display: none;
+  }
+  .ct-logo-img {
+    max-height: 32px;
+  }
+  [data-theme="dark"] .ct-logo-img {
+    padding: 3px 4px;
+  }
+  .ct-logo-type {
+    font-size: 11px;
+    line-height: 1;
+  }
+  .ct-date {
+    grid-area: date;
+    justify-self: start;
+    margin: 0;
+    padding: 5px 12px 6px;
+    font-size: 15px;
+    border-radius: 999px;
+    rotate: 0deg;
+  }
+  .ct-date-text {
+    max-width: none;
+  }
+  .ct-date-arrow {
+    display: none;
+  }
+  .ct-card.paper-sheet {
+    grid-area: card;
+    padding: 20px 18px 22px;
+  }
+  .ct-bullets li {
+    font-size: 14.5px;
+  }
+}
+
 /* end TASK-205 */
