@@ -116,6 +116,7 @@ test.describe("@TASK-203 What I Bring scenes", () => {
 
   test("a tap plays the scene (touch parity) and the art is large enough to read", async ({ page, viewport }) => {
     test.skip(viewport!.width >= 1024, "the tap path is the phone / trail path");
+    test.skip(!(await page.evaluate(() => navigator.maxTouchPoints > 0)), "this project has no touch input (only w390 does)");
     const card = await open(page, "ambiguity");
     await card.tap();
     await expect(stage(page, "ambiguity")).toHaveAttribute("data-phase", "playing");
@@ -186,12 +187,16 @@ test.describe("@TASK-203 What I Bring scenes", () => {
     await expect(stage(page, "ai-genai")).toHaveAttribute("data-phase", "settled");
     await page.waitForTimeout(250);
     const moved = await page.evaluate(() =>
-      Array.from(document.querySelectorAll(".wib-layer, .wib-move")).some((el) => {
-        const s = getComputedStyle(el);
-        return !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(s.transform) || !["none", "0px", "0px 0px"].includes(s.translate) || (s.rotate !== "none" && s.rotate !== "0deg") || el.getAnimations().length > 0;
-      }),
+      Array.from(document.querySelectorAll(".wib-layer, .wib-move"))
+        .map((el) => {
+          const s = getComputedStyle(el);
+          const bad = !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(s.transform) || !["none", "0px", "0px 0px"].includes(s.translate) || (s.rotate !== "none" && s.rotate !== "0deg") || el.getAnimations().length > 0;
+          const part = el.closest(".wib-part");
+          return bad ? `${part?.getAttribute("data-s")}/${part?.getAttribute("data-p")} ${el.className} transform=${s.transform} translate=${s.translate} rotate=${s.rotate} anims=${el.getAnimations().length}` : "";
+        })
+        .filter(Boolean),
     );
-    expect(moved).toBe(false);
+    expect(moved).toEqual([]);
     const c3 = await stage(page, "ai-genai").locator("path[data-o='c3']").evaluate((n) => ({ o: Number(getComputedStyle(n).opacity), d: getComputedStyle(n).strokeDashoffset }));
     expect(c3.o, "the connector accent is shown").toBeGreaterThanOrEqual(0.9);
     const lit = await stage(page, "ai-genai").locator(".wib-lit").evaluate((n) => Number(getComputedStyle(n).opacity));
