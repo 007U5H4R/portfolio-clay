@@ -15771,3 +15771,234 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-181.3 === */
+
+/* ==========================================================================================================================
+   TASK-205 · Mobile redesign (concept board "Premium Origami Mobile App Showcase", brief /Downloads/mobile.md).
+   Everything below is scoped to < 640 px (the phone tier) or to phone-only components, so >= 640 is byte-for-byte the
+   desktop/tablet design. It maps the board's three surfaces onto the EXISTING colour tokens (which already flip in dark mode):
+     surface A, solid paper  .m-solid  — text-heavy cards (opaque ivory, hairline, contact shadow)
+     surface B, floating     .m-float  — featured/interactive cards (raised, layered shadow, press response)
+     surface C, frosted      .m-glass  — overlays over artwork (translucent, 12 px blur, falls back to near-opaque)
+   ========================================================================================================================== */
+.header-more {
+  display: none;
+}
+.m-solid,
+.m-float,
+.m-glass {
+  --m-radius: 14px;
+  border-radius: var(--m-radius);
+  border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+}
+.m-solid {
+  background: var(--color-ivory);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent);
+}
+.m-float {
+  background: var(--color-ivory);
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
+    0 10px 20px -12px color-mix(in oklab, var(--shadow-ink) 34%, transparent);
+  transition:
+    translate var(--dur-l1) var(--ease-l1),
+    box-shadow var(--dur-l1) var(--ease-l1),
+    border-color var(--dur-l1) var(--ease-l1);
+}
+.m-float:active {
+  translate: 0 1px;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent);
+}
+.m-glass {
+  background: color-mix(in oklab, var(--color-ivory) 90%, transparent);
+  border-color: color-mix(in oklab, var(--color-ivory) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
+    0 8px 18px -12px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .m-glass {
+    background: color-mix(in oklab, var(--color-ivory) 72%, transparent);
+    backdrop-filter: blur(12px) saturate(1.1);
+  }
+}
+
+@media (max-width: 639px) {
+  /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ---- */
+  :root {
+    --header-h: 108px;
+  }
+  .site-header {
+    --nt-h: 44px;
+    --nt-pad: 16px;
+    --nt-font: 16px;
+    --hdr-tile-px: 36px;
+  }
+  .site-header-row {
+    padding-block: 6px 0;
+  }
+  .header-nav {
+    padding: 4px 12px 8px;
+    gap: 12px;
+  }
+  .header-pill {
+    display: none;
+  }
+  .header-actions {
+    gap: 2px;
+  }
+  .header-more {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-navy);
+    cursor: pointer;
+  }
+  .header-more:active {
+    background: color-mix(in oklab, var(--color-navy) 8%, transparent);
+  }
+}
+
+/* ---- the More sheet (a native <dialog>; rendered only on phones, only while open) ---- */
+.more-menu {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-navy);
+  overflow: hidden;
+}
+.more-menu::backdrop {
+  background: color-mix(in oklab, var(--color-navy) 38%, transparent);
+}
+.more-sheet {
+  position: absolute;
+  inset: auto 0 0 0;
+  max-height: min(86dvh, 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--color-paper);
+  border-radius: 18px 18px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  box-shadow: 0 -12px 30px -14px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .more-sheet {
+    animation: more-sheet-in 240ms var(--ease-panel) both;
+  }
+  .more-menu::backdrop {
+    animation: more-fade-in 200ms ease both;
+  }
+}
+@keyframes more-sheet-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+@keyframes more-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.more-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+}
+.more-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.more-close {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.more-group {
+  margin-top: 8px;
+}
+.more-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--color-ivory);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.more-group li + li {
+  border-top: 1px solid var(--line);
+}
+.more-label {
+  margin: 0 0 6px 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.more-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-navy);
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.more-row small {
+  display: block;
+  font-size: 12.5px;
+  color: var(--color-ink-soft);
+}
+.more-row svg {
+  flex: none;
+  color: var(--color-ink-soft);
+}
+.more-row[aria-current="page"] {
+  color: var(--color-rust);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--color-rust) 8%, transparent);
+}
+.more-row:active {
+  background: color-mix(in oklab, var(--color-navy) 7%, transparent);
+}
+@media (min-width: 640px) {
+  .more-menu {
+    display: none;
+  }
+}
+/* end TASK-205 */
