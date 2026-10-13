@@ -14445,7 +14445,6 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end TASK-196 */
-=======
 /* === TASK-181.4 === */
 /* M-012 P4 (Design.md §14.10 rows "Thinking rows" and "pg-ex"; decisions EXE-61, EXE-62, EXE-63).
    Thinking essay row (L1), Playground bench cards (L2, via .paper-lift), certification cards (L2 shadow crossfade).
@@ -16301,4 +16300,3 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-181.3 === */
->>>>>>> origin/main
