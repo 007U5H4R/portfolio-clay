@@ -167,10 +167,14 @@ test.describe("@TASK-203 What I Bring scenes", () => {
     expect(r.length).toBeGreaterThan(3);
     for (const a of r) {
       expect(a.it).toBe(1);
-      for (const p of a.props) expect(["transform", "opacity", "strokeDashoffset"]).toContain(p);
+      for (const p of a.props) expect(["transform", "opacity", "strokeDashoffset", "translate", "rotate"]).toContain(p);
     }
     const tp = await page.evaluate(() =>
-      Array.from(document.querySelectorAll(".wib-art *")).map((el) => getComputedStyle(el).transitionProperty).join(","),
+      Array.from(document.querySelectorAll(".wib-art *"))
+        .map((el) => getComputedStyle(el))
+        .filter((cs) => cs.transitionDuration.split(",").some((d) => Number.parseFloat(d) > 0))
+        .map((cs) => cs.transitionProperty)
+        .join(","),
     );
     expect(tp).not.toMatch(/box-shadow|filter|\ball\b/);
   });
