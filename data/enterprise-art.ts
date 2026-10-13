@@ -1,5 +1,5 @@
 /**
- * Enterprise Field Journal art configuration (TASK-204, EXE-73). Presentation only: no project fact lives here.
+ * Enterprise Field Journal art configuration (TASK-204, EXE-80). Presentation only: no project fact lives here.
  * Facts (client, program, role, dates, tags, workstreams) stay in `data/enterprise.ts`; this file knows only where
  * the movable paper layers sit inside each cutout and how they move, so animation config stays separate from content.
  *

@@ -1,5 +1,5 @@
 /**
- * Enterprise Field Journal (TASK-204, EXE-73): every displayed fact traces to `data/enterprise.ts`, every card has art
+ * Enterprise Field Journal (TASK-204, EXE-80): every displayed fact traces to `data/enterprise.ts`, every card has art
  * that exists in both themes, the art config holds no facts and stays inside the cutout, and the card's one action is a
  * disclosure (no link, no modal).
  */

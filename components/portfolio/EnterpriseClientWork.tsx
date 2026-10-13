@@ -216,7 +216,7 @@ function Card({ item, index, open, onToggle }: CardProps) {
 }
 
 /**
- * Section 2 — Enterprise & Client Work, the "Enterprise Field Journal" (TASK-204, Tushar's spec 2026-10-13; EXE-73…).
+ * Section 2 — Enterprise & Client Work, the "Enterprise Field Journal" (TASK-204, Tushar's spec 2026-10-13; EXE-80).
  * A paper-dossier cover (category tab, heading, one supporting line, the existing description, a restrained paper
  * still life on wide screens) over six paper-craft case cards. Every fact on a card comes from `data/enterprise.ts`
  * (client, program, scope tags, role, dates, summary, workstreams); the art, its alt text and its motion come from

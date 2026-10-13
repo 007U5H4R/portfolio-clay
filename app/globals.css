@@ -15772,7 +15772,7 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 /* === end TASK-181.3 === */
 
-/* === TASK-204 · Enterprise Field Journal (EXE-73…) ================================================================
+/* === TASK-204 · Enterprise Field Journal (EXE-80) ================================================================
    Six paper-craft case cards over the dossier paper. Everything is scoped to `.ee-*`. Motion is `translate`, `rotate`,
    `opacity` and `stroke-dashoffset` only: the hover never transitions `box-shadow` or `filter` (a pre-rendered shade
    crossfades by opacity), every hover has a focus-visible twin and sits in (hover: hover) and (pointer: fine); touch gets
@@ -16196,20 +16196,17 @@ html[data-theme-vt]::view-transition-group(root) {
   .ee-card:hover .ee-open-arrow {
     translate: 3px 0;
   }
-  .ee-card:hover .ee-open {
-    text-decoration-color: var(--color-terracotta);
-  }
 }
-.ee-card.paper-sheet:has(.ee-open:focus-visible) {
+.ee-card.paper-sheet:focus-within:has(:focus-visible) {
   translate: 0 -4px;
 }
-.ee-card.paper-sheet:has(.ee-open:focus-visible) .ee-shade {
+.ee-card.paper-sheet:focus-within:has(:focus-visible) .ee-shade {
   opacity: 1;
 }
-.ee-card:has(.ee-open:focus-visible) .ee-part[data-hover] {
+.ee-card:focus-within:has(:focus-visible) .ee-part[data-hover] {
   translate: 0 calc(var(--dy) * 0.4);
 }
-.ee-card:has(.ee-open:focus-visible) .ee-open-arrow {
+.ee-card:focus-within:has(:focus-visible) .ee-open-arrow {
   translate: 3px 0;
 }
 /* touch: a press, not a sticky hover */
@@ -16270,7 +16267,7 @@ html[data-theme-vt]::view-transition-group(root) {
 @media (prefers-reduced-motion: reduce) {
   .ee-card.paper-sheet,
   .ee-card.paper-sheet:hover,
-  .ee-card.paper-sheet:has(.ee-open:focus-visible),
+  .ee-card.paper-sheet:focus-within:has(:focus-visible),
   .ee-card.paper-sheet:active,
   .ee-part,
   .ee-open-arrow,
@@ -16278,9 +16275,9 @@ html[data-theme-vt]::view-transition-group(root) {
   .ee-shade {
     transition: none;
   }
-  :root .ee-card.paper-sheet:is(:hover, :active, :has(.ee-open:focus-visible)),
-  :root .ee-card:is(:hover, :has(.ee-open:focus-visible)) .ee-part[data-hover],
-  :root .ee-card:is(:hover, :has(.ee-open:focus-visible)) .ee-open-arrow {
+  :root .ee-card.paper-sheet:is(:hover, :active, :focus-within:has(:focus-visible)),
+  :root .ee-card:is(:hover, :focus-within:has(:focus-visible)) .ee-part[data-hover],
+  :root .ee-card:is(:hover, :focus-within:has(:focus-visible)) .ee-open-arrow {
     translate: none;
   }
 }
