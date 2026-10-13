@@ -123,8 +123,8 @@ export const wibScenes: Record<StageId, WibScene> = {
       { id: "cloud", depth: 3, origin: "49% 21%" },
     ],
     strokes: [
-      { id: "ca", rest: true, before: "cloud", d: "M404 306H540V474H404" },
-      { id: "cb", rest: true, before: "cloud", d: "M404 566H574V648H404" },
+      { id: "ca", rest: true, before: "cloud", d: "M404 306C470 306 520 330 520 390S470 474 404 474" },
+      { id: "cb", rest: true, before: "cloud", d: "M404 566C490 566 556 590 556 606S490 648 404 648" },
       { id: "nd", before: "cloud", d: "M355 558m-17 0a17 17 0 1 0 34 0a17 17 0 1 0-34 0", kind: "ring" },
     ],
     shade: { part: "cloud", box: [14, 28, 56, 8] },
@@ -142,7 +142,6 @@ export const wibScenes: Record<StageId, WibScene> = {
       { id: "arrow", depth: 3, origin: "25% 76%" },
     ],
     strokes: [],
-    shade: { part: "notes-a", box: [22, 6, 52, 8] },
     duration: 1500,
     settledAlt: "The sticky notes have aligned, the gear has turned and the arrow has settled into the target",
   },
