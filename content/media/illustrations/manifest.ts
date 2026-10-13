@@ -15,6 +15,8 @@
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
+ * TASK-202: all thirteen covers and the three Featured Work cards are 3D paper-cut art generated with Higgsfield
+ * (WebP covers 1344×756; AVIF + WebP back/mid/front layers); provenance in `card-art-README.md` beside the assets.
  * TASK-144.5 (M-010 T3): the seven tab scenes are paper-cut stills, light + dark twins (`darkFile`), WebP, 3168×1344, with
  * pre-cropped narrow renditions under `public/` (provenance + job ids in this folder's `README.md`); `scene-casestudy` is
  * still the watercolour (144.4 deferred).
@@ -227,178 +229,178 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     id: "cover-teachspark",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-teachspark.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-teachspark.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a friendly cream robot with a smiling screen face on a teacher's desk, holding out a fan of three ruled worksheets beside a plain green chat bubble with a page in it, a navy chalkboard of chalk doodles behind, a glowing desk lamp, and a dusk window, globe and phone.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127 (Tushar's portfolio fidelity spec 2026-09-28 §4, §12): RailCite's cover — a hand-authored,
-    // text-free 1600×900 SVG (scripts/portfolio-art/scenes/railcite.ts), the carousel cover (5:6 crop)
+    // TASK-127 (Tushar's portfolio fidelity spec 2026-09-28 §4, §12): RailCite's cover — a text-free
+    // 3D paper-cut WebP (TASK-202; was a hand-authored SVG), the carousel cover (5:6 crop)
     // and the stage poster (16:9). No generation, no credits.
     id: "cover-railcite",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-railcite.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-railcite.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a cream streamliner with a rust chevron coming down the line at dusk, the sun setting behind it — every third sleeper a ruled document page, a signal ahead showing green, a lit signal box, and a stack of bound volumes with a magnifier in the foreground.",
     usedOn: ["/projects", "/work/railcite"], // TASK-130: also the case study's pitch-video poster
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/velora.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-velora",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-velora.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-velora.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a sunset atelier: a dress form in a draped rose gown with a gold sash and a tape measure stands before a garment rack, an arched window shows a violet-to-peach sky over low workshop roofs, and a worktable holds fabric swatches, two tied with thread, spools and shears.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cubicle.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-cubicle",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-cubicle.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-cubicle.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
     usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own office scene with the real UI
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/nuptis.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-nuptis",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-nuptis.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-nuptis.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of an Indian wedding mandap being set up at golden hour: a floral canopy with blush domes on four marigold-wrapped pillars, garland swags and small lights, flower crates on the lawn, a hazy palace, and a planner's table with a checklist clipboard, walkie-talkie and ribbon badges.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/bhakti-vilas.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-bhakti-vilas",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-bhakti-vilas.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-bhakti-vilas.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of dawn at a riverside temple: a harmonium with open bellows rests on a striped rug on stone steps beside a lit brass diya and manjira cymbals, while across the misty river stand a temple spire and the rising sun, with lotuses, floating lamps, a moored boat and hanging bells.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/token-toli.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-token-toli",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-token-toli.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-token-toli.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a cosy hillside home at dusk with a lit window and a rocking chair on the porch, a mailbox by the gate, a lane winding away to a distant city, a paper plane flying along the line between poles, and an open notebook of research notes with sticky notes and glasses in the foreground.",
     usedOn: ["/projects", "/work/token-toli"], // TASK-130: also the case-study hero
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/pratyasa.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-pratyasa",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-pratyasa.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-pratyasa.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a lab bench at blue hour: a handheld analyser with a curve on its screen and a sample droplet on its sensor strip, a phone showing a line graph, test tubes and a flask, a brass desk lamp, a microscope by the window, and a certificate scroll tied with a ribbon and a wax seal.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/tegaki.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-tegaki",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-tegaki.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-tegaki.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a writing desk at dusk: a page of handwritten loops under a brass magnifying glass, a fountain pen, an ink bottle and washi tape, a folded letter with a vermilion seal, a teacup, a paper lantern and a plum-blossom sprig, before an indigo sky with a vermilion sun over a band of wave pattern.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/dino-arcade-pwa.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-dino-arcade-pwa",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-dino-arcade-pwa.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-dino-arcade-pwa.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a teal smartphone dressed as a little arcade cabinet, a lit striped marquee on top and a pixel dinosaur on its screen, standing on a shelf before a big striped sunset over red desert mesas and pixel cacti, two coins beside it and a blank memory card sliding towards it.",
     usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own postcard scene with the real UI
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/cinematic-portfolio.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-cinematic-portfolio",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-cinematic-portfolio.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-cinematic-portfolio.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a dusky screening room: a vintage reel projector on a table throws a warm, dusty beam onto a curtained screen showing mountains at sunrise, with a film strip of tiny landscape frames curling through the foreground, a clapperboard, film cans and a director's chair.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-127: hand-authored SVG cover (scripts/portfolio-art/scenes/campfire-board.ts) — carousel cover + stage poster.
+    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-campfire-board",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-campfire-board.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-campfire-board.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a night campsite: a campfire with rising sparks beside a wooden easel pinned with three columns of paper cards above a plank of staggered bars, three tents, pines, a lantern post and a crescent moon, and a log seat with a mug beside a stack of cut logs.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-129: hand-authored SVG cover (scripts/portfolio-art/scenes/slag-city.ts) — carousel cover + stage poster.
+    // TASK-129: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-slag-city",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/covers/cover-slag-city.svg",
-    width: 1600,
-    height: 900,
+    publicSrc: "/media/illustrations/covers/cover-slag-city.webp",
+    width: 1344,
+    height: 756,
     alt: "Illustration of a ruined industrial city at smoggy dusk: a forge hammer stands head-down on a heap of slag before a foundry's blazing furnace arch, molten slag runs out towards the viewer, and smokestacks, a blast-furnace tower, gutted buildings, a leaning crane and a broken green dome stand in the haze.",
     usedOn: ["/projects"],
   },
   {
-    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/railcite.ts) — the home Featured Work anchor card.
-    // TASK-181.2: this file is the BACK layer of the depth-layered collage (width/height include the 32-unit bleed either side and below; data/featured-layers.ts).
+    // TASK-202: 3D paper-cut art (Higgsfield) — the home Featured Work anchor card. This file is the BACK layer of the depth-layered card
+    // (width/height include the transparent bleed either side and below; data/featured-layers.ts); the AVIF twin sits beside it.
     id: "featured-railcite",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/featured/featured-railcite.svg",
-    width: 1514,
-    height: 1032,
-    alt: "Illustration of a cut-paper collage: a navy, cream and red streamliner coming off a stone viaduct towards the viewer, a railway circular with a round seal and a red approval stamp, a route map and a sepia photo of a viaduct in front of a rust sun, pale mountains with a river and a dark pine forest.",
+    publicSrc: "/media/illustrations/featured/featured-railcite.webp",
+    width: 1068,
+    height: 710,
+    alt: "Illustration of a layered 3D paper-cut scene: a navy, cream and red streamliner coming off a stone viaduct towards the viewer, a rust paper sun and pale mountains behind it, a pine forest, and in front a route map, a sepia viaduct photo, a blank round seal and a red stamp.",
     usedOn: ["/"],
   },
   {
-    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/slag-city.ts) — home Featured Work, top-right card.
+    // TASK-202: 3D paper-cut art (Higgsfield) — home Featured Work, top-right card (back layer; see railcite).
     id: "featured-slag-city",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/featured/featured-slag-city.svg",
-    width: 1304,
-    height: 652,
-    alt: "Illustration of a cut-paper collage: a charcoal and navy foundry skyline with smokestacks, a blast furnace, a rust brick block and a conveyor truss before a rust sun, a torn district map, glowing slag running into dark water, and a lone pine.",
+    publicSrc: "/media/illustrations/featured/featured-slag-city.webp",
+    width: 1300,
+    height: 600,
+    alt: "Illustration of a layered 3D paper-cut scene: a charcoal foundry works with a sawtooth roof and a rust brick chimney under grey paper smoke before a rust sun, glowing molten slag running into dark navy water, a torn district map and a lone pine.",
     usedOn: ["/"],
   },
   {
-    // TASK-133: hand-authored SVG collage (scripts/portfolio-art/featured/campfire-board.ts) — home Featured Work, bottom-right card.
+    // TASK-202: 3D paper-cut art (Higgsfield) — home Featured Work, bottom-right card (back layer; see railcite).
     id: "featured-campfire-board",
     kind: "scene",
     file: "",
-    publicSrc: "/media/illustrations/featured/featured-campfire-board.svg",
-    width: 1304,
-    height: 672,
-    alt: "Illustration of a cut-paper collage: a planning board on an easel with a hand-drawn map and pinned, scribbled paper notes, a campfire in a ring of stones between two wooden chairs, a mug, a lake, hills, pines and a low sunset circle.",
+    publicSrc: "/media/illustrations/featured/featured-campfire-board.webp",
+    width: 1300,
+    height: 600,
+    alt: "Illustration of a layered 3D paper-cut scene: a planning board on an easel with a hand-drawn map and pinned scribbled notes, a campfire in a ring of stones between two wooden chairs with a mug, pines, and a lake and hills behind.",
     usedOn: ["/"],
   },
 ];
