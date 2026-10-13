@@ -16096,4 +16096,65 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
+/* ---- TASK-205 phase 2 · Home on phones ----
+   Featured work: RailCite keeps its full floating card (shorter 16:10 art window); Slag City and Campfire Board become the
+   board's compact horizontal project cards — the same layered paper art in a 112 px window on the left, name, tagline and
+   Explore on the right — so the three products read as one list instead of three full-screen posters. Same DOM, links and data. */
+@media (max-width: 639px) {
+  .fw-card-anchor .fw-art {
+    aspect-ratio: 16 / 10;
+  }
+  .fw-card-anchor .fw-stage {
+    height: 122%;
+  }
+  .fw-card-anchor .fw-name {
+    font-size: 40px;
+  }
+  .fw-card-anchor .fw-tagline {
+    font-size: 21px;
+  }
+  .fw-card-side .fw-paper {
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+  }
+  .fw-card-side .fw-art {
+    grid-column: 1;
+    grid-row: 1;
+    aspect-ratio: 1;
+    margin: 14px 0 14px 14px;
+    border-radius: 10px;
+  }
+  .fw-card-side .fw-stage {
+    height: 150%;
+  }
+  .fw-card-side .fw-copy {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 16px 16px 16px 14px;
+  }
+  .fw-card-side .fw-proof {
+    grid-column: 1 / -1;
+  }
+  .fw-card-side .fw-name {
+    font-size: 26px;
+  }
+  .fw-card-side .fw-tagline {
+    margin-top: 4px;
+    font-size: 15px;
+  }
+  .fw-card-side .fw-line {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  /* the status slip joins the copy column under Explore instead of floating over the button */
+  .fw-card-side .fw-slip {
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    margin: -6px 16px 16px 14px;
+    font-size: 13px;
+  }
+}
 /* end TASK-205 */
