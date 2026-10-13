@@ -189,8 +189,11 @@ test.describe("@EVAL-033 on the real site", () => {
     await expect(chip(page)).toHaveCount(0);
     expect(await permissionCalls(page)).toBe(1);
     await tilt(page, 40, 45 + 40);
-    const details = (await settled(page)).find((l) => l.layer === "details")!;
-    expect(Math.abs(details.x), "front layer follows the tilt").toBeGreaterThanOrEqual(ORIENTATION_PX.details - 1);
+    // TASK-173: poll for the end state instead of trusting one "settled" read — under software GL a frame can outlast
+    // the settle interval (15.3 of 18 px was read mid-flight). The assertion itself is unchanged.
+    await expect
+      .poll(async () => Math.abs((await settled(page)).find((l) => l.layer === "details")!.x), { message: "front layer follows the tilt" })
+      .toBeGreaterThanOrEqual(ORIENTATION_PX.details - 1);
   });
 
   test("a tab opener, iOS-style: the chip shows there too", async ({ page }) => {
