@@ -105,8 +105,8 @@ function ExploreLink({ card }: { card: FeaturedCard }) {
  * The collage as depth layers (M-012 P2): one `.pm-layer` per depth group (bg 2 · art 4 · fg 6 · top 8 px of
  * `--hx/--hy` travel, `app/globals.css` TASK-186 / P2), each holding its transparent SVGs in z order. Only the
  * first image carries the manifest alt (it describes the whole scene); the rest are decorative. `data-sig`
- * marks the parts a card's hover/focus signature moves (RailCite's train, Slag City's works, Campfire's flames
- * and notes); the Campfire sparks are three CSS paper chips. `.fw-art` is the tilt container (never the copy).
+ * marks the layers a card's hover/focus signature nudges (TASK-202: RailCite's train, Slag City's works and slag,
+ * Campfire's board and camp). `.fw-art` is the tilt container (never the copy).
  */
 function FeaturedArt({ card }: { card: FeaturedCard }) {
   const art = illustration(card.presentation.art);
@@ -122,24 +122,23 @@ function FeaturedArt({ card }: { card: FeaturedCard }) {
             {group.items.map((item) => {
               const first = item.name === "back";
               return (
-                // eslint-disable-next-line @next/next/no-img-element -- static SVG layers (no raster pipeline to gain)
-                <img
-                  key={item.name}
-                  src={featuredLayerSrc(slug, item.name)}
-                  width={art.width}
-                  height={art.height}
-                  alt={first ? art.alt : ""}
-                  loading="lazy"
-                  decoding="async"
-                  data-layer={item.name}
-                  {...(first ? { "data-illustration": art.id } : {})}
-                  {...(item.sig ? { "data-sig": item.sig } : {})}
-                />
+                <picture key={item.name}>
+                  <source srcSet={featuredLayerSrc(slug, item.name, "avif")} type="image/avif" />
+                  {/* eslint-disable-next-line @next/next/no-img-element -- pre-encoded transparent AVIF/WebP layers inside <picture> (the optimizer cannot serve a <picture>) */}
+                  <img
+                    src={featuredLayerSrc(slug, item.name)}
+                    width={art.width}
+                    height={art.height}
+                    alt={first ? art.alt : ""}
+                    loading="lazy"
+                    decoding="async"
+                    data-layer={item.name}
+                    {...(first ? { "data-illustration": art.id } : {})}
+                    {...(item.sig ? { "data-sig": item.sig } : {})}
+                  />
+                </picture>
               );
             })}
-            {group.depth === "fg" && slug === "campfire-board"
-              ? [0, 1, 2].map((i) => <i key={i} className="fw-spark" data-sig={`spark spark${i}`} aria-hidden="true" />)
-              : null}
           </div>
         ))}
       </div>

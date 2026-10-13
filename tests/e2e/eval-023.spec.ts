@@ -131,8 +131,19 @@ test("@EVAL-023 a runtime system flip is followed with no saved choice and ignor
   await instrument(page);
   await page.goto("/", { waitUntil: "load" });
   expect(await theme(page)).toBe("light");
-  await page.emulateMedia({ colorScheme: "dark" });
-  await expect.poll(() => theme(page)).toBe("dark");
+  // `load` fires before React hydrates, and the live system listener only exists after hydration (TASK-191): a
+  // flip emitted earlier is a no-op on a heavily loaded CI runner. Re-emit the flip until the listener has
+  // attached and follows it; once it does, the flip must still be followed in both directions.
+  await expect
+    .poll(
+      async () => {
+        await page.emulateMedia({ colorScheme: "light" });
+        await page.emulateMedia({ colorScheme: "dark" });
+        return theme(page);
+      },
+      { timeout: 20_000, intervals: [250, 500, 1000] },
+    )
+    .toBe("dark");
   await page.emulateMedia({ colorScheme: "light" });
   await expect.poll(() => theme(page)).toBe("light");
 

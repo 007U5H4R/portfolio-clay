@@ -25,6 +25,8 @@ interface Surface {
   dy?: number;
   /** Optional child element carrying the movement (the nav tab's `.nt-lift`); hover and focus act on `selector`. */
   child?: string;
+  /** Optional focusable descendant that takes keyboard focus when `selector` is a non-focusable container (the enterprise card's button). */
+  focus?: string;
   /** Optional pseudo-element carrying the movement. */
   pseudo?: "::before";
   /** Optional arrow inside the element and its expected dx. */
@@ -45,6 +47,8 @@ const SURFACES: Surface[] = [
   { name: "contact primary", route: "/contact", selector: ".cx-btn-primary", dy: -1, arrow: { selector: ".cx-btn-arrow", dx: 3 } },
   { name: "portfolio action", route: "/projects", selector: ".pf-action", dy: -1, arrow: { selector: ".pf-action-arrow", dx: 3 } },
   { name: "carousel next", route: "/projects", selector: '.pf-arrow[data-dir="next"]', dx: 2 },
+  // TASK-204 (EXE-80): the Enterprise Field Journal card lifts 4 px; its hover and focus twin is `:focus-within:has(:focus-visible)`.
+  { name: "enterprise card", route: "/projects", selector: ".ee-card", focus: ".ee-open", dy: -4, arrow: { selector: ".ee-open-arrow", dx: 3 } },
 ];
 
 const FORBIDDEN = /box-shadow|filter|backdrop-filter|^all$/;
@@ -161,7 +165,7 @@ test.describe("@EVAL-040 L1 hover and focus parity", () => {
       // 2. keyboard focus gives the same movement
       await page.mouse.move(2, 2);
       await page.waitForTimeout(450);
-      await keyboardFocus(page, loc);
+      await keyboardFocus(page, s.focus ? loc.locator(s.focus) : loc);
       await page.waitForTimeout(450);
       const foc = await read(mover, s.pseudo);
       const focArrow = arrow ? await read(arrow) : undefined;
@@ -223,7 +227,7 @@ test.describe("@EVAL-040 stylesheet contract", () => {
     await page.goto("/", { waitUntil: "networkidle" });
     const result = await page.evaluate(() => {
       const SCOPE =
-        /\.(header-nav-link|nt-lift|nt-shadow|nt-paper|hp-shadow|hn-strip|header-pill|header-ask|theme-toggle|tt-window|hero-btn|ask-btn|think-btn|cx-btn|fw-cta|hit-pill|acx-btn|pf-action|pf-play|pf-arrow|band-social|band-email|btn-arrow|essay-entry|cert-link|certm-tile|cert-paper-shade|ct-item|ct-paper-lift|wib-chip)\b|\.pg-ex(?![-\w])/; // header (TASK-192) + P4 (TASK-181.4): essay row, Playground bench cards, certification cards + TASK-201: Experience timeline entries and What I Bring tool chips
+        /\.(header-nav-link|nt-lift|nt-shadow|nt-paper|hp-shadow|hn-strip|header-pill|header-ask|theme-toggle|tt-window|hero-btn|ask-btn|think-btn|cx-btn|fw-cta|hit-pill|acx-btn|pf-action|pf-play|pf-arrow|band-social|band-email|btn-arrow|essay-entry|cert-link|certm-tile|cert-paper-shade|ct-item|ct-paper-lift|wib-chip|ee-card|ee-open-arrow|ee-open|wib-move|wib-layer|wib-shade|wib-ink|wib-img|wib-lit)\b|\.pg-ex(?![-\w])/; // header (TASK-192) + P4 (TASK-181.4): essay row, Playground bench cards, certification cards + TASK-201: Experience timeline entries and What I Bring tool chips + TASK-203: the What I Bring scene parts, strokes and shade + TASK-204: the Enterprise cards and case-file button
       // Static current-page states keep a :hover variant only to out-rank the base hover rule (specificity), and the legacy
       // InkUnderline is dead code (PrimaryNav no longer renders it): both are exempt from the gate/twin walk.
       const EXEMPT = /\[aria-current|ink-underline/;

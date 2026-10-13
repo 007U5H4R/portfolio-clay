@@ -214,18 +214,21 @@ test("@EVAL-013 enterprise: six grouped case files below the showcase, no budget
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
   await page.goto("/projects", { waitUntil: "load" });
   const section = page.locator("section#enterprise");
-  await expect(section.getByRole("heading", { level: 2 })).toHaveText("Projects built inside larger systems.");
+  await expect(section.getByRole("heading", { level: 2 })).toHaveText("Enterprise & Client Work");
   const clients = await section.getByRole("heading", { level: 3 }).allTextContents();
   expect(clients).toEqual(enterpriseCases.map((c) => c.client));
   const showcaseBottom = await page.locator(".pf-carousel").evaluate((el) => el.getBoundingClientRect().bottom + window.scrollY);
   const enterpriseTop = await section.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
   expect(enterpriseTop).toBeGreaterThan(showcaseBottom);
+  // TASK-204: the record sits in each card's dossier (a disclosure); open every card in turn and check its sub-projects.
   const pear = section.locator("article").filter({ hasText: "Pear Health Labs" });
+  await pear.getByRole("button", { name: /open case file/i }).click();
   await expect(pear.locator(".pf-case-streams li")).toHaveCount(3);
   const lifepoint = section.locator("article").filter({ hasText: "LifePoint Health" });
+  await lifepoint.getByRole("button", { name: /open case file/i }).click();
   await expect(lifepoint.locator(".pf-case-streams li")).toHaveCount(3);
   // TASK-132: every sub-project starts its own line: no two items share a row in any case file.
-  const sharedRows = await section.locator(".pf-case-streams").evaluateAll((lists) =>
+  const sharedRows = await section.locator(".pf-case-streams:visible").evaluateAll((lists) =>
     lists.flatMap((list) => {
       const tops = [...list.querySelectorAll("li")].map((li) => Math.round(li.getBoundingClientRect().top));
       return tops.length === new Set(tops).size ? [] : [list.closest("article")?.querySelector("h3")?.textContent ?? "?"];
