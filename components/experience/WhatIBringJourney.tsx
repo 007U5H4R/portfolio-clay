@@ -13,6 +13,9 @@ import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
  *  - all hover/focus styling keys off `data-active` (no `:hover` rules), so a tap leaves nothing stuck;
  *  - pointer parallax (<= 6 px, `--px/--py` in [-1, 1]) is computed for the active stage only, from one element-level
  *    listener, one write per frame, no loop; reduced motion and coarse pointers never attach it;
+ *  - TASK-201: a tool chip lifts 2 px on hover / :focus-visible and shows the project that used the tool
+ *    (`data/what-i-bring.ts` `project`, checked against `data/projects.ts`; no pairing in data = a lift and no label);
+ *    on touch a tap toggles the label (`data-tap`), nothing is hover-latched;
  *  - no infinite animations; the detail text is always in the DOM, so nothing is pointer-only.
  */
 
@@ -50,6 +53,7 @@ export function WhatIBringJourney() {
   const [active, setActive] = useState<string | null>(null); // hovered / focused / tapped right now
   const [selected, setSelected] = useState<string>(wibStages[0]!.id); // last selection; desktop keeps it shown
   const [isDesktop, setIsDesktop] = useState(false);
+  const [tapChip, setTapChip] = useState<string | null>(null); // touch: the chip whose project label is showing
   const modeRef = useRef<Mode>("hover");
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -210,10 +214,30 @@ export function WhatIBringJourney() {
                       </ol>
                     ) : null}
                     {s.tools.length > 0 ? (
-                      <p className="wib-tools">
+                      <div className="wib-tools">
                         <span className="wib-tools-label" data-micro-label="">Tools I use</span>
-                        {s.tools.map((t) => t.label).join(" · ")}
-                      </p>
+                        <ul className="wib-chips">
+                          {s.tools.map((t) => {
+                            const key = `${s.id}:${t.label}`;
+                            return (
+                              <li
+                                key={t.label}
+                                className="wib-chip focus-ring"
+                                tabIndex={0}
+                                data-project={t.project ? "" : undefined}
+                                data-tap={tapChip === key ? "" : undefined}
+                                onPointerDown={(e) => {
+                                  if (e.pointerType !== "mouse" && t.project) setTapChip((cur) => (cur === key ? null : key));
+                                }}
+                                onBlur={() => setTapChip((cur) => (cur === key ? null : cur))}
+                              >
+                                {t.label}
+                                {t.project ? <span className="wib-chip-note">{`\u2192 ${t.project.name}`}</span> : null}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
                     ) : null}
                     {s.examples ? (
                       <ul className="wib-evidence" aria-label="From my work">

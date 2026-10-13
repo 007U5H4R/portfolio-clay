@@ -5,7 +5,13 @@
  * on a miss). The reference image invented LangChain, Planview, Confluence, Miro and OKRs; they are excluded
  * (and asserted absent). Proof figures are the existing self-reported ones from data/experience.ts.
  */
-export type WibTool = { label: string; evidence: string };
+/**
+ * A tool's one data-backed project (TASK-201): `slug` is a `data/projects.ts` slug, `name` its display name (the project name or a part of it, e.g. the employer), and
+ * `evidence` a term that must appear in that project's own record (tests/unit/what-i-bring.test.ts checks all three).
+ * Absent = no project in `data/` backs the pairing, so the chip shows no label. Never add a pairing from memory.
+ */
+export type WibToolProject = { slug: string; name: string; evidence: string };
+export type WibTool = { label: string; evidence: string; project?: WibToolProject };
 export type WibProof = { value: string; label: string; note?: string; evidence: string };
 export type WibStage = {
   id: "ambiguity" | "discovery" | "product" | "ai-genai" | "technology" | "execution" | "impact";
@@ -63,7 +69,7 @@ export const wibStages: WibStage[] = [
     tools: [
       { label: "Market research", evidence: "market research" },
       { label: "JTBD", evidence: "JTBD" },
-      { label: "Analytics", evidence: "analytics" },
+      { label: "Analytics", evidence: "analytics", project: { slug: "teachspark", name: "TeachSpark", evidence: "analytics" } },
     ],
   },
   {
@@ -80,9 +86,9 @@ export const wibStages: WibStage[] = [
       "Lifecycle management",
     ],
     tools: [
-      { label: "Roadmaps", evidence: "roadmap" },
+      { label: "Roadmaps", evidence: "roadmap", project: { slug: "mars-ar-modernization", name: "American Express", evidence: "roadmap" } },
       { label: "PRDs", evidence: "PRD" },
-      { label: "Prioritisation", evidence: "prioritiz" },
+      { label: "Prioritisation", evidence: "prioritiz", project: { slug: "nuptis", name: "Nuptis", evidence: "prioritization" } },
     ],
   },
   {
@@ -100,9 +106,9 @@ export const wibStages: WibStage[] = [
     ],
     tools: [
       { label: "Vertex AI", evidence: "Vertex AI" },
-      { label: "RAG", evidence: "RAG" },
+      { label: "RAG", evidence: "RAG", project: { slug: "railcite", name: "RailCite", evidence: "RAG" } },
       { label: "Evaluation", evidence: "evaluation" },
-      { label: "Agents", evidence: "multi-agent" },
+      { label: "Agents", evidence: "multi-agent", project: { slug: "cubicle", name: "Cubicle", evidence: "multi-agent" } },
     ],
     flow: ["User", "AI agent", "RAG / data", "Validation", "Output"],
     examples: [
@@ -129,9 +135,9 @@ export const wibStages: WibStage[] = [
     ],
     tools: [
       { label: "BigQuery", evidence: "BigQuery" },
-      { label: "Spanner", evidence: "Spanner" },
-      { label: "Supabase", evidence: "Supabase" },
-      { label: "Railway", evidence: "Railway" },
+      { label: "Spanner", evidence: "Spanner", project: { slug: "cloud-modernization-programs", name: "Quantiphi & Shellkode", evidence: "Spanner" } },
+      { label: "Supabase", evidence: "Supabase", project: { slug: "teachspark", name: "TeachSpark", evidence: "Supabase" } },
+      { label: "Railway", evidence: "Railway", project: { slug: "teachspark", name: "TeachSpark", evidence: "Railway" } },
     ],
   },
   {
@@ -152,7 +158,7 @@ export const wibStages: WibStage[] = [
       { label: "Jira", evidence: "Jira" },
       { label: "Azure DevOps", evidence: "Azure DevOps" },
       { label: "SAFe", evidence: "SAFe" },
-      { label: "Kanban", evidence: "Kanban" },
+      { label: "Kanban", evidence: "Kanban", project: { slug: "campfire-board", name: "Campfire Board", evidence: "Kanban" } },
     ],
     flow: ["Discover", "Plan", "Build", "Ship", "Measure", "Iterate"],
   },

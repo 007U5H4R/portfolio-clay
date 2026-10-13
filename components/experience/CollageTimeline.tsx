@@ -22,6 +22,11 @@ import { ENTRY_ART, type OrgLogo } from "./logos";
  * The visible title is decoration; the real `<h2>` is sr-only with the same words, so the heading
  * outline and the a11y tree are unchanged and no Caveat heading exists (§3.4).
  *
+ * TASK-201 (PLAN §4.8): hover / keyboard focus on an entry lifts the card 3 px and crossfades a deeper shadow in
+ * through `.ct-paper-lift`'s opacity (a deckled clipped child under a filtered parent — a pseudo cannot carry the
+ * per-entry clip-path), presses the rail pin 1 px and turns the taped logo 0.6° toward upright. Pure CSS, no touch
+ * behaviour, shadow only under reduced motion; the text moves with the card, never relative to it.
+ *
  * The collage sits in the same grid as the list and borrows its rows through `subgrid`, so each row's
  * doodles line up with their card at any card height without JS; `data-wide` pieces are hidden < 1024
  * (the object stays in the DOM, so the count is the same at every width).
@@ -135,6 +140,9 @@ function Entry({ entry, index }: { entry: TimelineEntry; index: number }) {
       <span className="ct-pin" aria-hidden="true" />
 
       <Sheet as="article" variant="card" className="ct-card">
+        <span className="ct-paper-lift" aria-hidden="true">
+          <i style={{ clipPath: deckle(seed, DECKLE_RIM) }} />
+        </span>
         <span className="ct-paper" aria-hidden="true">
           <i className="ct-paper-rim" style={{ clipPath: deckle(seed, DECKLE_RIM) }} />
           <i className="ct-paper-face" style={{ clipPath: deckle(seed + 1, DECKLE_FACE) }} />

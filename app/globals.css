@@ -7881,6 +7881,73 @@ html.lenis body {
     position: absolute;
     inset: 0;
   }
+  /* TASK-201: the hover shadow layer — fades in by opacity only (no transitioned shadow or filter) */
+  .ct-paper-lift {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent))
+      drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .ct-paper-lift > i {
+    position: absolute;
+    inset: 0;
+    background: var(--color-ivory);
+  }
+  .ct-card.paper-sheet {
+    transition: translate var(--dur-l2-out) var(--ease-paper);
+  }
+  .ct-pin {
+    transition: translate 180ms var(--ease-paper);
+  }
+  .ct-logo.paper-sheet {
+    transition: rotate var(--dur-l2-out) var(--ease-paper);
+  }
+  /* hover (fine pointer) and its keyboard twin: the card lifts 3 px, the shadow fades in, the pin presses 1 px,
+     the logo turns 0.6° toward upright (rest -2° / 1.6° alternate by row) */
+  @media (hover: hover) and (pointer: fine) {
+    .ct-item:hover .ct-paper-lift {
+      opacity: 1;
+      transition-duration: var(--dur-l2);
+    }
+  }
+  .ct-item:focus-within:has(:focus-visible) .ct-paper-lift {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .ct-item:hover .ct-card.paper-sheet {
+      translate: 0 -3px;
+      transition-duration: var(--dur-l2);
+    }
+    .ct-item:hover .ct-pin {
+      translate: 0 1px;
+    }
+    .ct-item:nth-child(odd):hover .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) + 0.6deg);
+    }
+    .ct-item:nth-child(even):hover .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) - 0.6deg);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ct-item:focus-within:has(:focus-visible) .ct-card.paper-sheet {
+      translate: 0 -3px;
+      transition-duration: var(--dur-l2);
+    }
+    .ct-item:focus-within:has(:focus-visible) .ct-pin {
+      translate: 0 1px;
+    }
+    .ct-item:nth-child(odd):focus-within:has(:focus-visible) .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) + 0.6deg);
+    }
+    .ct-item:nth-child(even):focus-within:has(:focus-visible) .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) - 0.6deg);
+    }
+  }
   .ct-paper-rim {
     background: var(--color-ivory);
   }
@@ -14202,6 +14269,59 @@ html[data-theme-vt]::view-transition-group(root) {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-terracotta);
+}
+.wib-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-chip {
+  position: relative;
+  padding: 4px 12px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-kraft);
+  color: var(--color-navy);
+  font-size: 14px;
+  cursor: default;
+  transition: translate 180ms var(--ease-paper);
+}
+.wib-chip-note {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 3;
+  padding: 3px 9px;
+  border-radius: 3px 8px 3px 6px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  color: var(--color-terracotta);
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease-paper);
+}
+@media (hover: hover) and (pointer: fine) {
+  .wib-chip:hover .wib-chip-note {
+    opacity: 1;
+  }
+}
+.wib-chip:focus-visible .wib-chip-note,
+.wib-chip[data-tap] .wib-chip-note {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .wib-chip:hover {
+    translate: 0 -2px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wib-chip:focus-visible {
+    translate: 0 -2px;
+  }
 }
 .wib-evidence {
   margin: 12px 0 0;
