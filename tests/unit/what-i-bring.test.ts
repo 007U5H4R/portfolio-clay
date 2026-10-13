@@ -3,6 +3,7 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { projects } from "@/data/projects";
 import { wibHeading, wibStages, wibStatement } from "@/data/what-i-bring";
+import { wibScenes } from "@/lib/wib/scenes";
 
 /**
  * TASK-187 — the "What I Bring" journey data. The reference image invented tools; this suite keeps the page honest:
@@ -69,9 +70,12 @@ describe("data/what-i-bring (TASK-187)", () => {
     for (const s of wibStages.filter((s) => s.id !== "impact")) expect(s.proof).toBeUndefined();
   });
 
-  it("ships the layered art for every stage plus the strip", () => {
+  it("ships every scene part in both themes (TASK-203), the lit sprites, and the strip", () => {
     for (const s of wibStages)
-      for (const layer of ["back", "mid", "front"]) expect(statSync(resolve(process.cwd(), `public/media/what-i-bring/${s.id}/${layer}.webp`)).size).toBeGreaterThan(1000);
+      for (const theme of ["light", "dark"])
+        for (const part of wibScenes[s.id].parts)
+          for (const name of part.lit ? [part.id, `${part.id}-lit`] : [part.id])
+            expect(statSync(resolve(process.cwd(), `public/media/what-i-bring/scenes/${s.id}/${theme}/${name}.webp`)).size, `${s.id}/${theme}/${name}`).toBeGreaterThan(500);
     expect(statSync(resolve(process.cwd(), "public/media/what-i-bring/landscape/strip.webp")).size).toBeGreaterThan(1000);
   });
 
