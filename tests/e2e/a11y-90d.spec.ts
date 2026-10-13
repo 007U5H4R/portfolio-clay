@@ -48,7 +48,8 @@ test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () =
     await expect(headings).toHaveCount(3);
     for (const name of await headings.allInnerTexts()) expect(name.trim().length).toBeGreaterThan(0);
     const tree = await chapters.getByRole("list").first().ariaSnapshot();
-    expect(tree.match(/- listitem:/g)?.length ?? 0).toBe(3);
+    // the three chapter items sit at the list's first level; the keyword chips nested inside each card (TASK-196) do not count
+    expect(tree.match(/^ {2}- listitem:/gm)?.length ?? 0).toBe(3);
     expect(tree.match(/heading "[^"]+" \[level=3\]/g)?.length ?? 0).toBe(3);
   });
 
