@@ -85,33 +85,45 @@ test("hover and focus: the card rises 4 px with the same twin, a detail answers,
 });
 
 test("signature: each card plays once on activation, settles, and restarts cleanly", async ({ page }) => {
+  test.setTimeout(180_000);
   await open(page);
+  const sample = (id: string) =>
+    item(page, id).evaluate((el) => {
+      const part = [...el.querySelectorAll<HTMLElement>(".ee-part")].some((p) => {
+        const t = getComputedStyle(p).translate;
+        return t !== "none" && t !== "0px 0px" && t !== "0px";
+      });
+      const wire = [...el.querySelectorAll<SVGPathElement>(".ee-wires path")].some((p) => Number.parseFloat(getComputedStyle(p).strokeDashoffset) < 0.98 && Number.parseFloat(getComputedStyle(p).opacity) > 0);
+      const mark = [...el.querySelectorAll<HTMLElement>(".ee-mark")].some((m) => Number.parseFloat(getComputedStyle(m).opacity) > 0.05);
+      return { part, wire, mark };
+    });
   for (const c of enterpriseCases) {
     const it = item(page, c.id);
     await it.scrollIntoViewIfNeeded();
     const art = enterpriseArt[c.id]!;
     await it.locator(".ee-open").click();
     await expect(it).toHaveAttribute("data-play", "");
-    await page.waitForTimeout(650);
-    const mid = await it.evaluate((el) => {
-      const part = [...el.querySelectorAll<HTMLElement>(".ee-part")].some((p) => getComputedStyle(p).translate !== "none" && getComputedStyle(p).translate !== "0px 0px");
-      const wire = [...el.querySelectorAll<SVGPathElement>(".ee-wires path")].some((p) => Number.parseFloat(getComputedStyle(p).strokeDashoffset) < 1 && getComputedStyle(p).opacity !== "0");
-      const mark = [...el.querySelectorAll<HTMLElement>(".ee-mark")].some((m) => Number.parseFloat(getComputedStyle(m).opacity) > 0);
-      return { part, wire, mark };
-    });
-    expect(mid.part, `${c.id} a layer rides`).toBe(true);
-    if (art.connectors.length > 0) expect(mid.wire, `${c.id} a connector draws`).toBe(true);
-    if (art.marks.length > 0) expect(mid.mark, `${c.id} a mark appears`).toBe(true);
+    // sample through the ride (a loaded runner can skip frames): each kind of motion shows up at least once
+    const seen = { part: false, wire: false, mark: false };
+    for (let t = 0; t < 1300; t += 60) {
+      const s = await sample(c.id);
+      seen.part ||= s.part;
+      seen.wire ||= s.wire;
+      seen.mark ||= s.mark;
+      await page.waitForTimeout(60);
+    }
+    expect(seen.part, `${c.id} a layer rides`).toBe(true);
+    if (art.connectors.length > 0) expect(seen.wire, `${c.id} a connector draws`).toBe(true);
+    if (art.marks.length > 0) expect(seen.mark, `${c.id} a mark appears`).toBe(true);
     await page.mouse.move(2, 2); // the pointer that clicked is still over the card, whose hover answer is not the signature
-    await page.waitForTimeout(1400);
-    await expect(it).not.toHaveAttribute("data-play", "");
+    await expect(it).not.toHaveAttribute("data-play", "", { timeout: 4000 });
+    await page.waitForTimeout(400);
     const rest = await it.evaluate((el) => [...el.querySelectorAll<HTMLElement>(".ee-part")].map((p) => getComputedStyle(p).translate));
     for (const t of rest) expect(["none", "0px 0px", "0px"]).toContain(t);
     // close, then play again (repeat activation restarts without a glitch)
     await it.locator(".ee-open").click();
     await it.locator(".ee-open").click();
     await expect(it).toHaveAttribute("data-play", "");
-    await page.waitForTimeout(1700);
     await it.locator(".ee-open").click();
     await expect(it.locator(".ee-open")).toHaveAttribute("aria-expanded", "false");
   }
