@@ -14855,14 +14855,18 @@ html[data-theme-vt]::view-transition-group(root) {
 
 /* reduced motion: nothing travels or draws; the activated end state is shown by opacity alone */
 @media (prefers-reduced-motion: reduce) {
-  :root .wib-layer,
-  :root .wib-move,
-  :root .wib-stage[data-active] .wib-move,
-  :root .wib-stage[data-phase] .wib-move {
-    translate: none;
-    rotate: none;
-    transform: none;
+  /* custom properties, not a bare `translate: none` (the CSS minifier rewrites that into a transform: see TASK-187 above) */
+  :root .wib-layer[data-depth] {
+    --dp: 0;
     transition: none;
+  }
+  :root .wib-stage .wib-move {
+    --hv-t: 0 0;
+    --hv-r: 0deg;
+    transition: none;
+  }
+  :root .wib-stage[data-phase] .wib-move {
+    transform: none;
     animation: none;
   }
   :root .wib-stage .wib-lit,
