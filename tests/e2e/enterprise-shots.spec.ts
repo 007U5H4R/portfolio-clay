@@ -1,6 +1,6 @@
 /**
  * enterprise-shots.spec.ts (TASK-204 visual QA) — the Enterprise Field Journal, light + dark, at the project's width
- * (run with --project=w390 --project=w1440): the section, each card mid-signature, and an open case file. Writes
+ * (committed shots are the w390 and w1440 runs): the section, each card mid-signature, and an open case file. Writes
  * docs/screenshots/m-013/task-204/. Opt-in: skipped unless ENTERPRISE_SHOTS=1 so the regular run never rewrites screenshots.
  */
 import { test } from "./fixtures";
