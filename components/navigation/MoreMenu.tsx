@@ -15,7 +15,7 @@ import { resumeAction, site } from "@/lib/site";
  * header's Ask button opens), Contact, and the profile links from `lib/site`. Theme stays on the header's own switch — no second control.
  *
  * Built on a native `<dialog>` opened with `showModal()` (focus trap, Esc, inert page behind it) and mounted only while open, so it adds
- * nothing to the DOM or the first-load JS path until used. It closes on route change, backdrop tap and Esc; focus returns to the button.
+ * nothing to the DOM or the first-load JS path until used. It closes on a destination tap, backdrop tap and Esc; focus returns to the button.
  */
 const EXPLORE = [
   { label: "Product thinking", hint: "How I approach a problem", href: "/thinking" },
@@ -31,11 +31,6 @@ export function MoreMenu() {
   const resume = resumeAction();
 
   const close = useCallback(() => setOpen(false), []);
-
-  // Route change closes the sheet (the destination row's own click already navigates).
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -53,8 +48,10 @@ export function MoreMenu() {
     wasOpen.current = open;
   }, [open]);
 
-  const onBackdrop = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) close();
+  // A tap on the backdrop (the dialog box itself, outside the sheet) or on any destination link closes the sheet; a link still
+  // navigates normally, so the sheet is gone when the new route renders.
+  const onDialogClick = (event: MouseEvent<HTMLDialogElement>) => {
+    if (event.target === event.currentTarget || (event.target as Element).closest("a")) close();
   };
 
   const askTushky = () => {
@@ -85,7 +82,7 @@ export function MoreMenu() {
           id="more-menu"
           className="more-menu"
           aria-label="More"
-          onClick={onBackdrop}
+          onClick={onDialogClick}
           onCancel={(event) => {
             event.preventDefault();
             close();

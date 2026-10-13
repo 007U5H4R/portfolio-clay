@@ -15838,7 +15838,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   .header-nav {
     padding: 4px 12px 8px;
-    gap: 12px;
+    gap: 16px; /* the TASK-112 minimum between adjacent tabs (header-tabs.spec) */
   }
   .header-pill {
     display: none;
