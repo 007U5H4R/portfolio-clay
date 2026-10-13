@@ -25,6 +25,8 @@ interface Surface {
   dy?: number;
   /** Optional child element carrying the movement (the nav tab's `.nt-lift`); hover and focus act on `selector`. */
   child?: string;
+  /** Optional focusable descendant that takes keyboard focus when `selector` is a non-focusable container (the enterprise card's button). */
+  focus?: string;
   /** Optional pseudo-element carrying the movement. */
   pseudo?: "::before";
   /** Optional arrow inside the element and its expected dx. */
@@ -46,7 +48,7 @@ const SURFACES: Surface[] = [
   { name: "portfolio action", route: "/projects", selector: ".pf-action", dy: -1, arrow: { selector: ".pf-action-arrow", dx: 3 } },
   { name: "carousel next", route: "/projects", selector: '.pf-arrow[data-dir="next"]', dx: 2 },
   // TASK-204 (EXE-80): the Enterprise Field Journal card lifts 4 px; its hover and focus twin is `:focus-within:has(:focus-visible)`.
-  { name: "enterprise card", route: "/projects", selector: ".ee-card", dy: -4, arrow: { selector: ".ee-open-arrow", dx: 3 } },
+  { name: "enterprise card", route: "/projects", selector: ".ee-card", focus: ".ee-open", dy: -4, arrow: { selector: ".ee-open-arrow", dx: 3 } },
 ];
 
 const FORBIDDEN = /box-shadow|filter|backdrop-filter|^all$/;
@@ -163,7 +165,7 @@ test.describe("@EVAL-040 L1 hover and focus parity", () => {
       // 2. keyboard focus gives the same movement
       await page.mouse.move(2, 2);
       await page.waitForTimeout(450);
-      await keyboardFocus(page, loc);
+      await keyboardFocus(page, s.focus ? loc.locator(s.focus) : loc);
       await page.waitForTimeout(450);
       const foc = await read(mover, s.pseudo);
       const focArrow = arrow ? await read(arrow) : undefined;

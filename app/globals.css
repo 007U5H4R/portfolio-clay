@@ -15823,7 +15823,7 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-enterprise .ee-cover > :not(.ee-cover-art) {
     grid-column: 1;
   }
-  .ee-cover-art {
+  .pf-enterprise .ee-cover .ee-cover-art {
     display: block;
     grid-column: 2;
     grid-row: 1 / span 5;
@@ -16018,7 +16018,7 @@ html[data-theme-vt]::view-transition-group(root) {
 .ee-wires path {
   fill: none;
   stroke: var(--color-terracotta);
-  stroke-width: 3;
+  stroke-width: 1.1;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 1;

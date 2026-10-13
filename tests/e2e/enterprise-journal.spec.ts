@@ -64,8 +64,14 @@ test("hover and focus: the card rises 4 px with the same twin, a detail answers,
     expect(await card.locator(".ee-shade").evaluate((el) => getComputedStyle(el).opacity), `${c.id} shade`).toBe("1");
     const hoverPart = card.locator(".ee-part[data-hover]");
     expect(Math.abs(await translateY(hoverPart)), `${c.id} detail answers`).toBeGreaterThan(0.5);
-    const props = await card.evaluate((el) => [getComputedStyle(el), getComputedStyle(el, "::before"), getComputedStyle(el, "::after")].map((s) => s.transitionProperty).join(","));
-    expect(props).not.toMatch(/box-shadow|filter|\ball\b/);
+    // a transition-property with a 0 s duration never runs (pseudo-elements report the initial `all 0s`)
+    const props = await card.evaluate((el) =>
+      [getComputedStyle(el), getComputedStyle(el, "::before"), getComputedStyle(el, "::after"), getComputedStyle(el.querySelector(".ee-shade")!)].flatMap((s) => {
+        const d = s.transitionDuration.split(",").map((x) => Number.parseFloat(x));
+        return s.transitionProperty.split(",").map((p, i) => ((d[i % d.length] ?? 0) > 0 ? p.trim() : "")).filter(Boolean);
+      }),
+    );
+    expect(props.join(",")).not.toMatch(/box-shadow|filter|\ball\b/);
     await page.mouse.move(2, 2);
     await settle(page);
     expect(await translateY(card), `${c.id} rest`).toBe(0);
@@ -96,6 +102,7 @@ test("signature: each card plays once on activation, settles, and restarts clean
     expect(mid.part, `${c.id} a layer rides`).toBe(true);
     if (art.connectors.length > 0) expect(mid.wire, `${c.id} a connector draws`).toBe(true);
     if (art.marks.length > 0) expect(mid.mark, `${c.id} a mark appears`).toBe(true);
+    await page.mouse.move(2, 2); // the pointer that clicked is still over the card, whose hover answer is not the signature
     await page.waitForTimeout(1400);
     await expect(it).not.toHaveAttribute("data-play", "");
     const rest = await it.evaluate((el) => [...el.querySelectorAll<HTMLElement>(".ee-part")].map((p) => getComputedStyle(p).translate));

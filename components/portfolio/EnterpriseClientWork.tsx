@@ -20,6 +20,12 @@ export function scopeTags(item: EnterpriseCase): string[] {
   return item.tags.slice(0, 3);
 }
 
+/** Scales the y of every coordinate pair so a path written in percent of the cutout draws in a uniform viewBox (width 100). */
+function scaleY(d: string, k: number): string {
+  let i = 0;
+  return d.replace(/-?\d+(?:\.\d+)?/g, (n) => (i++ % 2 === 1 ? String(Math.round(Number(n) * k * 100) / 100) : n));
+}
+
 function pct(n: number): string {
   return `${n}%`;
 }
@@ -91,9 +97,9 @@ function Miniature({ art }: { art: EnterpriseArt }) {
         </span>
       ))}
       {art.connectors.length > 0 ? (
-        <svg className="ee-wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <svg className="ee-wires" viewBox={`0 0 100 ${Math.round((100 / art.ratio) * 100) / 100}`} aria-hidden="true" focusable="false">
           {art.connectors.map((c) => (
-            <path key={c.d} d={c.d} pathLength={1} vectorEffect="non-scaling-stroke" style={{ "--d": `${c.delay}ms` } as CSSProperties} />
+            <path key={c.d} d={scaleY(c.d, 1 / art.ratio)} pathLength={1} style={{ "--d": `${c.delay}ms` } as CSSProperties} />
           ))}
         </svg>
       ) : null}

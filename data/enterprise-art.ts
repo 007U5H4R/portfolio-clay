@@ -55,14 +55,16 @@ export const enterpriseArt: Record<string, EnterpriseArt> = {
   },
   mojix: {
     dir: "mojix",
-    ratio: 760 / 278,
-    alt: "Paper model of inventory crates on the left feeding a row of pipeline blocks that lead to an analytics warehouse on the right.",
+    ratio: 760 / 565,
+    alt: "Paper model of inventory crates feeding a row of three pipeline blocks that lead down to an analytics warehouse.",
     parts: [
-      { rect: [0, 0, 26, 70], dy: -5, delay: 0, hover: true },
-      { rect: [30, 8, 46, 70], dy: -4, delay: 120 },
-      { rect: [80, 20, 20, 80], dy: -4, delay: 240 },
+      { rect: [0, 0, 28, 45], dy: -5, delay: 0, hover: true },
+      { rect: [29, 22, 17, 26], dy: -4, delay: 110 },
+      { rect: [45.5, 28, 17, 28], dy: -4, delay: 220 },
+      { rect: [62, 32, 17, 27], dy: -4, delay: 330 },
+      { rect: [72, 57, 28, 43], dy: -4, delay: 440 },
     ],
-    connectors: [{ d: "M25 38 L 82 66", delay: 300 }],
+    connectors: [{ d: "M19 29 L 31 35 L 46 41 L 63 46 L 80 49 C 85 50, 85 54, 85 57", delay: 200 }],
     marks: [],
   },
   "google-cloud-hmle": {
