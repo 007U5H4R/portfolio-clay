@@ -80,9 +80,21 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
   }
 });
 
-test("the hero and the footer are exactly what main shipped (fingerprint of HTML + computed style)", async ({ page }) => {
-  const baseline = JSON.parse(readFileSync(join(process.cwd(), "tests/e2e/about-paper-baseline.json"), "utf8")) as Record<string, Awaited<ReturnType<typeof fingerprint>>>;
-  const expected = baseline[String(width(page))];
+test("the hero and the footer are exactly what main shipped (fingerprint of HTML + computed style)", async ({ page, browser }) => {
+  // ABOUT_BASELINE_URL (a running origin/main build) is the live baseline; otherwise the committed snapshot.
+  const live = process.env.ABOUT_BASELINE_URL;
+  let expected: Awaited<ReturnType<typeof fingerprint>> | undefined;
+  if (live) {
+    const ctx = await browser.newContext({ viewport: page.viewportSize() });
+    try {
+      expected = await fingerprint(await ctx.newPage(), live.replace(/\/$/, ""));
+    } finally {
+      await ctx.close();
+    }
+  } else {
+    const baseline = JSON.parse(readFileSync(join(process.cwd(), "tests/e2e/about-paper-baseline.json"), "utf8")) as Record<string, Awaited<ReturnType<typeof fingerprint>>>;
+    expected = baseline[String(width(page))];
+  }
   expect(expected, `baseline for w${width(page)}`).toBeTruthy();
   const actual = await fingerprint(page);
   for (const region of ["opener", "hero", "footer"] as const) {

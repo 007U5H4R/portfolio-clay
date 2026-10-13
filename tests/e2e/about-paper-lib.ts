@@ -5,7 +5,16 @@ import type { Page } from "@playwright/test";
  * the band footer it hashes (a) the normalised outer HTML (React `useId` tokens stripped) and (b) every
  * element's computed style plus its size, with reduced motion on so one-shot reveals have settled.
  * Positions are left out (a longer body moves the footer; its look must not change).
- * The committed baseline (`about-paper-baseline.json`) was captured from main at ef4c36c, before the redesign.
+ * The committed baseline (`about-paper-baseline.json`) is a snapshot of main (its `_capturedFrom` key names the
+ * commit). main's hero/footer change in later releases, so a snapshot goes stale: at merge time either point
+ * ABOUT_BASELINE_URL at a running build of origin/main (the spec then fingerprints that live), or recapture the
+ * JSON from an origin/main build:
+ *   ABOUT_BASELINE_OUT=tests/e2e/about-paper-baseline.json ABOUT_BASELINE_FROM=$(git rev-parse --short origin/main) \
+ *     PW_BASE_URL=http://127.0.0.1:<port> pnpm test:e2e tests/e2e/about-paper-capture.spec.ts   # run inside an origin/main checkout
+ * Origin-free: computed `url(...)` values are absolute (`http://127.0.0.1:<port>/...`), so the page's origin is stripped
+ * and a build served on another port fingerprints the same.
+ * Computed-style rows list their properties sorted by name: Chrome enumerates custom properties (`--*`) in an
+ * order that changes from one page load to the next, so an unsorted hash differs between two loads of the same build.
  */
 export const REGIONS = {
   opener: '[data-opener="scene-about"]',
@@ -15,9 +24,9 @@ export const REGIONS = {
 
 export type Fingerprint = Record<keyof typeof REGIONS, { html: string; style: string; elements: number }>;
 
-export async function fingerprint(page: Page): Promise<Fingerprint> {
+export async function fingerprint(page: Page, origin = ""): Promise<Fingerprint> {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/about", { waitUntil: "load" });
+  await page.goto(`${origin}/about`, { waitUntil: "load" });
   await page.evaluate(async () => {
     for (let y = 0; y <= document.documentElement.scrollHeight; y += 500) {
       window.scrollTo(0, y);
@@ -53,11 +62,12 @@ export async function fingerprint(page: Page): Promise<Fingerprint> {
         const cs = getComputedStyle(el);
         const rect = el.getBoundingClientRect();
         let row = `${el.tagName}|${Math.round(rect.width)}x${Math.round(rect.height)}`;
-        for (let i = 0; i < cs.length; i++) {
-          const prop = cs.item(i);
+        const props = Array.from({ length: cs.length }, (_, i) => cs.item(i)).sort();
+        for (const prop of props) {
           // layout-derived values depend on position/viewport content, not on the element's own look
           if (/^(perspective-origin|transform-origin|block-size|inline-size|inset|top|left|right|bottom)/.test(prop)) continue;
-          row += `|${prop}:${cs.getPropertyValue(prop)}`;
+          // url(...) values (background-image, ...) come back absolute; the server's origin is not part of the look
+          row += `|${prop}:${cs.getPropertyValue(prop).split(location.origin).join("")}`;
         }
         style += row + "\n";
       }
