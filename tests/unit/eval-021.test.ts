@@ -243,45 +243,40 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     );
   });
 
-  // TASK-127 (fidelity spec §4–§5, §10–§12): every product cover is a hand-authored SVG — the carousel
-  // cover (5:6 crop) and the stage poster (16:9) of one product. TeachSpark's TASK-121 painted webp
-  // was replaced by its SVG counterpart (one illustration style for the set), so it is gone from public/.
-  it("the thirteen product covers are self-contained, text-free 1600×900 SVGs ≤ 40 kB, one per personal build (TASK-127; slag-city TASK-129)", () => {
+  // TASK-202: every product cover is 3D paper-cut art generated with Higgsfield (a 1344×756 WebP, text-free by prompt) — the
+  // carousel cover (5:6 crop) and the stage poster (16:9) of one product. It replaces the TASK-127 hand-authored SVGs.
+  it("the thirteen product covers are 1344×756 WebPs ≤ 180 kB, one per personal build (TASK-202; slag-city TASK-129)", () => {
     const covers = ILLUSTRATIONS.filter((e) => e.id.startsWith("cover-"));
     expect(covers.map((e) => e.id).sort()).toEqual([...PRODUCT_COVER_IDS].sort());
     for (const cover of covers) {
       expect(cover.kind, cover.id).toBe("scene");
-      expect(cover.file, cover.id).toBe(""); // public-only; the source is scripts/portfolio-art/scenes/
-      expect(cover.publicSrc, cover.id).toBe(`/media/illustrations/covers/${cover.id}.svg`);
-      expect([cover.width, cover.height], cover.id).toEqual([1600, 900]);
+      expect(cover.file, cover.id).toBe(""); // public-only
+      expect(cover.publicSrc, cover.id).toBe(`/media/illustrations/covers/${cover.id}.webp`);
+      expect([cover.width, cover.height], cover.id).toEqual([1344, 756]);
       // TASK-130: a cover may also be its own product's case-study poster (`/work/<slug>`), nowhere else.
       expect(cover.usedOn[0], cover.id).toBe("/projects");
       expect(cover.usedOn.slice(1).every((route) => route === `/work/${cover.id.replace(/^cover-/, "")}`), cover.id).toBe(true);
-      const svg = readFileSync(join(PUBLIC_DIR, cover.publicSrc!.replace(/^\//, "")), "utf8");
-      expect(Buffer.byteLength(svg), `${cover.id} bytes`).toBeLessThanOrEqual(40_000);
-      expect(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">'), cover.id).toBe(true);
-      // titles stay HTML (crisp, accessible): no drawn text; nothing external, scripted or styled
-      expect(svg, `${cover.id} draws text`).not.toMatch(/<text|<tspan|<foreignObject/);
-      expect(svg, `${cover.id} is not self-contained`).not.toMatch(/<image|<script|<style|href="(?!#)|url\((?!#)/);
+      const bytes = readFileSync(join(PUBLIC_DIR, cover.publicSrc!.replace(/^\//, "")));
+      expect(bytes.subarray(0, 4).toString("latin1"), `${cover.id} is a RIFF container`).toBe("RIFF");
+      expect(bytes.subarray(8, 12).toString("latin1"), `${cover.id} is WebP`).toBe("WEBP");
+      expect(bytes.length, `${cover.id} bytes`).toBeLessThanOrEqual(180_000);
+      expect(existsSync(join(PUBLIC_DIR, "media", "illustrations", "covers", `${cover.id}.svg`)), `${cover.id}: the retired SVG is gone`).toBe(false);
     }
-    expect(existsSync(join(PUBLIC_DIR, "media", "illustrations", "covers", "cover-teachspark.webp"))).toBe(false);
   });
 
-  // TASK-133 (Featured Work spec §5–§7, §19): each featured card has its own hand-authored collage —
-  // transparent (it lies on the card's paper), text-free, self-contained, ≤ 40 kB, used on `/` only.
-  it("the three Featured Work collages are self-contained, text-free SVGs ≤ 40 kB on / (TASK-133)", () => {
+  // TASK-202: each featured card is three transparent layers (back = the manifest entry) in AVIF + WebP, used on `/` only.
+  it("the three Featured Work cards are transparent WebP/AVIF layers ≤ 100 kB on / (TASK-202)", () => {
     const art = ILLUSTRATIONS.filter((e) => e.id.startsWith("featured-"));
     expect(art.map((e) => e.id)).toEqual([...FEATURED_ART_IDS]);
     for (const entry of art) {
       expect(entry.kind, entry.id).toBe("scene");
-      expect(entry.file, entry.id).toBe(""); // public-only; the source is scripts/portfolio-art/featured/
-      expect(entry.publicSrc, entry.id).toBe(`/media/illustrations/featured/${entry.id}.svg`);
+      expect(entry.file, entry.id).toBe(""); // public-only
+      expect(entry.publicSrc, entry.id).toBe(`/media/illustrations/featured/${entry.id}.webp`);
       expect(entry.usedOn, entry.id).toEqual(["/"]);
-      const svg = readFileSync(join(PUBLIC_DIR, entry.publicSrc!.replace(/^\//, "")), "utf8");
-      expect(Buffer.byteLength(svg), `${entry.id} bytes`).toBeLessThanOrEqual(40_000);
-      expect(svg.startsWith(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${entry.width} ${entry.height}" width="${entry.width}" height="${entry.height}">`), entry.id).toBe(true);
-      expect(svg, `${entry.id} draws text`).not.toMatch(/<text|<tspan|<foreignObject/);
-      expect(svg, `${entry.id} is not self-contained`).not.toMatch(/<image|<script|<style|href="(?!#)|url\((?!#)/);
+      const bytes = readFileSync(join(PUBLIC_DIR, entry.publicSrc!.replace(/^\//, "")));
+      expect(bytes.subarray(8, 12).toString("latin1"), `${entry.id} is WebP`).toBe("WEBP");
+      expect(bytes.length, `${entry.id} bytes`).toBeLessThanOrEqual(100_000);
+      expect(existsSync(join(PUBLIC_DIR, entry.publicSrc!.replace(/^\//, "").replace(/\.webp$/, ".avif"))), `${entry.id} AVIF twin`).toBe(true);
     }
   });
 
