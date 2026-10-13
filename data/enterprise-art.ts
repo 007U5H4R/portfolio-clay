@@ -64,7 +64,7 @@ export const enterpriseArt: Record<string, EnterpriseArt> = {
       { rect: [62, 32, 17, 27], dy: -4, delay: 330 },
       { rect: [72, 57, 28, 43], dy: -4, delay: 440 },
     ],
-    connectors: [{ d: "M19 29 L 31 35 L 46 41 L 63 46 L 80 49 C 85 50, 85 54, 85 57", delay: 200 }],
+    connectors: [{ d: "M19 31 L 31 37 L 46 43 L 63 48 L 80 51 C 85 52, 85 55, 85 58", delay: 200 }],
     marks: [],
   },
   "google-cloud-hmle": {

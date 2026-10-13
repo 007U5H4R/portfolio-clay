@@ -15824,6 +15824,7 @@ html[data-theme-vt]::view-transition-group(root) {
     grid-column: 1;
   }
   .pf-enterprise .ee-cover .ee-cover-art {
+    position: relative;
     display: block;
     grid-column: 2;
     grid-row: 1 / span 5;
