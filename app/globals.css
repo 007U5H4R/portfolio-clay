@@ -14180,26 +14180,6 @@ html[data-theme-vt]::view-transition-group(root) {
   position: relative;
   aspect-ratio: 1;
 }
-.wib-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-  transition:
-    translate 140ms var(--ease-l1),
-    transform var(--dur-l2-out) var(--ease-paper);
-}
-.wib-layer[data-layer="back"] {
-  translate: calc(var(--px, 0) * 2px) calc(var(--py, 0) * 2px);
-}
-.wib-layer[data-layer="mid"] {
-  translate: calc(var(--px, 0) * 4px) calc(var(--py, 0) * 4px);
-}
-.wib-layer[data-layer="front"] {
-  translate: calc(var(--px, 0) * 6px) calc(var(--py, 0) * 6px);
-}
 .wib-marker {
   display: none;
 }
@@ -14380,7 +14360,7 @@ html[data-theme-vt]::view-transition-group(root) {
   .wib-stage {
     position: relative;
     display: grid;
-    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-columns: 112px minmax(0, 1fr);
     grid-template-areas: "art card" "panel panel";
     gap: 0 12px;
     align-items: center;
@@ -14568,7 +14548,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- per-stage art scale (the scenes are not scale-locked) and after-states: each stage moves its own layers ---- */
+/* ---- per-stage art scale (the scenes are not scale-locked); each stage's own motion is the TASK-203 block below ---- */
 .wib-stage[data-stage="technology"] {
   --s: 0.82;
 }
@@ -14578,64 +14558,9 @@ html[data-theme-vt]::view-transition-group(root) {
 .wib-stage[data-stage="product"] {
   --s: 0.96;
 }
-/* ambiguity: the notes tidy up (<= 3 px + 2 deg, masks overlap) */
-.wib-stage[data-stage="ambiguity"][data-active] .wib-layer[data-layer="mid"] {
-  transform: translate(-2px, 1px) rotate(-2deg);
-}
-.wib-stage[data-stage="ambiguity"][data-active] .wib-layer[data-layer="front"] {
-  transform: translate(2px, -2px) rotate(2deg);
-}
-/* discovery: the magnifier drifts across the notebook */
-.wib-stage[data-stage="discovery"][data-active] .wib-layer[data-layer="front"] {
-  transform: translate(6px, -3px);
-}
-.wib-stage[data-stage="discovery"][data-active] .wib-layer[data-layer="mid"] {
-  transform: translate(-3px, 0);
-}
-/* product: the blueprint unfolds upward */
-.wib-stage[data-stage="product"][data-active] .wib-layer[data-layer="mid"] {
-  transform: translateY(-4px);
-}
-.wib-stage[data-stage="product"][data-active] .wib-layer[data-layer="front"] {
-  transform: translateY(-8px);
-}
-/* ai: the layers activate in a staggered rise */
-.wib-stage[data-stage="ai-genai"][data-active] .wib-layer[data-layer="mid"] {
-  transform: translateY(-5px);
-}
-.wib-stage[data-stage="ai-genai"][data-active] .wib-layer[data-layer="front"] {
-  transform: translateY(-10px);
-  transition-delay: 0s, 60ms;
-}
-/* technology: the architecture layers separate */
-.wib-stage[data-stage="technology"][data-active] .wib-layer[data-layer="back"] {
-  transform: translateY(6px);
-}
-.wib-stage[data-stage="technology"][data-active] .wib-layer[data-layer="front"] {
-  transform: translateY(-8px);
-}
-/* execution: the delivery notes progress along the board */
-.wib-stage[data-stage="execution"][data-active] .wib-layer[data-layer="mid"] {
-  transform: translateX(6px);
-}
-.wib-stage[data-stage="execution"][data-active] .wib-layer[data-layer="front"] {
-  transform: translateX(10px);
-}
-/* impact: the flag and chart rise (<= 3 px, masks overlap) */
-.wib-stage[data-stage="impact"][data-active] .wib-layer[data-layer="front"] {
-  transform: translateY(-3px);
-}
-.wib-stage[data-stage="impact"][data-active] .wib-layer[data-layer="mid"] {
-  transform: translateY(-1px);
-}
 
 /* ---- reduced motion: no movement at all; the panel still appears (opacity), the colour/shadow feedback stays ---- */
 @media (prefers-reduced-motion: reduce) {
-  :root .wib-stage[data-stage] .wib-layer[data-layer],
-  :root .wib-stage[data-stage][data-active] .wib-layer[data-layer] {
-    transform: none;
-    transition: none;
-  }
   /* the lift is a custom property (a bare `translate: none` is rewritten by the CSS minifier into a transform) */
   :root .wib-stage[data-stage][data-active] .wib-card,
   :root .wib-stage[data-stage] .wib-card {
@@ -14650,6 +14575,310 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-187 === */
+
+
+/* === TASK-203 === "What I Bring" paper scenes (components/experience/WibScene.tsx, lib/wib/scenes.ts).
+   Three things stay apart: INTERACTION (the journey's `data-active`: hover, :focus-visible or a tap — a lift only, never the
+   sequence), SCENE PROGRESS (`data-phase` on the stage: rest | playing | settled | resetting, from lib/wib/scene-machine.ts)
+   and VISUAL TRANSFORMS (this block). Each part is `.wib-layer` (pointer parallax: `translate`, <= 6 px) > `.wib-move`
+   (hover: `translate` + `rotate`; the sequence: `transform` keyframes), so nothing fights over one property.
+   Contract (EXE-61, EXE-73): no :hover rule (everything keys off [data-active], which a fine pointer, the keyboard and a tap
+   all set), nothing but transform / opacity / SVG stroke-dashoffset animates, no filter or box-shadow transition, no infinite
+   animation, no scale above 1. Reduced motion: nothing travels; the end state is shown by opacity alone. ============== */
+.wib-art {
+  isolation: isolate;
+  --wib-ink: oklch(0.55 0.15 38);
+  --wib-ink-pale: oklch(0.95 0.03 85);
+  --wib-note: oklch(0.86 0.13 92);
+  --wib-glow: oklch(0.86 0.13 82);
+  --wib-shade: oklch(0.2 0.04 265);
+}
+.wib-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  translate: calc(var(--px, 0) * 2px * var(--dp, 1)) calc(var(--py, 0) * 2px * var(--dp, 1));
+  transition: translate 140ms var(--ease-l1);
+}
+.wib-layer[data-depth="1"] { --dp: 1; }
+.wib-layer[data-depth="2"] { --dp: 2; }
+.wib-layer[data-depth="3"] { --dp: 3; }
+.wib-move {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--o, 50% 50%);
+  transition:
+    translate 240ms var(--ease-paper),
+    rotate 240ms var(--ease-paper),
+    transform 300ms var(--ease-paper);
+}
+.wib-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.wib-lit {
+  opacity: 0;
+  transition: opacity 240ms var(--ease-paper);
+}
+/* hover / focus / tap: lift only */
+.wib-stage[data-active] .wib-move {
+  translate: var(--hv-t, 0 0);
+  rotate: var(--hv-r, 0deg);
+}
+.wib-stage[data-active] .wib-lit {
+  opacity: var(--lit-h, 0);
+}
+.wib-shade {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--wib-shade) 55%, transparent), transparent);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-paper);
+}
+.wib-stage[data-active] .wib-shade {
+  opacity: 0.7;
+}
+
+/* the sequence: one pair of keyframes; each part sets --f1 (end), --fm (the overshoot at 60%), --d, --t */
+@keyframes wib-go {
+  0% { transform: none; }
+  60% { transform: var(--fm, var(--f1, none)); }
+  100% { transform: var(--f1, none); }
+}
+@keyframes wib-lit {
+  from { opacity: var(--lit-h, 0); }
+  to { opacity: var(--lit-s, 1); }
+}
+@keyframes wib-draw {
+  from { stroke-dashoffset: 1; opacity: var(--oe, 1); }
+  to { stroke-dashoffset: 0; opacity: var(--oe, 1); }
+}
+@keyframes wib-fade {
+  from { opacity: var(--or, 0); }
+  to { opacity: var(--oe, 1); }
+}
+@keyframes wib-badge {
+  0% { opacity: 1; transform: none; }
+  6% { opacity: 0; transform: translate(-2%, -3%); }
+  74% { opacity: 0; transform: translate(-2%, -3%); }
+  90% { opacity: 1; transform: translate(0.4%, 0.6%); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes wib-glow {
+  from { opacity: 0; }
+  to { opacity: 0.6; }
+}
+@keyframes wib-step {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+@keyframes wib-rise {
+  from { opacity: 0.35; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.wib-stage[data-phase="playing"] .wib-move {
+  animation: wib-go var(--t, 600ms) var(--ease-paper) var(--d, 0ms) both;
+}
+.wib-stage[data-phase="playing"] .wib-lit {
+  animation: wib-lit var(--t, 450ms) var(--ease-paper) var(--d, 0ms) both;
+}
+.wib-stage[data-phase="settled"] .wib-move {
+  transform: var(--f1, none);
+}
+.wib-stage[data-phase="settled"] .wib-lit {
+  opacity: var(--lit-s, 1);
+}
+.wib-part[data-s="ai-genai"][data-p="badge"] { --t: 2000ms; --d: 0ms; }
+.wib-stage[data-phase="playing"] .wib-part[data-p="badge"] .wib-move {
+  animation: wib-badge 2000ms var(--ease-paper) 0ms both;
+}
+
+/* hand-drawn strokes: pathLength is 1, so one dash pattern fits every path */
+.wib-ink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.wib-ink path {
+  fill: none;
+  stroke: var(--wib-ink);
+  stroke-width: 9;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition: opacity 240ms var(--ease-paper), stroke-dashoffset 300ms var(--ease-paper);
+}
+.wib-ink path[data-kind="ring"] { stroke-width: 7; stroke: var(--wib-note); }
+.wib-ink path[data-kind="mark"] { stroke-width: 30; stroke: var(--wib-note); stroke-linecap: butt; }
+.wib-ink path[data-o="tab"] { fill: var(--wib-ink-pale); stroke: var(--wib-ink); stroke-width: 5; stroke-dasharray: none; stroke-dashoffset: 0; }
+.wib-ink path[data-s="product"][data-o="ln"] { stroke: var(--wib-note); stroke-width: 10; }
+.wib-ink path[data-s="impact"][data-o="road"] { stroke: var(--wib-ink); stroke-width: 12; stroke-linecap: round; stroke-dasharray: 0.02 0.012; }
+.wib-ink path[data-s="impact"][data-o="cl"] { stroke: var(--wib-ink-pale); stroke-width: 10; stroke-linecap: round; }
+.wib-ink path[data-s="ai-genai"], .wib-ink path[data-s="technology"][data-o^="c"] { stroke-width: 8; stroke-linecap: round; }
+.wib-ink path[data-s="ai-genai"][data-o="c3"] { stroke: var(--wib-ink); }
+.wib-ink path[data-s="ai-genai"][data-o^="c"], .wib-ink path[data-s="technology"][data-o^="c"] { stroke: var(--wib-ink-pale); }
+.wib-ink path[data-s="ai-genai"][data-o="c3"] { stroke: var(--wib-ink); }
+/* connectors that exist at rest, faint (AI, Technology); hover firms one up */
+.wib-ink path[data-rest] { stroke-dashoffset: 0; opacity: var(--or, 0.3); }
+.wib-stage[data-active] .wib-ink path[data-rest] { opacity: var(--oh, 0.5); }
+.wib-stage[data-active] .wib-ink path[data-s="impact"][data-o="cl"] { stroke-dashoffset: var(--dh, 1); opacity: 0.9; }
+.wib-stage[data-phase="playing"] .wib-ink path:not([data-o="tab"]) {
+  animation: wib-draw var(--t, 400ms) var(--e, var(--ease-paper)) var(--d, 0ms) both;
+}
+.wib-stage[data-phase="playing"] .wib-ink path[data-o="tab"] {
+  animation: wib-fade var(--t, 300ms) var(--ease-paper) var(--d, 0ms) both;
+}
+.wib-stage[data-phase="settled"] .wib-ink path {
+  stroke-dashoffset: 0;
+  opacity: var(--oe, 1);
+}
+.wib-stage[data-phase="settled"] .wib-ink path[data-rest] { opacity: var(--oe, 1); }
+
+/* generated: every part's end pose, delay and duration, hover pose, and every stroke's timing (tools: wib-scenes/gencss.py) */
+.wib-part[data-s="ambiguity"][data-p="base"] { --f1:translate(0%,0.9%); --d:0ms;--t:420ms; }
+.wib-part[data-s="ambiguity"][data-p="tag"] { --f1:translate(0%,-2.6%) rotate(-3deg); --fm:translate(0%,-3.4%) rotate(-5deg); --d:260ms;--t:640ms; --hv-t:0 -1.5%; --hv-r:3deg; }
+.wib-part[data-s="ambiguity"][data-p="note-y"] { --f1:translate(-2.2%,-2.6%) rotate(10deg); --d:480ms;--t:620ms; --hv-t:-.5% -.5%; --hv-r:-1.5deg; }
+.wib-part[data-s="ambiguity"][data-p="note-g"] { --f1:translate(2.2%,-1.6%) rotate(-8deg); --d:550ms;--t:620ms; --hv-t:.7% -.7%; --hv-r:1.5deg; }
+.wib-part[data-s="ambiguity"][data-p="note-o"] { --f1:translate(-1.8%,-1.2%) rotate(9deg); --d:620ms;--t:620ms; --hv-t:-.8% .4%; --hv-r:-1.3deg; }
+.wib-part[data-s="discovery"][data-p="base"] { --f1:translate(0%,-0.6%); --d:0ms;--t:400ms; --hv-t:0 -.4%; }
+.wib-part[data-s="discovery"][data-p="page"] { --f1:translate(0%,-0.5%) rotate(-2.4deg); --d:120ms;--t:560ms; --hv-t:0 -.5%; }
+.wib-part[data-s="discovery"][data-p="lens"] { --f1:translate(-2%,-4.4%) rotate(-5deg); --d:450ms;--t:600ms; --hv-t:.8% -1.2%; }
+.wib-part[data-s="discovery"][data-p="card-a"] { --f1:translate(-3.2%,-5%) rotate(-3deg); --d:800ms;--t:520ms; --hv-t:-.6% -.8%; }
+.wib-part[data-s="discovery"][data-p="card-b"] { --f1:translate(-2.4%,-3.4%) rotate(-2.5deg); --d:920ms;--t:520ms; --hv-t:-.5% -.5%; }
+.wib-part[data-s="product"][data-p="board"] { --f1:translate(0%,-2%); --d:0ms;--t:480ms; --hv-t:0 -1.2%; }
+.wib-part[data-s="product"][data-p="compass"] { --f1:rotate(7deg); --fm:rotate(15deg); --d:120ms;--t:700ms; --hv-r:4deg; }
+.wib-part[data-s="product"][data-p="rays"] { --f1:rotate(5deg); --d:1000ms;--t:450ms; --hv-r:2deg; }
+.wib-part[data-s="product"][data-p="bulb"] { --f1:translate(0%,-1.4%) rotate(-3deg); --d:1000ms;--t:520ms; --hv-t:0 -.6%; --lit-s:1;--lit-h:0.45; }
+.wib-part[data-s="ai-genai"][data-p="input"] { --f1:translate(2.4%,2%); --d:0ms;--t:520ms; --hv-t:.6% .5%; }
+.wib-part[data-s="ai-genai"][data-p="context"] { --f1:translate(2%,-2.8%); --d:620ms;--t:520ms; --hv-t:.5% -.7%; }
+.wib-part[data-s="ai-genai"][data-p="chip"] { --f1:translate(0%,-1%); --fm:translate(0%,-1.6%); --d:1150ms;--t:420ms; --hv-t:0 -1.4%; --lit-s:0.7;--lit-h:0; }
+.wib-part[data-s="ai-genai"][data-p="output"] { --f1:translate(0.9%,-0.9%) rotate(1.4deg); --fm:translate(1.5%,-1.5%) rotate(2.6deg); --d:1650ms;--t:350ms; --hv-t:-.6% -.5%; }
+.wib-part[data-s="ai-genai"][data-p="badge"] { --hv-t:-.3% -.6%; }
+.wib-part[data-s="technology"][data-p="base"] { --f1:translate(0%,0.8%); --d:0ms;--t:380ms; --hv-t:0 .4%; }
+.wib-part[data-s="technology"][data-p="upper"] { --f1:translate(0%,-1.4%); --fm:translate(0%,-2.4%); --d:150ms;--t:520ms; --hv-t:0 -.7%; }
+.wib-part[data-s="technology"][data-p="cloud"] { --f1:translate(0%,-2.2%); --fm:translate(0%,-3.4%); --d:350ms;--t:560ms; --hv-t:0 -1.6%; }
+.wib-part[data-s="execution"][data-p="notes-a"] { --f1:translate(1.7%,0%); --d:0ms;--t:420ms; --hv-t:0 -.8%; }
+.wib-part[data-s="execution"][data-p="notes-b"] { --f1:translate(1.2%,0%); --d:140ms;--t:420ms; --hv-t:0 -.4%; }
+.wib-part[data-s="execution"][data-p="notes-c"] { --f1:translate(0.8%,0%); --d:280ms;--t:420ms; --hv-t:0 -.3%; }
+.wib-part[data-s="execution"][data-p="gear"] { --f1:rotate(24deg); --d:350ms;--t:700ms; --hv-r:8deg; }
+.wib-part[data-s="execution"][data-p="target"] { --f1:translate(0.5%,-0.4%); --d:800ms;--t:400ms; --hv-t:.5% -.6%; }
+.wib-part[data-s="execution"][data-p="arrow"] { --f1:none; --fm:translate(-3.4%,-3.8%); --d:700ms;--t:760ms; --hv-t:.5% -.6%; }
+.wib-part[data-s="impact"][data-p="base"] { --hv-t:0 -.5%; }
+.wib-part[data-s="impact"][data-p="chart"] { --f1:translate(0%,-0.6%); --d:1000ms;--t:500ms; --hv-t:0 -.6%; }
+.wib-part[data-s="impact"][data-p="flag"] { --f1:translate(0%,-1.4%) rotate(1.5deg); --fm:translate(0%,2.2%); --d:800ms;--t:900ms; --hv-t:0 -.6%; --hv-r:3deg; }
+.wib-ink path[data-s="ambiguity"][data-o="c1"] { --d:900ms;--t:260ms; }
+.wib-ink path[data-s="ambiguity"][data-o="c2"] { --d:1050ms;--t:260ms; }
+.wib-ink path[data-s="ambiguity"][data-o="c3"] { --d:1200ms;--t:260ms; }
+.wib-ink path[data-s="discovery"][data-o="hl"] { --d:950ms;--t:380ms; --oe:0.6; }
+.wib-ink path[data-s="discovery"][data-o="ul"] { --d:1250ms;--t:250ms; }
+.wib-ink path[data-s="product"][data-o="ln"] { --d:380ms;--t:650ms; }
+.wib-ink path[data-s="product"][data-o="n1"] { --d:380ms;--t:200ms; }
+.wib-ink path[data-s="product"][data-o="n4"] { --d:980ms;--t:250ms; }
+.wib-ink path[data-s="product"][data-o="tab"] { --d:1050ms;--t:300ms; }
+.wib-ink path[data-s="ai-genai"][data-o="c1"] { --d:150ms;--t:420ms; --oe:0.85; --or:0.3;--oh:0.5; }
+.wib-ink path[data-s="ai-genai"][data-o="c2"] { --d:700ms;--t:420ms; --oe:0.85; --or:0.3;--oh:0.5; }
+.wib-ink path[data-s="ai-genai"][data-o="c3"] { --d:1500ms;--t:380ms; --oe:1; --or:0.3;--oh:0.8; }
+.wib-ink path[data-s="technology"][data-o="ca"] { --d:800ms;--t:400ms; --oe:0.9; --or:0.3;--oh:0.6; }
+.wib-ink path[data-s="technology"][data-o="cb"] { --d:1050ms;--t:400ms; --oe:0.9; --or:0.3;--oh:0.45; }
+.wib-ink path[data-s="technology"][data-o="nd"] { --d:1400ms;--t:200ms; }
+.wib-ink path[data-s="impact"][data-o="road"] { --d:0ms;--t:1000ms; --e:cubic-bezier(.4,0,.2,1); }
+.wib-ink path[data-s="impact"][data-o="cl"] { --d:1100ms;--t:800ms; --dh:0.7; }
+
+
+/* the lightbulb receives light: a warm paper glow behind it, opacity only */
+.wib-art[data-s="product"]::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 56%;
+  top: -2%;
+  width: 36%;
+  height: 36%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--wib-glow) 70%, transparent), transparent);
+  opacity: 0;
+}
+.wib-stage[data-phase="playing"] .wib-art[data-s="product"]::after {
+  animation: wib-glow 450ms var(--ease-paper) 1000ms both;
+}
+.wib-stage[data-phase="settled"] .wib-art[data-s="product"]::after {
+  opacity: 0.6;
+}
+
+/* the existing flow labels (AI + GenAI, Execution) are underlined in order as the scene reaches them */
+.wib-flow li {
+  position: relative;
+}
+.wib-flow li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: var(--color-rust);
+  opacity: 0;
+  transform-origin: left;
+}
+.wib-stage[data-phase="playing"] .wib-flow li::before {
+  animation: wib-step 240ms var(--ease-paper) both;
+  animation-delay: calc(var(--k, 0) * var(--gap, 300ms) + var(--at, 150ms));
+}
+.wib-stage[data-phase="settled"] .wib-flow li::before { opacity: 1; }
+.wib-stage[data-stage="ai-genai"] .wib-flow { --gap: 380ms; --at: 150ms; }
+.wib-stage[data-stage="execution"] .wib-flow { --gap: 190ms; --at: 250ms; }
+.wib-flow li:nth-child(1) { --k: 0; }
+.wib-flow li:nth-child(2) { --k: 1; }
+.wib-flow li:nth-child(3) { --k: 2; }
+.wib-flow li:nth-child(4) { --k: 3; }
+.wib-flow li:nth-child(5) { --k: 4; }
+.wib-flow li:nth-child(6) { --k: 5; }
+/* the proof figures settle in after the road and chart */
+.wib-stage[data-stage="impact"][data-phase="playing"] .wib-proof li {
+  animation: wib-rise 420ms var(--ease-paper) both;
+  animation-delay: calc(1400ms + var(--n, 0) * 120ms);
+}
+.wib-proof li:nth-child(2) { --n: 1; }
+
+/* reduced motion: nothing travels or draws; the activated end state is shown by opacity alone */
+@media (prefers-reduced-motion: reduce) {
+  :root .wib-layer,
+  :root .wib-move,
+  :root .wib-stage[data-active] .wib-move,
+  :root .wib-stage[data-phase] .wib-move {
+    translate: none;
+    rotate: none;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+  :root .wib-stage .wib-lit,
+  :root .wib-stage .wib-ink path,
+  :root .wib-stage .wib-shade,
+  :root .wib-stage .wib-flow li::before,
+  :root .wib-stage .wib-proof li,
+  :root .wib-art::after {
+    animation: none;
+    transition: opacity 120ms linear;
+  }
+  :root .wib-stage .wib-ink path:not([data-rest]) { stroke-dashoffset: 0; }
+  :root .wib-stage[data-phase="settled"] .wib-ink path[data-o="tab"] { opacity: 1; }
+}
+/* === end TASK-203 === */
+
 
 
 /* === TASK-186 / P2 === TASK-181.2 + TASK-186 · home Featured Work and How I Think as paper objects (Design.md §14.10).

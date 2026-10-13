@@ -1,8 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState, type FocusEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState, type FocusEvent, type PointerEvent } from "react";
 import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
+import { RESET_MS, sceneOf, sceneReducer } from "@/lib/wib/scene-machine";
+import { wibScenes } from "@/lib/wib/scenes";
+import { WibScene } from "./WibScene";
 
 /**
  * "What I Bring" journey (TASK-187). One list of seven stages; CSS lays it out as a continuous paper landscape
@@ -16,7 +19,10 @@ import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
  *  - TASK-201: a tool chip lifts 2 px on hover / :focus-visible and shows the project that used the tool
  *    (`data/what-i-bring.ts` `project`, checked against `data/projects.ts`; no pairing in data = a lift and no label);
  *    on touch a tap toggles the label (`data-tap`), nothing is hover-latched;
- *  - no infinite animations; the detail text is always in the DOM, so nothing is pointer-only.
+ *  - no infinite animations; the detail text is always in the DOM, so nothing is pointer-only;
+ *  - TASK-203: each stage is a layered paper scene (`WibScene`, `lib/wib/scenes.ts`). Hover / focus / a tap only lift it (the
+ *    `data-active` micro-response); a click, Enter or tap ALSO plays its signature sequence once (`data-phase` rest ->
+ *    playing -> settled, `lib/wib/scene-machine.ts`, repeatable, never cut off by changing stage). Reduced motion settles at once.
  */
 
 const ART: Record<WibStage["id"], { alt: string }> = {
@@ -56,6 +62,8 @@ export function WhatIBringJourney() {
   const [tapChip, setTapChip] = useState<string | null>(null); // touch: the chip whose project label is showing
   const modeRef = useRef<Mode>("hover");
   const listRef = useRef<HTMLOListElement>(null);
+  const [scenes, dispatch] = useReducer(sceneReducer, {});
+  const timers = useRef(new Map<string, { key: string; t: ReturnType<typeof setTimeout> }>());
 
   const open = useCallback((id: string, mode: Mode) => {
     modeRef.current = mode;
@@ -75,9 +83,18 @@ export function WhatIBringJourney() {
   const onBlur = (e: FocusEvent<HTMLElement>) => {
     if (!listRef.current?.contains(e.relatedTarget as Node | null) && modeRef.current === "pin") setActive(null);
   };
+  const activate = (id: string) => {
+    const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    dispatch({ type: "ACTIVATE", id, reduced });
+  };
   const onClick = (id: string) => {
-    if (active === id && modeRef.current === "pin") setActive(null);
-    else open(id, "pin");
+    if (active === id && modeRef.current === "pin") {
+      setActive(null);
+      if (isDesktop) activate(id); // the landscape keeps the stage shown: a second press replays its sequence
+    } else {
+      open(id, "pin");
+      activate(id);
+    }
   };
 
   useEffect(() => {
@@ -119,6 +136,38 @@ export function WhatIBringJourney() {
 
   // what the page shows: the landscape keeps the last selection, the trail only what is expanded
   const shown = isDesktop ? selected : active;
+
+  // A stage that is no longer shown leaves (a playing one finishes first); the others' timers drive playing -> settled.
+  useEffect(() => {
+    for (const s of wibStages) if (s.id !== shown) dispatch({ type: "LEAVE", id: s.id });
+  }, [shown]);
+  useEffect(() => {
+    for (const s of wibStages) {
+      const st = sceneOf(scenes, s.id);
+      const key = `${st.phase}:${st.epoch}`;
+      const cur = timers.current.get(s.id);
+      if (st.phase !== "playing" && st.phase !== "resetting") {
+        if (cur) clearTimeout(cur.t);
+        timers.current.delete(s.id);
+        continue;
+      }
+      if (cur?.key === key) continue;
+      if (cur) clearTimeout(cur.t);
+      const epoch = st.epoch;
+      const t = setTimeout(
+        () => dispatch(st.phase === "playing" ? { type: "DONE", id: s.id, epoch } : { type: "RESET_DONE", id: s.id, epoch }),
+        st.phase === "playing" ? wibScenes[s.id].duration : RESET_MS,
+      );
+      timers.current.set(s.id, { key, t });
+    }
+  }, [scenes]);
+  useEffect(() => {
+    const map = timers.current;
+    return () => {
+      for (const { t } of map.values()) clearTimeout(t);
+      map.clear();
+    };
+  }, []);
   const activeIndex = wibStages.findIndex((s) => s.id === shown);
 
   return (
@@ -146,6 +195,7 @@ export function WhatIBringJourney() {
         <ol className="wib-stages" ref={listRef} onPointerLeave={onPointerLeave}>
           {wibStages.map((s, i) => {
             const isActive = shown === s.id;
+            const phase = sceneOf(scenes, s.id).phase;
             const [mx, my] = ROAD[i]!;
             return (
               <li
@@ -153,6 +203,7 @@ export function WhatIBringJourney() {
                 className="wib-stage"
                 data-stage={s.id}
                 data-active={isActive ? "" : undefined}
+                data-phase={phase}
                 style={{ "--i": i, "--mx": `${(mx / 2400) * 100}%`, "--my": `${(my / 1028) * 100}%` } as React.CSSProperties}
                 onPointerEnter={(e) => onPointerEnter(e, s.id)}
               >
@@ -173,23 +224,9 @@ export function WhatIBringJourney() {
                     ))}
                   </span>
                 </button>
-                <div className="wib-art" aria-hidden="true">
-                  {(["back", "mid", "front"] as const).map((layer) => (
-                    <Image
-                      key={layer}
-                      className="wib-layer"
-                      data-layer={layer}
-                      src={`/media/what-i-bring/${s.id}/${layer}.webp`}
-                      alt=""
-                      width={720}
-                      height={720}
-                      sizes="(min-width: 1100px) 190px, 120px"
-                      loading="lazy"
-                    />
-                  ))}
-                </div>
+                <WibScene stage={s.id} />
                 <span className="wib-marker" aria-hidden="true" />
-                <span className="sr-only">{ART[s.id].alt}</span>
+                <span className="sr-only">{phase === "settled" ? wibScenes[s.id].settledAlt : ART[s.id].alt}</span>
                 <div
                   id={`wib-panel-${s.id}`}
                   role="region"
