@@ -127,3 +127,21 @@ test("@EVAL-006 /work is axe-clean", { tag: "@EVAL-006" }, async ({ page, axe })
   await page.goto("/work", { waitUntil: "load" });
   await axe(page);
 });
+
+test("TASK-208: the AWS and Google Cloud marks swap to the white files in dark mode and render", async ({ page }) => {
+  test.skip(width(page) <= 1024, "the collage's wide pieces (and the marks with them) are hidden at ≤ 1024");
+  await page.goto("/work");
+  for (const [theme, aws, gcp] of [
+    ["light", "/media/logos/aws.svg", "/media/logos/google-cloud.svg"],
+    ["dark", "/media/logos/aws-dark.webp", "/media/logos/google-cloud-dark.webp"],
+  ] as const) {
+    await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+    const shown = page.locator(".ct-mark:visible");
+    await expect(shown, theme).toHaveCount(2);
+    for (const el of await shown.all()) {
+      await el.scrollIntoViewIfNeeded();
+      await expect.poll(() => el.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0), theme).toBe(true);
+    }
+    expect(await shown.evaluateAll((els) => els.map((el) => el.getAttribute("src"))), theme).toEqual([aws, gcp]);
+  }
+});

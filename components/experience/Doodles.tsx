@@ -31,8 +31,15 @@ function Rays({ className }: { className?: string }) {
 
 function Mark({ which }: { which: keyof typeof PLATFORM_MARKS }) {
   const m = PLATFORM_MARKS[which];
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img className="ct-mark" data-mark={which} src={m.src} alt="" width={m.width} height={m.height} loading="lazy" decoding="async" />;
+  // One file per theme; the hidden one never downloads (lazy + display:none, `.pa-light` / `.pa-dark`).
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="ct-mark pa-light" data-mark={which} src={m.src} alt="" width={m.width} height={m.height} loading="lazy" decoding="async" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="ct-mark pa-dark" data-mark={which} src={m.dark.src} alt="" width={m.dark.width} height={m.dark.height} loading="lazy" decoding="async" />
+    </>
+  );
 }
 
 const Db = () => (

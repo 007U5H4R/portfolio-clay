@@ -8178,6 +8178,7 @@ html.lenis body {
   }
   .ct-mark[data-mark="aws"] { width: 124px; }
   .ct-mark[data-mark="googleCloud"] { width: 158px; margin-block: 6px; }
+  .ct-mark[data-mark="googleCloud"].pa-dark { width: 100px; } /* TASK-208: the white mark is stacked, not a strip */
   .ct-sticky {
     display: grid;
     justify-items: start;
