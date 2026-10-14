@@ -11,6 +11,8 @@ export interface MainMediaStageProps {
   /** Which change brought this stage in — drives the enter transition (spec §20). */
   enter: "none" | "product" | "mode";
   id: string;
+  /** TASK-210: start the player on mount (the viewer pressed "Watch demo / pitch"). */
+  autoStart?: boolean;
 }
 
 const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "demo video" };
@@ -31,7 +33,7 @@ const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "dem
  *              falls back to the poster + "Video unavailable here." (TASK-122, spec §10–§17).
  *   no video → the cover + a small torn "Pitch video coming" tag — never a dead play button (§22).
  */
-export function MainMediaStage({ product, mode, enter, id }: MainMediaStageProps) {
+export function MainMediaStage({ product, mode, enter, id, autoStart = false }: MainMediaStageProps) {
   const media = mediaFor(product, mode);
   const cover = <ProductCover product={product} size="stage" />;
 
@@ -45,10 +47,12 @@ export function MainMediaStage({ product, mode, enter, id }: MainMediaStageProps
       </span>
       <span className="pf-doodle pf-doodle-burst" aria-hidden="true" />
       {media ? (
-        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} />
+        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} autoStart={autoStart} />
       ) : (
         <div id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode}>
           {cover}
+          {/* TASK-210: the phone's honest no-video note (the torn "coming" tag below is a desktop-only flourish) */}
+          <span className="pf-m-novideo">{product.pitchVideo || product.demoVideo ? `No ${MODE_LABEL[mode]} yet` : "No video for this project yet"}</span>
           <span className="pf-stage-tag" data-paper="tag">
             {mode === "pitch" ? "Pitch video coming" : "Demo video coming"}
           </span>

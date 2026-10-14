@@ -17312,3 +17312,591 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end TASK-205 */
+
+/* === TASK-210 === */
+/* ==========================================================================================================================
+   TASK-210 · Mobile Portfolio listing + project detail (concept board "Premium Origami Mobile App Showcase", screens 3–4).
+   Phone only (< 640 px): every rule that changes the page is inside the media query below, and every phone-only block is
+   `display: none` here, so >= 640 px is the unchanged desktop/tablet design. The listing and the detail are one page
+   (`/projects`, see IndependentProductsShowcase): `[data-view]` on `.pf-showcase` follows the URL (`?product=` → detail).
+   Surfaces reuse TASK-205's: .m-float (cards), .m-solid (outcomes / empty state). Colours are the flipping tokens only.
+   ========================================================================================================================== */
+.pf-m-list,
+.pf-m-bar,
+.pf-m-detail-tags,
+.pf-m-actions,
+.pf-m-outcomes,
+.pf-m-novideo {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .pf-showcase {
+    --pf-m-on-accent: var(--color-ivory);
+    --pf-m-edge: var(--gutter-mobile, 16px);
+  }
+  :root[data-theme="dark"] .pf-showcase {
+    --pf-m-on-accent: var(--color-paper);
+  }
+  /* the listing: the carousel and the desktop panel give way to it */
+  .pf-showcase[data-view="list"] .pf-feature,
+  .pf-carousel {
+    display: none;
+  }
+  .pf-showcase[data-view="list"] .pf-m-list {
+    display: block;
+  }
+  .pf-showcase[data-view="list"] .pf-intro .pf-sub {
+    display: block;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--color-navy-2);
+  }
+  .pf-showcase[data-view="list"] .pf-h1 {
+    font-size: 1.75rem;
+    line-height: 1.1;
+  }
+  .pf-showcase[data-view="list"] .pf-intro {
+    gap: 6px;
+  }
+  .pf-showcase {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  /* the scene opener is a slim crop of its shelf here, so the first cards sit high on the screen (the full scene is unchanged ≥ 640) */
+  .scene-opener[data-opener="scene-work"] {
+    height: 40vw;
+    max-height: 176px;
+  }
+  .scene-opener[data-opener="scene-work"] > :first-child {
+    margin-top: -13vw;
+  }
+
+  /* ---- filter chips: one scrolling row; each chip is a 44 px target drawing a 36 px pill ---- */
+  .pf-m-filters {
+    display: flex;
+    gap: 2px;
+    margin-inline: calc(-1 * var(--pf-m-edge));
+    padding-inline: calc(var(--pf-m-edge) - 4px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .pf-m-filters::-webkit-scrollbar {
+    display: none;
+  }
+  .pf-m-chip {
+    position: relative;
+    flex: none;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 0;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-navy);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pf-m-chip::before {
+    content: "";
+    position: absolute;
+    inset: 4px 4px;
+    z-index: -1;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--color-ivory);
+    transition:
+      background-color 160ms var(--ease-l1),
+      border-color 160ms var(--ease-l1);
+  }
+  .pf-m-chip[aria-pressed="true"] {
+    color: var(--pf-m-on-accent);
+  }
+  .pf-m-chip[aria-pressed="true"]::before {
+    border-color: transparent;
+    background: var(--color-rust);
+  }
+  .pf-m-chip:not([aria-pressed="true"]):active::before {
+    background: color-mix(in oklab, var(--color-navy) 8%, var(--color-ivory));
+  }
+  .pf-m-chip-sep {
+    flex: none;
+    align-self: center;
+    width: 1px;
+    height: 20px;
+    margin-inline: 6px;
+    background: var(--line-strong);
+  }
+  .pf-m-count {
+    margin: 4px 0 10px;
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+
+  /* ---- cards ---- */
+  .pf-m-cards {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-m-card {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    min-height: 108px;
+    padding: 12px 10px 12px 12px;
+    color: var(--color-navy);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pf-m-card[aria-current="true"] {
+    border-color: color-mix(in oklab, var(--color-rust) 55%, transparent);
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
+      0 12px 22px -12px color-mix(in oklab, var(--color-rust) 42%, transparent);
+  }
+  .pf-m-art {
+    position: relative;
+    display: block;
+    width: 84px;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-navy-2);
+    /* a thin offset sheet under the print (paper layering) */
+    box-shadow:
+      3px 3px 0 -0.5px color-mix(in oklab, var(--color-kraft) 62%, var(--color-ivory)),
+      0 0 0 1px color-mix(in oklab, var(--color-navy) 14%, transparent);
+  }
+  .pf-m-art-img {
+    object-fit: cover;
+    object-position: 26.5% 50%;
+  }
+  .pf-m-body {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .pf-m-name {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 650;
+    line-height: 1.15;
+    font-variation-settings: "opsz" 48, "SOFT" 30;
+    overflow-wrap: anywhere;
+  }
+  .pf-m-line {
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--color-navy-2);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .pf-m-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 3px;
+  }
+  .pf-m-tag,
+  .pf-m-detail-tags li {
+    padding: 2px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-navy) 5%, var(--color-ivory));
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-navy-2);
+    white-space: nowrap;
+  }
+  .pf-m-chev {
+    width: 22px;
+    height: 22px;
+    color: var(--color-ink-soft);
+  }
+  .pf-m-empty {
+    padding: 22px 18px;
+    text-align: center;
+  }
+  .pf-m-empty-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 650;
+  }
+  .pf-m-empty-hint {
+    margin: 6px 0 14px;
+    font-size: 15px;
+    color: var(--color-navy-2);
+  }
+  .pf-m-clear {
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--color-ivory);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-navy);
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pf-m-cards,
+    .pf-m-empty {
+      animation: pf-m-in 200ms var(--ease-l1) both;
+    }
+  }
+
+  /* ---- detail: the page is just the back bar + the project ---- */
+  .pf-showcase[data-view="detail"] .pf-intro,
+  .pf-showcase[data-view="detail"] .pf-m-list,
+  body:has(.pf-showcase[data-view="detail"]) :is(.scene-opener, #enterprise) {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 4px;
+    min-height: 52px;
+    margin-top: -4px;
+  }
+  .pf-m-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-left: -8px;
+    padding: 0 12px 0 6px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-navy);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pf-m-back svg {
+    width: 24px;
+    height: 24px;
+  }
+  .pf-m-back:active {
+    background: color-mix(in oklab, var(--color-navy) 8%, transparent);
+  }
+  .pf-m-bar-title {
+    margin: 0;
+    padding-right: 44px;
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 650;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pf-showcase[data-view="detail"] .pf-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  /* the desktop panel's own paper (its pseudo-elements still paint under `display: contents`) and strips give way to the phone blocks */
+  .pf-showcase[data-view="detail"] .pf-info.paper-sheet::before,
+  .pf-showcase[data-view="detail"] .pf-info.paper-sheet::after,
+  .pf-showcase[data-view="detail"] .pf-action-set {
+    display: none;
+  }
+  /* the hero: the painted cover / video poster, full-bleed, 16:9 (the video's own ratio); the desktop paper stack is dropped */
+  .pf-showcase[data-view="detail"] .pf-feature .pf-stage.paper-sheet {
+    order: 1;
+    width: auto;
+    margin-inline: calc(-1 * var(--pf-m-edge));
+    padding: 0;
+    rotate: none;
+    filter: none;
+    align-self: stretch;
+    scroll-margin-top: 116px;
+  }
+  .pf-showcase[data-view="detail"] :is(.pf-stage-backing, .pf-stage-mat, .pf-stage-label, .pf-stage .pf-doodle, .pf-stage .pf-stage-pin, .pf-stage-tag) {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-stage-screen:not([data-player-state="loading"], [data-player-state="ready"]) {
+    clip-path: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-stage-screen {
+    border-radius: 0 0 22px 22px;
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-navy) 14%, transparent),
+      0 14px 22px -16px color-mix(in oklab, var(--shadow-ink) 55%, transparent);
+  }
+  .pf-showcase[data-view="detail"] .pf-stage-screen:not([data-player-state="loading"], [data-player-state="ready"])::after {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-stage-screen > .pf-play {
+    --pf-play: 64px;
+  }
+  /* the cover's own lettering repeats the title right below; on a phone the hero is the art alone */
+  .pf-showcase[data-view="detail"] .pf-stage .pf-cover-title,
+  .pf-showcase[data-view="detail"] .pf-stage .pf-cover-art::after {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-novideo {
+    display: block;
+    align-self: end;
+    justify-self: start;
+    z-index: 2;
+    margin: 0 0 14px 14px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-ivory) 90%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .pf-showcase[data-view="detail"] .pf-m-novideo {
+      background: color-mix(in oklab, var(--color-ivory) 74%, transparent);
+      backdrop-filter: blur(10px) saturate(1.1);
+    }
+  }
+
+  /* summary: tags → name → cover line → description → status */
+  .pf-showcase[data-view="detail"] .pf-info-head {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0 0;
+    filter: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-head::before {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-detail-tags {
+    order: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-name {
+    order: 2;
+    margin: 0;
+    font-size: 2.125rem;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-name::after {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-tagline {
+    order: 3;
+    margin: 6px 0 0;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--color-rust);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-desc {
+    order: 4;
+    margin: 8px 0 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-meta {
+    order: 5;
+    margin: 10px 0 0;
+    font-size: 14px;
+    letter-spacing: 0;
+    color: var(--color-ink-soft);
+  }
+
+  /* actions: one primary, then 44 px+ secondaries in two columns */
+  .pf-showcase[data-view="detail"] .pf-m-actions {
+    order: 3;
+    display: grid;
+    gap: 10px;
+    padding-top: 18px;
+  }
+  .pf-m-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--color-ivory);
+    white-space: nowrap;
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--color-navy);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      translate 150ms var(--ease-l1),
+      box-shadow 150ms var(--ease-l1);
+  }
+  .pf-m-btn:active {
+    translate: 0 1px;
+    box-shadow: none;
+  }
+  .pf-m-btn svg {
+    flex: none;
+    width: 20px;
+    height: 20px;
+  }
+  .pf-m-btn .pf-m-ext {
+    width: 16px;
+    height: 16px;
+    opacity: 0.65;
+  }
+  .pf-m-primary {
+    min-height: 54px;
+    width: 100%;
+    border-color: transparent;
+    background: var(--color-rust);
+    color: var(--pf-m-on-accent);
+    font-size: 17px;
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
+      0 10px 18px -10px color-mix(in oklab, var(--color-rust) 70%, transparent);
+  }
+  .pf-m-primary svg {
+    fill: currentColor;
+  }
+  .pf-m-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .pf-m-secondary[data-odd] > :last-child {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 359px) {
+    .pf-m-btn > svg:first-child:not(.pf-m-ext) {
+      display: none;
+    }
+  }
+
+  /* outcomes: the project record's own metrics, else role / built / status */
+  .pf-showcase[data-view="detail"] .pf-m-outcomes {
+    order: 4;
+    display: block;
+    margin-top: 22px;
+    padding: 16px 16px 6px;
+  }
+  .pf-m-h3 {
+    margin: 0 0 4px;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 650;
+  }
+  .pf-m-metrics {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-m-metrics > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 10px;
+    align-items: baseline;
+    padding: 10px 0 12px;
+    border-top: 1px solid var(--line);
+  }
+  .pf-m-metric-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 650;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .pf-m-metric-label {
+    grid-column: 1 / -1;
+    margin-top: 2px;
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--color-navy-2);
+  }
+  .pf-m-metric-kind {
+    grid-row: 1;
+    grid-column: 2;
+    padding: 1px 9px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+  }
+  .pf-m-facts {
+    display: grid;
+    margin: 0;
+  }
+  .pf-m-facts > div {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .pf-m-facts dt {
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+  .pf-m-facts dd {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pf-showcase[data-view="detail"] .pf-feature {
+      animation: pf-m-in 240ms var(--ease-l1) both;
+    }
+  }
+  .pf-products-wrap {
+    padding-block: 12px 72px;
+  }
+}
+@keyframes pf-m-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+/* === end TASK-210 === */
