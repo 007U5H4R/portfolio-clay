@@ -142,3 +142,33 @@ test("entrance: with motion allowed the chapters, thread and artifacts settle vi
   }
   await expect.poll(() => page.locator(".crx-thread path").evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0);
 });
+
+test("TASK-207: What Drives Me words stay inside their card at every width", async ({ page }) => {
+  await page.goto("/about");
+  await revealAll(page);
+  const spill = await page.evaluate(() => {
+    const card = document.querySelector(".rvx-principles")!.getBoundingClientRect();
+    // measure the text itself (a Range), not the span box — the span fits even while its words overflow it
+    return [...document.querySelectorAll(".rvx-plist li > span")].map((span) => {
+      const range = document.createRange();
+      range.selectNodeContents(span);
+      return Math.round(range.getBoundingClientRect().right - card.right);
+    });
+  });
+  expect(spill).toHaveLength(3);
+  for (const px of spill) expect(px).toBeLessThanOrEqual(0);
+});
+
+test("TASK-207: every About section body is opaque, so the sheet underneath never shows through on scroll", async ({ page }) => {
+  await page.goto("/about");
+  for (const theme of ["light", "dark"] as const) {
+    await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+    const clear = await page.evaluate(() =>
+      [".chx-body", ".crx-body", ".rvx-body", ".rcx-body"].filter((sel) => {
+        const bg = getComputedStyle(document.querySelector(sel)!).backgroundColor;
+        return bg === "transparent" || /rgba\([^)]*,\s*0\)$/.test(bg);
+      }),
+    );
+    expect(clear, theme).toEqual([]);
+  }
+});
