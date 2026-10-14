@@ -6,6 +6,8 @@ import { ChevronRight } from "lucide-react";
 import { detailHref, filterProducts, hasVideo, statusOptions, type ListFilter, type PortfolioProduct } from "@/lib/portfolio";
 
 export interface PhoneProjectListProps {
+  /** True while the listing is the screen (the showcase's `view`); false while a detail is open. */
+  visible: boolean;
   products: readonly PortfolioProduct[];
   filter: ListFilter;
   onFilterChange: (next: ListFilter) => void;
@@ -26,28 +28,31 @@ export interface PhoneProjectListProps {
  * "All" clears it) plus a "Has video" toggle. Chips are `aria-pressed` buttons in a labelled group; the result count is
  * a polite live region; a combination with no match shows an empty state with a clear action.
  */
-export function PhoneProjectList({ products, filter, onFilterChange, onOpen, lastOpenedId }: PhoneProjectListProps) {
+export function PhoneProjectList({ visible, products, filter, onFilterChange, onOpen, lastOpenedId }: PhoneProjectListProps) {
   const statuses = statusOptions(products);
   const visible = filterProducts(products, filter);
   const filtered = filter.status !== null || filter.video;
   const listRef = useRef<HTMLUListElement | null>(null);
 
-  // Back from a detail: put the viewer's place (focus + scroll) back on the card they opened.
-  const placed = useRef<string | null>(null);
+  // Back from a detail: put the viewer's place (focus + scroll) back on the card they opened, once per return.
+  const placed = useRef(false);
   useEffect(() => {
-    if (!lastOpenedId || placed.current === lastOpenedId) return;
-    placed.current = lastOpenedId;
+    if (!visible) {
+      placed.current = false;
+      return;
+    }
+    if (placed.current || !lastOpenedId) return;
     const link = listRef.current?.querySelector<HTMLElement>(`[data-product="${lastOpenedId}"]`);
     if (!link || link.offsetParent === null) return; // the list is hidden (desktop) or the card is filtered out
+    placed.current = true;
     link.focus({ preventScroll: true });
     link.scrollIntoView({ block: "center" });
-  }, [lastOpenedId]);
+  }, [visible, lastOpenedId]);
 
   const open = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     // let modified clicks (new tab / window) take the real href
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
     event.preventDefault();
-    placed.current = null;
     onOpen(id);
   };
 

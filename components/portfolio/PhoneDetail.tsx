@@ -115,15 +115,15 @@ const KIND_LABEL: Record<PortfolioMetric["kind"], string> = {
 
 /**
  * "Key outcomes" ONLY from the project record's own metrics (value + label verbatim, each tagged with how it was
- * evidenced); a project with none shows its role / build window / status instead, never a placeholder number.
+ * evidenced); a project with none shows its role and build window instead (its status is the summary's last line), never a placeholder number.
  */
 export function PhoneOutcomes({ product }: { product: PortfolioProduct }) {
   const metrics = product.metrics ?? [];
   const facts: { label: string; value: string }[] = [];
   if (product.role) facts.push({ label: "Role", value: product.role });
   if (product.duration) facts.push({ label: "Built", value: product.duration });
-  if (product.meta) facts.push({ label: "Status", value: product.meta });
   const headingId = `pf-m-outcomes-${product.id}`;
+  if (metrics.length === 0 && facts.length === 0) return null;
   return (
     <section className="pf-m-outcomes m-solid" aria-labelledby={headingId}>
       <h3 id={headingId} className="pf-m-h3">

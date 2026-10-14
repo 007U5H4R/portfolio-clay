@@ -30,8 +30,12 @@ const STAGE_ID = "pf-stage-screen";
 const NAME_ID = "pf-product-name";
 const tabId = (id: string) => `pf-tab-${id}`;
 
-/** On a phone the hero is the video the primary action plays: the demo when there is one, else the pitch. */
-const phoneMode = (product: PortfolioProduct): MediaMode => (product.demoVideo ? "demo" : "pitch");
+/**
+ * On a phone the hero is the video the primary action plays: the demo when there is one, else the pitch. Above the phone
+ * tier the default stays the pitch (the desktop showcase is unchanged).
+ */
+const entryMode = (product: PortfolioProduct): MediaMode =>
+  window.matchMedia("(max-width: 639px)").matches && product.demoVideo ? "demo" : "pitch";
 
 /**
  * Section 1's interactive core (TASK-116, spec §3, §6, §8–§10, §18, §50): media stage (left, ~62 %),
@@ -88,7 +92,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       setActiveProductId(requested);
       setView("detail");
       const requestedProduct = products.find((p) => p.id === requested);
-      if (requestedProduct) setMediaMode(phoneMode(requestedProduct));
+      if (requestedProduct) setMediaMode(entryMode(requestedProduct));
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [products]);
@@ -103,7 +107,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       if (requested) {
         const requestedProduct = products.find((p) => p.id === requested);
         setActiveProductId(requested);
-        if (requestedProduct) setMediaMode(phoneMode(requestedProduct));
+        if (requestedProduct) setMediaMode(entryMode(requestedProduct));
         setStageNonce((n) => n + 1);
         setView("detail");
       } else {
@@ -132,7 +136,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       if (!target) return;
       if (id !== activeProductId) track("project_selected", { project_id: id, selection_method: "direct_selection" });
       setActiveProductId(id);
-      setMediaMode(phoneMode(target));
+      setMediaMode(entryMode(target));
       setStageNonce((n) => n + 1);
       setEnter("product");
       setAutoStart(false);
@@ -203,7 +207,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
     <div className="pf-showcase" data-view={view}>
       {intro}
       {view === "detail" ? <PhoneDetailBar name={product.name} onBack={backToList} /> : null}
-      <PhoneProjectList products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
+      <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
       {/* TASK-197: the carousel precedes the panel it controls, so a phone reads intro → carousel → details → video → actions
           (the picker stays above the video); ≥ 1024 places it by grid row, so the desktop arrangement is unchanged. */}
       <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />

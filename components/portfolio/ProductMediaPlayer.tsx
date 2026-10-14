@@ -130,7 +130,6 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
   useEffect(() => {
     if (!autoStart || startedRef.current) return;
     startedRef.current = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time start from a user's press, after mount (needs window.location)
     play();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `play` only reads `media` + the origin, fixed for this mounted player
   }, [autoStart]);
