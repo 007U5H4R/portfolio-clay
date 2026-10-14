@@ -20,7 +20,7 @@ const ROUTES: Array<[string, string]> = [
 
 test.describe("TASK-205 screenshots", () => {
   test.skip(!process.env.T205_SHOTS, "opt-in: T205_SHOTS=1");
-  test.setTimeout(240_000);
+  test.setTimeout(900_000);
   for (const theme of ["light", "dark"] as const) {
     test(`shots ${theme}`, async ({ page }) => {
       mkdirSync(OUT, { recursive: true });

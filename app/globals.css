@@ -16951,8 +16951,12 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 @media (max-width: 639px) {
-  /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ---- */
-  :root {
+  /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ----
+     The 108 px height is set on the two things that clear the header (the case-study reading bar and the /work deep-link
+     margin), not on :root: a :root custom property is inherited by every element, so overriding it there would change the
+     computed style of every page region (the About hero/footer fingerprint in about-paper.spec reads custom properties). */
+  .reading-progress,
+  .xp-role {
     --header-h: 108px;
   }
   .site-header {
@@ -17282,7 +17286,7 @@ html[data-theme-vt]::view-transition-group(root) {
     grid-row: 2;
     justify-self: start;
     margin: -6px 16px 16px 14px;
-    font-size: 13px;
+    font-size: 14px; /* EVAL-008 content floor */
   }
 }
 /* end TASK-205 */
