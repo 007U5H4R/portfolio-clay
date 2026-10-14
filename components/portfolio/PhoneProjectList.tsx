@@ -30,7 +30,7 @@ export interface PhoneProjectListProps {
  */
 export function PhoneProjectList({ visible, products, filter, onFilterChange, onOpen, lastOpenedId }: PhoneProjectListProps) {
   const statuses = statusOptions(products);
-  const visible = filterProducts(products, filter);
+  const shown = filterProducts(products, filter);
   const filtered = filter.status !== null || filter.video;
   const listRef = useRef<HTMLUListElement | null>(null);
 
@@ -71,11 +71,11 @@ export function PhoneProjectList({ visible, products, filter, onFilterChange, on
         {chip("Has video", filter.video, () => onFilterChange({ ...filter, video: !filter.video }), "video")}
       </div>
       <p className="pf-m-count" role="status" data-testid="pf-m-count">
-        {filtered ? `${visible.length} of ${products.length} projects` : `${products.length} projects`}
+        {filtered ? `${shown.length} of ${products.length} projects` : `${products.length} projects`}
       </p>
-      {visible.length > 0 ? (
+      {shown.length > 0 ? (
         <ul ref={listRef} className="pf-m-cards" aria-label="Projects" key={`${filter.status ?? "all"}:${filter.video ? "v" : ""}`}>
-          {visible.map((product) => (
+          {shown.map((product) => (
             <li key={product.id}>
               <a
                 className="pf-m-card m-float focus-ring"
