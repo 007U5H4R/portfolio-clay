@@ -2042,411 +2042,11 @@ html.lenis body {
 }
 /* end TKT-75 */
 
-/* TASK-133 · home Featured Work — the three-product editorial showcase, rebuilt to Tushar's reference
-   image (docs/redesign-mockups/m-009/tushar-2026-09-29/; Design.md §7.1, §11 Dev-127/128).
-   `section#work-featured` keeps its torn edge; its body is a paler cream than the cards (the reference's
-   calm page under warmer paper). A wide editorial wrap (≈ 93 vw, ≤ 1560 px), then:
-     ≥ 1200  RailCite anchor left (`1.55fr` ≈ 60 %) spanning both rows · Slag City over Campfire Board;
-     700–1199  RailCite full width (collage behind the copy) · the side cards side by side (copy, art);
-     < 700   one column RailCite → Slag City → Campfire Board, copy then art on every card.
-   Each card is a torn paper sheet (its own baked mask: tear-feature-rail / -slag / -camp), warm
-   drop-shadow on the sheet. From 1200 (RailCite from 700) the card's collage fills the whole sheet
-   behind the copy — the SVGs keep a calm upper-left zone for it. CTA: the terracotta torn-paper
-   rectangle; hover lifts it 1 px, deepens its shadow, steps the arrow 3 px. Cards never move.
-   Paper tokens + `color-mix()` only (EVAL-020); the art's colour lives in its static SVGs. */
-@layer components {
-  .featured {
-    position: relative;
-    --fw-bg: color-mix(in oklab, var(--color-paper) 72%, var(--color-ivory));
-    --fw-card: color-mix(in oklab, var(--color-paper-2) 86%, var(--color-kraft));
-    --fw-fibers: url("/media/portfolio/decor/paper-fibers.svg");
-    --fw-tear-strip: url("/media/portfolio/decor/tear-strip-b.svg");
-    --fw-shadow: drop-shadow(0 1px 1.5px color-mix(in oklab, var(--color-navy) 12%, transparent))
-      drop-shadow(0 8px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
-    --fw-gutter: clamp(16px, 3.2vw, 56px);
-  }
-  .featured-body {
-    background: var(--fw-bg);
-  }
-  .fw-wrap {
-    width: min(100% - 2 * var(--fw-gutter), 1560px);
-    margin-inline: auto;
-    /* bottom: the site's section scale — the next sheet slides up to 200 px (phones 120 px) over this
-       section's foot as it scrolls on (TKT-106), so the CTAs stay clear of that zone */
-    padding-block: clamp(22px, 3.4vw, 52px) clamp(100px, 7.4vw, 116px);
-  }
-
-  /* head */
-  .fw-head {
-    display: grid;
-    margin-bottom: clamp(28px, 2.8vw, 44px);
-  }
-  .fw-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    font-size: clamp(12.5px, 1vw, 15px);
-    font-weight: 600;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--color-terracotta);
-  }
-  .fw-eyebrow::after {
-    content: "";
-    width: 72px;
-    height: 1.5px;
-    background: currentColor;
-  }
-  .fw-h2 {
-    margin-top: clamp(14px, 1.4vw, 22px);
-    font-size: clamp(40px, 5vw, 76px);
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    font-variation-settings: "opsz" 144, "SOFT" 0;
-    color: var(--color-navy);
-  }
-  .fw-sub {
-    max-width: 920px;
-    margin-top: clamp(8px, 0.8vw, 12px);
-    font-family: var(--font-display);
-    font-size: clamp(17px, 1.5vw, 23px);
-    font-weight: 400;
-    line-height: 1.35;
-    font-variation-settings: "opsz" 14;
-    color: var(--color-navy-2);
-  }
-
-  /* spread */
-  .fw-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-  }
-  .fw-slot {
-    display: grid;
-    min-width: 0;
-  }
-
-  /* the sheet: the torn paper is `.fw-paper`, the shadow follows its silhouette */
-  .fw-card.paper-sheet {
-    display: grid;
-    padding: 0;
-    background: none;
-    border-radius: 0;
-    box-shadow: none;
-    /* the resting shadow is two static sibling shapes (`.fw-rest`, TASK-186 block): a filter here would re-render on every frame the art moves */
-  }
-  .fw-card > .paper-fastener {
-    z-index: 3;
-  }
-  .fw-paper {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-    min-width: 0;
-    overflow: hidden;
-    background-color: var(--fw-card);
-    background-image: var(--fw-fibers);
-    background-size: 420px 420px;
-    -webkit-mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
-    mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
-  }
-  .fw-paper[data-featured="railcite"] {
-    -webkit-mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
-    mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
-  }
-  .fw-paper[data-featured="campfire-board"] {
-    -webkit-mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
-    mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
-  }
-
-  /* copy */
-  .fw-copy {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    align-content: start;
-    justify-items: start;
-    min-width: 0;
-    padding: 28px 22px 22px;
-  }
-  .fw-name {
-    font-size: clamp(34px, 3.2vw, 50px);
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    font-variation-settings: "opsz" 144, "SOFT" 0;
-    color: var(--color-navy);
-    text-wrap: balance;
-  }
-  .fw-card-anchor .fw-name {
-    font-size: clamp(46px, 5vw, 78px);
-  }
-  .fw-tagline {
-    max-width: 22ch;
-    margin-top: clamp(8px, 0.8vw, 12px);
-    font-family: var(--font-display);
-    font-size: clamp(17px, 1.3vw, 20px);
-    line-height: 1.3;
-    font-variation-settings: "opsz" 14;
-    color: var(--color-navy-2);
-  }
-  .fw-card-anchor .fw-tagline {
-    max-width: none;
-    margin-top: clamp(8px, 0.9vw, 14px);
-    font-size: clamp(24px, 2.2vw, 34px);
-    font-variation-settings: "opsz" 48;
-    color: var(--color-terracotta);
-  }
-  .fw-line {
-    max-width: 34ch;
-    margin-top: 12px;
-    font-size: clamp(16px, 1.2vw, 18px);
-    line-height: 1.45;
-    color: var(--color-navy-2);
-  }
-  .fw-proof {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px 0;
-    margin-top: clamp(18px, 1.8vw, 26px);
-    list-style: none;
-  }
-  .fw-proof-item {
-    display: grid;
-    grid-template-columns: auto minmax(0, auto);
-    gap: 9px;
-    align-items: start;
-    padding-right: 16px;
-  }
-  .fw-proof-item + .fw-proof-item {
-    padding-left: 16px;
-    border-left: 1px solid var(--line-strong);
-  }
-  .fw-proof-item:last-child {
-    padding-right: 0;
-  }
-  .fw-proof-icon {
-    width: 24px;
-    height: 30px;
-    margin-top: 2px;
-    color: var(--color-terracotta);
-  }
-  .fw-proof-body {
-    display: grid;
-  }
-  .fw-proof-value {
-    font-family: var(--font-display);
-    font-size: clamp(32px, 2.6vw, 42px);
-    font-weight: 500;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-terracotta);
-  }
-  .fw-proof-item[data-metric="structural"] .fw-proof-value {
-    color: var(--color-forest);
-  }
-  .fw-proof-label {
-    margin-top: 4px;
-    font-size: 14.5px;
-    line-height: 1.25;
-    text-transform: lowercase;
-    color: var(--color-navy-2);
-  }
-  .fw-proof-kind {
-    margin-top: 2px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.3;
-    color: var(--color-ink-soft);
-  }
-
-  /* the terracotta torn-paper Explore button */
-  .fw-cta {
-    position: relative;
-    isolation: isolate;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 48px;
-    margin-top: clamp(16px, 1.6vw, 22px);
-    padding: 11px 22px 12px;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--color-ivory);
-    text-decoration: none;
-    /* the torn silhouette needs this filter, so it is static: hover never changes it (EXE-61) */
-    filter: drop-shadow(0 2px 3px color-mix(in oklab, var(--color-terracotta) 30%, transparent));
-  }
-  .fw-card-anchor .fw-cta {
-    min-height: 54px;
-    margin-top: clamp(22px, 2.2vw, 32px);
-    padding-inline: 26px;
-    font-size: 17px;
-  }
-  .fw-cta::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: var(--color-rust);
-    -webkit-mask: var(--fw-tear-strip) 0 0 / 100% 100% no-repeat;
-    mask: var(--fw-tear-strip) 0 0 / 100% 100% no-repeat;
-  }
-  .fw-cta-arrow {
-    flex: none;
-  }
-
-  /* art — stacked (phones, and the side cards below 1200): a crop of the collage's right side */
-  .fw-art {
-    position: relative;
-    min-width: 0;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-  }
-  .fw-stage {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: 118%;
-    aspect-ratio: var(--w) / var(--h);
-  }
-  .fw-card-anchor .fw-art {
-    aspect-ratio: 6 / 5;
-  }
-  .fw-card-anchor .fw-stage {
-    height: 128%;
-  }
-  /* phones: the two proof points stack (no room side by side), without the separator */
-  @media (max-width: 699px) {
-    .fw-proof {
-      flex-direction: column;
-    }
-    .fw-proof-item + .fw-proof-item {
-      padding-left: 0;
-      border-left: 0;
-    }
-  }
-
-  /* 700–1199: RailCite full width with its collage behind the copy; the side cards side by side */
-  @media (min-width: 700px) {
-    .fw-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
-    .fw-slot-anchor {
-      grid-column: 1 / -1;
-    }
-    .fw-card-anchor .fw-paper {
-      min-height: clamp(500px, 64vw, 620px);
-    }
-    .fw-proof-item {
-      padding-right: 12px;
-    }
-    .fw-proof-item + .fw-proof-item {
-      padding-left: 12px;
-    }
-    .fw-card-anchor .fw-copy {
-      max-width: 54%;
-      padding: clamp(36px, 3.6vw, 58px) 0 36px clamp(32px, 3vw, 56px);
-    }
-    .fw-card-anchor .fw-art {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      aspect-ratio: auto;
-    }
-    /* width-fit, bottom-anchored: the collage is transparent above, so a card taller than the art
-       simply shows more paper at the top — the calm copy zone is never cropped away */
-    .fw-card-anchor .fw-stage {
-      inset: auto 0 0;
-      width: 100%;
-      height: auto;
-    }
-    .fw-card-side .fw-copy {
-      padding: 30px 26px 20px;
-    }
-  }
-
-  /* ≥ 1200: the asymmetric spread; every collage fills its sheet behind the copy */
-  @media (min-width: 1200px) {
-    .fw-grid {
-      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-      grid-template-rows: auto auto;
-      gap: 26px;
-    }
-    .fw-slot-anchor {
-      grid-column: 1;
-      grid-row: 1 / span 2;
-    }
-    .fw-card-anchor .fw-paper {
-      min-height: 0;
-      height: 100%;
-    }
-    .fw-card-anchor .fw-copy {
-      max-width: 50%;
-    }
-    .fw-proof-item {
-      padding-right: 16px;
-    }
-    .fw-proof-item + .fw-proof-item {
-      padding-left: 16px;
-    }
-    .fw-card-side .fw-paper {
-      min-height: clamp(262px, 20.5vw, 320px);
-    }
-    .fw-card-side .fw-copy {
-      max-width: 46%;
-      padding: clamp(28px, 2.6vw, 42px) 0 24px clamp(26px, 2.2vw, 36px);
-    }
-    .fw-card-side .fw-paper[data-featured="campfire-board"] .fw-copy {
-      max-width: 42%;
-    }
-    .fw-card-side .fw-art {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      aspect-ratio: auto;
-    }
-    .fw-card-side .fw-stage {
-      inset: auto 0 0;
-      width: 100%;
-      height: auto;
-    }
-  }
-
-}
 
 /* Unlayered (to win over the TornEdge fill utility and `.reveal`): the torn edge takes the section's
    paler cream; the entrance is the shared one-shot `Reveal`, retuned — head and RailCite settle up
    10 / 12 px, the right cards only fade, 80 / 140 ms after RailCite. Reduced motion: `.reveal` shows
    everything at once (the global rule). */
-#work-featured > .fw-torn {
-  fill: var(--fw-bg);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .fw-head.reveal:not([data-revealed]):not(:focus-within) {
-    transform: translateY(10px);
-  }
-  .fw-slot-anchor.reveal:not([data-revealed]):not(:focus-within) {
-    transform: translateY(12px);
-  }
-  .fw-slot-side.reveal:not([data-revealed]):not(:focus-within) {
-    transform: none;
-  }
-  .fw-slot.reveal {
-    transition-delay: 0ms;
-  }
-  .fw-slot-side.reveal:nth-child(2) {
-    transition-delay: 80ms;
-  }
-  .fw-slot-side.reveal:nth-child(3) {
-    transition-delay: 140ms;
-  }
-}
 /* end TASK-133 */
 
 /* TKT-81 · case-study template part 1 — header, metric strip, overview (folder tabs + notebook), thin
@@ -5264,59 +4864,10 @@ html.lenis body {
    a compact two-line DraftTag, terracotta italic numerals and a paper CTA button with an arrow.
    Paper tokens / `color-mix` only (EVAL-020); no new motion. */
 @layer components {
-  .hit {
-    position: relative;
-    z-index: 3;
-    margin-top: -44px;
-    overflow-x: clip; /* the collage bleeds past the container; never a horizontal scroll */
-    background: linear-gradient(180deg, transparent 44px, var(--color-paper) 44px);
-  }
-  .hit-wrap {
-    padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
-  }
-  .hit-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 32px;
-    align-items: end;
-    margin-bottom: clamp(36px, 5vw, 64px);
-  }
-  .hit-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .hit-h2 {
-    margin-top: 10px;
-    font-size: clamp(40px, 4.6vw, 64px);
-    color: var(--color-navy);
-  }
-  .hit-lead {
-    justify-self: end;
-    max-width: 48ch;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--color-navy-2);
-  }
-
-  .hit-journey {
-    position: relative;
-    padding-top: 34px;
-  }
-  /* The journey path: a 150 px strip across the card tops (round 2 — pin-to-pin arcs), above the
+            
+    /* The journey path: a 150 px strip across the card tops (round 2 — pin-to-pin arcs), above the
      collage (z 0) and below the cards (z 2), non-scaling 2.75 px navy dashes. */
-  .hit-path {
-    position: absolute;
-    top: -30px;
-    left: 0;
-    z-index: 1;
-    width: 100%;
-    height: 150px;
-    pointer-events: none;
-  }
-  .sketch[data-sketch="journey"] {
+    .sketch[data-sketch="journey"] {
     stroke: var(--color-navy);
     stroke-width: 2.75;
     stroke-linecap: round;
@@ -5326,306 +4877,26 @@ html.lenis body {
   .sketch[data-sketch="journey"] path {
     vector-effect: non-scaling-stroke;
   }
-  .hit-stages {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 28px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .hit-stage {
-    display: grid;
-  }
-  .hit-stage:nth-child(odd) {
-    margin-top: 28px;
-  }
-
-  @media (min-width: 1280px) {
-    .hit-journey {
-      margin-inline: -84px; /* round 2: wider cards, toward the reference's proportions */
-    }
-    .hit-stages {
-      gap: 22px;
-    }
-  }
-
+      
+  
   /* ---- the deckled card: transparent Sheet over two torn layers (rim + cream face) ---- */
-  .hit-reveal {
-    display: grid;
-    align-self: start; /* each torn card is as tall as its content, like the reference */
-  }
-  .hit-card.paper-sheet {
-    isolation: isolate;
-    display: grid;
-    gap: 10px;
-    align-content: start;
-    padding: 26px 18px 30px;
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-  }
-  .hit-paper {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    /* No CSS filter here: a drop-shadow over clip-pathed layers stalled the 1920 page load in
-       headless Chromium (5 s+, EVAL-019 timeout). The shade is the rim outline itself, offset. */
-  }
-  .hit-paper-shade,
-  .hit-paper-ink,
-  .hit-paper-rim,
-  .hit-paper-face {
-    position: absolute;
-    inset: 0;
-  }
-  /* Ink outline (Tushar round 2: "black border outline so that it can be differentiated from the
+          /* Ink outline (Tushar round 2: "black border outline so that it can be differentiated from the
      background"): the rim's deckle on a box 1.5 px larger, in navy, behind the rim — it follows the
      torn edge (slightly irregular, like a hand-inked cut line). */
-  .hit-paper-ink {
-    inset: -1.5px;
-    background: color-mix(in oklab, var(--color-navy) 88%, transparent);
-  }
-  .hit-paper-shade {
-    translate: 2px 5px;
-    background: color-mix(in oklab, var(--color-navy) 11%, transparent);
-  }
-  .hit-paper-rim {
-    background: var(--color-ivory);
-  }
-  .hit-paper-face {
-    background:
-      radial-gradient(circle at 20% 30%, color-mix(in oklab, var(--color-kraft) 12%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
-      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--color-navy) 3%, transparent) 0 1px, transparent 1.5px) 0 0 / 13px 7px,
-      linear-gradient(170deg, color-mix(in oklab, var(--color-ivory) 85%, var(--color-kraft)), color-mix(in oklab, var(--color-ivory) 74%, var(--color-kraft)));
-  }
-  .hit-card .paper-pin {
-    top: -11px;
-    width: 22px;
-    height: 22px;
-  }
-
-  .hit-num {
-    font-size: 20px;
-    line-height: 1;
-    font-style: italic;
-    color: var(--color-terracotta);
-  }
-  .hit-h3 {
-    font-size: clamp(24px, 2.25vw, 34px);
-    line-height: 1.05;
-    font-variation-settings: "opsz" 72, "SOFT" 20;
-    color: var(--color-navy);
-  }
-  .hit-draft.draft-tag {
-    justify-self: start;
-    padding: 3px 8px;
-    line-height: 1.35;
-    border-color: color-mix(in oklab, var(--color-terracotta) 72%, transparent);
-    border-radius: 3px;
-    background: color-mix(in oklab, var(--color-ivory) 70%, transparent);
-  }
-  .hit-draft-line {
-    display: block;
-    white-space: nowrap;
-  }
-  .hit-principle {
-    font-size: 15px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
-
+          
+          
   /* ---- the quote slip: a tinted torn note, washi tape on top, the cite plain below ---- */
-  .hit-quote {
-    margin-top: 12px;
-  }
-  .hit-stage {
-    --slip: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory));
-    --slip-tape: color-mix(in oklab, var(--color-kraft) 75%, transparent);
-    --slip-rot: -1.5deg;
-  }
-  .hit-stage:nth-child(2) {
-    --slip: color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
-    --slip-tape: color-mix(in oklab, var(--color-green-2) 45%, transparent);
-    --slip-rot: 1.2deg;
-  }
-  .hit-stage:nth-child(3) {
-    --slip-rot: -0.8deg;
-  }
-  .hit-stage:nth-child(4) {
-    --slip: color-mix(in oklab, var(--color-steel) 22%, var(--color-ivory));
-    --slip-tape: color-mix(in oklab, var(--color-steel) 55%, transparent);
-    --slip-rot: 1.6deg;
-  }
-  .hit-stage:nth-child(5) {
-    --slip: color-mix(in oklab, var(--color-rust) 15%, var(--color-ivory));
-    --slip-tape: color-mix(in oklab, var(--color-rust) 55%, transparent);
-    --slip-rot: -1.8deg;
-  }
-  .hit-stage:nth-child(6) {
-    --slip: color-mix(in oklab, var(--color-green-2) 22%, var(--color-ivory));
-    --slip-tape: color-mix(in oklab, var(--color-rust) 50%, transparent);
-    --slip-rot: 1deg;
-  }
-  .hit-slip {
-    position: relative;
-    isolation: isolate;
-    margin: 0 -4px;
-    padding: 20px 14px 14px;
-    rotate: var(--slip-rot);
-    font-size: 18px;
-    line-height: 1.22;
-    font-weight: 400;
-    color: var(--color-navy);
-  }
-  .hit-slip::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--color-navy) 4%, transparent) 0 1px, transparent 1.5px) 0 0 / 8px 10px,
-      var(--slip);
-    clip-path: var(--slip-edge);
-  }
-  .hit-slip::after {
-    content: "";
-    position: absolute;
-    top: -9px;
-    left: 50%;
-    width: 56px;
-    height: 18px;
-    translate: -50% 0;
-    rotate: -3deg;
-    background: var(--slip-tape);
-    clip-path: polygon(0 12%, 5% 0, 30% 6%, 60% 0, 96% 4%, 100% 22%, 97% 50%, 100% 82%, 95% 100%, 55% 94%, 22% 100%, 3% 96%, 0 74%, 3% 44%);
-  }
-  .hit-quote .hand-cite {
-    margin-top: 12px;
-  }
-
+                      
   /* ---- the CTA: a rounded paper button with an arrow glyph ---- */
-  .hit-pill {
-    justify-self: start;
-    display: inline-grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 10px;
-    min-height: 44px;
-    margin-top: 8px;
-    padding: 10px 12px 10px 14px;
-    border: 1px solid color-mix(in oklab, var(--color-navy) 16%, transparent);
-    border-radius: 16px;
-    background: var(--color-ivory);
-    box-shadow:
-      0 1px 0 color-mix(in oklab, var(--shadow-ink) 6%, transparent),
-      0 8px 14px -10px color-mix(in oklab, var(--color-navy) 30%, transparent);
-    font-family: var(--font-body);
-    font-size: 15px; /* EVAL-008 floor 14 px */
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--color-navy);
-    text-decoration: none;
-  }
-  .hit-pill-arrow {
-    flex: none;
-  }
-
+    
   /* ---- the collage backdrop: ONE decoration object, pieces positioned in its box ---- */
-  .hit-collage {
-    position: absolute;
-    inset: -36px -72px -56px;
-    z-index: 0;
-    pointer-events: none;
-  }
-  /* Collage pieces (round 2): Higgsfield crops, `object-fit: fill` in their boxes (≤ ~1.6× stretch,
+    /* Collage pieces (round 2): Higgsfield crops, `object-fit: fill` in their boxes (≤ ~1.6× stretch,
      the torn fibre reads fine), rotated; most of each scrap sits behind a card and peeks out. */
-  .hit-piece {
-    position: absolute;
-    display: block;
-    max-width: none;
-    object-fit: fill;
-    user-select: none;
-  }
-  .hit-piece[data-k="kraft-tl"] { left: 0.5%; top: 5%; width: 170px; height: 230px; rotate: -4deg; }
-  .hit-piece[data-k="sage-l"] { left: 0; top: 30%; width: 190px; height: 300px; rotate: 3deg; }
-  .hit-piece[data-k="grid-bl"] { left: 0; top: 68%; width: 220px; height: 250px; rotate: -3deg; }
-  .hit-piece[data-k="sage-12"] { left: calc(19.2% - 75px); top: 16%; width: 150px; height: 270px; rotate: 2deg; }
-  .hit-piece[data-k="kraft-23"] { left: calc(34.6% - 70px); top: 60%; width: 140px; height: 230px; rotate: -3deg; }
-  .hit-piece[data-k="rust-34"] { left: calc(50% - 85px); top: 0; width: 170px; height: 210px; rotate: 5deg; }
-  .hit-piece[data-k="rust-b"] { left: calc(50% - 110px); top: 70%; width: 220px; height: 210px; rotate: -6deg; }
-  .hit-piece[data-k="strip-45"] { left: calc(65.4% - 150px); top: 24%; width: 300px; height: 85px; rotate: 90deg; }
-  .hit-piece[data-k="sage-56"] { left: calc(80.8% - 75px); top: 18%; width: 150px; height: 300px; rotate: -2deg; }
-  .hit-piece[data-k="grid-tr"] { left: 89%; top: 0; width: 170px; height: 210px; rotate: 4deg; }
-  .hit-piece[data-k="sage-r"] { left: 94.5%; top: 30%; width: 130px; height: 220px; rotate: -3deg; }
-  .hit-piece[data-k="kraft-br"] { left: 93.5%; top: 55%; width: 150px; height: 260px; rotate: 3deg; }
-  .hit-piece[data-k="sprig-tl"] { left: 2%; top: -40px; width: 72px; height: 219px; rotate: -18deg; }
-  .hit-piece[data-k="sprig-b34"] { left: calc(50% - 10px); top: 60%; width: 66px; height: 175px; rotate: 16deg; }
-  .hit-piece[data-k="sprig-b5"] { left: calc(80.8% - 20px); top: 66%; width: 66px; height: 177px; rotate: -12deg; }
-  .hit-piece[data-k="sprig-r6"] { left: 96%; top: 24%; width: 58px; height: 204px; rotate: 8deg; }
-  .hit-piece[data-k="stamp"] { left: 90%; top: 1%; width: 96px; height: 119px; rotate: 5deg; }
-  .hit-piece[data-k="postmark"] { left: 91%; top: 78%; width: 140px; height: 90px; rotate: -8deg; }
-
-  @media (max-width: 1024px) {
-    .hit-stages {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      row-gap: 40px;
-    }
-    .hit-stage:nth-child(odd) {
-      margin-top: 0;
-    }
-    /* fewer scraps; the rest get fixed heights so a tall stacked column never stretches them */
-    .hit-collage [data-wide] {
-      display: none;
-    }
-    .hit-collage {
-      inset: -24px -40px -40px;
-    }
-    .hit-piece[data-k="sage-l"] { top: 4%; }
-    .hit-piece[data-k="grid-bl"] { top: auto; bottom: 0; }
-    .hit-piece[data-k="kraft-br"] { left: auto; right: 0; top: 48%; }
-    .hit-piece[data-k="grid-tr"] { left: auto; right: 0; }
-    .hit-piece[data-k="sprig-tl"] { top: 4px; }
-    .hit-piece[data-k="sprig-r6"] { left: auto; right: 4px; top: 30%; }
-    .hit-piece[data-k="stamp"] { left: auto; right: 6px; top: 0; }
-    .hit-piece[data-k="postmark"] { left: auto; right: 0; top: auto; bottom: 0; }
-  }
-  @media (max-width: 900px) {
-    .hit-head {
-      grid-template-columns: 1fr;
-    }
-    .hit-lead {
-      justify-self: start;
-    }
-  }
-  @media (max-width: 640px) {
-    .hit-stages {
-      grid-template-columns: 1fr 1fr;
-      column-gap: 16px;
-    }
-    .hit-h3 {
-      font-size: 24px;
-    }
-  }
-  @media (max-width: 440px) {
-    .hit-stages {
-      grid-template-columns: 1fr;
-    }
-  }
-}
+                                      
+        }
 /* Utility-layer overrides: the DraftTag's `tracking-[.12em]` and the numeral's `font-hand` are
    Tailwind utilities, which outrank @layer components — the compact tag and the serif italic
    numeral have to win at the same layer. */
-@layer utilities {
-  .hit-draft.draft-tag {
-    letter-spacing: 0.06em;
-  }
-  .hit-num.font-hand {
-    font-family: var(--font-display);
-  }
-}
 /* end TKT-99 */
 
 /* TKT-109 · compact band footer (Tushar 2026-09-26: "compress and compact it and make the height shorter";
@@ -8698,15 +7969,7 @@ html.lenis body {
    composition. Nothing uses visibility / display (A11Y-1). */
 @layer components {
   /* the journey line sits ABOVE the cards (spec §2: scraps z1 · cards z2 · path z4) */
-  .hit-journey .jr-path {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  .jr-mask {
+    .jr-mask {
     mask-type: alpha;
   }
   .sketch[data-sketch="journey"] .jr-seg-mask {
@@ -13398,48 +12661,13 @@ html[data-theme-vt]::view-transition-group(root) {
 /* ---- the paper-button contract (Design.md §14.6, EVAL-037): rest PAPER-1 · hover/focus PAPER-2 + 1 px lift · press 1 px
    down + PAPER-0 · release springs back (160 ms, capped overshoot). The lift is the individual `translate` property
    (compositor); shadows swap and are never transitioned. Families: the original six + the M-012 members. ---- */
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn) {
-  box-shadow: var(--depth-1);
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play) {
-  transition:
-    translate 160ms var(--ease-press),
-    background-color 160ms ease,
-    border-color 160ms ease;
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):focus-visible {
-  translate: 0 -1px;
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):focus-visible {
-  box-shadow: var(--depth-2);
-}
-@media (hover: hover) and (pointer: fine) {
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):hover {
-    translate: 0 -1px;
-  }
-  :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):hover {
-    box-shadow: var(--depth-2);
-  }
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):active {
-  translate: 0 1px;
-}
-:is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn):active {
-  box-shadow: var(--depth-0);
-}
 
 /* members that keep their own paper: the hover shadow SWAPS (never transitions) */
-.hit-pill:focus-visible {
-  box-shadow: var(--shadow-paper-hover);
-}
 .acx-btn:focus-visible {
   box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
-  .hit-pill:hover {
-    box-shadow: var(--shadow-paper-hover);
-  }
-  .acx-btn:hover {
+    .acx-btn:hover {
     box-shadow: 0 6px 12px -4px color-mix(in oklab, var(--color-navy) 70%, transparent);
   }
 }
@@ -13463,9 +12691,6 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .band-email:focus-visible {
   text-decoration-color: var(--band-accent);
-}
-.fw-cta:focus-visible::before {
-  background-color: var(--color-terracotta);
 }
 /* ask-btn / think-btn colour hovers (EXE-62): fine-pointer hover, focus twin, and a touch :active so a tap never leaves it stuck */
 .ask-btn-secondary:focus-visible,
@@ -13503,10 +12728,7 @@ html[data-theme-vt]::view-transition-group(root) {
   .band-email:hover {
     text-decoration-color: var(--band-accent);
   }
-  .fw-cta:hover::before {
-    background-color: var(--color-terracotta);
   }
-}
 .header-ask {
   transition:
     border-color 160ms ease,
@@ -13518,8 +12740,6 @@ html[data-theme-vt]::view-transition-group(root) {
 .btn-arrow,
 .cx-btn-arrow,
 .header-pill-arrow,
-.hit-pill-arrow,
-.fw-cta-arrow,
 .pf-action-arrow,
 .acx-arrow {
   translate: var(--arrow-x, 0px) 0;
@@ -13529,14 +12749,6 @@ html[data-theme-vt]::view-transition-group(root) {
 .header-pill-arrow,
 .acx-arrow {
   display: inline-block;
-}
-:is(.hero-btn, .cx-btn, .header-pill, .hit-pill, .fw-cta, .pf-action, .acx-btn):focus-visible {
-  --arrow-x: 3px;
-}
-@media (hover: hover) and (pointer: fine) {
-  :is(.hero-btn, .cx-btn, .header-pill, .hit-pill, .fw-cta, .pf-action, .acx-btn):hover {
-    --arrow-x: 3px;
-  }
 }
 /* the Contact secondary glyphs keep their own small nudges (Design.md §14.10: L1 icons) */
 .cx-btn-secondary:focus-visible .cx-btn-down {
@@ -13648,35 +12860,6 @@ html[data-theme-vt]::view-transition-group(root) {
   opacity: 0.3;
 }
 
-/* ---- .fw-cta (the torn Explore strip): same crossfade as .pf-action, so the hover shadow stays as visible as the old filter growth
-   (0 2px 3px 30% → 0 5px 7px 42% terracotta) without changing a filter (EXE-61) ---- */
-.fw-cta::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background-color: color-mix(in oklab, var(--color-terracotta) 45%, transparent);
-  -webkit-mask: var(--fw-tear-strip) 0 0 / 100% 100% no-repeat;
-  mask: var(--fw-tear-strip) 0 0 / 100% 100% no-repeat;
-  filter: blur(4px);
-  translate: 0 5px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--dur-l1-out) var(--ease-l1);
-}
-.fw-cta:focus-visible::after {
-  opacity: 1;
-  transition-duration: var(--dur-l1);
-}
-@media (hover: hover) and (pointer: fine) {
-  .fw-cta:hover::after {
-    opacity: 1;
-    transition-duration: var(--dur-l1);
-  }
-}
-.fw-cta:active::after {
-  opacity: 0.4;
-}
 
 /* ---- primitives for objects (P2 consumes them): the CSS custom-property contract that `paperMotion`'s object channel
    feeds (--hx / --hy ∈ [-1, 1] on the one active object; Design.md §14.10) and the L2 shadow crossfade ---- */
@@ -13753,14 +12936,7 @@ html[data-theme-vt]::view-transition-group(root) {
 /* ---- reduced motion: no translate / rotate / tilt; the shadow swap, the colours and the pseudo-element shadow stay.
    `:root` lifts each reset one class above the hover/focus rule it cancels (EVAL-010 reads those rules from the CSSOM). ---- */
 @media (prefers-reduced-motion: reduce) {
-  :root :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play) {
-    transition: none;
-  }
-  :root :is(.hero-btn, .ask-btn, .cx-btn, .fw-cta, .think-btn, .hit-pill, .acx-btn, .header-pill, .pf-action, .pf-play):is(:hover, :focus-visible, :active) {
-    translate: none;
-    --arrow-x: 0px;
-  }
-  :root .header-ask:active,
+      :root .header-ask:active,
   :root .pf-arrow[data-dir]:is(:hover, :focus-visible, :active),
   :root .pf-arrow[data-dir]:active {
     translate: none;
@@ -13778,18 +12954,15 @@ html[data-theme-vt]::view-transition-group(root) {
     translate: none;
   }
   :root .header-ask,
-  :root .pf-arrow,
-  :root .btn-arrow,
-  :root .cx-btn-arrow,
-  :root .header-pill-arrow,
-  :root .hit-pill-arrow,
-  :root .fw-cta-arrow,
-  :root .pf-action-arrow,
-  :root .acx-arrow,
-  :root .paper-lift,
-  :root .paper-lift::after,
-  :root .pf-action::after,
-  :root .fw-cta::after {
+:root .pf-arrow,
+:root .btn-arrow,
+:root .cx-btn-arrow,
+:root .header-pill-arrow,
+:root .pf-action-arrow,
+:root .acx-arrow,
+:root .paper-lift,
+:root .paper-lift::after,
+:root .pf-action::after {
     transition: none;
   }
 }
@@ -15450,323 +14623,19 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 /* the lifted object and its shadow */
-.fw-lift {
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  min-width: 0;
-  transition: translate var(--dur-l2-out) var(--ease-paper);
-}
-.fw-shade {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  translate: 5px 11px;
-  filter: blur(14px);
-  transition: opacity var(--dur-l2-out) var(--ease-paper);
-}
-.fw-rest {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-.fw-rest-a {
-  opacity: 0.14;
-  translate: 0 8px;
-  filter: blur(8px);
-}
-.fw-rest-b {
-  opacity: 0.12;
-  translate: 0 1px;
-  filter: blur(0.75px);
-}
-.fw-rest-a .fw-shade-shape {
-  background: var(--color-terracotta);
-}
-.fw-rest-b .fw-shade-shape {
-  background: var(--color-navy);
-}
-.fw-shade-shape {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in oklab, var(--color-navy) 40%, transparent);
-  -webkit-mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
-  mask: url("/media/portfolio/decor/tear-feature-slag.svg") 0 0 / 100% 100% no-repeat;
-}
-.fw-shade-shape[data-featured="railcite"] {
-  -webkit-mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
-  mask-image: url("/media/portfolio/decor/tear-feature-rail.svg");
-}
-.fw-shade-shape[data-featured="campfire-board"] {
-  -webkit-mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
-  mask-image: url("/media/portfolio/decor/tear-feature-camp.svg");
-}
 
 /* the art: depth layers on the stage; each SVG carries its own bleed so a moving layer never shows a seam */
-.fw-layer {
-  position: absolute;
-  inset: 0;
-}
-.fw-layer img {
-  position: absolute;
-  max-width: none;
-  height: auto;
-  left: calc(var(--bx) / var(--w) * -100%);
-  bottom: calc(var(--bb) / var(--h) * -100%);
-  width: calc((var(--w) + 2 * var(--bx)) / var(--w) * 100%);
-}
 /* rest poses of the signature parts; the awake poses are generated below */
-.fw-layer img[data-sig] {
-  transition:
-    translate var(--dur-l3) var(--ease-paper),
-    opacity var(--dur-l2-out) var(--ease-paper),
-    transform var(--dur-l2-out) var(--ease-paper);
-}
 
 /* tags, evidence slips and the information slip */
-.fw-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: clamp(14px, 1.4vw, 20px);
-  list-style: none;
-}
-.fw-tag {
-  padding: 4px 12px 5px;
-  font-size: 13px;
-  line-height: 1.2;
-  color: var(--color-navy-2);
-  background: color-mix(in oklab, var(--color-paper) 70%, transparent);
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-}
-.fw-proof {
-  gap: 8px;
-}
-.fw-proof-item {
-  padding: 8px 10px 8px 9px;
-  background: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory));
-  border-radius: 3px;
-  box-shadow: var(--depth-1);
-  rotate: -0.5deg;
-  opacity: 0;
-  translate: 0 12px;
-  transition:
-    opacity var(--dur-l2-out) var(--ease-paper),
-    translate var(--dur-l2-out) var(--ease-paper);
-}
-.fw-proof-item + .fw-proof-item {
-  padding-left: 9px;
-  border-left: 0;
-  rotate: 0.5deg;
-}
-.fw-proof-item:last-child {
-  padding-right: 10px;
-}
-.fw-slip {
-  position: absolute;
-  right: clamp(14px, 1.6vw, 24px);
-  bottom: clamp(52px, 4.4vw, 64px);
-  z-index: 2;
-  padding: 7px 13px 8px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.2;
-  color: var(--color-navy);
-  background: color-mix(in oklab, var(--color-paper) 92%, var(--color-ivory));
-  border-radius: 3px;
-  box-shadow: var(--depth-1);
-  rotate: 1deg;
-  opacity: 0;
-  translate: 0 10px;
-  transition:
-    opacity var(--dur-l2-out) var(--ease-paper),
-    translate var(--dur-l2-out) var(--ease-paper);
-}
 /* the slips sit side by side, below the copy (touch, reduced motion, narrow); on a fine pointer they are laid OVER the card's lower
    left (paper on the landscape), so they take no layout space at rest and the card has no hole */
-.fw-proof {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 24px clamp(22px, 3vw, 56px);
-}
-@media (min-width: 700px) {
-  .fw-card-anchor .fw-proof {
-    flex-wrap: nowrap;
-    width: max-content;
-  }
-}
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (min-width: 700px) {
-  .fw-card-anchor .fw-proof {
-    position: absolute;
-    bottom: clamp(16px, 2vw, 28px);
-    left: clamp(32px, 3vw, 56px);
-    margin: 0;
-    pointer-events: none;
-  }
-}
 /* touch and no-hover: nothing hides behind a hover — the slips are simply there */
-@media (hover: none), (pointer: coarse) {
-  .fw-proof-item,
-  .fw-slip {
-    opacity: 1;
-    translate: none;
-  }
-  .fw-lift:active {
-    translate: 0 1px;
-    transition-duration: var(--dur-press);
-  }
-}
 
 /* the awake pose: hover (fine pointer) and its keyboard twin */
-@media (hover: hover) and (pointer: fine) {
-  .fw-lift:hover {
-    translate: 0 -4px;
-    transition-duration: var(--dur-l2);
-  }
-  .fw-lift:hover .fw-shade {
-    opacity: 1;
-    transition-duration: var(--dur-l2);
-  }
-  .fw-lift:hover [data-sig~="train"] {
-    translate: 6px 0.5px;
-  }
-  .fw-lift:hover [data-sig~="works"] {
-    translate: 0 -3px;
-  }
-  .fw-lift:hover [data-sig~="slag"] {
-    translate: -4px 0;
-  }
-  .fw-lift:hover [data-sig~="board"] {
-    translate: -2px -3px;
-  }
-  .fw-lift:hover [data-sig~="camp"] {
-    translate: 4px 0;
-  }
-  .fw-lift:hover .fw-proof-item {
-    opacity: 1;
-    translate: 0 0;
-    transition-delay: calc(var(--slip, 0) * 80ms);
-    transition-duration: var(--dur-l2);
-  }
-  .fw-lift:hover .fw-slip {
-    opacity: 1;
-    translate: 0 0;
-    transition-duration: var(--dur-l2);
-  }
-  .fw-lift:hover:active {
-    translate: 0 -2px;
-    transition-duration: var(--dur-press);
-  }
-}
-.fw-lift:has(:focus-visible) {
-  translate: 0 -4px;
-  transition-duration: var(--dur-l2);
-}
-.fw-lift:has(:focus-visible) .fw-shade {
-  opacity: 1;
-  transition-duration: var(--dur-l2);
-}
-.fw-lift:has(:focus-visible) [data-sig~="train"] {
-  translate: 6px 0.5px;
-}
-.fw-lift:has(:focus-visible) [data-sig~="works"] {
-  translate: 0 -3px;
-}
-.fw-lift:has(:focus-visible) [data-sig~="slag"] {
-  translate: -4px 0;
-}
-.fw-lift:has(:focus-visible) [data-sig~="board"] {
-  translate: -2px -3px;
-}
-.fw-lift:has(:focus-visible) [data-sig~="camp"] {
-  translate: 4px 0;
-}
-.fw-lift:has(:focus-visible) .fw-proof-item {
-  opacity: 1;
-  translate: 0 0;
-  transition-delay: calc(var(--slip, 0) * 80ms);
-  transition-duration: var(--dur-l2);
-}
-.fw-lift:has(:focus-visible) .fw-slip {
-  opacity: 1;
-  translate: 0 0;
-  transition-duration: var(--dur-l2);
-}
 
-/* the bridge into How I think: it lives in the section's own bottom padding (no added height), the stitched path runs down to the tear */
-.fw-wrap {
-  position: relative;
-}
-.fw-bridge {
-  position: absolute;
-  bottom: clamp(6px, 1vw, 14px);
-  left: clamp(0px, 2vw, 32px);
-  display: flex;
-  align-items: flex-end;
-  gap: clamp(8px, 1.4vw, 20px);
-  pointer-events: none;
-}
-.fw-bridge-q {
-  max-width: 34ch;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(16px, 1.5vw, 22px);
-  line-height: 1.25;
-  color: var(--color-navy-2);
-}
-.fw-bridge-q span {
-  display: inline;
-}
-.fw-bridge-q q {
-  display: block;
-  color: var(--color-terracotta);
-  quotes: "\201C" "\201D";
-}
-.fw-bridge-path {
-  width: clamp(90px, 11vw, 160px);
-  height: auto;
-  aspect-ratio: 400 / 220;
-  overflow: visible;
-}
-.fw-bridge-path path {
-  fill: none;
-  stroke: color-mix(in oklab, var(--color-navy-2) 70%, transparent);
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  stroke-dasharray: 3 9;
-  vector-effect: non-scaling-stroke;
-}
-.fw-bridge-path circle {
-  fill: var(--color-terracotta);
-}
 
 /* reduced motion: nothing moves; the shadow still comes up, the slips show as plain content, the tilt is off */
-@media (prefers-reduced-motion: reduce) {
-  :root .fw-lift,
-  :root .fw-lift:is(:hover, :has(:focus-visible), :active) {
-    translate: none;
-    transition: none;
-  }
-  :root .fw-layer img[data-sig],
-  :root .fw-layer img[data-sig][data-sig] {
-    translate: none;
-    transform: none;
-    transition: none;
-  }
-  :root .fw-proof-item,
-  :root .fw-slip {
-    opacity: 1;
-    translate: none;
-    transition: none;
-  }
-  :root .fw-shade {
-    transition: none;
-  }
-}
 
 /* ---- /projects covers and case files (TASK-181.2 §4.4): L2-lite — the lift is `translate`, the deeper shadow is a
    pre-rendered box-shadow on a child whose opacity crossfades; the cover art shifts 2 px under the keyline ---- */
@@ -15862,173 +14731,14 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- How I think (TASK-186): the active stage lifts, the others recede, the quote slip lifts as a second paper layer; nothing is hover-only ---- */
-.hit-card.paper-sheet {
-  transition:
-    translate var(--dur-l2-out) var(--ease-paper),
-    opacity var(--dur-l2-out) var(--ease-paper);
-}
 /* the deeper shadow: the rim's torn outline again, offset further, crossfaded by opacity (never a box-shadow / filter transition) */
-.hit-paper-deep {
-  position: absolute;
-  inset: 0;
-  translate: 5px 13px;
-  background: color-mix(in oklab, var(--color-navy) 24%, transparent);
-  opacity: 0;
-  transition: opacity var(--dur-l2-out) var(--ease-paper);
-}
-.hit-slip {
-  transition:
-    translate var(--dur-l2-out) var(--ease-paper),
-    rotate var(--dur-l2-out) var(--ease-paper);
-}
-.hit-paper-shade {
-  transition: opacity var(--dur-l2-out) var(--ease-paper);
-}
 .jr-seg {
   transition: opacity var(--dur-l2-out) var(--ease-paper);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .hit-card:hover {
-    translate: 0 -6px;
-    transition-duration: var(--dur-l2);
-  }
-  .hit-card:hover .hit-slip {
-    translate: 0 -3px;
-    rotate: 0deg;
-    transition-duration: var(--dur-l2);
-  }
-  .hit-stage:has(.hit-card:hover) {
-    position: relative;
-    z-index: 5;
-  }
-  .hit-card:hover .hit-paper-deep {
-    opacity: 1;
-    transition-duration: var(--dur-l2);
-  }
-  .hit-stages:has(.hit-card:hover) .hit-card:not(:hover) {
-    opacity: 0.72;
-  }
-  .hit-stages:has(.hit-card:hover) .hit-card:not(:hover) .hit-paper-shade {
-    opacity: 0.45;
-  }
-  .hit-journey:has(.hit-stage:nth-child(1) .hit-card:hover) .jr-seg {
-    opacity: 0.55;
-  }
-  .hit-journey:has(.hit-stage:nth-child(1) .hit-card:hover) .jr-seg:is(:nth-child(1), :nth-child(2)) {
-    opacity: 1;
-  }
-  .hit-journey:has(.hit-stage:nth-child(2) .hit-card:hover) .jr-seg {
-    opacity: 0.55;
-  }
-  .hit-journey:has(.hit-stage:nth-child(2) .hit-card:hover) .jr-seg:is(:nth-child(2), :nth-child(3)) {
-    opacity: 1;
-  }
-  .hit-journey:has(.hit-stage:nth-child(3) .hit-card:hover) .jr-seg {
-    opacity: 0.55;
-  }
-  .hit-journey:has(.hit-stage:nth-child(3) .hit-card:hover) .jr-seg:is(:nth-child(3), :nth-child(4)) {
-    opacity: 1;
-  }
-  .hit-journey:has(.hit-stage:nth-child(4) .hit-card:hover) .jr-seg {
-    opacity: 0.55;
-  }
-  .hit-journey:has(.hit-stage:nth-child(4) .hit-card:hover) .jr-seg:is(:nth-child(4), :nth-child(5)) {
-    opacity: 1;
-  }
-  .hit-journey:has(.hit-stage:nth-child(5) .hit-card:hover) .jr-seg {
-    opacity: 0.55;
-  }
-  .hit-journey:has(.hit-stage:nth-child(5) .hit-card:hover) .jr-seg:is(:nth-child(5), :nth-child(6)) {
-    opacity: 1;
-  }
-  .hit-journey:has(.hit-stage:nth-child(6) .hit-card:hover) .jr-seg {
-    opacity: 0.55;
-  }
-  .hit-journey:has(.hit-stage:nth-child(6) .hit-card:hover) .jr-seg:is(:nth-child(6), :nth-child(7)) {
-    opacity: 1;
-  }
-  .hit-card:hover:active {
-    translate: 0 -3px;
-    transition-duration: var(--dur-press);
-  }
-}
-.hit-card:has(:focus-visible) {
-  translate: 0 -6px;
-  transition-duration: var(--dur-l2);
-}
-.hit-card:has(:focus-visible) .hit-slip {
-  translate: 0 -3px;
-  rotate: 0deg;
-  transition-duration: var(--dur-l2);
-}
-.hit-stage:has(.hit-card :focus-visible) {
-  position: relative;
-  z-index: 5;
-}
-.hit-card:has(:focus-visible) .hit-paper-deep {
-  opacity: 1;
-  transition-duration: var(--dur-l2);
-}
-.hit-stages:has(.hit-card :focus-visible) .hit-card:not(:has(:focus-visible)) {
-  opacity: 0.72;
-}
-.hit-stages:has(.hit-card :focus-visible) .hit-card:not(:has(:focus-visible)) .hit-paper-shade {
-  opacity: 0.45;
-}
-.hit-journey:has(.hit-stage:nth-child(1) .hit-card :focus-visible) .jr-seg {
-  opacity: 0.55;
-}
-.hit-journey:has(.hit-stage:nth-child(1) .hit-card :focus-visible) .jr-seg:is(:nth-child(1), :nth-child(2)) {
-  opacity: 1;
-}
-.hit-journey:has(.hit-stage:nth-child(2) .hit-card :focus-visible) .jr-seg {
-  opacity: 0.55;
-}
-.hit-journey:has(.hit-stage:nth-child(2) .hit-card :focus-visible) .jr-seg:is(:nth-child(2), :nth-child(3)) {
-  opacity: 1;
-}
-.hit-journey:has(.hit-stage:nth-child(3) .hit-card :focus-visible) .jr-seg {
-  opacity: 0.55;
-}
-.hit-journey:has(.hit-stage:nth-child(3) .hit-card :focus-visible) .jr-seg:is(:nth-child(3), :nth-child(4)) {
-  opacity: 1;
-}
-.hit-journey:has(.hit-stage:nth-child(4) .hit-card :focus-visible) .jr-seg {
-  opacity: 0.55;
-}
-.hit-journey:has(.hit-stage:nth-child(4) .hit-card :focus-visible) .jr-seg:is(:nth-child(4), :nth-child(5)) {
-  opacity: 1;
-}
-.hit-journey:has(.hit-stage:nth-child(5) .hit-card :focus-visible) .jr-seg {
-  opacity: 0.55;
-}
-.hit-journey:has(.hit-stage:nth-child(5) .hit-card :focus-visible) .jr-seg:is(:nth-child(5), :nth-child(6)) {
-  opacity: 1;
-}
-.hit-journey:has(.hit-stage:nth-child(6) .hit-card :focus-visible) .jr-seg {
-  opacity: 0.55;
-}
-.hit-journey:has(.hit-stage:nth-child(6) .hit-card :focus-visible) .jr-seg:is(:nth-child(6), :nth-child(7)) {
-  opacity: 1;
-}
 
 @media (prefers-reduced-motion: reduce) {
-  :root .hit-card.paper-sheet,
-  :root .hit-card.paper-sheet:is(:hover, :has(:focus-visible)) {
-    translate: none;
-    transition: none;
-  }
-  :root .hit-slip,
-  :root .hit-card:is(:hover, :has(:focus-visible)) .hit-slip {
-    translate: none;
-    rotate: var(--slip-rot);
-    transition: none;
-  }
-  :root .hit-paper-deep,
-  :root .hit-paper-shade,
-  :root .jr-seg {
+      :root .jr-seg {
     transition: none;
   }
 }
@@ -17250,65 +15960,397 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 
-/* ---- TASK-205 phase 2 · Home on phones ----
-   Featured work: RailCite keeps its full floating card (shorter 16:10 art window); Slag City and Campfire Board become the
-   board's compact horizontal project cards — the same layered paper art in a 112 px window on the left, name, tagline and
-   Explore on the right — so the three products read as one list instead of three full-screen posters. Same DOM, links and data. */
-@media (max-width: 639px) {
-  .fw-card-anchor .fw-art {
-    aspect-ratio: 16 / 10;
+/* end TASK-205 */
+
+/* ---- TASK-211 · Home: Credentials · Selected Work · Awards & Recognition ----
+   Replaces Featured Work and How I think. Paper tokens + color-mix() only (EVAL-020); the colour (including the
+   awards' gold) lives in the generated WebP art, not in CSS. Sections: Credentials on the pale cream (as Featured
+   was), Selected Work on paper-2, Awards on paper, then Ask (paper-2). Each opens with its torn edge.
+   Layout: ≥ 1360 head left + cards right; below, head over cards. Credentials 4 / 2 / 1 columns (≥1024 / ≥360 / <360);
+   Selected Work 3 columns ≥ 900, horizontal cards 520–899, stacked below; Awards a 4-up strip ≥ 900, else 2 × 2.
+   Every card has one link (the heading's, stretched with ::after); hover moves only the arrow + shadow. */
+@layer components {
+  .hs {
+    --hs-gutter: clamp(16px, 3.2vw, 56px);
+    --hs-pale: color-mix(in oklab, var(--color-paper) 72%, var(--color-ivory));
+    position: relative;
   }
-  .fw-card-anchor .fw-stage {
-    height: 122%;
+  .hs-credentials {
+    --hs-bg: var(--hs-pale);
   }
-  .fw-card-anchor .fw-name {
-    font-size: 40px;
+  .hs-work-section {
+    --hs-bg: var(--color-paper-2);
   }
-  .fw-card-anchor .fw-tagline {
-    font-size: 21px;
+  .hs-awards {
+    --hs-bg: var(--color-paper);
   }
-  .fw-card-side .fw-paper {
-    grid-template-columns: 112px minmax(0, 1fr);
+  .hs-credentials .hs-torn .torn-front {
+    fill: var(--hs-pale);
+  }
+  .hs-body {
+    background: var(--hs-bg);
+  }
+  .hs-wrap {
+    display: grid;
+    gap: clamp(24px, 3vw, 40px);
+    width: min(100% - 2 * var(--hs-gutter), 1560px);
+    margin-inline: auto;
+    /* bottom: the next sheet slides up to 200 px (phones 120 px) over this section's foot (TKT-106) */
+    padding-block: clamp(36px, 4vw, 56px) clamp(104px, 9vw, 136px);
+  }
+  @media (min-width: 1360px) {
+    .hs-split {
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      column-gap: clamp(32px, 3.4vw, 56px);
+      align-items: start;
+    }
+    .hs-split .hs-head {
+      position: sticky;
+      top: 112px;
+    }
+  }
+
+  /* head */
+  .hs-head {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+  }
+  .hs-eyebrow {
+    display: flex;
     align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-terracotta);
   }
-  .fw-card-side .fw-art {
-    grid-column: 1;
-    grid-row: 1;
-    aspect-ratio: 1;
-    margin: 14px 0 14px 14px;
-    border-radius: 10px;
+  .hs-eyebrow::after {
+    content: "";
+    width: 32px;
+    height: 1.5px;
+    background: currentColor;
   }
-  .fw-card-side .fw-stage {
-    height: 150%;
+  .hs-h2 {
+    margin-top: 14px;
+    font-size: clamp(34px, 3.6vw, 52px);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 144, "SOFT" 0;
+    color: var(--color-navy);
   }
-  .fw-card-side .fw-copy {
-    grid-column: 2;
-    grid-row: 1;
-    padding: 16px 16px 16px 14px;
+  .hs-h2 em {
+    font-style: normal;
+    color: var(--color-terracotta);
   }
-  .fw-card-side .fw-proof {
-    grid-column: 1 / -1;
+  .hs-sub {
+    max-width: 34ch;
+    margin-top: 12px;
+    font-family: var(--font-display);
+    font-size: clamp(17px, 1.3vw, 20px);
+    line-height: 1.4;
+    font-variation-settings: "opsz" 14;
+    color: var(--color-navy-2);
   }
-  .fw-card-side .fw-name {
-    font-size: 26px;
-  }
-  .fw-card-side .fw-tagline {
-    margin-top: 4px;
+  .hs-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-top: 18px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--color-ivory);
+    box-shadow: var(--shadow-paper);
     font-size: 15px;
+    font-weight: 600;
+    color: var(--color-navy);
+    text-decoration: none;
+    transition: box-shadow 0.2s ease;
   }
-  .fw-card-side .fw-line {
-    margin-top: 6px;
+  .hs-all svg {
+    transition: translate 0.2s ease;
+  }
+  .hs-all:hover {
+    box-shadow: var(--shadow-paper-hover);
+  }
+  .hs-all:hover svg {
+    translate: 3px 0;
+  }
+
+  /* grids */
+  .hs-grid {
+    display: grid;
+    gap: clamp(12px, 1.4vw, 20px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-width: 0;
+  }
+  .hs-li,
+  .hs-slot {
+    display: grid;
+    min-width: 0;
+  }
+  .hs-li > .hs-slot > * {
+    min-width: 0;
+  }
+  .hs-grid-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 360px) {
+    .hs-grid-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .hs-grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .hs-grid-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 900px) {
+    .hs-grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .hs-grid-awards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 28px;
+  }
+  @media (min-width: 900px) {
+    .hs-grid-awards {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+    }
+  }
+
+  /* card */
+  .hs-card.paper-sheet {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 0;
+    padding: 10px;
+    border-radius: 14px;
+    transition: box-shadow 0.25s ease;
+  }
+  .hs-card.paper-sheet:hover {
+    box-shadow: var(--shadow-paper-hover);
+  }
+  .hs-card:has(.hs-link:focus-visible) {
+    outline: 2px solid var(--color-rust);
+    outline-offset: 3px;
+  }
+  .hs-art {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--color-paper-2);
+    aspect-ratio: 4 / 3;
+  }
+  .hs-art > img:first-child {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  [data-theme="dark"] .hs-art > img:first-child {
+    filter: brightness(0.8) saturate(0.92);
+  }
+  .hs-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 8%, transparent);
+    pointer-events: none;
+  }
+  /* the logo plaque: the real mark on a small paper label (fixed light surface so a full-colour logo reads in both themes) */
+  .hs-plaque {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    align-items: center;
+    min-height: 30px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: color-mix(in oklab, #fff 88%, var(--color-kraft));
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 25%, transparent);
+  }
+  .hs-plaque img {
+    display: block;
+    width: auto;
+    height: var(--logo-h, 18px);
+    max-width: 112px;
+    object-fit: contain;
+  }
+  .hs-plaque-text {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-navy-2);
+    color: oklch(0.33 0.07 266);
+  }
+  .hs-copy {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    padding: 14px 8px 8px;
+    min-width: 0;
+  }
+  .hs-name {
+    font-size: clamp(19px, 1.5vw, 22px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-variation-settings: "opsz" 48, "SOFT" 0;
+    color: var(--color-navy);
+  }
+  .hs-link {
+    color: inherit;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  .hs-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 2;
+  }
+  .hs-role,
+  .hs-desc {
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: var(--color-navy-2);
+  }
+  .hs-dates {
     font-size: 14px;
     line-height: 1.4;
+    color: var(--color-ink-soft);
   }
-  /* the status slip joins the copy column under Explore instead of floating over the button */
-  .fw-card-side .fw-slip {
-    position: static;
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: start;
-    margin: -6px 16px 16px 14px;
-    font-size: 14px; /* EVAL-008 content floor */
+  .hs-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hs-work .hs-tags {
+    margin: 0 0 4px;
+  }
+  .hs-tags li {
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .hs-go {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--color-ivory);
+    color: var(--color-navy);
+    box-shadow: 0 1px 3px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+    transition: translate 0.2s ease;
+  }
+  .hs-card:hover .hs-go,
+  .hs-card:has(.hs-link:focus-visible) .hs-go {
+    translate: 2px 0;
+  }
+  @media (min-width: 520px) and (max-width: 899px) {
+    .hs-work.paper-sheet {
+      grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+      grid-template-rows: none;
+    }
+    .hs-work .hs-copy {
+      align-content: center;
+      padding: 8px 14px 8px 18px;
+    }
+    .hs-work .hs-art {
+      aspect-ratio: auto;
+      min-height: 100%;
+    }
+    .hs-work .hs-go {
+      top: auto;
+      bottom: 18px;
+      right: 18px;
+    }
+  }
+
+  /* awards: a quiet strip — trophy, name, issuer · year; hairline dividers, no tile borders */
+  .hs-award {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 6px;
+    height: 100%;
+    padding: 4px clamp(10px, 1.6vw, 24px);
+    text-align: center;
+  }
+  @media (min-width: 900px) {
+    .hs-li + .hs-li > .hs-slot > .hs-award {
+      border-left: 1px solid var(--line);
+    }
+  }
+  .hs-trophy {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: clamp(140px, 14vw, 200px);
+    margin-bottom: 8px;
+  }
+  .hs-trophy img {
+    display: block;
+    flex: none;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 8px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
+  }
+  .hs-award-name {
+    font-size: clamp(18px, 1.35vw, 21px);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-variation-settings: "opsz" 48, "SOFT" 0;
+    color: var(--color-navy);
+  }
+  .hs-award-detail {
+    font-size: 14.5px;
+    line-height: 1.4;
+    color: var(--color-navy-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hs-card.paper-sheet,
+    .hs-go,
+    .hs-all,
+    .hs-all svg {
+      transition: none;
+    }
+    .hs-card:hover .hs-go,
+    .hs-card:has(.hs-link:focus-visible) .hs-go,
+    .hs-all:hover svg {
+      translate: none;
+    }
   }
 }
-/* end TASK-205 */
+/* end TASK-211 */

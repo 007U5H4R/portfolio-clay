@@ -20,25 +20,9 @@ import { test, expect } from "./fixtures";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
-const STAGES = ["Problem", "Insight", "Bet", "Build", "Evaluate", "Impact"] as const;
-
 /** Case-study artifacts render in the Deep dive view (the Overview is the default). */
 
 test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () => {
-  test("/ How I think: the six stage h3s have accessible names before scrolling", async ({ page }) => {
-    test.skip(width(page) !== 390 && width(page) !== 1440, "runs at the two boundary widths");
-    await page.goto("/", { waitUntil: "load" });
-    const section = page.locator("section#how-i-think");
-    // Prove this is the pre-reveal state: the TKT-110 choreography is armed, every card still rolled.
-    await expect(section.locator("[data-journey-stage]").last()).toHaveAttribute("data-roll", "rolled");
-    for (const stage of STAGES) {
-      await expect(section.getByRole("heading", { level: 3, name: stage, exact: true })).toHaveCount(1);
-    }
-    expect(await section.getByRole("listitem").count()).toBe(6);
-    const tree = await section.locator("ol").ariaSnapshot();
-    for (const stage of STAGES) expect(tree).toContain(`heading "${stage}" [level=3]`);
-  });
-
   test("/about Three Chapters: the three chapter h3s have accessible names before scrolling (TASK-136)", async ({ page }) => {
     test.skip(width(page) !== 390 && width(page) !== 1440, "runs at the two boundary widths");
     await page.goto("/about", { waitUntil: "load" });
@@ -51,17 +35,6 @@ test.describe("A11Y-1 Reveal content is in the accessibility tree on load", () =
     // the three chapter items sit at the list's first level; the keyword chips nested inside each card (TASK-196) do not count
     expect(tree.match(/^ {2}- listitem:/gm)?.length ?? 0).toBe(3);
     expect(tree.match(/heading "[^"]+" \[level=3\]/g)?.length ?? 0).toBe(3);
-  });
-
-  test("focus entering a rolled stage card reveals it (/, TKT-110)", async ({ page }) => {
-    test.skip(width(page) !== 1440, "runs once at w1440");
-    await page.goto("/", { waitUntil: "load" });
-    const stage = page.locator("section#how-i-think [data-journey-stage]").last();
-    await expect(stage).toHaveAttribute("data-roll", "rolled");
-    await stage.locator("a[href]").first().focus();
-    await expect(stage).toHaveAttribute("data-roll", "settled");
-    await expect(stage).toHaveCSS("opacity", "1");
-    await expect(stage).toHaveCSS("clip-path", "none");
   });
 });
 

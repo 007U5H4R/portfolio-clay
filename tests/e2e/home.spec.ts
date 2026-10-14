@@ -29,22 +29,24 @@ const width = (page: import("@playwright/test").Page) => page.viewportSize()?.wi
 const expectedSectionPadding = (w: number) => (w >= 1024 ? 128 : w >= 768 ? 96 : 72);
 
 // ---------------------------------------------------------------------------
-// S14.02 / S16 — DOM order of the four home sections (M-009 Design.md §7.1, TKT-74 S74.01:
-// Hero → Featured → How-I-Think → Ask); the band footer (outside <main>) is the closing CTA, so there
-// is no `#cta` section any more (TKT-72).
+// S14.02 / S16 — DOM order of the five home sections (TASK-211: Hero → Credentials → Selected Work →
+// Awards & Recognition → Ask); the band footer (outside <main>) is the closing CTA, so there is no
+// `#cta` section any more (TKT-72). Featured Work and How I think are gone from Home.
 // ---------------------------------------------------------------------------
-test("@EVAL-017 home assembles its four sections in order, then the band footer", async ({ page }) => {
+test("@EVAL-017 home assembles its five sections in order, then the band footer", async ({ page }) => {
   test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
   await page.goto("/", { waitUntil: "load" });
 
   const sections = page.locator("#main > section");
-  await expect(sections).toHaveCount(4);
+  await expect(sections).toHaveCount(5);
 
   // The hero is the first section (no id — it carries the h1); the remaining three are id'd.
   await expect(sections.nth(0).locator("h1")).toBeVisible();
-  await expect(sections.nth(1)).toHaveAttribute("id", "work-featured");
-  await expect(sections.nth(2)).toHaveAttribute("id", "how-i-think");
-  await expect(sections.nth(3)).toHaveAttribute("id", "ask");
+  await expect(sections.nth(1)).toHaveAttribute("id", "credentials");
+  await expect(sections.nth(2)).toHaveAttribute("id", "selected-work");
+  await expect(sections.nth(3)).toHaveAttribute("id", "awards");
+  await expect(sections.nth(4)).toHaveAttribute("id", "ask");
+  await expect(page.locator("#work-featured, #how-i-think")).toHaveCount(0);
   await expect(page.locator("#cta")).toHaveCount(0);
   await expect(page.locator("footer.band")).toHaveCount(1);
 });
@@ -65,8 +67,8 @@ test("home sections use the 72/96/128 vertical-rhythm ladder for the current vie
 });
 
 // ---------------------------------------------------------------------------
-// S14.02 — mobile reading order at 390: hero banner → headline → CTAs → projects → How-I-Think →
-// Ask → band headline (M-009 order, Design.md §7.1). Since TKT-93 (Dev-21) the hero is a full-bleed
+// S14.02 — mobile reading order at 390: hero banner → headline → CTAs → Credentials → Selected Work →
+// Awards → Ask → band headline (TASK-211). Since TKT-93 (Dev-21) the hero is a full-bleed
 // banner under the header with the copy block centred below it at every width; the banner is the
 // manifest `hero-banner` illustration (its alt comes from the manifest, §6.1). boundingBox().y
 // strictly increasing.
@@ -79,8 +81,9 @@ test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({
     page.getByRole("img", { name: HERO_BANNER_ALT }),
     page.locator("h1"),
     page.getByRole("link", { name: "View my work →" }),
-    page.locator("#work-featured-heading"),
-    page.locator("#how-i-think-heading"),
+    page.locator("#credentials-heading"),
+    page.locator("#selected-work-heading"),
+    page.locator("#awards-heading"),
     page.locator("#ask-heading"),
     page.locator("#band-h"),
   ];
@@ -156,7 +159,7 @@ test("@EVAL-017 home carries title, description and an OG image", async ({ page 
 // ---------------------------------------------------------------------------
 // TKT-79 · TC-151 step 1 — fills alternate paper / paper-2 down the page, and every section below the
 // hero opens with its torn edge as the first child (Design.md §7.1). The hero's copy block sits on
-// `paper` under the banner's torn edge, so Featured (paper-2) → How-I-think (paper) → Ask (paper-2).
+// `paper` under the banner's torn edge, so Credentials (pale cream) → Selected Work (paper-2) → Awards (paper) → Ask (paper-2).
 // ---------------------------------------------------------------------------
 test("TC-151 home sections alternate their paper fills and open with a torn edge", async ({ page }) => {
   test.skip(width(page) !== 1440, "fills + DOM structure are viewport-independent; checked once at w1440");
@@ -171,7 +174,7 @@ test("TC-151 home sections alternate their paper fills and open with a torn edge
       return getComputedStyle(probe).backgroundColor;
     };
     const out = { paper: read("--color-paper"), paper2: read("--color-paper-2"), featured: "" };
-    // TASK-133 (Dev-128): Featured Work sits on the reference's paler cream, a mix of the paper tokens.
+    // TASK-211: Credentials sits on the paler cream (a mix of the paper tokens), as Featured Work did.
     probe.style.backgroundColor = "color-mix(in oklab, var(--color-paper) 72%, var(--color-ivory))";
     out.featured = getComputedStyle(probe).backgroundColor;
     probe.remove();
@@ -181,14 +184,14 @@ test("TC-151 home sections alternate their paper fills and open with a torn edge
   expect(tokens.featured).not.toBe(tokens.paper);
 
   const expected: [string, string][] = [
-    ["#work-featured", tokens.featured],
-    ["#how-i-think", tokens.paper],
+    ["#credentials", tokens.featured],
+    ["#selected-work", tokens.paper2],
+    ["#awards", tokens.paper],
     ["#ask", tokens.paper2],
   ];
   for (const [selector, bg] of expected) {
     const section = page.locator(selector);
-    // The fill lives on the section or its body wrapper (`.featured-body`, `.ask-section-body`), or
-    // as a gradient stop on the section (`.hit` overlaps Featured by 44px, transparent above it).
+    // The fill lives on the section or its body wrapper (`.hs-body`, `.ask-section-body`).
     const fills = await section.evaluate((el) =>
       [el, ...Array.from(el.children)].flatMap((node) => {
         const cs = getComputedStyle(node);
@@ -216,10 +219,8 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
   await page.evaluate(() => document.fonts.ready);
   const result = await page.evaluate(collectDecorations, RULE_LIMITS);
   const counts = Object.fromEntries(result.units.map((r) => [r.unit, r.count]));
-  // At 390 two objects are removed from the DOM by design: the header subline annotation
-  // (`MediaGate min={640}`, components/navigation/Header.tsx) and How-I-think's journey path
-  // sketch (desktop-only). Measured counts, both inside the ≤ 4 budget. TKT-99 (Design.md §11 Dev-41)
-  // added How-I-think's one collage backdrop object: 3 at w1440, 2 at w390.
+  // At 390 the header subline annotation is removed from the DOM by design
+  // (`MediaGate min={640}`, components/navigation/Header.tsx).
   const mobile = width(page) === 390;
   // TKT-108 (Design.md §11 Dev-50): the hero's paper sheet is its own nested section — the banner
   // keeps the postmark (1); the sheet holds torn · h1 underline (+ its CSS accent strokes) · hand line ·
@@ -228,10 +229,10 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
     header: mobile ? 0 : 1,
     'section[aria-labelledby="hero-h"]': 1,
     "section#hero-copy": 4,
-    // TASK-133 (Dev-127): the three-product showcase keeps only its torn edge (the old quote annotation,
-    // flow sketch and sticky went with the TKT-75 grid; tapes are fasteners, cards content paper).
-    "section#work-featured": 1,
-    "section#how-i-think": mobile ? 2 : 3,
+    // TASK-211: the three replacement sections each keep only their torn edge (cards are content paper).
+    "section#credentials": 1,
+    "section#selected-work": 1,
+    "section#awards": 1,
     // TKT-113 (Dev-69): torn · collage backdrop · "That's Tushky!" annotation · sticky.
     "section#ask": 4,
     footer: 1,

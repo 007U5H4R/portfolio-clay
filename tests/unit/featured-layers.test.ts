@@ -2,7 +2,7 @@
  * The layered Featured Work art (TASK-202; supersedes the M-012 P2 SVG collage test). Each card is three transparent
  * raster layers (back · mid · front) in WebP + AVIF; the data, the files, the manifest and the CSS signature rules must agree.
  */
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
@@ -67,17 +67,5 @@ describe("featured layers: signatures", () => {
     for (const tokens of perCard) expect(tokens.length).toBe(2);
     const all = perCard.flatMap((t) => [...new Set(t)]);
     expect(new Set(all).size).toBe(all.length);
-  });
-
-  it("the CSS targets exactly the signature tokens the data uses (hover and focus twins)", () => {
-    const css = readFileSync(join(process.cwd(), "app", "globals.css"), "utf8");
-    const block = css.slice(css.indexOf("/* === TASK-186 / P2 ==="), css.indexOf("/* === end TASK-186 / P2 === */"));
-    const targeted = new Set([...block.matchAll(/\[data-sig~="([^"]+)"\]/g)].map((m) => m[1]!));
-    const used = new Set(Object.values(featuredLayers).flatMap((d) => d.groups.flatMap((g) => g.items.flatMap((i) => i.sig?.split(" ") ?? []))));
-    expect([...targeted].sort()).toEqual([...used].sort());
-    for (const t of used) {
-      expect(block.includes(`.fw-lift:hover [data-sig~="${t}"]`), `hover rule for ${t}`).toBe(true);
-      expect(block.includes(`.fw-lift:has(:focus-visible) [data-sig~="${t}"]`), `focus twin for ${t}`).toBe(true);
-    }
   });
 });

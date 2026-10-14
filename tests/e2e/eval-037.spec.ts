@@ -133,7 +133,7 @@ test.describe("@EVAL-037 paper button contract", () => {
 
 // M-012 (TASK-181): the contract's other members — hover lifts 1 px, press goes 1 px down — on a fine pointer.
 test.describe("@EVAL-037 paper button contract: M-012 family members", () => {
-  for (const [route, selector] of [["/", ".header-pill"], ["/", ".hit-pill"], ["/about", ".acx-btn-primary"], ["/projects", ".pf-action"]] as const) {
+  for (const [route, selector] of [["/", ".header-pill"], ["/about", ".acx-btn-primary"], ["/projects", ".pf-action"]] as const) {
     test(`${selector} (${route}): hover −1 px, press +1 px`, async ({ page, viewport }) => {
       test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
       await page.goto(route, { waitUntil: "networkidle" });

@@ -146,12 +146,12 @@ function assertEvidence(evidence: string, fg: string) {
 /** [foreground, background, size class, evidence (see assertEvidence), where it renders] */
 const USED_PAIRS: [Tok, Tok, Size, string, string][] = [
   // Body + headings (≥ 7:1 by design): navy / navy-2 on every paper surface
-  ["navy", "paper", "text", ".hit-h3", "home how-I-think, essay prose, chapter bodies"],
+  ["navy", "paper", "text", ".hs-award-name", "home awards (TASK-211), essay prose, chapter bodies"],
   ["navy", "paper2", "text", ".learned-list li", "case-study What I learned, featured/ask sections"],
   ["navy", "ivory", "text", ".cs-notebook p", "overview notebook, work cards, buttons"],
   ["navy", "note", "text", ".artifact-hyp .artifact-text", "hypothesis sticky, about quote sheet"],
   ["navy", "kraft", "text", ".pg-ex-live", "kraft doc tag / media tag text (Dev-13, Dev-29), Cinematic kraft card link"],
-  ["navy2", "paper", "text", ".hit-principle", "leads, eyebrows, tagline"],
+  ["navy2", "paper", "text", ".hs-award-detail", "home awards (TASK-211), leads, eyebrows, tagline"],
   ["navy2", "paper2", "text", ".sources-list", "sources, essay deks, index taglines"],
   ["navy2", "ivory", "text", ".work-card-tagline", "card taglines, structural kind badges (Dev-29)"],
   ["navy2", "kraft", "text", ".pg-board .pg-ex-2 .pg-ex-num", "Tegaki numeral on kraft (Dev-36; terracotta failed)"],
