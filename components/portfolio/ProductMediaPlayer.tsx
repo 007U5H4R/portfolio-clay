@@ -31,6 +31,8 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
   readyTimeoutMs?: number;
   /** TASK-194: which product / mode this player belongs to. Absent (the QA boards) → no analytics. */
   analytics?: { projectId: string; videoType: "pitch" | "demo" } | undefined;
+  /** TASK-210: the viewer just pressed "Watch demo / pitch" — that press is the play gesture, so the player starts on mount. Never set by a selection. */
+  autoStart?: boolean | undefined;
 }
 
 /**
@@ -50,7 +52,7 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
  * The host keys this component by product + mode, so a switch unmounts it — stopping playback — and
  * the next one starts at its poster, from the beginning (§5, §13). One instance → at most one iframe.
  */
-export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, ...rest }: ProductMediaPlayerProps) {
+export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, autoStart = false, ...rest }: ProductMediaPlayerProps) {
   const [state, setState] = useState<PlayerState>("poster");
   const [src, setSrc] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
@@ -122,6 +124,16 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
     setLoaded(false);
     setState("loading");
   };
+
+  // TASK-210: "Watch demo" on a phone = a press asking to play (the stage was just remounted for it).
+  const startedRef = useRef(false);
+  useEffect(() => {
+    if (!autoStart || startedRef.current) return;
+    startedRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time start from a user's press, after mount (needs window.location)
+    play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `play` only reads `media` + the origin, fixed for this mounted player
+  }, [autoStart]);
 
   const showFrame = (state === "loading" || state === "ready") && src;
 
