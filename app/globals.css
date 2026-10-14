@@ -8178,6 +8178,7 @@ html.lenis body {
   }
   .ct-mark[data-mark="aws"] { width: 124px; }
   .ct-mark[data-mark="googleCloud"] { width: 158px; margin-block: 6px; }
+  .ct-mark[data-mark="googleCloud"].pa-dark { width: 100px; } /* TASK-208: the white mark is stacked, not a strip */
   .ct-sticky {
     display: grid;
     justify-items: start;
@@ -11451,6 +11452,10 @@ html.lenis body {
   .chx-body {
     background: var(--color-paper-2);
   }
+  /* TASK-207: opaque, like every other section body — the chapters drift under this sheet while scrolling */
+  .crx-body {
+    background: var(--color-paper);
+  }
   .chx-wrap,
   .crx-wrap,
   .rvx-wrap,
@@ -14389,6 +14394,23 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   .rvx-plist li > span {
     min-width: 0;
+  }
+  /* TASK-207: beside Research (≥ 1024) the card is ~230–310 px, too narrow for art | icon | text in one row,
+     so the words spilled past the card. Below 360 px of card the art takes its own row above icon + text. */
+  .rvx-principles.paper-sheet {
+    container-type: inline-size;
+  }
+  @container (max-width: 359px) {
+    .rvx-plist li {
+      grid-template-columns: 30px minmax(0, 1fr);
+      row-gap: 6px;
+    }
+    .rvx-part {
+      grid-column: 1 / -1;
+      justify-self: start;
+      width: auto;
+      max-width: 140px;
+    }
   }
 
   /* ---- 6 · recognition: a folded trophy per award ---- */
