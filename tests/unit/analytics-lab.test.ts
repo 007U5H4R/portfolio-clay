@@ -11,10 +11,10 @@ function harness() {
   const events: Array<[string, Record<string, unknown>]> = [];
   const observer = observeLab(store, { track: ((n: string, p: Record<string, unknown>) => void events.push([n, p])) as never, input: "pointer", device: "desktop" });
   const names = () => events.map(([n]) => n);
-  const summary = (over: Partial<RunSummary> = {}): RunSummary => ({ score: 1234, timeS: 41, combo: 3, targets: 1, powerUps: 0, saves: 1, newBest: false, best: { score: 2000, timeS: 60, combo: 5 }, status: "x", ...over });
+  const summary = (over: Partial<RunSummary> = {}): RunSummary => ({ score: 1234, timeS: 41, combo: 3, powerUps: 0, saves: 1, newBest: false, best: { score: 2000, timeS: 60, combo: 5 }, status: "x", ...over });
   const s = () => store.getState();
   const toIntro = () => { s().send("DISCOVER"); s().send("INTRO_READY"); };
-  const startRun = (event: "PLAY" | "REPLAY") => { s().send(event); store.setState({ runId: s().runId + 1, score: 0, combo: 1, timeS: 0, powers: [], tpMode: false, launched: false, summary: null }); };
+  const startRun = (event: "PLAY" | "REPLAY") => { s().send(event); store.setState({ runId: s().runId + 1, score: 0, combo: 1, timeS: 0, powers: [], launched: false, summary: null }); };
   const play = () => { s().send("COUNTDOWN_DONE"); };
   /** The driver's GAME_OVER → (1.3 s) → finish(): state RESULTS with the engine's summary. */
   const gameOver = (sum: RunSummary) => { s().send("DANGER_ENTER"); s().send("TIME_UP"); const final = s().send("SHOW_RESULTS"); store.setState({ summary: sum, state: final }); };
@@ -64,11 +64,10 @@ describe("Gummy Lab analytics (TASK-194)", () => {
     h.s().patch({ powers: [{ type: "RAINBOW", left: 5 }, { type: "GOLDEN", left: 5 }] });
     for (let t = 0; t <= 70; t += 0.1) h.s().patch({ timeS: Math.round(t * 10) / 10 });
     h.s().patch({ combo: 5 }); h.s().patch({ combo: 6 }); h.s().patch({ combo: 5 });
-    h.s().patch({ tpMode: true });
     const inter = h.events.filter(([n]) => n === "game_interaction_performed").map(([, p]) => p.interaction_type);
     expect(inter).toEqual(["launch", "nudge", "power_up"]);
     const miles = h.events.filter(([n]) => n === "game_milestone_reached").map(([, p]) => p.milestone_type);
-    expect(miles).toEqual(["survived_30s", "survived_60s", "combo_5", "tp_mode"]);
+    expect(miles).toEqual(["survived_30s", "survived_60s", "combo_5"]);
 
     h.gameOver(h.summary());
     h.startRun("REPLAY"); h.play();

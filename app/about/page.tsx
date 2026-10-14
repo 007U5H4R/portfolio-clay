@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AboutCta } from "@/components/about/AboutCta";
 import { AboutHero } from "@/components/about/AboutHero";
+import { BuildersDesk } from "@/components/about/BuildersDesk";
 import { CareerContexts } from "@/components/about/CareerContexts";
 import { Recognition } from "@/components/about/Recognition";
 import { ResearchValues } from "@/components/about/ResearchValues";
@@ -23,7 +24,7 @@ export const metadata: Metadata = buildMetadata({
  * `docs/redesign-mockups/m-009/tushar-2026-09-29/about-redesign-spec.md`; Design.md §7.4). Five areas,
  * about four to five viewports, readable in a minute:
  *
- *   scene opener (TASK-114, every tab) → hero → Three Chapters → Career Across Contexts →
+ *   scene opener (TASK-114, every tab) → hero → the desk (TASK-196) → Three Chapters → Career Across Contexts →
  *   Research + What Drives Me → Recognition → In their words (three LinkedIn recommendations) →
  *   the dark Experience / Certifications strip → band.
  *
@@ -37,6 +38,7 @@ export default function AboutPage() {
     <>
       <SceneOpener id="scene-about" priority />
       <AboutHero />
+      <BuildersDesk />
       <ThreeChapters />
       <CareerContexts />
       <ResearchValues />

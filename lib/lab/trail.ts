@@ -16,6 +16,9 @@ export const MIN_TRAIL_SPEED = 3.2;
 const MIN_STEP = 0.05;
 /** Samples are at most this far apart: a long frame's travel is filled in, so the ribbon stays smooth at any frame rate. */
 export const SPACING = 0.16;
+/** A turbo bumper's trail burst (TASK-199): for this many seconds new samples live BURST_LIFE_K times longer, and the live ones are stretched once. */
+export const TURBO_BURST_S = 0.7;
+export const BURST_LIFE_K = 2.4;
 /** A jump longer than this (a teleport, a launch from the lane) starts a fresh trail instead of a streak across the table. */
 const MAX_JUMP = 3.5;
 const MAX_INSERT = 12;
@@ -55,6 +58,8 @@ export class TrailBuffer {
   readonly speed: Float32Array;
   /** Reduced motion: nothing is ever recorded. */
   enabled = true;
+  /** Seconds of trail burst left (0 = none): new samples live longer while it runs. */
+  boostLeft = 0;
   private head = 0;
   private live = 0;
   private lastX = Infinity;
@@ -105,13 +110,25 @@ export class TrailBuffer {
     this.x[i] = x;
     this.y[i] = y;
     this.age[i] = age;
-    this.life[i] = lifeForSpeed(speed);
+    this.life[i] = lifeForSpeed(speed) * (this.boostLeft > 0 ? BURST_LIFE_K : 1);
     this.speed[i] = speed;
     this.live = Math.min(this.capacity, this.live + 1);
   }
 
+  /**
+   * A short burst of light down the trail (a turbo bumper): the samples already recorded live longer, and for `seconds` the new ones
+   * do too, so the ribbon stretches behind a gummy that has just been kicked fast. It reuses the fixed buffer (nothing is allocated,
+   * and the capacity still bounds the length); a no-op while the trail is disabled (reduced motion).
+   */
+  burst(seconds: number): void {
+    if (!this.enabled) return;
+    if (this.boostLeft <= 0) for (let k = 0; k < this.live; k += 1) this.life[this.slot(k)] = this.life[this.slot(k)]! * BURST_LIFE_K;
+    this.boostLeft = Math.max(this.boostLeft, seconds);
+  }
+
   /** Age every live sample; expired ones drop off the old end. */
   update(dt: number): void {
+    this.boostLeft = Math.max(0, this.boostLeft - dt);
     for (let k = 0; k < this.live; k += 1) {
       const i = this.slot(k);
       this.age[i] = this.age[i]! + dt;
@@ -140,6 +157,7 @@ export class TrailBuffer {
 
   clear(): void {
     this.live = 0;
+    this.boostLeft = 0;
     this.lastX = Infinity;
     this.lastY = Infinity;
   }

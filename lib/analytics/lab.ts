@@ -112,7 +112,6 @@ export function observeLab(store: LabStoreApi, options: LabObserverOptions = {})
       if (s.timeS >= 60) once("m:60", () => track("game_milestone_reached", { milestone_type: "survived_60s" }));
     }
     if (s.combo >= 5 && s.combo !== prev.combo) once("m:combo5", () => track("game_milestone_reached", { milestone_type: "combo_5" }));
-    if (s.tpMode && !prev.tpMode) once("m:tp", () => track("game_milestone_reached", { milestone_type: "tp_mode" }));
   });
 
   return {

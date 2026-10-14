@@ -1,0 +1,447 @@
+/*
+ * The Gummy Lab paper-machine loader (TASK-198). Role tokens only, so light and dark follow the site theme live.
+ * Motion budget (TASK-143, EXE-55): every animation here is finite (a one-shot hop, a one-shot finish fade) and every
+ * transition runs once per progress change. There is no `infinite` anywhere, so nothing competes with WebGL booting.
+ */
+.root {
+  --ink: var(--color-navy);
+  --paper-top: var(--color-ivory);
+  --paper-low: var(--color-paper-2);
+  --edge: color-mix(in oklab, var(--color-navy) 22%, var(--color-kraft));
+  --lamp: transparent;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.6dvh, 16px);
+  padding: 56px 16px 24px;
+  overflow: hidden;
+  color: var(--ink);
+  background:
+    radial-gradient(60% 55% at 82% 8%, var(--lamp), transparent 70%),
+    radial-gradient(90% 70% at 18% 0%, color-mix(in oklab, var(--color-kraft) 22%, transparent), transparent 70%),
+    linear-gradient(var(--mat-bg), var(--mat-bg));
+  animation: lift 120ms ease-out both;
+  transition: background-color 300ms ease;
+}
+:global([data-theme="dark"]) .root {
+  --lamp: color-mix(in oklab, var(--color-terracotta) 20%, transparent);
+  --edge: color-mix(in oklab, var(--color-navy) 26%, var(--color-paper));
+}
+.root[data-done] {
+  animation: finish 150ms ease-in 300ms both;
+}
+.head {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.eyebrow {
+  margin: 0;
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-rust);
+}
+.title {
+  margin: 0;
+  font: 600 clamp(2.4rem, 6vw, 4rem) / 1.02 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.hand {
+  margin: 0;
+  font: 400 clamp(1.4rem, 2.6vw, 1.9rem) / 1.1 var(--font-hand);
+  color: var(--color-ink-soft);
+  text-decoration: underline wavy color-mix(in oklab, var(--color-rust) 70%, transparent) 1.5px;
+  text-underline-offset: 6px;
+  text-decoration-skip-ink: none;
+}
+
+/* ---- the machine ---- */
+.machine {
+  position: relative;
+  width: min(100%, 760px);
+  aspect-ratio: 720 / 210;
+  margin-top: clamp(4px, 1dvh, 12px);
+}
+.gears {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.gear {
+  transform-box: fill-box;
+  transform-origin: center;
+  rotate: calc(var(--p) * var(--k) * 3.6deg);
+  transition: rotate 500ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.gear[data-tone="steel"] {
+  --g-body: var(--color-steel);
+  --g-face: color-mix(in oklab, var(--color-steel) 78%, var(--color-ivory));
+}
+.gear[data-tone="rust"] {
+  --g-body: color-mix(in oklab, var(--color-rust) 82%, var(--color-kraft));
+  --g-face: color-mix(in oklab, var(--color-rust) 60%, var(--color-ivory));
+}
+.gear[data-tone="kraft"] {
+  --g-body: var(--color-kraft);
+  --g-face: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
+}
+.gearShadow {
+  fill: color-mix(in oklab, var(--color-navy) 22%, transparent);
+}
+.gearBody {
+  fill: var(--g-body);
+  stroke: color-mix(in oklab, var(--color-navy) 28%, var(--g-body));
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.gearFace {
+  fill: var(--g-face);
+  stroke: color-mix(in oklab, var(--color-navy) 18%, var(--g-body));
+  stroke-width: 1;
+}
+.gearWell {
+  fill: var(--g-body);
+  opacity: 0.9;
+}
+.gearHole {
+  fill: color-mix(in oklab, var(--color-navy) 38%, var(--g-body));
+}
+.gearHub {
+  fill: var(--color-kraft);
+  stroke: color-mix(in oklab, var(--color-navy) 30%, var(--color-kraft));
+  stroke-width: 1;
+}
+.gearPin {
+  fill: var(--color-terracotta);
+}
+.tag {
+  position: absolute;
+  left: 20%;
+  top: 6%;
+  padding: 7px 14px 6px;
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--color-note);
+  border-radius: 3px 6px 3px 7px;
+  box-shadow: var(--shadow-paper);
+  rotate: -4deg;
+}
+.tag::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 8px;
+  height: 14px;
+  translate: -50% 0;
+  border-radius: 2px;
+  background: var(--color-kraft);
+}
+
+/* ---- conveyor: parchment underside, ivory top strip, recessed channel ---- */
+.conveyor {
+  position: absolute;
+  left: 20%;
+  right: 3%;
+  top: 56%;
+  height: 22%;
+}
+.under {
+  position: absolute;
+  inset: 8px -2px -10px -2px;
+  border-radius: 999px;
+  background: var(--edge);
+  box-shadow: 0 10px 16px -8px color-mix(in oklab, var(--color-navy) 38%, transparent);
+}
+.top {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  padding: 0 clamp(10px, 2.6%, 20px);
+  border-radius: 999px;
+  background: linear-gradient(var(--paper-top), color-mix(in oklab, var(--paper-top) 86%, var(--color-kraft)));
+  border: 1.5px solid color-mix(in oklab, var(--color-rust) 55%, var(--color-kraft));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 90%, transparent),
+    0 3px 0 var(--edge),
+    0 5px 8px -2px color-mix(in oklab, var(--color-navy) 30%, transparent);
+}
+.channel {
+  position: relative;
+  height: 46%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-paper-2) 80%, var(--color-kraft));
+  box-shadow:
+    inset 0 2px 3px color-mix(in oklab, var(--color-navy) 32%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--color-ivory) 70%, transparent);
+}
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--p) * 1%);
+  border-radius: 999px;
+  background:
+    linear-gradient(color-mix(in oklab, var(--color-ivory) 38%, transparent), transparent 46%),
+    linear-gradient(color-mix(in oklab, var(--color-rust) 92%, var(--color-ivory)), color-mix(in oklab, var(--color-terracotta) 88%, var(--color-rust)));
+  box-shadow:
+    inset 0 -3px 4px color-mix(in oklab, var(--color-terracotta) 70%, transparent),
+    inset -2px 0 0 color-mix(in oklab, var(--color-ivory) 35%, transparent);
+  transition: width 420ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+:global([data-theme="dark"]) .fill {
+  box-shadow:
+    inset 0 -3px 4px color-mix(in oklab, var(--color-terracotta) 60%, transparent),
+    0 0 14px color-mix(in oklab, var(--color-rust) 45%, transparent);
+}
+
+/* ---- the gummy rides the fill's leading edge ---- */
+.lane {
+  position: absolute;
+  inset: 0 clamp(10px, 2.6%, 20px);
+  pointer-events: none;
+}
+.gummy {
+  position: absolute;
+  bottom: 70%;
+  left: calc(var(--p) * 1%);
+  width: clamp(40px, 8vw, 64px);
+  translate: -50% 0;
+  transition: left 420ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.gummyHop {
+  transform-origin: 50% 100%;
+  animation: hop 380ms cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+.root[data-done] .gummyHop {
+  animation-name: hop-big;
+}
+.gummySvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 3px color-mix(in oklab, var(--color-navy) 28%, transparent));
+}
+:global([data-theme="dark"]) .gummySvg {
+  filter: drop-shadow(0 0 9px color-mix(in oklab, var(--color-rust) 55%, transparent)) drop-shadow(0 3px 3px color-mix(in oklab, var(--color-paper) 70%, transparent));
+}
+.gStopA {
+  stop-color: color-mix(in oklab, var(--color-rust) 55%, var(--color-note));
+}
+.gStopB {
+  stop-color: color-mix(in oklab, var(--color-rust) 90%, var(--color-note));
+}
+.gStopC {
+  stop-color: color-mix(in oklab, var(--color-terracotta) 80%, var(--color-rust));
+}
+.gummyShine {
+  fill: color-mix(in oklab, var(--color-ivory) 80%, transparent);
+}
+.gummyEye {
+  fill: var(--color-navy);
+}
+:global([data-theme="dark"]) .gummyEye {
+  fill: var(--color-paper);
+}
+.gummyNose {
+  fill: color-mix(in oklab, var(--color-terracotta) 85%, var(--color-navy));
+}
+.gummySmile {
+  fill: none;
+  stroke: color-mix(in oklab, var(--color-terracotta) 85%, var(--color-navy));
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+:global([data-theme="dark"]) .gummyNose,
+:global([data-theme="dark"]) .gummySmile {
+  fill: var(--color-paper);
+  stroke: var(--color-paper);
+}
+:global([data-theme="dark"]) .gummySmile {
+  fill: none;
+}
+
+/* ---- readouts ---- */
+.percent {
+  margin: clamp(10px, 2dvh, 20px) 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--ink);
+}
+.num {
+  font: 600 clamp(2rem, 4.4vw, 2.9rem) / 1 var(--font-display);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.loaded {
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.stage {
+  margin: 0;
+  font: 600 13px/1.2 var(--font-body);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+}
+.steps {
+  display: none;
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  gap: clamp(20px, 5vw, 56px);
+}
+@media (min-width: 640px) {
+  .steps {
+    display: flex;
+  }
+}
+.step {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font: 500 13px/1.2 var(--font-body);
+  color: var(--color-ink-soft);
+}
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--color-ink-soft);
+  background: transparent;
+}
+.step[data-state="done"] .dot {
+  background: var(--color-rust);
+  border-color: var(--color-rust);
+}
+.step[data-state="now"] {
+  color: var(--ink);
+}
+.step[data-state="now"] .dot {
+  border-color: var(--color-rust);
+  background: color-mix(in oklab, var(--color-rust) 40%, transparent);
+}
+.stall {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  text-align: center;
+  font: 500 15px/1.4 var(--font-body);
+  color: var(--ink);
+}
+.stall p {
+  margin: 0;
+}
+.retry {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1.5px solid var(--color-rust);
+  border-radius: var(--radius-pill);
+  background: var(--color-ivory);
+  color: var(--ink);
+  font: 600 14px/1 var(--font-body);
+  cursor: pointer;
+}
+.retry:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 2px;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- phone: a compact machine, no tag, the left gears kept small ---- */
+@media (max-width: 639px) {
+  .root {
+    padding-top: 64px;
+  }
+  .tag,
+  .rightGear {
+    display: none;
+  }
+  .machine {
+    aspect-ratio: 720 / 230;
+  }
+}
+
+/* one-shot motion */
+@keyframes lift {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes finish {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes hop {
+  0% {
+    transform: scale(1.12, 0.86);
+  }
+  45% {
+    transform: translateY(-9px) scale(0.94, 1.1);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes hop-big {
+  0% {
+    transform: scale(1.14, 0.84);
+  }
+  50% {
+    transform: translateY(-16px) scale(0.92, 1.12);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* Reduced motion (spec §12): nothing rotates or travels; only the fill and the percentage update. The gummy still marks
+   the progress, but jumps rather than glides, and the hand-off is a plain fade. */
+@media (prefers-reduced-motion: reduce) {
+  .gear {
+    rotate: none;
+    transition: none;
+  }
+  .gummy,
+  .fill {
+    transition: none;
+  }
+  .gummyHop,
+  .root[data-done] .gummyHop {
+    animation: none;
+  }
+  .root {
+    animation: none;
+  }
+  .root[data-done] {
+    animation: finish 200ms ease-in both;
+  }
+}
