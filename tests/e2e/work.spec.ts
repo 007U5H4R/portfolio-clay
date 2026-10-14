@@ -129,6 +129,7 @@ test("@EVAL-006 /work is axe-clean", { tag: "@EVAL-006" }, async ({ page, axe })
 });
 
 test("TASK-208: the AWS and Google Cloud marks swap to the white files in dark mode and render", async ({ page }) => {
+  test.skip(width(page) <= 1024, "the collage's wide pieces (and the marks with them) are hidden at ≤ 1024");
   await page.goto("/work");
   for (const [theme, aws, gcp] of [
     ["light", "/media/logos/aws.svg", "/media/logos/google-cloud.svg"],
