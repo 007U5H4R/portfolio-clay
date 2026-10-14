@@ -88,17 +88,26 @@ test("@EVAL-008 no horizontal overflow; card copy ≥ 14 px", { tag: "@EVAL-008"
   expect(smallest).toBeGreaterThanOrEqual(14);
 });
 
-test("< 768 the timeline is one column: date → logo → card, no rail", async ({ page }) => {
-  test.skip(width(page) !== 390, "the single-column layout is the < 768 case");
+test("< 640 (TASK-205) the timeline is the compact phone rail: logo node beside the date chip, the card under both", async ({ page }) => {
+  test.skip(width(page) !== 390, "the compact phone timeline is the < 640 case");
   await page.goto("/work", { waitUntil: "load" });
   const first = page.locator("section#work-experience ol > li").first();
   const box = async (sel: string) => (await first.locator(sel).first().boundingBox())!;
   const date = await box(".ct-date");
   const logo = await box(".ct-logo");
   const card = await box(".ct-card");
+  // the logo is a small node on the rail, left of the date chip, on one row
+  expect(logo.width).toBeLessThanOrEqual(48);
+  expect(logo.x + logo.width).toBeLessThanOrEqual(date.x + 1);
+  expect(Math.abs(logo.y + logo.height / 2 - (date.y + date.height / 2))).toBeLessThan(12);
+  // the card sits under both, indented to the date's column, and stays a readable width
   expect(card.y).toBeGreaterThan(Math.max(date.y + date.height, logo.y + logo.height) - 1);
-  expect(card.width).toBeGreaterThan(300);
+  expect(Math.abs(card.x - date.x)).toBeLessThan(2);
+  expect(card.width).toBeGreaterThan(260);
   await expect(first.locator(".ct-pin")).toBeHidden();
+  // one continuous rail runs behind the logo nodes
+  const rail = await page.locator("section#work-experience .ct-list").evaluate((el) => getComputedStyle(el, "::before").borderLeftStyle);
+  expect(rail).toBe("dashed");
 });
 
 test("parallax: Education drives a scroll-driven drift on the Work content; reduced motion = none", {
