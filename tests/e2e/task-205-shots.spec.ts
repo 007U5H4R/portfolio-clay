@@ -42,6 +42,18 @@ test.describe("TASK-205 screenshots", () => {
         await page.waitForTimeout(600);
         await page.screenshot({ path: `${OUT}/${name}-${theme}-${w}-full.png`, fullPage: true });
       }
+      if (w === 390) {
+        // the 375 px phone (iPhone SE/mini class): first screen of every route, plus a no-horizontal-scroll check
+        await page.setViewportSize({ width: 375, height: 667 });
+        for (const [name, route] of ROUTES) {
+          await page.goto(route, { waitUntil: "load" });
+          await page.waitForTimeout(name === "lab" ? 6000 : 1200);
+          await page.screenshot({ path: `${OUT}/${name}-${theme}-375-top.png` });
+          const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+          if (over > 0) throw new Error(`${route} scrolls horizontally by ${over}px at 375`);
+        }
+        await page.setViewportSize({ width: 390, height: 844 });
+      }
       if (w < 640) {
         await page.goto("/", { waitUntil: "load" });
         const more = page.getByRole("button", { name: "More" });
