@@ -30,8 +30,14 @@ export const ORG_LOGOS: Record<string, OrgLogo> = {
 
 /** Cloud-platform marks used inside the (aria-hidden) collage doodles — decorative there, so `alt=""`. */
 export const PLATFORM_MARKS = {
-  aws: { src: "/media/logos/aws.svg", width: 304, height: 182 },
-  googleCloud: { src: "/media/logos/google-cloud.svg", width: 181, height: 28 },
+  aws: { src: "/media/logos/aws.svg", width: 304, height: 182, dark: { src: "/media/logos/aws-dark.webp", width: 256, height: 153 } },
+  googleCloud: {
+    src: "/media/logos/google-cloud.svg",
+    width: 181,
+    height: 28,
+    // TASK-208: the full-colour marks' grey wordmarks vanish on navy; dark mode uses Tushar's white files
+    dark: { src: "/media/logos/google-cloud-dark.webp", width: 240, height: 154 },
+  },
 } as const;
 
 /**
