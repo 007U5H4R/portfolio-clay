@@ -173,11 +173,34 @@ test("clicking a card fires the analytics event without blocking the new-tab nav
 test("the learn-build-apply-grow art loads, keeps its ratio and does not overflow at 390", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(ROUTE, { waitUntil: "load" });
-  const art = page.locator(".cert-foot-art");
+  const art = page.locator(".cert-foot-art:visible");
   await expect(art).toHaveCount(1);
   await art.scrollIntoViewIfNeeded();
   await expect.poll(() => art.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   const box = (await art.boundingBox())!;
   expect(Math.abs(box.width / box.height - 2167 / 726)).toBeLessThan(0.03);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+// TASK-218 follow-up: the art has no paper background (transparent corners) and each theme shows exactly its own copy.
+test("the learn-build-apply-grow art is transparent and swaps with the theme", async ({ page }) => {
+  await page.goto(ROUTE, { waitUntil: "load" });
+  for (const theme of ["light", "dark"] as const) {
+    await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+    const art = page.locator(`.cert-foot-art-${theme}`);
+    await expect(art).toBeVisible();
+    await expect(page.locator(".cert-foot-art:visible")).toHaveCount(1);
+    await art.scrollIntoViewIfNeeded();
+    await expect.poll(() => art.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    const cornerAlpha = await art.evaluate((el) => {
+      const img = el as HTMLImageElement;
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      const ctx = c.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      return [ctx.getImageData(2, 2, 1, 1).data[3], ctx.getImageData(c.width - 3, c.height - 3, 1, 1).data[3]];
+    });
+    expect(cornerAlpha, theme).toEqual([0, 0]);
+  }
 });
