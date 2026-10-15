@@ -25,7 +25,7 @@ export const metadata: Metadata = buildMetadata({
  * about four to five viewports, readable in a minute:
  *
  *   scene opener (TASK-114, every tab) → hero → the desk (TASK-196) → Three Chapters → Career Across Contexts →
- *   Research + What Drives Me → Recognition → In their words (three LinkedIn recommendations) →
+ *   Research & Intellectual Work → Recognition → In their words (three LinkedIn recommendations) →
  *   the dark Experience / Certifications strip → band.
  *
  * WHAT he did — employer-by-employer roles, dates, bullets, scope and self-reported outcomes, skills,

@@ -20,6 +20,24 @@ export const ABOUT_ARTWORK = {
     880,
     "A paper-craft diorama: a research sheet with a rising bar chart and gears, a stack of four books, a laptop and an open notebook with a three-step flow, and a layered paper city in front of a terracotta sun.",
   ),
+  "research-data": artwork(
+    "research-data",
+    800,
+    603,
+    "Paper-craft illustration of research data: a large navy disc of evenly spaced cream dots on a research sheet, with a small bar chart and pie chart.",
+  ),
+  "research-investigation": artwork(
+    "research-investigation",
+    800,
+    603,
+    "Paper-craft illustration of technical investigation: a folded navy monitoring device showing a line graph, with measurement guides and a research sheet behind it.",
+  ),
+  "research-insights": artwork(
+    "research-insights",
+    800,
+    603,
+    "Paper-craft illustration of research insights: overlapping research reports, the front one with a rising line chart marked by terracotta data points.",
+  ),
 } as const satisfies Record<string, AboutArtwork>;
 
 export type AboutArtworkId = keyof typeof ABOUT_ARTWORK;

@@ -27,7 +27,7 @@ export const CHAPTER_ANCHORS: Record<ChapterId, { anchor: string; title: string 
 
 /** In-page anchors for the static content pages. */
 export const PAGE_ANCHORS = {
-  about: ['chapters', 'career', 'research', 'values', 'recognition'], // TASK-136: WHO Tushar is
+  about: ['chapters', 'career', 'research', 'recognition'], // TASK-136: WHO Tushar is
   work: ['work-experience', 'education', 'skills'], // TASK-136: the résumé record moved here from /about
   contact: ['resume'],
   projects: ['products', 'enterprise'], // TASK-116 Portfolio sections

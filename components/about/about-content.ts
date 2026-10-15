@@ -1,5 +1,6 @@
 import { awards, papers, patent } from "@/data/credentials";
 import type { AboutArtId } from "./about-art";
+import type { AboutArtworkId } from "./about-artwork";
 
 /**
  * `/about` copy (TASK-136 — Tushar's About redesign spec 2026-09-29,
@@ -139,35 +140,22 @@ export const RESEARCH_ARTIFACTS = [
     title: "Nanotechnology research",
     meta: undefined,
     body: "Research in materials, sensing and nanoscale systems.",
-    art: "research-nano" as AboutArtId,
+    art: "research-data" as AboutArtworkId,
   },
   {
     id: "patent",
     title: "Granted patent",
     meta: `${patent.number} · co-inventor · granted ${granted}`,
     body: `${patent.title}.`,
-    art: "patent-sheet" as AboutArtId,
+    art: "research-investigation" as AboutArtworkId,
   },
   {
     id: "publications",
     title: `${papers.length} peer-reviewed papers`,
     meta: undefined,
     body: papers.map((paper) => `${paper.journal.split(",")[0]} ${paper.year}`).join(" · "),
-    art: "research-papers" as AboutArtId,
+    art: "research-insights" as AboutArtworkId,
   },
-] as const;
-
-export const VALUES_HEAD = {
-  eyebrow: "What drives me",
-  title: "Curiosity, impact and continuous learning.",
-  note: "Same curiosity. Broader horizons.",
-} as const;
-
-/** Spec §24 — exactly three principles (the "build useful products" set matches the site's voice). */
-export const PRINCIPLES = [
-  { id: "questions", icon: "bulb", text: "Ask better questions." },
-  { id: "products", icon: "gear", text: "Build useful products." },
-  { id: "learning", icon: "leaf", text: "Keep learning and sharing." },
 ] as const;
 
 export const RECOGNITION_HEAD = {
