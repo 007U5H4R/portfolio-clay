@@ -122,6 +122,19 @@ test.describe("@TASK-216 What I Bring journey", () => {
     }
   });
 
+  test("wide desktop: the landscape column and the panel end together for every stage (no gap over 60 px)", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 1280, "side-by-side layout only from 1280");
+    for (const id of ids) {
+      await page.locator(`#wib-tab-${id}`).click();
+      const gap = await page.evaluate(() => {
+        const card = document.querySelector(".wibj-card")!.getBoundingClientRect();
+        const left = document.querySelector(".wibj-hint-l")!.getBoundingClientRect();
+        return Math.abs(card.bottom - left.bottom);
+      });
+      expect(gap, id).toBeLessThanOrEqual(60);
+    }
+  });
+
   test("mobile: the track scrolls inside its own box, not the page", async ({ page, viewport }) => {
     test.skip(viewport!.width >= 960, "the track is a grid on desktop");
     const track = page.locator(".wibj-track");

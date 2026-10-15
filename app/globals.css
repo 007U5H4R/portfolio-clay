@@ -13896,6 +13896,9 @@ html[data-theme-vt]::view-transition-group(root) {
 .wibj {
   position: relative;
 }
+.wibj-hint-l {
+  display: none;
+}
 .wibj-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -13907,10 +13910,10 @@ html[data-theme-vt]::view-transition-group(root) {
 .wibj-frame {
   position: relative;
   overflow: hidden;
-  --f: 2.4; /* the map is --f frames wide on small screens and is panned to the active stage */
-  aspect-ratio: 5 / 4;
+  --f: 1.8; /* the map is --f frames wide on small screens and is panned to the active stage */
+  aspect-ratio: 1 / 1;
   border-radius: 4px 18px 4px 16px;
-  background: rgb(242 225 194); /* the landscape's own sky, so the headroom above it is seamless */
+  background: rgb(228 210 180); /* the landscape's own sky, so the headroom above it is seamless */
   box-shadow: var(--depth-2);
 }
 .wibj-map {
@@ -13931,7 +13934,7 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 @media (max-width: 959.98px) {
   [data-theme="dark"] .wibj-frame {
-    background: rgb(17 30 48);
+    background: rgb(16 38 63);
   }
 }
 [data-theme="dark"] .wibj-land-light {
@@ -14295,24 +14298,21 @@ html[data-theme-vt]::view-transition-group(root) {
 
 @media (min-width: 600px) and (max-width: 959.98px) {
   .wibj-frame {
-    --f: 1.6;
-    aspect-ratio: 16 / 10;
+    --f: 1.25;
+    aspect-ratio: 4 / 3;
   }
 }
 
-/* desktop: landscape left (~65 %), panel right (~35 %), track under the landscape */
+/* >= 960: the landscape is un-cropped (markers sit on the image) with the track beneath it. 960-1279: the panel stacks
+   below at full width (art as a banner). >= 1280: landscape left (~68 %), panel right (~32 %); the card stretches to the
+   left column and the stage art grows into whatever height the text leaves, so both columns end together. */
 @media (min-width: 960px) {
-  .wibj-grid {
-    grid-template-columns: minmax(0, 17fr) minmax(0, 8fr);
-    gap: 28px;
-    align-items: start;
-  }
   .wibj-left {
     display: block;
   }
   .wibj-frame {
     overflow: visible;
-    aspect-ratio: 1344 / 576;
+    aspect-ratio: 2048 / 1360;
     margin-top: 40px;
     border-radius: 0;
     background: none;
@@ -14338,37 +14338,107 @@ html[data-theme-vt]::view-transition-group(root) {
     margin-top: 14px;
     padding: 4px 0;
   }
-  .wibj-tab {
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
-    min-width: 0;
-    padding: 6px 2px;
-    font-size: 12px;
-    text-align: center;
-  }
-}
-@media (min-width: 960px) {
-  .wibj-pin[data-on] .wibj-pin-label {
-    display: block;
-  }
-}
-@media (min-width: 1240px) {
   .wibj-pin-label {
     display: block;
   }
   .wibj-tab {
     flex-direction: row;
-    gap: 5px;
-    padding: 6px 4px 6px 5px;
-    font-size: 12.5px;
-    text-align: left;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 4px;
+    font-size: 13px;
     white-space: nowrap;
   }
   .wibj-tab-num {
     width: 22px;
     height: 22px;
     font-size: 12px;
+  }
+  .wibj-art {
+    aspect-ratio: 4 / 1;
+  }
+  .wibj-hint-l {
+    display: none;
+  }
+}
+@media (min-width: 960px) and (max-width: 1279.98px) {
+  .wibj-grid {
+    gap: 28px;
+  }
+  .wibj-tab {
+    flex-direction: column;
+    gap: 3px;
+    font-size: 12.5px;
+  }
+}
+@media (min-width: 1280px) {
+  .wibj-grid {
+    grid-template-columns: minmax(0, 17fr) minmax(0, 8fr);
+    gap: 28px;
+    align-items: stretch;
+  }
+  .wibj-left {
+    display: flex;
+    flex-direction: column;
+  }
+  .wibj-hint-l {
+    display: block;
+    margin-top: 6px;
+  }
+  .wibj-hint-r {
+    display: none;
+  }
+  .wibj-right {
+    display: flex;
+    flex-direction: column;
+  }
+  .wibj-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .wibj-panels {
+    flex: 1;
+  }
+  .wibj-art {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 110px;
+    aspect-ratio: auto;
+  }
+  /* a slightly tighter card so the longest stages (AI, Execution) end close to the landscape column */
+  .wibj-card {
+    padding: 14px 18px 18px;
+  }
+  .wibj-line {
+    margin-top: 6px;
+    font-size: 24px;
+  }
+  .wibj-text {
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wib-caps {
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .wib-caps li {
+    padding: 4px 11px;
+    font-size: 13.5px;
+  }
+  .wib-flow,
+  .wib-tools,
+  .wib-evidence {
+    margin-top: 10px;
+  }
+  .wibj-art {
+    margin-top: 12px;
+  }
+  .wibj-art img {
+    position: absolute;
+    inset: 0;
   }
 }
 @media (prefers-reduced-motion: no-preference) {

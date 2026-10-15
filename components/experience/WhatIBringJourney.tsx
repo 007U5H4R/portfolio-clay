@@ -16,22 +16,22 @@ import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
  * itself never animates (below 960 px it is panned to the active stage with one CSS transition).
  */
 
-/** Marker anchors (where the pin points) as a fraction of the 1344 x 576 landscape image, one per stage in order. */
+/** Marker anchors (where the pin points) as a fraction of the landscape image (2048 x 1360 px; positions read on a 2000 x 1328 grid), one per stage in order. */
 const ANCHOR: [number, number][] = [
-  [140 / 1344, 150 / 576], // Ambiguity: the question-mark rock
-  [300 / 1344, 318 / 576], // Discovery: compass and notebook
-  [470 / 1344, 185 / 576], // Product: the district
-  [672 / 1344, 205 / 576], // AI + GenAI: the core and its nodes
-  [830 / 1344, 180 / 576], // Technology: the dish and data blocks
-  [985 / 1344, 172 / 576], // Execution: crane and bridge
-  [1250 / 1344, 92 / 576], // Impact: the summit
+  [190 / 2000, 395 / 1328], // Ambiguity: the question-mark rock
+  [450 / 2000, 620 / 1328], // Discovery: compass and notebook
+  [875 / 2000, 530 / 1328], // Product: the district
+  [1085 / 2000, 548 / 1328], // AI + GenAI: the core and its nodes
+  [1345 / 2000, 475 / 1328], // Technology: the dish and data blocks
+  [1600 / 2000, 430 / 1328], // Execution: crane and bridge
+  [1860 / 2000, 155 / 1328], // Impact: the summit flag
 ];
 
-const LAND_W = 1344;
-const LAND_H = 576;
+const LAND_W = 2048;
+const LAND_H = 1360;
 
 function Landscape() {
-  const common = { width: LAND_W, height: LAND_H, sizes: "(min-width: 960px) 62vw, 240vw", draggable: false } as const;
+  const common = { width: LAND_W, height: LAND_H, sizes: "(min-width: 960px) 68vw, 200vw", draggable: false } as const;
   return (
     <>
       <Image className="wibj-land wibj-land-light" src="/media/experience/journey-landscape-light.webp" alt="" {...common} loading="lazy" />
@@ -213,6 +213,7 @@ export function WhatIBringJourney() {
               ))}
             </div>
           </div>
+          <p className="wib-hint wibj-hint-l">{wibHint}</p>
         </div>
 
         <div className="wibj-right">
@@ -231,12 +232,12 @@ export function WhatIBringJourney() {
               ))}
             </div>
           </div>
+          <p className="wib-hint wibj-hint-r">{wibHint}</p>
         </div>
       </div>
       <p className="sr-only" aria-live="polite" role="status">
         {`Stage ${selected + 1} of ${total}: ${stage.title}. ${stage.heading}`}
       </p>
-      <p className="wib-hint">{wibHint}</p>
     </div>
   );
 }
