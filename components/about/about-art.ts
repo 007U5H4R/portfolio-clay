@@ -16,10 +16,6 @@ export interface AboutArt {
 const art = (slug: string, width: number, height: number): AboutArt => ({ src: `/about/${slug}.svg`, width, height });
 
 export const ABOUT_ART = {
-  "research-sketches": art("research-sketches", 760, 640),
-  "systems-collage": art("systems-collage", 900, 700),
-  "books-stack": art("books-stack", 640, 520),
-  "product-desk": art("product-desk", 900, 500),
   "chapter-builder": art("chapter-builder", 800, 460),
   "chapter-operator": art("chapter-operator", 800, 460),
   "chapter-researcher": art("chapter-researcher", 800, 460),

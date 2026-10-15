@@ -3,7 +3,6 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { ABOUT_ART } from "@/components/about/about-art";
 import { chapterScenes } from "@/scripts/about-art/chapters";
-import { heroPieces } from "@/scripts/about-art/hero";
 import { horizon } from "@/scripts/about-art/horizon";
 import { researchArtifacts } from "@/scripts/about-art/research";
 
@@ -14,7 +13,7 @@ import { researchArtifacts } from "@/scripts/about-art/research";
  * registry's width/height, and text-free except the four book spines the spec asks for.
  */
 const DIR = join(process.cwd(), "public", "about");
-const SOURCES = [...heroPieces, ...chapterScenes, ...researchArtifacts, horizon];
+const SOURCES = [...chapterScenes, ...researchArtifacts, horizon];
 
 describe("/about art (TASK-136)", () => {
   it("ships exactly the registered pieces, one source each", () => {
@@ -38,7 +37,7 @@ describe("/about art (TASK-136)", () => {
   it("the only lettering is the four book spines: AI · Systems · Products · Impact (spec §4)", () => {
     for (const source of SOURCES) {
       const texts = [...source.render().matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]);
-      expect(texts, source.slug).toEqual(source.slug === "books-stack" ? ["AI", "Systems", "Products", "Impact"] : []);
+      expect(texts, source.slug).toEqual([]);
     }
   });
 });

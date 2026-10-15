@@ -10514,7 +10514,7 @@ html.lenis body {
    docs/redesign-mockups/m-009/tushar-2026-09-29/about-redesign-spec.md; Design.md §7.4, §11 Dev-135).
    Five areas under the scene opener: hero (copy 44 % | paper collage 56 %) → Three Chapters (paper-2,
    three torn tinted cards) → Career Across Contexts (paper, a compact era strip on a hand-drawn thread)
-   → Research 55 % | What Drives Me 45 % (paper-2) → Recognition (paper) → the dark Experience strip.
+   → Research (paper-2) → Recognition (paper) → the dark Experience strip.
    The art is hand-authored SVG in public/about/ (scripts/about-art/); colour lives in those files. Paper
    tokens + `color-mix()` only here (EVAL-020). Motion: the shared one-shot `Reveal` (chapters 90 ms apart,
    the thread draws left → right, artifacts settle, recognition fades); a 2 px card lift on hover; all of
@@ -10627,41 +10627,16 @@ html.lenis body {
     width: 100%;
     max-width: 780px;
     justify-self: center;
-    aspect-ratio: 1.26;
+    aspect-ratio: 1168 / 880;
   }
-  .abh-collage {
-    position: absolute;
-    inset: 0;
+  /* TASK-212: one diorama in a rounded paper frame — its cream tabletop reads as a sheet on both themes */
+  .abh-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    box-shadow: var(--shadow-paper);
     pointer-events: none;
-  }
-  .abh-piece {
-    position: absolute;
-    height: auto;
-    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--shadow-ink) 10%, transparent));
-  }
-  .abh-sketches {
-    top: -1%;
-    left: -4%;
-    width: 52%;
-    z-index: 1;
-  }
-  .abh-city {
-    top: -7%;
-    right: -4%;
-    width: 64%;
-    z-index: 2;
-  }
-  .abh-desk {
-    right: -6%;
-    bottom: -1%;
-    width: 74%;
-    z-index: 3;
-  }
-  .abh-books {
-    left: -1%;
-    bottom: -2%;
-    width: 50%;
-    z-index: 4;
   }
   .abh-note.paper-annotation {
     position: absolute;
@@ -10673,14 +10648,14 @@ html.lenis body {
     box-shadow: var(--shadow-paper);
   }
   .abh-note-a {
-    top: -2%;
-    left: 37%;
+    top: 4%;
+    left: 3%;
     max-width: 13ch;
   }
   .abh-note-b {
-    top: 22%;
-    right: -3%;
-    max-width: 10ch;
+    top: 5%;
+    left: 36%;
+    max-width: 14ch;
   }
   @media (min-width: 1024px) {
     .abh-grid {
@@ -10688,26 +10663,16 @@ html.lenis body {
     }
   }
   @media (max-width: 639px) {
-    .abh-stage {
-      aspect-ratio: 1.08;
-    }
-    .abh-sketches,
-    .abh-desk,
     .abh-note-b {
       display: none;
     }
-    .abh-city {
-      top: 0;
-      right: -4%;
-      width: 86%;
-    }
-    .abh-books {
-      left: 0;
-      width: 64%;
-    }
-    .abh-note-a {
-      top: 2%;
-      left: 0;
+    .abh-note.paper-annotation.abh-note-a {
+      top: 3%;
+      left: 3%;
+      max-width: 20ch;
+      padding: 4px 8px 6px;
+      font-size: 13px;
+      line-height: 1.2;
     }
   }
 

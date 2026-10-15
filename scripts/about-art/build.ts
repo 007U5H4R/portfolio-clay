@@ -16,13 +16,12 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Collage } from "../portfolio-art/collage";
 import { chapterScenes } from "./chapters";
-import { heroPieces } from "./hero";
 import { horizon } from "./horizon";
 import { researchArtifacts } from "./research";
 
 export const ABOUT_ART_DIR = join(process.cwd(), "public", "about");
 export const ABOUT_ART_BUDGET_BYTES = 40_000;
-export const aboutArt: readonly Collage[] = [...heroPieces, ...chapterScenes, ...researchArtifacts, horizon];
+export const aboutArt: readonly Collage[] = [...chapterScenes, ...researchArtifacts, horizon];
 
 const only = new Set(process.argv.slice(2));
 let failed = false;
