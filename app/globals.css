@@ -16996,3 +16996,393 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-204 === */
+/* ==========================================================================================================================
+   TASK-205 · Mobile redesign (concept board "Premium Origami Mobile App Showcase", brief /Downloads/mobile.md).
+   Everything below is scoped to < 640 px (the phone tier) or to phone-only components, so >= 640 is byte-for-byte the
+   desktop/tablet design. It maps the board's three surfaces onto the EXISTING colour tokens (which already flip in dark mode):
+     surface A, solid paper  .m-solid  — text-heavy cards (opaque ivory, hairline, contact shadow)
+     surface B, floating     .m-float  — featured/interactive cards (raised, layered shadow, press response)
+     surface C, frosted      .m-glass  — overlays over artwork (translucent, 12 px blur, falls back to near-opaque)
+   ========================================================================================================================== */
+.header-more {
+  display: none;
+}
+.m-solid,
+.m-float,
+.m-glass {
+  --m-radius: 14px;
+  border-radius: var(--m-radius);
+  border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+}
+.m-solid {
+  background: var(--color-ivory);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent);
+}
+.m-float {
+  background: var(--color-ivory);
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
+    0 10px 20px -12px color-mix(in oklab, var(--shadow-ink) 34%, transparent);
+  transition:
+    translate var(--dur-l1) var(--ease-l1),
+    box-shadow var(--dur-l1) var(--ease-l1),
+    border-color var(--dur-l1) var(--ease-l1);
+}
+.m-float:active {
+  translate: 0 1px;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent);
+}
+.m-glass {
+  background: color-mix(in oklab, var(--color-ivory) 90%, transparent);
+  border-color: color-mix(in oklab, var(--color-ivory) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
+    0 8px 18px -12px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .m-glass {
+    background: color-mix(in oklab, var(--color-ivory) 72%, transparent);
+    backdrop-filter: blur(12px) saturate(1.1);
+  }
+}
+
+@media (max-width: 639px) {
+  /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ----
+     The 108 px height is set on the two things that clear the header (the case-study reading bar and the /work deep-link
+     margin), not on :root: a :root custom property is inherited by every element, so overriding it there would change the
+     computed style of every page region (the About hero/footer fingerprint in about-paper.spec reads custom properties). */
+  .reading-progress,
+  .xp-role {
+    --header-h: 108px;
+  }
+  .site-header {
+    --nt-h: 44px;
+    --nt-pad: 16px;
+    --nt-font: 16px;
+    --hdr-tile-px: 36px;
+  }
+  .site-header-row {
+    padding-block: 6px 0;
+  }
+  .header-nav {
+    padding: 4px 12px 8px;
+    gap: 16px; /* the TASK-112 minimum between adjacent tabs (header-tabs.spec) */
+  }
+  .header-pill {
+    display: none;
+  }
+  .header-actions {
+    gap: 2px;
+  }
+  .header-more {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-navy);
+    cursor: pointer;
+  }
+  .header-more:active {
+    background: color-mix(in oklab, var(--color-navy) 8%, transparent);
+  }
+}
+
+/* ---- the More sheet (a native <dialog>; rendered only on phones, only while open) ---- */
+.more-menu {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-navy);
+  overflow: hidden;
+}
+.more-menu::backdrop {
+  background: color-mix(in oklab, var(--color-navy) 38%, transparent);
+}
+.more-sheet {
+  position: absolute;
+  inset: auto 0 0 0;
+  max-height: min(86dvh, 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--color-paper);
+  border-radius: 18px 18px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  box-shadow: 0 -12px 30px -14px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .more-sheet {
+    animation: more-sheet-in 240ms var(--ease-panel) both;
+  }
+  .more-menu::backdrop {
+    animation: more-fade-in 200ms ease both;
+  }
+}
+@keyframes more-sheet-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+@keyframes more-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.more-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+}
+.more-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.more-close {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.more-group {
+  margin-top: 8px;
+}
+.more-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--color-ivory);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.more-group li + li {
+  border-top: 1px solid var(--line);
+}
+.more-label {
+  margin: 0 0 6px 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.more-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-navy);
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.more-row small {
+  display: block;
+  font-size: 12.5px;
+  color: var(--color-ink-soft);
+}
+.more-row svg {
+  flex: none;
+  color: var(--color-ink-soft);
+}
+.more-row[aria-current="page"] {
+  color: var(--color-rust);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--color-rust) 8%, transparent);
+}
+.more-row:active {
+  background: color-mix(in oklab, var(--color-navy) 7%, transparent);
+}
+@media (min-width: 640px) {
+  .more-menu {
+    display: none;
+  }
+}
+
+/* ---- TASK-205 phase 6 · Experience (/work) on phones: the board's compact timeline ----
+   One left rail with the taped logo as a small paper node, the date as a quiet chip beside it and the deckled card under the
+   date — instead of the stacked date blob → 150 px logo card → card. Same DOM (`.ct-when` becomes `display: contents`), same
+   copy, same disclosure; the collage object stays in the DOM (EVAL-018 count unchanged) but is not painted on phones. */
+@media (max-width: 639px) {
+  .ct-title {
+    padding: 10px 24px 14px 18px;
+    font-size: 40px;
+  }
+  .ct-title-sparks {
+    display: none;
+  }
+  .ct-aside.paper-annotation {
+    font-size: 20px;
+  }
+  .ct-collage {
+    visibility: hidden;
+  }
+  .ct-grid {
+    row-gap: 22px;
+  }
+  .ct-list::before {
+    display: block;
+    left: 21px;
+    top: 30px;
+    bottom: 10px;
+    border-left-width: 1.5px;
+  }
+  .ct-list::after {
+    display: none;
+  }
+  .ct-item {
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-areas:
+      "logo date"
+      ". card";
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: center;
+  }
+  .ct-when {
+    display: contents;
+  }
+  .ct-when .ct-logo.paper-sheet {
+    grid-area: logo;
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    min-height: 44px;
+    height: 44px;
+    padding: 5px;
+    border-radius: 10px;
+    rotate: 0deg;
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
+      0 6px 12px -8px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
+  }
+  .ct-when .ct-logo .paper-tape {
+    display: none;
+  }
+  .ct-logo-img {
+    max-height: 32px;
+  }
+  [data-theme="dark"] .ct-logo-img {
+    padding: 3px 4px;
+  }
+  .ct-logo-type {
+    font-size: 11px;
+    line-height: 1;
+  }
+  .ct-date {
+    grid-area: date;
+    justify-self: start;
+    margin: 0;
+    padding: 5px 12px 6px;
+    font-size: 15px;
+    border-radius: 999px;
+    rotate: 0deg;
+  }
+  .ct-date-text {
+    max-width: none;
+  }
+  .ct-date-arrow {
+    display: none;
+  }
+  .ct-card.paper-sheet {
+    grid-area: card;
+    padding: 20px 18px 22px;
+  }
+  .ct-bullets li {
+    font-size: 14.5px;
+  }
+}
+
+/* ---- TASK-205 phase 2 · Home on phones ----
+   Featured work: RailCite keeps its full floating card (shorter 16:10 art window); Slag City and Campfire Board become the
+   board's compact horizontal project cards — the same layered paper art in a 112 px window on the left, name, tagline and
+   Explore on the right — so the three products read as one list instead of three full-screen posters. Same DOM, links and data. */
+@media (max-width: 639px) {
+  .fw-card-anchor .fw-art {
+    aspect-ratio: 16 / 10;
+  }
+  .fw-card-anchor .fw-stage {
+    height: 122%;
+  }
+  .fw-card-anchor .fw-name {
+    font-size: 40px;
+  }
+  .fw-card-anchor .fw-tagline {
+    font-size: 21px;
+  }
+  .fw-card-side .fw-paper {
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+  }
+  .fw-card-side .fw-art {
+    grid-column: 1;
+    grid-row: 1;
+    aspect-ratio: 1;
+    margin: 14px 0 14px 14px;
+    border-radius: 10px;
+  }
+  .fw-card-side .fw-stage {
+    height: 150%;
+  }
+  .fw-card-side .fw-copy {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 16px 16px 16px 14px;
+  }
+  .fw-card-side .fw-proof {
+    grid-column: 1 / -1;
+  }
+  .fw-card-side .fw-name {
+    font-size: 26px;
+  }
+  .fw-card-side .fw-tagline {
+    margin-top: 4px;
+    font-size: 15px;
+  }
+  .fw-card-side .fw-line {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  /* the status slip joins the copy column under Explore instead of floating over the button */
+  .fw-card-side .fw-slip {
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    margin: -6px 16px 16px 14px;
+    font-size: 14px; /* EVAL-008 content floor */
+  }
+}
+/* end TASK-205 */

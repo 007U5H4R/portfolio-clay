@@ -127,7 +127,14 @@ test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every w
   await expect.poll(() => stripScale(nav.locator('a[href="/"]')), "inactive tab strip collapsed").toBeLessThan(0.05);
   const font = await active.evaluate((el) => getComputedStyle(el).fontFamily);
   expect(font).toContain("Fraunces");
-  await expect(page.locator("header").getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
+  if ((page.viewportSize()?.width ?? 0) < 640) {
+    // TASK-205: on phones the "Let's connect" pill is a row in the More sheet; the route is unchanged.
+    await page.locator("header").getByRole("button", { name: "More" }).click();
+    await expect(page.locator("dialog.more-menu").getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
+    await page.keyboard.press("Escape");
+  } else {
+    await expect(page.locator("header").getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
+  }
   await expect(page.locator("header").getByRole("button", { name: "Ask AI" })).toBeVisible();
 });
 

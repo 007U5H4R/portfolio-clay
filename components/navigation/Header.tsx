@@ -8,6 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { SecretTrigger } from "@/components/easter-egg/SecretTrigger";
 import { HeaderScroll } from "./HeaderScroll";
 import { Monogram } from "./Monogram";
+import { MoreMenu } from "./MoreMenu";
 import { PrimaryNav } from "./PrimaryNav";
 
 /**
@@ -24,6 +25,8 @@ import { PrimaryNav } from "./PrimaryNav";
  * folded-paper tabs as a full-width strip on row 2 (it scrolls horizontally when they do not fit). There is no menu button at any width.
  * TASK-192 (origami paper tabs): the sheet carries a paper-grain image and a thin terrain band; each tab is CSS
  * geometry (`clip-path` face, thickness, fold, one upper-left light) built in `PrimaryNav`.
+ * TASK-205 (mobile redesign, < 640): a compact header — brand, Ask, theme chip and a "More" button (the `MoreMenu` sheet) over a 44 px
+ * tab strip; the "Let's connect" pill moves into the sheet (its `/contact` route is unchanged) and ≥ 640 is untouched.
  * The brand's Caveat subline is the header's single counted decoration (§3.3: header = 1); it goes
  * through `MediaGate min={640}` so it is removed from the DOM below 640 (TP14), not hidden by CSS.
  * The wordmark is Inter 600 13 px — a brand micro-label (`data-micro-label`, EXE-7), not content.
@@ -79,6 +82,8 @@ export function Header() {
           <span className="header-chip">
             <ThemeToggle />
           </span>
+          {/* TASK-205: phone-only secondary destinations; CSS hides the button at >= 640. */}
+          <MoreMenu />
         </div>
       </Container>
     </header>

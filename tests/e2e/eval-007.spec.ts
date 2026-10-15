@@ -17,7 +17,8 @@ test("@EVAL-007 header: every tab stop shows the 2px rust focus ring", { tag: "@
 }) => {
   await page.goto("/", { waitUntil: "load" });
   // Skip link → brand → every nav tab → "Let's connect →" pill → Ask ghost: all opt into
-  // .focus-ring (TKT-71). Every width since TASK-112 (tabs, no hamburger).
+  // .focus-ring (TKT-71). Every width since TASK-112. < 640 (TASK-205) the pill is in the More sheet, so the last two stops
+  // are Ask and the theme switch — the same count, every one still wearing the ring.
   await keyboardOnly(page, { tabs: 2 + navItems.length + 2 });
 });
 
@@ -61,8 +62,14 @@ test("@EVAL-007 tab strip: Tab reaches every tab in order and scrolls an off-scr
   }
   expect(await strip.evaluate((el) => el.scrollLeft), "focusing the last tab scrolled the strip").toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  // TASK-205: < 640 the "Let's connect" pill lives in the More sheet, so the next stop after the tabs is the Ask button,
+  // then the theme switch and the More button.
   await page.keyboard.press("Tab");
-  await expect(page.locator("header").getByRole("link", { name: /Let's connect/ })).toBeFocused();
+  await expect(page.locator("header").getByRole("button", { name: "Ask AI" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("header [data-theme-toggle]")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("header").getByRole("button", { name: "More" })).toBeFocused();
 });
 
 const focusInsidePanel = (page: import("@playwright/test").Page) =>

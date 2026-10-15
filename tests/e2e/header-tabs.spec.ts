@@ -23,15 +23,25 @@ const inStrip = (page: Page, href: string) =>
     });
 
 test.describe("header tabs (TASK-112)", () => {
-  test("no menu button or menu dialog; pill and Ask are in the header", async ({ page }) => {
+  test("≥ 640: no menu button or menu dialog; pill and Ask are in the header", async ({ page }) => {
+    test.skip(width(page) < 640, "the phone tier has the More menu (TASK-205)");
     await page.goto("/", { waitUntil: "load" });
     const header = page.locator("header[data-site-header]");
-    await expect(header.getByRole("button", { name: /menu/i })).toHaveCount(0);
+    await expect(header.getByRole("button", { name: /more|menu/i })).toHaveCount(0);
     await expect(header.locator("[aria-controls]")).toHaveCount(0);
     await expect(page.locator("dialog")).toHaveCount(0);
     await expect(header.getByRole("link", { name: /Let's connect/ })).toBeVisible();
     await expect(header.getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
     await expect(header.getByRole("button", { name: "Ask AI" })).toBeVisible();
+  });
+
+  test("< 640 (TASK-205): the compact header has Ask, theme and More; the pill moved into the More sheet", async ({ page }) => {
+    test.skip(width(page) >= 640, "phone tier only");
+    await page.goto("/", { waitUntil: "load" });
+    const header = page.locator("header[data-site-header]");
+    await expect(header.getByRole("button", { name: "More" })).toBeVisible();
+    await expect(header.getByRole("button", { name: "Ask AI" })).toBeVisible();
+    await expect(header.getByRole("link", { name: /Let's connect/ })).toBeHidden();
   });
 
   test("every nav tab is visible or reachable by scrolling the strip, ≥ 44 px tall, ≥ 16 px apart", async ({ page }) => {
@@ -89,11 +99,11 @@ test.describe("header tabs (TASK-112)", () => {
     }
   });
 
-  test("header height (TASK-192): one fixed sheet per tier — ~119 px phone, ~137 px two-row tablet, ~124 px one row at ≥ 1280", async ({ page }) => {
+  test("header height (TASK-192): one fixed sheet per tier — ~108 px phone (< 640, TASK-205), ~119 px phablet, ~137 px two-row tablet, ~124 px one row at ≥ 1280", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     const h = (await page.locator("header[data-site-header]").boundingBox())!.height;
     test.info().annotations.push({ type: "header-height", description: `${width(page)}: ${h}px` });
-    const expected = width(page) < 768 ? 119 : width(page) < 1280 ? 137 : 124;
+    const expected = width(page) < 640 ? 108 : width(page) < 768 ? 119 : width(page) < 1280 ? 137 : 124;
     expect(Math.abs(h - expected), `header ${h}px at ${width(page)} vs --header-h ${expected}`).toBeLessThanOrEqual(2);
   });
 });
