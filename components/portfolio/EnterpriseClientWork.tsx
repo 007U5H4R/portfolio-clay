@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import type { EnterpriseCase } from "@/data/schema";
 import { enterpriseArt, enterpriseHeaderArt, type EnterpriseArt } from "@/data/enterprise-art";
 import { Container } from "@/components/layout/Container";
-import { Annotation, Sheet, TornEdge } from "@/components/paper";
+import { Sheet, TornEdge } from "@/components/paper";
 import { formatRange } from "@/lib/format";
 
 export interface EnterpriseClientWorkProps {
@@ -252,9 +252,6 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
           <p className="pf-ent-sub">
             Cloud, data, APIs, healthcare, analytics and ML programs delivered across enterprise environments.
           </p>
-          <Annotation arrow="down" rotate={-2} className="pf-ent-note">
-            inside larger systems
-          </Annotation>
           <div className="ee-cover-art" aria-hidden="true" style={{ "--ar": enterpriseHeaderArt.ratio } as CSSProperties}>
             <ArtImage dir={enterpriseHeaderArt.dir} alt="" />
           </div>

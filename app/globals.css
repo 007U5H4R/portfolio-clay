@@ -9938,48 +9938,13 @@ html.lenis body {
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
     color: var(--color-navy-2);
   }
-  /* "inside larger systems": the hand note on a torn kraft tape label */
-  .pf-ent-note {
-    position: relative;
-    isolation: isolate;
-    justify-self: end;
-    margin-top: 4px;
-    padding: 8px 16px 6px;
-    color: var(--color-navy);
-    white-space: nowrap;
-    filter: var(--pf-contact);
-  }
-  .pf-ent-note::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: calc(1.1em + 16px);
-    z-index: -1;
-    background-color: color-mix(in oklab, var(--color-kraft) 78%, transparent);
-    background-image: var(--pf-kraft-tex);
-    background-size: 360px 360px;
-    -webkit-mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
-  }
-  .pf-ent-note .annotation-arrow {
-    width: 26px;
-    margin: 6px 0 0 auto;
-  }
   @media (min-width: 1024px) {
     .pf-ent-intro {
       grid-template-columns: minmax(0, 1fr) auto;
       column-gap: clamp(24px, 4vw, 64px);
     }
-    .pf-ent-intro > :not(.pf-ent-note) {
+    .pf-ent-intro > * {
       grid-column: 1;
-    }
-    .pf-ent-note {
-      grid-column: 2;
-      grid-row: 1 / span 3;
-      align-self: end;
-      justify-self: end;
-      margin: 0 2% 0.4em 0;
-      rotate: -3deg;
     }
   }
   .pf-cases {
@@ -14538,12 +14503,6 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 .ee-cover-art {
   display: none;
-}
-.pf-enterprise .ee-cover .pf-ent-note {
-  grid-column: auto;
-  grid-row: auto;
-  justify-self: start;
-  align-self: start;
 }
 @media (min-width: 900px) {
   .ee-cover {
