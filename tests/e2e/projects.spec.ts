@@ -80,7 +80,7 @@ test("@EVAL-011 the carousel lists every personal build; the first is selected i
   await expect(page.locator("video, iframe")).toHaveCount(0);
   await expect(page.locator(".pf-stage .pf-cover")).toHaveCount(1);
   await expect(page.getByRole("button", { name: /^Play / })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: /^(Pitch|Demo) video$/ })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /^Watch (pitch|demo) video$/ })).toHaveCount(2);
 });
 
 test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the URL; the case-study link opens in a new tab", {
@@ -195,7 +195,7 @@ test("TASK-125 RailCite plays its real YouTube pitch, then its demo, in the same
   expect(new URL((await stage.locator("iframe").getAttribute("src"))!).pathname).toBe("/embed/B3x-I1J8JW8");
 });
 
-test("the selected cover is marked by shape (sketch outline + lift), not colour alone", async ({ page }) => {
+test("the selected card is marked by shape (ring + lift + indicator bar), not colour alone", async ({ page }) => {
   test.skip(width(page) !== 1440, "selection styling checked once at w1440");
   await page.goto("/projects", { waitUntil: "load" });
   const outline = (sel: string) =>
@@ -203,8 +203,12 @@ test("the selected cover is marked by shape (sketch outline + lift), not colour 
       const s = getComputedStyle(el, "::after");
       return { content: s.content, border: s.borderTopStyle };
     });
-  expect(await outline('[role="tab"][aria-selected="true"]')).toEqual({ content: '""', border: "solid" });
+  // TASK-217: the marker is a short bar under the card (the old sketch frame is gone); the card is also lifted and ringed
+  expect((await outline('[role="tab"][aria-selected="true"]')).content).toBe('""');
   expect((await outline('[role="tab"][aria-selected="false"] >> nth=0')).content).toBe("none");
+  const lift = (sel: string) => page.locator(sel).evaluate((el) => getComputedStyle(el).translate);
+  expect(await lift('[role="tab"][aria-selected="true"]')).not.toBe("none");
+  expect(await lift('[role="tab"][aria-selected="false"] >> nth=0')).toBe("none");
 });
 
 // ---------------------------------------------------------------------------
@@ -243,7 +247,7 @@ test("@EVAL-013 enterprise: six grouped case files below the showcase, no budget
 // ---------------------------------------------------------------------------
 // GENERAL — layout, EVAL-018, EVAL-008, EVAL-006
 // ---------------------------------------------------------------------------
-test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → actions at 640–1023 (TASK-197); on a phone the listing replaces the carousel (TASK-210)", async ({ page }) => {
+test("layout: poster left of the info panel (~58/42) at ≥900, stacked poster → info below; the tray beneath the window at every width ≥640 (TASK-217, was TASK-197); on a phone the listing replaces the carousel (TASK-210)", async ({ page }) => {
   await page.goto("/projects", { waitUntil: "load" });
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
   if (width(page) < 640) {
@@ -261,17 +265,16 @@ test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → 
   const info = await box(".pf-info");
   const actions = await box(".pf-action-set .pf-action"); // the strips (their list is `display: contents` below 1024)
   const carousel = await box(".pf-carousel");
-  if (width(page) >= 1024) {
+  expect(carousel.y, "the tray hangs beneath the window").toBeGreaterThan(Math.max(stage.y + stage.height, info.y + info.height) - 1);
+  if (width(page) >= 900) {
     expect(stage.x).toBeLessThan(info.x);
     const ratio = stage.width / (stage.width + info.width);
-    expect(ratio).toBeGreaterThan(0.55);
+    expect(ratio).toBeGreaterThan(0.52);
     expect(ratio).toBeLessThan(0.66);
-    expect(carousel.y).toBeGreaterThan(stage.y + stage.height - 1);
   } else {
     const head = await box(".pf-info-head");
-    expect(head.y).toBeGreaterThan(carousel.y + carousel.height - 1);
-    expect(stage.y).toBeGreaterThan(head.y + head.height - 1);
-    expect(actions.y).toBeGreaterThan(stage.y + stage.height - 1);
+    expect(head.y).toBeGreaterThan(stage.y + stage.height - 1);
+    expect(actions.y).toBeGreaterThan(head.y + head.height - 1);
   }
 });
 
@@ -371,7 +374,7 @@ async function titleFit(page: import("@playwright/test").Page, scope: string) {
   );
 }
 
-test("@EVAL-008 every cover title fits its cover — stage (each product) and thumbnails, ≤ 2 lines, ≥ 14 px", { tag: "@EVAL-008" }, async ({ page }) => {
+test("@EVAL-008 every stage cover title fits its cover (each product), ≤ 2 lines, ≥ 14 px (TASK-217: carousel cards carry no baked lettering)", { tag: "@EVAL-008" }, async ({ page }) => {
   const w = width(page);
   // TASK-210: a phone has no carousel covers and its detail hero is the art alone (the title sits below it), so there is no
   // lettering to fit at 390; the cover lettering is asserted at the desktop width, the phone's hero by projects-mobile.spec.ts.
@@ -385,7 +388,6 @@ test("@EVAL-008 every cover title fits its cover — stage (each product) and th
       if (r.scrolls || r.splitWord || !r.inside || r.lines > 2 || r.fontPx < 13.5) bad.push(`${where} · ${r.name}: ${JSON.stringify(r)}`);
     }
   };
-  check("thumb", await titleFit(page, ".pf-track"));
   for (const project of PERSONAL) {
     await page.locator(`[role="tab"][data-product="${project.slug}"]`).click();
     await expect(panel(page)).toHaveAttribute("data-active-product", project.slug);

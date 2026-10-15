@@ -208,9 +208,6 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       {intro}
       {view === "detail" ? <PhoneDetailBar name={product.name} onBack={backToList} /> : null}
       <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
-      {/* TASK-197: the carousel precedes the panel it controls, so a phone reads intro → carousel → details → video → actions
-          (the picker stays above the video); ≥ 1024 places it by grid row, so the desktop arrangement is unchanged. */}
-      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
       <div
         id={PANEL_ID}
         className="pf-feature"
@@ -228,9 +225,12 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
           onModeChange={changeMode}
           stageId={STAGE_ID}
           headingId={NAME_ID}
+          total={products.length}
           onWatch={watchVideo}
         />
       </div>
+      {/* TASK-217: the picker sits beneath the window it drives (DOM order = visual order). The phone hides it (TASK-210). */}
+      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
     </div>
   );
 }

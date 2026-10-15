@@ -3,7 +3,7 @@
 import { NewTabHint } from "@/components/common/NewTabHint";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
-import { Pin, Sheet, Tape } from "@/components/paper";
+import { Sheet } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 
@@ -14,6 +14,8 @@ export interface ProductInfoPanelProps {
   /** The media stage's screen id (Pitch / Demo `aria-controls`). */
   stageId: string;
   headingId: string;
+  /** TASK-217: how many products the carousel holds ("01 / 13"). */
+  total: number;
   /** TASK-210: the phone's "Watch demo / pitch" — switches the stage to that video and starts it. */
   onWatch: (mode: MediaMode) => void;
 }
@@ -21,7 +23,7 @@ export interface ProductInfoPanelProps {
 type ExternalKind = "product" | "github" | "prd";
 
 const EXTERNAL: Record<ExternalKind, { label: string; hint: string; icon: LucideIcon; name: (product: string) => string }> = {
-  product: { label: "Product link", hint: "Open the live product", icon: Link2, name: (p) => `Product link: ${p}, the live product` },
+  product: { label: "Open live product", hint: "Open the live product", icon: Link2, name: (p) => `Open live product: ${p}` },
   github: { label: "GitHub", hint: "View the source", icon: GitBranch, name: (p) => `GitHub: ${p} source code` },
   prd: { label: "PRD", hint: "Read the product doc", icon: FileText, name: (p) => `PRD: ${p} product requirements document` },
 };
@@ -54,7 +56,7 @@ function StripBody({ icon: Icon, label, hint, external }: { icon: LucideIcon; la
  * tab. An action with nothing behind it is not rendered at all (no disabled dead buttons). The case
  * study link ("Explore the build", spec §4) keeps the recruiter hop to `/work/<slug>` (EVAL-002).
  */
-export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, onWatch }: ProductInfoPanelProps) {
+export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch }: ProductInfoPanelProps) {
   const externals: { kind: ExternalKind; href: string }[] = [];
   if (product.productUrl) externals.push({ kind: "product", href: product.productUrl });
   if (product.githubUrl) externals.push({ kind: "github", href: product.githubUrl });
@@ -63,8 +65,20 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   // the strips + the case study: the phone lays them out as one 2-column grid (an odd count lets the case study span)
   const actionCount = (product.pitchVideo ? 1 : 0) + (product.demoVideo ? 1 : 0) + externals.length + 1;
 
+  // TASK-217 tiers: the primary is the first video there is (pitch, else demo, else the case study); the other video and
+  // the live product are secondary; source / PRD / case study are tertiary text links.
+  const primary: "pitch" | "demo" | "case" = product.pitchVideo ? "pitch" : product.demoVideo ? "demo" : "case";
+  const tierOf = (action: string): "primary" | "secondary" | "tertiary" =>
+    action === primary ? "primary" : action === "demo" || action === "product" ? "secondary" : "tertiary";
+  // thin separators between the tertiary text links (every one but the first, in DOM order)
+  const tertiaryKeys = [...externals.map((e) => e.kind), "case"].filter((k) => tierOf(k) === "tertiary");
+  const sepFor = (key: string) => (tertiaryKeys.indexOf(key) > 0 ? "" : undefined);
+  const totalLabel = String(total).padStart(2, "0");
+  const position = String(product.position).padStart(2, "0");
+  const category = (product.tags ?? []).slice(0, 2).join(" · ");
+
   const mediaButton = (target: MediaMode, label: string, hint: string, Icon: LucideIcon) => (
-    <li>
+    <li data-tier={tierOf(target)}>
       <button
         type="button"
         className="pf-action focus-ring"
@@ -80,10 +94,14 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
 
   return (
     <Sheet as="div" variant="card" rotate={0.6} className="pf-info">
-      <Pin tone="rust" className="pf-info-pin" />
-      <Tape side="r" rotate={8} className="pf-info-tape" />
       <div className="pf-info-head">
       <PhoneTags tags={product.tags} />
+      <p className="pf-info-kicker">
+        <span className="pf-info-count">
+          {position} / {totalLabel}
+        </span>
+        {category ? <span className="pf-info-category">{category}</span> : null}
+      </p>
       <p className="pf-info-meta">
         <span className="pf-info-code">{product.code}</span>
         <span aria-hidden="true">·</span>
@@ -97,12 +115,12 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       </div>
       <div className="pf-action-set" data-odd={actionCount % 2 === 1 ? "" : undefined}>
       <ul className="pf-actions" aria-label={`${product.name} actions`}>
-        {product.pitchVideo ? mediaButton("pitch", "Pitch video", "Plays here", Play) : null}
-        {product.demoVideo ? mediaButton("demo", "Demo video", "See it in action", Video) : null}
+        {product.pitchVideo ? mediaButton("pitch", "Watch pitch video", "Plays here", Play) : null}
+        {product.demoVideo ? mediaButton("demo", "Watch demo video", "See it in action", Video) : null}
         {externals.map(({ kind, href }) => {
           const def = EXTERNAL[kind];
           return (
-            <li key={kind}>
+            <li key={kind} data-tier={tierOf(kind)} data-sep={sepFor(kind)}>
               <a
                 className="pf-action focus-ring"
                 data-action={kind}
@@ -124,6 +142,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         rel="noopener noreferrer"
         className="pf-action pf-case-link focus-ring"
         data-action="case"
+        data-tier={tierOf("case")}
+        data-sep={sepFor("case")}
       >
         <span className="pf-action-icon" aria-hidden="true">
           <BookOpen aria-hidden="true" focusable="false" strokeWidth={1.75} />
