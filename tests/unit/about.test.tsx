@@ -155,6 +155,13 @@ describe("/about (TASK-136)", () => {
       expect(research.textContent).toContain(paper.title);
       if (paper.doiHref) expect(research.querySelector(`a[href="${paper.doiHref}"]`)).not.toBeNull();
     }
+    // TASK-209: no detached reference block — each card holds its own links, rights line and entries
+    expect(research.querySelector(".rvx-foot")).toBeNull();
+    expect(artifacts[1]!.querySelector(`a[href="${patent.href}"]`)).not.toBeNull();
+    expect(artifacts[1]!.textContent).toContain(researchDisclaimer);
+    expect(artifacts[0]!.querySelector(`a[href="${papers[0]!.doiHref}"]`)).not.toBeNull();
+    expect(artifacts[2]!.querySelectorAll(".rvx-papers > li")).toHaveLength(papers.length);
+    for (const paper of papers) expect(artifacts[2]!.querySelector(`a[href="${paper.doiHref}"]`)).not.toBeNull();
     expect(research.textContent).not.toContain("DOI pending"); // both papers now carry a real DOI (TASK-163)
     expect(research.querySelector('a[href="https://doi.org/10.1039/d3sm00290j"]')).not.toBeNull();
     expect(research.textContent).not.toMatch(/044152784/); // the résumé's SL No. is never the patent number
