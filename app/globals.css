@@ -10363,7 +10363,7 @@ html.lenis body {
    docs/redesign-mockups/m-009/tushar-2026-09-29/about-redesign-spec.md; Design.md §7.4, §11 Dev-135).
    Five areas under the scene opener: hero (copy 44 % | paper collage 56 %) → Three Chapters (paper-2,
    three torn tinted cards) → Career Across Contexts (paper, a compact era strip on a hand-drawn thread)
-   → Research 55 % | What Drives Me 45 % (paper-2) → Recognition (paper) → the dark Experience strip.
+   → Research (paper-2) → Recognition (paper) → the dark Experience strip.
    The art is hand-authored SVG in public/about/ (scripts/about-art/); colour lives in those files. Paper
    tokens + `color-mix()` only here (EVAL-020). Motion: the shared one-shot `Reveal` (chapters 90 ms apart,
    the thread draws left → right, artifacts settle, recognition fades); a 2 px card lift on hover; all of
@@ -10475,45 +10475,44 @@ html.lenis body {
     width: 100%;
     max-width: 780px;
     justify-self: center;
-    aspect-ratio: 1.26;
+    aspect-ratio: 1168 / 880;
+    container-type: inline-size;
   }
-  .abh-collage {
+  /* TASK-212: the book labels sit on the spines at % of the art box and scale with it (cqw), so they never
+     leave their book at any width; the spine slopes ~9° down to the right. */
+  .abh-spine {
     position: absolute;
-    inset: 0;
+    left: 36.4%;
+    z-index: 2;
+    transform: translate(-50%, -50%) rotate(9deg);
+    font-family: var(--font-display);
+    font-size: 2.7cqw;
+    font-weight: 600;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    color: #f8efdc;
+    text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
+    white-space: nowrap;
     pointer-events: none;
   }
-  .abh-piece {
-    position: absolute;
-    height: auto;
-    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--shadow-ink) 10%, transparent));
+  .abh-spine[data-tone="gold"] {
+    color: #1d2a4d;
+    text-shadow: none;
   }
-  .abh-sketches {
-    top: -1%;
-    left: -4%;
-    width: 52%;
-    z-index: 1;
-  }
-  .abh-city {
-    top: -7%;
-    right: -4%;
-    width: 64%;
-    z-index: 2;
-  }
-  .abh-desk {
-    right: -6%;
-    bottom: -1%;
-    width: 74%;
-    z-index: 3;
-  }
-  .abh-books {
-    left: -1%;
-    bottom: -2%;
-    width: 50%;
-    z-index: 4;
+  /* TASK-212: one diorama in a rounded paper frame — its cream tabletop reads as a sheet on both themes */
+  .abh-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    box-shadow: var(--shadow-paper);
+    pointer-events: none;
   }
   .abh-note.paper-annotation {
     position: absolute;
     z-index: 5;
+    font-size: max(13px, 3.4cqw);
     padding: 10px 14px 12px;
     background: var(--ab-cream);
     background-image: var(--ab-fibers);
@@ -10521,14 +10520,14 @@ html.lenis body {
     box-shadow: var(--shadow-paper);
   }
   .abh-note-a {
-    top: -2%;
-    left: 37%;
+    top: 4%;
+    left: 3%;
     max-width: 13ch;
   }
   .abh-note-b {
-    top: 22%;
-    right: -3%;
-    max-width: 10ch;
+    top: 3%;
+    left: 36%;
+    max-width: 14ch;
   }
   @media (min-width: 1024px) {
     .abh-grid {
@@ -10536,26 +10535,16 @@ html.lenis body {
     }
   }
   @media (max-width: 639px) {
-    .abh-stage {
-      aspect-ratio: 1.08;
-    }
-    .abh-sketches,
-    .abh-desk,
     .abh-note-b {
       display: none;
     }
-    .abh-city {
-      top: 0;
-      right: -4%;
-      width: 86%;
-    }
-    .abh-books {
-      left: 0;
-      width: 64%;
-    }
-    .abh-note-a {
-      top: 2%;
-      left: 0;
+    .abh-note.paper-annotation.abh-note-a {
+      top: 3%;
+      left: 3%;
+      max-width: 20ch;
+      padding: 4px 8px 6px;
+      font-size: 13px;
+      line-height: 1.2;
     }
   }
 
@@ -10668,7 +10657,7 @@ html.lenis body {
 
   /* ---- Career Across Contexts: the pinboard (TASK-196, below) ---- */
 
-  /* ---- Research + What Drives Me ---- */
+  /* ---- Research & Intellectual Work ---- */
   .rvx-body {
     background: var(--color-paper-2);
   }
@@ -10697,11 +10686,11 @@ html.lenis body {
     padding: 10px 14px 16px;
     background-color: var(--color-ivory);
   }
+  /* TASK-213: the three research images are one paper-craft triptych, the same 4:3 box in every card */
   .rvx-art {
     width: 100%;
-    max-width: 260px;
     height: auto;
-    align-self: center;
+    border-radius: 8px;
   }
   .rvx-title {
     margin-top: 4px;
@@ -10792,71 +10781,7 @@ html.lenis body {
     line-height: 1.4;
     color: var(--color-ink-soft);
   }
-  .rvx-values-h2 {
-    max-width: 16ch;
-  }
-  .rvx-values-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    margin-top: 22px;
-    align-items: start;
-  }
-  .rvx-principles.paper-sheet {
-    padding: 26px 22px 24px;
-    background-color: color-mix(in oklab, var(--color-ivory) 62%, var(--color-note));
-  }
-  .rvx-plist {
-    display: grid;
-    gap: 18px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .rvx-plist li {
-    display: grid;
-    grid-template-columns: 36px minmax(0, 1fr);
-    gap: 14px;
-    align-items: center;
-    font-size: clamp(17px, 1.3vw, 19px);
-    color: var(--color-navy);
-  }
-  .rvx-picon {
-    width: 34px;
-    height: 34px;
-    fill: none;
-    stroke: var(--color-terracotta);
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .rvx-plist li[data-principle="products"] .rvx-picon {
-    stroke: var(--color-navy-2);
-  }
-  .rvx-plist li[data-principle="learning"] .rvx-picon {
-    stroke: var(--color-forest);
-  }
-  .rvx-photo {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    max-width: 210px;
-    justify-self: center;
-  }
-  .rvx-note.paper-annotation {
-    margin-top: -18px;
-    justify-self: end;
-    max-width: 12ch;
-    padding: 8px 12px 10px;
-    background: var(--ab-cream);
-    box-shadow: var(--shadow-paper);
-  }
-  @media (min-width: 640px) {
-    .rvx-values-row {
-      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    }
-  }
-  /* TASK-209: the cards need width for their reference panels — stacked until 1280, then ~70 | 30. */
+  /* TASK-209: the cards need width for their reference panels — stacked below 640, two up to 1023. */
   @media (min-width: 640px) and (max-width: 1023px) {
     .rvx-artifacts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -10867,42 +10792,20 @@ html.lenis body {
     .rvx-slot[data-artifact="publications"] .rvx-papers {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    /* the full-width card keeps its image at the size of its two-up neighbours */
+    .rvx-slot[data-artifact="publications"] .rvx-art {
+      max-width: 340px;
+      align-self: center;
+    }
   }
   @media (min-width: 1280px) {
-    .rvx-wrap {
-      grid-template-columns: minmax(0, 71fr) minmax(0, 29fr);
-      gap: clamp(48px, 5vw, 72px) 32px;
-    }
     .rvx-artifacts {
       gap: 14px;
-    }
-    .rvx-art {
-      max-width: 220px;
-    }
-    .rvx-values-row {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 16px;
-    }
-    .rvx-photo {
-      max-width: 120px;
-    }
-    .rvx-values-h2 {
-      max-width: none;
-    }
-    /* beside the cards the philosophy column must not outgrow them (about.spec "compact" budget) */
-    .rvx-plist {
-      gap: 14px;
-    }
-    .rvx-part {
-      max-height: 54px;
     }
   }
   @media (max-width: 639px) {
     .rvx-artifacts {
       grid-template-columns: minmax(0, 1fr);
-    }
-    .rvx-photo {
-      max-width: 200px;
     }
   }
 
@@ -12838,7 +12741,7 @@ html[data-theme-vt]::view-transition-group(root) {
 /* TASK-196 · `/about` body redesign — origami layered research notebook (Tushar's About-page spec 2026-10-12;
    Higgsfield art in public/media/about-paper/, see docs/about-paper-art.md). Seven sections between the
    unchanged hero and the unchanged footer: the desk → Three Chapters → Career pinboard → Research →
-   What Drives Me → Recognition → Recommendations. Tokens and `color-mix()` only (EVAL-020), so the dark
+   Recognition → Recommendations. Tokens and `color-mix()` only (EVAL-020), so the dark
    treatment comes from the role tokens; the art has light and dark pairs where it carries the lamp.
 
    Interaction contract (P1, EXE-59…64, Design.md §14.10): hover only under `(hover: hover) and (pointer:
@@ -12868,15 +12771,13 @@ html[data-theme-vt]::view-transition-group(root) {
   /* ---- the lifting objects: a crossfading shadow pseudo ---- */
   .crx-card,
   .rvx-artifact.paper-sheet,
-  .rvx-plist li,
   .bdx-page.paper-sheet {
     position: relative;
     isolation: isolate;
     transition: translate var(--dur-l2-out) var(--ease-paper);
   }
   .crx-card::after,
-  .rvx-artifact.paper-sheet::after,
-  .rvx-plist li::after {
+  .rvx-artifact.paper-sheet::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -12912,7 +12813,6 @@ html[data-theme-vt]::view-transition-group(root) {
     .crx-era[data-on] .crx-card::after,
     .crx-card:has(:focus-visible)::after,
     .rvx-artifact.paper-sheet:hover::after,
-    .rvx-plist li:hover::after,
     .chx-card.paper-sheet:hover::before,
     .chx-card.paper-sheet:has(:focus-visible)::before,
     .tsx-card.paper-sheet:hover::before {
@@ -12929,7 +12829,6 @@ html[data-theme-vt]::view-transition-group(root) {
     .crx-era[data-on] .crx-card,
     .crx-card:has(:focus-visible),
     .rvx-artifact.paper-sheet:hover,
-    .rvx-plist li:hover,
     .chx-card.paper-sheet:hover,
     .chx-card.paper-sheet:has(:focus-visible),
     .tsx-card.paper-sheet:hover {
@@ -12947,10 +12846,6 @@ html[data-theme-vt]::view-transition-group(root) {
       translate: 0 -3px;
       rotate: 0deg;
     }
-    .rvx-plist li:hover .rvx-part {
-      translate: 0 -3px;
-      rotate: -1.5deg;
-    }
   }
   @media (hover: none), (pointer: coarse) {
     .crx-era[data-on] .crx-card::after {
@@ -12960,7 +12855,6 @@ html[data-theme-vt]::view-transition-group(root) {
   @media (hover: none) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
     .crx-card:active,
     .rvx-artifact.paper-sheet:active,
-    .rvx-plist li:active,
     .chx-card.paper-sheet:active,
     .tsx-card.paper-sheet:active {
       translate: 0 1px;
@@ -12968,8 +12862,7 @@ html[data-theme-vt]::view-transition-group(root) {
     }
   }
   .chx-art,
-  .crx-photo,
-  .rvx-part {
+  .crx-photo {
     transition: translate var(--dur-l2-out) var(--ease-paper), rotate var(--dur-l2-out) var(--ease-paper);
   }
 
@@ -13403,46 +13296,6 @@ html[data-theme-vt]::view-transition-group(root) {
     }
     .rvx-notebook {
       margin-inline: 0;
-    }
-  }
-
-  /* ---- 5 · what drives me: one paper artifact per principle ---- */
-  .rvx-plist li {
-    grid-template-columns: 112px 30px minmax(0, 1fr);
-    gap: 12px;
-    padding: 6px 4px;
-    border-radius: 6px;
-  }
-  .rvx-part {
-    grid-column: 1;
-    width: 100%;
-    max-height: 84px;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 5px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
-  }
-  .rvx-picon {
-    width: 28px;
-    height: 28px;
-  }
-  .rvx-plist li > span {
-    min-width: 0;
-  }
-  /* TASK-207: beside Research (≥ 1024) the card is ~230–310 px, too narrow for art | icon | text in one row,
-     so the words spilled past the card. Below 360 px of card the art takes its own row above icon + text. */
-  .rvx-principles.paper-sheet {
-    container-type: inline-size;
-  }
-  @container (max-width: 359px) {
-    .rvx-plist li {
-      grid-template-columns: 30px minmax(0, 1fr);
-      row-gap: 6px;
-    }
-    .rvx-part {
-      grid-column: 1 / -1;
-      justify-self: start;
-      width: auto;
-      max-width: 140px;
     }
   }
 

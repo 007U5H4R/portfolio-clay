@@ -2,24 +2,38 @@ import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Annotation, Sketch } from "@/components/paper";
 import { ABOUT_HERO } from "./about-content";
-import { AboutArtImg } from "./AboutArtImg";
+import { ABOUT_ARTWORK } from "./about-artwork";
 
 /**
  * `/about` hero (TASK-136, spec §2–§6; supersedes TASK-117's "machines → systems → people" hero). Server
  * component, directly under the page's scene opener.
  *
  *   ≥ 1024  LEFT ~44 %: eyebrow ABOUT, the h1 (rust hand-drawn underline under "real-world impact."), one
- *           short paragraph — no biography. RIGHT ~56 %: the editorial paper collage, overlapping the
- *           paper: the research sketches, the city under the terracotta sun, the book stack (AI · Systems
- *           · Products · Impact) and the product desk (notebook, laptop, mug), plus two handwritten notes.
- *   < 1024  copy first, then the collage (spec §45); < 640 the collage drops to the city + the books.
+ *           short paragraph — no biography. RIGHT ~56 %: one paper-craft diorama (TASK-212: research sheet,
+ *           the four books, the city under the terracotta sun, laptop, notebook) with two handwritten notes
+ *           set over its empty cream corner as real HTML (the art itself carries no lettering).
+ *   < 1024  copy first, then the diorama (spec §45); < 640 it keeps one note.
  *
- * EVAL-018 (Design.md §3.3 `/about` hero): underline sketch · collage (one object, every piece inside,
- * `aria-hidden`) · two annotations = 4 at every width (hidden pieces stay in the DOM).
+ * The four book spines (AI · Systems · Products · Impact) are aria-hidden HTML over the art; the alt names them.
+ *
+ * EVAL-018 (Design.md §3.3 `/about` hero): underline sketch · two annotations = 3 at every width (the hidden
+ * note stays in the DOM). The diorama is a meaningful image (alt text), not decoration.
  * Motion: the copy and the collage settle in once (`Reveal`); nothing moves under reduced motion.
  */
+/**
+ * TASK-212: the four book labels are real HTML set on the spines of the stack in the art. `top`/`left` are the
+ * spine's centre as a % of the art box (1168 × 880), so they follow the image at every width.
+ */
+const BOOK_SPINES = [
+  { label: "AI", top: 40.6, tone: "navy" },
+  { label: "Systems", top: 46.9, tone: "rust" },
+  { label: "Products", top: 53.9, tone: "forest" },
+  { label: "Impact", top: 61, tone: "gold" },
+] as const;
+
 export function AboutHero() {
   const [before] = ABOUT_HERO.title.split(ABOUT_HERO.underlined);
+  const hero = ABOUT_ARTWORK["about-hero"];
   return (
     <Container as="section" aria-labelledby="about-hero-heading" className="abh">
       <div className="abh-grid">
@@ -36,12 +50,23 @@ export function AboutHero() {
         </Reveal>
 
         <Reveal className="abh-stage" index={2}>
-          <div className="abh-collage" data-decor="collage" aria-hidden="true">
-            <AboutArtImg id="research-sketches" className="abh-piece abh-sketches" />
-            <AboutArtImg id="systems-collage" className="abh-piece abh-city" />
-            <AboutArtImg id="product-desk" className="abh-piece abh-desk" />
-            <AboutArtImg id="books-stack" className="abh-piece abh-books" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP */}
+          <img
+            className="abh-art"
+            src={hero.src}
+            width={hero.width}
+            height={hero.height}
+            alt={hero.alt}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            data-about-artwork="about-hero"
+          />
+          {BOOK_SPINES.map((book) => (
+            <span key={book.label} className="abh-spine" data-tone={book.tone} style={{ top: `${book.top}%` }} aria-hidden="true">
+              {book.label}
+            </span>
+          ))}
           <Annotation rotate={-3} size="lg" className="abh-note abh-note-a">
             {ABOUT_HERO.notes[0]}
           </Annotation>

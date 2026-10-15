@@ -98,7 +98,7 @@ describe("lib/anchors routes()", () => {
   });
 
   it("exposes the documented page anchors", () => {
-    expect(PAGE_ANCHORS.about).toEqual(["chapters", "career", "research", "values", "recognition"]);
+    expect(PAGE_ANCHORS.about).toEqual(["chapters", "career", "research", "recognition"]);
     expect(PAGE_ANCHORS.work).toEqual(["work-experience", "education", "skills"]);
     // TASK-136: the résumé anchors left /about with their sections
     for (const gone of ["experience", "impact", "capabilities"]) expect(resolves(`/about#${gone}`, ROUTE_SET)).toBe(false);
