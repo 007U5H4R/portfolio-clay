@@ -41,7 +41,7 @@ const embedId = async (page: Page) => new URL((await frames(page).getAttribute("
 
 test.describe("Portfolio showcase video (TASK-122)", () => {
   test.beforeEach(() => {
-    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones (<640) use the TASK-210 detail screen, covered by projects-mobile.spec");
   });
 
   test("pitch poster first; Pitch → Demo unmounts and remounts in the SAME left frame; one iframe at a time", async ({ page, noOverflow }) => {
@@ -132,7 +132,7 @@ test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
   const DEMO_ID = "DkxDQji3dz8";
 
   test.beforeEach(() => {
-    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones (<640) use the TASK-210 detail screen, covered by projects-mobile.spec");
   });
 
   test("select Campfire: Pitch + Demo strips; poster → one youtube-nocookie iframe; Demo swaps the id; no CSP error", async ({ page, noOverflow }) => {
@@ -181,7 +181,7 @@ test.describe("Slag City real videos on /projects (TASK-129)", () => {
   const DEMO_ID = "tc4QDVl8NJM";
 
   test.beforeEach(() => {
-    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones (<640) use the TASK-210 detail screen, covered by projects-mobile.spec");
   });
 
   test("select Slag City: poster → one youtube-nocookie iframe; Demo swaps the id; product + GitHub open new tabs; no CSP error", async ({ page, noOverflow }) => {
@@ -239,7 +239,7 @@ test.describe("TeachSpark real videos on /projects (TASK-170)", () => {
   const DEMO_ID = "vWYbkGFjKyQ";
 
   test.beforeEach(() => {
-    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones (<640) use the TASK-210 detail screen, covered by projects-mobile.spec");
   });
 
   test("select TeachSpark: poster → one youtube-nocookie iframe; Demo swaps the id; no CSP error", async ({ page, noOverflow }) => {
@@ -280,7 +280,7 @@ test.describe("Pratyasa real videos on /projects (TASK-179)", () => {
   const DEMO_ID = "Rl6MQiSBqh8";
 
   test.beforeEach(() => {
-    test.skip(!["w390", "w1440"].includes(test.info().project.name), "verified at w390 (touch) and w1440");
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones (<640) use the TASK-210 detail screen, covered by projects-mobile.spec");
   });
 
   test("select Pratyasa: poster → one youtube-nocookie iframe; Demo swaps the id; no CSP error", async ({ page, noOverflow }) => {

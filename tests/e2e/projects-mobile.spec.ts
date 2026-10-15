@@ -257,6 +257,7 @@ test.describe("Portfolio on phones (TASK-210)", () => {
           for (const el of Array.from(root?.querySelectorAll("*") ?? [])) {
             if (el.closest(".pf-m-filters") || (el as HTMLElement).offsetParent === null) continue;
             if (el.closest(".pf-stage-screen")) continue;
+            if (el.closest(".sr-only")) continue; // visually hidden by design (1px clipped box), not visible overflow
             const r = el.getBoundingClientRect();
             if (r.width === 0 || r.height === 0) continue;
             if (r.left < -0.5 || r.right > vw + 0.5) bad.push(`${el.tagName.toLowerCase()}.${(el as HTMLElement).className.toString().slice(0, 40)} ${Math.round(r.left)}..${Math.round(r.right)}`);
