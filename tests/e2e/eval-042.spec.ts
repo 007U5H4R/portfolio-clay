@@ -353,15 +353,19 @@ test.describe("@EVAL-042 What I Bring tool chips (TASK-201)", () => {
     noForbiddenTransitions("chip note", hov.n);
     expect(hov.c.scale).toBeLessThanOrEqual(1.0001);
 
-    // an unpaired chip: lifts, no label element at all
-    const bare = page.locator(`${STAGE} .wib-chip`, { hasText: "BigQuery" });
+    // an unpaired chip (AI stage's Vertex AI since TASK-216 trimmed Technology to paired tools): lifts, no label element at all
+    await page.locator("#wib-tab-ai-genai").click();
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(500); // let the 240 ms panel entrance settle before reading the resting position
+    const bare = page.locator("#wib-panel-ai-genai .wib-chip", { hasText: "Vertex AI" });
     await expect(bare.locator(".wib-chip-note")).toHaveCount(0);
     const bareRest = await read(bare);
     await bare.hover();
     await page.waitForTimeout(500);
     expect((await read(bare)).y - bareRest.y, "unpaired chip lift").toBeCloseTo(-2, 0);
 
-    // keyboard: the same label and lift
+    // keyboard: the same label and lift (back on the Technology stage)
+    await page.locator(OPEN).click();
     await page.mouse.move(2, 2);
     await page.waitForTimeout(500);
     await keyboardFocus(page, page.locator(OPEN));

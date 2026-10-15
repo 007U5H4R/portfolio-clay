@@ -4,7 +4,7 @@ import { Annotation } from "@/components/paper";
 import type { Certification } from "@/data/certifications";
 import { CredentialLink } from "./CredentialLink";
 import { deckle } from "./deckle";
-import { Books, Chart, Cloud, Gear, IssuerIcon, Lightbulb, Mountain, People, Plane, Sparks, Star } from "./Doodles";
+import { Chart, Cloud, Gear, IssuerIcon, Lightbulb, Mountain, People, Sparks, Star } from "./Doodles";
 
 /**
  * CertificationTimeline (TKT-102, Tushar direction 2026-09-26 — docs/redesign-mockups/m-009/
@@ -20,7 +20,7 @@ import { Books, Chart, Cloud, Gear, IssuerIcon, Lightbulb, Mountain, People, Pla
  *
  * EVAL-018 (Design.md §3.2) — `section#certifications` counts 4: the hand-lettered title strip
  * (`note`) · the aside (`annotation`) · ONE text-free collage (`collage`, Dev-40 kind: generated paper
- * scraps, leaf + fern, mountain, stars, sparks) · the footer (`note`: books, plane, "Continuous learning…" strip). The
+ * scraps, leaf + fern, mountain, stars, sparks) · the footer (`note`: the LEARN/BUILD/APPLY/GROW paper art, "Continuous learning…" strip). The
  * visible title is decoration; the real `<h1>` is sr-only with the same word. The sticky notes are the
  * card's own annotation (Dev-46): `aria-hidden`, their words reach assistive tech through the link's
  * `aria-describedby`, so no information lives only in a decoration.
@@ -200,8 +200,17 @@ export function CertificationTimeline({ certifications }: CertificationTimelineP
         </ol>
 
         <div className="cert-foot" data-decor="note" aria-hidden="true">
-          <Books />
-          <Plane />
+          {/* TASK-218: Tushar's LEARN → BUILD → APPLY → GROW paper art (3:1) replaces the line-doodle books + plane. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="cert-foot-art"
+            src="/media/illustrations/certifications-learn-build-apply-grow.webp"
+            alt=""
+            width={1400}
+            height={469}
+            loading="lazy"
+            decoding="async"
+          />
           <p className="cert-foot-strip font-hand">
             <span className="cert-foot-paper" style={{ clipPath: deckle(hashSeed("foot"), { across: 14, down: 6, depthX: 2.4, depthY: 6 }) }} />
             <span className="cert-foot-text">Continuous learning for higher impact.</span>

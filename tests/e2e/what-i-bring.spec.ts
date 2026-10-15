@@ -45,7 +45,7 @@ test.describe("@TASK-216 What I Bring journey", () => {
     await page.locator(".wibj-pin[data-n='4']").click();
     await expect(panel(page, "ai-genai")).toBeVisible();
     await expect(panel(page, "ai-genai")).toContainText("I turn AI capability into useful products.");
-    await expect(panel(page, "ai-genai")).toContainText("TeachSpark");
+    await expect(panel(page, "ai-genai")).toContainText("RailCite");
     await expect(page.locator("#wib-tab-ai-genai")).toHaveAttribute("aria-selected", "true");
     await expect(page.locator(".wibj-pin[data-n='4']")).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator("[role='tabpanel']:visible")).toHaveCount(1);
@@ -102,6 +102,10 @@ test.describe("@TASK-216 What I Bring journey", () => {
       await expect(panel(page, id)).toBeVisible();
       await expect(panel(page, id).locator(".wib-caps li").first()).toBeVisible();
       await expect(panel(page, id).locator(".wibj-art img")).toBeVisible();
+      // the illustration is never cropped: its box keeps the art's own 880:663 ratio on every stage (TASK-216 follow-up)
+      const art = await panel(page, id).locator(".wibj-art").boundingBox();
+      expect(art, id).not.toBeNull();
+      expect(Math.abs(art!.width / art!.height - 880 / 663), id).toBeLessThan(0.03);
     }
     const text = await page.locator("section#skills").evaluate((el) => el.textContent ?? "");
     expect(text).not.toMatch(FORBIDDEN);
