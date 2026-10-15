@@ -251,7 +251,7 @@ test("TKT-108 hero copy block: three-line h1 ≥ 768, hand line, Ask Tushky capt
   await expect(sticker).toHaveAttribute("alt", "");
   expect(await sticker.evaluate((el) => el.closest('[aria-hidden="true"]') !== null)).toBe(true);
   const notes = page.locator(".hero-margin-note");
-  await expect(notes).toHaveCount(2);
+  await expect(notes).toHaveCount(1); // the flow note; the "real problems / real people / bigger impact" note was removed (TASK-222)
   for (const note of await notes.all()) {
     if (width(page) >= 1024) await expect(note).toBeVisible();
     else await expect(note).toBeHidden();
