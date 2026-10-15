@@ -4,7 +4,7 @@
  * ContactEntrance (TASK-113, Tushar's contact spec 2026-09-27 §20) — the `/contact` section's one-off
  * entrance, the same arm-then-reveal pattern as the Home Ask Tushky stage (`HomeAskTushkyStage`).
  * After mount it sets `data-armed` (the CSS pre-reveal state exists only then, so with JavaScript off
- * everything is visible, EVAL-015). When the grid is 20% in view, or focus enters it, it sets
+ * everything is visible, EVAL-015). When the grid is 10% in view (20% until TASK-214: the larger art made the grid taller, so 20% needed a scroll on a 1440×900 first view), or focus enters it, it sets
  * `data-in` and the CSS in the TASK-113 block of `app/globals.css` plays once: head up 10 px, collage
  * fades and settles its rotation, card in from 20 px right, sticky rotates 1° into place (~700 ms in
  * all). The hidden state is declared only under `prefers-reduced-motion: no-preference`; with reduced
@@ -36,7 +36,7 @@ export function ContactEntrance({ className, children }: { className?: string; c
           observer.disconnect();
         }
       },
-      { threshold: 0.2 },
+      { threshold: 0.1 },
     );
     observer.observe(el);
     return () => observer.disconnect();
