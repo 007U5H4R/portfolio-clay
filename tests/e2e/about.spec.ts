@@ -52,6 +52,20 @@ test("hero: eyebrow ABOUT, the approved h1 and copy; the scene renders once, in 
   await expect(art).toHaveAttribute("height", "880");
 });
 
+test("TASK-212: the four book labels stay on their books at every width (centre at the same % of the art box)", async ({ page }) => {
+  await page.goto("/about", { waitUntil: "load" });
+  await revealAll(page);
+  const art = (await page.locator("img.abh-art").boundingBox())!;
+  const expected = [["AI", 40.6], ["Systems", 46.9], ["Products", 53.9], ["Impact", 61]] as const;
+  for (const [label, top] of expected) {
+    const box = (await page.locator(".abh-spine", { hasText: label }).first().boundingBox())!;
+    const cx = ((box.x + box.width / 2 - art.x) / art.width) * 100;
+    const cy = ((box.y + box.height / 2 - art.y) / art.height) * 100;
+    expect(Math.abs(cx - 36.4), `${label} x`).toBeLessThan(1);
+    expect(Math.abs(cy - top), `${label} y`).toBeLessThan(1.2);
+  }
+});
+
 test("hero layout: ≥ 1024 copy left (~44–46 %) and collage right; < 1024 copy first, collage below", async ({ page }) => {
   await page.goto("/about", { waitUntil: "load" });
   await revealAll(page);
@@ -84,6 +98,7 @@ test("the page stays compact: about 4–5 viewport heights of content at 1440 (s
   }));
   // 5.6 (was 5.5): TASK-209 folded the citations block into the research cards, adding ~15px at 1440 (Tushar, 2026-10-15)
   // 5.8 (was 5.6): TASK-215 swapped Recognition for Home's taller Awards & Recognition section plus a foot that clears the 200px torn-edge lag (measured 5.781 at 1440)
+  // 5.8 after TASK-212/213 + merge: removing What Drives Me is offset by the research cards' taller 4:3 images; measured 5.778 at 1440, rounded up to the next 0.1
   expect((main - opener) / 900).toBeLessThanOrEqual(5.8);
 });
 

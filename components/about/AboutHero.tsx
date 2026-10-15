@@ -14,10 +14,23 @@ import { ABOUT_ARTWORK } from "./about-artwork";
  *           set over its empty cream corner as real HTML (the art itself carries no lettering).
  *   < 1024  copy first, then the diorama (spec §45); < 640 it keeps one note.
  *
+ * The four book spines (AI · Systems · Products · Impact) are aria-hidden HTML over the art; the alt names them.
+ *
  * EVAL-018 (Design.md §3.3 `/about` hero): underline sketch · two annotations = 3 at every width (the hidden
  * note stays in the DOM). The diorama is a meaningful image (alt text), not decoration.
  * Motion: the copy and the collage settle in once (`Reveal`); nothing moves under reduced motion.
  */
+/**
+ * TASK-212: the four book labels are real HTML set on the spines of the stack in the art. `top`/`left` are the
+ * spine's centre as a % of the art box (1168 × 880), so they follow the image at every width.
+ */
+const BOOK_SPINES = [
+  { label: "AI", top: 40.6, tone: "navy" },
+  { label: "Systems", top: 46.9, tone: "rust" },
+  { label: "Products", top: 53.9, tone: "forest" },
+  { label: "Impact", top: 61, tone: "gold" },
+] as const;
+
 export function AboutHero() {
   const [before] = ABOUT_HERO.title.split(ABOUT_HERO.underlined);
   const hero = ABOUT_ARTWORK["about-hero"];
@@ -49,6 +62,11 @@ export function AboutHero() {
             decoding="async"
             data-about-artwork="about-hero"
           />
+          {BOOK_SPINES.map((book) => (
+            <span key={book.label} className="abh-spine" data-tone={book.tone} style={{ top: `${book.top}%` }} aria-hidden="true">
+              {book.label}
+            </span>
+          ))}
           <Annotation rotate={-3} size="lg" className="abh-note abh-note-a">
             {ABOUT_HERO.notes[0]}
           </Annotation>

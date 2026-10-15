@@ -69,7 +69,7 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
       };
     }),
   );
-  expect(imgs.length).toBeGreaterThan(15);
+  expect(imgs.length).toBeGreaterThanOrEqual(15); // TASK-213 removed the three principle pieces (was > 15)
   for (const img of imgs) {
     expect(img.alt, img.id).toBe("");
     expect(img.w && img.h, img.id).toBeTruthy();

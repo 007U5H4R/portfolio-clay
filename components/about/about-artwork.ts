@@ -18,7 +18,7 @@ export const ABOUT_ARTWORK = {
     "about-hero",
     1168,
     880,
-    "A paper-craft diorama: a research sheet with a rising bar chart and gears, a stack of four books, a laptop and an open notebook with a three-step flow, and a layered paper city in front of a terracotta sun.",
+    "A paper-craft diorama: a research sheet with a rising bar chart and gears, a stack of four books labelled AI, Systems, Products and Impact, a laptop and an open notebook with a three-step flow, and a layered paper city in front of a terracotta sun.",
   ),
   "research-data": artwork(
     "research-data",

@@ -10476,6 +10476,29 @@ html.lenis body {
     max-width: 780px;
     justify-self: center;
     aspect-ratio: 1168 / 880;
+    container-type: inline-size;
+  }
+  /* TASK-212: the book labels sit on the spines at % of the art box and scale with it (cqw), so they never
+     leave their book at any width; the spine slopes ~9° down to the right. */
+  .abh-spine {
+    position: absolute;
+    left: 36.4%;
+    z-index: 2;
+    transform: translate(-50%, -50%) rotate(9deg);
+    font-family: var(--font-display);
+    font-size: 2.7cqw;
+    font-weight: 600;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    color: #f8efdc;
+    text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .abh-spine[data-tone="gold"] {
+    color: #1d2a4d;
+    text-shadow: none;
   }
   /* TASK-212: one diorama in a rounded paper frame — its cream tabletop reads as a sheet on both themes */
   .abh-art {
@@ -10489,6 +10512,7 @@ html.lenis body {
   .abh-note.paper-annotation {
     position: absolute;
     z-index: 5;
+    font-size: max(13px, 3.4cqw);
     padding: 10px 14px 12px;
     background: var(--ab-cream);
     background-image: var(--ab-fibers);
@@ -10501,7 +10525,7 @@ html.lenis body {
     max-width: 13ch;
   }
   .abh-note-b {
-    top: 5%;
+    top: 3%;
     left: 36%;
     max-width: 14ch;
   }

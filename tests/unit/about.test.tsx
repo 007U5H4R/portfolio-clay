@@ -76,6 +76,11 @@ describe("/about (TASK-136)", () => {
     expect(imgs[0]!.getAttribute("alt")).toMatch(/paper-craft diorama/);
     expect(imgs[0]!.getAttribute("width")).toBe("1168");
     expect(imgs[0]!.getAttribute("height")).toBe("880");
+    // TASK-212: the four book labels are real, aria-hidden HTML (the alt names them) in the stack's order
+    const spines = Array.from(hero.querySelectorAll(".abh-spine"));
+    expect(spines.map((el) => el.textContent)).toEqual(["AI", "Systems", "Products", "Impact"]);
+    for (const el of spines) expect(el.getAttribute("aria-hidden")).toBe("true");
+    expect(imgs[0]!.getAttribute("alt")).toContain("AI, Systems, Products and Impact");
   });
 
   it("The desk (TASK-196): the notebook page and the desk art, decoration beside real HTML (EVAL-018 = torn)", () => {
