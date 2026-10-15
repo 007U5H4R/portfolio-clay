@@ -107,9 +107,9 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
   it("renders all five actions when the data has them — Pitch/Demo switch the stage, links open a new tab", () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     const actions = within(screen.getByRole("list", { name: "Alpha actions" }));
-    expect(actions.getByRole("button", { name: "Pitch video" })).toHaveAttribute("aria-pressed", "true");
-    expect(actions.getByRole("button", { name: "Demo video" })).toHaveAttribute("aria-pressed", "false");
-    for (const name of [/^Product link: Alpha/, /^GitHub: Alpha/, /^PRD: Alpha/]) {
+    expect(actions.getByRole("button", { name: "Watch pitch video" })).toHaveAttribute("aria-pressed", "true");
+    expect(actions.getByRole("button", { name: "Watch demo video" })).toHaveAttribute("aria-pressed", "false");
+    for (const name of [/^Open live product: Alpha/, /^GitHub: Alpha/, /^PRD: Alpha/]) {
       const link = actions.getByRole("link", { name });
       expect(link).toHaveAttribute("target", "_blank");
       expect(link).toHaveAttribute("rel", "noopener noreferrer");
@@ -124,7 +124,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(pitch.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/abcdefghijk\?/);
     expect(players(document.body)).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     expect(panel()).toHaveAttribute("data-media-mode", "demo");
     // Switching unmounts the pitch player; the demo starts at its poster (never autoplays).
     expect(players(document.body)).toHaveLength(0);
@@ -133,7 +133,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(frame.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/zyxwvutsrqp\?/);
     expect(players(document.body)).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Pitch video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Watch pitch video" }));
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
     expect(players(document.body)).toHaveLength(0);
     expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
@@ -141,7 +141,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
 
   it("changing product stops the player, resets to pitch and updates the panel + URL (replace, no push)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
-    fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
     await screen.findByTitle("Alpha product demonstration");
     const before = window.history.length;
@@ -155,17 +155,17 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(window.history.length).toBe(before);
 
     // Beta has no pitch: no Pitch action, no play control on the pitch stage — a "coming" tag instead.
-    expect(screen.queryByRole("button", { name: "Pitch video" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Watch pitch video" })).toBeNull();
     expect(screen.queryByRole("button", { name: /^Play Beta pitch/ })).toBeNull();
     expect(screen.getByText("Pitch video coming")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Beta product demonstration" }));
     expect((await screen.findByTitle("Beta product demonstration")).getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
   });
 
   it("re-choosing the current product returns it to the pitch poster and stops the player (spec §18)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
-    fireEvent.click(screen.getByRole("button", { name: "Demo video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
     await screen.findByTitle("Alpha product demonstration");
     fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));

@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { stepIndex, type PortfolioProduct } from "@/lib/portfolio";
-import { ObjectMotion } from "@/components/paper-world/ObjectMotion";
-import { ProductCover } from "./ProductCover";
 
 export interface ProductCarouselProps {
   products: readonly PortfolioProduct[];
@@ -15,19 +14,14 @@ export interface ProductCarouselProps {
 }
 
 /**
- * The 90s product carousel (TASK-116, spec §14–§18, §44–§46; TASK-121 rectify spec §7; TASK-127
- * fidelity spec §10–§15: 5:6 collectible covers sitting on one torn kraft band, hand-cut paper arrow
- * tabs at the band's two ends, a small "Select a product · n / N" paper tag): a native horizontal scroller
- * (scroll-snap — touch swipe and trackpad scrolling come free, no carousel library) holding one
- * `role="tab"` cover per product, plus previous / next buttons.
+ * The project tray (TASK-116 / TASK-197; TASK-217 paper-craft restyle): a native horizontal scroller (scroll-snap — touch
+ * swipe and trackpad scrolling come free, no carousel library) holding one `role="tab"` card per product (thumbnail art, a
+ * two-digit index, the name, a compact category), plus previous / next buttons. It hangs directly beneath the window it drives.
  *
  * Tabs pattern: roving `tabIndex` + `aria-selected` on the tabs; ←/→ move AND select (wrapping, so
  * the carousel loops), Home/End jump; the selected tab is scrolled into view inside the track only
  * (its own `scrollLeft`, never the page). The arrow buttons also wrap, so they are never dead. A
  * click selects in place — the page never navigates (spec §18).
- *
- * M-012 P2 (TASK-181.2): every cover is a paper object — `ObjectMotion` lets `paperMotion` write `--hx/--hy` on the hovered one, and
- * the cover art (one `pm-layer`, 2 px) shifts under the keyline while the cover lifts 4 px; no tilt, no signature.
  */
 export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }: ProductCarouselProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -86,7 +80,6 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
 
   return (
     <div className="pf-carousel">
-      <span className="pf-band" aria-hidden="true" />
       <div className="pf-carousel-tag">
         <p id="pf-select" className="pf-select">
           Select a product
@@ -126,10 +119,21 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(product.id, "click")}
             >
-              <ObjectMotion />
-              {/* the L2 shadow: a pre-rendered box-shadow whose opacity crossfades on hover / focus (EXE-61) */}
-              <span className="pf-thumb-shade" aria-hidden="true" />
-              <ProductCover product={product} size="thumb" />
+              <span className="pf-thumb-art">
+                <Image
+                  src={product.art.src}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 200px, 45vw"
+                  unoptimized={product.art.src.endsWith(".svg")}
+                  className="pf-thumb-img"
+                />
+              </span>
+              <span className="pf-thumb-meta" aria-hidden="true">
+                <span className="pf-thumb-num">{String(product.position).padStart(2, "0")}</span>
+                <span className="pf-thumb-name">{product.name}</span>
+                <span className="pf-thumb-cat" data-micro-label="">{(product.tags ?? []).slice(0, 2).join(" · ") || product.meta}</span>
+              </span>
               <span className="sr-only">
                 {product.name}: {product.tagline}
               </span>

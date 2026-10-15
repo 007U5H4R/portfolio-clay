@@ -21,29 +21,21 @@ const hydrated = async (page: import("@playwright/test").Page) => {
   });
 };
 
-test("carousel precedes the details, video and actions; at 390 × 844 the explorer fits one screen", async ({ page }) => {
-  test.skip(width(page) > 1023, "stacked order is a phone / tablet arrangement");
+test("TASK-217: below 900 px the window stacks poster → details → actions with the carousel beneath it; a phone has no carousel (TASK-210)", async ({ page }) => {
+  test.skip(width(page) < 640 || width(page) > 899, "stacked tablet arrangement");
   await page.goto("/projects", { waitUntil: "load" });
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
-  const carousel = await box(".pf-carousel");
-  const head = await box(".pf-info-head");
   const stage = await box(".pf-stage");
+  const head = await box(".pf-info-head");
   const actions = await box(".pf-action-set .pf-action");
-  expect(head.y).toBeGreaterThan(carousel.y + carousel.height - 1);
-  expect(stage.y).toBeGreaterThan(head.y + head.height - 1);
-  expect(actions.y).toBeGreaterThan(stage.y + stage.height - 1);
-  if (width(page) === 390) {
-    const header = await page.locator("header").first().boundingBox();
-    const set = await box(".pf-action-set");
-    const span = set.y + set.height - carousel.y;
-    expect(span, "carousel → last action fits below the sticky header").toBeLessThanOrEqual(844 - (header?.height ?? 0));
-    // all four actions of the first product are in the grid
-    await expect(page.locator(".pf-action-set .pf-action")).toHaveCount(4);
-  }
+  const carousel = await box(".pf-carousel");
+  expect(head.y).toBeGreaterThan(stage.y + stage.height - 1);
+  expect(actions.y).toBeGreaterThan(head.y + head.height - 1);
+  expect(carousel.y).toBeGreaterThan(actions.y + actions.height - 1);
 });
 
 test("carousel is keyboard-operable and announces its position", async ({ page }) => {
-  test.skip(width(page) !== 1440 && width(page) !== 390, "interaction checked at the two boundary widths");
+  test.skip(width(page) !== 1440, "interaction checked at the desktop width (a phone has no carousel, TASK-210)");
   await page.goto("/projects", { waitUntil: "load" });
   await hydrated(page);
   const list = page.getByRole("tablist", { name: "Select a product" });

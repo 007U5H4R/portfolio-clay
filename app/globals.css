@@ -16423,3 +16423,694 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-210 === */
+
+
+/* === TASK-217 === */
+/* ====================================================================================================================
+   /projects showcase — premium layered paper-craft display (TASK-217; brief docs/reports/TASK-217.md).
+   >= 640 px only (the phone's list / detail is TASK-210's and untouched). One window object: a slate-blue rear plate, a
+   parchment frame, then the poster mat and the info sheet raised on it; the project tray hangs directly beneath. Depth is
+   layered DOM + hard 1-2 px stacked edges + small single-direction (downward) shadows — no filters, no blur on large areas.
+   Colours are the flipping theme tokens only, so dark mode follows (charcoal-slate paper, copper accents).
+   ==================================================================================================================== */
+@media (min-width: 640px) {
+  .pf-showcase {
+    --ps-sheet: var(--color-ivory);
+    --ps-frame: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-ivory));
+    --ps-under: color-mix(in oklab, var(--color-paper-2) 88%, var(--color-kraft));
+    --ps-slate: color-mix(in oklab, var(--color-steel) 50%, var(--color-paper-2));
+    --ps-accent: var(--color-rust);
+    --ps-accent-ink: var(--color-terracotta);
+    --ps-edge: color-mix(in oklab, var(--color-navy) 15%, transparent);
+    --ps-hi: color-mix(in oklab, var(--color-ivory) 70%, transparent);
+    --ps-drop: color-mix(in oklab, var(--shadow-ink) 26%, transparent);
+    --ps-drop-soft: color-mix(in oklab, var(--shadow-ink) 14%, transparent);
+    --ps-grain: var(--pf-fibers);
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(22px, 2.4vw, 30px);
+  }
+  :root[data-theme="dark"] .pf-showcase {
+    --ps-edge: color-mix(in oklab, var(--color-navy) 12%, transparent);
+    --ps-hi: color-mix(in oklab, var(--color-navy) 9%, transparent);
+    --ps-drop: color-mix(in oklab, var(--color-paper) 70%, black);
+    --ps-drop-soft: color-mix(in oklab, var(--color-paper) 55%, black);
+  }
+
+  /* the heading keeps its place; the window moves below it, full width */
+  .pf-showcase .pf-intro {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .pf-showcase .pf-select-note {
+    right: clamp(8px, 7vw, 96px);
+  }
+
+  /* ---- the window: rear slate plate (::before) + parchment frame (::after) behind poster and sheet ---- */
+  .pf-showcase .pf-feature {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    align-items: stretch;
+    gap: clamp(14px, 2vw, 24px);
+    isolation: isolate;
+    padding: clamp(14px, 2vw, 26px);
+    pointer-events: auto;
+  }
+  @media (min-width: 900px) {
+    .pf-showcase .pf-feature {
+      grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+      align-items: center;
+    }
+  }
+  .pf-showcase .pf-feature::before,
+  .pf-showcase .pf-feature::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-feature::before {
+    inset: 9px -7px -11px 7px;
+    z-index: -2;
+    border-radius: 26px 30px 25px 29px / 28px 25px 30px 26px;
+    background-color: var(--ps-slate);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 1px 0 var(--ps-edge),
+      0 14px 22px -12px var(--ps-drop);
+  }
+  .pf-showcase .pf-feature::after {
+    inset: 0;
+    z-index: -1;
+    border-radius: 24px 28px 23px 27px / 26px 23px 28px 24px;
+    background-color: var(--ps-frame);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      inset 0 -1px 0 var(--ps-edge),
+      0 1px 0 var(--ps-edge),
+      0 3px 0 -1px var(--ps-under),
+      0 4px 0 -1px var(--ps-edge),
+      0 12px 18px -10px var(--ps-drop-soft);
+  }
+
+  /* ---- poster: a mat on two thin layers, the art in a rounded viewport (16:9 art, never cropped) ---- */
+  .pf-showcase .pf-stage.paper-sheet {
+    grid-column: auto;
+    grid-row: auto;
+    align-self: center;
+    width: 100%;
+    margin: 0;
+    padding: clamp(8px, 1vw, 12px);
+    rotate: none;
+    filter: none;
+    border-radius: 16px 18px 15px 17px / 17px 15px 18px 16px;
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 1px 0 var(--ps-edge),
+      0 3px 0 -1px var(--ps-under),
+      0 10px 16px -8px var(--ps-drop);
+  }
+  .pf-showcase .pf-stage-backing {
+    inset: 7px -6px -8px 6px;
+    z-index: -1;
+    border-radius: 17px 19px 16px 18px;
+    background-color: var(--ps-slate);
+    box-shadow: 0 1px 0 var(--ps-edge);
+  }
+  .pf-showcase .pf-stage-backing::before,
+  .pf-showcase .pf-stage-backing::after,
+  .pf-showcase .pf-stage-mat {
+    content: none;
+    display: none;
+  }
+  .pf-showcase .pf-stage-screen {
+    border-radius: 10px;
+    background: var(--color-navy-2);
+  }
+  .pf-showcase .pf-stage-screen:not([data-player-state="loading"], [data-player-state="ready"]) {
+    clip-path: none;
+  }
+  .pf-showcase .pf-stage-screen:not([data-player-state="loading"], [data-player-state="ready"])::after {
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 0 1px var(--ps-edge),
+      inset 0 2px 5px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
+  }
+  /* the mode name: a small embossed paper tab on the mat's top edge */
+  .pf-showcase .pf-stage-label {
+    top: -10px;
+    left: clamp(18px, 3%, 34px);
+    padding: 4px 11px 5px;
+    font-family: var(--font-body, inherit);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+    rotate: none;
+    filter: none;
+    border-radius: 7px;
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 1px 0 var(--ps-edge),
+      0 3px 6px -3px var(--ps-drop);
+  }
+  .pf-showcase .pf-stage-label::before {
+    content: none;
+  }
+  /* no recording: the poster says so itself, so the mode tab would only mislead */
+  .pf-showcase .pf-stage:has(.pf-stage-tag) .pf-stage-label {
+    display: none;
+  }
+  /* the one play control: a warm-ivory paper disc, dark-brown glyph, centred (only rendered when a video exists) */
+  .pf-showcase .pf-stage-screen > .pf-play {
+    --pf-play: clamp(56px, 5.6vw, 76px);
+    left: calc(50% - var(--pf-play) / 2);
+    top: calc(50% - var(--pf-play) / 2);
+    color: oklch(0.3 0.05 48);
+    border: 0;
+    background: oklch(0.965 0.022 85);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.7),
+      0 0 0 1px oklch(0.3 0.05 48 / 0.12),
+      0 2px 0 oklch(0.82 0.03 80),
+      0 8px 14px -6px oklch(0.2 0.04 50 / 0.5);
+  }
+  .pf-showcase .pf-stage-screen > .pf-play:is(:hover, :focus-visible) {
+    background: oklch(0.985 0.02 85);
+  }
+  .pf-showcase .pf-stage-tag {
+    rotate: none;
+    filter: none;
+    padding: 5px 12px 6px;
+    font-size: 14px;
+    border-radius: 8px;
+    background-color: var(--ps-sheet);
+    box-shadow:
+      0 1px 0 var(--ps-edge),
+      0 4px 8px -4px var(--ps-drop);
+  }
+  .pf-showcase .pf-stage-tag::before,
+  .pf-showcase .pf-stage-tag::after {
+    content: none;
+  }
+
+  /* ---- info sheet: warm paper raised on the frame, parchment under-sheet, fine grain ---- */
+  .pf-showcase .pf-info.paper-sheet {
+    display: flex;
+    flex-direction: column;
+    grid-column: auto;
+    grid-row: auto;
+    align-self: stretch;
+    justify-content: center;
+    gap: 0;
+    min-width: 0;
+    padding: clamp(20px, 2.4vw, 32px) clamp(18px, 2.2vw, 30px);
+    rotate: none !important;
+    filter: none;
+  }
+  .pf-showcase .pf-info.paper-sheet::before {
+    inset: 6px -5px -7px 5px;
+    z-index: -2;
+    rotate: none;
+    border-radius: 18px 20px 17px 19px;
+    background-color: var(--ps-under);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    -webkit-mask: none;
+    mask: none;
+    box-shadow: 0 1px 0 var(--ps-edge);
+  }
+  .pf-showcase .pf-info.paper-sheet::after {
+    z-index: -1;
+    border-radius: 17px 19px 16px 18px / 18px 16px 19px 17px;
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-position: 0 0;
+    background-size: 420px 420px;
+    background-repeat: repeat;
+    -webkit-mask: none;
+    mask: none;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      inset 0 -1px 0 var(--ps-edge),
+      0 1px 0 var(--ps-edge),
+      0 10px 16px -9px var(--ps-drop);
+  }
+  .pf-showcase .pf-info-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    filter: none;
+  }
+  .pf-showcase .pf-info-head::before {
+    content: none;
+  }
+  .pf-showcase .pf-m-detail-tags {
+    display: none;
+  }
+  .pf-showcase .pf-info-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .pf-showcase .pf-info-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-info-category {
+    padding-left: 12px;
+    border-left: 1px solid var(--ps-edge);
+  }
+  .pf-showcase .pf-info-name {
+    margin-top: 8px;
+    padding-right: 0;
+    font-size: clamp(2rem, 1.3rem + 1.7vw, 2.75rem);
+  }
+  .pf-showcase .pf-info-name::after {
+    content: none;
+  }
+  .pf-showcase .pf-info-tagline {
+    margin-top: 6px;
+    font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.25rem);
+  }
+  .pf-showcase .pf-info-desc {
+    margin-top: 10px;
+    font-size: 15.5px;
+    line-height: 1.5;
+    max-width: 52ch;
+  }
+  .pf-showcase .pf-info-meta {
+    order: 9;
+    margin: 12px 0 0;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+  .pf-showcase .pf-info-kicker { order: 1; }
+  .pf-showcase .pf-info-name { order: 2; }
+  .pf-showcase .pf-info-tagline { order: 3; }
+  .pf-showcase .pf-info-desc { order: 4; }
+
+  /* ---- actions: one primary, up to two secondary, then thin-separated text links ---- */
+  .pf-showcase .pf-action-set {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    margin-top: clamp(14px, 1.6vw, 20px);
+  }
+  .pf-showcase .pf-actions {
+    display: contents;
+  }
+  .pf-showcase .pf-actions > li {
+    display: contents;
+  }
+  .pf-showcase .pf-action-set [data-tier="primary"] { --ps-o: 1; }
+  .pf-showcase .pf-action-set [data-tier="secondary"] { --ps-o: 2; }
+  .pf-showcase .pf-action-set [data-tier="tertiary"] { --ps-o: 3; }
+  .pf-showcase .pf-action-set .pf-action {
+    order: var(--ps-o, 3);
+    width: auto;
+    margin: 0;
+    rotate: none;
+    filter: none;
+    border-radius: 12px;
+    box-sizing: border-box;
+    font-family: var(--font-display);
+  }
+  .pf-showcase .pf-action::before,
+  .pf-showcase .pf-action::after {
+    content: none;
+  }
+  .pf-showcase .pf-action-icon {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-showcase .pf-action-icon::before {
+    content: none;
+  }
+  .pf-showcase .pf-action-set [data-tier="secondary"] .pf-action-icon {
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-action-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-showcase .pf-action-hint {
+    display: none;
+  }
+  .pf-showcase .pf-action-label {
+    font-size: 16px;
+    font-weight: 600;
+    white-space: normal;
+    text-decoration: none;
+  }
+  .pf-showcase .pf-action[aria-pressed="true"] .pf-action-label {
+    text-decoration: none;
+  }
+  /* primary: terracotta paper, ivory type, a raised lip */
+  .pf-showcase .pf-action-set .pf-action[data-tier="primary"],
+  .pf-showcase .pf-action-set [data-tier="primary"] > .pf-action {
+    flex: 1 1 100%;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px;
+    min-height: 52px;
+    padding: 8px 20px;
+    color: var(--color-ivory);
+    background-color: var(--ps-accent);
+    background-image: linear-gradient(180deg, color-mix(in oklab, var(--color-ivory) 16%, transparent), transparent 55%), var(--ps-grain);
+    background-size: 100% 100%, 420px 420px;
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 38%, transparent),
+      0 2px 0 color-mix(in oklab, var(--ps-accent) 62%, black),
+      0 8px 12px -6px var(--ps-drop);
+  }
+  .pf-showcase .pf-action-set [data-tier="primary"] .pf-action-label,
+  .pf-showcase .pf-action-set .pf-action[data-tier="primary"] .pf-action-label {
+    font-size: 17px;
+    color: var(--color-ivory);
+  }
+  .pf-showcase .pf-action[data-tier="primary"][aria-pressed="true"],
+  .pf-showcase [data-tier="primary"] > .pf-action[aria-pressed="true"] {
+    box-shadow:
+      inset 0 2px 4px color-mix(in oklab, black 25%, transparent),
+      0 1px 0 color-mix(in oklab, var(--ps-accent) 62%, black);
+  }
+  /* secondary: transparent paper, a thin terracotta border */
+  .pf-showcase .pf-action-set [data-tier="secondary"] > .pf-action {
+    flex: 1 1 170px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    min-height: 48px;
+    padding: 6px 14px;
+    color: var(--color-navy);
+    background: transparent;
+    border: 1.5px solid var(--ps-accent-ink);
+    box-shadow: 0 1px 0 var(--ps-hi);
+  }
+  .pf-showcase .pf-action-set [data-tier="secondary"] .pf-action-label {
+    font-size: 15.5px;
+    white-space: nowrap;
+  }
+  .pf-showcase .pf-action[data-action="product"] .pf-action-icon,
+  .pf-showcase .pf-action[data-action="demo"] .pf-action-arrow {
+    display: none;
+  }
+  .pf-showcase .pf-action-set [data-tier="secondary"] > .pf-action[aria-pressed="true"] {
+    background: color-mix(in oklab, var(--ps-accent) 14%, transparent);
+    box-shadow: inset 0 1px 3px var(--ps-drop-soft);
+  }
+  /* tertiary: plain text links with thin separators */
+  .pf-showcase .pf-action-set [data-tier="tertiary"] > .pf-action,
+  .pf-showcase .pf-action-set .pf-action[data-tier="tertiary"] {
+    display: inline-flex;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0;
+    color: var(--color-navy);
+    background: none;
+    border-radius: 4px;
+    box-shadow: none;
+  }
+  .pf-showcase .pf-action[data-tier="tertiary"] .pf-action-icon,
+  .pf-showcase [data-tier="tertiary"] > .pf-action .pf-action-icon {
+    display: none;
+  }
+  .pf-showcase .pf-action[data-tier="tertiary"] .pf-action-label,
+  .pf-showcase [data-tier="tertiary"] > .pf-action .pf-action-label {
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: color-mix(in oklab, var(--color-navy) 45%, transparent);
+  }
+  .pf-showcase [data-sep] > .pf-action,
+  .pf-showcase .pf-action[data-sep] {
+    padding-left: 12px;
+    border-left: 1px solid var(--ps-edge);
+    border-radius: 0;
+  }
+  .pf-showcase .pf-action[data-tier="tertiary"] .pf-action-arrow,
+  .pf-showcase [data-tier="tertiary"] > .pf-action .pf-action-arrow {
+    width: 14px;
+    height: 14px;
+  }
+  .pf-showcase .pf-case-link.pf-action {
+    margin: 0;
+    grid-template-columns: auto;
+  }
+  .pf-showcase .pf-case-link .pf-action-label {
+    color: inherit;
+  }
+  .pf-showcase .pf-case-link .pf-action-icon {
+    display: none;
+  }
+  /* when the case study is the only strong action, it is the primary */
+  .pf-showcase .pf-case-link.pf-action[data-tier="primary"] {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .pf-showcase .pf-case-link.pf-action[data-tier="primary"] .pf-action-icon {
+    display: grid;
+    color: var(--color-ivory);
+  }
+
+  /* ---- the project tray: a paper strip directly beneath the window, same width ---- */
+  .pf-showcase .pf-carousel {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+    grid-row: auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "tag tag tag"
+      "prev track next";
+    align-items: center;
+    column-gap: clamp(4px, 0.8vw, 10px);
+    row-gap: 0;
+    padding: 10px clamp(10px, 1.4vw, 16px) 6px;
+  }
+  .pf-showcase .pf-carousel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 22px 26px 22px 25px / 24px 22px 26px 23px;
+    background-color: var(--ps-frame);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      inset 0 -1px 0 var(--ps-edge),
+      0 1px 0 var(--ps-edge),
+      0 3px 0 -1px var(--ps-under),
+      0 10px 16px -10px var(--ps-drop-soft);
+    pointer-events: none;
+  }
+  .pf-showcase .pf-band {
+    display: none;
+  }
+  .pf-showcase .pf-carousel-tag {
+    grid-area: tag;
+    justify-self: start;
+    margin: 0 0 0 clamp(46px, 5vw, 62px);
+    padding: 2px 0 0;
+    rotate: none;
+    filter: none;
+    gap: 8px;
+  }
+  .pf-showcase .pf-carousel-tag::before {
+    content: none;
+  }
+  .pf-showcase .pf-select {
+    font-family: inherit;
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .pf-showcase .pf-count {
+    font-size: 14px;
+  }
+  .pf-showcase .pf-arrow {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 44px;
+    height: 44px;
+    rotate: none;
+    translate: none;
+    filter: none;
+    border-radius: 50%;
+    color: var(--color-navy);
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 0 0 1px var(--ps-edge),
+      0 2px 0 var(--ps-under),
+      0 6px 10px -5px var(--ps-drop);
+  }
+  .pf-showcase .pf-arrow::before {
+    content: none;
+  }
+  .pf-showcase .pf-arrow svg {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-showcase .pf-track {
+    --pf-gap: clamp(10px, 1.1vw, 14px);
+    gap: var(--pf-gap);
+    padding: 14px 8px 18px;
+    scroll-padding-inline: 8px;
+  }
+  .pf-showcase .pf-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    aspect-ratio: auto;
+    height: auto;
+    padding: 7px 7px 9px;
+    scale: none;
+    rotate: none;
+    text-align: left;
+    color: var(--color-navy);
+    border: 1px solid var(--ps-edge);
+    border-radius: 14px;
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 2px 0 var(--ps-under),
+      0 5px 8px -5px var(--ps-drop-soft);
+  }
+  .pf-showcase .pf-thumb::before,
+  .pf-showcase .pf-thumb::after {
+    content: none;
+  }
+  .pf-showcase .pf-thumb-art {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 9px;
+    background: var(--color-navy-2);
+    box-shadow: inset 0 0 0 1px var(--ps-edge);
+  }
+  .pf-showcase .pf-thumb-img {
+    object-fit: cover;
+    object-position: 38% 50%;
+  }
+  .pf-showcase .pf-thumb-meta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: baseline;
+    padding: 8px 3px 0;
+  }
+  .pf-showcase .pf-thumb-num {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-thumb-name {
+    overflow: hidden;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pf-showcase .pf-thumb-cat {
+    grid-column: 2;
+    overflow: hidden;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-ink-soft);
+  }
+  /* quiet when idle, raised and ringed when selected (a shape cue as well as colour) */
+  .pf-showcase .pf-thumb[aria-selected="true"] {
+    translate: 0 -6px;
+    border-color: var(--ps-accent-ink);
+    box-shadow:
+      0 0 0 1.5px var(--ps-accent-ink),
+      inset 0 1px 0 var(--ps-hi),
+      0 2px 0 var(--ps-under),
+      0 14px 16px -8px var(--ps-drop);
+  }
+  .pf-showcase .pf-thumb[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -12px;
+    width: 26px;
+    height: 3px;
+    inset: auto auto -11px 50%;
+    translate: -50% 0;
+    border: 0;
+    border-image: none;
+    border-radius: 2px;
+    background: var(--ps-accent);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pf-showcase .pf-thumb:not([aria-selected="true"]):hover {
+      translate: 0 -3px;
+      box-shadow:
+        inset 0 1px 0 var(--ps-hi),
+        0 2px 0 var(--ps-under),
+        0 10px 12px -7px var(--ps-drop);
+    }
+  }
+  .pf-showcase .pf-thumb:not([aria-selected="true"]):focus-visible {
+    translate: 0 -3px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pf-showcase .pf-thumb {
+      transition:
+        translate var(--dur-l2-out) var(--ease-paper),
+        box-shadow var(--dur-l2-out) var(--ease-paper);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-showcase .pf-thumb,
+    .pf-showcase .pf-thumb:hover {
+      transition: none;
+    }
+  }
+}
+/* === end TASK-217 === */

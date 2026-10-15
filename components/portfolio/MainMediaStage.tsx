@@ -1,6 +1,6 @@
 "use client";
 
-import { Pin, Sheet } from "@/components/paper";
+import { Sheet } from "@/components/paper";
 import { mediaFor, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { ProductCover } from "./ProductCover";
 import { ProductMediaPlayer } from "./ProductMediaPlayer";
@@ -39,13 +39,11 @@ export function MainMediaStage({ product, mode, enter, id, autoStart = false }: 
 
   return (
     <Sheet as="figure" variant="photo" className="pf-stage">
-      <Pin tone="rust" className="pf-stage-pin" />
       <span className="pf-stage-backing" aria-hidden="true" />
       <span className="pf-stage-mat" aria-hidden="true" />
-      <span className="pf-stage-label" aria-hidden="true">
+      <span className="pf-stage-label" data-micro-label="" aria-hidden="true">
         {mode === "pitch" ? "Pitch video" : "Demo video"}
       </span>
-      <span className="pf-doodle pf-doodle-burst" aria-hidden="true" />
       {media ? (
         <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} autoStart={autoStart} />
       ) : (
