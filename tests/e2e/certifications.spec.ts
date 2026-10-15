@@ -168,3 +168,16 @@ test("clicking a card fires the analytics event without blocking the new-tab nav
     section: "certifications",
   });
 });
+
+// TASK-218: the footer LEARN → BUILD → APPLY → GROW paper art — present, loaded, keeps its 2167:726 ratio, no overflow at 390.
+test("the learn-build-apply-grow art loads, keeps its ratio and does not overflow at 390", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(ROUTE, { waitUntil: "load" });
+  const art = page.locator(".cert-foot-art");
+  await expect(art).toHaveCount(1);
+  await art.scrollIntoViewIfNeeded();
+  await expect.poll(() => art.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  const box = (await art.boundingBox())!;
+  expect(Math.abs(box.width / box.height - 2167 / 726)).toBeLessThan(0.03);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
