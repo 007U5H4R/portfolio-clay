@@ -22,11 +22,8 @@ export type WibStage = {
   art: { src: string; alt: string };
   heading: string;
   capabilities: string[];
+  /** At most five capabilities and three tools per stage, so every panel keeps its illustration whole (TASK-216). */
   tools: WibTool[];
-  /** AI stage only: portfolio examples shown as small evidence cards (names only, no outcomes). */
-  examples?: { name: string; evidence: string }[];
-  /** AI stage only: the activated flow. */
-  flow?: string[];
   /** Impact stage only: existing self-reported figures. */
   proof?: WibProof[];
 };
@@ -113,15 +110,7 @@ export const wibStages: WibStage[] = [
     tools: [
       { label: "Vertex AI", evidence: "Vertex AI" },
       { label: "RAG", evidence: "RAG", project: { slug: "railcite", name: "RailCite", evidence: "RAG" } },
-      { label: "Evaluation", evidence: "evaluation" },
       { label: "Agents", evidence: "multi-agent", project: { slug: "cubicle", name: "Cubicle", evidence: "multi-agent" } },
-    ],
-    flow: ["User", "AI agent", "RAG / data", "Validation", "Output"],
-    examples: [
-      { name: "TeachSpark", evidence: "TeachSpark" },
-      { name: "RailCite", evidence: "RailCite" },
-      { name: "Cubicle", evidence: "Cubicle" },
-      { name: "American Express", evidence: "American Express" },
     ],
   },
   {
@@ -134,14 +123,11 @@ export const wibStages: WibStage[] = [
     capabilities: [
       "GCP / AWS",
       "Data platforms (BigQuery, Spanner)",
-      "APIs & microservices",
       "Supabase / Postgres",
       "Next.js / React",
       "Vercel / Railway",
-      "AI infrastructure",
     ],
     tools: [
-      { label: "BigQuery", evidence: "BigQuery" },
       { label: "Spanner", evidence: "Spanner", project: { slug: "cloud-modernization-programs", name: "Quantiphi & Shellkode", evidence: "Spanner" } },
       { label: "Supabase", evidence: "Supabase", project: { slug: "teachspark", name: "TeachSpark", evidence: "Supabase" } },
       { label: "Railway", evidence: "Railway", project: { slug: "teachspark", name: "TeachSpark", evidence: "Railway" } },
@@ -160,15 +146,12 @@ export const wibStages: WibStage[] = [
       "Program governance",
       "Cross-functional leadership",
       "Jira / Azure DevOps",
-      "Stakeholder management",
     ],
     tools: [
       { label: "Jira", evidence: "Jira" },
       { label: "Azure DevOps", evidence: "Azure DevOps" },
-      { label: "SAFe", evidence: "SAFe" },
       { label: "Kanban", evidence: "Kanban", project: { slug: "campfire-board", name: "Campfire Board", evidence: "Kanban" } },
     ],
-    flow: ["Discover", "Plan", "Build", "Ship", "Measure", "Iterate"],
   },
   {
     id: "impact",
