@@ -36,7 +36,7 @@ export const metadata: Metadata = buildMetadata({
  * tucked under both.
  *
  * EVAL-018 (Design.md §3.3): products = underline sketch = 1 decoration ("choose your build" removed, TASK-220);
- * enterprise = torn · "inside larger systems" annotation = 2.
+ * enterprise = torn edge = 1 ("inside larger systems" removed, TASK-221).
  */
 const products = buildPortfolioProducts(projects, portfolioEntries, (id) => {
   const entry = illustration(id as IllustrationId);
