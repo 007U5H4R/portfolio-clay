@@ -17,7 +17,7 @@ const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
 /** The lagging element for a torn sheet: its previous sibling, or `main`'s last child for the band footer. */
 const CASES = [
-  { route: "/", sheet: "#work-featured", label: "home Featured Work tear" },
+  { route: "/", sheet: "#credentials", label: "home Credentials tear" },
   { route: "/about", sheet: "footer.band", label: "/about band footer tear" },
   // TASK-113: the rebuilt /contact section is `main`'s last child — it lags under the band's tear.
   { route: "/contact", sheet: "footer.band", label: "/contact band footer tear" },
@@ -105,11 +105,11 @@ test("TKT-106 main itself never lags; only its last child does", async ({ page }
   }
 });
 
-test("TKT-106 a keyboard-focused hero CTA is never hidden under the Featured Work sheet", async ({ page }) => {
+test("TKT-106 a keyboard-focused hero CTA is never hidden under the Credentials sheet", async ({ page }) => {
   test.skip(width(page) !== 1440, "measured at w1440");
   await page.goto("/", { waitUntil: "load" });
   const vh = page.viewportSize()!.height;
-  const { sheetDocTop } = await geometry(page, "#work-featured");
+  const { sheetDocTop } = await geometry(page, "#credentials");
   await page.keyboard.press("Tab"); // keyboard modality, so the programmatic focus below is :focus-visible
   // Tear at 35 % of the viewport: the hero is fully lagged (200 px) and its CTA row sits under the sheet.
   await scrollToY(page, sheetDocTop - vh * 0.35);
