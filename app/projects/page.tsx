@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
-import { Annotation } from "@/components/paper";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { EnterpriseClientWork } from "@/components/portfolio/EnterpriseClientWork";
 import { IndependentProductsShowcase } from "@/components/portfolio/IndependentProductsShowcase";
@@ -36,7 +35,7 @@ export const metadata: Metadata = buildMetadata({
  * the intro in the upper-left, the product sheet rising beside it, the stage below, the kraft band
  * tucked under both.
  *
- * EVAL-018 (Design.md §3.3): products = underline sketch · "choose your build" annotation = 2 decorations;
+ * EVAL-018 (Design.md §3.3): products = underline sketch = 1 decoration ("choose your build" removed, TASK-220);
  * enterprise = torn · "inside larger systems" annotation = 2.
  */
 const products = buildPortfolioProducts(projects, portfolioEntries, (id) => {
@@ -53,14 +52,7 @@ export default function ProjectsPage() {
         <Container className="pf-products-wrap">
           <IndependentProductsShowcase
             products={products}
-            intro={
-              <>
-                <PortfolioIntro />
-                <Annotation arrow="right" rotate={-4} className="pf-select-note">
-                  choose your build
-                </Annotation>
-              </>
-            }
+            intro={<PortfolioIntro />}
           />
         </Container>
       </section>
