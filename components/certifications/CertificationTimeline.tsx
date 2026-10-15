@@ -200,11 +200,22 @@ export function CertificationTimeline({ certifications }: CertificationTimelineP
         </ol>
 
         <div className="cert-foot" data-decor="note" aria-hidden="true">
-          {/* TASK-218: Tushar's LEARN → BUILD → APPLY → GROW paper art (3:1) replaces the line-doodle books + plane. */}
+          {/* TASK-218: Tushar's LEARN → BUILD → APPLY → GROW paper art (3:1) on a transparent background; the dark
+              copy turns the navy flight path and plane outline cream so they read on the navy page. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            className="cert-foot-art"
-            src="/media/illustrations/certifications-learn-build-apply-grow.webp"
+            className="cert-foot-art cert-foot-art-light"
+            src="/media/illustrations/certifications-learn-build-apply-grow-light.webp"
+            alt=""
+            width={1400}
+            height={469}
+            loading="lazy"
+            decoding="async"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="cert-foot-art cert-foot-art-dark"
+            src="/media/illustrations/certifications-learn-build-apply-grow-dark.webp"
             alt=""
             width={1400}
             height={469}

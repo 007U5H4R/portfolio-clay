@@ -6350,7 +6350,9 @@ html.lenis body {
     height: auto;
     aspect-ratio: 2167 / 726;
     object-fit: contain;
-    border-radius: 6px;
+  }
+  .cert-foot-art-dark {
+    display: none;
   }
   .cert-foot-strip {
     position: relative;
@@ -11298,8 +11300,11 @@ html[data-theme-vt]::view-transition-group(root) {
     var(--color-navy);
 }
 /* TASK-218: the foot art is cream paper; in dark it sits on a light paper mat (same `navy` = light-ink token as the badge disc), never inverted or filtered. */
-[data-theme="dark"] .cert-foot-art {
-  box-shadow: 0 0 0 6px var(--color-navy); /* the mat: a spread ring, so the art's own box keeps its 3:1 */
+[data-theme="dark"] .cert-foot-art-light {
+  display: none;
+}
+[data-theme="dark"] .cert-foot-art-dark {
+  display: block;
 }
 [data-theme="dark"] .cert-badge {
   filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-paper) 40%, transparent))
