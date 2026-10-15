@@ -82,8 +82,9 @@ test("the page stays compact: about 4–5 viewport heights of content at 1440 (s
     main: document.querySelector("main")!.getBoundingClientRect().height,
     opener: document.querySelector('[data-opener="scene-about"]')!.getBoundingClientRect().height,
   }));
-  // 5.5: TASK-213 removed What Drives Me, so the page measures ~5.46 at 1440 (was ≤ 5.6 after TASK-209 added ~15px)
-  expect((main - opener) / 900).toBeLessThanOrEqual(5.5);
+  // 5.6 (was 5.5): TASK-209 folded the citations block into the research cards, adding ~15px at 1440 (Tushar, 2026-10-15)
+  // 5.8 (was 5.6): TASK-215 swapped Recognition for Home's taller Awards & Recognition section plus a foot that clears the 200px torn-edge lag (measured 5.781 at 1440)
+  expect((main - opener) / 900).toBeLessThanOrEqual(5.8);
 });
 
 test("@EVAL-008 /about has no horizontal overflow and every control clears 44×44", {
@@ -132,7 +133,7 @@ test("entrance: with motion allowed the chapters, thread and artifacts settle vi
   test.skip(width(page) !== 1440, "entrance timing is width-independent; checked at 1440");
   await page.goto("/about", { waitUntil: "load" });
   await revealAll(page);
-  for (const sel of [".chx-rv", ".crx-strip", ".rvx-rv", ".rcx-rv", ".tsx-rv"]) {
+  for (const sel of [".chx-rv", ".crx-strip", ".rvx-rv", ".tsx-rv"]) {
     const els = page.locator(sel);
     const n = await els.count();
     for (let i = 0; i < n; i++) {
@@ -155,11 +156,40 @@ test("TASK-207: every About section body is opaque, so the sheet underneath neve
   for (const theme of ["light", "dark"] as const) {
     await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
     const clear = await page.evaluate(() =>
-      [".chx-body", ".crx-body", ".rvx-body", ".rcx-body"].filter((sel) => {
+      [".chx-body", ".crx-body", ".rvx-body", "#recognition .hs-body"].filter((sel) => {
         const bg = getComputedStyle(document.querySelector(sel)!).backgroundColor;
         return bg === "transparent" || /rgba\([^)]*,\s*0\)$/.test(bg);
       }),
     );
     expect(clear, theme).toEqual([]);
+  }
+});
+
+test("TASK-215: the Testimonials torn edge never covers the last award line, at rest or at full parallax lag", async ({ page }) => {
+  await page.goto("/about");
+  await revealAll(page);
+  for (const theme of ["light", "dark"] as const) {
+    await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+    // rest: the awards foot at the viewport bottom (lag 0); lag: the next sheet 30 % down the viewport (lag fully applied)
+    for (const place of ["rest", "lag"] as const) {
+      await page.evaluate((where) => {
+        const next = document.querySelector("#testimonials")!;
+        const y = next.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo(0, where === "lag" ? y - window.innerHeight * 0.3 : y - window.innerHeight + 40);
+      }, place);
+      await page.waitForTimeout(500);
+      const m = await page.evaluate(() => {
+        let textBottom = 0;
+        for (const el of document.querySelectorAll("#recognition .hs-award-name, #recognition .hs-award-detail")) {
+          const r = document.createRange();
+          r.selectNodeContents(el);
+          textBottom = Math.max(textBottom, r.getBoundingClientRect().bottom);
+        }
+        const next = document.querySelector("#testimonials")!;
+        const tearTop = Math.min(next.getBoundingClientRect().top, next.querySelector("[data-decor='torn']")!.getBoundingClientRect().top);
+        return { gap: tearTop - textBottom };
+      });
+      expect(m.gap, `${theme} ${place} w${width(page)}`).toBeGreaterThan(8);
+    }
   }
 });
