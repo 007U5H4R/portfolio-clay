@@ -86,7 +86,10 @@ test("@EVAL-011 research: the granted patent IN 429867, the patent record + ever
   for (const paper of papers) {
     await expect(research).toContainText(paper.title);
     if (paper.doi && paper.doiHref) {
-      await expect(research.getByRole("link", { name: new RegExp(paper.doi.replace(/[.]/g, "\\.")) })).toHaveAttribute("href", paper.doiHref);
+      // TASK-209: the Langmuir DOI appears twice by design (Nanotechnology card + papers card), Soft Matter once
+      const links = research.getByRole("link", { name: new RegExp(paper.doi.replace(/[.]/g, "\\.")) });
+      await expect(links).toHaveCount(paper.id === "langmuir-2025" ? 2 : 1);
+      for (const link of await links.all()) await expect(link).toHaveAttribute("href", paper.doiHref);
     }
   }
   // Both papers carry a real DOI now (TASK-163), so the "DOI pending" fallback never renders.

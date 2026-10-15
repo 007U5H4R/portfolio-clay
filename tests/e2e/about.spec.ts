@@ -83,7 +83,8 @@ test("the page stays compact: about 4–5 viewport heights of content at 1440 (s
     main: document.querySelector("main")!.getBoundingClientRect().height,
     opener: document.querySelector('[data-opener="scene-about"]')!.getBoundingClientRect().height,
   }));
-  expect((main - opener) / 900).toBeLessThanOrEqual(5.5);
+  // 5.6 (was 5.5): TASK-209 folded the citations block into the research cards, adding ~15px at 1440 (Tushar, 2026-10-15)
+  expect((main - opener) / 900).toBeLessThanOrEqual(5.6);
 });
 
 test("@EVAL-008 /about has no horizontal overflow and every control clears 44×44", {
