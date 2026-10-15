@@ -10843,19 +10843,22 @@ html.lenis body {
     min-width: 0;
   }
   .rvx-artifact.paper-sheet {
-    display: grid;
-    align-content: start;
-    gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     height: 100%;
-    padding: 8px 10px 14px;
+    padding: 10px 14px 16px;
     background-color: var(--color-ivory);
   }
   .rvx-art {
     width: 100%;
+    max-width: 260px;
     height: auto;
+    align-self: center;
   }
   .rvx-title {
-    font-size: 17px;
+    margin-top: 4px;
+    font-size: 19px;
     line-height: 1.2;
     color: var(--color-navy);
   }
@@ -10866,19 +10869,58 @@ html.lenis body {
     color: var(--color-terracotta);
   }
   .rvx-text {
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: var(--color-navy-2);
+  }
+  /* TASK-209: the reference lines live inside the cards as inset paper panels (docked to the card foot). */
+  .rvx-panel {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-top: auto;
+    padding: 10px 8px 11px;
+    border: 1px solid color-mix(in oklab, var(--color-terracotta) 16%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-ivory) 55%, var(--color-note));
     font-size: 14px;
     line-height: 1.45;
     color: var(--color-navy-2);
   }
+  .rvx-badge {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--color-terracotta) 14%, var(--color-ivory));
+    color: var(--color-terracotta);
+  }
+  .rvx-panel-body {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    flex: 1 1 0;
+    overflow-wrap: break-word;
+  }
+  .rvx-cite-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .rvx-cite-row .rvx-cite {
+    min-width: 0;
+  }
   .rvx-papers {
     display: grid;
     gap: 10px;
-    margin: 22px 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
+  }
+  .rvx-papers > .rvx-panel {
+    margin-top: 0;
   }
   .rvx-cite {
     font-weight: 600;
@@ -10886,17 +10928,21 @@ html.lenis body {
   }
   .rvx-ptitle {
     font-style: italic;
+    overflow-wrap: break-word;
   }
   .rvx-doi,
   .rvx-patent-link {
-    font-size: 14px;
+    font-size: 13.5px;
+    justify-self: start;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
-  .rvx-foot {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
-    margin-top: 14px;
-    font-size: 14px;
+  .rvx-doi {
+    letter-spacing: -0.01em;
+  }
+  .rvx-disclaimer {
+    font-size: 13.5px;
+    line-height: 1.4;
     color: var(--color-ink-soft);
   }
   .rvx-values-h2 {
@@ -10963,22 +11009,50 @@ html.lenis body {
       grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
     }
   }
-  @media (min-width: 1024px) {
+  /* TASK-209: the cards need width for their reference panels — stacked until 1280, then ~70 | 30. */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .rvx-artifacts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .rvx-slot[data-artifact="publications"] {
+      grid-column: 1 / -1;
+    }
+    .rvx-slot[data-artifact="publications"] .rvx-papers {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1280px) {
     .rvx-wrap {
-      grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+      grid-template-columns: minmax(0, 71fr) minmax(0, 29fr);
+      gap: clamp(48px, 5vw, 72px) 32px;
+    }
+    .rvx-artifacts {
+      gap: 14px;
+    }
+    .rvx-art {
+      max-width: 220px;
+    }
+    .rvx-values-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+    .rvx-photo {
+      max-width: 120px;
+    }
+    .rvx-values-h2 {
+      max-width: none;
+    }
+    /* beside the cards the philosophy column must not outgrow them (about.spec "compact" budget) */
+    .rvx-plist {
+      gap: 14px;
+    }
+    .rvx-part {
+      max-height: 54px;
     }
   }
   @media (max-width: 639px) {
     .rvx-artifacts {
       grid-template-columns: minmax(0, 1fr);
-    }
-    .rvx-artifact.paper-sheet {
-      grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
-      column-gap: 12px;
-      align-items: center;
-    }
-    .rvx-art {
-      grid-row: 1 / span 3;
     }
     .rvx-photo {
       max-width: 200px;

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { FileText } from "lucide-react";
 import { papers, patent, researchDisclaimer } from "@/data/credentials";
+import type { ResearchPaper } from "@/data/credentials";
 import { ExternalLink } from "@/components/common/ExternalLink";
 import { Tag } from "@/components/common/Tag";
 import { Container } from "@/components/layout/Container";
@@ -33,6 +35,39 @@ const PRINCIPLE_ICONS: Record<(typeof PRINCIPLES)[number]["icon"], ReactNode> = 
   ),
 };
 
+function DocBadge() {
+  return (
+    <span className="rvx-badge" aria-hidden="true">
+      <FileText size={18} strokeWidth={1.6} />
+    </span>
+  );
+}
+
+/** One bibliographic entry: journal + year, the full title, and its DOI link (never a guessed DOI). */
+function PaperEntry({ paper }: { paper: ResearchPaper }) {
+  return (
+    <div className="rvx-panel-body">
+      <div className="rvx-cite-row">
+        <DocBadge />
+        <p className="rvx-cite">
+          {paper.journal} {paper.year}
+        </p>
+      </div>
+      <p className="rvx-ptitle">{paper.title}</p>
+      {paper.doi && paper.doiHref ? (
+        <ExternalLink href={paper.doiHref} className="rvx-doi">
+          <span>
+            DOI {paper.doi.split("/")[0]}/<wbr />
+            {paper.doi.split("/").slice(1).join("/")}
+          </span>
+        </ExternalLink>
+      ) : (
+        <Tag className="rvx-pending">DOI pending</Tag>
+      )}
+    </div>
+  );
+}
+
 /**
  * RESEARCH & INTELLECTUAL WORK + WHAT DRIVES ME (TASK-136, spec §19–§26, §42) — one `section#research-values`
  * on `paper-2` under its torn edge, two labelled regions with strong asymmetry (≥ 1024: 55 % | 45 %;
@@ -40,9 +75,10 @@ const PRINCIPLE_ICONS: Record<(typeof PRINCIPLES)[number]["icon"], ReactNode> = 
  *
  *   #research  eyebrow, h2 "From labs to lasting ideas.", "Research shaped how I think." and three compact
  *              artifacts (nanotechnology · the granted patent · the papers), each a taped print with its
- *              caption in HTML. Then the papers as short references (journal, year, title, DOI link or
- *              "DOI pending" when a paper's DOI is missing — never invented; both papers carry one now), the
- *              patent-record link and the rights line verbatim. Not an education block (spec §23).
+ *              caption in HTML. TASK-209: each card is self-contained — the Langmuir reference sits in the
+ *              nanotechnology card, the patent-record link + rights line verbatim in the patent card, both full
+ *              bibliographic entries (journal, year, title, DOI; "DOI pending" if ever missing, never invented)
+ *              in the papers card. No detached reference block. Not an education block (spec §23).
  *   #values    eyebrow, h2, one paper card with exactly three principles and their icons, beside the
  *              `polaroid-sunrise` print (content paper, manifest alt) and a hand note.
  *
@@ -51,6 +87,7 @@ const PRINCIPLE_ICONS: Record<(typeof PRINCIPLES)[number]["icon"], ReactNode> = 
  * in once, 90 ms apart (spec §57); none under reduced motion.
  */
 export function ResearchValues() {
+  const nanoPaper = papers.find((paper) => paper.id === "langmuir-2025");
   return (
     <section id="research-values" aria-label="Research and what drives me" className="rvx">
       <TornEdge fill="paper-2" />
@@ -71,42 +108,44 @@ export function ResearchValues() {
             </div>
             <ul className="rvx-artifacts">
               {RESEARCH_ARTIFACTS.map((artifact, index) => (
-                <li key={artifact.id} className="rvx-slot">
+                <li key={artifact.id} className="rvx-slot" data-artifact={artifact.id}>
                   <Reveal index={index} className="rvx-rv">
                     <Sheet as="article" variant="card" rotate={[-0.8, 0.5, -0.4][index]} className="rvx-artifact">
                       <Tape side={index === 1 ? "r" : "l"} />
                       <AboutArtImg id={artifact.art} className="rvx-art" />
                       <h3 className="rvx-title">{artifact.title}</h3>
                       {artifact.meta ? <p className="rvx-meta">{artifact.meta}</p> : null}
-                      <p className="rvx-text">{artifact.body}</p>
+                      {artifact.id === "publications" ? null : <p className="rvx-text">{artifact.body}</p>}
+                      {artifact.id === "nanotech" && nanoPaper ? (
+                        <div className="rvx-panel">
+                          <PaperEntry paper={nanoPaper} />
+                        </div>
+                      ) : null}
+                      {artifact.id === "patent" ? (
+                        <div className="rvx-panel">
+                          <DocBadge />
+                          <div className="rvx-panel-body">
+                            <ExternalLink href={patent.href} className="rvx-patent-link">
+                              View Pratyasa — the patent record
+                            </ExternalLink>
+                            <p className="rvx-disclaimer">{researchDisclaimer}</p>
+                          </div>
+                        </div>
+                      ) : null}
+                      {artifact.id === "publications" ? (
+                        <ul className="rvx-papers" aria-label="Publications">
+                          {papers.map((paper) => (
+                            <li key={paper.id} className="rvx-panel">
+                              <PaperEntry paper={paper} />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
                     </Sheet>
                   </Reveal>
                 </li>
               ))}
             </ul>
-            <ul className="rvx-papers" aria-label="Publications">
-              {papers.map((paper) => (
-                <li key={paper.id}>
-                  <span className="rvx-cite">
-                    {paper.journal} {paper.year}
-                  </span>{" "}
-                  <span className="rvx-ptitle">{paper.title}</span>{" "}
-                  {paper.doi && paper.doiHref ? (
-                    <ExternalLink href={paper.doiHref} className="rvx-doi">
-                      DOI {paper.doi}
-                    </ExternalLink>
-                  ) : (
-                    <Tag className="rvx-pending">DOI pending</Tag>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <p className="rvx-foot">
-              <ExternalLink href={patent.href} className="rvx-patent-link">
-                View Pratyasa — the patent record
-              </ExternalLink>
-              <span className="rvx-disclaimer">{researchDisclaimer}</span>
-            </p>
           </div>
 
           <div id="values" role="region" aria-labelledby="values-heading" className="rvx-values">
