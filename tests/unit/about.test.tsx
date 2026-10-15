@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, within } from "@testing-library/react";
 import AboutPage from "@/app/about/page";
 import { ABOUT_CTA, CHAPTERS, ERAS, PRINCIPLES } from "@/components/about/about-content";
-import { awards, papers, patent, researchDisclaimer } from "@/data/credentials";
+import { AWARD_TILES } from "@/components/home/home-content";
+import { papers, patent, researchDisclaimer } from "@/data/credentials";
 import { experience } from "@/data/experience";
 import { recommendationsHref, testimonials } from "@/data/testimonials";
 
@@ -56,7 +57,7 @@ describe("/about (TASK-136)", () => {
       "Different problems, common thread.",
       "From labs to lasting ideas.",
       "Curiosity, impact and continuous learning.",
-      "A few milestones along the way.",
+      "Recognized for impact.",
       "In their words.",
       ABOUT_CTA.title,
     ]);
@@ -180,16 +181,15 @@ describe("/about (TASK-136)", () => {
     expect(decor(section)).toEqual(["torn", "annotation"]);
   });
 
-  it("Recognition: exactly the awards data/credentials.ts records (name + year), never a placeholder", () => {
+  it("Recognition: Home's Awards & Recognition section (same tiles), anchored #recognition, h2 in the page outline (TASK-215)", () => {
     const { container } = render(<AboutPage />);
     const section = container.querySelector("section#recognition")!;
-    const items = Array.from(section.querySelectorAll(".rcx-list > li"));
-    expect(items.map((li) => [li.querySelector("h3")?.textContent, li.querySelector(".rcx-year")?.textContent])).toEqual(
-      awards.map((a) => [a.title, a.year]),
-    );
-    expect(items.length).toBeGreaterThanOrEqual(2);
-    expect(items.length).toBeLessThanOrEqual(4);
-    expect(decor(section)).toEqual(["torn", "annotation"]);
+    expect(section.getAttribute("aria-labelledby")).toBe("awards-heading");
+    expect(section.querySelector("h2#awards-heading")?.textContent).toBe("Recognized for impact.");
+    const items = Array.from(section.querySelectorAll(".hs-grid-awards > li"));
+    expect(items.map((li) => li.querySelector("h3")?.textContent)).toEqual(AWARD_TILES.map((t) => t.name));
+    expect(container.querySelectorAll("#awards-heading")).toHaveLength(1);
+    expect(decor(section)).toEqual(["torn"]);
   });
 
   it("In their words: Tushar's three picks, public on LinkedIn only, verbatim excerpts, no photos (TASK-136 follow-up)", () => {

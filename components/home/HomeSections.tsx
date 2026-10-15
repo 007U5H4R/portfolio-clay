@@ -201,9 +201,10 @@ function AwardItem({ tile, index }: { tile: AwardTile; index: number }) {
   );
 }
 
-export function AwardsSection() {
+/** `id` defaults to Home's `#awards`; /about passes its own anchor. Everything else is identical on both pages. */
+export function AwardsSection({ id = "awards" }: { id?: string } = {}) {
   return (
-    <section id="awards" aria-labelledby="awards-heading" className="hs hs-awards">
+    <section id={id} aria-labelledby="awards-heading" className="hs hs-awards">
       <TornEdge fill="paper" className="hs-torn" />
       <div className="hs-body">
         <div className="hs-wrap hs-split">

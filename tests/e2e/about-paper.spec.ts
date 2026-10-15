@@ -43,7 +43,7 @@ test("the seven body sections render, in order, with their headings", async ({ p
     "Different problems, common thread.",
     "From labs to lasting ideas.",
     "Curiosity, impact and continuous learning.",
-    "A few milestones along the way.",
+    "Recognized for impact.",
     "In their words.",
     "Want the full story with roles, achievements and metrics?",
   ]);
@@ -180,7 +180,7 @@ test("P1 hover contract: a 4 px lift on a fine pointer with a crossfading shadow
   const shadow = await card.evaluate((el) => getComputedStyle(el, "::before").transitionProperty);
   expect(shadow).toBe("opacity");
   // never a box-shadow or filter transition on hover
-  const props = await page.locator(".crx-card, .rvx-plist li, .rcx-item").evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionProperty));
+  const props = await page.locator(".crx-card, .rvx-plist li").evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionProperty));
   for (const p of props) expect(p).not.toMatch(/box-shadow|filter|all/);
   await page.mouse.move(2, 2);
   await withReducedMotion(page);

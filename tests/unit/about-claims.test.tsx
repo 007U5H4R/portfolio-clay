@@ -6,7 +6,8 @@ import sharp from "sharp";
 import AboutPage from "@/app/about/page";
 import { CHAPTERS, DESK, ERAS, PINBOARD_CENTER } from "@/components/about/about-content";
 import { PAPER_ART, THEMED_ART } from "@/components/about/about-paper-art";
-import { awards, papers, patent } from "@/data/credentials";
+import { AWARD_TILES } from "@/components/home/home-content";
+import { papers, patent } from "@/data/credentials";
 import { testimonials } from "@/data/testimonials";
 
 // TASK-196 — truth over mockup. The redesign mockup carries placeholders (a mistyped patent number, "Product
@@ -42,16 +43,12 @@ describe("About body claims exist in the data (TASK-196)", () => {
     expect(text).not.toMatch(/Peer reviewed paper/i);
   });
 
-  it("recognition: exactly the three awards on record, each with its year", () => {
+  it("recognition: Home's award tiles (home-content.ts is the one source), each with its detail line", () => {
     const text = body();
-    expect(awards.map((a) => [a.title, a.year])).toEqual([
-      ["Google Cloud Partner All-Star: Delivery Excellence", "2024"],
-      ["Annual Unsung Hero Award, Quantiphi Analytics Solutions", "2024"],
-      ["12 in 11 Award, Godrej Infotech", "2018"],
-    ]);
-    for (const a of awards) {
-      expect(text).toContain(a.title);
-      expect(text).toContain(a.year);
+    expect(AWARD_TILES.length).toBeGreaterThanOrEqual(3);
+    for (const t of AWARD_TILES) {
+      expect(text).toContain(t.name);
+      expect(text).toContain(t.detail);
     }
   });
 
