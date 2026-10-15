@@ -3,7 +3,7 @@
  * sections in the browser: order, the EVAL-018 unit counts, the real links, the facts from data, and the
  * About ↔ Experience split (the résumé record lives on `/work`).
  *
- *   @EVAL-018 — unit counts hero 4 · desk 1 · chapters 2 · career 2 · research-values 2 · recognition 2 · testimonials 1 · CTA 1 at 390
+ *   @EVAL-018 — unit counts hero 3 · desk 1 · chapters 2 · career 2 · research-values 1 · recognition 2 · testimonials 1 · CTA 1 at 390
  *               and 1440; every text-bearing decoration is aria-hidden.
  *   @EVAL-011 — the patent link and the DOI link resolve to their records; "DOI pending" is Inter; the CTA
  *               buttons land on the existing Experience and Certifications tabs.
@@ -11,7 +11,8 @@
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { experience } from "@/data/experience";
-import { awards, papers, patent } from "@/data/credentials";
+import { AWARD_TILES } from "@/components/home/home-content";
+import { papers, patent } from "@/data/credentials";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const MEASURED = [390, 1440];
@@ -25,23 +26,23 @@ async function ownedDecor(page: Page, selector: string): Promise<string[]> {
   );
 }
 
-test("@EVAL-018 unit counts: hero 4 · desk 1 · chapters 2 · career 2 · research-values 2 · recognition 2 · testimonials 1 · CTA 1", {
+test("@EVAL-018 unit counts: hero 3 · desk 1 · chapters 2 · career 2 · research-values 1 · recognition 1 · testimonials 1 · CTA 1", {
   tag: "@EVAL-018",
 }, async ({ page }) => {
   test.skip(!MEASURED.includes(width(page)), "EVAL-018 is measured at w390 and w1440");
   await page.goto("/about", { waitUntil: "load" });
-  expect((await ownedDecor(page, 'section[aria-labelledby="about-hero-heading"]')).sort()).toEqual(["annotation", "annotation", "collage", "sketch"]);
+  expect((await ownedDecor(page, 'section[aria-labelledby="about-hero-heading"]')).sort()).toEqual(["annotation", "annotation", "sketch"]);
   expect(await ownedDecor(page, "section#desk")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#chapters")).toEqual(["torn", "annotation"]);
   expect(await ownedDecor(page, "section#career")).toEqual(["torn", "sketch"]);
-  expect(await ownedDecor(page, "section#research-values")).toEqual(["torn", "annotation"]);
-  expect(await ownedDecor(page, "section#recognition")).toEqual(["torn", "annotation"]);
+  expect(await ownedDecor(page, "section#research-values")).toEqual(["torn"]);
+  expect(await ownedDecor(page, "section#recognition")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#testimonials")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#about-cta")).toEqual(["collage"]);
   for (const el of await page.locator("main [data-decor]").all()) await expect(el).toHaveAttribute("aria-hidden", "true");
 });
 
-test("page order: opener → hero → desk → chapters → career → research + values → recognition → testimonials → CTA → band", async ({ page }) => {
+test("page order: opener → hero → desk → chapters → career → research → recognition → testimonials → CTA → band", async ({ page }) => {
   test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
   await page.goto("/about", { waitUntil: "load" });
   const order = await page.evaluate(() =>
@@ -97,11 +98,11 @@ test("@EVAL-011 research: the granted patent IN 429867, the patent record + ever
   await expect(research.getByText("DOI pending", { exact: true })).toHaveCount(0);
 });
 
-test("recognition shows only the recorded awards; About repeats no role, bullet, metric, education or badge", async ({ page }) => {
+test("recognition shows Home's award tiles; About repeats no role, bullet, metric, education or badge", async ({ page }) => {
   test.skip(width(page) !== 1440, "content is viewport-independent; checked once at w1440");
   await page.goto("/about", { waitUntil: "load" });
-  const names = await page.locator("#recognition .rcx-name").allTextContents();
-  expect(names).toEqual(awards.map((a) => a.title));
+  const names = await page.locator("#recognition .hs-award-name").allTextContents();
+  expect(names).toEqual(AWARD_TILES.map((t) => t.name));
   const text = (await page.locator("main").textContent()) ?? "";
   for (const role of experience) {
     expect(text).not.toContain(role.title);

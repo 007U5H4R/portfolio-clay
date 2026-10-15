@@ -3,10 +3,10 @@ import { AboutCta } from "@/components/about/AboutCta";
 import { AboutHero } from "@/components/about/AboutHero";
 import { BuildersDesk } from "@/components/about/BuildersDesk";
 import { CareerContexts } from "@/components/about/CareerContexts";
-import { Recognition } from "@/components/about/Recognition";
 import { ResearchValues } from "@/components/about/ResearchValues";
 import { Testimonials } from "@/components/about/Testimonials";
 import { ThreeChapters } from "@/components/about/ThreeChapters";
+import { AwardsSection } from "@/components/home/HomeSections";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -25,7 +25,7 @@ export const metadata: Metadata = buildMetadata({
  * about four to five viewports, readable in a minute:
  *
  *   scene opener (TASK-114, every tab) → hero → the desk (TASK-196) → Three Chapters → Career Across Contexts →
- *   Research + What Drives Me → Recognition → In their words (three LinkedIn recommendations) →
+ *   Research & Intellectual Work → Awards & Recognition (Home's section, `#recognition`) → In their words (three LinkedIn recommendations) →
  *   the dark Experience / Certifications strip → band.
  *
  * WHAT he did — employer-by-employer roles, dates, bullets, scope and self-reported outcomes, skills,
@@ -42,7 +42,7 @@ export default function AboutPage() {
       <ThreeChapters />
       <CareerContexts />
       <ResearchValues />
-      <Recognition />
+      <AwardsSection id="recognition" />
       <Testimonials />
       <AboutCta />
     </>

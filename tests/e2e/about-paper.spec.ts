@@ -35,15 +35,14 @@ test("the seven body sections render, in order, with their headings", async ({ p
   await page.goto("/about", { waitUntil: "load" });
   for (const id of SECTIONS) await expect(page.locator(`main section#${id}`)).toHaveCount(1);
   await expect(page.locator("section#research-values #research")).toHaveAttribute("role", "region");
-  await expect(page.locator("section#research-values #values")).toHaveAttribute("role", "region");
+  await expect(page.locator("section#research-values #values")).toHaveCount(0); // TASK-213: What Drives Me removed
   const h2s = await page.locator("main h2").allTextContents();
   expect(h2s).toEqual([
     "Where the work starts.",
     "The arc of my journey.",
     "Different problems, common thread.",
     "From labs to lasting ideas.",
-    "Curiosity, impact and continuous learning.",
-    "A few milestones along the way.",
+    "Recognized for impact.",
     "In their words.",
     "Want the full story with roles, achievements and metrics?",
   ]);
@@ -70,7 +69,7 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
       };
     }),
   );
-  expect(imgs.length).toBeGreaterThan(15);
+  expect(imgs.length).toBeGreaterThanOrEqual(15); // TASK-213 removed the three principle pieces (was > 15)
   for (const img of imgs) {
     expect(img.alt, img.id).toBe("");
     expect(img.w && img.h, img.id).toBeTruthy();
@@ -80,7 +79,7 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
   }
 });
 
-test("the hero and the footer are exactly what main shipped (fingerprint of HTML + computed style)", async ({ page, browser }) => {
+test("the opener and the footer are exactly what main shipped (the hero changed on purpose: TASK-212) (fingerprint of HTML + computed style)", async ({ page, browser }) => {
   // ABOUT_BASELINE_URL (a running origin/main build) is the live baseline; otherwise the committed snapshot.
   const live = process.env.ABOUT_BASELINE_URL;
   let expected: Awaited<ReturnType<typeof fingerprint>> | undefined;
@@ -97,7 +96,7 @@ test("the hero and the footer are exactly what main shipped (fingerprint of HTML
   }
   expect(expected, `baseline for w${width(page)}`).toBeTruthy();
   const actual = await fingerprint(page);
-  for (const region of ["opener", "hero", "footer"] as const) {
+  for (const region of ["opener", "footer"] as const) {
     expect(actual[region].elements, `${region} element count`).toBe(expected![region].elements);
     expect(actual[region].html, `${region} markup`).toBe(expected![region].html);
     expect(actual[region].style, `${region} computed style`).toBe(expected![region].style);
@@ -180,7 +179,7 @@ test("P1 hover contract: a 4 px lift on a fine pointer with a crossfading shadow
   const shadow = await card.evaluate((el) => getComputedStyle(el, "::before").transitionProperty);
   expect(shadow).toBe("opacity");
   // never a box-shadow or filter transition on hover
-  const props = await page.locator(".crx-card, .rvx-plist li, .rcx-item").evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionProperty));
+  const props = await page.locator(".crx-card, .rvx-plist li").evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionProperty));
   for (const p of props) expect(p).not.toMatch(/box-shadow|filter|all/);
   await page.mouse.move(2, 2);
   await withReducedMotion(page);

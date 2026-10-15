@@ -44,11 +44,26 @@ test("hero: eyebrow ABOUT, the approved h1 and copy; the scene renders once, in 
   // the scene is TKT-95's opener above — one scene <img>, never inside the hero
   await expect(page.getByRole("img", { name: SCENE_ABOUT_ALT })).toHaveCount(1);
   await expect(hero.getByRole("img", { name: SCENE_ABOUT_ALT })).toHaveCount(0);
-  // the collage is decoration: out of the a11y tree, every piece alt=""
-  const collage = hero.locator('[data-decor="collage"]');
-  await expect(collage).toHaveAttribute("aria-hidden", "true");
-  await expect(collage.locator("img")).toHaveCount(4);
-  await expect(collage.locator("img:not([alt=''])")).toHaveCount(0);
+  // TASK-212: one diorama image with real alt text (no lettering baked in), the two notes are real HTML
+  const art = hero.locator("img.abh-art");
+  await expect(art).toHaveCount(1);
+  await expect(art).toHaveAttribute("alt", /paper-craft diorama/);
+  await expect(art).toHaveAttribute("width", "1168");
+  await expect(art).toHaveAttribute("height", "880");
+});
+
+test("TASK-212: the four book labels stay on their books at every width (centre at the same % of the art box)", async ({ page }) => {
+  await page.goto("/about", { waitUntil: "load" });
+  await revealAll(page);
+  const art = (await page.locator("img.abh-art").boundingBox())!;
+  const expected = [["AI", 40.6], ["Systems", 46.9], ["Products", 53.9], ["Impact", 61]] as const;
+  for (const [label, top] of expected) {
+    const box = (await page.locator(".abh-spine", { hasText: label }).first().boundingBox())!;
+    const cx = ((box.x + box.width / 2 - art.x) / art.width) * 100;
+    const cy = ((box.y + box.height / 2 - art.y) / art.height) * 100;
+    expect(Math.abs(cx - 36.4), `${label} x`).toBeLessThan(1);
+    expect(Math.abs(cy - top), `${label} y`).toBeLessThan(1.2);
+  }
 });
 
 test("hero layout: ≥ 1024 copy left (~44–46 %) and collage right; < 1024 copy first, collage below", async ({ page }) => {
@@ -69,11 +84,9 @@ test("hero layout: ≥ 1024 copy left (~44–46 %) and collage right; < 1024 cop
   const size = await page.locator(".abh-title").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
   expect(size).toBeGreaterThanOrEqual(40);
   expect(size).toBeLessThanOrEqual(70);
-  // phones get a simpler collage (spec §45): the sketches and the desk drop out, the city + books stay
-  const shown = await page
-    .locator(".abh-collage img")
-    .evaluateAll((els) => els.filter((el) => getComputedStyle(el).display !== "none").map((el) => el.getAttribute("data-about-art")));
-  expect(shown).toEqual(width(page) < 640 ? ["systems-collage", "books-stack"] : ["research-sketches", "systems-collage", "product-desk", "books-stack"]);
+  // phones keep the diorama and one of its two notes (the other is display:none)
+  const notes = await page.locator(".abh-note").evaluateAll((els) => els.filter((el) => getComputedStyle(el).display !== "none").length);
+  expect(notes).toBe(width(page) < 640 ? 1 : 2);
 });
 
 test("the page stays compact: about 4–5 viewport heights of content at 1440 (spec §39–§41)", async ({ page }) => {
@@ -84,7 +97,9 @@ test("the page stays compact: about 4–5 viewport heights of content at 1440 (s
     opener: document.querySelector('[data-opener="scene-about"]')!.getBoundingClientRect().height,
   }));
   // 5.6 (was 5.5): TASK-209 folded the citations block into the research cards, adding ~15px at 1440 (Tushar, 2026-10-15)
-  expect((main - opener) / 900).toBeLessThanOrEqual(5.6);
+  // 5.8 (was 5.6): TASK-215 swapped Recognition for Home's taller Awards & Recognition section plus a foot that clears the 200px torn-edge lag (measured 5.781 at 1440)
+  // 5.8 after TASK-212/213 + merge: removing What Drives Me is offset by the research cards' taller 4:3 images; measured 5.778 at 1440, rounded up to the next 0.1
+  expect((main - opener) / 900).toBeLessThanOrEqual(5.8);
 });
 
 test("@EVAL-008 /about has no horizontal overflow and every control clears 44×44", {
@@ -133,7 +148,7 @@ test("entrance: with motion allowed the chapters, thread and artifacts settle vi
   test.skip(width(page) !== 1440, "entrance timing is width-independent; checked at 1440");
   await page.goto("/about", { waitUntil: "load" });
   await revealAll(page);
-  for (const sel of [".chx-rv", ".crx-strip", ".rvx-rv", ".rcx-rv", ".tsx-rv"]) {
+  for (const sel of [".chx-rv", ".crx-strip", ".rvx-rv", ".tsx-rv"]) {
     const els = page.locator(sel);
     const n = await els.count();
     for (let i = 0; i < n; i++) {
@@ -144,20 +159,11 @@ test("entrance: with motion allowed the chapters, thread and artifacts settle vi
   await expect.poll(() => page.locator(".crx-thread path").evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0);
 });
 
-test("TASK-207: What Drives Me words stay inside their card at every width", async ({ page }) => {
+test("TASK-213: What Drives Me is removed from the page", async ({ page }) => {
   await page.goto("/about");
-  await revealAll(page);
-  const spill = await page.evaluate(() => {
-    const card = document.querySelector(".rvx-principles")!.getBoundingClientRect();
-    // measure the text itself (a Range), not the span box — the span fits even while its words overflow it
-    return [...document.querySelectorAll(".rvx-plist li > span")].map((span) => {
-      const range = document.createRange();
-      range.selectNodeContents(span);
-      return Math.round(range.getBoundingClientRect().right - card.right);
-    });
-  });
-  expect(spill).toHaveLength(3);
-  for (const px of spill) expect(px).toBeLessThanOrEqual(0);
+  await expect(page.locator("#values")).toHaveCount(0);
+  await expect(page.getByText(/what drives me/i)).toHaveCount(0);
+  await expect(page.locator("#research")).toHaveCount(1);
 });
 
 test("TASK-207: every About section body is opaque, so the sheet underneath never shows through on scroll", async ({ page }) => {
@@ -165,11 +171,40 @@ test("TASK-207: every About section body is opaque, so the sheet underneath neve
   for (const theme of ["light", "dark"] as const) {
     await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
     const clear = await page.evaluate(() =>
-      [".chx-body", ".crx-body", ".rvx-body", ".rcx-body"].filter((sel) => {
+      [".chx-body", ".crx-body", ".rvx-body", "#recognition .hs-body"].filter((sel) => {
         const bg = getComputedStyle(document.querySelector(sel)!).backgroundColor;
         return bg === "transparent" || /rgba\([^)]*,\s*0\)$/.test(bg);
       }),
     );
     expect(clear, theme).toEqual([]);
+  }
+});
+
+test("TASK-215: the Testimonials torn edge never covers the last award line, at rest or at full parallax lag", async ({ page }) => {
+  await page.goto("/about");
+  await revealAll(page);
+  for (const theme of ["light", "dark"] as const) {
+    await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+    // rest: the awards foot at the viewport bottom (lag 0); lag: the next sheet 30 % down the viewport (lag fully applied)
+    for (const place of ["rest", "lag"] as const) {
+      await page.evaluate((where) => {
+        const next = document.querySelector("#testimonials")!;
+        const y = next.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo(0, where === "lag" ? y - window.innerHeight * 0.3 : y - window.innerHeight + 40);
+      }, place);
+      await page.waitForTimeout(500);
+      const m = await page.evaluate(() => {
+        let textBottom = 0;
+        for (const el of document.querySelectorAll("#recognition .hs-award-name, #recognition .hs-award-detail")) {
+          const r = document.createRange();
+          r.selectNodeContents(el);
+          textBottom = Math.max(textBottom, r.getBoundingClientRect().bottom);
+        }
+        const next = document.querySelector("#testimonials")!;
+        const tearTop = Math.min(next.getBoundingClientRect().top, next.querySelector("[data-decor='torn']")!.getBoundingClientRect().top);
+        return { gap: tearTop - textBottom };
+      });
+      expect(m.gap, `${theme} ${place} w${width(page)}`).toBeGreaterThan(8);
+    }
   }
 });

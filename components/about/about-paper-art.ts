@@ -29,12 +29,6 @@ export const PAPER_ART = {
   "polaroid-cloud": art("polaroid-cloud", 340, 459),
   "polaroid-enterprise": art("polaroid-enterprise", 340, 456),
   "polaroid-ai": art("polaroid-ai", 340, 436),
-  "principle-thread": art("principle-thread", 480, 441),
-  "principle-tangible": art("principle-tangible", 480, 306),
-  "principle-iterate": art("principle-iterate", 560, 115),
-  "award-a": art("award-a", 340, 486),
-  "award-b": art("award-b", 340, 470),
-  "award-c": art("award-c", 340, 482),
   grove: art("grove", 420, 445),
 } as const satisfies Record<string, PaperArt>;
 
@@ -53,7 +47,3 @@ export type ThemedArtId = keyof typeof THEMED_ART;
 export const CHAPTER_ART = { builder: "chapter-builder", operator: "chapter-operator", researcher: "chapter-researcher" } as const satisfies Record<string, PaperArtId>;
 /** Era id → its pinned photograph. */
 export const ERA_ART = { research: "polaroid-research", cloud: "polaroid-cloud", enterprise: "polaroid-enterprise", ai: "polaroid-ai" } as const satisfies Record<string, PaperArtId>;
-/** Principle id → its paper artifact. */
-export const PRINCIPLE_ART = { questions: "principle-thread", products: "principle-tangible", learning: "principle-iterate" } as const satisfies Record<string, PaperArtId>;
-/** Award index → its folded trophy. */
-export const AWARD_ART = ["award-a", "award-b", "award-c"] as const satisfies readonly PaperArtId[];
