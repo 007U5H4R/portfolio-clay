@@ -38,10 +38,16 @@ describe("data/what-i-bring (TASK-187)", () => {
     }
   });
 
-  it("every tool, example and proof figure exists in data/ (evidence term found in the corpus)", () => {
+  it("keeps every panel to at most five capabilities and three tools so the stage illustration is never cropped (TASK-216)", () => {
+    for (const s of wibStages) {
+      expect(s.capabilities.length, s.id).toBeLessThanOrEqual(5);
+      expect(s.tools.length, s.id).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("every tool and proof figure exists in data/ (evidence term found in the corpus)", () => {
     const claims = wibStages.flatMap((s) => [
       ...s.tools.map((t) => [s.id, t.label, t.evidence] as const),
-      ...(s.examples ?? []).map((e) => [s.id, e.name, e.evidence] as const),
       ...(s.proof ?? []).map((p) => [s.id, p.label, p.evidence] as const),
     ]);
     expect(claims.length).toBeGreaterThan(15);

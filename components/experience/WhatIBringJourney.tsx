@@ -61,13 +61,6 @@ function Panel({ stage, active, total }: { stage: WibStage; active: boolean; tot
           <li key={c}>{c}</li>
         ))}
       </ul>
-      {stage.flow ? (
-        <ol className="wib-flow" aria-label="Flow">
-          {stage.flow.map((f) => (
-            <li key={f}>{f}</li>
-          ))}
-        </ol>
-      ) : null}
       {stage.tools.length > 0 ? (
         <div className="wib-tools">
           <span className="wib-tools-label" data-micro-label="">Tools I use</span>
@@ -93,13 +86,6 @@ function Panel({ stage, active, total }: { stage: WibStage; active: boolean; tot
             })}
           </ul>
         </div>
-      ) : null}
-      {stage.examples ? (
-        <ul className="wib-evidence" aria-label="From my work">
-          {stage.examples.map((ex) => (
-            <li key={ex.name}>{ex.name}</li>
-          ))}
-        </ul>
       ) : null}
       {stage.proof ? (
         <ul className="wib-proof" aria-label="Evidence from my work">
