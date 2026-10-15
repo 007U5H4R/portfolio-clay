@@ -1,6 +1,6 @@
 /**
  * eval-040.spec.ts (`@EVAL-040`, evaluation-plan §11, M-012 P1 / TASK-181.1) — the interaction hierarchy contract for the L1
- * surfaces (Design.md §14.10): header nav + strip, the Connect pill, hero / Contact / About / How-I-Think / Portfolio / featured
+ * surfaces (Design.md §14.10): header nav + strip, the Connect pill, hero / Contact / About / Portfolio
  * buttons and their arrows, the theme toggle, the band social icons and the carousel arrows. On the built site:
  *   - hover and keyboard focus-visible produce the SAME movement (the focus twin), measured on computed styles;
  *   - nothing transitions box-shadow, filter, backdrop-filter or `all` (the element, its ::before/::after and its arrow), and
@@ -40,9 +40,7 @@ const SURFACES: Surface[] = [
   { name: "hero primary", route: "/", selector: ".hero-btn-primary", dy: -1, arrow: { selector: ".btn-arrow", dx: 3 } },
   { name: "hero secondary", route: "/", selector: ".hero-btn-secondary", dy: -1 },
   { name: "theme toggle", route: "/", selector: ".theme-toggle", dy: -1 },
-  { name: "featured CTA", route: "/", selector: ".fw-cta", dy: -1, arrow: { selector: ".fw-cta-arrow", dx: 3 } },
   { name: "band social", route: "/", selector: ".band-social a", dy: -2 },
-  { name: "how-i-think pill", route: "/", selector: ".hit-pill", dy: -1, arrow: { selector: ".hit-pill-arrow", dx: 3 } },
   { name: "about CTA", route: "/about", selector: ".acx-btn-primary", dy: -1, arrow: { selector: ".acx-arrow", dx: 3 } },
   { name: "contact primary", route: "/contact", selector: ".cx-btn-primary", dy: -1, arrow: { selector: ".cx-btn-arrow", dx: 3 } },
   { name: "portfolio action", route: "/projects", selector: ".pf-action", dy: -1, arrow: { selector: ".pf-action-arrow", dx: 3 } },

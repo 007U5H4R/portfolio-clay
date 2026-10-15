@@ -61,7 +61,7 @@ describe("page tracking (TASK-194)", () => {
   });
 
   it("emits section_viewed once per section, only when enough of it is visible, with its index", () => {
-    sections("hero-copy", "work-featured", "ask");
+    sections("hero-copy", "credentials", "ask");
     const { names, events } = setup();
     const io = FakeIO.all[0]!;
     const [a, b] = [...io.elements];
@@ -72,7 +72,7 @@ describe("page tracking (TASK-194)", () => {
     io.fire(b!, { height: 300, boundingHeight: 300, ratio: 1 });
     expect(events.filter(([n]) => n === "section_viewed")).toEqual([
       ["section_viewed", { section_name: "hero-copy", section_index: 0, page_name: "home" }],
-      ["section_viewed", { section_name: "work-featured", section_index: 1, page_name: "home" }],
+      ["section_viewed", { section_name: "credentials", section_index: 1, page_name: "home" }],
     ]);
   });
 
