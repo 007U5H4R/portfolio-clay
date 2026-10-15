@@ -3,7 +3,7 @@
  * sections in the browser: order, the EVAL-018 unit counts, the real links, the facts from data, and the
  * About ↔ Experience split (the résumé record lives on `/work`).
  *
- *   @EVAL-018 — unit counts hero 4 · desk 1 · chapters 2 · career 2 · research-values 2 · recognition 2 · testimonials 1 · CTA 1 at 390
+ *   @EVAL-018 — unit counts hero 3 · desk 1 · chapters 2 · career 2 · research-values 1 · recognition 2 · testimonials 1 · CTA 1 at 390
  *               and 1440; every text-bearing decoration is aria-hidden.
  *   @EVAL-011 — the patent link and the DOI link resolve to their records; "DOI pending" is Inter; the CTA
  *               buttons land on the existing Experience and Certifications tabs.
@@ -25,23 +25,23 @@ async function ownedDecor(page: Page, selector: string): Promise<string[]> {
   );
 }
 
-test("@EVAL-018 unit counts: hero 4 · desk 1 · chapters 2 · career 2 · research-values 2 · recognition 2 · testimonials 1 · CTA 1", {
+test("@EVAL-018 unit counts: hero 3 · desk 1 · chapters 2 · career 2 · research-values 1 · recognition 2 · testimonials 1 · CTA 1", {
   tag: "@EVAL-018",
 }, async ({ page }) => {
   test.skip(!MEASURED.includes(width(page)), "EVAL-018 is measured at w390 and w1440");
   await page.goto("/about", { waitUntil: "load" });
-  expect((await ownedDecor(page, 'section[aria-labelledby="about-hero-heading"]')).sort()).toEqual(["annotation", "annotation", "collage", "sketch"]);
+  expect((await ownedDecor(page, 'section[aria-labelledby="about-hero-heading"]')).sort()).toEqual(["annotation", "annotation", "sketch"]);
   expect(await ownedDecor(page, "section#desk")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#chapters")).toEqual(["torn", "annotation"]);
   expect(await ownedDecor(page, "section#career")).toEqual(["torn", "sketch"]);
-  expect(await ownedDecor(page, "section#research-values")).toEqual(["torn", "annotation"]);
+  expect(await ownedDecor(page, "section#research-values")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#recognition")).toEqual(["torn", "annotation"]);
   expect(await ownedDecor(page, "section#testimonials")).toEqual(["torn"]);
   expect(await ownedDecor(page, "section#about-cta")).toEqual(["collage"]);
   for (const el of await page.locator("main [data-decor]").all()) await expect(el).toHaveAttribute("aria-hidden", "true");
 });
 
-test("page order: opener → hero → desk → chapters → career → research + values → recognition → testimonials → CTA → band", async ({ page }) => {
+test("page order: opener → hero → desk → chapters → career → research → recognition → testimonials → CTA → band", async ({ page }) => {
   test.skip(width(page) !== 1440, "DOM order is viewport-independent; checked once at w1440");
   await page.goto("/about", { waitUntil: "load" });
   const order = await page.evaluate(() =>

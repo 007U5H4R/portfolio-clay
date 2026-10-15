@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, within } from "@testing-library/react";
 import AboutPage from "@/app/about/page";
-import { ABOUT_CTA, CHAPTERS, ERAS, PRINCIPLES } from "@/components/about/about-content";
+import { ABOUT_CTA, CHAPTERS, ERAS } from "@/components/about/about-content";
 import { awards, papers, patent, researchDisclaimer } from "@/data/credentials";
 import { experience } from "@/data/experience";
 import { recommendationsHref, testimonials } from "@/data/testimonials";
 
 // TASK-136 (Tushar's About redesign spec 2026-09-29): `/about` is WHO Tushar is — hero → Three Chapters →
-// Career Across Contexts → Research + What Drives Me → Recognition → the dark Experience strip. Facts come
+// Career Across Contexts → Research & Intellectual Work → Recognition → the dark Experience strip. Facts come
 // from data/*.ts; the reference image's placeholders (companies, awards, "1 patent filed", "2010–2013") must
 // never appear, and nothing duplicates Experience (no role cards, dates, bullets, metrics, education, badges).
 
@@ -55,31 +55,26 @@ describe("/about (TASK-136)", () => {
       "The arc of my journey.",
       "Different problems, common thread.",
       "From labs to lasting ideas.",
-      "Curiosity, impact and continuous learning.",
       "A few milestones along the way.",
       "In their words.",
       ABOUT_CTA.title,
     ]);
   });
 
-  it("hero: eyebrow ABOUT, the approved h1 + copy, the collage and two notes are decoration only (EVAL-018 = 4)", () => {
+  it("hero: eyebrow ABOUT, the approved h1 + copy, the diorama is a meaningful image, the two notes are decoration (EVAL-018 = 3)", () => {
     const { container } = render(<AboutPage />);
     const hero = container.querySelector('section[aria-labelledby="about-hero-heading"]')!;
     expect(hero.querySelector(".ab-eyebrow")).toHaveTextContent(/^About$/);
     expect(hero.querySelector(".abh-lead")).toHaveTextContent(
       "From research labs to production systems, I’ve always been drawn to solving complex problems and turning them into products people actually use.",
     );
-    expect(decor(hero).sort()).toEqual(["annotation", "annotation", "collage", "sketch"]);
-    const collage = hero.querySelector('[data-decor="collage"]')!;
-    expect(collage.getAttribute("aria-hidden")).toBe("true");
-    const imgs = Array.from(collage.querySelectorAll("img"));
-    expect(imgs.map((img) => img.getAttribute("src"))).toEqual([
-      "/about/research-sketches.svg",
-      "/about/systems-collage.svg",
-      "/about/product-desk.svg",
-      "/about/books-stack.svg",
-    ]);
-    for (const img of imgs) expect(img.getAttribute("alt")).toBe("");
+    expect(decor(hero).sort()).toEqual(["annotation", "annotation", "sketch"]);
+    expect(hero.querySelector('[data-decor="collage"]')).toBeNull();
+    const imgs = Array.from(hero.querySelectorAll("img"));
+    expect(imgs.map((img) => img.getAttribute("src"))).toEqual(["/media/about/about-hero.webp"]);
+    expect(imgs[0]!.getAttribute("alt")).toMatch(/paper-craft diorama/);
+    expect(imgs[0]!.getAttribute("width")).toBe("1168");
+    expect(imgs[0]!.getAttribute("height")).toBe("880");
   });
 
   it("The desk (TASK-196): the notebook page and the desk art, decoration beside real HTML (EVAL-018 = torn)", () => {
@@ -169,15 +164,20 @@ describe("/about (TASK-136)", () => {
     expect(research.textContent).not.toMatch(/B\.E\.|M\.Tech|CGPA|Bhilai|Institute of Technology/);
   });
 
-  it("What Drives Me: one card with exactly three principles and hand-drawn icons, beside the polaroid", () => {
+  it("Research images (TASK-213): three paper-craft WebP, one ratio, real alt; What Drives Me is gone", () => {
     const { container } = render(<AboutPage />);
-    const values = container.querySelector("#values")!;
-    const items = Array.from(values.querySelectorAll(".rvx-plist > li"));
-    expect(items.map((li) => li.textContent)).toEqual(PRINCIPLES.map((p) => p.text));
-    for (const li of items) expect(li.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
-    expect(values.querySelector('[data-illustration="polaroid-sunrise"]')).not.toBeNull();
+    const imgs = Array.from(container.querySelectorAll<HTMLImageElement>("#research .rvx-artifacts img.rvx-art"));
+    expect(imgs.map((img) => img.getAttribute("src"))).toEqual([
+      "/media/about/research-data.webp",
+      "/media/about/research-investigation.webp",
+      "/media/about/research-insights.webp",
+    ]);
+    expect(new Set(imgs.map((img) => `${img.getAttribute("width")}x${img.getAttribute("height")}`)).size).toBe(1);
+    for (const img of imgs) expect(img.getAttribute("alt")!.length).toBeGreaterThan(30);
+    expect(container.querySelector("#values")).toBeNull();
+    expect(container.textContent).not.toMatch(/What drives me/i);
     const section = container.querySelector("section#research-values")!;
-    expect(decor(section)).toEqual(["torn", "annotation"]);
+    expect(decor(section)).toEqual(["torn"]);
   });
 
   it("Recognition: exactly the awards data/credentials.ts records (name + year), never a placeholder", () => {
