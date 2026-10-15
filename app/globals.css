@@ -6334,53 +6334,23 @@ html.lenis body {
     stroke-width: 3;
   }
 
-  /* ---- footer note: books · plane · "Continuous learning…" strip ---- */
+  /* ---- footer note: paper art · "Continuous learning…" strip ---- */
   .cert-foot {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     gap: 16px;
     margin-top: clamp(40px, 5vw, 72px);
   }
-  .cert-books {
+  /* TASK-218: the LEARN → BUILD → APPLY → GROW paper art — whole 3:1 image, never cropped (aspect-ratio + contain). */
+  .cert-foot-art {
     display: block;
-    width: 200px;
+    width: 100%;
+    max-width: 640px;
     height: auto;
-  }
-  .cert-book {
-    fill: var(--tone-blue);
-    stroke: var(--color-navy-2);
-    stroke-width: 1.6;
-  }
-  [data-tone="sage"] > .cert-book {
-    fill: var(--tone-sage);
-  }
-  [data-tone="rose"] > .cert-book {
-    fill: var(--tone-rose);
-  }
-  [data-tone="note"] > .cert-book {
-    fill: var(--tone-note);
-  }
-  .cert-book-band {
-    fill: none;
-    stroke: color-mix(in oklab, var(--color-navy-2) 45%, transparent);
-    stroke-width: 1.4;
-  }
-  .cert-book-word {
-    font-family: var(--font-display);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    fill: var(--color-navy);
-  }
-  .cert-foot .cert-plane {
-    width: min(100%, 260px);
-    height: 90px;
-    justify-self: center;
-    stroke-width: 1.8;
-  }
-  .cert-dd-dash {
-    stroke-dasharray: 5 6;
+    aspect-ratio: 2167 / 726;
+    object-fit: contain;
+    border-radius: 6px;
   }
   .cert-foot-strip {
     position: relative;
@@ -6518,13 +6488,7 @@ html.lenis body {
       font-size: 21px;
     }
     .cert-foot {
-      grid-template-columns: auto minmax(0, 1fr);
-    }
-    .cert-books {
-      width: 132px;
-    }
-    .cert-plane {
-      display: none;
+      grid-template-columns: minmax(0, 1fr);
     }
     .cert-foot-strip {
       justify-self: end;
@@ -11332,6 +11296,10 @@ html[data-theme-vt]::view-transition-group(root) {
   background:
     radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--color-kraft) 24%, transparent) 0 1px, transparent 1.5px) 0 0 / 8px 9px,
     var(--color-navy);
+}
+/* TASK-218: the foot art is cream paper; in dark it sits on a light paper mat (same `navy` = light-ink token as the badge disc), never inverted or filtered. */
+[data-theme="dark"] .cert-foot-art {
+  box-shadow: 0 0 0 6px var(--color-navy); /* the mat: a spread ring, so the art's own box keeps its 3:1 */
 }
 [data-theme="dark"] .cert-badge {
   filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-paper) 40%, transparent))
