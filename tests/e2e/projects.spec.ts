@@ -243,12 +243,23 @@ test("@EVAL-013 enterprise: six grouped case files below the showcase, no budget
 // ---------------------------------------------------------------------------
 // GENERAL — layout, EVAL-018, EVAL-008, EVAL-006
 // ---------------------------------------------------------------------------
-test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → actions when stacked (TASK-197: the picker sits above the video)", async ({ page }) => {
+test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → actions at 640–1023 (TASK-197); on a phone the listing replaces the carousel (TASK-210)", async ({ page }) => {
   await page.goto("/projects", { waitUntil: "load" });
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
+  if (width(page) < 640) {
+    // TASK-210: the phone tier is a listing — intro → filters → cards; the carousel and the product panel are not shown
+    await expect(page.locator(".pf-carousel")).toBeHidden();
+    await expect(page.locator(".pf-feature")).toBeHidden();
+    const intro = await box(".pf-intro");
+    const filters = await box(".pf-m-filters");
+    const card = await box(".pf-m-card");
+    expect(filters.y).toBeGreaterThan(intro.y + intro.height - 1);
+    expect(card.y).toBeGreaterThan(filters.y + filters.height - 1);
+    return;
+  }
   const stage = await box(".pf-stage");
   const info = await box(".pf-info");
-  const actions = await box(".pf-action-set .pf-action"); // the strips (their list is `display: contents` on a phone)
+  const actions = await box(".pf-action-set .pf-action"); // the strips (their list is `display: contents` below 1024)
   const carousel = await box(".pf-carousel");
   if (width(page) >= 1024) {
     expect(stage.x).toBeLessThan(info.x);
@@ -264,9 +275,9 @@ test("layout: ~62/38 stage/panel at ≥1024; carousel → details → media → 
   }
 });
 
-test("@EVAL-008 the carousel swipes inside its track; ~1.5–2.2 covers show at 390, 5–7 at 1440", { tag: "@EVAL-008" }, async ({ page }) => {
+test("@EVAL-008 the carousel swipes inside its track; 5–7 covers show at 1440 (phones use the listing, TASK-210)", { tag: "@EVAL-008" }, async ({ page }) => {
   const w = width(page);
-  test.skip(w !== 390 && w !== 1440, "cover counts asserted at the two boundary widths");
+  test.skip(w !== 1440, "cover counts asserted at the desktop width (the phone tier has no carousel; 640–1023 is unchanged TASK-197)");
   await page.goto("/projects", { waitUntil: "load" });
   const m = await page.locator(".pf-track").evaluate((el) => {
     const tab = el.querySelector('[role="tab"]') as HTMLElement;
@@ -275,13 +286,8 @@ test("@EVAL-008 the carousel swipes inside its track; ~1.5–2.2 covers show at 
   });
   expect(m.scrolls).toBe(true);
   expect(m.overflowX).toBe("auto");
-  if (w === 390) {
-    expect(m.visible).toBeGreaterThanOrEqual(1.5);
-    expect(m.visible).toBeLessThanOrEqual(2.2);
-  } else {
-    expect(m.visible).toBeGreaterThanOrEqual(5);
-    expect(m.visible).toBeLessThanOrEqual(7);
-  }
+  expect(m.visible).toBeGreaterThanOrEqual(5);
+  expect(m.visible).toBeLessThanOrEqual(7);
 });
 
 test("@EVAL-008 /projects has no horizontal overflow and ≥44 targets", { tag: "@EVAL-008" }, async ({ page, noOverflow, minTargets }) => {
@@ -367,7 +373,9 @@ async function titleFit(page: import("@playwright/test").Page, scope: string) {
 
 test("@EVAL-008 every cover title fits its cover — stage (each product) and thumbnails, ≤ 2 lines, ≥ 14 px", { tag: "@EVAL-008" }, async ({ page }) => {
   const w = width(page);
-  test.skip(w !== 390 && w !== 1440, "fit asserted at the two boundary widths");
+  // TASK-210: a phone has no carousel covers and its detail hero is the art alone (the title sits below it), so there is no
+  // lettering to fit at 390; the cover lettering is asserted at the desktop width, the phone's hero by projects-mobile.spec.ts.
+  test.skip(w !== 1440, "fit asserted at the desktop width");
   await page.goto("/projects", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
   await hydrated(page);

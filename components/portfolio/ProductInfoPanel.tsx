@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
 import { Pin, Sheet, Tape } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
+import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 
 export interface ProductInfoPanelProps {
   product: PortfolioProduct;
@@ -13,6 +14,8 @@ export interface ProductInfoPanelProps {
   /** The media stage's screen id (Pitch / Demo `aria-controls`). */
   stageId: string;
   headingId: string;
+  /** TASK-210: the phone's "Watch demo / pitch" — switches the stage to that video and starts it. */
+  onWatch: (mode: MediaMode) => void;
 }
 
 type ExternalKind = "product" | "github" | "prd";
@@ -51,7 +54,7 @@ function StripBody({ icon: Icon, label, hint, external }: { icon: LucideIcon; la
  * tab. An action with nothing behind it is not rendered at all (no disabled dead buttons). The case
  * study link ("Explore the build", spec §4) keeps the recruiter hop to `/work/<slug>` (EVAL-002).
  */
-export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId }: ProductInfoPanelProps) {
+export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, onWatch }: ProductInfoPanelProps) {
   const externals: { kind: ExternalKind; href: string }[] = [];
   if (product.productUrl) externals.push({ kind: "product", href: product.productUrl });
   if (product.githubUrl) externals.push({ kind: "github", href: product.githubUrl });
@@ -80,6 +83,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       <Pin tone="rust" className="pf-info-pin" />
       <Tape side="r" rotate={8} className="pf-info-tape" />
       <div className="pf-info-head">
+      <PhoneTags tags={product.tags} />
       <p className="pf-info-meta">
         <span className="pf-info-code">{product.code}</span>
         <span aria-hidden="true">·</span>
@@ -131,6 +135,9 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         </span>
       </Link>
       </div>
+      {/* TASK-210: the phone's own actions + outcomes (display: none from 640 px up; the strips above are hidden below it) */}
+      <PhoneActions product={product} stageId={stageId} onWatch={onWatch} />
+      <PhoneOutcomes product={product} />
     </Sheet>
   );
 }

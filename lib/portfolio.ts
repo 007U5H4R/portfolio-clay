@@ -53,6 +53,21 @@ export interface PortfolioProduct {
   githubUrl?: string | undefined;
   prdUrl?: string | undefined;
   caseStudyHref: string;
+  /** TASK-210 (phone listing + detail): the project record's own status / tags / role / build dates / evidenced metrics. */
+  status?: ProjectStatus | undefined;
+  tags?: readonly string[] | undefined;
+  role?: string | undefined;
+  duration?: string | undefined;
+  metrics?: readonly PortfolioMetric[] | undefined;
+}
+
+export type ProjectStatus = Project["status"];
+
+/** A project metric as the phone detail shows it: the record's value + label, with its evidence kind (never reworded). */
+export interface PortfolioMetric {
+  value: string;
+  label: string;
+  kind: "measured" | "structural" | "self-reported";
 }
 
 /**
@@ -91,6 +106,11 @@ export function buildPortfolioProducts(
         githubUrl: project.links.repoPublic ? project.links.github : undefined,
         prdUrl: entry.prdUrl,
         caseStudyHref: `/work/${project.slug}`,
+        status: project.status,
+        tags: project.tags,
+        role: project.role,
+        duration: project.duration,
+        metrics: (project.metrics ?? []).slice(0, 3).map(({ value, label, kind }) => ({ value, label, kind })),
       };
     });
 }
@@ -135,4 +155,64 @@ export function resolveVideoMedia(entry: VideoMediaEntry, productName: string, m
     title: entry.title ?? DEFAULT_MEDIA_TITLE[mode](productName),
     poster: entry.poster,
   };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// TASK-210 · the phone listing's filters + URLs. Everything derives from the project records (status, videos) — no
+// invented categories. The URL is the one source of truth for the phone view:
+//   /projects                              the listing (all products)
+//   /projects?filter=live&video=1          the listing, filtered (status AND "has a video")
+//   /projects?product=<id>[&filter=…]      that product's detail; the filter rides along so Back restores the listing
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Chip order + labels for the statuses a product can carry (a chip renders only if some product has it). */
+export const STATUS_FILTERS: readonly { value: ProjectStatus; label: string }[] = [
+  { value: "live", label: "Live" },
+  { value: "pilot", label: "Pilot" },
+  { value: "prototype", label: "Prototype" },
+  { value: "research", label: "Research" },
+];
+
+export interface ListFilter {
+  status: ProjectStatus | null;
+  video: boolean;
+}
+
+export const NO_FILTER: ListFilter = { status: null, video: false };
+
+export function hasVideo(product: PortfolioProduct): boolean {
+  return Boolean(product.pitchVideo || product.demoVideo);
+}
+
+/** The status chips that have at least one product, in the canonical order. */
+export function statusOptions(products: readonly PortfolioProduct[]): { value: ProjectStatus; label: string; count: number }[] {
+  return STATUS_FILTERS.map((option) => ({ ...option, count: products.filter((p) => p.status === option.value).length })).filter((option) => option.count > 0);
+}
+
+/** Filters without reordering: the visible list is always a subsequence of `products`. */
+export function filterProducts(products: readonly PortfolioProduct[], filter: ListFilter): PortfolioProduct[] {
+  return products.filter((p) => (filter.status === null || p.status === filter.status) && (!filter.video || hasVideo(p)));
+}
+
+/** `filter=` / `video=` from a query string; unknown values fall back to "no filter" (never a blank list). */
+export function parseListFilter(params: URLSearchParams, products: readonly PortfolioProduct[]): ListFilter {
+  const raw = params.get("filter");
+  const status = statusOptions(products).find((option) => option.value === raw)?.value ?? null;
+  return { status, video: params.get("video") === "1" };
+}
+
+function filterQuery(filter: ListFilter): string[] {
+  const parts: string[] = [];
+  if (filter.status) parts.push(`filter=${filter.status}`);
+  if (filter.video) parts.push("video=1");
+  return parts;
+}
+
+export function listHref(filter: ListFilter): string {
+  const parts = filterQuery(filter);
+  return parts.length ? `/projects?${parts.join("&")}` : "/projects";
+}
+
+export function detailHref(id: string, filter: ListFilter): string {
+  return `/projects?${[`product=${id}`, ...filterQuery(filter)].join("&")}`;
 }
