@@ -31,8 +31,9 @@ test("the page is Experience: sr-only h1, Work Experience then Education, newest
     newestFirst.map((r) => (r.companyNote ? `${r.company} (${r.companyNote})` : r.company)),
   );
   await expect(page.locator("section#education ol > li")).toHaveCount(education.length);
-  // no project index on this page any more
-  await expect(page.getByRole("tablist")).toHaveCount(0);
+  // no project index on this page any more (the What I Bring stage track is the only tablist, TASK-216)
+  await expect(page.getByRole("tablist")).toHaveCount(1);
+  await expect(page.getByRole("tablist")).toHaveAccessibleName("Seven stages, ambiguity to impact");
 });
 
 test("@EVAL-013 logos: alt = organisation name, and every logo file serves", { tag: "@EVAL-013" }, async ({ page, request }) => {

@@ -11,7 +11,7 @@ import { wibStages } from "@/data/what-i-bring";
 
 afterEach(cleanup);
 
-// TASK-203: the What I Bring scenes read the theme (`useTheme`), which subscribes to matchMedia; jsdom has none.
+// jsdom has no matchMedia (the journey track reads reduced motion from it).
 window.matchMedia ??= ((q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} })) as unknown as typeof window.matchMedia;
 
 // TASK-114 (Dev-103): the page opens on `SceneOpener`, whose static image import is a bare URL under jsdom
@@ -149,13 +149,19 @@ describe("/work Experience page (TKT-101)", () => {
   it("What I Bring is the seven-stage journey (TASK-187, replaces the four skill sheets), with no languages line (TASK-200); torn = its one decoration", () => {
     const { container } = render(<ExperiencePage />);
     const skillsSection = section(container, "skills");
-    const stages = Array.from(skillsSection.querySelectorAll("ol.wib-stages > li"));
-    expect(stages).toHaveLength(wibStages.length);
-    stages.forEach((li, i) => {
-      expect(li.querySelector(".wib-title")?.textContent).toBe(wibStages[i]!.title);
-      expect(li.querySelector(".wib-num")?.textContent).toBe(wibStages[i]!.number);
-      expect(Array.from(li.querySelectorAll(".wib-caps li")).map((c) => c.textContent)).toEqual(wibStages[i]!.capabilities);
+    const tabs = Array.from(skillsSection.querySelectorAll('[role="tablist"] [role="tab"]'));
+    const panels = Array.from(skillsSection.querySelectorAll('[role="tabpanel"]'));
+    expect(tabs).toHaveLength(wibStages.length);
+    expect(panels).toHaveLength(wibStages.length);
+    panels.forEach((panel, i) => {
+      expect(tabs[i]!.textContent).toContain(wibStages[i]!.title);
+      expect(tabs[i]!.getAttribute("aria-controls")).toBe(panel.id);
+      expect(panel.getAttribute("aria-labelledby")).toBe(tabs[i]!.id);
+      expect(panel.querySelector(".wib-title")?.textContent).toBe(wibStages[i]!.title);
+      expect(panel.querySelector(".wibj-count")?.textContent).toBe(`${wibStages[i]!.number} / 07`);
+      expect(Array.from(panel.querySelectorAll(".wib-caps li")).map((c) => c.textContent)).toEqual(wibStages[i]!.capabilities);
     });
+    expect(tabs.map((t) => t.getAttribute("aria-selected"))).toEqual(["true", ...Array(6).fill("false")]);
     expect(skillsSection.textContent).not.toContain("Languages:"); // removed at Tushar's request (TASK-200)
     expect(Array.from(skillsSection.querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"))).toEqual(["torn"]);
   });

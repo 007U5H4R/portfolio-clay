@@ -18,6 +18,8 @@ export type WibStage = {
   number: string;
   title: string;
   principle: string[];
+  /** TASK-216: the stage's paper-craft illustration (`public/media/experience/stage-<id>.webp`, 880 x 663) and its alt text. */
+  art: { src: string; alt: string };
   heading: string;
   capabilities: string[];
   tools: WibTool[];
@@ -31,7 +33,7 @@ export type WibStage = {
 
 export const wibHeading = "What I Bring";
 export const wibStatement = "I turn ambiguous problems into shipped products.";
-export const wibHint = "Hover, focus or tap a stage to see how I apply it and what I bring.";
+export const wibHint = "Select a stage on the landscape or in the track to see how I apply it and what I bring.";
 
 export const wibStages: WibStage[] = [
   {
@@ -39,6 +41,7 @@ export const wibStages: WibStage[] = [
     number: "01",
     title: "Ambiguity",
     principle: ["Messy problems.", "Real context."],
+    art: { src: "/media/experience/stage-ambiguity.webp", alt: "A paper-craft rocky passage where several narrow paths branch before converging at a question-mark rock, with a small terracotta marker" },
     heading: "I ask the right questions.",
     capabilities: [
       "Problem framing",
@@ -58,6 +61,7 @@ export const wibStages: WibStage[] = [
     number: "02",
     title: "Discovery",
     principle: ["Find the uncomfortable truth."],
+    art: { src: "/media/experience/stage-discovery.webp", alt: "A paper-craft research station with an open notebook, a compass, loose note sheets and a path leading to a new route" },
     heading: "I find clarity in complexity.",
     capabilities: [
       "User insights",
@@ -77,6 +81,7 @@ export const wibStages: WibStage[] = [
     number: "03",
     title: "Product",
     principle: ["Turn insights into direction."],
+    art: { src: "/media/experience/stage-product.webp", alt: "A paper-craft product district: a folded blueprint, a cream paper lightbulb and three product blocks along a roadmap" },
     heading: "I turn ambiguity into product direction.",
     capabilities: [
       "Strategy & vision",
@@ -96,6 +101,7 @@ export const wibStages: WibStage[] = [
     number: "04",
     title: "AI + GenAI",
     principle: ["Use AI to create leverage and new possibilities."],
+    art: { src: "/media/experience/stage-ai-genai.webp", alt: "A paper-craft AI core surrounded by a small network of nodes, with a workflow turning input documents into an output" },
     heading: "I turn AI capability into useful products.",
     capabilities: [
       "LLMs & prompt engineering",
@@ -123,6 +129,7 @@ export const wibStages: WibStage[] = [
     number: "05",
     title: "Technology",
     principle: ["Build on scalable, reliable systems."],
+    art: { src: "/media/experience/stage-technology.webp", alt: "Paper-craft cloud structures, a satellite dish, server and data blocks connected by thin pathways" },
     heading: "I understand the system underneath.",
     capabilities: [
       "GCP / AWS",
@@ -145,6 +152,7 @@ export const wibStages: WibStage[] = [
     number: "06",
     title: "Execution",
     principle: ["Turn plans into shipped outcomes."],
+    art: { src: "/media/experience/stage-execution.webp", alt: "A paper-craft construction site with a crane lowering a bridge section, buildings and a connecting road" },
     heading: "I make ideas survive contact with reality.",
     capabilities: [
       "Agile / Scrum",
@@ -167,6 +175,7 @@ export const wibStages: WibStage[] = [
     number: "07",
     title: "Impact",
     principle: ["Real products.", "Real users.", "Real value."],
+    art: { src: "/media/experience/stage-impact.webp", alt: "A paper-craft mountain road climbing to a summit with a flag and terracotta sun above a small connected city" },
     heading: "I create outcomes that compound.",
     capabilities: [
       "User value & adoption",

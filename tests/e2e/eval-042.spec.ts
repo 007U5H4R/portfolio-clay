@@ -331,13 +331,14 @@ test.describe("@EVAL-042 Experience timeline entries (TASK-201)", () => {
 
 // ---- TASK-201: What I Bring tool chips ----
 test.describe("@EVAL-042 What I Bring tool chips (TASK-201)", () => {
-  const STAGE = ".wib-stage[data-stage='technology']";
+  const STAGE = "#wib-panel-technology";
+  const OPEN = "#wib-tab-technology"; // TASK-216: the stage is opened from the track
 
   test("hover and keyboard focus lift a chip 2 px and show the project from data; a chip with no project lifts and shows no label", async ({ page, viewport }) => {
-    test.skip(viewport!.width < 1100, "the landscape layout and fine-pointer hover");
+    test.skip(viewport!.width < 960, "the side-by-side layout and fine-pointer hover");
     await page.goto("/work", { waitUntil: "networkidle" });
     await page.locator("section#skills").scrollIntoViewIfNeeded();
-    await page.locator(`${STAGE} .wib-card`).hover();
+    await page.locator(OPEN).click();
     const chip = page.locator(`${STAGE} .wib-chip`, { hasText: "Supabase" });
     const note = chip.locator(".wib-chip-note");
     await expect(note).toHaveText("→ TeachSpark");
@@ -363,19 +364,19 @@ test.describe("@EVAL-042 What I Bring tool chips (TASK-201)", () => {
     // keyboard: the same label and lift
     await page.mouse.move(2, 2);
     await page.waitForTimeout(500);
-    await keyboardFocus(page, page.locator(`${STAGE} .wib-card`));
-    await expect(page.locator(`${STAGE} .wib-card`)).toHaveAttribute("aria-expanded", "true");
+    await keyboardFocus(page, page.locator(OPEN));
+    await expect(page.locator(OPEN)).toHaveAttribute("aria-selected", "true");
     await keyboardFocus(page, chip);
     await expect.poll(async () => (await read(chip)).y - rest.c.y, { message: "focus twin lift" }).toBeCloseTo(-2, 0);
     await expect.poll(async () => (await read(note)).opacity, { message: "focus twin label" }).toBe(1);
   });
 
   test("reduced motion: no lift, the label still shows on focus", async ({ page, viewport }) => {
-    test.skip(viewport!.width < 1100, "the landscape layout and fine-pointer hover");
+    test.skip(viewport!.width < 960, "the side-by-side layout and fine-pointer hover");
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/work", { waitUntil: "networkidle" });
     await page.locator("section#skills").scrollIntoViewIfNeeded();
-    await page.locator(`${STAGE} .wib-card`).hover();
+    await page.locator(OPEN).click();
     const chip = page.locator(`${STAGE} .wib-chip`, { hasText: "Railway" });
     const rest = await read(chip);
     await chip.hover();
@@ -388,7 +389,7 @@ test.describe("@EVAL-042 What I Bring tool chips (TASK-201)", () => {
     test.skip(viewport!.width !== 390, "touch project");
     await page.goto("/work", { waitUntil: "networkidle" });
     await page.locator("section#skills").scrollIntoViewIfNeeded();
-    await page.locator(`${STAGE} .wib-card`).tap();
+    await page.locator(OPEN).tap();
     const chip = page.locator(`${STAGE} .wib-chip`, { hasText: "Supabase" });
     const note = chip.locator(".wib-chip-note");
     await chip.scrollIntoViewIfNeeded();

@@ -1,134 +1,165 @@
 /**
- * what-i-bring.spec.ts — TASK-187: the Experience page "What I Bring" ambiguity-to-impact journey (section#skills).
- * Runs in all four viewport projects (w390 / w768 / w1024 / w1440). Desktop-only behaviour (the one-landscape layout,
- * fine-pointer hover and parallax) is skipped below 1100 px, where the section is the vertical tap-to-expand trail.
+ * what-i-bring.spec.ts — TASK-216: the Experience page "What I Bring" journey (section#skills): one paper-cut landscape,
+ * seven stage markers, a stage panel and a seven-stage track, all driven by one selection. Runs in all four viewport projects
+ * (w390 / w768 / w1024 / w1440). The side-by-side layout starts at 960 px.
  */
 import { expect, test } from "./fixtures";
 
 const FORBIDDEN = /langchain|planview|confluence|\bmiro\b|\bOKRs?\b/i;
+const TITLES = ["Ambiguity", "Discovery", "Product", "AI + GenAI", "Technology", "Execution", "Impact"];
+const ids = ["ambiguity", "discovery", "product", "ai-genai", "technology", "execution", "impact"];
 
-test.describe("@TASK-187 What I Bring journey", () => {
+test.describe("@TASK-216 What I Bring journey", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/work");
     await page.locator("section#skills").scrollIntoViewIfNeeded();
   });
 
-  test("renders the seven stages, in order, with the statement", async ({ page }) => {
-    const stages = page.locator("section#skills ol.wib-stages > li");
-    await expect(stages).toHaveCount(7);
-    await expect(stages.locator(".wib-title")).toHaveText(["Ambiguity", "Discovery", "Product", "AI + GenAI", "Technology", "Execution", "Impact"]);
+  const panel = (page: import("@playwright/test").Page, id: string) => page.locator(`#wib-panel-${id}`);
+
+  test("seven tabs in order, stage 01 selected on load, one visible panel, the statement", async ({ page }) => {
+    const tabs = page.locator("section#skills [role='tab']");
+    await expect(tabs).toHaveCount(7);
+    await expect(tabs.locator(".wibj-tab-name")).toHaveText(TITLES);
+    await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
     await expect(page.locator("section#skills h2")).toHaveText("What I Bring");
     await expect(page.locator("section#skills .wib-statement")).toHaveText("I turn ambiguous problems into shipped products.");
+    await expect(page.locator("[role='tabpanel']:visible")).toHaveCount(1);
+    await expect(panel(page, "ambiguity")).toContainText("I ask the right questions.");
+    await expect(panel(page, "ambiguity")).toContainText("01 / 07");
   });
 
-  test("no horizontal overflow at this width, and every stage control is a 44 px target", async ({ page, noOverflow }) => {
+  test("no horizontal overflow, and every stage control (tabs, markers, prev / next) is a 44 px target", async ({ page, noOverflow }) => {
     await noOverflow(page);
-    for (const card of await page.locator(".wib-card").all()) {
-      const box = await card.boundingBox();
-      expect(box!.width).toBeGreaterThanOrEqual(44);
-      expect(box!.height).toBeGreaterThanOrEqual(44);
+    for (const sel of ["[role='tab']", ".wibj-pin", ".wibj-step"]) {
+      for (const el of await page.locator(sel).all()) {
+        const box = await el.boundingBox();
+        expect(box, sel).not.toBeNull();
+        expect(box!.width, sel).toBeGreaterThanOrEqual(43.5);
+        expect(box!.height, sel).toBeGreaterThanOrEqual(43.5);
+      }
     }
   });
 
-  test("shows no tool the data does not support", async ({ page }) => {
-    // open every stage in turn so the detail text is also checked on pages where it is collapsed
+  test("a marker, a track tab and prev / next all update the panel and stay in sync", async ({ page }) => {
+    await page.locator(".wibj-pin[data-n='4']").click();
+    await expect(panel(page, "ai-genai")).toBeVisible();
+    await expect(panel(page, "ai-genai")).toContainText("I turn AI capability into useful products.");
+    await expect(panel(page, "ai-genai")).toContainText("TeachSpark");
+    await expect(page.locator("#wib-tab-ai-genai")).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator(".wibj-pin[data-n='4']")).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("[role='tabpanel']:visible")).toHaveCount(1);
+
+    await page.locator("#wib-tab-impact").click();
+    await expect(panel(page, "impact")).toBeVisible();
+    await expect(panel(page, "impact")).toContainText("12");
+    await expect(panel(page, "impact")).toContainText("features in 11 months");
+    await expect(panel(page, "impact")).toContainText("30%");
+    await expect(panel(page, "impact")).toContainText("self-reported");
+    await expect(panel(page, "impact")).toContainText("07 / 07");
+    await expect(page.locator(".wibj-pin[data-n='7']")).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".wibj-pin[aria-pressed='true']")).toHaveCount(1);
+
+    await page.getByRole("button", { name: "Previous stage" }).click();
+    await expect(page.locator("#wib-tab-execution")).toHaveAttribute("aria-selected", "true");
+    await expect(panel(page, "execution")).toBeVisible();
+    await page.getByRole("button", { name: "Next stage" }).click();
+    await page.getByRole("button", { name: "Next stage" }).click(); // wraps 07 -> 01
+    await expect(page.locator("#wib-tab-ambiguity")).toHaveAttribute("aria-selected", "true");
+    await expect(page).toHaveURL(/\/work$/);
+    await expect(page.locator("[role='status']")).toContainText("Stage 1 of 7: Ambiguity");
+  });
+
+  test("keyboard: arrows, Home and End move the selection and focus along the track, with a visible ring", async ({ page }) => {
+    await page.keyboard.press("Shift");
+    const first = page.locator("#wib-tab-ambiguity");
+    await first.focus();
+    await expect(first).toBeFocused();
+    const ring = await first.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { style: s.outlineStyle, width: parseFloat(s.outlineWidth) };
+    });
+    expect(ring.style).toBe("solid");
+    expect(ring.width).toBeGreaterThanOrEqual(2);
+    await page.keyboard.press("ArrowRight");
+    await expect(page.locator("#wib-tab-discovery")).toBeFocused();
+    await expect(page.locator("#wib-tab-discovery")).toHaveAttribute("aria-selected", "true");
+    await expect(panel(page, "discovery")).toContainText("I find clarity in complexity.");
+    await page.keyboard.press("End");
+    await expect(page.locator("#wib-tab-impact")).toBeFocused();
+    await expect(panel(page, "impact")).toBeVisible();
+    await page.keyboard.press("ArrowRight"); // wraps
+    await expect(page.locator("#wib-tab-ambiguity")).toBeFocused();
+    await page.keyboard.press("Home");
+    await expect(page.locator("#wib-tab-ambiguity")).toHaveAttribute("aria-selected", "true");
+    // roving tabindex: exactly one tab is a tab stop
+    expect(await page.locator("[role='tab'][tabindex='0']").count()).toBe(1);
+  });
+
+  test("every stage's content is in its panel (capabilities, tools) and shows no tool the data does not support", async ({ page }) => {
+    for (const id of ids) {
+      await page.locator(`#wib-tab-${id}`).click();
+      await expect(panel(page, id)).toBeVisible();
+      await expect(panel(page, id).locator(".wib-caps li").first()).toBeVisible();
+      await expect(panel(page, id).locator(".wibj-art img")).toBeVisible();
+    }
     const text = await page.locator("section#skills").evaluate((el) => el.textContent ?? "");
     expect(text).not.toMatch(FORBIDDEN);
     expect(text).toContain("Azure DevOps");
     expect(text).toContain("self-reported");
   });
 
-  test("keyboard focus shows a visible ring and opens the stage detail", async ({ page }) => {
-    const card = page.locator(".wib-stage[data-stage='ai-genai'] .wib-card");
-    // TASK-201: the open stage's tool chips are now tab stops, so Shift+Tab/Tab no longer returns to this card; focus it
-    // directly after a key press so it is keyboard-visible (the :focus-visible heuristic).
-    await page.keyboard.press("Shift");
-    await card.focus();
-    await expect(card).toBeFocused();
-    const ring = await card.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { style: s.outlineStyle, width: parseFloat(s.outlineWidth) };
-    });
-    expect(ring.style).toBe("solid");
-    expect(ring.width).toBeGreaterThanOrEqual(2);
-    await expect(card).toHaveAttribute("aria-expanded", "true");
-    await expect(page.locator("#wib-panel-ai-genai")).toBeVisible();
-    await expect(page.locator("#wib-panel-ai-genai")).toContainText("I turn AI capability into useful products.");
-    await expect(page.locator("#wib-panel-ai-genai")).toContainText("TeachSpark");
-  });
-
-  test("desktop: the detail panel is never empty, stage 01 is selected on load; mobile starts collapsed", async ({ page, viewport }) => {
-    const first = page.locator(".wib-stage[data-stage='ambiguity']");
-    if (viewport!.width >= 1100) {
-      await expect(first.locator(".wib-card")).toHaveAttribute("aria-expanded", "true");
-      await expect(page.locator("#wib-panel-ambiguity")).toBeVisible();
-      await expect(page.locator("#wib-panel-ambiguity")).toContainText("I ask the right questions.");
-      await expect(page.locator(".wib-hint")).toBeVisible();
-      expect(await page.locator(".wib-panel:visible").count()).toBe(1);
-    } else {
-      await expect(page.locator(".wib-panel:visible")).toHaveCount(0);
-      await expect(first.locator(".wib-card")).toHaveAttribute("aria-expanded", "false");
+  test("the landscape fits its frame and the selected marker is inside it", async ({ page, viewport }) => {
+    await page.locator("#wib-tab-impact").click();
+    await page.waitForTimeout(450);
+    const frame = await page.locator(".wibj-frame").boundingBox();
+    const pin = await page.locator(".wibj-pin[data-on] .wibj-pin-num").boundingBox();
+    expect(pin!.x).toBeGreaterThanOrEqual(frame!.x - 1);
+    expect(pin!.x + pin!.width).toBeLessThanOrEqual(frame!.x + frame!.width + 1);
+    if (viewport!.width < 960) {
+      // the crop is panned to the stage: the pin is near the middle of the frame
+      expect(Math.abs(pin!.x + pin!.width / 2 - (frame!.x + frame!.width / 2))).toBeLessThan(frame!.width * 0.45);
     }
   });
 
-  test("a tap or Enter expands a stage and everything is reachable without hover", async ({ page, viewport }) => {
-    const card = page.locator(".wib-stage[data-stage='impact'] .wib-card");
-    await card.click();
-    const panel = page.locator("#wib-panel-impact");
-    await expect(panel).toBeVisible();
-    await expect(panel).toContainText("12");
-    await expect(panel).toContainText("features in 11 months");
-    await expect(panel).toContainText("30%");
-    await expect(panel).toContainText("self-reported");
-    if (viewport!.width < 1100) {
-      await card.click();
-      await expect(card).toHaveAttribute("aria-expanded", "false");
-    } else {
-      // desktop keeps the last selection shown
-      await card.click();
-      await expect(panel).toBeVisible();
+  test("wide desktop: the landscape column and the panel end together for every stage (no gap over 60 px)", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 1280, "side-by-side layout only from 1280");
+    for (const id of ids) {
+      await page.locator(`#wib-tab-${id}`).click();
+      const gap = await page.evaluate(() => {
+        const card = document.querySelector(".wibj-card")!.getBoundingClientRect();
+        const left = document.querySelector(".wibj-hint-l")!.getBoundingClientRect();
+        return Math.abs(card.bottom - left.bottom);
+      });
+      expect(gap, id).toBeLessThanOrEqual(60);
     }
   });
 
-  test("reduced motion: no layer movement and no card lift", async ({ page, withReducedMotion }) => {
+  test("mobile: the track scrolls inside its own box, not the page", async ({ page, viewport }) => {
+    test.skip(viewport!.width >= 960, "the track is a grid on desktop");
+    const track = page.locator(".wibj-track");
+    expect(await track.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    await page.locator("#wib-tab-impact").click();
+    await page.waitForTimeout(500);
+    expect(await track.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test("reduced motion: no transitions on the panel, markers or map", async ({ page, withReducedMotion }) => {
     await withReducedMotion(page);
-    const card = page.locator(".wib-stage[data-stage='technology'] .wib-card");
-    await card.click();
-    await page.waitForTimeout(150);
-    const moved = await page.evaluate(() =>
-      Array.from(document.querySelectorAll(".wib-layer")).some((el) => {
-        const s = getComputedStyle(el);
-        return !["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(s.transform) || (s.translate !== "none" && s.translate !== "0px" && s.translate !== "0px 0px");
+    await page.locator("#wib-tab-technology").click();
+    const durations = await page.evaluate(() =>
+      [".wibj-panel", ".wibj-pin", ".wibj-map", ".wibj-tab"].map((sel) => {
+        const el = document.querySelector(sel)!;
+        return getComputedStyle(el).transitionDuration.split(",").every((d) => parseFloat(d) === 0);
       }),
     );
-    expect(moved).toBe(false);
-    const lift = await card.evaluate((el) => getComputedStyle(el).translate);
-    expect(["none", "0px", "0px 0px"]).toContain(lift);
+    expect(durations).toEqual([true, true, true, true]);
   });
 
-  test("desktop: hover opens a stage, the others recede but stay visible, parallax stays within 6 px", async ({ page, viewport }) => {
-    test.skip(viewport!.width < 1100, "the landscape layout and fine-pointer hover are desktop-only");
-    const stage = page.locator(".wib-stage[data-stage='discovery']");
-    await stage.locator(".wib-card").hover();
-    await expect(page.locator("#wib-panel-discovery")).toBeVisible();
-    await expect(page.locator("#wib-panel-discovery")).toContainText("I find clarity in complexity.");
-    await expect(page.locator("#wib-panel-ambiguity")).toBeHidden();
-    const other = await page.locator(".wib-stage[data-stage='product'] .wib-card").evaluate((el) => getComputedStyle(el).opacity);
-    expect(Number(other)).toBeGreaterThan(0.5);
-    const art = await stage.locator(".wib-art").boundingBox();
-    await page.mouse.move(art!.x + art!.width - 2, art!.y + 2);
-    await page.mouse.move(art!.x + art!.width - 1, art!.y + 3);
-    await page.waitForTimeout(250);
-    const px = await stage.locator(".wib-layer").evaluateAll((els) =>
-      els.map((el) => {
-        const t = getComputedStyle(el).translate.split(" ").map((v) => Math.abs(parseFloat(v)) || 0);
-        return Math.max(...t);
-      }),
-    );
-    for (const v of px) expect(v).toBeLessThanOrEqual(6.05);
-    // leaving the journey keeps the last-selected stage shown (no collapse back to empty)
-    await page.mouse.move(2, 2);
-    await expect(stage.locator(".wib-card")).toHaveAttribute("aria-expanded", "true");
-    await expect(page.locator("#wib-panel-discovery")).toBeVisible();
+  test("dark theme shows the dark landscape only", async ({ page }) => {
+    await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+    await expect(page.locator(".wibj-land-dark")).toBeVisible();
+    await expect(page.locator(".wibj-land-light")).toBeHidden();
   });
 });

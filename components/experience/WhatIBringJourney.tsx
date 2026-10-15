@@ -1,315 +1,243 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useReducer, useRef, useState, type FocusEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
-import { RESET_MS, sceneOf, sceneReducer } from "@/lib/wib/scene-machine";
-import { wibScenes } from "@/lib/wib/scenes";
-import { WibScene } from "./WibScene";
 
 /**
- * "What I Bring" journey (TASK-187). One list of seven stages; CSS lays it out as a continuous paper landscape
- * (>= 1100 px) or a vertical tap-to-expand trail (below). Behaviour contract (TASK-181 P1, EXE-59…64):
- *  - one active stage at a time: a fine pointer activates on hover, the keyboard on :focus-visible, a tap or Enter pins;
- *  - desktop (the landscape layout) never shows an empty detail panel: stage 01 is selected on load and the last-selected
- *    stage stays shown after the pointer or focus leaves. The mobile trail keeps its own collapsed-by-default state;
- *  - all hover/focus styling keys off `data-active` (no `:hover` rules), so a tap leaves nothing stuck;
- *  - pointer parallax (<= 6 px, `--px/--py` in [-1, 1]) is computed for the active stage only, from one element-level
- *    listener, one write per frame, no loop; reduced motion and coarse pointers never attach it;
- *  - TASK-201: a tool chip lifts 2 px on hover / :focus-visible and shows the project that used the tool
- *    (`data/what-i-bring.ts` `project`, checked against `data/projects.ts`; no pairing in data = a lift and no label);
- *    on touch a tap toggles the label (`data-tap`), nothing is hover-latched;
- *  - no infinite animations; the detail text is always in the DOM, so nothing is pointer-only;
- *  - TASK-203: each stage is a layered paper scene (`WibScene`, `lib/wib/scenes.ts`). Hover / focus / a tap only lift it (the
- *    `data-active` micro-response); a click, Enter or tap ALSO plays its signature sequence once (`data-phase` rest ->
- *    playing -> settled, `lib/wib/scene-machine.ts`, repeatable, never cut off by changing stage). Reduced motion settles at once.
+ * "What I Bring" journey (TASK-216, replaces the TASK-187 card strip and the TASK-203 scene machine).
+ * One continuous paper-cut landscape (a generated image, light and dark variants swapped by CSS on `<html data-theme>`,
+ * so nothing is downloaded for the theme that is not showing), seven stage markers positioned over it in percent of the
+ * image, a right-hand detail panel and a seven-stage track below. One piece of state, `selected`, drives all three plus
+ * prev / next; nothing routes. Semantics: the track is the tablist (roving tabindex, arrows / Home / End select and move
+ * focus), the panels are its tabpanels, the markers are extra pointer / touch targets (aria-pressed, out of the tab order
+ * so keyboard users do not meet every stage twice), and one polite live region announces the new stage.
+ * Motion: a short opacity change on the panel and a lift on the active marker, none under reduced motion; the landscape
+ * itself never animates (below 960 px it is panned to the active stage with one CSS transition).
  */
 
-const ART: Record<WibStage["id"], { alt: string }> = {
-  ambiguity: { alt: "Crumpled paper, scattered notes and a question-mark tag" },
-  discovery: { alt: "An open research notebook with a magnifying glass" },
-  product: { alt: "A product blueprint on an easel with a compass and a lightbulb" },
-  "ai-genai": { alt: "A paper-cut AI brain with a chip, data blocks, documents and a check mark" },
-  technology: { alt: "Layered paper architecture blocks under a cloud" },
-  execution: { alt: "A delivery board with sticky notes, a target and a gear" },
-  impact: { alt: "A paper mountain with a flag, a road to the summit and a rising chart" },
-};
-
-/** Marker + path geometry in the strip's 2400 x 1028 box (path = Catmull-Rom through the seven road points). */
-const ROAD: [number, number][] = [
-  [171, 826],
-  [514, 852],
-  [857, 898],
-  [1200, 914],
-  [1543, 890],
-  [1886, 836],
-  [2229, 788],
+/** Marker anchors (where the pin points) as a fraction of the landscape image (2048 x 1360 px; positions read on a 2000 x 1328 grid), one per stage in order. */
+const ANCHOR: [number, number][] = [
+  [190 / 2000, 395 / 1328], // Ambiguity: the question-mark rock
+  [450 / 2000, 620 / 1328], // Discovery: compass and notebook
+  [875 / 2000, 530 / 1328], // Product: the district
+  [1085 / 2000, 548 / 1328], // AI + GenAI: the core and its nodes
+  [1345 / 2000, 475 / 1328], // Technology: the dish and data blocks
+  [1600 / 2000, 430 / 1328], // Execution: crane and bridge
+  [1860 / 2000, 155 / 1328], // Impact: the summit flag
 ];
-function segment(i: number): string {
-  const p = (k: number) => ROAD[Math.min(Math.max(k, 0), ROAD.length - 1)]!;
-  const [p0, p1, p2, p3] = [p(i - 1), p(i), p(i + 1), p(i + 2)];
-  const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
-  const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
-  return `M${p1[0]} ${p1[1]}C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`;
+
+const LAND_W = 2048;
+const LAND_H = 1360;
+
+function Landscape() {
+  const common = { width: LAND_W, height: LAND_H, sizes: "(min-width: 960px) 68vw, 200vw", draggable: false } as const;
+  return (
+    <>
+      <Image className="wibj-land wibj-land-light" src="/media/experience/journey-landscape-light.webp" alt="" {...common} loading="lazy" />
+      <Image className="wibj-land wibj-land-dark" src="/media/experience/journey-landscape-dark.webp" alt="" {...common} loading="lazy" />
+    </>
+  );
 }
 
-type Mode = "hover" | "pin";
+function Panel({ stage, active, total }: { stage: WibStage; active: boolean; total: number }) {
+  const [tapChip, setTapChip] = useState<string | null>(null); // touch: the chip whose project label is showing
+  return (
+    <div
+      id={`wib-panel-${stage.id}`}
+      role="tabpanel"
+      aria-labelledby={`wib-tab-${stage.id}`}
+      className="wibj-panel"
+      data-active={active ? "" : undefined}
+    >
+      <p className="wibj-count" data-micro-label="">
+        {stage.number} / {String(total).padStart(2, "0")}
+      </p>
+      <h3 className="wib-title wibj-title">{stage.title}</h3>
+      <p className="wibj-line">{stage.heading}</p>
+      <p className="wibj-text">{stage.principle.join(" ")}</p>
+      <ul className="wib-caps" aria-label="What I bring at this stage">
+        {stage.capabilities.map((c) => (
+          <li key={c}>{c}</li>
+        ))}
+      </ul>
+      {stage.flow ? (
+        <ol className="wib-flow" aria-label="Flow">
+          {stage.flow.map((f) => (
+            <li key={f}>{f}</li>
+          ))}
+        </ol>
+      ) : null}
+      {stage.tools.length > 0 ? (
+        <div className="wib-tools">
+          <span className="wib-tools-label" data-micro-label="">Tools I use</span>
+          <ul className="wib-chips">
+            {stage.tools.map((t) => {
+              const key = `${stage.id}:${t.label}`;
+              return (
+                <li
+                  key={t.label}
+                  className="wib-chip focus-ring"
+                  tabIndex={0}
+                  data-project={t.project ? "" : undefined}
+                  data-tap={tapChip === key ? "" : undefined}
+                  onPointerDown={(e) => {
+                    if (e.pointerType !== "mouse" && t.project) setTapChip((cur) => (cur === key ? null : key));
+                  }}
+                  onBlur={() => setTapChip((cur) => (cur === key ? null : cur))}
+                >
+                  {t.label}
+                  {t.project ? <span className="wib-chip-note">{`→ ${t.project.name}`}</span> : null}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+      {stage.examples ? (
+        <ul className="wib-evidence" aria-label="From my work">
+          {stage.examples.map((ex) => (
+            <li key={ex.name}>{ex.name}</li>
+          ))}
+        </ul>
+      ) : null}
+      {stage.proof ? (
+        <ul className="wib-proof" aria-label="Evidence from my work">
+          {stage.proof.map((p) => (
+            <li key={p.label}>
+              <b>{p.value}</b>
+              <span>{p.label}</span>
+              {p.note ? <i>({p.note})</i> : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div className="wibj-art">
+        {active ? (
+          <Image src={stage.art.src} alt={stage.art.alt} width={880} height={663} sizes="(min-width: 960px) 380px, 90vw" loading="lazy" draggable={false} />
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export function WhatIBringJourney() {
-  const [active, setActive] = useState<string | null>(null); // hovered / focused / tapped right now
-  const [selected, setSelected] = useState<string>(wibStages[0]!.id); // last selection; desktop keeps it shown
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [tapChip, setTapChip] = useState<string | null>(null); // touch: the chip whose project label is showing
-  const modeRef = useRef<Mode>("hover");
-  const listRef = useRef<HTMLOListElement>(null);
-  const [scenes, dispatch] = useReducer(sceneReducer, {});
-  const timers = useRef(new Map<string, { key: string; t: ReturnType<typeof setTimeout> }>());
+  const total = wibStages.length;
+  const [selected, setSelected] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const focusTab = useRef(false);
 
-  const open = useCallback((id: string, mode: Mode) => {
-    modeRef.current = mode;
-    setActive(id);
-    setSelected(id);
-  }, []);
+  const select = (i: number, focus = false) => {
+    focusTab.current = focus;
+    setSelected(((i % total) + total) % total);
+  };
 
-  const onPointerEnter = (e: PointerEvent, id: string) => {
-    if (e.pointerType === "mouse" && modeRef.current !== "pin") open(id, "hover");
-  };
-  const onPointerLeave = (e: PointerEvent) => {
-    if (e.pointerType === "mouse" && modeRef.current === "hover") setActive(null);
-  };
-  const onFocus = (e: FocusEvent<HTMLElement>, id: string) => {
-    if (e.target.matches(":focus-visible")) open(id, "pin");
-  };
-  const onBlur = (e: FocusEvent<HTMLElement>) => {
-    if (!listRef.current?.contains(e.relatedTarget as Node | null) && modeRef.current === "pin") setActive(null);
-  };
-  const activate = (id: string) => {
-    const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    dispatch({ type: "ACTIVATE", id, reduced });
-  };
-  const onClick = (id: string) => {
-    if (isDesktop) {
-      // the landscape: a press selects the stage (hover keeps working for the others) and (re)plays its sequence
-      modeRef.current = "hover";
-      setActive(id);
-      setSelected(id);
-      activate(id);
-      return;
+  // Keep the active tab in view in the horizontally scrolling mobile track (the container only; never the page), and move
+  // focus to it after a keyboard selection.
+  useEffect(() => {
+    const track = trackRef.current;
+    const tab = track?.querySelector<HTMLElement>(`#wib-tab-${wibStages[selected]!.id}`);
+    if (!track || !tab) return;
+    if (track.scrollWidth > track.clientWidth + 1) {
+      const left = tab.offsetLeft - (track.clientWidth - tab.offsetWidth) / 2;
+      track.scrollTo({ left, behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     }
-    // the trail: the first press expands and plays; once played, the next press collapses (TASK-187 contract). A keyboard
-    // user who only focused the stage (phase still "rest") plays it with Enter instead of collapsing it.
-    if (active === id && modeRef.current === "pin" && sceneOf(scenes, id).phase !== "rest") setActive(null);
-    else {
-      open(id, "pin");
-      activate(id);
+    if (focusTab.current) {
+      tab.focus({ preventScroll: true });
+      focusTab.current = false;
     }
+  }, [selected]);
+
+  const onTabKey = (e: KeyboardEvent) => {
+    const k = e.key;
+    if (k === "ArrowRight" || k === "ArrowDown") select(selected + 1, true);
+    else if (k === "ArrowLeft" || k === "ArrowUp") select(selected - 1, true);
+    else if (k === "Home") select(0, true);
+    else if (k === "End") select(total - 1, true);
+    else return;
+    e.preventDefault();
   };
 
-  useEffect(() => {
-    if (typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia("(min-width: 1100px)");
-    const sync = () => setIsDesktop(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  // Pointer parallax for the active stage only (fine pointer, motion allowed).
-  useEffect(() => {
-    if (!active) return;
-    if (typeof window.matchMedia !== "function" || !window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)").matches) return;
-    const el = listRef.current?.querySelector<HTMLElement>(`[data-stage="${active}"]`);
-    if (!el) return;
-    let raf = 0;
-    let rect = el.getBoundingClientRect();
-    const onMove = (e: globalThis.PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
-      const x = e.clientX;
-      const y = e.clientY;
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        rect = el.getBoundingClientRect();
-        el.style.setProperty("--px", String(Math.max(-1, Math.min(1, ((x - rect.left) / rect.width) * 2 - 1)).toFixed(3)));
-        el.style.setProperty("--py", String(Math.max(-1, Math.min(1, ((y - rect.top) / rect.height) * 2 - 1)).toFixed(3)));
-      });
-    };
-    el.addEventListener("pointermove", onMove);
-    return () => {
-      el.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
-      el.style.removeProperty("--px");
-      el.style.removeProperty("--py");
-    };
-  }, [active]);
-
-  // what the page shows: the landscape keeps the last selection, the trail only what is expanded
-  const shown = isDesktop ? selected : active;
-
-  // A stage that is no longer shown leaves (a playing one finishes first); the others' timers drive playing -> settled.
-  useEffect(() => {
-    for (const s of wibStages) if (s.id !== shown) dispatch({ type: "LEAVE", id: s.id });
-  }, [shown]);
-  useEffect(() => {
-    for (const s of wibStages) {
-      const st = sceneOf(scenes, s.id);
-      const key = `${st.phase}:${st.epoch}`;
-      const cur = timers.current.get(s.id);
-      if (st.phase !== "playing" && st.phase !== "resetting") {
-        if (cur) clearTimeout(cur.t);
-        timers.current.delete(s.id);
-        continue;
-      }
-      if (cur?.key === key) continue;
-      if (cur) clearTimeout(cur.t);
-      const epoch = st.epoch;
-      const t = setTimeout(
-        () => dispatch(st.phase === "playing" ? { type: "DONE", id: s.id, epoch } : { type: "RESET_DONE", id: s.id, epoch }),
-        st.phase === "playing" ? wibScenes[s.id].duration : RESET_MS,
-      );
-      timers.current.set(s.id, { key, t });
-    }
-  }, [scenes]);
-  useEffect(() => {
-    const map = timers.current;
-    return () => {
-      for (const { t } of map.values()) clearTimeout(t);
-      map.clear();
-    };
-  }, []);
-  const activeIndex = wibStages.findIndex((s) => s.id === shown);
+  const stage = wibStages[selected]!;
+  const [ax] = ANCHOR[selected]!;
 
   return (
-    <div className="wib" data-active={shown ?? undefined}>
-      <div className="wib-scene">
-        <Image
-          className="wib-strip"
-          src="/media/what-i-bring/landscape/strip.webp"
-          alt=""
-          width={2400}
-          height={1028}
-          sizes="(min-width: 1100px) 1280px, 1px"
-          loading="lazy"
-        />
-        <svg className="wib-road" viewBox="0 0 2400 1028" aria-hidden="true" focusable="false" preserveAspectRatio="none">
-          {wibStages.slice(0, -1).map((s, i) => (
-            <path
-              key={s.id}
-              d={segment(i)}
-              pathLength={1}
-              data-on={activeIndex === i || activeIndex === i + 1 ? "" : undefined}
-            />
-          ))}
-        </svg>
-        <ol className="wib-stages" ref={listRef} onPointerLeave={onPointerLeave}>
-          {wibStages.map((s, i) => {
-            const isActive = shown === s.id;
-            const phase = sceneOf(scenes, s.id).phase;
-            const [mx, my] = ROAD[i]!;
-            return (
-              <li
-                key={s.id}
-                className="wib-stage"
-                data-stage={s.id}
-                data-active={isActive ? "" : undefined}
-                data-phase={phase}
-                style={{ "--i": i, "--mx": `${(mx / 2400) * 100}%`, "--my": `${(my / 1028) * 100}%` } as React.CSSProperties}
-                onPointerEnter={(e) => onPointerEnter(e, s.id)}
-              >
+    <div className="wibj" data-stage={stage.id} style={{ "--ax": ax } as CSSProperties}>
+      <div className="wibj-grid">
+        <div className="wibj-left">
+          <div className="wibj-frame">
+            <div className="wibj-map">
+              <Landscape />
+              {wibStages.map((s, i) => {
+                const [x, y] = ANCHOR[i]!;
+                const on = i === selected;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className="wibj-pin"
+                    data-on={on ? "" : undefined}
+                    data-n={i + 1}
+                    tabIndex={-1}
+                    aria-pressed={on}
+                    aria-label={`Stage ${i + 1}: ${s.title}`}
+                    style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
+                    onClick={() => select(i)}
+                  >
+                    <span className="wibj-pin-num" aria-hidden="true">{i + 1}</span>
+                    <span className="wibj-pin-label" aria-hidden="true">{s.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="wibj-trackwrap">
+            <div className="wibj-track" role="tablist" aria-label="Seven stages, ambiguity to impact" ref={trackRef}>
+              {wibStages.map((s, i) => (
                 <button
+                  key={s.id}
                   type="button"
-                  className="wib-card"
-                  aria-expanded={isActive}
+                  role="tab"
+                  id={`wib-tab-${s.id}`}
+                  className="wibj-tab"
+                  data-n={i + 1}
+                  aria-selected={i === selected}
                   aria-controls={`wib-panel-${s.id}`}
-                  onClick={() => onClick(s.id)}
-                  onFocus={(e) => onFocus(e, s.id)}
-                  onBlur={onBlur}
+                  tabIndex={i === selected ? 0 : -1}
+                  onClick={() => select(i)}
+                  onKeyDown={onTabKey}
                 >
-                  <span className="wib-num" data-micro-label="">{s.number}</span>
-                  <span className="wib-title">{s.title}</span>
-                  <span className="wib-principle">
-                    {s.principle.map((line) => (
-                      <span key={line}>{line}</span>
-                    ))}
-                  </span>
+                  <span className="wibj-tab-num" aria-hidden="true">{i + 1}</span>
+                  <span className="wibj-tab-name">{s.title}</span>
                 </button>
-                <WibScene stage={s.id} />
-                <span className="wib-marker" aria-hidden="true" />
-                <span className="sr-only">{phase === "settled" ? wibScenes[s.id].settledAlt : ART[s.id].alt}</span>
-                <div
-                  id={`wib-panel-${s.id}`}
-                  role="region"
-                  aria-labelledby={`wib-h-${s.id}`}
-                  className="wib-panel"
-                  data-open={isActive ? "" : undefined}
-                >
-                  <div className="wib-panel-inner">
-                    <h3 id={`wib-h-${s.id}`} className="wib-panel-h">
-                      {s.heading}
-                    </h3>
-                    <ul className="wib-caps">
-                      {s.capabilities.map((c) => (
-                        <li key={c}>{c}</li>
-                      ))}
-                    </ul>
-                    {s.flow ? (
-                      <ol className="wib-flow" aria-label="Flow">
-                        {s.flow.map((f) => (
-                          <li key={f}>{f}</li>
-                        ))}
-                      </ol>
-                    ) : null}
-                    {s.tools.length > 0 ? (
-                      <div className="wib-tools">
-                        <span className="wib-tools-label" data-micro-label="">Tools I use</span>
-                        <ul className="wib-chips">
-                          {s.tools.map((t) => {
-                            const key = `${s.id}:${t.label}`;
-                            return (
-                              <li
-                                key={t.label}
-                                className="wib-chip focus-ring"
-                                tabIndex={0}
-                                data-project={t.project ? "" : undefined}
-                                data-tap={tapChip === key ? "" : undefined}
-                                onPointerDown={(e) => {
-                                  if (e.pointerType !== "mouse" && t.project) setTapChip((cur) => (cur === key ? null : key));
-                                }}
-                                onBlur={() => setTapChip((cur) => (cur === key ? null : cur))}
-                              >
-                                {t.label}
-                                {t.project ? <span className="wib-chip-note">{`\u2192 ${t.project.name}`}</span> : null}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    ) : null}
-                    {s.examples ? (
-                      <ul className="wib-evidence" aria-label="From my work">
-                        {s.examples.map((ex) => (
-                          <li key={ex.name}>{ex.name}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    {s.proof ? (
-                      <ul className="wib-proof" aria-label="Evidence from my work">
-                        {s.proof.map((p) => (
-                          <li key={p.label}>
-                            <b>{p.value}</b>
-                            <span>{p.label}</span>
-                            {p.note ? <i>({p.note})</i> : null}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+              ))}
+            </div>
+          </div>
+          <p className="wib-hint wibj-hint-l">{wibHint}</p>
+        </div>
+
+        <div className="wibj-right">
+          <div className="wibj-card">
+            <div className="wibj-nav">
+              <button type="button" className="wibj-step focus-ring" aria-label="Previous stage" onClick={() => select(selected - 1)}>
+                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 4 6 10l6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+              <button type="button" className="wibj-step focus-ring" aria-label="Next stage" onClick={() => select(selected + 1)}>
+                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="m8 4 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+            </div>
+            <div className="wibj-panels">
+              {wibStages.map((s, i) => (
+                <Panel key={s.id} stage={s} active={i === selected} total={total} />
+              ))}
+            </div>
+          </div>
+          <p className="wib-hint wibj-hint-r">{wibHint}</p>
+        </div>
       </div>
-      <p className="wib-hint">{wibHint}</p>
+      <p className="sr-only" aria-live="polite" role="status">
+        {`Stage ${selected + 1} of ${total}: ${stage.title}. ${stage.heading}`}
+      </p>
     </div>
   );
 }

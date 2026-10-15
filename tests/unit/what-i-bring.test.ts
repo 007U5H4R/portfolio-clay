@@ -3,7 +3,6 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { projects } from "@/data/projects";
 import { wibHeading, wibStages, wibStatement } from "@/data/what-i-bring";
-import { wibScenes } from "@/lib/wib/scenes";
 
 /**
  * TASK-187 — the "What I Bring" journey data. The reference image invented tools; this suite keeps the page honest:
@@ -70,13 +69,14 @@ describe("data/what-i-bring (TASK-187)", () => {
     for (const s of wibStages.filter((s) => s.id !== "impact")) expect(s.proof).toBeUndefined();
   });
 
-  it("ships every scene part in both themes (TASK-203), the lit sprites, and the strip", () => {
-    for (const s of wibStages)
-      for (const theme of ["light", "dark"])
-        for (const part of wibScenes[s.id].parts)
-          for (const name of part.lit ? [part.id, `${part.id}-lit`] : [part.id])
-            expect(statSync(resolve(process.cwd(), `public/media/what-i-bring/scenes/${s.id}/${theme}/${name}.webp`)).size, `${s.id}/${theme}/${name}`).toBeGreaterThan(500);
-    expect(statSync(resolve(process.cwd(), "public/media/what-i-bring/landscape/strip.webp")).size).toBeGreaterThan(1000);
+  it("ships the landscape in both themes and one illustration per stage (TASK-216), each referenced from the data", () => {
+    for (const f of ["journey-landscape-light", "journey-landscape-dark"])
+      expect(statSync(resolve(process.cwd(), `public/media/experience/${f}.webp`)).size, f).toBeGreaterThan(5000);
+    for (const s of wibStages) {
+      expect(s.art.src, s.id).toBe(`/media/experience/stage-${s.id}.webp`);
+      expect(statSync(resolve(process.cwd(), `public${s.art.src}`)).size, s.id).toBeGreaterThan(5000);
+      expect(s.art.alt.length, s.id).toBeGreaterThan(20);
+    }
   });
 
   it("every tool-to-project pairing exists in data/projects (TASK-201): the slug, the display name and the evidence term in that project's record", () => {
