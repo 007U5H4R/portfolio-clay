@@ -107,19 +107,6 @@ export function Hero() {
           <svg className="hero-margin-loop" viewBox="0 0 160 200" focusable="false">
             <path d="M8 4 C 30 60, 60 96, 110 92 C 150 88, 150 44, 118 48 C 84 52, 90 110, 130 150 C 142 162, 150 178, 152 196" />
           </svg>
-          <p className="hero-margin-note font-hand" data-note="why">
-            real
-            <br />
-            problems
-            <br />
-            real people
-            <br />
-            bigger impact
-            <svg className="hero-margin-arrow" viewBox="0 0 80 40" focusable="false">
-              <path d="M4 34 C 22 12, 44 6, 72 12" />
-              <path d="M62 4 L 74 12 L 62 20" />
-            </svg>
-          </p>
           <p className="hero-margin-note font-hand" data-note="flow">
             problem → insight → build → learn
           </p>

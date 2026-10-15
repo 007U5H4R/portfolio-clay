@@ -7696,25 +7696,6 @@ html.lenis body {
     line-height: 1.05;
     color: var(--color-ink-soft);
   }
-  .hero-margin-note[data-note="why"] {
-    top: clamp(170px, 18vw, 260px);
-    right: calc(50% + clamp(330px, 32vw, 470px));
-    rotate: -12deg;
-    text-align: left;
-  }
-  .hero-margin-arrow {
-    position: absolute;
-    top: 0.2em;
-    left: calc(100% - 0.6em);
-    width: 62px;
-    height: 31px;
-    overflow: visible;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
   .hero-margin-note[data-note="flow"] {
     left: 50%;
     bottom: clamp(20px, 2.6vw, 40px);
