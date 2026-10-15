@@ -8834,14 +8834,6 @@ html.lenis body {
     font-size: clamp(1rem, 0.94rem + 0.28vw, 1.125rem);
     color: var(--color-navy-2);
   }
-  .pf-select-note {
-    justify-self: end;
-    color: var(--color-ink-soft);
-  }
-  .pf-select-note .annotation-arrow {
-    width: 30px;
-    margin: 2px 0 0 auto;
-  }
 
   /* the spread: one grid at ≥ 1024 — intro (col 1, row 1), stage (col 1, row 2), sheet (col 2, rows
      1–2), carousel (both columns, row 3). The tabpanel is a subgrid, so the stage and sheet sit in
@@ -8867,12 +8859,6 @@ html.lenis body {
     .pf-intro {
       grid-column: 1;
       grid-row: 1;
-    }
-    .pf-select-note {
-      position: absolute;
-      top: clamp(10px, 1.2vw, 20px);
-      right: calc(38% + 4px);
-      margin: 0;
     }
     .pf-feature {
       grid-column: 1 / -1;
@@ -10173,14 +10159,6 @@ html.lenis body {
   }
 
   /* --- small screens: fewer decorative layers, same system (spec §29) --- */
-  @media (max-width: 1023px) {
-    .pf-select-note {
-      margin: -6px 4px -10px 0;
-    }
-    .pf-select-note .annotation-arrow {
-      rotate: 60deg;
-    }
-  }
   @media (max-width: 639px) {
     .pf-stage.paper-sheet,
     .pf-info.paper-sheet {
@@ -14356,9 +14334,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-products-wrap {
     padding-block: 14px 96px;
   }
-  .pf-select-note {
-    display: none;
-  }
   .pf-intro {
     gap: 2px;
   }
@@ -16396,9 +16371,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-showcase .pf-intro {
     grid-column: 1 / -1;
     grid-row: auto;
-  }
-  .pf-showcase .pf-select-note {
-    right: clamp(8px, 7vw, 96px);
   }
 
   /* ---- the window: rear slate plate (::before) + parchment frame (::after) behind poster and sheet ---- */

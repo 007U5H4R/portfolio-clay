@@ -299,7 +299,7 @@ test("@EVAL-008 /projects has no horizontal overflow and ≥44 targets", { tag: 
   await minTargets(page);
 });
 
-test("@EVAL-018 /projects: one scene img; decoration counts products 2 / enterprise 2", { tag: ["@EVAL-018", "@EVAL-013"] }, async ({ page }) => {
+test("@EVAL-018 /projects: one scene img; decoration counts products 1 / enterprise 2", { tag: ["@EVAL-018", "@EVAL-013"] }, async ({ page }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "counts asserted at the two boundary widths");
   await page.goto("/projects", { waitUntil: "load" });
   // M-011 P2: one VISIBLE layered scene — three layer imgs for the active theme (the dark set is `display: none`),
@@ -317,7 +317,8 @@ test("@EVAL-018 /projects: one scene img; decoration counts products 2 / enterpr
     };
     return { products: count("section#products"), enterprise: count("section#enterprise") };
   });
-  expect(counts).toEqual({ products: 2, enterprise: 2 });
+  // products: the h1 underline sketch only — the "choose your build" annotation was removed (TASK-220)
+  expect(counts).toEqual({ products: 1, enterprise: 2 });
 });
 
 test("@EVAL-006 /projects is axe-clean", { tag: "@EVAL-006" }, async ({ page, axe }) => {
