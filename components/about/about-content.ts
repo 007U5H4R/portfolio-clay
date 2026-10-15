@@ -1,4 +1,4 @@
-import { awards, papers, patent } from "@/data/credentials";
+import { papers, patent } from "@/data/credentials";
 import type { AboutArtId } from "./about-art";
 
 /**
@@ -169,15 +169,6 @@ export const PRINCIPLES = [
   { id: "products", icon: "gear", text: "Build useful products." },
   { id: "learning", icon: "leaf", text: "Keep learning and sharing." },
 ] as const;
-
-export const RECOGNITION_HEAD = {
-  eyebrow: "Recognition",
-  title: "A few milestones along the way.",
-  note: "Progress is a series of small breakthroughs.",
-} as const;
-
-/** Spec §27–§28 — only the recognition `data/credentials.ts` records (2–4 items), newest first. */
-export const RECOGNITION = awards.map((award, index) => ({ ...award, icon: (["trophy", "star", "ribbon"] as const)[index % 3]! }));
 
 export const ABOUT_CTA = {
   title: "Want the full story with roles, achievements and metrics?",

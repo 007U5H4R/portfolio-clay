@@ -10373,7 +10373,6 @@ html.lenis body {
   .chx,
   .crx,
   .rvx,
-  .rcx,
   .acx {
     --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
     --ab-fibers: url("/media/portfolio/decor/paper-fibers.svg");
@@ -10570,8 +10569,7 @@ html.lenis body {
   }
   .chx-wrap,
   .crx-wrap,
-  .rvx-wrap,
-  .rcx-wrap {
+  .rvx-wrap {
     padding-block: clamp(14px, 1.6vw, 24px) clamp(100px, 8.4vw, 122px);
   }
   .chx-grid {
@@ -10905,60 +10903,6 @@ html.lenis body {
     }
     .rvx-photo {
       max-width: 200px;
-    }
-  }
-
-  /* ---- Recognition ---- */
-  .rcx-body {
-    background: var(--color-paper);
-  }
-
-  .rcx-list {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .rcx-item {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 14px;
-    align-items: start;
-  }
-  .rcx-icon {
-    width: 40px;
-    height: 40px;
-    fill: none;
-    stroke: var(--color-rust);
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .rcx-name {
-    font-size: clamp(18px, 1.35vw, 20px);
-    line-height: 1.25;
-    color: var(--color-navy);
-  }
-  .rcx-year {
-    margin-top: 4px;
-    font-size: 15px;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-ink-soft);
-  }
-  @media (min-width: 900px) {
-    .rcx-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0;
-    }
-    .rcx-item {
-      padding-inline: clamp(16px, 2vw, 32px);
-      border-left: 1px solid var(--line);
-    }
-    .rcx-item:first-child {
-      padding-left: 0;
-      border-left: 0;
     }
   }
 
@@ -12913,7 +12857,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .chx,
   .crx,
   .rvx,
-  .rcx,
   .tsx {
     --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
     --ab-fibers: url("/media/portfolio/decor/paper-fibers.svg");
@@ -12926,7 +12869,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .crx-card,
   .rvx-artifact.paper-sheet,
   .rvx-plist li,
-  .rcx-item,
   .bdx-page.paper-sheet {
     position: relative;
     isolation: isolate;
@@ -12934,8 +12876,7 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   .crx-card::after,
   .rvx-artifact.paper-sheet::after,
-  .rvx-plist li::after,
-  .rcx-item::after {
+  .rvx-plist li::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -12972,7 +12913,6 @@ html[data-theme-vt]::view-transition-group(root) {
     .crx-card:has(:focus-visible)::after,
     .rvx-artifact.paper-sheet:hover::after,
     .rvx-plist li:hover::after,
-    .rcx-item:hover::after,
     .chx-card.paper-sheet:hover::before,
     .chx-card.paper-sheet:has(:focus-visible)::before,
     .tsx-card.paper-sheet:hover::before {
@@ -12990,7 +12930,6 @@ html[data-theme-vt]::view-transition-group(root) {
     .crx-card:has(:focus-visible),
     .rvx-artifact.paper-sheet:hover,
     .rvx-plist li:hover,
-    .rcx-item:hover,
     .chx-card.paper-sheet:hover,
     .chx-card.paper-sheet:has(:focus-visible),
     .tsx-card.paper-sheet:hover {
@@ -13022,7 +12961,6 @@ html[data-theme-vt]::view-transition-group(root) {
     .crx-card:active,
     .rvx-artifact.paper-sheet:active,
     .rvx-plist li:active,
-    .rcx-item:active,
     .chx-card.paper-sheet:active,
     .tsx-card.paper-sheet:active {
       translate: 0 1px;
@@ -13046,8 +12984,7 @@ html[data-theme-vt]::view-transition-group(root) {
   /* the body sections stay compact (about.spec "4–5 viewports"): one shared, tighter rest below each */
   .chx-wrap,
   .crx-wrap,
-  .rvx-wrap,
-  .rcx-wrap {
+  .rvx-wrap {
     padding-bottom: 64px;
   }
   .bdx-grid {
@@ -13506,34 +13443,6 @@ html[data-theme-vt]::view-transition-group(root) {
       justify-self: start;
       width: auto;
       max-width: 140px;
-    }
-  }
-
-  /* ---- 6 · recognition: a folded trophy per award ---- */
-  .rcx-item {
-    grid-template-columns: 52px minmax(0, 1fr);
-    gap: 12px;
-    align-items: center;
-    padding: 8px 14px;
-    border-radius: 4px;
-    background-color: var(--ab-cream);
-    background-image: var(--ab-fibers);
-    background-size: 420px 420px;
-    box-shadow: var(--shadow-paper);
-  }
-  .rcx-art {
-    width: 52px;
-    height: auto;
-    filter: drop-shadow(0 4px 5px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
-  }
-  @media (min-width: 900px) {
-    .rcx-list {
-      gap: clamp(14px, 1.6vw, 24px);
-    }
-    .rcx-item,
-    .rcx-item:first-child {
-      padding: 8px 16px;
-      border-left: 0;
     }
   }
 
@@ -16260,6 +16169,17 @@ html[data-theme-vt]::view-transition-group(root) {
     font-size: 14.5px;
     line-height: 1.4;
     color: var(--color-navy-2);
+  }
+  /* /about only (TASK-215): the Testimonials sheet slides up to --torn-lag (120 px phones / 200 px) over this
+     section's foot (TKT-106). Home's #awards keeps its own padding; here the foot clears lag + a gutter so the
+     award text is never under the tear, at rest or mid-scroll. */
+  #recognition .hs-wrap {
+    padding-bottom: 152px;
+  }
+  @media (min-width: 768px) {
+    #recognition .hs-wrap {
+      padding-bottom: 232px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
