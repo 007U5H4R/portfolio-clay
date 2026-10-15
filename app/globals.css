@@ -16321,6 +16321,17 @@ html[data-theme-vt]::view-transition-group(root) {
     line-height: 1.4;
     color: var(--color-navy-2);
   }
+  /* /about only (TASK-215): the Testimonials sheet slides up to --torn-lag (120 px phones / 200 px) over this
+     section's foot (TKT-106). Home's #awards keeps its own padding; here the foot clears lag + a gutter so the
+     award text is never under the tear, at rest or mid-scroll. */
+  #recognition .hs-wrap {
+    padding-bottom: 152px;
+  }
+  @media (min-width: 768px) {
+    #recognition .hs-wrap {
+      padding-bottom: 232px;
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .hs-card.paper-sheet,

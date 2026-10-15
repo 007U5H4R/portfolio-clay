@@ -18,5 +18,7 @@ Home calls `<AwardsSection />` with no props, so the default `id="awards"` yield
 - Screenshots (/about #recognition and / #awards, 1440/768/390/320, light+dark): no horizontal overflow, 0 console errors. Files: `/Volumes/E Drive/Dev/.scratch/task215-shots/`.
 
 ## Remaining issues
-- The scroll-driven torn-edge parallax lets the Testimonials sheet overlap the section's lower ~200px mid-scroll, so detail text can be briefly covered; same behaviour as on Home with its next section.
+- (Fixed, follow-up) The Testimonials sheet slides over the section foot by up to 200px (120px phones) and covered the last award line. `#recognition .hs-wrap` now has padding-bottom 232px (>=768) / 152px, About-scoped; Home's `#awards` is untouched. New spec asserts text-bottom < torn-top at rest and at full lag, light+dark, every project width. Measured gap (px, text bottom to torn top): full lag 38 at 1440/1024/768/390/320; at rest 238 (>=768) / 158 (phones), both themes.
 - Merge: the other About lane edits nearby selector lists in `app/globals.css` and the h2 list in about tests; expect trivial conflicts.
+
+Follow-up tests: about, about-part2, about-paper specs: 74 passed, 29 skipped, 0 failed after the budget change was applied (the budget run itself had measured 5.781).
