@@ -106,6 +106,9 @@ test.describe("mobile dock (TASK-224)", () => {
     const panel = page.locator("dialog.ask-panel");
     await expect(panel).toBeVisible();
     await expect(panel).toHaveAttribute("data-open", "");
+    // TASK-231: no soft keyboard mid-slide on touch: the drawer holds focus, not the composer.
+    await expect(panel).toBeFocused();
+    await expect(page.locator(".tk-input")).not.toBeFocused();
     await page.keyboard.press("Escape");
     await expect(panel).toBeHidden();
     await expect(ask).toBeFocused();

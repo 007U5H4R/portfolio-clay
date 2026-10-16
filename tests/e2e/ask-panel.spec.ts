@@ -163,10 +163,15 @@ test.describe("ask-panel", () => {
     await expect(ask).toBeFocused();
   });
 
-  test("@EVAL-007 focus is trapped inside the drawer and lands in the composer on open", async ({ page }) => {
+  test("@EVAL-007 focus is trapped inside the drawer and lands in the composer on open (the drawer itself on touch, TASK-231)", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     await openPanel(page);
-    await expect(input(page)).toBeFocused();
+    const coarse = await page.evaluate(() => matchMedia("(pointer: coarse)").matches);
+    if (coarse) {
+      // TASK-231: no soft keyboard mid-slide: the drawer holds focus, the composer waits for a tap.
+      await expect(panel(page)).toBeFocused();
+      await expect(input(page)).not.toBeFocused();
+    } else await expect(input(page)).toBeFocused();
     for (let i = 0; i < 16; i++) {
       await page.keyboard.press("Tab");
       const escaped = await page.evaluate(() => {
