@@ -13123,6 +13123,9 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   .rvx-notebook {
     aspect-ratio: 1100 / 845;
+    /* TASK-237: auto inline margins switch off grid stretch, so without a width the box sized to its content: 0 px
+       until the lazy notebook image loaded, then +223 px (a layout shift that stranded one-jump scrolls short). */
+    width: 100%;
     max-width: 290px;
     display: grid;
     margin-inline: auto;
