@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
 
@@ -117,6 +117,11 @@ export function WhatIBringJourney() {
   const panelsRef = useRef<HTMLDivElement>(null);
   const isPhone = () => window.matchMedia?.("(max-width: 639px)").matches ?? false;
 
+  // phones: mirror the swiped-to panel into `selected` (stable identity, so MobileCarousel only calls it when the slide changes)
+  const onSwipe = useCallback((i: number) => {
+    if (window.matchMedia?.("(max-width: 639px)").matches) setSelected(i);
+  }, []);
+
   const select = (i: number, focus = false) => {
     focusTab.current = focus;
     const n = ((i % total) + total) % total;
@@ -231,9 +236,7 @@ export function WhatIBringJourney() {
               label="What I bring, by stage"
               count={total}
               className="xp-car"
-              onIndexChange={(i) => {
-                if (isPhone()) setSelected(i);
-              }}
+              onActiveChange={onSwipe}
             >
               <div className="wibj-panels" data-carousel-track="" ref={panelsRef}>
                 {wibStages.map((s, i) => (
