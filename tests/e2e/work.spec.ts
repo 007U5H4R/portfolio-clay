@@ -89,7 +89,7 @@ test("@EVAL-008 no horizontal overflow; card copy ≥ 14 px", { tag: "@EVAL-008"
   expect(smallest).toBeGreaterThanOrEqual(14);
 });
 
-test("< 640 (TASK-205) the timeline is the compact phone rail: logo node beside the date chip, the card under both", async ({ page }) => {
+test("< 640 (TASK-205, superseded by TASK-230) the phone timeline is a one-card-per-screen carousel: a large logo tile beside the date chip, the card under both", async ({ page }) => {
   test.skip(width(page) !== 390, "the compact phone timeline is the < 640 case");
   await page.goto("/work", { waitUntil: "load" });
   const first = page.locator("section#work-experience ol > li").first();
@@ -97,18 +97,19 @@ test("< 640 (TASK-205) the timeline is the compact phone rail: logo node beside 
   const date = await box(".ct-date");
   const logo = await box(".ct-logo");
   const card = await box(".ct-card");
-  // the logo is a small node on the rail, left of the date chip, on one row
-  expect(logo.width).toBeLessThanOrEqual(48);
+  // TASK-230: the logo is a real tile (it was a <= 48 px rail node), on one row with the date chip, left of it
+  expect(logo.width).toBeGreaterThanOrEqual(88);
+  expect(logo.height).toBeGreaterThanOrEqual(88);
   expect(logo.x + logo.width).toBeLessThanOrEqual(date.x + 1);
   expect(Math.abs(logo.y + logo.height / 2 - (date.y + date.height / 2))).toBeLessThan(12);
-  // the card sits under both, indented to the date's column, and stays a readable width
+  // the card sits under both and stays a readable width
   expect(card.y).toBeGreaterThan(Math.max(date.y + date.height, logo.y + logo.height) - 1);
-  expect(Math.abs(card.x - date.x)).toBeLessThan(2);
   expect(card.width).toBeGreaterThan(260);
   await expect(first.locator(".ct-pin")).toBeHidden();
-  // one continuous rail runs behind the logo nodes
-  const rail = await page.locator("section#work-experience .ct-list").evaluate((el) => getComputedStyle(el, "::before").borderLeftStyle);
-  expect(rail).toBe("dashed");
+  // the rail is gone: the list is the swipe row (the rail, a TASK-205 node-connector, has nothing to connect any more)
+  const row = await page.locator("section#work-experience .ct-list").evaluate((el) => ({ overflowX: getComputedStyle(el).overflowX, rail: getComputedStyle(el, "::before").display }));
+  expect(row.overflowX).toBe("auto");
+  expect(row.rail).toBe("none");
 });
 
 test("parallax: Education drives a scroll-driven drift on the Work content; reduced motion = none", {

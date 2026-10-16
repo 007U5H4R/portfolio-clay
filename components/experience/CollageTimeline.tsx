@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { Container } from "@/components/layout/Container";
 import { Sheet, Tape, TornEdge } from "@/components/paper";
 import { deckle } from "./deckle";
@@ -65,6 +66,8 @@ export interface CollageTimelineProps {
   doodles: Record<string, ReactNode>;
   /** Education: a torn top edge on the `paper-2` tone (the paper cut-out between the two sections). */
   torn?: boolean | undefined;
+  /** What one entry is called in the phone carousel's marker labels ("Go to work experience 2 of 5"). */
+  noun?: string | undefined;
   className?: string | undefined;
 }
 
@@ -119,6 +122,7 @@ function Entry({ entry, index }: { entry: TimelineEntry; index: number }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               className="ct-logo-img"
+              data-wide={entry.logo.width / entry.logo.height > 2 ? "" : undefined}
               src={entry.logo.src}
               alt={entry.logo.alt}
               width={entry.logo.width}
@@ -208,7 +212,7 @@ function TitleSparks() {
   );
 }
 
-export function CollageTimeline({ id, title, entries, doodles, torn = false, className }: CollageTimelineProps) {
+export function CollageTimeline({ id, title, entries, doodles, torn = false, noun = "entry", className }: CollageTimelineProps) {
   const headingId = `${id}-heading`;
   const rows = { gridTemplateRows: `repeat(${entries.length}, auto)` } as CSSProperties;
   return (
@@ -246,11 +250,15 @@ export function CollageTimeline({ id, title, entries, doodles, torn = false, cla
               </div>
             ))}
           </div>
-          <ol className="ct-list">
-            {entries.map((entry, i) => (
-              <Entry key={entry.id} entry={entry} index={i} />
-            ))}
-          </ol>
+          {/* TASK-230: below 640 px the list is a one-card-per-screen swipe row with the liquid worm pagination (the Home
+              carousel, TASK-228); from 640 px the wrapper is `display: contents`, so the list is the grid item it always was. */}
+          <MobileCarousel noun={noun} label={title} count={entries.length} className="xp-car">
+            <ol className="ct-list">
+              {entries.map((entry, i) => (
+                <Entry key={entry.id} entry={entry} index={i} />
+              ))}
+            </ol>
+          </MobileCarousel>
         </div>
       </Container>
     </section>

@@ -17784,3 +17784,154 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-236 === */
+
+/* ==================================================================================================
+   TASK-230 · /work (Experience) on phones: Work Experience, Education and "What I Bring" become one-card-per-screen swipe
+   carousels with the same liquid-worm pagination as Home (TASK-228: components/home/MobileCarousel.tsx, `.hs-dots` above).
+   Everything here is scoped to `@media (max-width: 639px)`; from 640 px the `.hs-carousel` wrapper is `display: contents`
+   and the pagination `display: none`, so tablet and desktop render exactly as before (the desktop map, markers and stage
+   track CSS are untouched). Only the list / panel row scrolls: the header, section title and dock never move.
+   Phone, What I Bring: the whole map module (the origami landscape, its numbered markers and labels, the seven-stage chip
+   track beneath it, and their wrapper and spacing) is `display: none`. The stage data and the capability panels stay.
+   ================================================================================================== */
+@media (max-width: 639px) {
+  /* ---- the shared swipe row ---- */
+  .xp-car > .ct-list,
+  .xp-car > .wibj-panels {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    margin: -6px -8px 0;
+    padding: 6px 8px 8px;
+    scroll-padding-inline: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+  }
+  .xp-car > .ct-list::-webkit-scrollbar,
+  .xp-car > .wibj-panels::-webkit-scrollbar {
+    display: none;
+  }
+  .xp-car > .ct-list:focus-visible,
+  .xp-car > .wibj-panels:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: -2px;
+    border-radius: 14px;
+  }
+  .xp-car > .ct-list > .ct-item,
+  .xp-car > .wibj-panels > .wibj-panel {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* ---- the Education sheet's scroll-driven "slide over Work" drift (TKT-101) pushed the Work pagination down under the
+     Education sheet at nearly every scroll position, so the dots could not be tapped; phones scroll plainly ---- */
+  .xp-work > .ct-wrap {
+    animation: none;
+  }
+
+  /* ---- Work Experience + Education: the collage and the rail go, the logo gets a real tile ---- */
+  .ct-grid {
+    display: block;
+  }
+  .ct-collage {
+    display: none;
+  }
+  /* the TASK-205 dashed rail has no nodes to connect any more */
+  .xp-car > .ct-list::before,
+  .xp-car > .ct-list::after {
+    display: none;
+  }
+  .xp-car .ct-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .xp-car .ct-when {
+    display: contents;
+  }
+  .xp-car .ct-when .ct-logo.paper-sheet {
+    order: 0;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 96px;
+    max-width: 100%;
+    height: 96px;
+    min-height: 96px;
+    padding: 10px 14px;
+    border-radius: 14px;
+  }
+  /* explicit sizes (a lazy, not-yet-loaded image has no intrinsic size): square-ish marks are 72 px tall, wide wordmarks
+     (Shellkode, Quantiphi, Godrej: ratio > 2, `data-wide`) are 150 px wide */
+  .xp-car .ct-logo-img {
+    width: auto;
+    height: 72px;
+    max-width: 100%;
+    max-height: 72px;
+    object-fit: contain;
+  }
+  .xp-car .ct-logo-img[data-wide] {
+    width: 150px;
+    height: auto;
+  }
+  .xp-car .ct-logo-type {
+    font-size: 16px;
+  }
+  .xp-car .ct-date {
+    order: 1;
+    flex: 0 1 auto;
+    max-width: 100%;
+  }
+  .xp-car .ct-card.paper-sheet {
+    order: 2;
+    flex: 1 0 100%;
+    min-width: 0;
+    padding: 20px 18px 22px;
+    gap: 8px;
+  }
+  .xp-car .ct-bullets {
+    gap: 7px;
+  }
+
+  /* ---- What I Bring: no map module; the capability panels swipe ---- */
+  .wibj-frame,
+  .wibj-trackwrap,
+  .wibj-hint-l,
+  .wibj-hint-r {
+    display: none;
+  }
+  .wib-head {
+    margin-bottom: 14px;
+  }
+  .wibj-grid {
+    gap: 0;
+  }
+  .wibj-card {
+    padding: 8px 20px 4px;
+  }
+  .xp-car > .wibj-panels {
+    margin: 0 -20px;
+    padding: 0 20px 4px;
+    gap: 40px;
+    scroll-padding-inline: 20px;
+  }
+  .xp-car > .wibj-panels > .wibj-panel {
+    display: flex;
+  }
+  .xp-car .wibj-panel[data-active] {
+    animation: none;
+  }
+  .wibj-art {
+    max-width: 100%;
+  }
+  .wibj-card .hs-dots {
+    margin-top: 0;
+  }
+}
+/* === end TASK-230 === */

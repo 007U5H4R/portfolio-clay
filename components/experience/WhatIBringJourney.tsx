@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { wibHint, wibStages, type WibStage } from "@/data/what-i-bring";
 
 /**
@@ -99,9 +100,9 @@ function Panel({ stage, active, total }: { stage: WibStage; active: boolean; tot
         </ul>
       ) : null}
       <div className="wibj-art">
-        {active ? (
-          <Image src={stage.art.src} alt={stage.art.alt} width={880} height={663} sizes="(min-width: 960px) 380px, 90vw" loading="lazy" draggable={false} />
-        ) : null}
+        {/* every stage's art is in the DOM (TASK-230: the phone carousel shows them side by side); the inactive panels are
+            `display: none` from 640 px, and a lazy image in a hidden box is not fetched, so desktop downloads what it did. */}
+        <Image src={stage.art.src} alt={stage.art.alt} width={880} height={663} sizes="(min-width: 960px) 380px, 90vw" loading="lazy" draggable={false} />
       </div>
     </div>
   );
@@ -113,9 +114,20 @@ export function WhatIBringJourney() {
   const trackRef = useRef<HTMLDivElement>(null);
   const focusTab = useRef(false);
 
+  const panelsRef = useRef<HTMLDivElement>(null);
+  const isPhone = () => window.matchMedia?.("(max-width: 639px)").matches ?? false;
+
   const select = (i: number, focus = false) => {
     focusTab.current = focus;
-    setSelected(((i % total) + total) % total);
+    const n = ((i % total) + total) % total;
+    setSelected(n);
+    // TASK-230: on phones the panels are a swipe row; prev / next (and anything else that selects) scroll it
+    const row = panelsRef.current;
+    if (row && isPhone()) {
+      const slides = [...row.children] as HTMLElement[];
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      row.scrollTo({ left: slides[n]!.offsetLeft - slides[0]!.offsetLeft, behavior: reduce ? "auto" : "smooth" });
+    }
   };
 
   // Keep the active tab in view in the horizontally scrolling mobile track (the container only; never the page), and move
@@ -212,11 +224,23 @@ export function WhatIBringJourney() {
                 <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="m8 4 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </div>
-            <div className="wibj-panels">
-              {wibStages.map((s, i) => (
-                <Panel key={s.id} stage={s} active={i === selected} total={total} />
-              ))}
-            </div>
+            {/* TASK-230: below 640 px the panels are a one-card-per-screen swipe row (the Home carousel, TASK-228) whose
+                position mirrors `selected`; from 640 px the wrapper is `display: contents` and nothing changes. */}
+            <MobileCarousel
+              noun="stage"
+              label="What I bring, by stage"
+              count={total}
+              className="xp-car"
+              onIndexChange={(i) => {
+                if (isPhone()) setSelected(i);
+              }}
+            >
+              <div className="wibj-panels" data-carousel-track="" ref={panelsRef}>
+                {wibStages.map((s, i) => (
+                  <Panel key={s.id} stage={s} active={i === selected} total={total} />
+                ))}
+              </div>
+            </MobileCarousel>
           </div>
           <p className="wib-hint wibj-hint-r">{wibHint}</p>
         </div>
