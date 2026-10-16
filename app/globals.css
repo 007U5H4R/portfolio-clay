@@ -18117,3 +18117,29 @@ html:has(dialog.more-menu[open]) {
     display: none;
   }
 }
+
+/* ==================================================================================================
+   TASK-230 follow-up · (1) the Education pagination could not be tapped on phones. TKT-106's torn-lag slides the whole `.xp`
+   wrapper (Work + Education) down by up to 120 px as the What I Bring sheet (`section#skills`, z-index 2, -44 px margin,
+   begins with a torn edge) scrolls in, so Education's dots ended up under that sheet's Container and swallowed the tap.
+   Same remedy as `.cx-grid`: keep the strip under the dots empty, 120 px lag + the 44 px tear + 12 px of air (the section's
+   own padding was 72 px). Phones only; the strip is not reserved when the lag is off (reduced motion) because nothing moves.
+   (2) What I Bring: the panels share one height, so a shorter one left a gap under its art; the art now sits at the foot of
+   every card (same position on every slide) and the spare height falls between the tools and the art.
+   ================================================================================================== */
+@media (max-width: 639px) {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .xp-edu {
+        padding-bottom: 176px;
+      }
+    }
+  }
+  .xp-car > .wibj-panels > .wibj-panel > :nth-last-child(2) {
+    margin-bottom: 18px;
+  }
+  .xp-car .wibj-art {
+    margin-top: auto;
+  }
+}
+/* === end TASK-230 follow-up === */

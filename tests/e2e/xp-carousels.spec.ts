@@ -118,6 +118,36 @@ test.describe("xp carousels (TASK-230)", () => {
           expect(geo.dw, `${tag} marker target width`).toBeGreaterThanOrEqual(44);
           expect(geo.dh, `${tag} marker target height`).toBeGreaterThanOrEqual(44);
 
+          // Regression (TASK-230 follow-up): the Education dots were covered by the What I Bring sheet (the TKT-106 torn-lag
+          // slides the .xp wrapper down under it), so taps never reached them. At two scroll positions (centred, and as low as
+          // the dock allows, where the lag is furthest along) the element at every dot's centre must be that dot, and a real
+          // pointer tap on the 2nd dot must make it current.
+          for (const where of ["center", "above the dock"] as const) {
+            await dots.first().evaluate((el) => el.scrollIntoView({ block: "center" }));
+            if (where === "above the dock") {
+              await page.evaluate((sid) => {
+                const d = document.querySelector(`#${sid} .hs-dots`)!.getBoundingClientRect();
+                const dock = document.querySelector('nav[aria-label="Primary mobile"]')!.getBoundingClientRect();
+                window.scrollBy(0, d.bottom - (dock.top - 8));
+              }, id);
+              await page.waitForTimeout(250);
+            }
+            const hits = await page.evaluate((sid) => {
+              return [...document.querySelectorAll(`#${sid} .hs-dot`)].map((d) => {
+                const b = d.getBoundingClientRect();
+                const e = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+                return d.contains(e) ? "dot" : `${e?.tagName.toLowerCase()}.${(e as HTMLElement | null)?.className.toString().slice(0, 40)}`;
+              });
+            }, id);
+            expect(hits, `${tag} dots receive pointer events (${where})`).toEqual(Array(n).fill("dot"));
+            const second = await dots.nth(1).boundingBox();
+            await page.mouse.click(second!.x + second!.width / 2, second!.y + second!.height / 2);
+            await expect.poll(() => activeIndex(page, id), { message: `${tag} tapping the 2nd marker (${where})`, timeout: 5000 }).toBe(1);
+            const first = await dots.first().boundingBox();
+            await page.mouse.click(first!.x + first!.width / 2, first!.y + first!.height / 2);
+            await expect.poll(() => activeIndex(page, id), { timeout: 5000 }).toBe(0);
+          }
+
           // tap the last marker, then the first
           await dots.first().evaluate((el) => el.scrollIntoView({ block: "center" }));
           await dots.nth(n - 1).click();
