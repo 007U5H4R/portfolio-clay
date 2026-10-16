@@ -7670,27 +7670,6 @@ html.lenis body {
       display: block;
     }
   }
-  .hero-margin-note {
-    margin: 0;
-    font-size: clamp(19px, 1.6vw, 23px);
-    line-height: 1.05;
-    color: var(--color-ink-soft);
-  }
-  .hero-margin-note[data-note="flow"] {
-    left: 50%;
-    bottom: clamp(20px, 2.6vw, 40px);
-    translate: -50% 0;
-    rotate: -1.5deg;
-    padding-bottom: 6px;
-    white-space: nowrap;
-    background: linear-gradient(color-mix(in oklab, var(--color-navy) 22%, transparent), color-mix(in oklab, var(--color-navy) 22%, transparent)) 50% 100% / 118% 1px no-repeat;
-  }
-  @media (min-width: 1024px) {
-    .hero-margin-note {
-      display: block;
-    }
-  }
-
   @media (max-width: 639px) {
     .hero-cta-row {
       gap: 12px;

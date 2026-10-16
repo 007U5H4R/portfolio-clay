@@ -92,7 +92,7 @@ export function Hero() {
         {/* TKT-108 marginalia + faint backdrop — ONE counted `collage` object (Design.md §3.1 / Dev-50):
             its pieces carry no `data-decor`, the whole unit is `aria-hidden` and pointer-events none.
             Server-rendered and absolutely positioned (no layout shift); pieces are shown by width in
-            app/globals.css, the Caveat notes ≥ 1024 only. */}
+            app/globals.css. The Caveat notes were removed (TASK-222, TASK-225). */}
         <div className="hero-margin" data-decor="collage" aria-hidden="true">
           <span className="hero-margin-patch" data-patch="tl" />
           <span className="hero-margin-patch" data-patch="h1" />
@@ -107,9 +107,6 @@ export function Hero() {
           <svg className="hero-margin-loop" viewBox="0 0 160 200" focusable="false">
             <path d="M8 4 C 30 60, 60 96, 110 92 C 150 88, 150 44, 118 48 C 84 52, 90 110, 130 150 C 142 162, 150 178, 152 196" />
           </svg>
-          <p className="hero-margin-note font-hand" data-note="flow">
-            problem → insight → build → learn
-          </p>
         </div>
 
         <Container className="hero-copy">
