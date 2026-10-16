@@ -17531,3 +17531,62 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-229 === */
+
+/* ==================================================================================================
+   TASK-234 · phone-only one-card-per-screen carousels on /about: Three Chapters (`#chapters`), the research artifacts
+   (`#research-values`) and In their words (`#testimonials`). Each list is wrapped in the shared MobileCarousel
+   (components/home/MobileCarousel.tsx), reusing the TASK-228 `.hs-carousel` / `.hs-dots` / `.hs-dot` rules for the
+   wrapper, worm pagination and 44 px dots. From 640 px up the wrapper is `display: contents` and the pagination is
+   `display: none`, so tablet and desktop are untouched. Below 640 px only the list scrolls (native scroll-snap,
+   vertical page scroll untouched); eyebrow, heading and intro stay outside it.
+   ================================================================================================== */
+@media (max-width: 639px) {
+  .hs-carousel > .chx-grid,
+  .hs-carousel > .rvx-artifacts,
+  .hs-carousel > .tsx-list {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    /* bleed so rotated cards, tape and filter shadows are not clipped by the scroller; card edges do not move */
+    margin: -12px -14px 0;
+    padding: 14px 14px 18px;
+    scroll-padding-inline: 14px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .hs-carousel > .chx-grid:focus-visible,
+  .hs-carousel > .rvx-artifacts:focus-visible,
+  .hs-carousel > .tsx-list:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: -2px;
+    border-radius: 14px;
+  }
+  .hs-carousel > .chx-grid::-webkit-scrollbar,
+  .hs-carousel > .rvx-artifacts::-webkit-scrollbar,
+  .hs-carousel > .tsx-list::-webkit-scrollbar {
+    display: none;
+  }
+  .hs-carousel > .chx-grid > li,
+  .hs-carousel > .rvx-artifacts > li,
+  .hs-carousel > .tsx-list > li {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  /* the pre-reveal nudge must not leave off-screen slides offset or faded (the reduced-motion rule is untouched) */
+  .hs-carousel .rvx-rv.reveal:not([data-revealed]):not(:focus-within) {
+    transform: none;
+  }
+  /* the next section's torn edge overlaps the bottom padding: add the pagination's 48 px so it is never covered */
+  .chx-wrap:has(.hs-carousel),
+  .rvx-wrap:has(.hs-carousel) {
+    padding-bottom: 148px;
+  }
+  .tsx-more {
+    margin-top: 12px;
+  }
+}
+/* end TASK-234 */

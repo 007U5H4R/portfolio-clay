@@ -15,6 +15,12 @@ import { testimonials } from "@/data/testimonials";
 // body shows must exist in `data/*` or in the page's own approved copy (`about-content.ts`).
 vi.mock("@/components/paper/SceneOpener", () => ({ SceneOpener: () => <section data-opener="scene-about" /> }));
 beforeEach(() => {
+  // TASK-234: the phone carousels (MobileCarousel) read matchMedia and observe size on mount; jsdom has neither.
+  vi.stubGlobal(
+    "matchMedia",
+    (query: string) => ({ matches: false, media: query, addEventListener() {}, removeEventListener() {} }),
+  );
+  vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} unobserve() {} });
   vi.stubGlobal("IntersectionObserver", class { observe() {} disconnect() {} unobserve() {} });
 });
 afterEach(() => vi.unstubAllGlobals());

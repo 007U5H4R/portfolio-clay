@@ -3,6 +3,7 @@ import { Reveal } from "@/components/interactions/Reveal";
 import { Annotation, Sheet, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { CHAPTERS, CHAPTERS_HEAD } from "./about-content";
 import { CHAPTER_ART } from "./about-paper-art";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { PaperImg } from "./PaperImg";
 
 /** Per-card paper (spec §11): its own tint, a subtle rotation, light tape. */
@@ -40,33 +41,35 @@ export function ThreeChapters() {
               {CHAPTERS_HEAD.note}
             </Annotation>
           </div>
-          <ol className="chx-grid">
-            {CHAPTERS.map((chapter, index) => {
-              const place = PLACEMENT[index]!;
-              return (
-                <li key={chapter.id} className="chx-slot">
-                  <Reveal index={index} className="chx-rv">
-                    <Sheet as="article" variant="card" rotate={place.rotate} className="chx-card">
-                      <Tape side={place.tape} />
-                      <div className="chx-paper" data-tint={place.tint} data-chapter={chapter.id}>
-                        <h3 className="chx-title">
-                          <span className="chx-num">{chapter.number}</span>
-                          <span className="chx-name">{chapter.title}</span>
-                        </h3>
-                        <PaperImg id={CHAPTER_ART[chapter.id]} className="chx-art" />
-                        <p className="chx-text">{chapter.body}</p>
-                        <ul className="chx-tags" aria-label={`${chapter.title} keywords`}>
-                          {chapter.tags.map((tag) => (
-                            <li key={tag}>{tag}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </Sheet>
-                  </Reveal>
-                </li>
-              );
-            })}
-          </ol>
+          <MobileCarousel noun="chapter" label="Chapters" count={CHAPTERS.length}>
+            <ol className="chx-grid">
+              {CHAPTERS.map((chapter, index) => {
+                const place = PLACEMENT[index]!;
+                return (
+                  <li key={chapter.id} className="chx-slot">
+                    <Reveal index={index} className="chx-rv">
+                      <Sheet as="article" variant="card" rotate={place.rotate} className="chx-card">
+                        <Tape side={place.tape} />
+                        <div className="chx-paper" data-tint={place.tint} data-chapter={chapter.id}>
+                          <h3 className="chx-title">
+                            <span className="chx-num">{chapter.number}</span>
+                            <span className="chx-name">{chapter.title}</span>
+                          </h3>
+                          <PaperImg id={CHAPTER_ART[chapter.id]} className="chx-art" />
+                          <p className="chx-text">{chapter.body}</p>
+                          <ul className="chx-tags" aria-label={`${chapter.title} keywords`}>
+                            {chapter.tags.map((tag) => (
+                              <li key={tag}>{tag}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </Sheet>
+                    </Reveal>
+                  </li>
+                );
+              })}
+            </ol>
+          </MobileCarousel>
         </Container>
       </div>
     </section>

@@ -4,6 +4,7 @@ import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Sheet, Tape, TornEdge, type TapeSide } from "@/components/paper";
 import { TESTIMONIALS_HEAD } from "./about-content";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { PaperImg } from "./PaperImg";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -58,37 +59,39 @@ export function Testimonials() {
           <div className="tsx-deco" aria-hidden="true">
             <PaperImg id="grove" className="tsx-grove" />
           </div>
-          <ul className="tsx-list">
-            {shown.map((t, index) => {
-              const place = PLACEMENT[index % PLACEMENT.length]!;
-              return (
-                <li key={t.id} className="tsx-slot">
-                  <Reveal index={index} className="tsx-rv">
-                    <Sheet as="figure" variant="card" rotate={place.rotate} className="tsx-card">
-                      <Tape side={place.tape} />
-                      <div className="tsx-paper" data-tint={place.tint} data-testimonial={t.id}>
-                        <blockquote className="tsx-quote" cite={recommendationsHref}>
-                          <p>{t.excerpt.join(" … ")}</p>
-                        </blockquote>
-                        <figcaption className="tsx-by">
-                          <span className="tsx-initials" aria-hidden="true">
-                            {initials(t.name)}
-                          </span>
-                          <span className="tsx-who">
-                            <b className="tsx-name">{t.name}</b>
-                            <span className="tsx-role">{t.role}</span>
-                            <span className="tsx-rel">
-                              {t.relationship} · <time dateTime={t.date}>{monthYear(t.date)}</time>
+          <MobileCarousel noun="recommendation" label="Recommendations" count={shown.length}>
+            <ul className="tsx-list">
+              {shown.map((t, index) => {
+                const place = PLACEMENT[index % PLACEMENT.length]!;
+                return (
+                  <li key={t.id} className="tsx-slot">
+                    <Reveal index={index} className="tsx-rv">
+                      <Sheet as="figure" variant="card" rotate={place.rotate} className="tsx-card">
+                        <Tape side={place.tape} />
+                        <div className="tsx-paper" data-tint={place.tint} data-testimonial={t.id}>
+                          <blockquote className="tsx-quote" cite={recommendationsHref}>
+                            <p>{t.excerpt.join(" … ")}</p>
+                          </blockquote>
+                          <figcaption className="tsx-by">
+                            <span className="tsx-initials" aria-hidden="true">
+                              {initials(t.name)}
                             </span>
-                          </span>
-                        </figcaption>
-                      </div>
-                    </Sheet>
-                  </Reveal>
-                </li>
-              );
-            })}
-          </ul>
+                            <span className="tsx-who">
+                              <b className="tsx-name">{t.name}</b>
+                              <span className="tsx-role">{t.role}</span>
+                              <span className="tsx-rel">
+                                {t.relationship} · <time dateTime={t.date}>{monthYear(t.date)}</time>
+                              </span>
+                            </span>
+                          </figcaption>
+                        </div>
+                      </Sheet>
+                    </Reveal>
+                  </li>
+                );
+              })}
+            </ul>
+          </MobileCarousel>
           <p className="tsx-more">
             <ExternalLink href={recommendationsHref} className="tsx-more-link">
               {TESTIMONIALS_HEAD.more}

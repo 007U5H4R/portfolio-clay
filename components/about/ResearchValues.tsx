@@ -4,6 +4,7 @@ import type { ResearchPaper } from "@/data/credentials";
 import { ExternalLink } from "@/components/common/ExternalLink";
 import { Tag } from "@/components/common/Tag";
 import { Container } from "@/components/layout/Container";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Sheet, Tape, TornEdge } from "@/components/paper";
 import { RESEARCH_ARTIFACTS, RESEARCH_HEAD } from "./about-content";
@@ -78,56 +79,58 @@ export function ResearchValues() {
                 <ThemedPaperImg id="notebook" className="rvx-notebook-img" />
               </div>
             </div>
-            <ul className="rvx-artifacts">
-              {RESEARCH_ARTIFACTS.map((artifact, index) => (
-                <li key={artifact.id} className="rvx-slot" data-artifact={artifact.id}>
-                  <Reveal index={index} className="rvx-rv">
-                    <Sheet as="article" variant="card" rotate={[-0.8, 0.5, -0.4][index]} className="rvx-artifact">
-                      <Tape side={index === 1 ? "r" : "l"} />
-                      {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP */}
-                      <img
-                        className="rvx-art"
-                        src={ABOUT_ARTWORK[artifact.art].src}
-                        width={ABOUT_ARTWORK[artifact.art].width}
-                        height={ABOUT_ARTWORK[artifact.art].height}
-                        alt={ABOUT_ARTWORK[artifact.art].alt}
-                        loading="lazy"
-                        decoding="async"
-                        data-about-artwork={artifact.art}
-                      />
-                      <h3 className="rvx-title">{artifact.title}</h3>
-                      {artifact.meta ? <p className="rvx-meta">{artifact.meta}</p> : null}
-                      {artifact.id === "publications" ? null : <p className="rvx-text">{artifact.body}</p>}
-                      {artifact.id === "nanotech" && nanoPaper ? (
-                        <div className="rvx-panel">
-                          <PaperEntry paper={nanoPaper} />
-                        </div>
-                      ) : null}
-                      {artifact.id === "patent" ? (
-                        <div className="rvx-panel">
-                          <DocBadge />
-                          <div className="rvx-panel-body">
-                            <ExternalLink href={patent.href} className="rvx-patent-link">
-                              View Pratyasa — the patent record
-                            </ExternalLink>
-                            <p className="rvx-disclaimer">{researchDisclaimer}</p>
+            <MobileCarousel noun="research card" label="Research" count={RESEARCH_ARTIFACTS.length}>
+              <ul className="rvx-artifacts">
+                {RESEARCH_ARTIFACTS.map((artifact, index) => (
+                  <li key={artifact.id} className="rvx-slot" data-artifact={artifact.id}>
+                    <Reveal index={index} className="rvx-rv">
+                      <Sheet as="article" variant="card" rotate={[-0.8, 0.5, -0.4][index]} className="rvx-artifact">
+                        <Tape side={index === 1 ? "r" : "l"} />
+                        {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP */}
+                        <img
+                          className="rvx-art"
+                          src={ABOUT_ARTWORK[artifact.art].src}
+                          width={ABOUT_ARTWORK[artifact.art].width}
+                          height={ABOUT_ARTWORK[artifact.art].height}
+                          alt={ABOUT_ARTWORK[artifact.art].alt}
+                          loading="lazy"
+                          decoding="async"
+                          data-about-artwork={artifact.art}
+                        />
+                        <h3 className="rvx-title">{artifact.title}</h3>
+                        {artifact.meta ? <p className="rvx-meta">{artifact.meta}</p> : null}
+                        {artifact.id === "publications" ? null : <p className="rvx-text">{artifact.body}</p>}
+                        {artifact.id === "nanotech" && nanoPaper ? (
+                          <div className="rvx-panel">
+                            <PaperEntry paper={nanoPaper} />
                           </div>
-                        </div>
-                      ) : null}
-                      {artifact.id === "publications" ? (
-                        <ul className="rvx-papers" aria-label="Publications">
-                          {papers.map((paper) => (
-                            <li key={paper.id} className="rvx-panel">
-                              <PaperEntry paper={paper} />
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </Sheet>
-                  </Reveal>
-                </li>
-              ))}
-            </ul>
+                        ) : null}
+                        {artifact.id === "patent" ? (
+                          <div className="rvx-panel">
+                            <DocBadge />
+                            <div className="rvx-panel-body">
+                              <ExternalLink href={patent.href} className="rvx-patent-link">
+                                View Pratyasa — the patent record
+                              </ExternalLink>
+                              <p className="rvx-disclaimer">{researchDisclaimer}</p>
+                            </div>
+                          </div>
+                        ) : null}
+                        {artifact.id === "publications" ? (
+                          <ul className="rvx-papers" aria-label="Publications">
+                            {papers.map((paper) => (
+                              <li key={paper.id} className="rvx-panel">
+                                <PaperEntry paper={paper} />
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </Sheet>
+                    </Reveal>
+                  </li>
+                ))}
+              </ul>
+            </MobileCarousel>
           </div>
         </Container>
       </div>
