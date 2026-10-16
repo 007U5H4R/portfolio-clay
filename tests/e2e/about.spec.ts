@@ -180,6 +180,18 @@ test("TASK-207: every About section body is opaque, so the sheet underneath neve
   }
 });
 
+test("TASK-237: the research notebook reserves its height before its lazy image loads (no layout shift below it)", async ({ page }) => {
+  await page.goto("/about", { waitUntil: "load" });
+  // Measured at rest, before any scroll brings the lazy image near the viewport.
+  const box = await page.locator("#research-values .rvx-notebook").evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const img = el.querySelector("img.pa-light") as HTMLImageElement | null;
+    return { w: r.width, h: r.height, loaded: img?.complete ?? false };
+  });
+  expect(box.w, "notebook box has its width before load").toBeGreaterThan(100);
+  expect(box.h, "notebook box has its height before load").toBeGreaterThan(100);
+});
+
 test("TASK-215: the Testimonials torn edge never covers the last award line, at rest or at full parallax lag", async ({ page }) => {
   await page.goto("/about");
   await revealAll(page);
