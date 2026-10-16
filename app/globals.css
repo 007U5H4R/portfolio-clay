@@ -11188,7 +11188,7 @@ html[data-theme-vt]::view-transition-group(root) {
   background: var(--color-navy);
 }
 
-/* ===========================================================================================
+/* ==================================================================================================
    M-013 (TASK-192) · origami paper tabs header. Replaces the M-010 T4 paper-cut nav (scraps, tab cards, terracotta strip).
    Unlayered, grouped, tokens only (EVAL-020). Layers, back to front: the paper sheet (grain image + torn lower edge) → the thin
    terrain band (left / mid / right pieces, tinted toward slate in dark) → the torn lip → per tab: soft shadow (rest + lifted
@@ -17531,7 +17531,8 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-229 === */
-=======
+
+/* ==================================================================================================
    TASK-234 · phone-only one-card-per-screen carousels on /about: Three Chapters (`#chapters`), the research artifacts
    (`#research-values`) and In their words (`#testimonials`). Each list is wrapped in the shared MobileCarousel
    (components/home/MobileCarousel.tsx), reusing the TASK-228 `.hs-carousel` / `.hs-dots` / `.hs-dot` rules for the
