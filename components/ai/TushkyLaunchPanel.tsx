@@ -29,6 +29,9 @@ export const LAUNCHER_INPUT_LABEL = "Ask Tushky anything about Tushar";
 export function TushkyLaunchPanel() {
   const { openPanel, panelOpen } = useAskContext();
   const [value, setValue] = useState("");
+  // TASK-229: phones show three prompts and reach the rest through "More questions"; the CSS that hides the extras (and this
+  // button) exists only below 640 px, so tablet and desktop always show all six and never see the control.
+  const [moreOpen, setMoreOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -71,12 +74,23 @@ export function TushkyLaunchPanel() {
             <Icon icon={Send} size={20} />
           </button>
         </form>
-        <Hand kind="label" as="p" className="hat-try">
-          Try asking…
-        </Hand>
-        <ul aria-label="Suggested questions" className="hat-cards">
+        <div className="hat-try-row">
+          <Hand kind="label" as="p" className="hat-try">
+            Try asking…
+          </Hand>
+          <button
+            type="button"
+            className="hat-more focus-ring"
+            aria-expanded={moreOpen}
+            aria-controls="hat-cards"
+            onClick={() => setMoreOpen((open) => !open)}
+          >
+            {moreOpen ? "Fewer questions" : "More questions"}
+          </button>
+        </div>
+        <ul id="hat-cards" aria-label="Suggested questions" className="hat-cards" data-more={moreOpen ? "" : undefined}>
           {TUSHKY_SUGGESTIONS.map(({ label, query, category }, index) => (
-            <li key={label} className="hat-in-card" style={{ "--hat-i": index } as CSSProperties}>
+            <li key={label} className="hat-in-card" data-extra={index >= 3 ? "" : undefined} style={{ "--hat-i": index } as CSSProperties}>
               <button
                 type="button"
                 data-category={category}
