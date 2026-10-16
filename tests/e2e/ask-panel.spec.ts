@@ -13,6 +13,7 @@
  */
 import { test, expect, askTrigger } from "./fixtures";
 import type { Page } from "@playwright/test";
+import { TUSHKY_SUGGESTIONS } from "@/components/ai/tushky-questions";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 
@@ -77,15 +78,9 @@ test.describe("ask-panel", () => {
     ).toHaveCount(1);
     await expect(panel(page).getByText("Hi! I’m Tushky.")).toBeVisible();
     const cards = panel(page).getByRole("list", { name: "Suggested questions" }).locator(".tk-card-text");
-    // TKT-113 (Dev-66): the one shared list, in the Home spec's wording and order.
-    await expect(cards).toHaveText([
-      "What products has Tushar built?",
-      "What AI products has he worked on?",
-      "What impact has he created?",
-      "What are his strongest skills?",
-      "Show me his product thinking process.",
-      "Walk me through a specific project.",
-    ]);
+    // TKT-113 (Dev-66): the one shared list, in the Home spec's wording and order (the wording itself is pinned in
+    // tests/unit/ask-tushky-grounding.test.ts; TASK-235 swapped slot 2 for the easter-egg question).
+    await expect(cards).toHaveText(TUSHKY_SUGGESTIONS.map((s) => s.label));
     await expect(input(page)).toHaveAttribute("placeholder", "Ask Tushky anything about Tushar...");
     // No attachment control (Dev-61): the composer is the input + Send only.
     await expect(panel(page).locator("form.tk-composer").getByRole("button")).toHaveText([""]);

@@ -250,8 +250,9 @@ export function validateAll(cols: Collections = collections): ValidateResult {
   if (cols.knowledge.length >= 11) {
     const home = cols.knowledge.filter((k) => k.surface.includes("home")).length;
     const panel = cols.knowledge.filter((k) => k.surface.includes("panel")).length;
-    if (home !== 5 || panel !== 6) {
-      push("knowledge", "(collection)", "surface", `surface counts must be 5 home + 6 panel (found ${home}/${panel})`);
+    // 6 home since TASK-235 added the easter-egg entry (it backs the Home launcher's second card).
+    if (home !== 6 || panel !== 6) {
+      push("knowledge", "(collection)", "surface", `surface counts must be 6 home + 6 panel (found ${home}/${panel})`);
     }
   }
 
