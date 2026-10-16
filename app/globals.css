@@ -17742,7 +17742,7 @@ html[data-theme-vt]::view-transition-group(root) {
    destinations. Every rule targets the content container (.band-wrap and its children, .band-body's own children);
    nothing here touches .band-ocean, .ocean-*, the ship, their keyframes or sizes, the dock-clearing padding on
    .band, the email's mailto/route or the social hrefs. The controls stay >= 44 x 44 (email link min-height 44,
-   social circles 44-48). ≥ 640 px (tablet, desktop) never matches this block. */
+   social circles stay 48). ≥ 640 px (tablet, desktop) never matches this block. */
 @layer components {
   @media (max-width: 639px) {
     .band-wrap {
@@ -17773,10 +17773,6 @@ html[data-theme-vt]::view-transition-group(root) {
     }
     .band-social {
       gap: 8px;
-    }
-    .band-social a {
-      width: clamp(44px, 12vw, 48px);
-      height: clamp(44px, 12vw, 48px);
     }
     .band-bar {
       gap: 2px 24px;
