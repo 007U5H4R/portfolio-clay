@@ -17591,3 +17591,147 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* end TASK-234 */
+
+/* === TASK-233 === */
+/* ==================================================================================================
+   TASK-233 · Portfolio on phones (< 640 px only; every rule below sits inside the media query, so tablet and desktop are
+   untouched). (1) Enterprise & Client Work: the six case files become a one-card-per-screen scroll-snap carousel inside
+   the shared <MobileCarousel> (reuses TASK-228's .hs-carousel / .hs-dots); the cover and heading stay put, only the list
+   scrolls. An open dossier grows its own slide (the row is as tall as its tallest slide, never clipped; the page scrolls
+   vertically to read it) and closes when the reader leaves the slide. (2) The My Projects list (.pf-m-card) is a frosted
+   glass card per spec §13: see-through fill (alpha 0.6, NOT the 0.78 that read solid on the dock), restrained blur, a
+   fine rim with a brighter top edge, soft shadow; opaque fallbacks for no backdrop-filter / reduced transparency.
+   ================================================================================================== */
+@media (max-width: 639px) {
+  /* ---- 1 · enterprise carousel ---- */
+  .ee-journal .pf-ent-wrap {
+    gap: 18px;
+    /* the pagination (44 px) and the dock (about 76 px + safe area) both clear the last card */
+    padding-block: 44px 132px;
+  }
+  .ee-journal .hs-carousel {
+    display: block;
+    min-width: 0;
+  }
+  .ee-journal .hs-carousel > .ee-grid {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin: 0 -8px;
+    /* top room for the pin, side/bottom room for the paper shadow inside the scroller's clip box */
+    padding: 16px 8px 18px;
+    scroll-padding-inline: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .ee-journal .hs-carousel > .ee-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .ee-journal .hs-carousel > .ee-grid:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: -2px;
+    border-radius: 6px;
+  }
+  .ee-journal .hs-carousel > .ee-grid > .ee-item {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .ee-journal .hs-dots {
+    margin-top: 2px;
+  }
+
+  /* ---- 2 · frosted-glass project list ---- */
+  .pf-m-card.m-float {
+    --pf-glass: rgba(255, 250, 240, 0.6);
+    --pf-glass-rim: rgba(255, 255, 255, 0.7);
+    --pf-glass-rim-top: rgba(255, 255, 255, 0.95);
+    --pf-glass-shadow: rgba(60, 44, 24, 0.14);
+    --pf-glass-line: rgba(255, 255, 255, 0.75);
+    --pf-glass-chev: rgba(255, 255, 255, 0.55);
+    --pf-tag-a: color-mix(in oklab, #8b7bd8 16%, transparent);
+    --pf-tag-b: color-mix(in oklab, var(--color-terracotta) 15%, transparent);
+    min-height: 112px;
+    padding: 12px 12px 12px 12px;
+    border-radius: 22px;
+    border: 1px solid var(--pf-glass-rim);
+    border-top-color: var(--pf-glass-rim-top);
+    background: var(--pf-glass);
+    -webkit-backdrop-filter: blur(14px) saturate(112%);
+    backdrop-filter: blur(14px) saturate(112%);
+    box-shadow:
+      inset 0 1px 0 var(--pf-glass-line),
+      0 1px 2px rgba(60, 44, 24, 0.06),
+      0 12px 28px -10px var(--pf-glass-shadow);
+  }
+  [data-theme="dark"] .pf-m-card.m-float {
+    --pf-glass: rgba(20, 29, 49, 0.6);
+    --pf-glass-rim: rgba(220, 230, 245, 0.16);
+    --pf-glass-rim-top: rgba(220, 230, 245, 0.3);
+    --pf-glass-shadow: rgba(0, 0, 0, 0.4);
+    --pf-glass-line: rgba(255, 255, 255, 0.08);
+    --pf-glass-chev: rgba(220, 230, 245, 0.1);
+    --pf-tag-a: color-mix(in oklab, #9fb0ea 18%, transparent);
+    --pf-tag-b: color-mix(in oklab, #e8b768 17%, transparent);
+  }
+  .pf-m-card.m-float:active {
+    box-shadow:
+      inset 0 1px 0 var(--pf-glass-line),
+      0 6px 16px -10px var(--pf-glass-shadow);
+  }
+  .pf-m-card.m-float[aria-current="true"] {
+    border-color: color-mix(in oklab, var(--color-rust) 55%, transparent);
+  }
+  /* the print stays crisp and opaque: it is its own layer, never inside the blur */
+  .pf-m-art {
+    border-radius: 14px;
+  }
+  .pf-m-tag {
+    border-color: color-mix(in oklab, var(--color-navy) 12%, transparent);
+    background: var(--pf-tag-a);
+  }
+  .pf-m-tag:nth-child(2) {
+    background: var(--pf-tag-b);
+  }
+  /* the → affordance: a small circular glass button (decorative; the whole card is the link) */
+  .pf-m-chev {
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+    border-radius: 50%;
+    background: var(--pf-glass-chev);
+    color: var(--color-navy);
+  }
+  /* "13 projects": a quiet chip */
+  .pf-m-count {
+    display: inline-block;
+    padding: 3px 12px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 12%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-ivory) 60%, transparent);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .pf-m-card.m-float {
+      --pf-glass: rgba(255, 250, 241, 0.97);
+    }
+    [data-theme="dark"] .pf-m-card.m-float {
+      --pf-glass: rgba(20, 29, 49, 0.97);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .pf-m-card.m-float {
+      --pf-glass: rgba(255, 250, 241, 0.97);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    [data-theme="dark"] .pf-m-card.m-float {
+      --pf-glass: rgba(20, 29, 49, 0.97);
+    }
+  }
+}
+/* === end TASK-233 === */

@@ -31,8 +31,13 @@ async function open(page: Page) {
 
 test("layout: 3 / 2 / 1 columns, no overflow, 14 px text floor, images load", async ({ page, noOverflow }) => {
   await open(page);
-  const cols = await page.locator(".ee-grid").evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
-  expect(cols).toBe(width(page) >= 1024 ? 3 : width(page) >= 768 ? 2 : 1);
+  if (width(page) < 640) {
+    // TASK-233: on a phone the cases are a one-card-per-screen scroll-snap row (portfolio-mobile.spec.ts holds its behaviour)
+    expect(await page.locator(".ee-grid").evaluate((el) => getComputedStyle(el).display)).toBe("flex");
+  } else {
+    const cols = await page.locator(".ee-grid").evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+    expect(cols).toBe(width(page) >= 1024 ? 3 : 2);
+  }
   await noOverflow(page);
   const small = await page.locator("section#enterprise").evaluate((root) => {
     const bad: string[] = [];

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type MouseEvent } from "react";
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { detailHref, filterProducts, hasVideo, statusOptions, type ListFilter, type PortfolioProduct } from "@/lib/portfolio";
 
 export interface PhoneProjectListProps {
@@ -101,7 +101,7 @@ export function PhoneProjectList({ visible, products, filter, onFilterChange, on
                     </span>
                   ) : null}
                 </span>
-                <ChevronRight className="pf-m-chev" aria-hidden="true" focusable="false" strokeWidth={2} />
+                <ArrowRight className="pf-m-chev" aria-hidden="true" focusable="false" strokeWidth={2} />
               </a>
             </li>
           ))}

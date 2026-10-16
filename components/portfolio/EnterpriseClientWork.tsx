@@ -5,6 +5,7 @@ import type { EnterpriseCase } from "@/data/schema";
 import { enterpriseArt, enterpriseHeaderArt, type EnterpriseArt } from "@/data/enterprise-art";
 import { Container } from "@/components/layout/Container";
 import { Sheet, TornEdge } from "@/components/paper";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { formatRange } from "@/lib/format";
 
 export interface EnterpriseClientWorkProps {
@@ -239,6 +240,11 @@ function Card({ item, index, open, onToggle }: CardProps) {
 export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
   const [openId, setOpenId] = useState<string | null>(null);
   const toggle = useCallback((id: string) => setOpenId((current) => (current === id ? null : id)), []);
+  /** Phone carousel (TASK-233): a dossier belongs to its slide, so leaving the slide closes it (no tall blank gap under the next card). */
+  const slideChanged = useCallback(
+    (index: number) => setOpenId((current) => (current !== null && cases[index]?.id !== current ? null : current)),
+    [cases],
+  );
   return (
     <section id="enterprise" className="pf-enterprise ee-journal" aria-labelledby="pf-enterprise-h">
       <TornEdge fill="paper-2" />
@@ -256,11 +262,13 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
             <ArtImage dir={enterpriseHeaderArt.dir} alt="" />
           </div>
         </header>
-        <ol className="pf-cases ee-grid" aria-label="Enterprise case files">
-          {cases.map((item, index) => (
-            <Card key={item.id} item={item} index={index} open={openId === item.id} onToggle={toggle} />
-          ))}
-        </ol>
+        <MobileCarousel noun="case file" label="Enterprise case files" count={cases.length} onActiveChange={slideChanged}>
+          <ol className="pf-cases ee-grid" aria-label="Enterprise case files">
+            {cases.map((item, index) => (
+              <Card key={item.id} item={item} index={index} open={openId === item.id} onToggle={toggle} />
+            ))}
+          </ol>
+        </MobileCarousel>
       </Container>
     </section>
   );
