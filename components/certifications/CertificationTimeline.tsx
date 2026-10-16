@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
-import { Annotation } from "@/components/paper";
 import type { Certification } from "@/data/certifications";
 import { CredentialLink } from "./CredentialLink";
 import { deckle } from "./deckle";
@@ -18,9 +17,9 @@ import { Chart, Cloud, Gear, IssuerIcon, Lightbulb, Mountain, People, Sparks, St
  * focus lifts the paper (−4 px, −0.6°, a slightly deeper shadow) and nudges the ↗; reduced motion
  * gets the shadow only, no transform. Nothing is hover-only: the micro-label is always visible.
  *
- * EVAL-018 (Design.md §3.2) — `section#certifications` counts 4: the hand-lettered title strip
- * (`note`) · the aside (`annotation`) · ONE text-free collage (`collage`, Dev-40 kind: generated paper
- * scraps, leaf + fern, mountain, stars, sparks) · the footer (`note`: the LEARN/BUILD/APPLY/GROW paper art, "Continuous learning…" strip). The
+ * EVAL-018 (Design.md §3.2) — `section#certifications` counts 3: the hand-lettered title strip
+ * (`note`) · ONE text-free collage (`collage`, Dev-40 kind: generated paper
+ * scraps, leaf + fern, mountain, stars, sparks) · the footer (`note`: the LEARN/BUILD/APPLY/GROW paper art, "Continuous learning…" strip); the aside annotation was removed (TASK-226). The
  * visible title is decoration; the real `<h1>` is sr-only with the same word. The sticky notes are the
  * card's own annotation (Dev-46): `aria-hidden`, their words reach assistive tech through the link's
  * `aria-describedby`, so no information lives only in a decoration.
@@ -188,9 +187,6 @@ export function CertificationTimeline({ certifications }: CertificationTimelineP
             </svg>
             <Sparks className="cert-title-sparks" />
           </p>
-          <Annotation size="lg" rotate={-4} className="cert-aside">
-            Credentials are useful. Applied capability is better.
-          </Annotation>
         </div>
 
         <ol className="cert-list">
