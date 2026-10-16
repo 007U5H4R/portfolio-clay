@@ -50,6 +50,7 @@ export function MobileDock() {
                 <button
                   type="button"
                   className="md-item focus-ring"
+                  aria-label={item.ariaLabel}
                   aria-haspopup="dialog"
                   aria-expanded={panelOpen}
                   onClick={onAsk}

@@ -1,6 +1,6 @@
 /**
  * TASK-224 — the phone-only bottom dock's destinations. Routes are the site's own (`lib/nav`): Home `/`, Experience `/work`,
- * Portfolio `/projects`, About `/about`, Certifications `/certifications` (Experience and Certifications are labelled "Xp" and "Certs" so six labels stay readable, Tushar 2026-10-16) — nothing is invented. "Ask Tushky" is not a route:
+ * Portfolio `/projects`, About `/about`, Certifications `/certifications` (Experience, Certifications and Ask Tushky are labelled "Xp", "Certs" and "Tushky" so six labels stay readable, Tushar 2026-10-16) — nothing is invented. "Ask Tushky" is not a route:
  * the dock opens the existing global Ask drawer (`useAskContext().openPanel`), the same one the header's Ask button opens.
  */
 export interface DockLink {
@@ -12,6 +12,8 @@ export interface DockLink {
 export interface DockAsk {
   kind: "ask";
   label: string;
+  /** Accessible name when the visible label is shortened (it must contain the visible word, WCAG 2.5.3). */
+  ariaLabel?: string;
   icon: string;
 }
 export type DockItem = DockLink | DockAsk;
@@ -22,7 +24,7 @@ export const dockItems: DockItem[] = [
   { kind: "link", label: "Portfolio", href: "/projects", icon: "/media/mobile-nav/portfolio.webp" },
   { kind: "link", label: "About", href: "/about", icon: "/media/mobile-nav/about.webp" },
   { kind: "link", label: "Certs", href: "/certifications", icon: "/media/mobile-nav/certifications.webp" },
-  { kind: "ask", label: "Ask Tushky", icon: "/media/illustrations/tushky-head.webp" },
+  { kind: "ask", label: "Tushky", ariaLabel: "Ask Tushky", icon: "/media/illustrations/tushky-head.webp" },
 ];
 
 /**

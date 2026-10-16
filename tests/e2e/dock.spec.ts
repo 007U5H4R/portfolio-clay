@@ -7,7 +7,7 @@ import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 const DOCK = 'nav[aria-label="Primary mobile"]';
-const LABELS = ["Home", "Xp", "Portfolio", "About", "Certs", "Ask Tushky"];
+const LABELS = ["Home", "Xp", "Portfolio", "About", "Certs", "Tushky"];
 const WIDTHS = [320, 360, 375, 390, 412, 430];
 const ROUTES: { path: string; current: string | null }[] = [
   { path: "/", current: "Home" },
@@ -62,7 +62,7 @@ test.describe("mobile dock (TASK-224)", () => {
           expect(l.scroll, `${l.text} not clipped at ${w}`).toBeLessThanOrEqual(l.client);
           expect(l.textW, `${l.text} text fits its column at ${w} (${l.font}px)`).toBeLessThanOrEqual(l.client + 0.5);
           expect(l.h, `${l.text} single line at ${w}`).toBeLessThan(l.font * 1.6);
-          expect(l.font, `${l.text} label stays readable at ${w}`).toBeGreaterThanOrEqual(9);
+          expect(l.font, `${l.text} label stays readable at ${w}`).toBeGreaterThanOrEqual(10);
         }
         const names = await items.evaluateAll((els) => els.map((e) => e.textContent?.trim()));
         expect(names).toEqual(LABELS);
