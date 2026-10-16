@@ -263,6 +263,6 @@ describe("TASK-123 FAQ cache — contract, coverage and grounding", () => {
 
   it("the file-level woof limit is enforced by the gate", () => {
     const tooMany = FAQ.map((e) => ({ ...e, answer: `${e.answer} Woof woof 🐾` }));
-    expect(checkFaq(tooMany).join("\n")).toMatch(/"woof woof 🐾" in 21 answers/);
+    expect(checkFaq(tooMany).join("\n")).toContain(`"woof woof 🐾" in ${FAQ.length} answers`); // every entry, not a pinned count (TASK-235 added one)
   });
 });

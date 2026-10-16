@@ -121,8 +121,8 @@
       "Tell me about RailCite.",
       "What certifications does he have?"
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-f0fc3703fa1a",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-dd49821c6f5a",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -207,8 +207,8 @@
       "What enterprise programs has he worked on?",
       "What cloud experience does he have?"
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-80c702825a4c",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-b0de1a7fafd8",
     "dependsOn": [
       "skills",
       "experience",
@@ -248,8 +248,8 @@
       "How does he evaluate an AI product?",
       "Walk me through a specific project."
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-4748a96ee2af",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-1d514c202f51",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -399,8 +399,8 @@
       "What did he learn when an assumption failed?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-8dd07c0fc033",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-cc385734d2a1",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -616,8 +616,8 @@
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-7a7379e5ef2a",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-a36486909b6f",
     "dependsOn": [
       "credentials",
       "knowledge"
@@ -654,8 +654,8 @@
       "What impact has he created?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-96c9e51cded7",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-6dfaeae825a7",
     "dependsOn": [
       "knowledge",
       "experience"
@@ -693,8 +693,8 @@
       "What is his product thinking process?",
       "Tell me about Velora."
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-81d489c57728",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-4e5427f3376f",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -734,8 +734,8 @@
       "What did he learn when an assumption failed?",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-10-08",
-    "profileVersion": "v1-ca0ce5eb97f4",
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-459d396b7378",
     "dependsOn": [
       "knowledge",
       "project:railcite",
@@ -807,6 +807,32 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-10-07",
+    "profileVersion": "v1-f77235180d74",
+    "dependsOn": [
+      "profile"
+    ],
+    "reviewed": true
+  },
+  {
+    "id": "easter-egg",
+    "category": "fun",
+    "question": "Where is the hidden easter egg?",
+    "aliases": [
+      "How do I open Gummy Lab?",
+      "Where is the secret game?"
+    ],
+    "answer": "Woof woof! 🐾✨ Ooh, you found the secret question! Here's how: tap the TP logo or Tushar's name at the top of the page five times, fast, all within about 3 seconds. Watch closely, the hints get bigger with every tap… and on the fifth tap, Gummy Lab bursts open! 🍬🎮 Go on, give it a try!",
+    "sources": [
+      {
+        "label": "Home",
+        "href": "/"
+      }
+    ],
+    "followUps": [
+      "What products has Tushar built?",
+      "Who is Tushar?"
+    ],
+    "updatedAt": "2026-10-16",
     "profileVersion": "v1-f77235180d74",
     "dependsOn": [
       "profile"

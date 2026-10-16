@@ -30,6 +30,9 @@ export const SYNONYMS: Record<string, readonly string[]> = {
   railcite: ["railcite", "railway", "circulars", "citation", "citations"],
   teachspark: ["teachspark", "teachers", "teacher", "whatsapp", "worksheets"],
   velora: ["velora", "nuptis", "vendor", "vendors", "onboarding", "apparel", "wedding", "weddings", "sourcing"],
+  // TASK-235: the easter-egg card ("Where is the hidden easter egg?") and how to open Gummy Lab.
+  easteregg: ["easter", "egg", "eggs", "hidden", "secret"],
+  gummy: ["gummy", "lab", "game", "games"],
 };
 
 /** Strip token punctuation the same way `normalise()` does, so hyphenated rows ("product-manager")
