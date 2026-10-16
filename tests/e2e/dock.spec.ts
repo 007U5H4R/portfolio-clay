@@ -152,6 +152,16 @@ test.describe("mobile dock (TASK-224)", () => {
     await page.goto("/", { waitUntil: "load" });
     const blur = await page.locator(DOCK).evaluate((el) => getComputedStyle(el).backdropFilter);
     expect(blur).toContain("blur");
+    // Tushar 2026-10-16: a 0.78 fill read as an opaque toolbar. The fill must stay see-through in both themes.
+    for (const theme of ["light", "dark"] as const) {
+      await setTheme(page, theme);
+      const alpha = await page.locator(DOCK).evaluate((el) => {
+        const m = getComputedStyle(el).backgroundColor.match(/rgba?\(([^)]+)\)/);
+        const parts = m?.[1] ? m[1].split(",").map((x) => Number.parseFloat(x)) : [];
+        return parts.length === 4 ? (parts[3] ?? 1) : 1;
+      });
+      expect(alpha, `dock fill alpha (${theme})`).toBeLessThanOrEqual(0.6);
+    }
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(page.locator(DOCK)).toBeVisible();
   });
