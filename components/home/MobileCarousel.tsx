@@ -24,7 +24,7 @@ export function MobileCarousel({ noun, label, count, children }: { noun: string;
   const [active, setActive] = useState(0);
   const reduced = useRef(false);
 
-  const scroller = useCallback(() => rootRef.current?.querySelector<HTMLElement>(":scope > ul") ?? null, []);
+  const scroller = useCallback(() => rootRef.current?.querySelector<HTMLElement>(":scope > ul, :scope > ol") ?? null, []);
 
   useEffect(() => {
     const list = scroller();

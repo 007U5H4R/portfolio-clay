@@ -31,7 +31,9 @@ test("TASK-209: the detached reference block is gone — nothing but the head an
   await expect(card(page, "publications").locator(".rvx-papers")).toHaveCount(1);
   // every direct child of #research is the head or the card list
   const kids = await page.locator("#research").evaluate((el) => [...el.children].map((c) => c.className));
-  expect(kids).toEqual(["rvx-head", "rvx-artifacts"]);
+  // (TASK-234: the card list sits inside the shared MobileCarousel wrapper, `display: contents` from 640 px up)
+  expect(kids).toEqual(["rvx-head", "hs-carousel"]);
+  await expect(page.locator("#research > .hs-carousel > ul.rvx-artifacts")).toHaveCount(1);
 });
 
 test("TASK-209: each card carries its own links, summary and disclaimer", async ({ page }) => {
@@ -105,7 +107,7 @@ test("TASK-209: at 320 and 390 the research section has no horizontal overflow a
     await openResearch(page);
     const m = await page.evaluate(() => ({
       doc: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      sec: Math.max(0, ...[...document.querySelectorAll("#research-values *")].map((e) => Math.round(e.getBoundingClientRect().right - window.innerWidth))),
+      sec: Math.max(0, ...[...document.querySelectorAll("#research-values *")].filter((e) => !e.closest(".hs-carousel > ul")).map((e) => Math.round(e.getBoundingClientRect().right - window.innerWidth))),
     }));
     expect(m.doc, `doc overflow @${w}`).toBeLessThanOrEqual(0);
     expect(m.sec, `section overflow @${w}`).toBeLessThanOrEqual(0);
@@ -147,7 +149,9 @@ test.describe("normal motion", () => {
             await new Promise((resolve) => setTimeout(resolve, 80));
           }
         });
-        await expect(slot, `reveal @${h}`).toHaveAttribute("data-revealed", "");
+        // TASK-234: on phones the cards are carousel slides; only the active one can intersect, so Reveal fires for the
+        // first and the carousel CSS shows the rest (they must still be fully visible, which is asserted below).
+        if (page.viewportSize()!.width >= 640 || slot === slots[0]) await expect(slot, `reveal @${h}`).toHaveAttribute("data-revealed", "");
         await expect.poll(() => slot.evaluate((el) => `${getComputedStyle(el).opacity}|${getComputedStyle(el).transform}`)).toBe("1|none");
       }
     }

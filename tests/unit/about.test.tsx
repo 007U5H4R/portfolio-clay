@@ -20,6 +20,12 @@ vi.mock("@/components/paper/SceneOpener", () => ({
 }));
 
 beforeEach(() => {
+  // TASK-234: the phone carousels (MobileCarousel) read matchMedia and observe size on mount; jsdom has neither.
+  vi.stubGlobal(
+    "matchMedia",
+    (query: string) => ({ matches: false, media: query, addEventListener() {}, removeEventListener() {} }),
+  );
+  vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} unobserve() {} });
   // `Reveal` observes on mount; jsdom has no IntersectionObserver.
   vi.stubGlobal(
     "IntersectionObserver",
