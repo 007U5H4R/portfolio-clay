@@ -17317,3 +17317,217 @@ html[data-theme-vt]::view-transition-group(root) {
     background: transparent;
   }
 }
+
+/* ==================================================================================================
+   TASK-229 · compact Ask Tushky on phones (< 640 px, the site's existing phone tier, same as the dock).
+   Goal: eyebrow, title + subtitle, the concise intro, a small Tushky with his sticky note, the composer with its send
+   button and "Try asking…" with three prompts all sit in one screen above the dock. Everything is inside the phone media
+   query, so tablet and desktop (and the right-side drawer, which shares none of these classes) render exactly as before.
+   Space priority (the brief): the sticky note goes first on shorter phones, then gaps and the mascot shrink, and only then
+   type; the title, intro, composer and send button never leave the screen. The three extra prompts stay in the data and are
+   reached through the "More questions" button (`.hat-more`, hidden at >= 640 px). Unlayered and last, like TASK-224.
+   ================================================================================================== */
+.hat-more {
+  display: none;
+}
+@media (min-width: 640px) {
+  .hat-try-row {
+    display: contents;
+  }
+}
+@media (max-width: 639px) {
+  .ask-section {
+    padding-top: 12px;
+  }
+  .hat-body {
+    padding-block: 8px 22px;
+  }
+  .hat-grid {
+    gap: 10px;
+  }
+
+  /* --- identity: eyebrow / title / subtitle full width, then intro beside a small Tushky, note under the intro --- */
+  .hat-left {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "eyebrow eyebrow"
+      "title title"
+      "sub sub"
+      "lead dog"
+      "note dog";
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 0;
+  }
+  .hat-intro {
+    display: contents;
+  }
+  .hat-eyebrow {
+    grid-area: eyebrow;
+    font-size: 13px;
+  }
+  .hat-title {
+    grid-area: title;
+    margin-top: 2px;
+    font-size: clamp(34px, 10.4vw, 42px);
+  }
+  .hat-subtitle {
+    grid-area: sub;
+    margin-top: 2px;
+    font-size: 20px;
+    text-underline-offset: 4px;
+  }
+  .hat-lead {
+    grid-area: lead;
+    margin-top: 10px;
+    max-width: none;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+  .hat-mascot {
+    grid-area: dog;
+    align-self: end;
+    justify-self: end;
+    margin-top: 6px;
+    padding-top: 0;
+  }
+  .hat-dog {
+    height: 104px;
+  }
+  .hat-callout {
+    display: none;
+  }
+  .paper-sticky.hat-sticky {
+    grid-area: note;
+    align-self: start;
+    width: min(100%, 190px);
+    margin-top: 14px;
+    padding: 12px 12px 9px;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+  .hat-sticky::before {
+    top: -8px;
+    width: 52px;
+    height: 16px;
+    left: calc(50% - 26px);
+  }
+
+  /* --- the notebook: thinner margins, no heading (its sr-only twin stays), composer first --- */
+  .paper-sheet[data-paper="notebook"].hat-notebook {
+    padding: 12px 10px 8px 26px;
+  }
+  .hat-notebook::before {
+    left: 17px;
+  }
+  .hat-notebook .paper-holes {
+    left: 4px;
+  }
+  .hat-notebook-title {
+    display: none;
+  }
+  .hat-composer {
+    min-height: 52px;
+    margin-top: 6px;
+    padding: 4px 4px 4px 14px;
+    border-radius: 18px;
+  }
+  .hat-send {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* --- prompts: three compact cards in one row; the rest behind "More questions" --- */
+  .hat-try-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .hat-try {
+    margin-top: 0;
+    font-size: 20px;
+  }
+  .hat-more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-navy-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .hat-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 0;
+  }
+  .hat-cards:not([data-more]) > li[data-extra] {
+    display: none;
+  }
+  .hat-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-height: 88px;
+    padding: 8px 7px 8px;
+    border-radius: 14px;
+    font-size: 12.5px;
+    line-height: 1.28;
+  }
+  .hat-card-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .hat-card-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .hat-card-arrow {
+    display: none;
+  }
+  .hat-card-text {
+    flex: 0 1 auto;
+    overflow-wrap: anywhere;
+  }
+
+  /* --- shorter phones: the decorative note first, then the gaps, then the mascot --- */
+  @media (max-height: 780px) {
+    .paper-sticky.hat-sticky {
+      display: none;
+    }
+  }
+  @media (max-height: 640px) {
+    .ask-section {
+      padding-top: 0;
+    }
+    .hat-body {
+      padding-block: 4px 14px;
+    }
+    .hat-card-icon {
+      display: none;
+    }
+    .hat-dog {
+      height: 72px;
+    }
+    .hat-lead {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.38;
+    }
+    .hat-title {
+      font-size: clamp(30px, 9.4vw, 36px);
+    }
+    .hat-subtitle {
+      font-size: 18px;
+    }
+    .hat-card {
+      min-height: 64px;
+    }
+  }
+}
+/* === end TASK-229 === */

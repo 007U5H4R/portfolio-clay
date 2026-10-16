@@ -6,7 +6,7 @@
  *   launch   typed text → drawer from the RIGHT, question auto-submitted, focus returns to the field
  *            each of the six cards → drawer opens and asks that card's question
  *            an empty send opens the empty drawer; focusing the field does not open it (Dev-64)
- *   layout   ≤ 850 px tall at 1440, 44/56 columns, stacks < 1024, single-column cards < 640,
+ *   layout   ≤ 850 px tall at 1440, 44/56 columns, stacks < 1024, three-across compact cards < 640,
  *            no horizontal overflow
  *   a11y     cards are real 44 px+ buttons, the input's aria-label, axe clean, reduced motion shows all
  */
@@ -180,15 +180,20 @@ test.describe("home ask tushky", () => {
     const dog = (await page.locator(".hat-dog").boundingBox())!;
     const panel = (await page.locator(".hat-panel").boundingBox())!;
     expect(panel.x + panel.width).toBeLessThanOrEqual(w + 0.5);
-    const xs = new Set(await cards(page).evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().x))));
+    // TASK-229: on phones three prompts show in one row (the rest sit behind "More questions"), so count the visible ones
+    const xs = new Set(
+      await cards(page).evaluateAll((els) =>
+        els.filter((e) => (e as HTMLElement).offsetParent !== null).map((e) => Math.round(e.getBoundingClientRect().x)),
+      ),
+    );
     if (w < 1024) {
       expect(title.y).toBeLessThan(dog.y);
       expect(dog.y + dog.height).toBeLessThanOrEqual(panel.y + 1); // title → Tushky → notebook
     }
     if (w < 640) {
-      expect(xs.size).toBe(1);
-      expect(dog.height).toBeGreaterThanOrEqual(120);
-      expect(dog.height).toBeLessThanOrEqual(160);
+      expect(xs.size).toBe(3); // TASK-229: one row of three compact prompts
+      expect(dog.height).toBeGreaterThanOrEqual(72);
+      expect(dog.height).toBeLessThanOrEqual(110);
       const composer = (await page.locator(".hat-composer").boundingBox())!;
       expect(composer.width).toBeGreaterThan(panel.width * 0.75); // full-width composer
     } else if (w >= 1024 && w < 1200) {
@@ -202,7 +207,7 @@ test.describe("home ask tushky", () => {
     page,
   }) => {
     await gotoAsk(page);
-    await expect(cards(page)).toHaveCount(6);
+    await expect(cards(page)).toHaveCount(width(page) < 640 ? 3 : 6); // TASK-229: phones show three; the rest sit behind "More questions"
     for (const tag of await cards(page).evaluateAll((els) => els.map((e) => `${e.tagName}:${e.getAttribute("type")}`))) {
       expect(tag).toBe("BUTTON:button");
     }
