@@ -29,17 +29,20 @@ export function MobileCarousel({ noun, label, count, children }: { noun: string;
   useEffect(() => {
     const list = scroller();
     if (!list) return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // Guarded like lib/motion.ts: environments without matchMedia (jsdom unit renders of /about and Home) get
+    // no reduced-motion or phone listeners instead of a crash.
+    const media = (query: string) => (typeof window.matchMedia === "function" ? window.matchMedia(query) : null);
+    const mq = media("(prefers-reduced-motion: reduce)");
     const sync = () => {
-      reduced.current = mq.matches;
+      reduced.current = mq?.matches ?? false;
     };
     sync();
-    mq.addEventListener("change", sync);
+    mq?.addEventListener("change", sync);
     // phones only: the scroll row is a keyboard-focusable region (arrow keys scroll it; axe scrollable-region-focusable)
-    const phone = window.matchMedia("(max-width: 639px)");
-    const focusable = () => (phone.matches ? list.setAttribute("tabindex", "0") : list.removeAttribute("tabindex"));
+    const phone = media("(max-width: 639px)");
+    const focusable = () => (phone?.matches ? list.setAttribute("tabindex", "0") : list.removeAttribute("tabindex"));
     focusable();
-    phone.addEventListener("change", focusable);
+    phone?.addEventListener("change", focusable);
     const slides = () => [...list.children] as HTMLElement[];
 
     let raf = 0;
@@ -73,14 +76,15 @@ export function MobileCarousel({ noun, label, count, children }: { noun: string;
       if (!raf) raf = requestAnimationFrame(paint);
     };
     list.addEventListener("scroll", onScroll, { passive: true });
-    const ro = new ResizeObserver(onScroll);
-    ro.observe(list);
+    // jsdom (unit renders) has no ResizeObserver either: skip the resize resync there, like matchMedia above.
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(onScroll) : null;
+    ro?.observe(list);
     paint();
     return () => {
       list.removeEventListener("scroll", onScroll);
-      ro.disconnect();
-      mq.removeEventListener("change", sync);
-      phone.removeEventListener("change", focusable);
+      ro?.disconnect();
+      mq?.removeEventListener("change", sync);
+      phone?.removeEventListener("change", focusable);
       list.removeAttribute("tabindex");
       if (raf) cancelAnimationFrame(raf);
     };

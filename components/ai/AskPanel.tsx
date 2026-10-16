@@ -140,7 +140,7 @@ export function AskPanel({ faqFreshIds }: AskPanelProps) {
         // TASK-231: on a touch screen, focusing the composer raises the soft keyboard mid-slide; the 100dvh drawer
         // then reflows and the dock hides, so the drawer looked like it loaded twice. There, focus the drawer itself
         // (still trapped by the modal) and let a tap on the composer raise the keyboard. Pointer devices keep it.
-        if (window.matchMedia("(pointer: coarse)").matches) dialog.focus();
+        if (typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches) dialog.focus();
         else inputRef.current?.focus();
       });
       return () => cancelAnimationFrame(frame);
