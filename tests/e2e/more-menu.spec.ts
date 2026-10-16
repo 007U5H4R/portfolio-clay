@@ -10,25 +10,27 @@ test.describe("More menu (TASK-205)", () => {
   test("≥ 640 the More button is not shown", async ({ page }) => {
     test.skip(width(page) < 640, "desktop/tablet only");
     await page.goto("/", { waitUntil: "load" });
-    await expect(page.getByRole("button", { name: "More" })).toBeHidden();
+    await expect(page.getByRole("button", { name: "More", exact: true })).toBeHidden();
   });
 
   test("opens grouped destinations, reuses existing routes, closes with Esc and returns focus", async ({ page, noOverflow }) => {
     test.skip(width(page) >= 640, "phone tier only");
     await page.goto("/", { waitUntil: "load" });
-    const more = page.getByRole("button", { name: "More" });
+    const more = page.getByRole("button", { name: "More", exact: true });
     await expect(more).toHaveAttribute("aria-expanded", "false");
     await more.click();
     const sheet = page.locator("dialog.more-menu");
     await expect(sheet).toBeVisible();
     await expect(more).toHaveAttribute("aria-expanded", "true");
-    for (const group of ["Portfolio", "Explore", "Connect"]) {
+    // TASK-232: the Explore group is gone (Product thinking and Gummy Lab left the drawer; Ask Tushky moved into Portfolio).
+    for (const group of ["Portfolio", "Connect"]) {
       await expect(sheet.getByRole("heading", { name: group })).toBeVisible();
     }
     const hrefs = await sheet.locator("a[href^='/']").evaluateAll((els) => els.map((el) => el.getAttribute("href")));
-    for (const href of ["/", "/work", "/projects", "/about", "/certifications", "/thinking", "/lab", "/contact"]) {
+    for (const href of ["/", "/work", "/projects", "/about", "/certifications", "/contact"]) {
       expect(hrefs, href).toContain(href);
     }
+    for (const href of ["/thinking", "/lab"]) expect(hrefs, href).not.toContain(href);
     const rows = await sheet.locator(".more-row").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
     for (const h of rows) expect(h).toBeGreaterThanOrEqual(44);
     await noOverflow(page);
@@ -40,11 +42,11 @@ test.describe("More menu (TASK-205)", () => {
   test("a destination navigates and closes the sheet; Ask Tushky opens the panel", async ({ page }) => {
     test.skip(width(page) >= 640, "phone tier only");
     await page.goto("/", { waitUntil: "load" });
-    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
     await page.locator("dialog.more-menu").getByRole("link", { name: "Experience" }).click();
     await expect(page).toHaveURL(/\/work$/);
     await expect(page.locator("dialog.more-menu")).toHaveCount(0);
-    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
     await page.locator("dialog.more-menu").getByRole("button", { name: /Ask Tushky/ }).click();
     await expect(page.locator("dialog.more-menu")).toHaveCount(0);
     await expect(page.locator(".ask-panel[data-open]")).toBeVisible();

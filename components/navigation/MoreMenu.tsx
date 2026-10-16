@@ -1,66 +1,154 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type TouchEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronRight, EllipsisVertical, MessageCircle, X } from "lucide-react";
+import { ChevronRight, EllipsisVertical, ExternalLink, X } from "lucide-react";
 import { useAskContext } from "@/components/ai/AskProvider";
-import { activeNavHref, navItems } from "@/lib/nav";
-import { resumeAction, site } from "@/lib/site";
+import { activeMenuHref, menuGroups, type MenuItem } from "@/lib/mobile-menu";
+import { Monogram } from "./Monogram";
 
 /**
- * MoreMenu (TASK-205, mobile redesign): the phone-only secondary-destinations sheet behind the header's "More" button (< 640 px; CSS hides the
- * button at every wider width, so desktop and tablet keep the TASK-112 tab-only header). Every row reuses an existing route or
- * link: the five primary tabs from `lib/nav`, the product-thinking page, Gummy Lab, the Ask Tushky panel (the same one the
- * header's Ask button opens), Contact, and the profile links from `lib/site`. Theme stays on the header's own switch — no second control.
+ * MoreMenu (TASK-205, redesigned TASK-232): the phone-only (< 640 px; CSS hides the kebab at every wider width, so desktop and tablet keep
+ * the tab-only header) paper-craft drawer behind the header's kebab. It slides in from the LEFT and back out to the left. Destinations
+ * are in `lib/mobile-menu` (Portfolio: Home, Experience, Portfolio, Ask Tushky, About, Certifications; Connect: Let's connect, LinkedIn).
+ * "Ask Tushky" opens the same global Ask drawer as the dock. Theme stays on the header's own switch — no second control.
  *
- * Built on a native `<dialog>` opened with `showModal()` (focus trap, Esc, inert page behind it) and mounted only while open, so it adds
- * nothing to the DOM or the first-load JS path until used. It closes on a destination tap, backdrop tap and Esc; focus returns to the button.
+ * Built on a native `<dialog>` opened with `showModal()` (focus trap, Esc, inert page behind it) and mounted only while open or closing,
+ * so it adds nothing to the DOM until used. It closes on ×, backdrop, Esc, a destination tap and a deliberate left swipe; focus returns
+ * to the kebab. Closing plays the slide-out first (skipped under reduced motion). Nothing here focuses a text input.
  */
-const EXPLORE = [
-  { label: "Product thinking", hint: "How I approach a problem", href: "/thinking" },
-  { label: "Gummy Lab", hint: "A tiny game. A big distraction.", href: "/lab" },
-] as const;
+const EXIT_MS = 280;
+
+function LinkedInMark() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <rect x="3" y="9" width="3.8" height="11.5" fill="currentColor" />
+      <circle cx="4.9" cy="4.9" r="2.2" fill="currentColor" />
+      <path d="M10 9h3.6v1.7c.6-1.1 1.9-2 3.7-2 3.6 0 4.2 2.4 4.2 5.4v6.4h-3.8v-5.6c0-1.4 0-3.1-1.9-3.1s-2.2 1.5-2.2 3v5.7H10z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function RowIcon({ icon }: { icon: string }) {
+  return (
+    <span className="more-icon" aria-hidden="true">
+      {icon === "linkedin" ? (
+        <span className="more-in">
+          <LinkedInMark />
+        </span>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element -- 120 px decorative webp, already optimised
+        <img src={icon} alt="" width={40} height={40} loading="eager" decoding="async" draggable={false} />
+      )}
+    </span>
+  );
+}
 
 export function MoreMenu() {
-  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [closing, setClosing] = useState(false);
   const pathname = usePathname();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const swipe = useRef<{ x: number; y: number } | null>(null);
   const { openPanel, triggerRef } = useAskContext();
-  const resume = resumeAction();
 
-  const close = useCallback(() => setOpen(false), []);
+  const finish = useCallback(() => {
+    clearTimeout(timer.current);
+    setClosing(false);
+    setMounted(false);
+  }, []);
+
+  const close = useCallback(() => {
+    if (closing) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return finish();
+    setClosing(true);
+    timer.current = setTimeout(finish, EXIT_MS + 120); // fallback if animationend never fires
+  }, [closing, finish]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (!open || !dialog) return;
+    if (!mounted || !dialog) return;
     if (!dialog.open) dialog.showModal();
     return () => {
       if (dialog.open) dialog.close();
     };
-  }, [open]);
+  }, [mounted]);
 
-  // Return focus to the trigger once the sheet unmounts.
-  const wasOpen = useRef(false);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  // Return focus to the kebab once the drawer unmounts.
+  const wasMounted = useRef(false);
   useEffect(() => {
-    if (wasOpen.current && !open) buttonRef.current?.focus({ preventScroll: true });
-    wasOpen.current = open;
-  }, [open]);
+    if (wasMounted.current && !mounted) buttonRef.current?.focus({ preventScroll: true });
+    wasMounted.current = mounted;
+  }, [mounted]);
 
-  // A tap on the backdrop (the dialog box itself, outside the sheet) or on any destination link closes the sheet; a link still
-  // navigates normally, so the sheet is gone when the new route renders.
+  // Backdrop tap (the dialog box itself, outside the sheet) or any destination link closes the drawer; a link still navigates.
   const onDialogClick = (event: MouseEvent<HTMLDialogElement>) => {
     if (event.target === event.currentTarget || (event.target as Element).closest("a")) close();
   };
 
   const askTushky = () => {
     triggerRef.current = buttonRef.current;
-    setOpen(false);
+    finish(); // the Ask drawer takes over: no slide-out on top of its slide-in
     openPanel();
   };
 
-  const current = activeNavHref(pathname);
+  // Deliberate leftward swipe (mostly horizontal, > 64 px) closes; vertical scrolling inside the drawer is untouched.
+  const onTouchStart = (e: TouchEvent) => {
+    const t = e.touches[0];
+    if (t) swipe.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: TouchEvent) => {
+    const s = swipe.current;
+    swipe.current = null;
+    const t = e.changedTouches[0];
+    if (!s || !t) return;
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (dx < -64 && Math.abs(dx) > Math.abs(dy) * 1.8) close();
+  };
+
+  const current = activeMenuHref(pathname);
+
+  const renderItem = (item: MenuItem) => {
+    if (item.kind === "ask") {
+      return (
+        <button type="button" className="more-row focus-ring" aria-haspopup="dialog" onClick={askTushky}>
+          <RowIcon icon={item.icon} />
+          <span className="more-text">
+            <span className="more-name">{item.label}</span>
+            <small>{item.hint}</small>
+          </span>
+          <ChevronRight className="more-end" aria-hidden="true" size={18} strokeWidth={2} />
+        </button>
+      );
+    }
+    if (item.external) {
+      return (
+        <a href={item.href} className="more-row focus-ring" target="_blank" rel="noopener noreferrer">
+          <RowIcon icon={item.icon} />
+          <span className="more-text">
+            <span className="more-name">{item.label}</span>
+          </span>
+          <ExternalLink className="more-end" aria-hidden="true" size={17} strokeWidth={2} />
+          <span className="sr-only">(opens in a new tab)</span>
+        </a>
+      );
+    }
+    return (
+      <Link href={item.href} className="more-row focus-ring" aria-current={current === item.href ? "page" : undefined}>
+        <RowIcon icon={item.icon} />
+        <span className="more-text">
+          <span className="more-name">{item.label}</span>
+        </span>
+        <ChevronRight className="more-end" aria-hidden="true" size={18} strokeWidth={2} />
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -70,100 +158,63 @@ export function MoreMenu() {
         className="header-more focus-ring"
         aria-label="More"
         aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={open ? "more-menu" : undefined}
-        onClick={() => setOpen(true)}
+        aria-expanded={mounted && !closing}
+        aria-controls={mounted ? "more-menu" : undefined}
+        onClick={() => setMounted(true)}
       >
         <EllipsisVertical aria-hidden="true" size={22} strokeWidth={2.4} />
       </button>
-      {open ? (
+      {mounted ? (
         <dialog
           ref={dialogRef}
           id="more-menu"
           className="more-menu"
-          aria-label="More"
+          data-closing={closing ? "" : undefined}
+          aria-label="Menu"
           onClick={onDialogClick}
           onCancel={(event) => {
             event.preventDefault();
             close();
           }}
         >
-          <div className="more-sheet">
+          <div
+            className="more-sheet"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+            onAnimationEnd={(e) => {
+              if (closing && e.target === e.currentTarget) finish();
+            }}
+          >
             <div className="more-head">
-              <p className="more-title">Menu</p>
+              <div className="more-brand" aria-hidden="true">
+                <span className="more-tile">
+                  <Monogram />
+                </span>
+                <span className="more-wordmark">TUSHAR PATHAK</span>
+              </div>
               <button type="button" className="more-close focus-ring" aria-label="Close menu" onClick={close}>
-                <X aria-hidden="true" size={20} strokeWidth={1.75} />
+                <X aria-hidden="true" size={20} strokeWidth={2} />
               </button>
             </div>
 
-            <nav aria-label="Portfolio" className="more-group">
-              <h2 className="more-label">Portfolio</h2>
-              <ul>
-                {navItems.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="more-row focus-ring"
-                      aria-current={current === item.href ? "page" : undefined}
-                    >
-                      <span>{item.label}</span>
-                      <ChevronRight aria-hidden="true" size={18} strokeWidth={1.75} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <div className="more-scroll" data-lenis-prevent="">
+              <div className="more-titlebar">
+                <p className="more-title">Menu</p>
+                <span className="more-deco" aria-hidden="true" />
+              </div>
 
-            <nav aria-label="Explore" className="more-group">
-              <h2 className="more-label">Explore</h2>
-              <ul>
-                {EXPLORE.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className="more-row focus-ring" aria-current={pathname === item.href ? "page" : undefined}>
-                      <span>
-                        {item.label}
-                        <small>{item.hint}</small>
-                      </span>
-                      <ChevronRight aria-hidden="true" size={18} strokeWidth={1.75} />
-                    </Link>
-                  </li>
-                ))}
-                <li>
-                  <button type="button" className="more-row focus-ring" onClick={askTushky}>
-                    <span>
-                      Ask Tushky
-                      <small>Questions about my work</small>
-                    </span>
-                    <MessageCircle aria-hidden="true" size={18} strokeWidth={1.75} />
-                  </button>
-                </li>
-              </ul>
-            </nav>
-
-            <nav aria-label="Connect" className="more-group">
-              <h2 className="more-label">Connect</h2>
-              <ul>
-                <li>
-                  <Link href="/contact" className="more-row focus-ring" aria-current={pathname === "/contact" ? "page" : undefined}>
-                    <span>Let&apos;s connect</span>
-                    <ChevronRight aria-hidden="true" size={18} strokeWidth={1.75} />
-                  </Link>
-                </li>
-                {[
-                  { label: "LinkedIn", href: site.linkedin },
-                  { label: "GitHub", href: site.github },
-                  { label: "Resume", href: resume.href },
-                ].map((link) => (
-                  <li key={link.href}>
-                    <a href={link.href} className="more-row focus-ring" target="_blank" rel="noopener noreferrer">
-                      <span>{link.label}</span>
-                      <ArrowUpRight aria-hidden="true" size={18} strokeWidth={1.75} />
-                      <span className="sr-only">(opens in a new tab)</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+              {menuGroups.map((group) => (
+                <nav key={group.label} aria-label={group.label} className="more-group">
+                  <h2 className="more-label">{group.label}</h2>
+                  <ul>
+                    {group.items.map((item) => (
+                      <li key={item.label}>{renderItem(item)}</li>
+                    ))}
+                  </ul>
+                </nav>
+              ))}
+              <div className="more-land" aria-hidden="true" />
+            </div>
           </div>
         </dialog>
       ) : null}

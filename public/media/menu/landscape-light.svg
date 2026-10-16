@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" preserveAspectRatio="xMidYMax slice">
+<path d="M0 120V70L40 40L70 62L110 30L150 66L190 48L230 72L270 44L320 76V120Z" fill="#e9d3ad"/>
+<path d="M110 30L150 66L125 66Z M270 44L320 76L290 76Z M40 40L70 62L52 62Z" fill="#f6e6c8"/>
+<path d="M0 120V84L60 54L98 80L150 46L200 84L246 62L320 92V120Z" fill="#8f9f86"/>
+<path d="M150 46L200 84L168 84Z M60 54L98 80L76 80Z" fill="#a9b8a0"/>
+<path d="M120 120V90L190 40L250 84L320 58V120Z" fill="#6f87a3"/>
+<path d="M190 40L250 84L212 84Z" fill="#8ea4be"/><path d="M190 40L178 56L186 56Z" fill="#f4f1e8"/>
+<path d="M0 120V100L70 86L140 102L220 92L320 106V120Z" fill="#d9b98a"/>
+<path d="M0 120V108L80 100L170 112L260 102L320 110V120Z" fill="#c9a672"/>
+<g transform="translate(18 108) scale(1.1)"><path d="M0 -34 L10 -8 L-10 -8Z" fill="#2f7a4e"/><path d="M0 -34 L10 -8 L2 -8Z" fill="#1f5c3a"/><path d="M0 -24 L13 4 L-13 4Z" fill="#2f7a4e"/><path d="M0 -24 L13 4 L3 4Z" fill="#1f5c3a"/><rect x="-2" y="4" width="4" height="5" fill="#6b4a32"/></g> <g transform="translate(44 112) scale(0.8)"><path d="M0 -34 L10 -8 L-10 -8Z" fill="#3c8a58"/><path d="M0 -34 L10 -8 L2 -8Z" fill="#276b45"/><path d="M0 -24 L13 4 L-13 4Z" fill="#3c8a58"/><path d="M0 -24 L13 4 L3 4Z" fill="#276b45"/><rect x="-2" y="4" width="4" height="5" fill="#6b4a32"/></g> <g transform="translate(285 110) scale(1.0)"><path d="M0 -34 L10 -8 L-10 -8Z" fill="#2f7a4e"/><path d="M0 -34 L10 -8 L2 -8Z" fill="#1f5c3a"/><path d="M0 -24 L13 4 L-13 4Z" fill="#2f7a4e"/><path d="M0 -24 L13 4 L3 4Z" fill="#1f5c3a"/><rect x="-2" y="4" width="4" height="5" fill="#6b4a32"/></g> <g transform="translate(306 114) scale(0.8)"><path d="M0 -34 L10 -8 L-10 -8Z" fill="#3c8a58"/><path d="M0 -34 L10 -8 L2 -8Z" fill="#276b45"/><path d="M0 -24 L13 4 L-13 4Z" fill="#3c8a58"/><path d="M0 -24 L13 4 L3 4Z" fill="#276b45"/><rect x="-2" y="4" width="4" height="5" fill="#6b4a32"/></g> <g transform="translate(70 116) scale(0.6)"><path d="M0 -34 L10 -8 L-10 -8Z" fill="#2f7a4e"/><path d="M0 -34 L10 -8 L2 -8Z" fill="#1f5c3a"/><path d="M0 -24 L13 4 L-13 4Z" fill="#2f7a4e"/><path d="M0 -24 L13 4 L3 4Z" fill="#1f5c3a"/><rect x="-2" y="4" width="4" height="5" fill="#6b4a32"/></g>
+</svg>
