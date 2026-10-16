@@ -23,6 +23,7 @@ const overflow = (page: Page) => page.evaluate(() => document.documentElement.sc
 
 test.describe("T4 chrome", () => {
   test("TC-T4-01 nav is unchanged in content, current tab is marked, tabs are keyboard reachable", async ({ page }) => {
+    test.skip(width(page) < 640, "phones: the tab strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
     await page.goto("/about", { waitUntil: "load" });
     const nav = page.locator('header nav[aria-label="Primary"]');
     for (const item of navItems) await expect(nav.locator(`a[href="${item.href}"]`)).toHaveText(item.label);

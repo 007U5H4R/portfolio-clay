@@ -3,7 +3,8 @@
  * there in top nav bar."; Design.md §4.1, §11 Dev-97) — the primary nav is a row of tabs at every
  * width. ≥ 1440 one header row (unchanged); below 1440 a second row whose tab strip scrolls
  * horizontally, with the active tab scrolled into view and a paper fade while more tabs lie beyond.
- * Runs in all four viewport projects.
+ * Runs in all four viewport projects. TASK-224: below 640 the strip is gone (the bottom dock carries the destinations), so the
+ * strip cases skip there and the phone header is asserted separately.
  */
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
@@ -35,16 +36,30 @@ test.describe("header tabs (TASK-112)", () => {
     await expect(header.getByRole("button", { name: "Ask AI" })).toBeVisible();
   });
 
-  test("< 640 (TASK-205): the compact header has Ask, theme and More; the pill moved into the More sheet", async ({ page }) => {
+  test("< 640 (TASK-205, TASK-224): the compact header has More (left), the brand lockup (centred) and theme (right); Ask moved to the dock", async ({ page }) => {
     test.skip(width(page) >= 640, "phone tier only");
     await page.goto("/", { waitUntil: "load" });
     const header = page.locator("header[data-site-header]");
     await expect(header.getByRole("button", { name: "More" })).toBeVisible();
-    await expect(header.getByRole("button", { name: "Ask AI" })).toBeVisible();
+    await expect(header.getByRole("switch")).toBeVisible();
+    await expect(header.getByRole("button", { name: "Ask AI" })).toBeHidden();
     await expect(header.getByRole("link", { name: /Let's connect/ })).toBeHidden();
+    // The tab strip is removed from the layout, not hidden behind the header.
+    await expect(header.locator("nav[aria-label='Primary']")).toBeHidden();
+    // Brand lockup centred on the viewport (equal 1fr side columns), kebab left of it, toggle right of it.
+    const box = async (sel: string) => (await header.locator(sel).first().boundingBox())!;
+    const brand = await box(".header-brand");
+    const more = await box(".header-more");
+    const toggle = await box(".theme-toggle");
+    const vw = width(page);
+    expect(Math.abs(brand.x + brand.width / 2 - vw / 2), "lockup centred").toBeLessThanOrEqual(1);
+    expect(more.x + more.width).toBeLessThanOrEqual(brand.x);
+    expect(toggle.x).toBeGreaterThanOrEqual(brand.x + brand.width);
+    expect(Math.abs(brand.y + brand.height / 2 - (more.y + more.height / 2)), "one line").toBeLessThanOrEqual(2);
   });
 
   test("every nav tab is visible or reachable by scrolling the strip, ≥ 44 px tall, ≥ 16 px apart", async ({ page }) => {
+    test.skip(width(page) < 640, "phones: the strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
     await page.goto("/", { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const links = strip(page).locator("a");
@@ -67,30 +82,6 @@ test.describe("header tabs (TASK-112)", () => {
     }
   });
 
-  test("the active tab has aria-current and is scrolled into view on load at 390 (/certifications)", async ({ page }) => {
-    test.skip(width(page) !== 390, "the strip overflows at 390");
-    await page.goto("/certifications", { waitUntil: "load" });
-    const active = strip(page).locator('a[aria-current="page"]');
-    await expect(active).toHaveCount(1);
-    await expect(active).toHaveAttribute("href", "/certifications");
-    await expect.poll(() => inStrip(page, "/certifications")).toBe(true);
-    expect(await strip(page).evaluate((el) => el.scrollLeft), "the strip scrolled, not the page").toBeGreaterThan(0);
-    expect(await page.evaluate(() => window.scrollY), "no vertical page scroll from the reveal").toBe(0);
-    // Scrolled to the end, so no "more tabs" fade.
-    await expect(page.locator(".header-tabs")).not.toHaveAttribute("data-more", "");
-  });
-
-  test("at 390 the right-edge fade shows while tabs lie beyond and clears at the end", async ({ page }) => {
-    test.skip(width(page) !== 390, "the strip overflows at 390");
-    await page.goto("/", { waitUntil: "load" });
-    const wrap = page.locator(".header-tabs");
-    await expect(wrap).toHaveAttribute("data-more", "");
-    const fade = await wrap.evaluate((el) => getComputedStyle(el, "::after").opacity);
-    expect(fade).toBe("1");
-    await strip(page).evaluate((el) => (el.scrollLeft = el.scrollWidth));
-    await expect(wrap).not.toHaveAttribute("data-more", "");
-  });
-
   test("the page never scrolls horizontally", async ({ page, noOverflow }) => {
     for (const route of ["/", "/certifications", "/work"]) {
       await page.goto(route, { waitUntil: "load" });
@@ -99,11 +90,11 @@ test.describe("header tabs (TASK-112)", () => {
     }
   });
 
-  test("header height (TASK-192): one fixed sheet per tier — ~108 px phone (< 640, TASK-205), ~119 px phablet, ~137 px two-row tablet, ~124 px one row at ≥ 1280", async ({ page }) => {
+  test("header height (TASK-192): one fixed sheet per tier — ~69 px phone (< 640, TASK-224: no tab strip), ~119 px phablet, ~137 px two-row tablet, ~124 px one row at ≥ 1280", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     const h = (await page.locator("header[data-site-header]").boundingBox())!.height;
     test.info().annotations.push({ type: "header-height", description: `${width(page)}: ${h}px` });
-    const expected = width(page) < 640 ? 108 : width(page) < 768 ? 119 : width(page) < 1280 ? 137 : 124;
+    const expected = width(page) < 640 ? 69 : width(page) < 768 ? 119 : width(page) < 1280 ? 137 : 124;
     expect(Math.abs(h - expected), `header ${h}px at ${width(page)} vs --header-h ${expected}`).toBeLessThanOrEqual(2);
   });
 });

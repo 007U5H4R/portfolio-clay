@@ -4,7 +4,7 @@
  * Run with --project=w390 --project=w768 (add w1440 for the desktop regression set).
  */
 import { mkdirSync } from "node:fs";
-import { test } from "./fixtures";
+import { test, askTrigger } from "./fixtures";
 import { THEME_KEY } from "@/lib/theme";
 
 const OUT = `docs/screenshots/m-013/task-205/${process.env.SHOTS_TAG ?? "after"}`;
@@ -66,7 +66,7 @@ test.describe("TASK-205 screenshots", () => {
       }
       // Ask Tushky (the existing panel, opened from the header) at every width.
       await page.goto("/", { waitUntil: "load" });
-      await page.locator("header").getByRole("button", { name: "Ask AI" }).click();
+      await askTrigger(page).click();
       await page.waitForTimeout(900);
       await page.screenshot({ path: `${OUT}/ask-${theme}-${w}.png` });
     });

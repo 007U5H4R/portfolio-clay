@@ -12,6 +12,7 @@ const nav = (page: Page) => page.locator('header nav[aria-label="Primary"]');
 
 test.describe("origami header (TASK-192)", () => {
   test("five real tabs navigate, and the active tab follows the route", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 0) < 640, "phones: the tab strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
     expect(navItems.map((i) => i.label)).toEqual(["Home", "Experience", "Portfolio", "About", "Certifications"]);
     for (const item of navItems) {
       await page.goto("/", { waitUntil: "load" });
@@ -27,6 +28,7 @@ test.describe("origami header (TASK-192)", () => {
   });
 
   test("keyboard focus on a tab is clearly visible (the shared ring) and the tab rises with it", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 0) < 640, "phones: the tab strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
     await page.goto("/about", { waitUntil: "load" });
     await page.keyboard.press("Shift");
     const tab = nav(page).locator('a:not([aria-current="page"])').first();
@@ -41,6 +43,7 @@ test.describe("origami header (TASK-192)", () => {
   });
 
   test("the sparkle is the Ask AI control and opens Tushky", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 0) < 640, "phones: the header Ask button is replaced by the dock's Ask Tushky item (TASK-224)");
     await page.goto("/", { waitUntil: "load" });
     const sparkle = page.locator("header").getByRole("button", { name: "Ask AI" });
     await expect(sparkle).toBeVisible();
@@ -95,6 +98,7 @@ test.describe("origami header (TASK-192)", () => {
   });
 
   test("the terrain stays a thin band: it never rises behind a tab label or the CTA", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 0) < 640, "phones: the tab strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
     await page.goto("/", { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const clashes = await page.evaluate(() => {

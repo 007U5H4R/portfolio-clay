@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronRight, Menu, MessageCircle, X } from "lucide-react";
+import { ArrowUpRight, ChevronRight, EllipsisVertical, MessageCircle, X } from "lucide-react";
 import { useAskContext } from "@/components/ai/AskProvider";
 import { activeNavHref, navItems } from "@/lib/nav";
 import { resumeAction, site } from "@/lib/site";
@@ -74,7 +74,7 @@ export function MoreMenu() {
         aria-controls={open ? "more-menu" : undefined}
         onClick={() => setOpen(true)}
       >
-        <Menu aria-hidden="true" size={20} strokeWidth={1.75} />
+        <EllipsisVertical aria-hidden="true" size={22} strokeWidth={2.4} />
       </button>
       {open ? (
         <dialog
