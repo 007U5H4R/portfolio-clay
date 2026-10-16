@@ -7,11 +7,11 @@ import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 const DOCK = 'nav[aria-label="Primary mobile"]';
-const LABELS = ["Home", "Experience", "Portfolio", "About", "Certs", "Ask Tushky"];
+const LABELS = ["Home", "Xp", "Portfolio", "About", "Certs", "Ask Tushky"];
 const WIDTHS = [320, 360, 375, 390, 412, 430];
 const ROUTES: { path: string; current: string | null }[] = [
   { path: "/", current: "Home" },
-  { path: "/work", current: "Experience" },
+  { path: "/work", current: "Xp" },
   { path: "/work/teachspark", current: "Portfolio" },
   { path: "/projects", current: "Portfolio" },
   { path: "/about", current: "About" },
