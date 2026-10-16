@@ -22,13 +22,15 @@ test.describe("More menu (TASK-205)", () => {
     const sheet = page.locator("dialog.more-menu");
     await expect(sheet).toBeVisible();
     await expect(more).toHaveAttribute("aria-expanded", "true");
-    for (const group of ["Portfolio", "Explore", "Connect"]) {
+    // TASK-232: the Explore group is gone (Product thinking and Gummy Lab left the drawer; Ask Tushky moved into Portfolio).
+    for (const group of ["Portfolio", "Connect"]) {
       await expect(sheet.getByRole("heading", { name: group })).toBeVisible();
     }
     const hrefs = await sheet.locator("a[href^='/']").evaluateAll((els) => els.map((el) => el.getAttribute("href")));
-    for (const href of ["/", "/work", "/projects", "/about", "/certifications", "/thinking", "/lab", "/contact"]) {
+    for (const href of ["/", "/work", "/projects", "/about", "/certifications", "/contact"]) {
       expect(hrefs, href).toContain(href);
     }
+    for (const href of ["/thinking", "/lab"]) expect(hrefs, href).not.toContain(href);
     const rows = await sheet.locator(".more-row").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
     for (const h of rows) expect(h).toBeGreaterThanOrEqual(44);
     await noOverflow(page);
