@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
-import { Annotation, Sheet, Tape, TornEdge } from "@/components/paper";
+import { Sheet, Tape, TornEdge } from "@/components/paper";
 import { deckle } from "./deckle";
 import { ENTRY_ART, type OrgLogo } from "./logos";
 
@@ -16,9 +16,9 @@ import { ENTRY_ART, type OrgLogo } from "./logos";
  * verbatim from `data/*.ts` (the caller maps it); nothing here authors content.
  *
  * EVAL-018 (Design.md §3.2) — counted decorations per section: the torn top (Education only) · the
- * hand-lettered title strip (`note`) · the aside (`annotation`) · ONE collage object (`collage`, the
- * TKT-99 Dev-40 kind) that carries every doodle, sticky and the generated building / campus vignette
- * behind each logo (`ENTRY_ART`, `alt=""`) → 3 (Work) / 4 (Education).
+ * hand-lettered title strip (`note`) · ONE collage object (`collage`, the TKT-99 Dev-40 kind) that carries
+ * every doodle, sticky and the generated building / campus vignette behind each logo (`ENTRY_ART`, `alt=""`)
+ * → 2 (Work) / 3 (Education). TASK-223 (Tushar 2026-10-16) removed the hand-written aside.
  * The visible title is decoration; the real `<h2>` is sr-only with the same words, so the heading
  * outline and the a11y tree are unchanged and no Caveat heading exists (§3.4).
  *
@@ -60,7 +60,6 @@ export interface TimelineEntry {
 export interface CollageTimelineProps {
   id: string;
   title: string;
-  aside: string;
   entries: TimelineEntry[];
   /** Per-entry collage pieces (keyed by entry id) — rendered inside the one aria-hidden collage object. */
   doodles: Record<string, ReactNode>;
@@ -209,7 +208,7 @@ function TitleSparks() {
   );
 }
 
-export function CollageTimeline({ id, title, aside, entries, doodles, torn = false, className }: CollageTimelineProps) {
+export function CollageTimeline({ id, title, entries, doodles, torn = false, className }: CollageTimelineProps) {
   const headingId = `${id}-heading`;
   const rows = { gridTemplateRows: `repeat(${entries.length}, auto)` } as CSSProperties;
   return (
@@ -225,9 +224,6 @@ export function CollageTimeline({ id, title, aside, entries, doodles, torn = fal
             <span className="ct-title-text">{title}</span>
             <TitleSparks />
           </p>
-          <Annotation arrow="down" size="lg" rotate={-3} className="ct-aside">
-            {aside}
-          </Annotation>
         </div>
 
         <div className="ct-grid" style={rows}>

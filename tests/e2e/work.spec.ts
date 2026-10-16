@@ -8,7 +8,7 @@
  *   @EVAL-008 — no horizontal overflow at 390 / 768 / 1024 / 1440; card text ≥ 14 px.
  *   @EVAL-010 — reduced motion: no scroll-driven drift (plain scroll).
  *   @EVAL-013 — logos carry the organisation's name as alt; every logo file serves.
- *   @EVAL-018 — Work 3 decorations, Education 4 (torn · note · annotation · collage) at 390 and 1440.
+ *   @EVAL-018 — Work 2 decorations, Education 3 (torn · note · collage; TASK-223 removed the asides) at 390 and 1440.
  */
 import { test, expect } from "./fixtures";
 import { experience } from "@/data/experience";
@@ -59,7 +59,7 @@ test("@EVAL-013 logos: alt = organisation name, and every logo file serves", { t
   }
 });
 
-test("@EVAL-018 decoration counts: Work 3 · Education 4", { tag: "@EVAL-018" }, async ({ page }) => {
+test("@EVAL-018 decoration counts: Work 2 · Education 3", { tag: "@EVAL-018" }, async ({ page }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "counts asserted at the two boundary widths");
   await page.goto("/work", { waitUntil: "load" });
   const counts = await page.evaluate(() => {
@@ -69,7 +69,7 @@ test("@EVAL-018 decoration counts: Work 3 · Education 4", { tag: "@EVAL-018" },
         .map((d) => d.getAttribute("data-decor"));
     return { work: decor("work-experience"), edu: decor("education") };
   });
-  expect(counts).toEqual({ work: ["note", "annotation", "collage"], edu: ["torn", "note", "annotation", "collage"] });
+  expect(counts).toEqual({ work: ["note", "collage"], edu: ["torn", "note", "collage"] });
 });
 
 test("@EVAL-008 no horizontal overflow; card copy ≥ 14 px", { tag: "@EVAL-008" }, async ({ page, noOverflow, minTargets }) => {

@@ -127,7 +127,6 @@ export default function ExperiencePage() {
           id="work-experience"
           className="xp-work"
           title="Work Experience"
-          aside="Different problems. Same curiosity. Bigger impact."
           entries={workEntries}
           doodles={WORK_DOODLES}
         />
@@ -135,7 +134,6 @@ export default function ExperiencePage() {
           id="education"
           className="xp-edu"
           title="Education"
-          aside="From engineering foundations to research-driven thinking."
           entries={eduEntries}
           doodles={EDU_DOODLES}
           torn
