@@ -288,5 +288,14 @@ export const test = base.extend<TracerFixtures>({
   },
 });
 
+/**
+ * The control that opens the Ask Tushky drawer at the current width (TASK-224): the header's "Ask AI" button from 640 up; on
+ * phones the header button is removed and the bottom dock's "Ask Tushky" item opens the same drawer.
+ */
+export const askTrigger = (page: Page) =>
+  (page.viewportSize()?.width ?? 0) < 640
+    ? page.locator('nav[aria-label="Primary mobile"]').getByRole("button", { name: "Ask Tushky" })
+    : page.locator("header").getByRole("button", { name: "Ask AI" });
+
 export { expect };
 export { MIN_TARGET_ALLOWLIST };

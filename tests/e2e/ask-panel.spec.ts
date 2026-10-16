@@ -11,7 +11,7 @@
  *
  * Titles carry the `ask-panel` prefix so `pnpm test:e2e --grep ask-panel` selects this file.
  */
-import { test, expect } from "./fixtures";
+import { test, expect, askTrigger } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
@@ -26,11 +26,11 @@ const conversation = (page: Page) => panel(page).getByRole("log", { name: "Conve
 const lastAnswer = (page: Page) => panel(page).locator('.tk-turn[data-role="tushky"]').last();
 
 /**
- * The header's Ask ghost — shown at every width since the hamburger went (TASK-112), so there is one
- * trigger for every viewport project.
+ * The Ask trigger for the current width: the header's Ask ghost from 640 up, the bottom dock's "Ask Tushky" item on phones
+ * (TASK-224) — one trigger for every viewport project.
  */
 async function trigger(page: Page) {
-  const ghost = page.locator("header").getByRole("button", { name: "Ask AI" });
+  const ghost = askTrigger(page);
   await expect(ghost).toBeVisible();
   return ghost;
 }

@@ -101,6 +101,7 @@ test("header subline annotation is absent from the DOM < 640 and present + aria-
 });
 
 test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every width, no menu (TASK-112), aria-current carries the terracotta active layer on /work", async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 640, "phones: the tab strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
   await page.goto("/work", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const links = nav.locator("a");
@@ -483,7 +484,9 @@ test("band footer geometry: social circles 48 px with names, no overflow, safe-a
   // the text band, so measure the footer minus [data-band-ocean].
   const bandBox = await band.boundingBox();
   const oceanBox = await band.locator("[data-band-ocean]").boundingBox();
-  const textHeight = bandBox!.height - (oceanBox?.height ?? 0);
+  // TASK-224: below 640 the footer also reserves room for the bottom dock (64 px + 20 px buffer; no safe-area inset in the test browser).
+  const dockReserve = width(page) < 640 ? 84 : 0;
+  const textHeight = bandBox!.height - (oceanBox?.height ?? 0) - dockReserve;
   expect(textHeight, "compact band height excluding the ocean (Dev-43, Dev-175)").toBeLessThanOrEqual(width(page) === 1440 ? 400 : 580);
   const email = await band.locator(".band-email").boundingBox();
   expect(email!.height, "email link is a ≥ 44 px target").toBeGreaterThanOrEqual(44);

@@ -268,6 +268,7 @@ test("header keeps one height as an opaque paper sheet; scrolling only deepens i
 // terracotta active paper layer (.hn-strip); the ink-stroke underline svg is gone.
 // ---------------------------------------------------------------------------
 test("active nav link is marked current and carries the terracotta active layer", async ({ page }) => {
+  test.skip(width(page) < 640, "phones: the tab strip is replaced by the bottom dock (TASK-224, dock.spec.ts)");
   await page.goto("/", { waitUntil: "load" });
   const nav = page.locator('header nav[aria-label="Primary"]').first();
   const active = nav.locator('a[aria-current="page"]');
@@ -286,15 +287,18 @@ test("active nav link is marked current and carries the terracotta active layer"
 // ---------------------------------------------------------------------------
 // S04.05 → TASK-112 — no MobileMenu any more: the header carries the tabs at 390, axe clean
 // ---------------------------------------------------------------------------
-test("no menu button at 390; the header tab strip is axe clean", {
+test("no hamburger at 390; the compact header and the bottom dock are axe clean", {
   tag: "@EVAL-006",
 }, async ({ page, axe }) => {
   test.skip(width(page) !== 390, "the phone-width header");
   await page.goto("/", { waitUntil: "load" });
   await expect(page.locator("header").getByRole("button", { name: /menu/i })).toHaveCount(0);
   await expect(page.locator("dialog")).toHaveCount(0);
-  await expect(page.locator('header nav[aria-label="Primary"]')).toBeVisible();
+  // TASK-224: the tab strip is gone on phones; the dock is the primary nav.
+  await expect(page.locator('header nav[aria-label="Primary"]')).toBeHidden();
+  await expect(page.locator('nav[aria-label="Primary mobile"]')).toBeVisible();
   await axe(page, { include: "header" });
+  await axe(page, { include: "nav[aria-label='Primary mobile']" });
 });
 
 // ---------------------------------------------------------------------------

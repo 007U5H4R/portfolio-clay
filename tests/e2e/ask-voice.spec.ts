@@ -12,7 +12,7 @@
  *
  * Titles carry the `ask-voice` prefix so `pnpm test:e2e --grep ask-voice` selects this file.
  */
-import { test, expect } from "./fixtures";
+import { test, expect, askTrigger } from "./fixtures";
 import type { Page, Route } from "@playwright/test";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
@@ -81,7 +81,7 @@ const audioPaused = (page: Page) => page.evaluate(() => (window as unknown as { 
 async function openAndAsk(page: Page, question: string): Promise<void> {
   if (!(await panel(page).isVisible().catch(() => false))) {
     await page.goto("/", { waitUntil: "load" });
-    await page.locator("header").getByRole("button", { name: "Ask AI" }).click();
+    await askTrigger(page).click();
     await expect(panel(page)).toHaveAttribute("data-open", "");
   }
   const before = await turns(page).count();
@@ -159,7 +159,7 @@ test.describe("ask-voice", () => {
     expect(await audioPaused(page)).toBe(true);
     await page.waitForTimeout(400);
     expect(await audioPaused(page)).toBe(true);
-    await page.locator("header").getByRole("button", { name: "Ask AI" }).click();
+    await askTrigger(page).click();
     await expect(panel(page)).toHaveAttribute("data-mode", "empty");
     expect(await audioPaused(page)).toBe(true);
   });
@@ -194,7 +194,7 @@ test.describe("ask-voice", () => {
   test("a refusal (the empty fallback) gets no voice strip", async ({ page }) => {
     await mockSpeech(page, audioReply(1));
     await page.goto("/", { waitUntil: "load" });
-    await page.locator("header").getByRole("button", { name: "Ask AI" }).click();
+    await askTrigger(page).click();
     await input(page).fill("what is the weather in paris");
     await input(page).press("Enter");
     await expect(turns(page).last()).toHaveAttribute("data-msg", "empty");

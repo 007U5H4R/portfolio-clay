@@ -12,6 +12,7 @@ import type { FaqEntry } from "@/lib/ask/faq";
 import { freshFaqIds } from "@/lib/ask/faq-versions";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
+import { MobileDock } from "@/components/navigation/MobileDock";
 import { BandFooter } from "@/components/layout/BandFooter";
 import { HideOnLab } from "@/components/layout/HideOnLab";
 import { AskProvider } from "@/components/ai/AskProvider";
@@ -105,6 +106,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {/* The lab covers the page; its footer animations starved the lab's WebGL boot (TASK-143). */}
           <HideOnLab>
             <BandFooter />
+            {/* TASK-224: the phone-only bottom dock (CSS hides it from 640 up); hidden with the footer on the lab. */}
+            <MobileDock />
           </HideOnLab>
         </AskProvider>
         {/*
