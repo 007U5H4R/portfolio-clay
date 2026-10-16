@@ -17735,3 +17735,52 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-233 === */
+
+/* === TASK-236 · phone footer: compact the contact block above the waves ===================================
+   Tushar 2026-10-16 (foot.md + approved mockup): on phones only (< 640 px) the "Let's connect" content ABOVE the
+   paper sea is tightened — spacing and type metrics only, same markup, same order, same words, links and
+   destinations. Every rule targets the content container (.band-wrap and its children, .band-body's own children);
+   nothing here touches .band-ocean, .ocean-*, the ship, their keyframes or sizes, the dock-clearing padding on
+   .band, the email's mailto/route or the social hrefs. The controls stay >= 44 x 44 (email link min-height 44,
+   social circles stay 48). ≥ 640 px (tablet, desktop) never matches this block. */
+@layer components {
+  @media (max-width: 639px) {
+    .band-wrap {
+      padding-top: 16px;
+    }
+    .band-eyebrow {
+      line-height: 1.2;
+    }
+    .band-h {
+      margin-top: 2px;
+      line-height: 1;
+    }
+    .band-hire {
+      margin-top: 6px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+    .band-row {
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .band-label {
+      margin-bottom: 0;
+      line-height: 1.25;
+    }
+    .band-email {
+      font-size: clamp(16px, 4.6vw, 18px);
+    }
+    .band-social {
+      gap: 8px;
+    }
+    .band-bar {
+      gap: 2px 24px;
+      margin-top: 12px;
+      padding-top: 10px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      line-height: 1.4;
+    }
+  }
+}
+/* === end TASK-236 === */
