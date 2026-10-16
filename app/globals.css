@@ -17241,7 +17241,6 @@ html[data-theme-vt]::view-transition-group(root) {
     opacity: 1;
     transform: none;
     pointer-events: auto;
-    transition: none;
   }
   /* compact framing so heading + card + dots + dock read as one screen where the card allows it */
   .hs-wrap:has(.hs-carousel) {
@@ -17277,13 +17276,13 @@ html[data-theme-vt]::view-transition-group(root) {
     --dot: color-mix(in oklab, var(--color-navy) 30%, transparent);
     position: relative;
     display: flex;
-    height: 36px;
+    height: 44px;
     margin: 4px auto 0;
     scroll-margin-bottom: 112px;
   }
   .hs-dots-pill {
     position: absolute;
-    top: 14px;
+    top: 18px;
     left: 0;
     height: 8px;
     border-radius: 999px;
@@ -17291,11 +17290,13 @@ html[data-theme-vt]::view-transition-group(root) {
     pointer-events: none;
     will-change: transform, width;
   }
+  /* 44 x 44 tap targets on the 28 px visual pitch: each button overlaps its neighbours by 8 px (about/EVAL-008) */
   .hs-dot {
-    flex: 0 0 28px;
+    flex: 0 0 44px;
     display: grid;
     place-items: center;
-    height: 36px;
+    height: 44px;
+    margin-inline: -8px;
     padding: 0;
     border: 0;
     border-radius: 10px;

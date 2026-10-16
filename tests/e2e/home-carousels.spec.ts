@@ -164,4 +164,40 @@ test.describe("home carousels (TASK-228)", () => {
       }
     });
   }
+
+  // Tushar 2026-10-16: /about's Recognition uses the same award carousel on phones; desktop keeps the grid.
+  test("/about recognition is the same phone award carousel: one award visible, swipe and markers sync, no overflow", async ({ page }) => {
+    test.skip(width(page) !== 390, "drives its own viewports; runs once");
+    for (const w of [320, 390, 430]) {
+      await page.setViewportSize({ width: w, height: 760 });
+      await page.goto("/about", { waitUntil: "load" });
+      const ul = page.locator("#recognition .hs-carousel > ul");
+      await ul.scrollIntoViewIfNeeded();
+      const n = await ul.locator("> li").count();
+      expect(n, `awards @${w}`).toBeGreaterThan(1);
+      await expect(page.locator("#recognition .hs-dot")).toHaveCount(n);
+      expect(await activeIndex(page, "recognition")).toBe(0);
+      // every marker is a >= 44 x 44 tap target (EVAL-008) on the 28 px visual pitch
+      const boxes = await page.locator("#recognition .hs-dot").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => [r.width, r.height]));
+      for (const [bw, bh] of boxes) expect(Math.min(bw!, bh!), `dot target @${w}`).toBeGreaterThanOrEqual(44);
+      const visible = () =>
+        ul.evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          return [...el.children].filter((c) => {
+            const r = c.getBoundingClientRect();
+            return Math.max(0, Math.min(r.right, box.right) - Math.max(r.left, box.left)) > 8;
+          }).length;
+        });
+      expect(await visible(), `one award visible @${w}`).toBe(1);
+      await ul.evaluate((el) => el.scrollBy({ left: el.clientWidth, behavior: "instant" }));
+      await expect.poll(() => activeIndex(page, "recognition"), { message: `marker follows swipe @${w}` }).toBe(1);
+      await page.locator("#recognition .hs-dot").nth(n - 1).click();
+      await expect.poll(() => activeIndex(page, "recognition")).toBe(n - 1);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `no page overflow @${w}`).toBeLessThanOrEqual(0);
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/about", { waitUntil: "load" });
+    await expect(page.locator("#recognition .hs-dot").first()).toBeHidden();
+  });
 });

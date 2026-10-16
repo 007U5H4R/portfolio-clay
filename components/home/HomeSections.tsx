@@ -206,9 +206,9 @@ function AwardItem({ tile, index }: { tile: AwardTile; index: number }) {
   );
 }
 
-/** `id` defaults to Home's `#awards`; /about passes its own anchor. Everything else is identical on both pages.
- *  `carousel` (Home only, TASK-228) turns the phone-width grid into a one-award swipe carousel; /about keeps the grid. */
-export function AwardsSection({ id = "awards", carousel = false }: { id?: string; carousel?: boolean } = {}) {
+/** `id` defaults to Home's `#awards`; /about passes its own anchor. Everything else is identical on both pages,
+ *  including the phone-width one-award swipe carousel (TASK-228; /about too since Tushar 2026-10-16). */
+export function AwardsSection({ id = "awards" }: { id?: string } = {}) {
   const grid = (
     <ul className="hs-grid hs-grid-awards" aria-label="Awards">
       {AWARD_TILES.map((tile, i) => (
@@ -230,13 +230,9 @@ export function AwardsSection({ id = "awards", carousel = false }: { id?: string
             accent="impact."
             sub="Recognition for contributions across cloud, product delivery, and AI."
           />
-          {carousel ? (
-            <MobileCarousel noun="award" label="Awards" count={AWARD_TILES.length}>
-              {grid}
-            </MobileCarousel>
-          ) : (
-            grid
-          )}
+          <MobileCarousel noun="award" label="Awards" count={AWARD_TILES.length}>
+            {grid}
+          </MobileCarousel>
         </div>
       </div>
     </section>
