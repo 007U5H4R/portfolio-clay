@@ -51,7 +51,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
   test("< 640 only: the kebab and drawer do not exist at tablet/desktop widths", async ({ page }) => {
     test.skip(width(page) < 640, "desktop/tablet only");
     await page.goto("/", { waitUntil: "load" });
-    await expect(page.getByRole("button", { name: "More" })).toBeHidden();
+    await expect(page.getByRole("button", { name: "More", exact: true })).toBeHidden();
     await expect(page.locator("dialog.more-menu")).toHaveCount(0);
   });
 
@@ -62,7 +62,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
         await page.setViewportSize({ width: w, height: 760 });
         await page.goto("/work", { waitUntil: "load" });
         await setTheme(page, theme);
-        const kebab = page.getByRole("button", { name: "More" });
+        const kebab = page.getByRole("button", { name: "More", exact: true });
         await expect(kebab).toHaveAttribute("aria-expanded", "false");
         await kebab.click();
         const dlg = page.locator("dialog.more-menu");
@@ -134,7 +134,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
     test.skip(width(page) !== 390, "drives its own viewports; runs once");
     await page.setViewportSize({ width: 375, height: 760 });
     await page.goto("/", { waitUntil: "load" });
-    const kebab = page.getByRole("button", { name: "More" });
+    const kebab = page.getByRole("button", { name: "More", exact: true });
     const lefts = await openAndSample(page);
     expect(lefts.length).toBeGreaterThan(5);
     expect(Math.min(...lefts), "starts off-screen left").toBeLessThan(-40);
@@ -167,7 +167,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
     await page.goto("/about", { waitUntil: "load" });
     await page.evaluate(() => window.scrollTo(0, 300));
     const before = await page.evaluate(() => window.scrollY);
-    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
     await expect(page.locator(SHEET)).toBeVisible();
     await page.mouse.move(370, 400);
     await page.mouse.wheel(0, 600);
@@ -178,7 +178,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
   test("a destination navigates and closes; the Product thinking and Gummy Lab routes still work", async ({ page }) => {
     test.skip(width(page) !== 390, "drives its own viewports; runs once");
     await page.goto("/", { waitUntil: "load" });
-    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
     await page.locator("dialog.more-menu").getByRole("link", { name: "About" }).click();
     await expect(page).toHaveURL(/\/about$/);
     await expect(page.locator("dialog.more-menu")).toHaveCount(0);
@@ -191,7 +191,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
   test("Ask Tushky opens the Ask drawer (no navigation)", async ({ page }) => {
     test.skip(width(page) !== 390, "drives its own viewports; runs once");
     await page.goto("/work", { waitUntil: "load" });
-    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
     await page.locator("dialog.more-menu").getByRole("button", { name: /Ask Tushky/ }).click();
     await expect(page.locator("dialog.more-menu")).toHaveCount(0);
     await expect(page.locator(".ask-panel[data-open]")).toBeVisible();
@@ -207,14 +207,14 @@ test.describe("phone menu drawer (TASK-232)", () => {
     for (const l of lefts) expect(l).toBeCloseTo(0, 0);
     await page.getByRole("button", { name: "Close menu" }).click();
     await expect(page.locator("dialog.more-menu")).toHaveCount(0, { timeout: 150 });
-    await expect(page.getByRole("button", { name: "More" })).toBeFocused();
+    await expect(page.getByRole("button", { name: "More", exact: true })).toBeFocused();
   });
 
   test("short phone (320 x 568): every row is reachable by scrolling the drawer, the close button stays visible", async ({ page }) => {
     test.skip(width(page) !== 390, "drives its own viewports; runs once");
     await page.setViewportSize({ width: 320, height: 568 });
     await page.goto("/", { waitUntil: "load" });
-    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
     await page.waitForTimeout(450);
     await expect(page.getByRole("button", { name: "Close menu" })).toBeInViewport();
     const last = page.locator("dialog.more-menu").getByRole("link", { name: /LinkedIn/ });
