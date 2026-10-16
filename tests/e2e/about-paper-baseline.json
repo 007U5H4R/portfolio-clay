@@ -6,13 +6,13 @@
       "elements": 31
     },
     "hero": {
-      "html": "2b10f5f4eb6bd",
-      "style": "7d876e5acca0b",
+      "html": "bd0160cf9cab5",
+      "style": "13ac509eac2087",
       "elements": 17
     },
     "footer": {
       "html": "194e14dcecec1b",
-      "style": "535bf48ce90e0",
+      "style": "b06270fa2bdd6",
       "elements": 55
     }
   },
@@ -23,8 +23,8 @@
       "elements": 31
     },
     "hero": {
-      "html": "2b10f5f4eb6bd",
-      "style": "fe918c4c79569",
+      "html": "bd0160cf9cab5",
+      "style": "ed081e810d0d3",
       "elements": 17
     },
     "footer": {
@@ -40,8 +40,8 @@
       "elements": 31
     },
     "hero": {
-      "html": "2b10f5f4eb6bd",
-      "style": "54649c36cc3d1",
+      "html": "bd0160cf9cab5",
+      "style": "32405b359b65f",
       "elements": 17
     },
     "footer": {
@@ -57,8 +57,8 @@
       "elements": 31
     },
     "hero": {
-      "html": "2b10f5f4eb6bd",
-      "style": "1b91cab7ec63b9",
+      "html": "bd0160cf9cab5",
+      "style": "163ebbd49115a0",
       "elements": 17
     },
     "footer": {
@@ -67,5 +67,5 @@
       "elements": 55
     }
   },
-  "_capturedFrom": "026da48b"
+  "_capturedFrom": "8c3c4ef4"
 }
