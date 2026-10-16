@@ -16,7 +16,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Who Tushar is — a builder who connects deep tech to real-world impact: from research labs and a granted patent to cloud platforms and AI-native products.",
   path: "/about",
-  ogFamily: "About Tushar Pathak",
 });
 
 /**

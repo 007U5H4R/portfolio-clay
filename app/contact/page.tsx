@@ -9,7 +9,6 @@ export const metadata: Metadata = buildMetadata({
   title: `Contact · ${site.name}`,
   description: "Email, LinkedIn, or a resume — the fastest ways to reach Tushar Pathak.",
   path: "/contact",
-  ogFamily: "Contact",
 });
 
 /**

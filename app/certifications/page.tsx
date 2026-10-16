@@ -11,7 +11,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Credly-verified certifications — Google Cloud Generative AI Leader, PMP, SAFe Agilist, Professional Cloud Architect, PSPO I and more — each linked to its credential, with where it was applied.",
   path: "/certifications",
-  ogFamily: "Certifications",
 });
 
 /**

@@ -10,7 +10,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Four shipped experiments — Pratyasa, Tegaki, Dino Arcade and Cinematic Portfolio — each linking straight to its live build.",
   path: "/playground",
-  ogFamily: "Product Playground",
 });
 
 /**

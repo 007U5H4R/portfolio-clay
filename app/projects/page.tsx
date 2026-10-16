@@ -17,7 +17,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Products Tushar built, tested and shipped on his own, plus the enterprise cloud, data, healthcare and ML programs he delivered inside larger systems.",
   path: "/projects",
-  ogFamily: "Portfolio",
 });
 
 /**

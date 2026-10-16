@@ -8,7 +8,6 @@ export const metadata: Metadata = buildMetadata({
   title: `Digital business card · ${site.name}`,
   description: "A paper-cut digital business card for Tushar Pathak. Flip it for the QR code, a contact file and the links worth keeping.",
   path: "/card",
-  ogFamily: "Business card",
 });
 
 /**

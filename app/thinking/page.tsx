@@ -11,7 +11,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "An honest editorial list — five DRAFT essays, each backed by a real quoted passage, none published yet.",
   path: "/thinking",
-  ogFamily: "Product Thinking",
 });
 
 /**
