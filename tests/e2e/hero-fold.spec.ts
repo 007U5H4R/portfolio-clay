@@ -250,12 +250,9 @@ test("TKT-108 hero copy block: three-line h1 ≥ 768, hand line, Ask Tushky capt
   const sticker = page.locator(".hero-tushky img");
   await expect(sticker).toHaveAttribute("alt", "");
   expect(await sticker.evaluate((el) => el.closest('[aria-hidden="true"]') !== null)).toBe(true);
-  const notes = page.locator(".hero-margin-note");
-  await expect(notes).toHaveCount(1); // the flow note; the "real problems / real people / bigger impact" note was removed (TASK-222)
-  for (const note of await notes.all()) {
-    if (width(page) >= 1024) await expect(note).toBeVisible();
-    else await expect(note).toBeHidden();
-  }
+  // Both Caveat margin notes are gone: "real problems / real people / bigger impact" (TASK-222) and "problem → insight → build → learn" (TASK-225).
+  await expect(page.locator(".hero-margin-note")).toHaveCount(0);
+  await expect(page.getByText("problem → insight → build → learn")).toHaveCount(0);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow, "no horizontal page overflow").toBeLessThanOrEqual(0);
 });
