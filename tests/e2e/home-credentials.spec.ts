@@ -135,7 +135,7 @@ test("no horizontal overflow on Home, including the three sections", async ({ pa
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `overflow at ${page.viewportSize()?.width}px`).toBeLessThanOrEqual(0);
     const wide = await page.locator("#credentials, #selected-work, #awards").evaluateAll((els) =>
-      els.flatMap((s) => [...s.querySelectorAll("*")].filter((n) => n.getBoundingClientRect().right > innerWidth + 1).map((n) => `${s.id} ${n.tagName}.${n.className}`)),
+      els.flatMap((s) => [...s.querySelectorAll("*")].filter((n) => n.getBoundingClientRect().right > innerWidth + 1 && !n.closest(".hs-carousel > ul") /* TASK-228: off-screen slides sit inside the phone scroll-snap row, clipped by it */).map((n) => `${s.id} ${n.tagName}.${n.className}`)),
     );
     expect(wide).toEqual([]);
   };

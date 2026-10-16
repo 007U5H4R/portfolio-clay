@@ -17191,3 +17191,124 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* === end TASK-224 === */
+
+/* ==================================================================================================
+   TASK-228 · phone-only one-card-per-screen carousels on Home (Credentials, Selected work, Awards).
+   `.hs-carousel` wraps each section's list (components/home/MobileCarousel.tsx). From 640 px up the wrapper is
+   `display: contents` and the pagination is `display: none`, so tablet and desktop are byte-for-byte the layout they were.
+   Below 640 px the list becomes a native scroll-snap row (vertical page scroll untouched) and the worm pagination sits
+   directly under the card. The header, section heading/intro and dock never move: only the list scrolls.
+   ================================================================================================== */
+.hs-carousel {
+  display: contents;
+}
+.hs-dots {
+  display: none;
+}
+@media (max-width: 639px) {
+  .hs-carousel {
+    display: block;
+    min-width: 0;
+  }
+  .hs-carousel > .hs-grid {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    /* the bleed gives card shadows room inside the scroller's clip box without moving the card edges */
+    margin: -6px -8px 0;
+    padding: 6px 8px 16px;
+    scroll-padding-inline: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .hs-carousel > .hs-grid:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: -2px;
+    border-radius: 14px;
+  }
+  .hs-carousel > .hs-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .hs-carousel > .hs-grid > .hs-li {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  /* an off-screen slide must not sit invisible waiting for the viewport reveal */
+  .hs-carousel .reveal {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    transition: none;
+  }
+  /* compact framing so heading + card + dots + dock read as one screen where the card allows it */
+  .hs-wrap:has(.hs-carousel) {
+    gap: 14px;
+    padding-block: 28px 112px;
+  }
+  .hs-wrap:has(.hs-carousel) .hs-h2 {
+    margin-top: 8px;
+    font-size: clamp(30px, 8.4vw, 36px);
+  }
+  .hs-wrap:has(.hs-carousel) .hs-sub {
+    margin-top: 8px;
+    font-size: 16px;
+  }
+  .hs-wrap:has(.hs-carousel) .hs-all {
+    margin-top: 12px;
+  }
+  .hs-carousel .hs-art {
+    aspect-ratio: 3 / 2;
+  }
+  .hs-carousel .hs-trophy {
+    height: clamp(160px, 26vh, 230px);
+  }
+  .hs-carousel .hs-award {
+    padding-block: 8px 0;
+  }
+  .hs-carousel .hs-award-name {
+    font-size: 21px;
+  }
+
+  /* ---- liquid worm pagination: fixed 28 px pitch (mirrors PITCH/HALF/REACH in MobileCarousel.tsx) ---- */
+  .hs-dots {
+    --dot: color-mix(in oklab, var(--color-navy) 30%, transparent);
+    position: relative;
+    display: flex;
+    height: 36px;
+    margin: 4px auto 0;
+    scroll-margin-bottom: 112px;
+  }
+  .hs-dots-pill {
+    position: absolute;
+    top: 14px;
+    left: 0;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-terracotta);
+    pointer-events: none;
+    will-change: transform, width;
+  }
+  .hs-dot {
+    flex: 0 0 28px;
+    display: grid;
+    place-items: center;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+  }
+  .hs-dot > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--dot);
+  }
+  .hs-dot[aria-current="true"] > span {
+    background: transparent;
+  }
+}

@@ -19,7 +19,7 @@ export default function Home() {
       <Hero />
       <CredentialsSection />
       <SelectedWorkSection />
-      <AwardsSection />
+      <AwardsSection carousel />
 
       {/*
         Ask Tushky (TKT-113, Design.md §7.1, §11 Dev-64–69): section#ask on paper-2 with a torn edge —

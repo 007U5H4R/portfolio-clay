@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { ArrowRight } from "lucide-react";
+import { MobileCarousel } from "./MobileCarousel";
 import { Reveal } from "@/components/interactions/Reveal";
 import { Sheet, TornEdge } from "@/components/paper";
 import {
@@ -115,13 +116,15 @@ export function CredentialsSection() {
             accent="impact."
             sub="Enterprise experience. Real-world execution. Independent building."
           />
-          <ul className="hs-grid hs-grid-4" aria-label="Credentials">
-            {CREDENTIAL_CARDS.map((card, i) => (
-              <li key={card.id} className="hs-li" data-credential={card.id}>
-                <CredentialItem card={card} index={i} />
-              </li>
-            ))}
-          </ul>
+          <MobileCarousel noun="credential" label="Credentials" count={CREDENTIAL_CARDS.length}>
+            <ul className="hs-grid hs-grid-4" aria-label="Credentials">
+              {CREDENTIAL_CARDS.map((card, i) => (
+                <li key={card.id} className="hs-li" data-credential={card.id}>
+                  <CredentialItem card={card} index={i} />
+                </li>
+              ))}
+            </ul>
+          </MobileCarousel>
         </div>
       </div>
     </section>
@@ -174,13 +177,15 @@ export function SelectedWorkSection() {
               <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
             </Link>
           </Head>
-          <ul className="hs-grid hs-grid-3" aria-label="Selected work">
-            {WORK_CARDS.map((card, i) => (
-              <li key={card.id} className="hs-li" data-work={card.id}>
-                <WorkItem card={card} index={i} />
-              </li>
-            ))}
-          </ul>
+          <MobileCarousel noun="project" label="Selected work" count={WORK_CARDS.length}>
+            <ul className="hs-grid hs-grid-3" aria-label="Selected work">
+              {WORK_CARDS.map((card, i) => (
+                <li key={card.id} className="hs-li" data-work={card.id}>
+                  <WorkItem card={card} index={i} />
+                </li>
+              ))}
+            </ul>
+          </MobileCarousel>
         </div>
       </div>
     </section>
@@ -201,8 +206,18 @@ function AwardItem({ tile, index }: { tile: AwardTile; index: number }) {
   );
 }
 
-/** `id` defaults to Home's `#awards`; /about passes its own anchor. Everything else is identical on both pages. */
-export function AwardsSection({ id = "awards" }: { id?: string } = {}) {
+/** `id` defaults to Home's `#awards`; /about passes its own anchor. Everything else is identical on both pages.
+ *  `carousel` (Home only, TASK-228) turns the phone-width grid into a one-award swipe carousel; /about keeps the grid. */
+export function AwardsSection({ id = "awards", carousel = false }: { id?: string; carousel?: boolean } = {}) {
+  const grid = (
+    <ul className="hs-grid hs-grid-awards" aria-label="Awards">
+      {AWARD_TILES.map((tile, i) => (
+        <li key={tile.id} className="hs-li">
+          <AwardItem tile={tile} index={i} />
+        </li>
+      ))}
+    </ul>
+  );
   return (
     <section id={id} aria-labelledby="awards-heading" className="hs hs-awards">
       <TornEdge fill="paper" className="hs-torn" />
@@ -215,13 +230,13 @@ export function AwardsSection({ id = "awards" }: { id?: string } = {}) {
             accent="impact."
             sub="Recognition for contributions across cloud, product delivery, and AI."
           />
-          <ul className="hs-grid hs-grid-awards" aria-label="Awards">
-            {AWARD_TILES.map((tile, i) => (
-              <li key={tile.id} className="hs-li">
-                <AwardItem tile={tile} index={i} />
-              </li>
-            ))}
-          </ul>
+          {carousel ? (
+            <MobileCarousel noun="award" label="Awards" count={AWARD_TILES.length}>
+              {grid}
+            </MobileCarousel>
+          ) : (
+            grid
+          )}
         </div>
       </div>
     </section>
