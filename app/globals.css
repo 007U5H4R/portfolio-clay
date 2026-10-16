@@ -5892,15 +5892,6 @@ html.lenis body {
     width: 40px;
     height: 40px;
   }
-  .cert-aside.paper-annotation {
-    justify-self: end;
-    max-width: 16ch;
-    margin: 0 2% 0 0;
-    font-size: clamp(24px, 2.3vw, 32px);
-    line-height: 1.12;
-    text-align: right;
-    color: var(--color-navy);
-  }
 
   /* ---- the timeline ---- */
   .cert-list {
@@ -6427,13 +6418,6 @@ html.lenis body {
     }
     .cert-title {
       padding: 14px 30px 22px 24px;
-    }
-    .cert-aside.paper-annotation {
-      justify-self: start;
-      max-width: 22ch;
-      margin: 0 0 0 8px;
-      font-size: 24px;
-      text-align: left;
     }
     .cert-list::before {
       left: calc(var(--rail-w) / 2 - 1px);

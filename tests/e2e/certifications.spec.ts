@@ -57,6 +57,15 @@ test("the five annotated certifications carry their sticky note, name, issuer an
   }
 });
 
+test("TASK-226: the 'Credentials are useful' aside is gone; the head is only the title strip", async ({ page }) => {
+  await page.goto(ROUTE, { waitUntil: "load" });
+  await expect(page.getByText("Credentials are useful. Applied capability is better.")).toHaveCount(0);
+  await expect(page.locator(".cert-aside")).toHaveCount(0);
+  await expect(page.locator('section#certifications [data-decor="annotation"]')).toHaveCount(0);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow, "no horizontal page overflow").toBeLessThanOrEqual(0);
+});
+
 test("keyboard: Tab reaches every credential card with a visible focus ring", async ({ page }) => {
   test.skip(width(page) < 1024, "keyboard path runs on the desktop widths");
   await page.goto(ROUTE, { waitUntil: "load" });
