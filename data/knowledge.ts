@@ -153,6 +153,27 @@ export const knowledge: KnowledgeEntry[] = [
     surface: ["home"],
   },
 
+  {
+    // TASK-235 (Tushar 2026-10-16): the easter-egg card. Says how to open Gummy Lab (SecretTrigger: five clicks on the
+    // header's TP monogram or name inside 3.5 s); there is deliberately no link to /lab anywhere, so evidence is the header.
+    id: "easter-egg",
+    prompt: "Where is the hidden easter egg?",
+    aliases: ["how do I open gummy lab", "is there a secret game", "where is the secret game", "is there an easter egg"],
+    keywords: [
+      { term: "easteregg", weight: 3 },
+      { term: "gummy", weight: 2 },
+    ],
+    answer:
+      "Woof woof! 🐾✨ Ooh, you found the secret question! Here's how: tap the TP logo or Tushar's name at the top of the page five times, fast, all within about 3 seconds. Watch closely, the hints get bigger with every tap… and on the fifth tap, Gummy Lab bursts open! 🍬🎮 Go on, give it a try!",
+    evidence: [
+      { label: "Home — tap the header", href: "/" },
+      { label: "Portfolio — works here too", href: "/projects" },
+    ],
+    sources: [{ id: "GUMMY-TRIGGER", label: "Gummy Lab secret trigger", ref: "components/easter-egg/SecretTrigger.tsx", inventory: "§9" }],
+    draft: false,
+    surface: ["home"],
+  },
+
   /* ── panel (6) ────────────────────────────────────────────── */
   {
     id: "pm",

@@ -21,6 +21,7 @@ export const FOLLOW_UP_LABELS: Readonly<Record<string, string>> = {
   built: "What he's built",
   discovery: "His discovery process",
   "ai-products": "His AI products",
+  "easter-egg": "The hidden easter egg",
   "most-technical": "Tell me about RailCite",
   impact: "Show his impact",
   pm: "Why he's a PM",

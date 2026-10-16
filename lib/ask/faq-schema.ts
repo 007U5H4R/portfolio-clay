@@ -91,8 +91,9 @@ export function checkFaq(raw: unknown, root: string = process.cwd()): string[] {
 }
 
 const WOOF = /woof woof/i;
-/** §50 "use sparingly": at most this many answers carry Tushky's "woof woof 🐾". */
-export const MAX_WOOF_ANSWERS = 2;
+/** §50 "use sparingly": at most this many answers carry Tushky's "woof woof 🐾".
+ *  3 since TASK-235: Tushar asked for an excited woof on the easter-egg answer (with who-is-tushar and contact). */
+export const MAX_WOOF_ANSWERS = 3;
 
 /** Numbers as written in prose ("5,760", "37.5", "2026"). */
 function numbersIn(text: string): string[] {

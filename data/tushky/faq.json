@@ -812,5 +812,33 @@
       "profile"
     ],
     "reviewed": true
+  },
+  {
+    "id": "easter-egg",
+    "category": "fun",
+    "question": "Where is the hidden easter egg?",
+    "aliases": [
+      "How do I open Gummy Lab?",
+      "Is there a secret game?",
+      "Where is the secret game?",
+      "Is there an easter egg?"
+    ],
+    "answer": "Woof woof! 🐾✨ Ooh, you found the secret question! Here's how: tap the TP logo or Tushar's name at the top of the page five times, fast, all within about 3 seconds. Watch closely, the hints get bigger with every tap… and on the fifth tap, Gummy Lab bursts open! 🍬🎮 Go on, give it a try!",
+    "sources": [
+      {
+        "label": "Home",
+        "href": "/"
+      }
+    ],
+    "followUps": [
+      "What products has Tushar built?",
+      "Who is Tushar?"
+    ],
+    "updatedAt": "2026-10-16",
+    "profileVersion": "v1-f77235180d74",
+    "dependsOn": [
+      "profile"
+    ],
+    "reviewed": true
   }
 ]

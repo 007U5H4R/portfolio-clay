@@ -13,9 +13,9 @@
  *   - "Show me his product thinking process." → the `discovery` entry's prompt.
  *   - "Walk me through a specific project." → the `most-technical` entry's prompt (the RailCite walkthrough).
  */
-import { Briefcase, ChartNoAxesColumn, CodeXml, FileText, GraduationCap, Lightbulb, type LucideIcon } from "lucide-react";
+import { Briefcase, ChartNoAxesColumn, CodeXml, Egg, FileText, GraduationCap, Lightbulb, type LucideIcon } from "lucide-react";
 
-export type SuggestionCategory = "products" | "impact" | "thinking" | "ai" | "skills" | "project";
+export type SuggestionCategory = "products" | "impact" | "thinking" | "ai" | "skills" | "project" | "secret";
 
 export interface TushkySuggestion {
   /** What the card shows and what the user bubble echoes: Tushar's wording, verbatim. */
@@ -29,7 +29,8 @@ export interface TushkySuggestion {
 
 export const TUSHKY_SUGGESTIONS: readonly TushkySuggestion[] = [
   { label: "What products has Tushar built?", query: "What products has Tushar built?", category: "products", entry: "built" },
-  { label: "What AI products has he worked on?", query: "What AI products has he worked on?", category: "ai", entry: "ai-products" },
+  // TASK-235 (Tushar 2026-10-16): the easter-egg card replaces "What AI products has he worked on?" (still answerable when typed).
+  { label: "Where is the hidden easter egg?", query: "Where is the hidden easter egg?", category: "secret", entry: "easter-egg" },
   { label: "What impact has he created?", query: "What impact has he created?", category: "impact", entry: "impact" },
   { label: "What are his strongest skills?", query: "What are his strongest skills?", category: "skills", entry: "skills" },
   {
@@ -54,4 +55,5 @@ export const CATEGORY_ICONS: Readonly<Record<SuggestionCategory, LucideIcon>> = 
   skills: GraduationCap,
   thinking: Lightbulb,
   project: FileText,
+  secret: Egg,
 };

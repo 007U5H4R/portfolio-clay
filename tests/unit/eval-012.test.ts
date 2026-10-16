@@ -12,11 +12,12 @@ const provider = new LocalKnowledgeProvider(knowledge);
 const THRESHOLD = 0.34;
 
 describe("@EVAL-012 deterministic Ask", () => {
-  it("has 11 entries split 5 home / 6 panel (PB3), disjoint", () => {
-    expect(knowledge).toHaveLength(11);
+  // TASK-235 added the easter-egg entry (home): 12 = 6 home / 6 panel.
+  it("has 12 entries split 6 home / 6 panel (PB3), disjoint", () => {
+    expect(knowledge).toHaveLength(12);
     const home = knowledge.filter((k) => k.surface.includes("home"));
     const panel = knowledge.filter((k) => k.surface.includes("panel"));
-    expect(home).toHaveLength(5);
+    expect(home).toHaveLength(6);
     expect(panel).toHaveLength(6);
     expect(home.some((k) => k.surface.includes("panel"))).toBe(false);
   });
@@ -35,7 +36,7 @@ describe("@EVAL-012 deterministic Ask", () => {
     }
   });
 
-  it("answers all 11 canned prompts correctly with 0 fabricated", () => {
+  it("answers all 12 canned prompts correctly with 0 fabricated", () => {
     let answered = 0;
     let fabricated = 0;
     for (const e of knowledge) {
@@ -50,7 +51,7 @@ describe("@EVAL-012 deterministic Ask", () => {
       expect(a.score).toBeGreaterThanOrEqual(THRESHOLD);
       if (a.matched[0] !== e.id) fabricated++;
     }
-    expect(answered).toBe(11);
+    expect(answered).toBe(12);
     expect(fabricated).toBe(0);
   });
 

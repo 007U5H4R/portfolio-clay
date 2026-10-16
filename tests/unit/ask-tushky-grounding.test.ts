@@ -27,13 +27,13 @@ describe("Ask Tushky grounding (TKT-104 r2)", () => {
   it("shows Tushar's six questions, in order, one per category", () => {
     expect(TUSHKY_SUGGESTIONS.map((s) => s.label)).toEqual([
       "What products has Tushar built?",
-      "What AI products has he worked on?",
+      "Where is the hidden easter egg?",
       "What impact has he created?",
       "What are his strongest skills?",
       "Show me his product thinking process.",
       "Walk me through a specific project.",
     ]);
-    expect(TUSHKY_SUGGESTIONS.map((s) => s.category)).toEqual(["products", "ai", "impact", "skills", "thinking", "project"]);
+    expect(TUSHKY_SUGGESTIONS.map((s) => s.category)).toEqual(["products", "secret", "impact", "skills", "thinking", "project"]);
     expect(new Set(TUSHKY_SUGGESTIONS.map((s) => s.category)).size).toBe(6);
   });
 
@@ -47,7 +47,7 @@ describe("Ask Tushky grounding (TKT-104 r2)", () => {
     for (const s of TUSHKY_SUGGESTIONS) expect(shared.CATEGORY_ICONS[s.category], s.category).toBeTruthy();
     // every label except the two remapped ones is sent to the index exactly as worded
     const asWorded = TUSHKY_SUGGESTIONS.filter((s) => s.label === s.query).map((s) => s.entry);
-    expect(asWorded).toEqual(["built", "ai-products", "impact", "skills"]);
+    expect(asWorded).toEqual(["built", "easter-egg", "impact", "skills"]);
   });
 
   it("the two remapped cards would have hit the product list as worded (why they are remapped)", () => {

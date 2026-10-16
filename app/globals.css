@@ -5118,7 +5118,8 @@ html.lenis body {
     --tk-ink: var(--color-terracotta);
   }
   /* lavender: an oklch mix of steel and rust passes through violet (hue ≈ 310) */
-  :is(.tk-card, .hat-card)[data-category="ai"] {
+  /* TASK-235: the easter-egg card ("secret") keeps the lavender of the AI-products card it replaced. */
+  :is(.tk-card, .hat-card):is([data-category="ai"], [data-category="secret"]) {
     --tk-ink: color-mix(in oklch, var(--color-steel) 65%, var(--color-rust));
     --tk-bg: color-mix(in oklch, var(--tk-ink) 34%, var(--color-ivory));
   }
