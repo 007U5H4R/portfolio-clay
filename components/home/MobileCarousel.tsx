@@ -23,6 +23,7 @@ export function MobileCarousel({
   label,
   count,
   onActiveChange,
+  className,
   children,
 }: {
   noun: string;
@@ -30,6 +31,8 @@ export function MobileCarousel({
   count: number;
   /** Optional (TASK-233): told the settled slide index whenever it changes, so a section can tidy per-slide state. */
   onActiveChange?: (index: number) => void;
+  /** Extra class for a page-specific skin (TASK-230: `xp-car` on /work). */
+  className?: string;
   children: ReactNode;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -37,7 +40,7 @@ export function MobileCarousel({
   const [active, setActive] = useState(0);
   const reduced = useRef(false);
 
-  const scroller = useCallback(() => rootRef.current?.querySelector<HTMLElement>(":scope > ul, :scope > ol") ?? null, []);
+  const scroller = useCallback(() => rootRef.current?.querySelector<HTMLElement>(":scope > ul, :scope > ol, :scope > [data-carousel-track]") ?? null, []);
 
   useEffect(() => {
     const list = scroller();
@@ -117,7 +120,7 @@ export function MobileCarousel({
   };
 
   return (
-    <div ref={rootRef} className="hs-carousel" role="group" aria-roledescription="carousel" aria-label={label}>
+    <div ref={rootRef} className={className ? `hs-carousel ${className}` : "hs-carousel"} role="group" aria-roledescription="carousel" aria-label={label}>
       {children}
       {count > 1 ? (
         <div className="hs-dots" style={{ width: PITCH * count }}>

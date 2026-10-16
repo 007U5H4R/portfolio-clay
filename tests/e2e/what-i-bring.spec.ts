@@ -2,6 +2,9 @@
  * what-i-bring.spec.ts — TASK-216: the Experience page "What I Bring" journey (section#skills): one paper-cut landscape,
  * seven stage markers, a stage panel and a seven-stage track, all driven by one selection. Runs in all four viewport projects
  * (w390 / w768 / w1024 / w1440). The side-by-side layout starts at 960 px.
+ * TASK-230: below 640 px the map, its markers and the stage track are not rendered and the panels are a swipe carousel
+ * (tests/e2e/xp-carousels.spec.ts), so the tests that drive the map, markers or tabs skip on phones and the content tests
+ * read every panel directly.
  */
 import { expect, test } from "./fixtures";
 
@@ -16,8 +19,17 @@ test.describe("@TASK-216 What I Bring journey", () => {
   });
 
   const panel = (page: import("@playwright/test").Page, id: string) => page.locator(`#wib-panel-${id}`);
+  const PHONE_NOTE = "TASK-230: the map, markers and tabs are not rendered on phones; xp-carousels.spec.ts covers the phone carousel";
 
-  test("seven tabs in order, stage 01 selected on load, one visible panel, the statement", async ({ page }) => {
+  test("seven tabs in order, stage 01 selected on load, one visible panel, the statement", async ({ page, viewport }) => {
+    if (viewport!.width < 640) {
+      await expect(page.locator("section#skills h2")).toHaveText("What I Bring");
+      await expect(page.locator("section#skills .wib-statement")).toHaveText("I turn ambiguous problems into shipped products.");
+      await expect(page.locator("[role='tabpanel']")).toHaveCount(7); // every stage is a slide on phones
+      await expect(panel(page, "ambiguity")).toContainText("I ask the right questions.");
+      await expect(panel(page, "ambiguity")).toContainText("01 / 07");
+      return;
+    }
     const tabs = page.locator("section#skills [role='tab']");
     await expect(tabs).toHaveCount(7);
     await expect(tabs.locator(".wibj-tab-name")).toHaveText(TITLES);
@@ -29,9 +41,9 @@ test.describe("@TASK-216 What I Bring journey", () => {
     await expect(panel(page, "ambiguity")).toContainText("01 / 07");
   });
 
-  test("no horizontal overflow, and every stage control (tabs, markers, prev / next) is a 44 px target", async ({ page, noOverflow }) => {
+  test("no horizontal overflow, and every stage control (tabs, markers, prev / next) is a 44 px target", async ({ page, noOverflow, viewport }) => {
     await noOverflow(page);
-    for (const sel of ["[role='tab']", ".wibj-pin", ".wibj-step"]) {
+    for (const sel of viewport!.width < 640 ? [".wibj-step"] : ["[role='tab']", ".wibj-pin", ".wibj-step"]) {
       for (const el of await page.locator(sel).all()) {
         const box = await el.boundingBox();
         expect(box, sel).not.toBeNull();
@@ -41,7 +53,8 @@ test.describe("@TASK-216 What I Bring journey", () => {
     }
   });
 
-  test("a marker, a track tab and prev / next all update the panel and stay in sync", async ({ page }) => {
+  test("a marker, a track tab and prev / next all update the panel and stay in sync", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 640, PHONE_NOTE);
     await page.locator(".wibj-pin[data-n='4']").click();
     await expect(panel(page, "ai-genai")).toBeVisible();
     await expect(panel(page, "ai-genai")).toContainText("I turn AI capability into useful products.");
@@ -67,10 +80,11 @@ test.describe("@TASK-216 What I Bring journey", () => {
     await page.getByRole("button", { name: "Next stage" }).click(); // wraps 07 -> 01
     await expect(page.locator("#wib-tab-ambiguity")).toHaveAttribute("aria-selected", "true");
     await expect(page).toHaveURL(/\/work$/);
-    await expect(page.locator("[role='status']")).toContainText("Stage 1 of 7: Ambiguity");
+    await expect(page.locator("p[role='status']")).toContainText("Stage 1 of 7: Ambiguity");
   });
 
-  test("keyboard: arrows, Home and End move the selection and focus along the track, with a visible ring", async ({ page }) => {
+  test("keyboard: arrows, Home and End move the selection and focus along the track, with a visible ring", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 640, PHONE_NOTE);
     await page.keyboard.press("Shift");
     const first = page.locator("#wib-tab-ambiguity");
     await first.focus();
@@ -96,9 +110,9 @@ test.describe("@TASK-216 What I Bring journey", () => {
     expect(await page.locator("[role='tab'][tabindex='0']").count()).toBe(1);
   });
 
-  test("every stage's content is in its panel (capabilities, tools) and shows no tool the data does not support", async ({ page }) => {
+  test("every stage's content is in its panel (capabilities, tools) and shows no tool the data does not support", async ({ page, viewport }) => {
     for (const id of ids) {
-      await page.locator(`#wib-tab-${id}`).click();
+      if (viewport!.width >= 640) await page.locator(`#wib-tab-${id}`).click(); // phones: every panel is already a slide
       await expect(panel(page, id)).toBeVisible();
       await expect(panel(page, id).locator(".wib-caps li").first()).toBeVisible();
       await expect(panel(page, id).locator(".wibj-art img")).toBeVisible();
@@ -114,6 +128,7 @@ test.describe("@TASK-216 What I Bring journey", () => {
   });
 
   test("the landscape fits its frame and the selected marker is inside it", async ({ page, viewport }) => {
+    test.skip(viewport!.width < 640, PHONE_NOTE);
     await page.locator("#wib-tab-impact").click();
     await page.waitForTimeout(450);
     const frame = await page.locator(".wibj-frame").boundingBox();
@@ -140,7 +155,7 @@ test.describe("@TASK-216 What I Bring journey", () => {
   });
 
   test("mobile: the track scrolls inside its own box, not the page", async ({ page, viewport }) => {
-    test.skip(viewport!.width >= 960, "the track is a grid on desktop");
+    test.skip(viewport!.width >= 960 || viewport!.width < 640, "the track is a grid on desktop and not rendered on phones");
     const track = page.locator(".wibj-track");
     expect(await track.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     await page.locator("#wib-tab-impact").click();
@@ -149,7 +164,8 @@ test.describe("@TASK-216 What I Bring journey", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 
-  test("reduced motion: no transitions on the panel, markers or map", async ({ page, withReducedMotion }) => {
+  test("reduced motion: no transitions on the panel, markers or map", async ({ page, withReducedMotion, viewport }) => {
+    test.skip(viewport!.width < 640, PHONE_NOTE);
     await withReducedMotion(page);
     await page.locator("#wib-tab-technology").click();
     const durations = await page.evaluate(() =>
@@ -161,8 +177,13 @@ test.describe("@TASK-216 What I Bring journey", () => {
     expect(durations).toEqual([true, true, true, true]);
   });
 
-  test("dark theme shows the dark landscape only", async ({ page }) => {
+  test("dark theme shows the dark landscape only", async ({ page, viewport }) => {
     await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+    if (viewport!.width < 640) {
+      await expect(page.locator(".wibj-land-dark")).toBeHidden(); // the map is not rendered on phones
+      await expect(page.locator(".wibj-land-light")).toBeHidden();
+      return;
+    }
     await expect(page.locator(".wibj-land-dark")).toBeVisible();
     await expect(page.locator(".wibj-land-light")).toBeHidden();
   });

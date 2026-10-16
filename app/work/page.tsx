@@ -126,6 +126,7 @@ export default function ExperiencePage() {
           id="work-experience"
           className="xp-work"
           title="Work Experience"
+          noun="work experience"
           entries={workEntries}
           doodles={WORK_DOODLES}
         />
@@ -133,6 +134,7 @@ export default function ExperiencePage() {
           id="education"
           className="xp-edu"
           title="Education"
+          noun="education"
           entries={eduEntries}
           doodles={EDU_DOODLES}
           torn
