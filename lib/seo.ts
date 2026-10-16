@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_HOME_ALT, OG_IMAGE_PATH } from "@/lib/og-home";
 import { site } from "@/lib/site";
 
 /**
@@ -36,16 +37,6 @@ export interface BuildMetadataInput {
   description: string;
   /** Route path, e.g. "/", "/work/teachspark". */
   path: string;
-  /** Human label for the OG image's alt text — one per page family (e.g. "Selected Work", "TeachSpark case study"). */
-  ogFamily: string;
-  /**
-   * Absolute or root-relative OG/Twitter image override. Defaults to this route's co-located
-   * `opengraph-image` file-convention route (`<path>/opengraph-image`, or `/opengraph-image` for
-   * the home path) — technical-plan.md §A8.
-   */
-  image?: string;
-  /** Alt text for `image` when it needs more than the `ogFamily` label (TASK-195 home card). */
-  imageAlt?: string;
   type?: "website" | "article";
 }
 
@@ -56,15 +47,12 @@ export function buildMetadata({
   title,
   description,
   path,
-  ogFamily,
-  image,
-  imageAlt,
   type = "website",
 }: BuildMetadataInput): Metadata {
   const base = siteUrl();
   const url = path === "/" ? base : `${base}${path}`;
-  const imagePath = image ?? (path === "/" ? "/opengraph-image" : `${path}/opengraph-image`);
-  const imageUrl = /^https?:\/\//.test(imagePath) ? imagePath : `${base}${imagePath}`;
+  // TASK-227 (Tushar 2026-10-16): one share image for every link: no per-page cards, no override.
+  const imageUrl = `${base}${OG_IMAGE_PATH}`;
 
   return {
     title: { absolute: title },
@@ -76,7 +64,7 @@ export function buildMetadata({
       title,
       description,
       siteName: site.name,
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: imageAlt ?? ogFamily }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: OG_HOME_ALT }],
     },
     twitter: {
       card: "summary_large_image",

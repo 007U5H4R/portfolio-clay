@@ -33,7 +33,6 @@ export async function generateMetadata({ params }: EssayPageProps): Promise<Meta
     title: `${essay.title} · ${site.name}`,
     description: essay.dek,
     path: `/thinking/${essay.slug}`,
-    ogFamily: "Product Thinking",
     type: "article",
   });
 }

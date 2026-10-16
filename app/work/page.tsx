@@ -14,7 +14,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Work experience — American Express (via IntraEdge), Shellkode, Quantiphi Analytics, Godrej Infotech — and education at NIT Calicut and Bhilai Institute of Technology.",
   path: "/work",
-  ogFamily: "Experience",
 });
 
 /**

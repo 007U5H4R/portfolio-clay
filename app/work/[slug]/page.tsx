@@ -37,7 +37,6 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
     title: `${project.name} · ${site.name}`,
     description: project.tagline,
     path: `/work/${project.slug}`,
-    ogFamily: `${project.name} case study`,
     type: "article",
   });
 }
