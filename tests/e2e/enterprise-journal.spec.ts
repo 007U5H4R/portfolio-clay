@@ -50,10 +50,14 @@ test("layout: 3 / 2 / 1 columns, no overflow, 14 px text floor, images load", as
   });
   expect(small).toEqual([]);
   for (const c of enterpriseCases) await item(page, c.id).scrollIntoViewIfNeeded();
-  const broken = await page.locator(".ee-img").evaluateAll((imgs) =>
-    (imgs as HTMLImageElement[]).filter((i) => i.offsetParent !== null && (!i.complete || i.naturalWidth === 0)).map((i) => i.src),
-  );
-  expect(broken).toEqual([]);
+  // lazy images: on a phone the off-screen slides of the carousel load a moment after they are scrolled to
+  await expect
+    .poll(() =>
+      page.locator(".ee-img").evaluateAll((imgs) =>
+        (imgs as HTMLImageElement[]).filter((i) => i.offsetParent !== null && (!i.complete || i.naturalWidth === 0)).map((i) => i.src),
+      ),
+    )
+    .toEqual([]);
   await expect(page.locator("section#enterprise a")).toHaveCount(0);
 });
 
