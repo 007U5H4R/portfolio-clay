@@ -16988,7 +16988,7 @@ html[data-theme-vt]::view-transition-group(root) {
   /* ---- the dock ---- */
   .mobile-dock {
     --md-inset: 8px;
-    --md-font: clamp(9px, 2.8vw, 11px); /* the widest label ("Ask Tushky", ~5.4em) must fit a sixth of the dock at every phone width (dock.spec.ts measures it); 10 px clips it at 320 */
+    --md-font: clamp(10px, 3.2vw, 12px); /* the widest label ("Portfolio") must fit a sixth of the dock at every phone width (dock.spec.ts measures it); "Xp", "Certs" and "Tushky" keep this ≥ 10 px */
     --md-ink: #3b4560;
     --md-ink-on: #172342;
     /* the brief's 0.78 fill read as an opaque toolbar over the cream page (Tushar 2026-10-16): ~half-transparent + a sheen reads as glass */
