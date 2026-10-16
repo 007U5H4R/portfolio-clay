@@ -103,12 +103,15 @@ describe("/work Experience page (TKT-101)", () => {
     expect(container.querySelectorAll(".ct-logo-type")).toHaveLength(0);
   });
 
-  it("EVAL-018: Work = note · annotation · collage (3); Education = torn · note · annotation · collage (4)", () => {
+  it("EVAL-018: Work = note · collage (2); Education = torn · note · collage (3) — TASK-223 removed the asides", () => {
     const { container } = render(<ExperiencePage />);
     const decor = (id: string) =>
       Array.from(section(container, id).querySelectorAll("[data-decor]")).map((el) => el.getAttribute("data-decor"));
-    expect(decor("work-experience")).toEqual(["note", "annotation", "collage"]);
-    expect(decor("education")).toEqual(["torn", "note", "annotation", "collage"]);
+    expect(decor("work-experience")).toEqual(["note", "collage"]);
+    expect(decor("education")).toEqual(["torn", "note", "collage"]);
+    // TASK-223 (Tushar 2026-10-16): the hand-written asides are gone from both sections
+    expect(container.textContent).not.toContain("Same curiosity. Bigger impact.");
+    expect(container.textContent).not.toContain("research-driven thinking");
     // every decoration is out of the a11y tree; the collage holds no focusable element
     for (const el of Array.from(container.querySelectorAll("[data-decor]"))) {
       expect(el.getAttribute("aria-hidden")).toBe("true");
