@@ -45,7 +45,8 @@ describe("Enterprise Field Journal cards", () => {
   it("the action is a disclosure button: collapsed by default, one open at a time, no links", () => {
     const { container } = render(<EnterpriseClientWork cases={enterpriseCases} />);
     expect(container.querySelectorAll("a")).toHaveLength(0);
-    const buttons = screen.getAllByRole("button");
+    // the case files' disclosure buttons (the phone carousel's pagination dots are buttons too, TASK-233)
+    const buttons = screen.getAllByRole("button").filter((b) => b.classList.contains("ee-open"));
     expect(buttons).toHaveLength(6);
     for (const b of buttons) expect(b).toHaveAttribute("aria-expanded", "false");
     expect(container.querySelectorAll(".ee-dossier:not([hidden])")).toHaveLength(0);

@@ -18,7 +18,20 @@ const REACH = 12;
 const easeIn = (t: number) => t * t;
 const easeOut = (t: number) => 1 - (1 - t) * (1 - t);
 
-export function MobileCarousel({ noun, label, count, children }: { noun: string; label: string; count: number; children: ReactNode }) {
+export function MobileCarousel({
+  noun,
+  label,
+  count,
+  onActiveChange,
+  children,
+}: {
+  noun: string;
+  label: string;
+  count: number;
+  /** Optional (TASK-233): told the settled slide index whenever it changes, so a section can tidy per-slide state. */
+  onActiveChange?: (index: number) => void;
+  children: ReactNode;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState(0);
@@ -89,6 +102,10 @@ export function MobileCarousel({ noun, label, count, children }: { noun: string;
       if (raf) cancelAnimationFrame(raf);
     };
   }, [scroller]);
+
+  useEffect(() => {
+    onActiveChange?.(active);
+  }, [active, onActiveChange]);
 
   const goTo = (i: number) => {
     const list = scroller();

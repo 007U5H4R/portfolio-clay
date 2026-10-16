@@ -56,13 +56,14 @@ test("@EVAL-011 the Portfolio info sheet's case-study link opens in a new tab fo
   expect(count).toBeGreaterThanOrEqual(12);
   for (let i = 0; i < count; i++) {
     await tabs.nth(i).click();
-    const link = page.locator('a[data-action="case"]');
+    // `:visible`: the phone detail's "Case study" button (`.pf-m-btn`) is also in the DOM but `display: none` at w1440
+    const link = page.locator('a[data-action="case"]:visible');
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", /noopener/);
     await expect(link).toContainText(/opens in a new tab/);
   }
   // A click opens the study in a new page and leaves the portfolio where it was.
-  const [popup] = await Promise.all([page.waitForEvent("popup"), page.locator('a[data-action="case"]').click()]);
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.locator('a[data-action="case"]:visible').click()]);
   await popup.waitForLoadState("load");
   expect(new URL(popup.url()).pathname).toMatch(/^\/work\/[a-z0-9-]+$/);
   expect(new URL(page.url()).pathname).toBe("/projects");
