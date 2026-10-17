@@ -50,7 +50,11 @@ export const portfolioEntries: PortfolioEntry[] = [
   { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt" },
   { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
   { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2" },
-  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music" },
+  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music",
+    // Tushar 2026-10-17 (TASK-242): "Bhakti Vilas Launch music" (pitch) https://youtu.be/6-o7uUh-ewY,
+    // "Bhakti Vilas Demo music" (demo) https://youtu.be/ytD0nxWMRWU (both public + embeddable).
+    pitchVideo: { provider: "youtube", videoId: "6-o7uUh-ewY" },
+    demoVideo: { provider: "youtube", videoId: "ytD0nxWMRWU" } },
   { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", coverArt: "cover-token-toli", lettering: "rounded", coverGlyph: "HeartHandshake" },
   { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope",
     // Tushar 2026-10-07 (TASK-179): "pratyasa launch" (a YouTube Short) https://youtube.com/shorts/xqevuhTxKAQ,
