@@ -1543,7 +1543,8 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="shravans-round"] .csx-hero .csx-metric { background: color-mix(in oklab, var(--color-ivory) 8%, var(--color-navy)); border: 2px solid color-mix(in oklab, var(--color-terracotta) 60%, var(--color-ivory)); }
 .csx[data-theme="shravans-round"] .csx-hero .csx-metric-value { color: var(--color-note); }
 .csx[data-theme="shravans-round"] .csx-hero .csx-metric-label,
-.csx[data-theme="shravans-round"] .csx-hero .csx-metric-note { color: color-mix(in oklab, var(--color-ivory) 88%, transparent); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-metric-note,
+.csx[data-theme="shravans-round"] .csx-hero .csx-metric-date { color: color-mix(in oklab, var(--color-ivory) 88%, transparent); }
 .csx[data-theme="shravans-round"] .csx-eyebrow { color: var(--color-terracotta); }
 .csx[data-theme="shravans-round"] .csx-quote { border-left-color: var(--color-terracotta); background: var(--color-ivory); }
 .csx[data-theme="shravans-round"] .csx-arch-step::before { border-color: var(--color-terracotta); background: var(--color-note); }
