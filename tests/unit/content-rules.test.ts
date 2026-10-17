@@ -328,6 +328,7 @@ describe("TC-091 · sanity", () => {
         "cinematic-portfolio",
         "campfire-board",
         "slag-city",
+        "shravans-round",
       ].sort(),
     );
   });

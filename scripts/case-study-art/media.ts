@@ -84,6 +84,11 @@ export const MEDIA: MediaRow[] = [
   { slug: "slag-city", from: "06-gameplay-combat.jpg", to: "combat.webp", width: 1000 },
   { slug: "slag-city", from: "20-continue-desktop.jpg", to: "continue.webp", width: 1000 },
   { slug: "slag-city", from: "18-mobile-portrait-play.jpg", to: "mobile.webp", width: 420 },
+  // The Shravan's Round — live captures (2026-10-17). Shravan's face is never shown: the landing is
+  // cropped right of his portrait and the example score card above the quote with his photo (TASK-243).
+  { slug: "shravans-round", from: "landing-desktop.jpg", to: "landing.webp", width: 1100, extract: { left: 500, top: 0, width: 1100, height: 1000 } },
+  { slug: "shravans-round", from: "feedback-desktop.jpg", to: "score-card.webp", width: 1400, extract: { left: 0, top: 0, width: 1600, height: 630 } },
+  { slug: "shravans-round", from: "landing-mobile.jpg", to: "landing-mobile.webp", width: 420 },
 ];
 
 export async function buildMedia(only?: string) {

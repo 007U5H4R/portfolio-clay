@@ -38,6 +38,7 @@ Consumed by: `Solution-PRD.md` (content requirements), the ticketing stage (one 
 | `CN` | `/Volumes/E Drive/Dev/Code/Claude/portfolio/cinematic/` |
 | `CF` | `/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/` (Campfire Board; added TASK-124, 2026-09-28) |
 | `SC` | `/Volumes/E Drive/Dev/Code/Claude/Slag City/` (Slag City; added TASK-129, 2026-09-29; read-only) |
+| `SR` | `/Volumes/E Drive/Dev/Code/Claude/Mock Interview/` (The Shravan's Round; added TASK-243, 2026-10-17; read-only) |
 | `DL` | `/Users/tushar/Downloads/Documents/` |
 | `MEM` | `/Users/tushar/.claude/projects/-Volumes-E-Drive-Dev-Code-Claude-portfolio/memory/cinematic-portfolio-build.md` |
 
@@ -268,7 +269,7 @@ Status vocabulary: **VERIFIED** (quoted/derived from a cited artifact) · **DRAF
 | **Tegaki** — handwriting-assessment pilot; Next.js 16 + Supabase, 18 RLS migrations, honesty guard `check-claims` in CI; first commit 2026-09-01, last 2026-09-09; 31 test files (vitest + Playwright) | `GR/README.md`; `GR/package.json`; `GR/supabase/migrations` (18); live `https://tegaki-one.vercel.app`; screenshots `GR/docs/screenshots/{hero,how-it-works,anatomy,report-excerpt,pricing,sign-in}.jpg` 1568×661; OG `GR/public/og-cover.png` 1200×630 | `PlaygroundGrid.card[1]` | VERIFIED |
 | **dino-arcade-pwa** — BYO-ROM PWA arcade cabinet; EmulatorJS 4.2.3 + FBNeo core self-hosted; offline via service worker; 3 commits (2026-09-06/07) | `DN/README.md`; live `https://007u5h4r.github.io/dino-arcade-pwa/`; icons `DN/assets/icon-512.png`; **screenshot MISSING** | `PlaygroundGrid.card[2]` | VERIFIED / MISSING (screenshot) |
 | **cinematic-portfolio** — scroll-film portfolio; 1 still + 3 clips generated via Higgsfield (197 credits), 289 scrub frames, Lenis; live 2026-08-26 | `CN/PRD.md`; `CN/ledger.md`; live `https://tushar-pathak.vercel.app/`; repo `https://github.com/007U5H4R/cinematic-portfolio`; media `CN/assets/posters/{hero,work,close}.jpg` 1280×720, `CN/assets/og-cover.png` 1200×630, `CN/assets/stills/hero-still.png` 2752×1536 | `PlaygroundGrid.card[3]` | VERIFIED |
-| Exclusion note (one line each): **Slag City** — in-progress, no remote, no live URL (`AUDIT` §7). **Mock Interview** — team draft, last commit is a revert, fronted by a third party's likeness (`AUDIT` §7). **Game** — duplicate planning copy of dino-arcade-pwa and contains ROM/BIOS files that must never be published (`AUDIT` §7). | `AUDIT` §7 | `PlaygroundGrid.note` (internal; do not render the ROM detail) | VERIFIED |
+| Exclusion note (one line each): **Slag City** — in-progress, no remote, no live URL (`AUDIT` §7). **Mock Interview** — team draft, last commit is a revert, fronted by a third party's likeness (`AUDIT` §7). *Lifted for `/projects` by TASK-243 (Tushar, 2026-10-17): now live as The Shravan's Round (§8.14); the site never shows the third party's face, and `/playground` still never lists it.* **Game** — duplicate planning copy of dino-arcade-pwa and contains ROM/BIOS files that must never be published (`AUDIT` §7). | `AUDIT` §7 | `PlaygroundGrid.note` (internal; do not render the ROM detail) | VERIFIED |
 
 ---
 
@@ -537,6 +538,20 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Video:** launch pitch `youtu.be/1xvj8j79Svs` ("slag city launch") and demo `youtu.be/tc4QDVl8NJM` ("SlagCity demo enhanced"), channel "The Purposeful PM", public and embeddable per Tushar's oEmbed check (2026-09-29).
 - **Metrics / users:** none recorded — publish none. (Optional Mixpanel funnel exists but no numbers are recorded.)
 - **MISSING:** users/usage · lesson-learnt · "the USPTO/EUIPO clearance is an open **owner gate**" for the working title (`SC/docs/deploy/DEPLOY.md` → `docs/legal/title-check.md`; not a site claim).
+
+
+### 8.14 `shravans-round` (added TASK-243, 2026-10-17)
+
+- **Name / tagline:** The Shravan's Round — "Rehearse the round before the round." (live site hero); "AI mock interviews for PM candidates, fronted by Shravan's voice and avatar" (`SR/shravan-mock-interview/README.md`).
+- **What it is (README "Flow"; live site):** setup with no login → a 20-minute interview (your story, one product case, metrics) → a free score card with evidence quotes and an overall score, in the app and as a PDF. "Real Indian PM cases… Free score card." "No login. No card. 20 minutes."
+- **Role:** team build. README "Owners" lists Tushar as the avatar owner; teammates own the voice loop, the brain, setup, score card and report. Tushar's own git commits are the animated listening-ring brand mark and favicon (2026-09-15). The launch and demo films are his (Obsidian "Launch & Demo Films"). Only his part is claimed.
+- **Avatar trial (`SR/shravan-mock-interview/Discovery-PRD.md`, DRAFT 2026-09-11; vendor matrix 2026-09-10):** three photo-driven vendors trialled on one clip; Anam 39/45, Simli 35/45; lips 0.75–1.0 s after the first audio chunk on Anam; the team chose Anam for the pilot. Photo-only capture ruled out building a 3D face. Shipped `main` later moved the face to HeyGen LiveAvatar (teammate commits) and the listening-ring mark replaced the face site-wide.
+- **Stack (README):** Next.js on Vercel, Supabase Postgres with pgvector retrieval over Shravan's transcripts, OpenAI for the interview turns and Gemini for the report, each covering for the other on a refusal; voice through the browser's Web Speech API today.
+- **Status:** live at `https://shravans-round.vercel.app` (HTTP 200, 2026-10-17). Repo `https://github.com/teenytinybot/shravan-mock-interview`, **private** → `repoPublic: false`.
+- **Dates:** repo created 2026-09-10; last push 2026-10-16 → "Sep–Oct 2026".
+- **Video:** launch pitch `youtu.be/0cYat1u7lJE` ("Shravans Round Launch") and demo `youtu.be/lwXHhCh1NEE` ("Shravans Round Demo"), channel "The Purposeful PM", public and embeddable (oEmbed, 2026-10-17).
+- **Likeness:** used by the product with consent; the portfolio never shows his face (cover has no people; captures cropped). The `/feedback` capture is the site's own labelled example ("a made-up round").
+- **Metrics / users:** none recorded — publish none.
 
 ---
 

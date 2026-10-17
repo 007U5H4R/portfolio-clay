@@ -23,6 +23,7 @@ const COVERS = {
   railcite: "r2-cover-railcite", "slag-city": "r2-cover-slag-city", "bhakti-vilas": "r2-cover-bhakti-vilas",
   cubicle: "cover-cubicle", nuptis: "cover-nuptis", pratyasa: "cover-pratyasa", tegaki: "cover-tegaki",
   "dino-arcade-pwa": "cover-dino-arcade-pwa", "cinematic-portfolio": "cover-cinematic-portfolio",
+  "shravans-round": "cover-shravans-round",
 };
 // card → [w, h, bleed, crop-left px, masters back/mid/front]
 const FEATURED = {

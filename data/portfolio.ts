@@ -90,4 +90,18 @@ export const portfolioEntries: PortfolioEntry[] = [
     pitchVideo: { provider: "youtube", videoId: "1xvj8j79Svs" },
     demoVideo: { provider: "youtube", videoId: "tc4QDVl8NJM" },
   },
+  {
+    // TASK-243 (Tushar 2026-10-17): "Shravans Round Launch" (pitch) https://youtu.be/0cYat1u7lJE and
+    // "Shravans Round Demo" https://youtu.be/lwXHhCh1NEE, channel The Purposeful PM, public + embeddable.
+    slug: "shravans-round",
+    code: "SR-01",
+    coverLine: "Rehearse the round first",
+    accent: "terracotta",
+    meta: "Live · team build",
+    coverArt: "cover-shravans-round",
+    lettering: "rounded",
+    coverGlyph: "Mic",
+    pitchVideo: { provider: "youtube", videoId: "0cYat1u7lJE" },
+    demoVideo: { provider: "youtube", videoId: "lwXHhCh1NEE" },
+  },
 ];

@@ -15,6 +15,7 @@
  * TASK-121: `cover-teachspark`, TeachSpark's painted 90s cover (carousel cover + `/projects` stage poster, public-only).
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
+ * TASK-243: `cover-shravans-round`, the fourteenth cover, 3D paper-cut art generated with Higgsfield like TASK-202.
  * TASK-202: all thirteen covers and the three Featured Work cards are 3D paper-cut art generated with Higgsfield
  * (WebP covers 1344×756; AVIF + WebP back/mid/front layers); provenance in `card-art-README.md` beside the assets.
  * TASK-144.5 (M-010 T3): the seven tab scenes are paper-cut stills, light + dark twins (`darkFile`), WebP, 3168×1344, with
@@ -26,7 +27,7 @@
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot"; // "clip": no entry ships since S24 retired clip A, kept for the alt-prefix table
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
+  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "cover-shravans-round" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition; the LIGHT rendition when `darkFile` is set)
   darkFile?: string;     // TASK-140 (S23, EV9, EVAL-025): the paired dark-theme rendition — same entry, same alt, identical pixel size
@@ -367,6 +368,17 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1344,
     height: 756,
     alt: "Illustration of a ruined industrial city at smoggy dusk: a forge hammer stands head-down on a heap of slag before a foundry's blazing furnace arch, molten slag runs out towards the viewer, and smokestacks, a blast-furnace tower, gutted buildings, a leaning crane and a broken green dome stand in the haze.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-243: The Shravan's Round's cover, 3D paper-cut art (Higgsfield) — carousel cover + stage poster.
+    id: "cover-shravans-round",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-shravans-round.webp",
+    width: 1344,
+    height: 756,
+    alt: "Illustration of a quiet interview room at dusk: an empty terracotta armchair faces a round wooden table with two cups of chai, a green notebook and pencil, a pocket stopwatch and a brass desk microphone standing inside an amber paper ring of radiating bars, beside a night window and a potted plant.",
     usedOn: ["/projects"],
   },
   {

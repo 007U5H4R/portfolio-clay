@@ -264,7 +264,7 @@ export const CaseSection = z.discriminatedUnion('kind', [ProblemSection, Product
 export const EVIDENCE_TYPES = ['PRD','Design','Evaluation','Research','Architecture','Build ledger','Deck','Code','Live data','Post','Test run','Feedback','Analytics','Paper','Readme'] as const;
 export const EvidenceItem = z.object({ title: z.string().min(3).max(60), type: z.enum(EVIDENCE_TYPES), date: z.string().regex(/^\d{4}-\d{2}(-\d{2})?$/).optional(), supports: z.string().min(8).max(160), source: z.string().min(2) });
 /* Per-product art direction (spec §7–§9, §25, §39). `theme` keys the page's CSS scope. */
-export const CASE_THEMES = ['railcite','teachspark','velora','cubicle','tegaki','nuptis','bhakti-vilas','token-toli','pratyasa','dino-arcade-pwa','cinematic-portfolio','campfire-board','slag-city'] as const;
+export const CASE_THEMES = ['railcite','teachspark','velora','cubicle','tegaki','nuptis','bhakti-vilas','token-toli','pratyasa','dino-arcade-pwa','cinematic-portfolio','campfire-board','slag-city','shravans-round'] as const;
 export const CaseStudy = z.object({
   slug: Slug,
   theme: z.object({

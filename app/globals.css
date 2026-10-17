@@ -9205,6 +9205,13 @@ html.lenis body {
   .pf-cover[data-product="cinematic-portfolio"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="campfire-board"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="slag-city"] { --title: var(--color-note); --extrude: var(--color-rust); }
+  .pf-cover[data-product="shravans-round"] {
+    /* a plain cream wall above the room: navy lettering, like bhakti-vilas */
+    --title: var(--color-navy);
+    --extrude: var(--color-terracotta);
+    --shade: color-mix(in oklab, var(--color-ivory) 75%, transparent);
+    --scrim: color-mix(in oklab, var(--color-ivory) 45%, transparent);
+  }
   /* stage poster: the same art, full 16:9; lettering centred in the calm top band */
   .pf-cover[data-size="stage"] {
     border-radius: 0;

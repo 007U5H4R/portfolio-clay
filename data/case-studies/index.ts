@@ -12,13 +12,14 @@ import { dinoArcadeCase } from "./dino-arcade-pwa";
 import { cinematicCase } from "./cinematic-portfolio";
 import { campfireCase } from "./campfire-board";
 import { slagCityCase } from "./slag-city";
+import { shravansRoundCase } from "./shravans-round";
 
 /**
  * The case-study records (TASK-130, spec §37), one per personal build, parsed once so the schema's
  * defaults apply. A record's `source` ids are cross-checked against its project's `sources[]` by
  * `validateAll()` (data/index.ts). Server-only: never import this from a client component.
  */
-export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase, bhaktiVilasCase, tokenToliCase, pratyasaCase, dinoArcadeCase, cinematicCase, campfireCase, slagCityCase];
+export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase, bhaktiVilasCase, tokenToliCase, pratyasaCase, dinoArcadeCase, cinematicCase, campfireCase, slagCityCase, shravansRoundCase];
 
 export const caseStudies: CaseStudyT[] = caseStudyInputs.map((input) => CaseStudy.parse(input));
 

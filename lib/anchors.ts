@@ -58,6 +58,7 @@ export const ALL_PROJECT_SLUGS = [
   'cinematic-portfolio',
   'campfire-board', // TASK-124
   'slag-city', // TASK-129
+  'shravans-round', // TASK-243
 ] as const;
 
 export interface RouteInputs {

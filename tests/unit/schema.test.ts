@@ -26,11 +26,11 @@ describe("data/schema — positive", () => {
     expect(validateAll()).toEqual({ ok: true });
   });
 
-  it("the collection holds all 16 records (13 personal + 3 professional) with unique slugs (TKT-15; TASK-124 Campfire Board; TASK-129 Slag City)", () => {
-    expect(projects).toHaveLength(16);
-    expect(projects.filter((p) => p.category === "personal")).toHaveLength(13);
+  it("the collection holds all 17 records (14 personal + 3 professional) with unique slugs (TKT-15; TASK-124 Campfire Board; TASK-129 Slag City; TASK-243 The Shravan's Round)", () => {
+    expect(projects).toHaveLength(17);
+    expect(projects.filter((p) => p.category === "personal")).toHaveLength(14);
     expect(projects.filter((p) => p.category === "professional")).toHaveLength(3);
-    expect(new Set(projects.map((p) => p.slug)).size).toBe(16);
+    expect(new Set(projects.map((p) => p.slug)).size).toBe(17);
     // professional entries never carry a public product surface (Solution-PRD §5).
     for (const p of projects.filter((p) => p.category === "professional")) {
       expect(p.links.live).toBeUndefined();
