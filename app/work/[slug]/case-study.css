@@ -1527,6 +1527,27 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="slag-city"] .csx-arch-step { border: 2px solid var(--color-navy); border-radius: 6px; }
 .csx[data-theme="slag-city"] .csx-arch-step::before { border-color: var(--color-rust); background: var(--color-note); }
 
+/* The Shravan's Round — a late-evening interview room: a warm plum-dark hero, amber listening accents,
+   copper margin notes (TASK-243). */
+.csx[data-theme="shravans-round"] .csx-hero {
+  background: color-mix(in oklab, var(--color-navy) 82%, var(--color-terracotta));
+}
+.csx[data-theme="shravans-round"] .csx-hero .csx-h1 { color: var(--color-ivory); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-tagline { color: var(--color-note); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-prop,
+.csx[data-theme="shravans-round"] .csx-hero .csx-crumb,
+.csx[data-theme="shravans-round"] .csx-hero .csx-crumb a,
+.csx[data-theme="shravans-round"] .csx-hero .csx-legend,
+.csx[data-theme="shravans-round"] .csx-hero .csx-legend-label { color: var(--color-ivory); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-code { color: var(--color-kraft); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-metric { background: color-mix(in oklab, var(--color-ivory) 8%, var(--color-navy)); border: 2px solid color-mix(in oklab, var(--color-terracotta) 60%, var(--color-ivory)); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-metric-value { color: var(--color-note); }
+.csx[data-theme="shravans-round"] .csx-hero .csx-metric-label,
+.csx[data-theme="shravans-round"] .csx-hero .csx-metric-note { color: color-mix(in oklab, var(--color-ivory) 88%, transparent); }
+.csx[data-theme="shravans-round"] .csx-eyebrow { color: var(--color-terracotta); }
+.csx[data-theme="shravans-round"] .csx-quote { border-left-color: var(--color-terracotta); background: var(--color-ivory); }
+.csx[data-theme="shravans-round"] .csx-arch-step::before { border-color: var(--color-terracotta); background: var(--color-note); }
+
 /* A product with a video and several screens: the screens get their own full row. */
 @media (min-width: 1024px) {
   .csx-product[data-video] .csx-shots[data-count="2"], .csx-product[data-video] .csx-shots[data-count="3"] { grid-column: 1 / -1; }

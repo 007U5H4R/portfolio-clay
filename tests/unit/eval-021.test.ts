@@ -34,6 +34,7 @@ const PRODUCT_COVER_IDS = [
   "cover-cinematic-portfolio",
   "cover-campfire-board",
   "cover-slag-city", // TASK-129
+  "cover-shravans-round", // TASK-243
 ] as const;
 
 /** TASK-133: the three home Featured Work cut-paper collages (featured-rank order). */
@@ -185,7 +186,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(31);
+    expect(ILLUSTRATIONS.length).toBe(32); // + TASK-243 `cover-shravans-round`
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {
@@ -245,7 +246,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
 
   // TASK-202: every product cover is 3D paper-cut art generated with Higgsfield (a 1344×756 WebP, text-free by prompt) — the
   // carousel cover (5:6 crop) and the stage poster (16:9) of one product. It replaces the TASK-127 hand-authored SVGs.
-  it("the thirteen product covers are 1344×756 WebPs ≤ 180 kB, one per personal build (TASK-202; slag-city TASK-129)", () => {
+  it("the fourteen product covers are 1344×756 WebPs ≤ 180 kB, one per personal build (TASK-202; slag-city TASK-129)", () => {
     const covers = ILLUSTRATIONS.filter((e) => e.id.startsWith("cover-"));
     expect(covers.map((e) => e.id).sort()).toEqual([...PRODUCT_COVER_IDS].sort());
     for (const cover of covers) {

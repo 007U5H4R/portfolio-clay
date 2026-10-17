@@ -2917,6 +2917,54 @@ export const slagCity: Project = {
   ],
 };
 
+/**
+ * The Shravan's Round (TASK-243). AI mock PM interviews fronted by Shravan's voice, live at
+ * shravans-round.vercel.app (HTTP 200, checked 2026-10-17). A team build in a private repo
+ * (teenytinybot/shravan-mock-interview → repoPublic:false). Tushar's own part is the avatar layer (the
+ * vendor trial and its Discovery PRD), the animated listening-ring brand mark, and the launch and demo
+ * films; teammates own the voice loop, the brain, the score card and the report. The site never shows
+ * Shravan's face. No users, metrics or outcomes are recorded, so none are claimed. CONTENT_INVENTORY §8.14.
+ */
+export const shravansRound: Project = {
+  slug: "shravans-round",
+  name: "The Shravan's Round",
+  tagline:
+    "A 20-minute AI mock PM interview fronted by Shravan's voice — real Indian product cases, then a free score card.",
+  category: "personal",
+  tags: ["AI", "Interview prep", "Team"],
+  filters: ["ai", "experiments"],
+  status: "live",
+  statusLabel: "Live · team build",
+  statusAsOf: "2026-10-17",
+  gridSize: "small",
+  icon: "Mic",
+  role: "Team build · avatar, brand mark and films",
+  dates: { start: "2026-09", end: "2026-10" },
+  duration: "Sep–Oct 2026",
+  links: {
+    live: "https://shravans-round.vercel.app",
+    github: "https://github.com/teenytinybot/shravan-mock-interview",
+    repoPublic: false,
+  },
+  hero: {},
+  metrics: [],
+  overview: {
+    thirtySecond: [
+      "A free mock PM interview: a short setup with no login, a 20-minute round that cross-questions your answers on real Indian product cases, then a score card with evidence quotes from your transcript, downloadable as a PDF.",
+      "A team build on Next.js, Supabase with pgvector retrieval over Shravan's teaching transcripts, and two model providers that cover for each other. My part: the avatar layer — a scored trial of three photo-driven avatar vendors and its Discovery PRD — plus the animated listening-ring brand mark and the launch and demo films.",
+    ],
+    deepDive: false,
+  },
+  chapters: EMPTY_CHAPTERS,
+  thinking: [],
+  learnings: [],
+  sources: [
+    { id: "SR-README", label: "The Shravan's Round README", ref: "SR/shravan-mock-interview/README.md (Flow, Stack, Owners)", inventory: "§8.14" },
+    { id: "SR-AVATAR", label: "Avatar layer Discovery PRD and vendor trial", ref: "SR/shravan-mock-interview/Discovery-PRD.md §1–§6 (2026-09-11); vendor trial matrix (2026-09-10)", inventory: "§8.14" },
+    { id: "SR-BRAND", label: "Brand mark notes", ref: "SR/shravan-mock-interview web/src/components/stage/ListeningRingMark.tsx (2026-09-15)", inventory: "§8.14" },
+  ],
+};
+
 /* ── professional experience entries (TKT-15, §2.3) ────────────────────────────────
  * `category:'professional'`: the schema forbids `links.live`, `demoVideo` and `featured` on these,
  * so corporate work can never imply a public product (Solution-PRD §5). Status is neutral
@@ -3031,15 +3079,15 @@ export const godrejSmartnet: Project = {
 };
 
 /**
- * The full 16-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129):
- * 13 personal builds + 3 professional-experience entries.
+ * The full 17-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129, The Shravan's Round by TASK-243):
+ * 14 personal builds + 3 professional-experience entries.
  * Featured trio (rank 1/2/3, TASK-133): RailCite (large, the anchor) · Slag City · Campfire Board. Exactly one
  * `gridSize:'large'` (railcite). TeachSpark and Nuptis → Velora stay on the Portfolio page and in `/work`. `generateStaticParams` builds a `/work/<slug>` page for the 13
  * personal builds only; professional entries render inline on `/work` (TKT-17), no case-study page.
  */
 export const projects: Project[] = [
-  // personal builds (13) — the M-005 case studies first, then the deep dives, then the card-depth builds
-  // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129)
+  // personal builds (14) — the M-005 case studies first, then the deep dives, then the card-depth builds
+  // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129; The Shravan's Round, TASK-243)
   teachspark,
   railcite,
   velora,
@@ -3053,6 +3101,7 @@ export const projects: Project[] = [
   cinematicPortfolio,
   campfireBoard,
   slagCity,
+  shravansRound,
   // professional experience (3)
   marsArModernization,
   cloudModernizationPrograms,

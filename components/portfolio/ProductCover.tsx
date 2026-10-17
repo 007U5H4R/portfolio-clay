@@ -14,6 +14,7 @@ import {
   HeartHandshake,
   MessageSquareText,
   Microscope,
+  Mic,
   Monitor,
   Music,
   PenLine,
@@ -55,6 +56,7 @@ const GLYPHS: Readonly<Record<string, LucideIcon>> = {
   SquareKanban,
   Flame,
   Hammer,
+  Mic,
 };
 
 export function glyphFor(name: string): LucideIcon {
