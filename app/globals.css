@@ -9205,47 +9205,6 @@ html.lenis body {
   .pf-cover[data-product="cinematic-portfolio"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="campfire-board"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="slag-city"] { --title: var(--color-note); --extrude: var(--color-rust); }
-  /* the cover-line plate: a cream printed label with the product's emblem */
-  .pf-cover-plate {
-    position: absolute;
-    inset: auto 8px 8px;
-    z-index: 4;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 7px 5px 8px;
-    color: var(--color-navy);
-    background-color: var(--pf-cream);
-    background-image: var(--pf-fibers);
-    background-size: 420px 420px;
-    border-radius: 2px;
-    box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--color-navy) 28%, transparent),
-      0 2px 3px color-mix(in oklab, var(--shadow-ink) 25%, transparent);
-  }
-  .pf-cover-line {
-    flex: 1;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    font-weight: 700;
-    line-height: 1.18;
-    letter-spacing: 0.02em;
-    text-align: left;
-    text-transform: uppercase;
-    background: linear-gradient(transparent, transparent) no-repeat 0 100% / 0 3px;
-  }
-  .pf-cover-emblem {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    color: var(--pf-accent, var(--color-rust));
-  }
-  /* a narrow cover (five per view at 1024–1279) gives the plate's line the emblem's room */
-  @container (max-width: 150px) {
-    .pf-cover-emblem {
-      display: none;
-    }
-  }
   /* stage poster: the same art, full 16:9; lettering centred in the calm top band */
   .pf-cover[data-size="stage"] {
     border-radius: 0;
@@ -9802,10 +9761,6 @@ html.lenis body {
       var(--color-steel);
     box-shadow: 0 3px 4px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
     pointer-events: none;
-  }
-  .pf-thumb[aria-selected="true"] .pf-cover-line {
-    background-image: linear-gradient(color-mix(in oklab, var(--color-rust) 55%, transparent), color-mix(in oklab, var(--color-rust) 55%, transparent));
-    background-size: 100% 3px;
   }
 
   /* --- Section 2: the enterprise chapter — a layered torn seam onto ruled dossier paper --- */
@@ -13941,10 +13896,6 @@ html[data-theme-vt]::view-transition-group(root) {
     0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
     0 14px 20px -10px color-mix(in oklab, var(--color-terracotta) 28%, transparent);
 }
-/* the art is a hair larger than the cover (the keyline hides the bleed) so a 2 px shift never shows a seam */
-.pf-cover[data-size="thumb"] .pf-cover-art {
-  inset: -3px;
-}
 @media (hover: hover) and (pointer: fine) {
   .pf-thumb:not([aria-selected="true"]):hover {
     translate: 0 -4px;
@@ -14260,30 +14211,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-showcase {
     gap: 8px;
   }
-}
-/* the carousel's code is an archive tag: cream card stock, a punched hole, a strip of tape, a slight tilt (identical in both themes) */
-.pf-cover[data-size="thumb"] .pf-cover-code {
-  top: 11px;
-  left: 8px;
-  padding: 2px 8px 2px 16px;
-  color: var(--color-navy);
-  background-color: var(--color-ivory);
-  background-image: radial-gradient(circle at 8px 50%, var(--color-navy) 0 2px, transparent 2.5px), var(--pf-fibers);
-  background-size: auto, 420px 420px;
-  rotate: -3deg;
-  box-shadow:
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 28%, transparent),
-    0 4px 6px -2px color-mix(in oklab, var(--shadow-ink) 30%, transparent);
-}
-.pf-cover[data-size="thumb"] .pf-cover-code::after {
-  content: "";
-  position: absolute;
-  top: -5px;
-  right: -7px;
-  width: 22px;
-  height: 9px;
-  rotate: 28deg;
-  background: color-mix(in oklab, var(--color-kraft) 62%, transparent);
 }
 @media (min-width: 640px) and (max-width: 1023px) {
   .pf-stage.paper-sheet {
