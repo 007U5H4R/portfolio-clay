@@ -25,7 +25,6 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { createElement } from "react";
 import type { PortfolioProduct } from "@/lib/portfolio";
 
 /**
@@ -64,8 +63,8 @@ export function glyphFor(name: string): LucideIcon {
 
 export interface ProductCoverProps {
   product: PortfolioProduct;
-  /** `thumb` = the carousel card (4:5); `stage` = the media stage's poster (16:9). */
-  size: "thumb" | "stage";
+  /** `stage` = the media stage's poster (16:9). */
+  size: "stage";
 }
 
 /**
@@ -81,7 +80,6 @@ export interface ProductCoverProps {
  * micro-label (12.5 px; the same line is real content on the stage poster and the info sheet).
  */
 export function ProductCover({ product, size }: ProductCoverProps) {
-  const Glyph = glyphFor(product.coverGlyph);
   return (
     <span
       className="pf-cover"
@@ -91,12 +89,12 @@ export function ProductCover({ product, size }: ProductCoverProps) {
       data-product={product.id}
       aria-hidden="true"
     >
-      <span className={size === "thumb" ? "pf-cover-art pm-layer" : "pf-cover-art"} {...(size === "thumb" ? { "data-pm-depth": "bg" } : {})}>
+      <span className="pf-cover-art">
         <Image
           src={product.art.src}
           alt=""
           fill
-          sizes={size === "stage" ? "(min-width: 1024px) 58vw, 100vw" : "(min-width: 1024px) 200px, 45vw"}
+          sizes="(min-width: 1024px) 58vw, 100vw"
           unoptimized={product.art.src.endsWith(".svg")}
           className="pf-cover-img"
         />
@@ -106,14 +104,6 @@ export function ProductCover({ product, size }: ProductCoverProps) {
         <span className="pf-cover-name">{product.name}</span>
         {size === "stage" ? <span className="pf-cover-sub">{product.tagline}</span> : null}
       </span>
-      {size === "thumb" ? (
-        <span className="pf-cover-plate">
-          <span className="pf-cover-line" data-micro-label="">
-            {product.tagline}
-          </span>
-          {createElement(Glyph, { className: "pf-cover-emblem", strokeWidth: 1.75, "aria-hidden": true, focusable: false })}
-        </span>
-      ) : null}
     </span>
   );
 }
