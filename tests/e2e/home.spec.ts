@@ -59,7 +59,8 @@ test("home sections use the 72/96/128 vertical-rhythm ladder for the current vie
   page,
 }) => {
   await page.goto("/", { waitUntil: "load" });
-  const want = expectedSectionPadding(width(page));
+  // TASK-229: on phones (< 640px) the Ask section is compacted to 12px padding-top; the ladder applies from 640px up.
+  const want = width(page) < 640 ? 12 : expectedSectionPadding(width(page));
   const paddingTop = await page
     .locator("#ask")
     .evaluate((el) => Number.parseInt(getComputedStyle(el).paddingTop, 10));
