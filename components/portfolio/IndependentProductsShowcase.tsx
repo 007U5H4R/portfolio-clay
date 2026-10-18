@@ -17,6 +17,7 @@ import {
 import { MainMediaStage } from "./MainMediaStage";
 import { PhoneDetailBar } from "./PhoneDetail";
 import { PhoneProjectList } from "./PhoneProjectList";
+import { ProjectsMobileBackground } from "./ProjectsMobileBackground";
 import { ProductCarousel } from "./ProductCarousel";
 import { ProductInfoPanel } from "./ProductInfoPanel";
 
@@ -221,6 +222,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
 
   return (
     <div className="pf-showcase" data-view={view}>
+      <ProjectsMobileBackground active={view === "list"} />{/* TASK-259 test — kill switch: ORIGAMI_BG_ENABLED */}
       {intro}
       {view === "detail" ? <PhoneDetailBar name={product.name} logo={product.logo} onBack={backToList} /> : null}
       <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
