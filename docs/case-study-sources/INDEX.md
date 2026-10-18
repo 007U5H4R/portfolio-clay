@@ -93,6 +93,9 @@ Copied from Tushar's local project folders on 2026-09-29, resized to at most 160
 | shravans-round | landing-desktop.jpg | 1600×1000 | 162 | live capture of `https://shravans-round.vercel.app/` (Playwright, 2026-10-17, TASK-243) |
 | shravans-round | feedback-desktop.jpg | 1600×1000 | 227 | live capture of `https://shravans-round.vercel.app/feedback` (Playwright, 2026-10-17, TASK-243) |
 | shravans-round | landing-mobile.jpg | 780×1688 | 155 | live capture of `https://shravans-round.vercel.app/ at 390 px` (Playwright, 2026-10-17, TASK-243) |
+| urja | today-desktop.jpg | 1600×1000 | 165 | live capture of `https://urja-three.vercel.app/` (Playwright, 2026-10-18, TASK-248) |
+| urja | trip-desktop.jpg | 1600×1000 | 173 | live capture of `https://urja-three.vercel.app/trips/0926-04` (Playwright, 2026-10-18, TASK-248) |
+| urja | brief-desktop.jpg | 1600×1000 | 66 | live capture of `https://urja-three.vercel.app/brief` (Playwright, 2026-10-18, TASK-248) |
 
 ## Added from the product repos (TASK-130 follow-up, 2026-09-29)
 

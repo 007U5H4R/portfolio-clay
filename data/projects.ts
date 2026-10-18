@@ -3079,15 +3079,64 @@ export const godrejSmartnet: Project = {
 };
 
 /**
- * The full 17-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129, The Shravan's Round by TASK-243):
- * 14 personal builds + 3 professional-experience entries.
+ * Urja (TASK-248). An AI munshi for Indian fleet owners, live at urja-three.vercel.app (HTTP 200, checked
+ * 2026-10-18); public repo 007U5H4R/urja. A solo concept Tushar built for a PM interview (Solution PRD
+ * approved 2026-09-28, live 2026-10-05) on a simulated 24-truck fleet. Rules compute every flag and the
+ * brief is templated; only Ask Urja calls a model, and its eval gate failed (Gemini free-tier quota), so it
+ * is not claimed as passing. Wording follows Urja's own rule: "unaccounted", never "theft". No users,
+ * metrics or outcomes are recorded, so none are claimed. CONTENT_INVENTORY §8.15.
+ */
+export const urja: Project = {
+  slug: "urja",
+  name: "Urja",
+  tagline:
+    "An AI munshi for Indian fleet owners — every trip's diesel, tolls and kilometres reconciled, and a morning brief in Hindi or English.",
+  category: "personal",
+  tags: ["AI", "Logistics", "Hindi-first"],
+  filters: ["ai", "experiments"],
+  status: "live",
+  statusLabel: "Live · simulated fleet",
+  statusAsOf: "2026-10-18",
+  gridSize: "small",
+  icon: "Fuel",
+  role: "Solo build · PM, design and AI-agent build",
+  dates: { start: "2026-09", end: "2026-10" },
+  duration: "Sep–Oct 2026",
+  links: {
+    live: "https://urja-three.vercel.app",
+    github: "https://github.com/007U5H4R/urja",
+    repoPublic: true,
+  },
+  hero: {},
+  metrics: [],
+  overview: {
+    thirtySecond: [
+      "A small-fleet owner asks why a finished trip made almost nothing. Urja reconciles each trip's diesel, tolls and kilometres against the vehicle data and tells the owner each morning, in Hindi or English, which rupees don't add up and how sure it is.",
+      "A solo concept on a simulated 24-truck fleet: five deterministic rules raise every flag with a confidence level, the brief is templated so it never invents a figure, and one Gemini-backed Ask box answers questions with a labelled fallback. Next.js on Vercel, with a three.js reconstruction of the flagged night.",
+    ],
+    deepDive: false,
+  },
+  chapters: EMPTY_CHAPTERS,
+  thinking: [],
+  learnings: [],
+  sources: [
+    { id: "URJA-DISC", label: "Urja Discovery PRD", ref: "urja/Discovery-PRD.md (2026-09-28): user, problem, pain signals", inventory: "§8.15" },
+    { id: "URJA-PRD", label: "Urja Solution PRD", ref: "urja/Solution-PRD.md (approved 2026-09-28): one line, screens, leakage rules, AI design", inventory: "§8.15" },
+    { id: "URJA-DEC", label: "Urja decision log", ref: "urja/decisions.md S1, S3, S6, S7, D3 (2026-09-28)", inventory: "§8.15" },
+    { id: "URJA-QA", label: "Urja QA report and Ask eval", ref: "urja/QA-report.md (Stage 9–10); urja/evals/reports/eval-report-v1.md (gate FAIL, 2026-10-05)", inventory: "§8.15" },
+  ],
+};
+
+/**
+ * The full 18-record collection (TKT-15; Campfire Board added by TASK-124, Slag City by TASK-129, The Shravan's Round by TASK-243,
+ * Urja by TASK-248): 15 personal builds + 3 professional-experience entries.
  * Featured trio (rank 1/2/3, TASK-133): RailCite (large, the anchor) · Slag City · Campfire Board. Exactly one
  * `gridSize:'large'` (railcite). TeachSpark and Nuptis → Velora stay on the Portfolio page and in `/work`. `generateStaticParams` builds a `/work/<slug>` page for the 13
  * personal builds only; professional entries render inline on `/work` (TKT-17), no case-study page.
  */
 export const projects: Project[] = [
-  // personal builds (14) — the M-005 case studies first, then the deep dives, then the card-depth builds
-  // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129; The Shravan's Round, TASK-243)
+  // personal builds (15) — the M-005 case studies first, then the deep dives, then the card-depth builds
+  // (newest record last: Campfire Board, TASK-124; Slag City, TASK-129; The Shravan's Round, TASK-243; Urja, TASK-248)
   teachspark,
   railcite,
   velora,
@@ -3102,6 +3151,7 @@ export const projects: Project[] = [
   campfireBoard,
   slagCity,
   shravansRound,
+  urja,
   // professional experience (3)
   marsArModernization,
   cloudModernizationPrograms,

@@ -14,6 +14,7 @@ import {
   HeartHandshake,
   MessageSquareText,
   Microscope,
+  Fuel,
   Mic,
   Monitor,
   Music,
@@ -56,6 +57,7 @@ const GLYPHS: Readonly<Record<string, LucideIcon>> = {
   SquareKanban,
   Flame,
   Hammer,
+  Fuel,
   Mic,
 };
 

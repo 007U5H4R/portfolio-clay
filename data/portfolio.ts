@@ -112,4 +112,15 @@ export const portfolioEntries: PortfolioEntry[] = [
     pitchVideo: { provider: "youtube", videoId: "0cYat1u7lJE" },
     demoVideo: { provider: "youtube", videoId: "lwXHhCh1NEE" },
   },
+  {
+    // TASK-248 (Tushar 2026-10-18): Urja; the launch and demo films follow (Tushar: "I will share the launch and demo video links tomorrow").
+    slug: "urja",
+    code: "UR-01",
+    coverLine: "Every rupee, accounted for",
+    accent: "terracotta",
+    meta: "Live · simulated fleet",
+    coverArt: "cover-urja",
+    lettering: "block",
+    coverGlyph: "Fuel",
+  },
 ];

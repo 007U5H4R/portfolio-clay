@@ -59,6 +59,7 @@ export const ALL_PROJECT_SLUGS = [
   'campfire-board', // TASK-124
   'slag-city', // TASK-129
   'shravans-round', // TASK-243
+  'urja', // TASK-248
 ] as const;
 
 export interface RouteInputs {

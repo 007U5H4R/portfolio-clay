@@ -1549,6 +1549,28 @@ body:has(.csx) .band-hire { display: none; }
 .csx[data-theme="shravans-round"] .csx-quote { border-left-color: var(--color-terracotta); background: var(--color-ivory); }
 .csx[data-theme="shravans-round"] .csx-arch-step::before { border-color: var(--color-terracotta); background: var(--color-note); }
 
+/* Urja — lamplight on a night highway: a near-black warm hero, amber lamp accents, red only where the
+   money doesn't add up (TASK-248). */
+.csx[data-theme="urja"] .csx-hero {
+  background: color-mix(in oklab, var(--color-navy) 88%, var(--color-terracotta));
+}
+.csx[data-theme="urja"] .csx-hero .csx-h1 { color: var(--color-ivory); }
+.csx[data-theme="urja"] .csx-hero .csx-tagline { color: var(--color-note); }
+.csx[data-theme="urja"] .csx-hero .csx-prop,
+.csx[data-theme="urja"] .csx-hero .csx-crumb,
+.csx[data-theme="urja"] .csx-hero .csx-crumb a,
+.csx[data-theme="urja"] .csx-hero .csx-legend,
+.csx[data-theme="urja"] .csx-hero .csx-legend-label { color: var(--color-ivory); }
+.csx[data-theme="urja"] .csx-hero .csx-code { color: var(--color-kraft); }
+.csx[data-theme="urja"] .csx-hero .csx-metric { background: color-mix(in oklab, var(--color-ivory) 8%, var(--color-navy)); border: 2px solid color-mix(in oklab, var(--color-note) 55%, var(--color-terracotta)); }
+.csx[data-theme="urja"] .csx-hero .csx-metric-value { color: var(--color-note); }
+.csx[data-theme="urja"] .csx-hero .csx-metric-label,
+.csx[data-theme="urja"] .csx-hero .csx-metric-note,
+.csx[data-theme="urja"] .csx-hero .csx-metric-date { color: color-mix(in oklab, var(--color-ivory) 88%, transparent); }
+.csx[data-theme="urja"] .csx-eyebrow { color: var(--color-terracotta); }
+.csx[data-theme="urja"] .csx-quote { border-left-color: var(--color-terracotta); background: var(--color-ivory); }
+.csx[data-theme="urja"] .csx-arch-step::before { border-color: var(--color-terracotta); background: var(--color-note); }
+
 /* A product with a video and several screens: the screens get their own full row. */
 @media (min-width: 1024px) {
   .csx-product[data-video] .csx-shots[data-count="2"], .csx-product[data-video] .csx-shots[data-count="3"] { grid-column: 1 / -1; }

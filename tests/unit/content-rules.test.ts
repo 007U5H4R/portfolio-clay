@@ -329,6 +329,7 @@ describe("TC-091 · sanity", () => {
         "campfire-board",
         "slag-city",
         "shravans-round",
+        "urja",
       ].sort(),
     );
   });
