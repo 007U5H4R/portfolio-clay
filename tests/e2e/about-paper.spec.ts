@@ -127,7 +127,9 @@ test("the desk, the map and the notebook swap with the theme; the box never chan
   for (const theme of ["light", "dark"] as const) {
     await setTheme(page, theme);
     await page.locator("section#desk").scrollIntoViewIfNeeded();
-    for (const [sel, name] of [[".bdx-art", "desk"], [".crx-map", "map"], [".rvx-notebook", "notebook"]] as const) {
+    // TASK-254: phones (< 640) hide the research notebook, so it is checked only where it shows.
+    const pieces = [[".bdx-art", "desk"], [".crx-map", "map"], [".rvx-notebook", "notebook"]] as const;
+    for (const [sel, name] of pieces.filter(([, n]) => n !== "notebook" || page.viewportSize()!.width >= 640)) {
       await page.locator(sel).scrollIntoViewIfNeeded();
       const shown = await page.locator(`${sel} img.pa-light, ${sel} img.pa-dark`).evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== "none").map((e) => (e as HTMLImageElement).dataset.paperArt));
       expect(shown, `${name} in ${theme}`).toEqual([`${name === "map" ? "pin-map" : name}-${theme}`]);

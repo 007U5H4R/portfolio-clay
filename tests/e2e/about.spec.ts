@@ -181,6 +181,7 @@ test("TASK-207: every About section body is opaque, so the sheet underneath neve
 });
 
 test("TASK-237: the research notebook reserves its height before its lazy image loads (no layout shift below it)", async ({ page }) => {
+  test.skip(page.viewportSize()!.width < 640, "TASK-254: phones hide the research notebook");
   await page.goto("/about", { waitUntil: "load" });
   // Measured at rest, before any scroll brings the lazy image near the viewport.
   const box = await page.locator("#research-values .rvx-notebook").evaluate((el) => {

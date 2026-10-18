@@ -69,7 +69,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     pitchVideo: { provider: "youtube", videoId: "6-o7uUh-ewY" },
     demoVideo: { provider: "youtube", videoId: "ytD0nxWMRWU" } },
   { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", coverArt: "cover-token-toli", lettering: "rounded", coverGlyph: "HeartHandshake" },
-  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope", logo: { width: 941, height: 90 },
+  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope", logo: { width: 1200, height: 103 },
     // Tushar 2026-10-07 (TASK-179): "pratyasa launch" (a YouTube Short) https://youtube.com/shorts/xqevuhTxKAQ,
     // "pratyasa demo" https://youtu.be/Rl6MQiSBqh8 (both public).
     pitchVideo: { provider: "youtube", videoId: "xqevuhTxKAQ" },
