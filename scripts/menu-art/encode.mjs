@@ -69,7 +69,7 @@ async function prepare(file) {
 }
 
 const JOBS = [
-  ["light-moon", "moon-light.webp", 288],
+  ["light-sun", "sun-light.webp", 288], // TASK-260: light mode shows a sun with clouds
   ["dark-moon", "moon-dark.webp", 288],
   ["light-land", "landscape-light.webp", 1020],
   ["dark-land", "landscape-dark.webp", 1020],

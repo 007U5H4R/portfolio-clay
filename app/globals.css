@@ -17855,11 +17855,14 @@ html:has(dialog.more-menu[open]) {
   position: absolute;
   right: 0;
   top: -4px;
-  width: 80px;
-  aspect-ratio: 288 / 245;
-  background: url("/media/menu/moon-light.webp") center / contain no-repeat;
+  /* TASK-260 (Tushar 2026-10-18): light mode shows a paper sun with clouds (a touch narrower, same height); dark keeps the moon */
+  width: 72px;
+  aspect-ratio: 288 / 282;
+  background: url("/media/menu/sun-light.webp") center / contain no-repeat;
 }
 [data-theme="dark"] .more-deco {
+  width: 80px;
+  aspect-ratio: 288 / 245;
   background-image: url("/media/menu/moon-dark.webp");
 }
 .more-group {
