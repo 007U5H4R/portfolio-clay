@@ -26,6 +26,19 @@ export interface CoverArt {
   alt: string;
 }
 
+/** TASK-250 (Tushar 2026-10-18): a product's own logo — one file per theme (`dark` = light ink for the dark theme). */
+export interface ProductLogo {
+  dark: string;
+  light: string;
+  width: number;
+  height: number;
+}
+
+/** The served logo file for a product slug and theme (files live in public/media/logos/products/). */
+export function productLogoSrc(slug: string, theme: "dark" | "light"): string {
+  return `/media/logos/products/logo-${slug}-${theme}.webp`;
+}
+
 export interface PortfolioProduct {
   id: string;
   name: string;
@@ -36,6 +49,8 @@ export interface PortfolioProduct {
   statusLabel: string;
   /** Tiny status metadata for the info sheet (TASK-121 §5.4) — a shortening of `statusLabel`. */
   meta: string;
+  /** TASK-250: own logo, shown instead of the name text on the panel heading and the phone bar; absent = text name. */
+  logo?: ProductLogo | undefined;
   /** The product's cover art (TASK-127: a hand-authored SVG for every product). */
   art: CoverArt;
   lettering: PortfolioEntry["lettering"];
@@ -115,6 +130,7 @@ export function buildPortfolioProducts(
         description: project.tagline,
         statusLabel: project.statusLabel,
         meta: entry.meta,
+        logo: entry.logo ? { dark: productLogoSrc(project.slug, "dark"), light: productLogoSrc(project.slug, "light"), ...entry.logo } : undefined,
         art: resolveArtOrThrow(entry.coverArt, resolveArt),
         lettering: entry.lettering,
         coverGlyph: entry.coverGlyph,

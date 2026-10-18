@@ -17856,3 +17856,40 @@ html:has(dialog.more-menu[open]) {
   }
 }
 /* === end TASK-230 follow-up === */
+
+/* ==================================================================================================
+   TASK-250 (Tushar 2026-10-18) · a product's own logo replaces its name text on the panel heading (desktop + phone) and
+   the phone's top bar. Both theme files are in the DOM; the one for the active theme shows (`[data-theme]` on <html>:
+   "-dark" is the light-ink file for the dark theme). Heights are caps — the image keeps its aspect and never overflows.
+   ================================================================================================== */
+.pf-logo-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 40px;
+  object-fit: contain;
+}
+.pf-logo-img[data-theme-variant="dark"],
+[data-theme="dark"] .pf-logo-img[data-theme-variant="light"] {
+  display: none;
+}
+[data-theme="dark"] .pf-logo-img[data-theme-variant="dark"] {
+  display: block;
+}
+.pf-m-bar-title[data-logo] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pf-m-bar-title .pf-logo-img {
+  max-height: 28px;
+}
+.pf-info-name[data-logo] {
+  line-height: 0;
+}
+@media (min-width: 1024px) {
+  .pf-info-name .pf-logo-img {
+    max-height: 48px;
+  }
+}

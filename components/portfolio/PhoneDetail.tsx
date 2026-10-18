@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, ChevronLeft, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
-import type { MediaMode, PortfolioMetric, PortfolioProduct } from "@/lib/portfolio";
+import type { MediaMode, PortfolioMetric, PortfolioProduct, ProductLogo as ProductLogoFiles } from "@/lib/portfolio";
+import { ProductLogo } from "./ProductLogo";
 
 /**
  * The phone project detail's own pieces (TASK-210; < 640 px only — every `.pf-m-*` block is `display: none` above).
@@ -10,16 +11,16 @@ import type { MediaMode, PortfolioMetric, PortfolioProduct } from "@/lib/portfol
  * instead of it on a phone. Everything here is read from the project record: no number, link or video is invented.
  */
 
-/** Back bar: the one way out of a detail on a phone. Name is the product's. */
-export function PhoneDetailBar({ name, onBack }: { name: string; onBack: () => void }) {
+/** Back bar: the one way out of a detail on a phone. Name is the product's; TASK-250: its own logo stands in for the name text when it has one. */
+export function PhoneDetailBar({ name, logo, onBack }: { name: string; logo?: ProductLogoFiles | undefined; onBack: () => void }) {
   return (
     <div className="pf-m-bar">
       <button type="button" className="pf-m-back focus-ring" onClick={onBack} aria-label="Back to portfolio">
         <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
         <span>Portfolio</span>
       </button>
-      <p className="pf-m-bar-title" aria-hidden="true">
-        {name}
+      <p className="pf-m-bar-title" aria-hidden="true" data-logo={logo ? "" : undefined}>
+        {logo ? <ProductLogo name={name} logo={logo} /> : name}
       </p>
     </div>
   );

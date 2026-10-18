@@ -6,6 +6,7 @@ import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, V
 import { Sheet } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
+import { ProductLogo } from "./ProductLogo";
 
 export interface ProductInfoPanelProps {
   product: PortfolioProduct;
@@ -107,8 +108,9 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         <span aria-hidden="true">·</span>
         <span className="pf-info-status">{product.meta}</span>
       </p>
-      <h2 id={headingId} className="pf-info-name">
-        {product.name}
+      {/* TASK-250 (Tushar 2026-10-18): the product's own logo replaces the name text when it has one (the name stays the accessible name) */}
+      <h2 id={headingId} className="pf-info-name" data-logo={product.logo ? "" : undefined}>
+        {product.logo ? <ProductLogo name={product.name} logo={product.logo} /> : product.name}
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
       <p className="pf-info-desc">{product.description}</p>

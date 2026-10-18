@@ -206,7 +206,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   return (
     <div className="pf-showcase" data-view={view}>
       {intro}
-      {view === "detail" ? <PhoneDetailBar name={product.name} onBack={backToList} /> : null}
+      {view === "detail" ? <PhoneDetailBar name={product.name} logo={product.logo} onBack={backToList} /> : null}
       <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
       <div
         id={PANEL_ID}

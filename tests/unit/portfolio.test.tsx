@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { IndependentProductsShowcase } from "@/components/portfolio/IndependentProductsShowcase";
 import { EnterpriseClientWork } from "@/components/portfolio/EnterpriseClientWork";
-import { buildPortfolioProducts, isListed, stepIndex, type PortfolioProduct } from "@/lib/portfolio";
+import { buildPortfolioProducts, isListed, productLogoSrc, stepIndex, type PortfolioProduct } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
 import { projects } from "@/data/projects";
 import { enterpriseCases } from "@/data/enterprise";
@@ -414,6 +414,55 @@ describe("performance guard (spec §24, §48)", () => {
     for (const file of readdirSync(dir)) {
       const src = readFileSync(resolve(dir, file), "utf8");
       expect(src, file).not.toMatch(/from ["']motion|from ["']framer-motion/);
+    }
+  });
+});
+
+describe("TASK-250 · product logos replace the name text", () => {
+  const alpha = FIXTURE[0]!;
+  const withLogo: PortfolioProduct = {
+    ...alpha,
+    logo: { dark: productLogoSrc("alpha", "dark"), light: productLogoSrc("alpha", "light"), width: 400, height: 100 },
+  };
+
+  it("renders both theme files in the panel heading and the heading's accessible name is still the product name", () => {
+    render(<IndependentProductsShowcase products={[withLogo, ...FIXTURE.slice(1)]} />);
+    const heading = screen.getByRole("heading", { level: 2, name: "Alpha" });
+    expect(heading).toHaveAttribute("id", "pf-product-name");
+    const imgs = [...heading.querySelectorAll("img")];
+    expect(imgs.map((img) => img.getAttribute("src"))).toEqual(["/media/logos/products/logo-alpha-dark.webp", "/media/logos/products/logo-alpha-light.webp"]);
+    expect(imgs.map((img) => img.getAttribute("data-theme-variant"))).toEqual(["dark", "light"]);
+    for (const img of imgs) expect(img).toHaveAttribute("alt", "");
+    // the visible name text is gone — only the screen-reader copy remains
+    expect(heading.querySelector(".sr-only")).toHaveTextContent("Alpha");
+  });
+
+  it("the phone's top bar shows the logo (aria-hidden) in place of the name text", () => {
+    window.history.replaceState(null, "", "/projects?product=alpha");
+    render(<IndependentProductsShowcase products={[withLogo, ...FIXTURE.slice(1)]} />);
+    const title = document.querySelector(".pf-m-bar-title")!;
+    expect(title).toHaveAttribute("aria-hidden", "true");
+    expect(title.querySelectorAll("img")).toHaveLength(2);
+  });
+
+  it("a product without a logo keeps the plain text name", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    const heading = screen.getByRole("heading", { level: 2, name: "Alpha" });
+    expect(heading.querySelector("img")).toBeNull();
+    expect(heading).toHaveTextContent("Alpha");
+  });
+
+  it("every logo in the data has both files on disk at the declared dark size, and the real catalogue wires the right src per slug", async () => {
+    const sharp = (await import("sharp")).default;
+    const products = buildPortfolioProducts(projects, portfolioEntries, resolveArt);
+    const withLogos = products.filter((p) => p.logo);
+    expect(withLogos.length).toBeGreaterThan(0);
+    for (const p of withLogos) {
+      expect(p.logo!.dark).toBe(`/media/logos/products/logo-${p.id}-dark.webp`);
+      expect(p.logo!.light).toBe(`/media/logos/products/logo-${p.id}-light.webp`);
+      const dark = await sharp(resolve(process.cwd(), "public", p.logo!.dark.slice(1))).metadata();
+      await sharp(resolve(process.cwd(), "public", p.logo!.light.slice(1))).metadata();
+      expect([dark.width, dark.height]).toEqual([p.logo!.width, p.logo!.height]);
     }
   });
 });
