@@ -288,6 +288,8 @@ Status vocabulary: **VERIFIED** (quoted/derived from a cited artifact) · **DRAF
 
 ## 8. Case-study source packs (13)
 
+> **TASK-249 (Tushar, 2026-10-18):** `cubicle`, `token-toli`, `tegaki`, `dino-arcade-pwa` and `cinematic-portfolio` are unlisted (`listed: false`): off every list (carousel, sitemap, next-project band, Ask answers), their `/work/<slug>` pages still built, reachable by link and `noindex,follow`. `/playground` is retired and redirects to `/projects`.
+
 Field order per pack: slug · name · tagline · category tags · status · role · dates · live URL · repo · stack (verified) · problem · users (quoted) · Show-the-Thinking chain · metrics (dated) · artifacts (path + dimensions) · video · learnings · authorship · MISSING.
 
 ### 8.1 `teachspark`

@@ -31,7 +31,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-4f55b55959cb",
+    "profileVersion": "v1-3cd44f403102",
     "dependsOn": [
       "profile",
       "experience",
@@ -53,7 +53,7 @@
       "Show me your projects",
       "What have you made"
     ],
-    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Tegaki, Pratyasa, Urja, Dino Arcade and a cinematic portfolio. Cubicle, a multi-agent “AI team” from a team buildathon, is built but not launched. Campfire Board, a local-first, multi-project dashboard and a personal fork of Backlog.md, is built as a local tool with a hosted live demo. Slag City, an original browser beat-'em-up, and The Shravan's Round, a team-built AI mock PM interview, are live.",
+    "answer": "Here's the pack, each with its honest status. TeachSpark is a WhatsApp bot that helps Indian K–12 teachers use AI for real classroom work; it runs as a live pilot on a Twilio sandbox, and its uptime after 9 Sep 2026 is unverified. RailCite is a live assistant that cites Indian Railways circulars or refuses. Nuptis and Velora are two vendor-onboarding products built in one nine-day sprint; he killed Nuptis on day seven, and both run live on mock data. Smaller live builds include Pratyasa and Urja. Campfire Board, a local-first, multi-project dashboard and a personal fork of Backlog.md, is built as a local tool with a hosted live demo. Slag City, an original browser beat-'em-up, and The Shravan's Round, a team-built AI mock PM interview, are live.",
     "sources": [
       {
         "label": "TeachSpark",
@@ -86,7 +86,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-03a34742f10f",
+    "profileVersion": "v1-def36daac2f1",
     "dependsOn": [
       "projects"
     ],
@@ -105,7 +105,7 @@
       "Tell me about his AI work",
       "Tell me about your AI work"
     ],
-    "answer": "Both hands-on and enterprise. He built TeachSpark solo: Claude with structured outputs, vision on teacher-sent photos and a second QC pass, delivering worksheets and question papers over WhatsApp. He also built RailCite solo, a retrieval system over Indian Railways circulars (Voyage-3 embeddings, pgvector, 5,760 documents as of 15 Sep 2026) with a validator that drops any answer whose citations don't resolve. He worked on Cubicle, a multi-agent “AI team” built in a team buildathon, which is built but not launched. At American Express he is driving Devin GenAI adoption on the MARS platform, and his programs at Quantiphi included Generative AI initiatives.",
+    "answer": "Both hands-on and enterprise. He built TeachSpark solo: Claude with structured outputs, vision on teacher-sent photos and a second QC pass, delivering worksheets and question papers over WhatsApp. He also built RailCite solo, a retrieval system over Indian Railways circulars (Voyage-3 embeddings, pgvector, 5,760 documents as of 15 Sep 2026) with a validator that drops any answer whose citations don't resolve. At American Express he is driving Devin GenAI adoption on the MARS platform, and his programs at Quantiphi included Generative AI initiatives.",
     "sources": [
       {
         "label": "TeachSpark — What I built",
@@ -126,11 +126,10 @@
       "What certifications does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-e24e60088a08",
+    "profileVersion": "v1-99fb6bb0b2ac",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
-      "project:cubicle",
       "experience",
       "knowledge"
     ],
@@ -212,7 +211,7 @@
       "What cloud experience does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-7da3f4361920",
+    "profileVersion": "v1-5a1b5440e976",
     "dependsOn": [
       "skills",
       "experience",
@@ -253,7 +252,7 @@
       "Walk me through a specific project."
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-93c8b2a75240",
+    "profileVersion": "v1-774b2089a31a",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -404,7 +403,7 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-0949b64ac845",
+    "profileVersion": "v1-83ffaedf0cda",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -621,7 +620,7 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-73093add4823",
+    "profileVersion": "v1-d711a7226127",
     "dependsOn": [
       "credentials",
       "knowledge"
@@ -659,7 +658,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-87ce87168fb7",
+    "profileVersion": "v1-4b2b4d28b4f6",
     "dependsOn": [
       "knowledge",
       "experience"
@@ -698,7 +697,7 @@
       "Tell me about Velora."
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-b833d14fbfb2",
+    "profileVersion": "v1-8cb81e8ecf0e",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -739,7 +738,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-8bf1b642db26",
+    "profileVersion": "v1-c450cdb0ce1e",
     "dependsOn": [
       "knowledge",
       "project:railcite",

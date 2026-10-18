@@ -75,6 +75,7 @@ export const Tag = z.string().min(2).max(18);
 export const Project = z.object({
   slug: Slug, name: z.string().min(2), tagline: z.string().min(20),        // tagline = the one-sentence proposition
   category: z.enum(['personal','professional']),
+  listed: z.boolean().optional(),                                          // absent/true = listed; false = kept with its case study, off every list (TASK-249)
   tags: z.array(Tag).min(1).max(3), filters: z.array(Filter).min(1),
   status: ProjectStatus, statusLabel: z.string().min(3),                   // badge colour from status, badge text from statusLabel ('Live pilot', 'Built, not launched')
   statusAsOf: IsoDate.optional(),                                          // dated live-status check (TKT-22 AC 3)

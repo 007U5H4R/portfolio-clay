@@ -64,6 +64,10 @@ const nextConfig: NextConfig = {
       { source: "/lab", headers: securityHeaders(LAB_CSP) },
     ];
   },
+  // TASK-249 (Tushar 2026-10-18): /playground is retired; old links and indexed URLs land on the Portfolio page.
+  async redirects() {
+    return [{ source: "/playground", destination: "/projects", permanent: true }];
+  },
   // Do not auto-generate AGENTS.md / CLAUDE.md into the repo root (Next 16 default);
   // this repo keeps its own docs and a surgical commit surface.
   agentRules: false,

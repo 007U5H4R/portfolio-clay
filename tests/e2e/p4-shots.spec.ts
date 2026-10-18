@@ -1,5 +1,5 @@
 /**
- * p4-shots.spec.ts (M-012 P4, TASK-181.4) — visual QA: the essay row, a Playground bench card, a certification card and a
+ * p4-shots.spec.ts (M-012 P4, TASK-181.4) — visual QA: the essay row, a certification card and a
  * more-credentials tile, light + dark, at rest and hovered (w1440) / keyboard-focused (w390). Run with
  * --project=w390 --project=w1440. Writes docs/screenshots/m-013/task-181-p4/. Opt-in: skipped unless P4_SHOTS=1.
  */
@@ -42,7 +42,6 @@ test.describe("P4 screenshots", () => {
       const mode = w >= 1024 ? "hover" : "focus";
       const surfaces: Array<[string, string, (p: Page) => Locator, (p: Page) => Locator]> = [
         ["essay-row", "/thinking", (p) => p.locator(".essay-entry").nth(1), (p) => p.locator(".essay-entry").nth(1).locator(".essay-entry-title a")],
-        ["pg-card", "/playground", (p) => p.locator(".pg-ex").first(), (p) => p.locator(".pg-ex").first().locator(".pg-ex-live")],
         ["cert-card", "/certifications", (p) => p.locator("ol.cert-list > li a").first(), (p) => p.locator("ol.cert-list > li a").first()],
         ["cert-tile", "/certifications", (p) => p.locator(".certm-tile").first(), (p) => p.locator(".certm-tile").first()],
       ];

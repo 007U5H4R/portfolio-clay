@@ -10,9 +10,11 @@
  */
 import { test, expect } from "./fixtures";
 import { projects } from "@/data/projects";
+import { isListed } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
 
-const PERSONAL = projects.filter((p) => p.category === "personal");
+// TASK-249 (Tushar 2026-10-18): the carousel / cards list the listed builds only.
+const PERSONAL = projects.filter(isListed);
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 const hydrated = async (page: import("@playwright/test").Page) => {
   await page.waitForFunction(() => {

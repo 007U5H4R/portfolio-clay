@@ -4,6 +4,7 @@ import { ProgressBar } from "@/components/interactions/ProgressBar";
 import { getProject, projects } from "@/data/projects";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { isListed, nextListedProject } from "@/lib/portfolio";
 // TASK-130: the custom product case-study system (Tushar's spec 2026-09-29).
 import { getCaseStudy } from "@/data/case-studies";
 import { portfolioEntries } from "@/data/portfolio";
@@ -38,6 +39,7 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
     description: project.tagline,
     path: `/work/${project.slug}`,
     type: "article",
+    noindex: !isListed(project), // TASK-249 (Tushar 2026-10-18): unlisted builds stay reachable but out of the index
   });
 }
 
@@ -55,8 +57,8 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   const project = getProject(slug);
   if (!project) notFound();
 
-  const currentIndex = PERSONAL.findIndex((entry) => entry.slug === project.slug);
-  const nextProject = PERSONAL[(currentIndex + 1) % PERSONAL.length]!;
+  // TASK-249 (Tushar 2026-10-18): the next-project band cycles through listed builds only.
+  const nextProject = nextListedProject(PERSONAL, project.slug);
   const study = getCaseStudy(project.slug);
   const portfolio = portfolioEntries.find((entry) => entry.slug === project.slug);
   if (!study || !portfolio) throw new Error(`/work/${project.slug}: no case-study record or portfolio entry (TASK-130)`);

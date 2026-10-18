@@ -116,7 +116,7 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 3168,
     height: 1344, // 21:9, the home banner's size (Dev-95); TASK-144.5: the paper-cut still, light + dark twin
     alt: "Illustration of Tushar in layered paper-cut at a workshop stage, holding up a small cardboard prototype with a gear between red curtains and a backdrop of cardboard machines and a rocket — a paper plane, a toy car, scissors, tape and a tablet sketch on the desk.",
-    usedOn: ["/playground", "/"], // `/`: decorative polaroid crop in the hero banner (alt="", Dev-23)
+    usedOn: ["/"], // decorative polaroid crop in the hero banner (alt="", Dev-23); /playground retired (TASK-249)
   },
   {
     // TASK-144.5 (M-010 T3) provenance: Higgsfield `gpt_image_2_5` medium 2k 21:9 — light job 18705997-f3f5-4abf-8171-5d71ca88fff1, dark twin job 81c70e0b-f337-463d-9f99-3f50268e6199; masters under Portfolio-illustration/illustrations/paper-cut/.

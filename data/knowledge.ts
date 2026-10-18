@@ -34,7 +34,7 @@ export const knowledge: KnowledgeEntry[] = [
       { term: "velora", weight: 1 },
     ],
     answer:
-      'Since August 2026 I\'ve shipped TeachSpark (a WhatsApp bot that generates differentiated worksheets for Indian K–12 teachers), RailCite (a cite-or-refuse assistant over Indian Railways circulars), and two vendor-onboarding products, Nuptis and Velora, in nine days. Smaller live builds include Tegaki, Pratyasa, a PWA arcade cabinet and a scroll-film portfolio. Cubicle, a multi-agent "AI team", is built but not yet launched.',
+      'Since August 2026 I\'ve shipped TeachSpark (a WhatsApp bot that generates differentiated worksheets for Indian K–12 teachers), RailCite (a cite-or-refuse assistant over Indian Railways circulars), and two vendor-onboarding products, Nuptis and Velora, in nine days. Smaller live builds include Pratyasa and Urja.',
     evidence: [
       { label: "TeachSpark", href: "/work/teachspark" },
       { label: "RailCite", href: "/work/railcite" },

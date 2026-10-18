@@ -21,11 +21,13 @@
 import { test, expect } from "./fixtures";
 import { openCaseStudy } from "./case-study-system";
 import { projects } from "@/data/projects";
+import { isListed } from "@/lib/portfolio";
 import { enterpriseCases } from "@/data/enterprise";
 
 const width = (page: import("@playwright/test").Page) => page.viewportSize()?.width ?? 0;
 
-const PERSONAL = projects.filter((p) => p.category === "personal");
+// TASK-249 (Tushar 2026-10-18): the carousel / cards list the listed builds only.
+const PERSONAL = projects.filter(isListed);
 const panel = (page: import("@playwright/test").Page) => page.getByRole("tabpanel");
 const hydrated = async (page: import("@playwright/test").Page) => {
   // The static HTML already carries the default selection; wait until React owns the tabs.
@@ -108,11 +110,15 @@ test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the UR
 
 test("@EVAL-011 the deep link selects its product; an unknown one falls back to the first", { tag: "@EVAL-011" }, async ({ page }) => {
   test.skip(width(page) !== 1440, "deep link verified once at w1440");
-  const target = PERSONAL.find((p) => p.slug === "tegaki")!;
+  const target = PERSONAL.find((p) => p.slug === "pratyasa")!;
   await page.goto(`/projects?product=${target.slug}`, { waitUntil: "load" });
   await expect(panel(page)).toHaveAttribute("data-active-product", target.slug);
   await expect(page.getByRole("tab", { selected: true })).toHaveAttribute("data-product", target.slug);
   await page.goto("/projects?product=vendor-passport", { waitUntil: "load" });
+  await hydrated(page);
+  await expect(panel(page)).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
+  // TASK-249 (Tushar 2026-10-18): an unlisted build is not a product here, so its deep link falls back like an unknown one.
+  await page.goto("/projects?product=tegaki", { waitUntil: "load" });
   await hydrated(page);
   await expect(panel(page)).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
 });
@@ -329,8 +335,8 @@ test("@EVAL-006 /projects is axe-clean", { tag: "@EVAL-006" }, async ({ page, ax
 
 test("@EVAL-006 /projects is axe-clean with a non-default product selected", { tag: "@EVAL-006" }, async ({ page, axe }) => {
   test.skip(width(page) !== 390 && width(page) !== 1440, "axe run at the two boundary widths");
-  await page.goto("/projects?product=dino-arcade-pwa", { waitUntil: "load" });
-  await expect(panel(page)).toHaveAttribute("data-active-product", "dino-arcade-pwa");
+  await page.goto("/projects?product=urja", { waitUntil: "load" });
+  await expect(panel(page)).toHaveAttribute("data-active-product", "urja");
   await axe(page);
 });
 

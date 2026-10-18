@@ -83,7 +83,7 @@ describe("buildMetadata()", () => {
   it("every page shares the one og.jpg card (og:image + twitter:image, size and alt), whatever the path or type", () => {
     clearSiteEnv();
     process.env.NEXT_PUBLIC_SITE_URL = "https://example.test";
-    const paths = ["/", "/work", "/projects", "/about", "/certifications", "/contact", "/card", "/playground", "/thinking", "/work/teachspark", "/thinking/some-essay"];
+    const paths = ["/", "/work", "/projects", "/about", "/certifications", "/contact", "/card", "/thinking", "/work/teachspark", "/thinking/some-essay"];
     for (const path of paths) {
       const meta = buildMetadata({ title: "t", description: "d", path, type: path.split("/").length > 2 ? "article" : "website" });
       const og = meta.openGraph as { images?: { url: string; width: number; height: number; alt: string }[] };

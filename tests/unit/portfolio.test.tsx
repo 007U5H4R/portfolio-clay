@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { IndependentProductsShowcase } from "@/components/portfolio/IndependentProductsShowcase";
 import { EnterpriseClientWork } from "@/components/portfolio/EnterpriseClientWork";
-import { buildPortfolioProducts, stepIndex, type PortfolioProduct } from "@/lib/portfolio";
+import { buildPortfolioProducts, isListed, stepIndex, type PortfolioProduct } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
 import { projects } from "@/data/projects";
 import { enterpriseCases } from "@/data/enterprise";
@@ -238,9 +238,10 @@ const resolveArt = (id: string) => ({ src: `/media/illustrations/covers/${id}.sv
 
 describe("Portfolio data model (spec §5, §21)", () => {
   const products = buildPortfolioProducts(projects, portfolioEntries, resolveArt);
-  const personal = projects.filter((p) => p.category === "personal");
+  // TASK-249 (Tushar 2026-10-18): unlisted personal builds are not products.
+  const personal = projects.filter(isListed);
 
-  it("lists every personal build once, in data order — never a professional entry", () => {
+  it("lists every listed personal build once, in data order — never a professional entry", () => {
     expect(products.map((p) => p.id)).toEqual(personal.map((p) => p.slug));
     expect(products.some((p) => p.id === "vendor-passport")).toBe(false);
   });

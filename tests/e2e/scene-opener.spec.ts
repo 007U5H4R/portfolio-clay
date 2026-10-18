@@ -20,7 +20,6 @@ const OPENERS: readonly { route: string; id: string }[] = [
   { route: "/thinking", id: "scene-thinking" },
   { route: "/thinking/green-tests-prove-it-runs", id: "scene-thinking" },
   { route: "/about", id: "scene-about" },
-  { route: "/playground", id: "scene-playground" },
   { route: "/contact", id: "scene-contact" },
   { route: "/certifications", id: "scene-certifications" }, // TASK-114 (Dev-104)
 ];

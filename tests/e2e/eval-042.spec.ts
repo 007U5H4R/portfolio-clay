@@ -1,7 +1,7 @@
 /**
  * eval-042.spec.ts (`@EVAL-042`, evaluation-plan §11, M-012 P4 / TASK-181.4) — reduced-motion and touch parity, plus the P4
- * hover contract, for the surfaces this phase owns: the Thinking essay row, the Playground bench cards (`.pg-ex`) and the
- * certification cards (`.cert-card`, `.certm-tile`). Other phases extend this file with their own surfaces
+ * hover contract, for the surfaces this phase owns: the Thinking essay row and the
+ * certification cards (`.cert-card`, `.certm-tile`; the Playground bench cards left with the page, TASK-249). Other phases extend this file with their own surfaces
  * (TASK-201 adds the Experience timeline entries and the What I Bring tool chips below).
  *   - hover and keyboard focus-visible move the same amount (the focus twin); the shadow is a pseudo / layer whose OPACITY fades;
  *   - no transition-property on the element, its pseudos or the shade layer contains box-shadow, filter, backdrop-filter or `all`;
@@ -119,59 +119,6 @@ test.describe("@EVAL-042 Thinking essay row", () => {
     await row.locator(".essay-entry-dek").tap();
     await page.waitForTimeout(400);
     expect((await read(row.locator(".essay-entry-title"))).x - rest.x, "no sticky title shift").toBeCloseTo(0, 1);
-  });
-});
-
-test.describe("@EVAL-042 Playground bench cards", () => {
-  test("hover and focus lift the card 4 px, the shadow pseudo fades by opacity, the tape rises 1 px", async ({ page, viewport }) => {
-    test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
-    await page.goto("/playground", { waitUntil: "networkidle" });
-    const card = page.locator(".pg-ex").first();
-    await card.scrollIntoViewIfNeeded();
-    const rest = { c: await read(card), s: await read(card, "::after") };
-    expect(rest.s.opacity, "shadow pseudo hidden at rest").toBe(0);
-    await card.hover();
-    await page.waitForTimeout(700);
-    const hov = { c: await read(card), s: await read(card, "::after") };
-    expect(hov.c.y - rest.c.y, "lift").toBeCloseTo(-4, 0);
-    expect(hov.s.opacity, "shadow pseudo shown").toBe(1);
-    for (const r of [hov.c, hov.s]) {
-      noForbiddenTransitions("pg-ex", r);
-      expect(r.scale).toBeLessThanOrEqual(1.0001);
-    }
-    expect(hov.s.props, "the pseudo transitions opacity only").toEqual(["opacity"]);
-
-    await page.mouse.move(2, 2);
-    await page.waitForTimeout(700);
-    await keyboardFocus(page, card.locator(".pg-ex-live"));
-    await page.waitForTimeout(700);
-    expect((await read(card)).y - rest.c.y, "focus twin lift").toBeCloseTo(-4, 0);
-    expect((await read(card, "::after")).opacity, "focus twin shadow").toBe(1);
-  });
-
-  test("reduced motion: no lift, the shadow still shows", async ({ page, viewport }) => {
-    test.skip(viewport!.width < 1024, "hover is a fine-pointer behaviour");
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/playground", { waitUntil: "networkidle" });
-    const card = page.locator(".pg-ex").first();
-    await card.scrollIntoViewIfNeeded();
-    const rest = await read(card);
-    await card.hover();
-    await page.waitForTimeout(300);
-    expect((await read(card)).y - rest.y, "RM: no lift").toBeCloseTo(0, 1);
-    expect((await read(card, "::after")).opacity, "RM: shadow feedback stays").toBe(1);
-  });
-
-  test("touch: no hover lift after a tap", async ({ page, viewport }) => {
-    test.skip(viewport!.width !== 390, "touch project");
-    await page.goto("/playground", { waitUntil: "networkidle" });
-    const card = page.locator(".pg-ex").first();
-    await card.scrollIntoViewIfNeeded();
-    const rest = await read(card);
-    await card.locator(".pg-ex-title").tap();
-    await page.waitForTimeout(500);
-    expect((await read(card)).y - rest.y, "no sticky lift").toBeCloseTo(0, 1);
-    expect((await read(card, "::after")).opacity, "no sticky shadow").toBe(0);
   });
 });
 

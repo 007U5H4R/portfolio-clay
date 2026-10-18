@@ -73,22 +73,22 @@ describe("loadRoutes fallback order (S09.03)", () => {
 });
 
 // TC-131 step 1 (TKT-71 AC 5, decision D8; TKT-101 Dev-42): six nav items — "Work" became "Experience"
-// (/work) and "Projects" (/projects) joined after it — ending in Playground; every href is a static
-// route the crawler (EVAL-011) can reach, and none needs the allow-list. If Tushar reverts D8 the
-// expected length becomes 4 and the band gains a Playground link (one documented edit each).
+// (/work) and "Projects" (/projects) joined after it — ending in Certifications (Playground retired, TASK-249); every href is a static
+// route the crawler (EVAL-011) can reach, and none needs the allow-list.
 describe("primary nav (lib/nav.ts, D8)", () => {
-  it("shows five tabs in order; Thinking and Playground are hidden (TASK-135)", () => {
+  it("shows five tabs in order; Thinking is hidden (TASK-135)", () => {
     expect(navItems).toHaveLength(5);
     expect(navItems.map((item) => item.href)).toEqual(["/", "/work", "/projects", "/about", "/certifications"]);
     expect(navItems.map((item) => item.label)).toEqual(["Home", "Experience", "Portfolio", "About", "Certifications"]);
   });
 
   it("keeps the hidden tabs in allNavItems so they can be switched back on (TASK-135)", () => {
-    expect(allNavItems.map((item) => item.label)).toEqual(["Home", "Experience", "Portfolio", "Thinking", "About", "Playground", "Certifications"]);
-    expect(allNavItems.filter((item) => item.hidden).map((item) => item.href)).toEqual(["/thinking", "/playground"]);
-    // The pages stay built and public: both routes are still in the sitemap.
+    expect(allNavItems.map((item) => item.label)).toEqual(["Home", "Experience", "Portfolio", "Thinking", "About", "Certifications"]);
+    expect(allNavItems.filter((item) => item.hidden).map((item) => item.href)).toEqual(["/thinking"]);
+    // The page stays built and public: the route is still in the sitemap.
     expect(STATIC_ROUTES).toContain("/thinking");
-    expect(STATIC_ROUTES).toContain("/playground");
+    // TASK-249 (Tushar 2026-10-18): /playground is retired (redirects to /projects), so it is in no route list.
+    expect(STATIC_ROUTES).not.toContain("/playground");
   });
 
   it("never lists Contact — the pill, the band and page CTAs carry that path", () => {
