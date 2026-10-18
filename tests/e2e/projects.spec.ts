@@ -175,7 +175,8 @@ test("@EVAL-011 actions: only what exists renders; external links open a new tab
     }
   }
   await expect(page.locator("button[disabled], [aria-disabled='true']")).toHaveCount(0);
-  await expect(page.locator("video, iframe")).toHaveCount(0);
+  // TASK-253: each click started that product's video; only the last product's player can remain (never two at once)
+  expect(await page.locator("video, iframe").count()).toBeLessThanOrEqual(1);
 });
 
 test("TASK-125 RailCite plays its real YouTube pitch, then its demo, in the same stage — one iframe at a time", async ({ page }) => {

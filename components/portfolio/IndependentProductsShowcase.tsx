@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { track } from "@/lib/analytics/track";
 import {
   detailHref,
+  hasVideo,
   listHref,
   NO_FILTER,
   parseListFilter,
@@ -38,6 +39,12 @@ const entryMode = (product: PortfolioProduct): MediaMode =>
   window.matchMedia("(max-width: 639px)").matches && product.demoVideo ? "demo" : "pitch";
 
 /**
+ * TASK-253 (Tushar 2026-10-18): choosing a product starts its video at once — the pitch, else the demo, else nothing
+ * (a product with no video keeps the pitch stage and its "coming" tag).
+ */
+const pickMode = (product: PortfolioProduct): MediaMode => (product.pitchVideo ? "pitch" : product.demoVideo ? "demo" : "pitch");
+
+/**
  * Section 1's interactive core (TASK-116, spec §3, §6, §8–§10, §18, §50): media stage (left, ~62 %),
  * product panel (right, ~38 %), carousel (full width below). TASK-197: the DOM order is intro →
  * carousel → panel; on a phone CSS lays the panel out as details → media → actions (`.pf-info` is `display: contents`).
@@ -47,7 +54,8 @@ const entryMode = (product: PortfolioProduct): MediaMode =>
  * composes as one spread; the intro stays outside the tabpanel.
  *
  * State is explicit React state (spec §9) — never DOM hacks:
- *   activeProductId  the selected product; changing it ALWAYS resets `mediaMode` to "pitch",
+ *   activeProductId  the selected product; changing it ALWAYS resets `mediaMode` to the pitch (the demo when there is no pitch) and,
+ *                    TASK-253, starts it (`autoStart`); a page load or deep link does not,
  *   mediaMode        "pitch" | "demo", switched only by the panel's Pitch / Demo buttons,
  *   enter            which change produced the current stage (drives the §20 enter transition).
  * The stage is keyed by `product:mode:nonce` (the nonce bumps when the current product is chosen
@@ -77,6 +85,8 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   const [filter, setFilter] = useState<ListFilter>(NO_FILTER);
   const [lastOpened, setLastOpened] = useState<string | null>(null);
   const [autoStart, setAutoStart] = useState(false);
+  /** TASK-253: the current auto-start came from choosing the product (not from a "Watch …" press) — muted on touch devices. */
+  const [autoMute, setAutoMute] = useState(false);
   /** True once this page itself pushed the detail entry — only then does `history.back()` land on the listing. */
   const pushed = useRef(false);
 
@@ -136,10 +146,12 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       if (!target) return;
       if (id !== activeProductId) track("project_selected", { project_id: id, selection_method: "direct_selection" });
       setActiveProductId(id);
-      setMediaMode(entryMode(target));
+      // TASK-253: tapping a product in the phone list is the request to watch it — its pitch (else demo) starts in the detail
+      setMediaMode(pickMode(target));
       setStageNonce((n) => n + 1);
       setEnter("product");
-      setAutoStart(false);
+      setAutoStart(hasVideo(target));
+      setAutoMute(true);
       setLastOpened(id);
       setView("detail");
       pushed.current = true;
@@ -166,6 +178,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       setEnter("mode");
       setStageNonce((n) => n + 1);
       setAutoStart(true);
+      setAutoMute(false);
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       document.getElementById(STAGE_ID)?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
     },
@@ -176,17 +189,20 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
     (id: string, source: "click" | "keyboard" | "arrow" = "click") => {
       // TASK-194: only a real change of product counts (re-choosing the active one just restarts its stage).
       if (id !== activeProductId) track("project_selected", { project_id: id, selection_method: source === "click" ? "direct_selection" : source });
-      // Re-choosing the current product still does what spec §18 asks of a thumbnail click: back to
-      // its pitch poster (a fresh stage — any playing video stops), never a silent no-op.
+      // Re-choosing the current product still does what spec §18 asks of a thumbnail click: a fresh stage (any playing
+      // video stops and its pitch starts over), never a silent no-op.
       if (id === activeProductId) setStageNonce((n) => n + 1);
+      const target = products.find((p) => p.id === id);
       setActiveProductId(id);
-      setMediaMode("pitch");
+      // TASK-253: choosing a product (click, keyboard or arrows) starts its pitch (else demo) with no extra Play tap
+      setMediaMode(target ? pickMode(target) : "pitch");
       setEnter("product");
-      setAutoStart(false);
+      setAutoStart(target ? hasVideo(target) : false);
+      setAutoMute(true);
       const url = `${productHref(id)}${window.location.hash}`;
       window.history.replaceState(window.history.state, "", url);
     },
-    [activeProductId],
+    [activeProductId, products],
   );
 
   const changeMode = useCallback(
@@ -217,7 +233,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
         data-media-mode={mediaMode}
         data-enter={enter}
       >
-        <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} />
+        <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} autoMute={autoMute} />
         <ProductInfoPanel
           key={product.id}
           product={product}

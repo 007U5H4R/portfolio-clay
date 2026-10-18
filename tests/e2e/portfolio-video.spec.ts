@@ -80,7 +80,7 @@ test.describe("Portfolio showcase video (TASK-122)", () => {
     expect(violations).toEqual([]);
   });
 
-  test("changing product unmounts the player and resets to the new product's pitch poster (§13)", async ({ page }) => {
+  test("changing product unmounts the player and starts the new product's pitch at once (§13, TASK-253)", async ({ page }) => {
     await gotoBoard(page);
     await actions(page).getByRole("button", { name: "Demo video" }).click();
     await stage(page).getByRole("button", { name: /^Play / }).click();
@@ -90,13 +90,18 @@ test.describe("Portfolio showcase video (TASK-122)", () => {
     await second.click();
     await expect(second).toHaveAttribute("aria-selected", "true");
     await expect(panel(page)).toHaveAttribute("data-media-mode", "pitch");
-    await expect(frames(page)).toHaveCount(0);
-    await expect(stage(page).getByRole("button", { name: /^Play .+ pitch video$/ })).toBeVisible();
+    // TASK-253: choosing a product is the request to watch — its pitch mounts straight away (one iframe, autoplay, no Play tap).
+    await expect(frames(page)).toHaveCount(1);
+    const started = new URL((await frames(page).getAttribute("src"))!);
+    expect(started.origin).toBe("https://www.youtube-nocookie.com");
+    expect(started.searchParams.get("autoplay")).toBe("1");
+    await expect(stage(page).getByRole("button", { name: /^Play / })).toHaveCount(0);
     // Product 2 has no demo: no Demo action at all (never a dead control).
     await expect(actions(page).getByRole("button", { name: "Demo video" })).toHaveCount(0);
 
-    // Product 3 has no video: the "coming" tag, no Play button, no Pitch action.
+    // Product 3 has no video: the "coming" tag, no Play button, no Pitch action, and the previous player is gone.
     await page.getByRole("tab").nth(2).click();
+    await expect(frames(page)).toHaveCount(0);
     await expect(stage(page).getByText("Pitch video coming")).toBeVisible();
     await expect(stage(page).getByRole("button", { name: /^Play / })).toHaveCount(0);
     await expect(actions(page).getByRole("button", { name: "Pitch video" })).toHaveCount(0);

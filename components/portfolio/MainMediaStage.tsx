@@ -13,6 +13,8 @@ export interface MainMediaStageProps {
   id: string;
   /** TASK-210: start the player on mount (the viewer pressed "Watch demo / pitch"). */
   autoStart?: boolean;
+  /** TASK-253: the start came from choosing the product (muted on touch devices, see the player). */
+  autoMute?: boolean;
 }
 
 const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "demo video" };
@@ -27,13 +29,15 @@ const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "dem
  *
  * The showcase renders it with `key={product:mode}`, so every product or Pitch ↔ Demo change is a
  * fresh mount: the old player (if any) unmounts — stopping it — and the new one starts at its poster,
- * from the beginning, never autoplaying (video-embed spec §5, §13).
+ * from the beginning (video-embed spec §5, §13). TASK-253 (Tushar 2026-10-18): choosing a product is the viewer's
+ * request to watch it, so the showcase passes `autoStart` and the pitch (else demo) plays at once; a page load or deep
+ * link still lands on the poster.
  *   video    → `ProductMediaPlayer` IS the 16:9 screen: the custom poster (else the product's cover)
  *              + a Play button; the press mounts the one privacy-enhanced iframe; a blocked embed
  *              falls back to the poster + "Video unavailable here." (TASK-122, spec §10–§17).
  *   no video → the cover + a small torn "Pitch video coming" tag — never a dead play button (§22).
  */
-export function MainMediaStage({ product, mode, enter, id, autoStart = false }: MainMediaStageProps) {
+export function MainMediaStage({ product, mode, enter, id, autoStart = false, autoMute = false }: MainMediaStageProps) {
   const media = mediaFor(product, mode);
   const cover = <ProductCover product={product} size="stage" />;
 
@@ -45,7 +49,7 @@ export function MainMediaStage({ product, mode, enter, id, autoStart = false }: 
         {mode === "pitch" ? "Pitch video" : "Demo video"}
       </span>
       {media ? (
-        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} autoStart={autoStart} />
+        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} autoStart={autoStart} autoMute={autoMute} />
       ) : (
         <div id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode}>
           {cover}

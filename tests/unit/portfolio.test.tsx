@@ -139,7 +139,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
   });
 
-  it("changing product stops the player, resets to pitch and updates the panel + URL (replace, no push)", async () => {
+  it("changing product stops the player, starts the new product's video at once and updates the panel + URL (replace, no push)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
@@ -148,30 +148,70 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
 
     fireEvent.click(screen.getByRole("tab", { name: /Beta/ }));
     expect(panel()).toHaveAttribute("data-active-product", "beta");
-    expect(panel()).toHaveAttribute("data-media-mode", "pitch");
-    expect(players(document.body)).toHaveLength(0);
     expect(screen.getByRole("heading", { level: 2, name: "Beta" })).toBeInTheDocument();
     expect(window.location.search).toBe("?product=beta");
     expect(window.history.length).toBe(before);
 
-    // Beta has no pitch: no Pitch action, no play control on the pitch stage — a "coming" tag instead.
+    // TASK-253: Beta has no pitch, only a demo — so the demo starts straight away (exactly one player, autoplay=1, no Play tap).
+    expect(panel()).toHaveAttribute("data-media-mode", "demo");
+    expect(players(document.body)).toHaveLength(1);
+    const demo = screen.getByTitle("Beta product demonstration");
+    expect(demo.getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
+    expect(demo.getAttribute("src")).toContain("autoplay=1");
+    expect(screen.queryByRole("button", { name: /^Play Beta/ })).toBeNull();
     expect(screen.queryByRole("button", { name: "Watch pitch video" })).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Play Beta pitch/ })).toBeNull();
-    expect(screen.getByText("Pitch video coming")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
-    fireEvent.click(screen.getByRole("button", { name: "Play Beta product demonstration" }));
-    expect((await screen.findByTitle("Beta product demonstration")).getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
+
+    // back to Alpha: its pitch (not the demo it had been left on) starts, replacing Beta's player
+    fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
+    expect(panel()).toHaveAttribute("data-media-mode", "pitch");
+    expect(players(document.body)).toHaveLength(1);
+    const pitch = screen.getByTitle("Alpha pitch video");
+    expect(pitch.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/abcdefghijk\?/);
+    expect(pitch.getAttribute("src")).toContain("autoplay=1");
+    expect(pitch.getAttribute("src")).toContain("playsinline=1");
+    expect(pitch.getAttribute("src")).not.toContain("mute=1"); // fine pointer: sound on
+    expect(pitch.getAttribute("allow")).toContain("autoplay");
   });
 
-  it("re-choosing the current product returns it to the pitch poster and stops the player (spec §18)", async () => {
+  it("a touch device starts a selected product muted (pointer: coarse); a Play press is never muted", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({ matches: query.includes("pointer: coarse"), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    fireEvent.click(screen.getByRole("tab", { name: /Gamma/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).toContain("mute=1");
+    fireEvent.click(screen.getByRole("tab", { name: /Gamma/ })); // no video: nothing starts
+    expect(players(document.body)).toHaveLength(0);
+  });
+
+  it("phone: tapping a product in the list opens its detail with the pitch already playing", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    expect(players(document.body)).toHaveLength(0);
+    fireEvent.click(document.querySelector('a[data-product="alpha"]')!);
+    expect(window.location.search).toBe("?product=alpha");
+    expect(players(document.body)).toHaveLength(1);
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).toMatch(/\/embed\/abcdefghijk\?.*autoplay=1/);
+  });
+
+  it("a fresh load shows the poster; the Play press still starts the player, unmuted", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    expect(players(document.body)).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha pitch video" }));
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).not.toContain("mute=1");
+  });
+
+  it("re-choosing the current product restarts its pitch in a fresh player (spec §18, TASK-253)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
     await screen.findByTitle("Alpha product demonstration");
     fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
-    expect(players(document.body)).toHaveLength(0);
-    expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
+    expect(players(document.body)).toHaveLength(1);
+    expect(screen.queryByTitle("Alpha product demonstration")).toBeNull();
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).toContain("autoplay=1");
   });
 
   it("hides every unavailable action — no disabled dead buttons (spec §22)", () => {
