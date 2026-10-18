@@ -45,3 +45,14 @@ Style line for layers: _Layered 3D paper-cut element(s) on a fully transparent b
 Credits for every generation, including rejected tries and one duplicate token-toli render, are itemised in `docs/reports/TASK-202.md`.
 
 Fallback rule (brief item 5): no asset needed the fallback; every project got new art, so no old cover was kept. The retired SVG sources remain in git history and in `scripts/portfolio-art/scenes/` and `featured/`.
+
+## Phone menu drawer art (TASK-255, Tushar 2026-10-18)
+
+3D origami paper-craft art for the two slots in the phone menu drawer (`components/navigation/MoreMenu.tsx`: `.more-deco` header moon vignette, `.more-land` footer landscape), light + dark, in `public/media/menu/`. Generated with the Higgsfield connector, model `gpt_image_2_5`, quality `medium`, resolution `1k`; the model returned a baked checkerboard instead of alpha, so the shipped light masters were cut with Higgsfield `image_background_remover` and the dark landscape was keyed from flat white by `scripts/menu-art/encode.mjs` (which also erodes the alpha ~1 px and encodes transparent WebP, q80). Dark was generated with the light job as an image reference ("same composition, object placement and scale, re-coloured for dark mode"). Masters: `/Volumes/E Drive/Dev/.scratch/menu-origami/raw/masters/`. No text in any art.
+
+| slot | file | job id (shipped) | prompt gist |
+|---|---|---|---|
+| moon, light (4:3) | `menu/moon-light.webp` | `879a2711-a213-4aaa-b06d-aee67f07a968` (cut `01b17118-f86f-4b29-9de8-a5d66ba6e3e6`; sibling try `9211f292-16e3-44b4-a209-6d8c7ca9cf30` not used) | layered golden crescent, three folded-paper stars, cream and pale-blue clouds, tiny slate-blue hill, transparent background |
+| moon, dark (4:3) | `menu/moon-dark.webp` | `329673a2-bb01-4a17-8311-df952f96ad2e` (cut `20691533-a263-4e58-bb3a-ab41f12ef30c`) | reference = light moon; warm-gold crescent, amber stars, navy/deep-blue clouds, navy hill |
+| landscape, light (21:9) | `menu/landscape-light.webp` | `c03aa4b8-69d9-40c4-a60e-4cb6353fbd61` (cut `7e7d9dde-f0e5-4b78-87c8-479102678549`; sibling try `f5cb51d6-c3a0-4370-b014-5547be6b3228` not used) | terracotta/sand/slate/teal folded mountains, faceted evergreens, warm stone foreground with torn edge, orange-and-cream tent at centre |
+| landscape, dark (21:9) | `menu/landscape-dark.webp` | `87854705-a66f-4bb4-9c75-98c92f142c19` (flat white bg, keyed by the script; remover run `3d6dd811-4051-4323-867b-b78172030701` not used) | reference = light landscape; navy/cobalt/teal mountains, dark-green trees, amber tent with warm glow |
