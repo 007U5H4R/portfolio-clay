@@ -26,14 +26,17 @@ async function open(page: Page, slug?: string) {
 }
 
 /** What the info panel and poster must show for a project, straight from the data. */
-async function expectSynced(page: Page, index: number) {
+// TASK-253: a product chosen by the visitor starts its pitch (else demo) at once, so the stage shows that player, not the poster.
+async function expectSynced(page: Page, index: number, chosen = false) {
   const project = PERSONAL[index]!;
   const entry = entryOf(project.slug);
   await expect(panel(page)).toHaveAttribute("data-active-product", project.slug);
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText(project.name);
   await expect(panel(page).locator(".pf-info-count")).toHaveText(`${pad2(index + 1)} / ${pad2(PERSONAL.length)}`);
   await expect(panel(page).locator(".pf-info-category")).toHaveText(project.tags.slice(0, 2).join(" · "));
-  await expect(page.locator(".pf-stage .pf-cover-name")).toHaveText(project.name);
+  const video = entry.pitchVideo ?? entry.demoVideo;
+  if (chosen && video) await expect(page.locator(".pf-stage iframe")).toHaveAttribute("src", new RegExp(`/embed/${video.videoId}`));
+  else await expect(page.locator(".pf-stage .pf-cover-name")).toHaveText(project.name);
   await expect(tabs(page).nth(index)).toHaveAttribute("aria-selected", "true");
   await expect(panel(page).locator('[data-action="pitch"]')).toHaveCount(entry.pitchVideo ? 1 : 0);
   await expect(panel(page).locator('[data-action="demo"]')).toHaveCount(entry.demoVideo ? 1 : 0);
@@ -68,20 +71,20 @@ test("a card click, the arrows and the keyboard all keep poster, title, count, c
   await expectSynced(page, 0);
 
   await tabs(page).nth(2).click();
-  await expectSynced(page, 2);
+  await expectSynced(page, 2, true);
 
   await page.getByRole("button", { name: "Next product" }).click();
-  await expectSynced(page, 3);
+  await expectSynced(page, 3, true);
   await page.getByRole("button", { name: "Previous product" }).click();
-  await expectSynced(page, 2);
+  await expectSynced(page, 2, true);
 
   await tabs(page).nth(2).focus();
   await page.keyboard.press("ArrowRight");
-  await expectSynced(page, 3);
+  await expectSynced(page, 3, true);
   await page.keyboard.press("End");
-  await expectSynced(page, PERSONAL.length - 1);
+  await expectSynced(page, PERSONAL.length - 1, true);
   await page.keyboard.press("Home");
-  await expectSynced(page, 0);
+  await expectSynced(page, 0, true);
 });
 
 test("the play control exists only for a project with a pitch video", async ({ page }) => {
