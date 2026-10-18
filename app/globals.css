@@ -18516,13 +18516,13 @@ html:has(dialog.more-menu[open]) {
     background:
       radial-gradient(120% 55% at 100% 0%, rgba(150, 175, 205, 0.34), transparent 70%),
       radial-gradient(110% 50% at 0% 100%, rgba(205, 120, 80, 0.2), transparent 72%),
-      linear-gradient(180deg, rgba(243, 234, 216, 0.5), rgba(236, 224, 204, 0.55));
+      linear-gradient(180deg, rgba(243, 234, 216, 0.62), rgba(236, 224, 204, 0.66));
   }
   [data-theme="dark"] .ob-wash {
     background:
       radial-gradient(120% 55% at 100% 0%, rgba(58, 92, 170, 0.5), transparent 70%),
       radial-gradient(110% 50% at 0% 100%, rgba(40, 70, 140, 0.45), transparent 72%),
-      linear-gradient(180deg, rgba(14, 22, 44, 0.55), rgba(12, 18, 38, 0.6));
+      linear-gradient(180deg, rgba(14, 22, 44, 0.8), rgba(12, 18, 38, 0.84));
   }
 
   /* L2 — slow lighting: two soft blooms whose opacity breathes out of step */
@@ -18531,31 +18531,31 @@ html:has(dialog.more-menu[open]) {
     opacity: 0.5;
   }
   .ob-bloom-a {
-    inset: 0 -10% auto 20%;
-    height: 38%;
-    background: radial-gradient(closest-side, rgba(255, 236, 205, 0.8), transparent);
+    inset: -6% -34% auto 46%;
+    height: 34%;
+    background: radial-gradient(closest-side, rgba(255, 232, 196, 0.55), transparent);
   }
   .ob-bloom-b {
-    inset: auto 30% 6% -20%;
-    height: 34%;
-    background: radial-gradient(closest-side, rgba(240, 160, 120, 0.5), transparent);
+    inset: auto 46% 2% -40%;
+    height: 30%;
+    background: radial-gradient(closest-side, rgba(236, 156, 118, 0.38), transparent);
   }
   [data-theme="dark"] .ob-bloom-a {
-    background: radial-gradient(closest-side, rgba(110, 150, 230, 0.55), transparent);
+    background: radial-gradient(closest-side, rgba(96, 134, 214, 0.4), transparent);
   }
   [data-theme="dark"] .ob-bloom-b {
-    background: radial-gradient(closest-side, rgba(220, 130, 90, 0.28), transparent);
+    background: radial-gradient(closest-side, rgba(214, 126, 88, 0.2), transparent);
   }
 
   /* L4 — a few faint orbital curves */
   .ob-orbits {
     width: 100%;
     height: 100%;
-    stroke: rgba(120, 100, 80, 0.2);
+    stroke: rgba(120, 100, 80, 0.09);
     stroke-width: 1;
   }
   [data-theme="dark"] .ob-orbits {
-    stroke: rgba(170, 195, 240, 0.16);
+    stroke: rgba(170, 195, 240, 0.08);
   }
 
   /* parallax shell (scroll-driven, below) around a drift shell (ambient loop): the two never share `transform` */
@@ -18575,34 +18575,34 @@ html:has(dialog.more-menu[open]) {
     background-position: center;
   }
   .ob-par-facet {
-    width: 158px;
+    width: 112px;
     aspect-ratio: 360 / 447;
-    right: -70px;
-    top: 278px;
+    right: -54px;
+    top: 196px;
   }
   .ob-par-orbit {
-    width: 176px;
+    width: 128px;
     aspect-ratio: 360 / 320;
-    left: -60px;
-    top: 61%;
+    left: -54px;
+    top: 63%;
   }
   .ob-facet {
     background-image: url("/media/projects-bg/light-facet.webp");
     transform: rotate(14deg);
-    opacity: 1;
+    opacity: 0.55;
   }
   .ob-orbit {
     background-image: url("/media/projects-bg/light-orbit.webp");
     transform: rotate(-10deg);
-    opacity: 1;
+    opacity: 0.55;
   }
   [data-theme="dark"] .ob-facet {
     background-image: url("/media/projects-bg/dark-facet.webp");
-    opacity: 0.8;
+    opacity: 0.45;
   }
   [data-theme="dark"] .ob-orbit {
     background-image: url("/media/projects-bg/dark-orbit.webp");
-    opacity: 0.9;
+    opacity: 0.45;
   }
 
   /* L5 — ridges toward the lower corners: a far one (mirrored, larger, quieter) behind a near one */
@@ -18625,19 +18625,19 @@ html:has(dialog.more-menu[open]) {
   .ob-ridge-far {
     background-image: url("/media/projects-bg/light-ridge.webp");
     transform: scaleX(-1);
-    opacity: 0.45;
+    opacity: 0.38;
   }
   .ob-ridge-near {
     background-image: url("/media/projects-bg/light-ridge.webp");
-    opacity: 0.95;
+    opacity: 0.8;
   }
   [data-theme="dark"] .ob-ridge-far {
     background-image: url("/media/projects-bg/dark-ridge.webp");
-    opacity: 0.4;
+    opacity: 0.34;
   }
   [data-theme="dark"] .ob-ridge-near {
     background-image: url("/media/projects-bg/dark-ridge.webp");
-    opacity: 0.85;
+    opacity: 0.7;
   }
 
   /* motion — only when the reader has not asked for less */
@@ -18663,30 +18663,36 @@ html:has(dialog.more-menu[open]) {
 
     /* optional parallax: pure CSS, compositor-driven, only where scroll-driven animations exist */
     @supports (animation-timeline: scroll()) {
-      .ob-par-facet {
-        animation: ob-par-up linear both;
-        animation-timeline: scroll(root block);
-        --par: -46px;
-      }
-      .ob-par-orbit {
-        animation: ob-par-up linear both;
-        animation-timeline: scroll(root block);
-        --par: -26px;
-      }
+      /* nearer layers travel further over the whole page scroll (distant sculptures 10-14 px, the near ridge 26 px) */
+      .ob-par-facet,
+      .ob-par-orbit,
+      .ob-par-ridge-far,
       .ob-par-ridge-near {
         animation: ob-par-up linear both;
         animation-timeline: scroll(root block);
-        --par: 18px;
+      }
+      .ob-par-facet {
+        --par: -14px;
+      }
+      .ob-par-orbit {
+        --par: -10px;
+      }
+      .ob-par-ridge-far {
+        --par: -10px;
+      }
+      .ob-par-ridge-near {
+        --par-from: 14px;
+        --par: -12px;
       }
     }
   }
 
   @keyframes ob-bloom-a {
     from {
-      opacity: 0.25;
+      opacity: 0.2;
     }
     to {
-      opacity: 0.6;
+      opacity: 0.55;
     }
   }
   @keyframes ob-bloom-b {
@@ -18731,7 +18737,7 @@ html:has(dialog.more-menu[open]) {
   }
   @keyframes ob-par-up {
     from {
-      transform: translate3d(0, 0, 0);
+      transform: translate3d(0, var(--par-from, 0px), 0);
     }
     to {
       transform: translate3d(0, var(--par), 0);
@@ -18739,3 +18745,77 @@ html:has(dialog.more-menu[open]) {
   }
 }
 /* === end TASK-259 === */
+
+/* === TASK-261 (Tushar 2026-10-18) · phone /projects: frosted-glass refinement, dock clearance, filter-row cue ===
+   Phone only (< 640 px). Re-tunes the TASK-233 glass recipe (`.pf-m-card.m-float`) over the TASK-259 background: lower
+   fill so the art's tonal variation shows, a hairline rim, a restrained top-edge reflection and a faint diagonal sheen.
+   Same selectors as TASK-233 and later in the file, so these win by order (no !important); the fallbacks are repeated
+   below because they must come after the tuned fills. backdrop-filter stays on the card surfaces only. Remove the
+   block to return to the TASK-233 look. */
+@media (max-width: 639px) {
+  /* ---- dock clearance: the real nav height (--md-h, 64 px) + its 8 px bottom offset + a gap + the home-indicator inset ---- */
+  .pf-products-wrap {
+    padding-bottom: calc(var(--md-h, 64px) + 8px + 24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---- filter row: the last pill ("Has video") ends clear of the edge fade; fade cues "more to swipe" ---- */
+  .pf-m-filters {
+    padding-inline-end: calc(var(--pf-m-edge) + 20px);
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+    scroll-padding-inline: var(--pf-m-edge);
+  }
+
+  /* ---- glass ---- */
+  .pf-m-card.m-float {
+    --pf-glass: rgba(252, 246, 234, 0.46);
+    --pf-glass-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.05) 42%, rgba(255, 255, 255, 0) 70%);
+    --pf-glass-rim: rgba(130, 104, 70, 0.16);
+    --pf-glass-rim-top: rgba(255, 255, 255, 0.8);
+    --pf-glass-line: rgba(255, 255, 255, 0.7);
+    --pf-glass-shadow: rgba(70, 50, 28, 0.2);
+    --pf-glass-chev: rgba(255, 255, 255, 0.45);
+    background-color: var(--pf-glass);
+    background-image: var(--pf-glass-sheen);
+    -webkit-backdrop-filter: blur(11px) saturate(112%);
+    backdrop-filter: blur(11px) saturate(112%);
+    box-shadow:
+      inset 0 1px 0 var(--pf-glass-line),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 1px 2px rgba(70, 50, 28, 0.06),
+      0 12px 26px -12px var(--pf-glass-shadow);
+  }
+  [data-theme="dark"] .pf-m-card.m-float {
+    --pf-glass: rgba(17, 27, 52, 0.5);
+    --pf-glass-sheen: linear-gradient(150deg, rgba(150, 178, 232, 0.14), rgba(150, 178, 232, 0.03) 42%, rgba(150, 178, 232, 0) 70%);
+    --pf-glass-rim: rgba(150, 172, 210, 0.2);
+    --pf-glass-rim-top: rgba(196, 211, 240, 0.34);
+    --pf-glass-line: rgba(220, 232, 255, 0.1);
+    --pf-glass-shadow: rgba(0, 0, 0, 0.45);
+    --pf-glass-chev: rgba(190, 206, 238, 0.1);
+  }
+  .pf-m-card.m-float:active {
+    box-shadow:
+      inset 0 1px 0 var(--pf-glass-line),
+      0 6px 16px -10px var(--pf-glass-shadow);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .pf-m-card.m-float {
+      --pf-glass: rgba(252, 247, 237, 0.97);
+    }
+    [data-theme="dark"] .pf-m-card.m-float {
+      --pf-glass: rgba(17, 27, 52, 0.97);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .pf-m-card.m-float {
+      --pf-glass: rgba(252, 247, 237, 0.97);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    [data-theme="dark"] .pf-m-card.m-float {
+      --pf-glass: rgba(17, 27, 52, 0.97);
+    }
+  }
+}
+/* === end TASK-261 === */

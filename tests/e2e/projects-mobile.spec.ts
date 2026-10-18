@@ -313,3 +313,45 @@ test.describe("Portfolio at ≥ 640: the phone design stays out of the way (TASK
     await expect(page.locator(".pf-m-bar")).toBeHidden();
   });
 });
+
+test.describe("Phone project list: dock clearance, filter row, background motion (TASK-261)", () => {
+  test.beforeEach(({ page }) => {
+    test.skip(width(page) !== 390, "phone tier: asserted at the w390 project");
+  });
+
+  test("the last card scrolls fully above the floating dock", async ({ page }) => {
+    await openList(page);
+    await page.evaluate(() => {
+      const wrap = document.querySelector(".pf-products-wrap")!.getBoundingClientRect();
+      window.scrollBy(0, wrap.bottom - window.innerHeight);
+    });
+    const { lastBottom, dockTop } = await page.evaluate(() => ({
+      lastBottom: [...document.querySelectorAll(".pf-m-card")].at(-1)!.getBoundingClientRect().bottom,
+      dockTop: document.querySelector(".mobile-dock")!.getBoundingClientRect().top,
+    }));
+    expect(lastBottom).toBeLessThan(dockTop);
+  });
+
+  test("the filter row swipes sideways inside itself; the page does not, and every pill can be pressed", async ({ page }) => {
+    await openList(page);
+    const row = page.getByRole("group", { name: "Filter projects" });
+    const dims = await row.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
+    expect(dims.sw).toBeGreaterThan(dims.cw);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await row.evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+    const last = row.getByRole("button", { name: "Has video", exact: true });
+    const box = (await last.boundingBox())!;
+    expect(box.x + box.width).toBeLessThanOrEqual(width(page));
+    await last.click();
+    await expect(last).toHaveAttribute("aria-pressed", "true");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test("the background drifts by default and every background animation stops under reduced motion", async ({ page }) => {
+    await openList(page);
+    const running = () => page.evaluate(() => document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.target?.closest?.(".ob-root")).length);
+    await expect.poll(running).toBeGreaterThan(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect.poll(running).toBe(0);
+  });
+});
