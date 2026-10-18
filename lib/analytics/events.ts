@@ -20,7 +20,7 @@ export const SCHEMA_VERSION = 1;
 
 export const PAGE_NAMES = [
   "home", "experience", "portfolio", "case_study", "about", "contact", "thinking", "essay",
-  "playground", "certifications", "card", "gummy_lab", "other",
+  "certifications", "card", "gummy_lab", "other",
 ] as const;
 export type PageName = (typeof PAGE_NAMES)[number];
 

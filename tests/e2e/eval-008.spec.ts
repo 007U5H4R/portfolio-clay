@@ -5,7 +5,7 @@
  *
  * LIVE now: no-overflow, 44px-target, AND the 14px content-text floor all run on every public
  * route — home, /work, every personal `/work/<slug>` case study, /about, /thinking, every
- * `/thinking/<slug>` essay, /playground, /contact (TKT-47) — with a documented `data-micro-label`
+ * `/thinking/<slug>` essay, /contact (TKT-47) — with a documented `data-micro-label`
  * exception (EXE-7, `decisions.md`) for small non-content brand labels. The route list is DERIVED
  * from the same sources `app/sitemap.ts` composes (`STATIC_ROUTES` + personal `projects` +
  * `writing`), never hard-coded, so a new case study or essay is swept automatically instead of

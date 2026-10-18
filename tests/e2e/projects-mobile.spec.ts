@@ -16,10 +16,12 @@
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 import { projects } from "@/data/projects";
+import { isListed } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
-const PERSONAL = projects.filter((p) => p.category === "personal");
+// TASK-249 (Tushar 2026-10-18): the carousel / cards list the listed builds only.
+const PERSONAL = projects.filter(isListed);
 const entryOf = (slug: string) => portfolioEntries.find((e) => e.slug === slug)!;
 const hasPitch = (slug: string) => Boolean(entryOf(slug).pitchVideo);
 const hasDemo = (slug: string) => Boolean(entryOf(slug).demoVideo);
@@ -88,16 +90,19 @@ test.describe("Portfolio on phones (TASK-210)", () => {
     expect(await cardNames(page)).toEqual(names(PERSONAL.filter((p) => hasAnyVideo(p.slug))));
     await expect(chip(page, "Has video")).toHaveAttribute("aria-pressed", "true");
 
-    // a status with no video-bearing build: the empty state, never a blank page
+    // a status with no video-bearing build: the empty state, never a blank page.
+    // TASK-249 (Tushar 2026-10-18): with the five unlisted builds gone every status has a video-bearing build, so
+    // the real data can no longer reach this state; the unit test (portfolio-phone) covers it on a stripped fixture.
     const noVideoStatus = statuses.find((s) => !PERSONAL.some((p) => p.status === s && hasAnyVideo(p.slug)));
-    expect(noVideoStatus, "fixture: some status has no product with a video").toBeTruthy();
-    await chip(page, noVideoStatus![0]!.toUpperCase() + noVideoStatus!.slice(1)).click();
-    await expect(page.getByTestId("pf-m-empty")).toBeVisible();
-    await expect(page.locator(".pf-m-card")).toHaveCount(0);
-    await expect(page.getByTestId("pf-m-count")).toHaveText(`0 of ${PERSONAL.length} projects`);
-    await page.getByRole("button", { name: "Clear filters" }).click();
-    expect(await cardNames(page)).toEqual(names(PERSONAL));
-    await expect(page.getByTestId("pf-m-empty")).toHaveCount(0);
+    if (noVideoStatus) {
+      await chip(page, noVideoStatus[0]!.toUpperCase() + noVideoStatus.slice(1)).click();
+      await expect(page.getByTestId("pf-m-empty")).toBeVisible();
+      await expect(page.locator(".pf-m-card")).toHaveCount(0);
+      await expect(page.getByTestId("pf-m-count")).toHaveText(`0 of ${PERSONAL.length} projects`);
+      await page.getByRole("button", { name: "Clear filters" }).click();
+      expect(await cardNames(page)).toEqual(names(PERSONAL));
+      await expect(page.getByTestId("pf-m-empty")).toHaveCount(0);
+    }
   });
 
   test("filter chips work from the keyboard (Tab + Space/Enter)", async ({ page }) => {

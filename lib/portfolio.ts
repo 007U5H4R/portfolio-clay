@@ -71,6 +71,25 @@ export interface PortfolioMetric {
 }
 
 /**
+ * TASK-249 (Tushar 2026-10-18): the one test for "shows on a product list" — a personal build not marked
+ * `listed: false`. Carousel, sitemap and the next-project band all use it; case-study pages are still built
+ * for every personal build. Lives here (type-only imports) so client code can use it without pulling in data.
+ */
+export function isListed(project: Project): boolean {
+  return project.category === "personal" && project.listed !== false;
+}
+
+/** The listed build after `slug` in data order, wrapping; for an unlisted page, the first listed build after it (TASK-249). */
+export function nextListedProject(personal: readonly Project[], slug: string): Project {
+  const start = personal.findIndex((entry) => entry.slug === slug);
+  for (let step = 1; step <= personal.length; step++) {
+    const candidate = personal[(start + step) % personal.length]!;
+    if (isListed(candidate)) return candidate;
+  }
+  throw new Error("portfolio: no listed personal build to link to (TASK-249)");
+}
+
+/**
  * `resolveArt` maps an entry's `coverArt` manifest id to its served image (the page passes the
  * illustration manifest lookup; kept as a parameter so the client bundle never imports the manifest).
  * An id it cannot resolve throws — a missing painted cover fails the build, never ships blank.
@@ -81,11 +100,14 @@ export function buildPortfolioProducts(
   resolveArt?: (id: string) => CoverArt,
 ): PortfolioProduct[] {
   const bySlug = new Map(entries.map((entry) => [entry.slug, entry]));
+  // TASK-249 (Tushar 2026-10-18): every personal build must still have an entry, but only listed ones become products.
+  for (const project of projects) {
+    if (project.category === "personal" && !bySlug.has(project.slug)) throw new Error(`portfolio: personal build "${project.slug}" has no data/portfolio.ts entry`);
+  }
   return projects
-    .filter((project) => project.category === "personal")
+    .filter(isListed)
     .map((project, index) => {
-      const entry = bySlug.get(project.slug);
-      if (!entry) throw new Error(`portfolio: personal build "${project.slug}" has no data/portfolio.ts entry`);
+      const entry = bySlug.get(project.slug)!;
       return {
         id: project.slug,
         name: project.name,

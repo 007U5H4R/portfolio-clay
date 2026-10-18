@@ -1384,6 +1384,7 @@ export const cubicle: Project = {
   tagline:
     "Four AI teammates debate visibly, then produce a PRD, competitor scan, landing copy and build plan in ~90 seconds.",
   category: "personal",
+  listed: false, // TASK-249 (Tushar 2026-10-18): off every list; case study stays reachable by link
   tags: ["AI", "Multi-agent", "Gemini"],
   filters: ["ai"],
   status: "prototype",
@@ -2603,6 +2604,7 @@ export const tokenToli: Project = {
   tagline:
     "Ageing-in-place care orchestration for long-distance families — a team discovery PRD with 11 named respondents and three tested hypotheses.",
   category: "personal",
+  listed: false, // TASK-249 (Tushar 2026-10-18): off every list; case study stays reachable by link
   tags: ["Discovery", "Research", "Healthcare"],
   filters: ["experiments"],
   status: "research",
@@ -2692,6 +2694,7 @@ export const tegaki: Project = {
   name: "Tegaki",
   tagline: "What your handwriting suggests about you — read and written by hand.",
   category: "personal",
+  listed: false, // TASK-249 (Tushar 2026-10-18): off every list; case study stays reachable by link
   tags: ["D2C", "Supabase RLS", "Pilot"],
   filters: ["experiments"],
   status: "pilot",
@@ -2735,6 +2738,7 @@ export const dinoArcadePwa: Project = {
   tagline:
     "A mobile PWA that turns your phone into an arcade cabinet — strictly BYO-ROM, no game data ships or uploads.",
   category: "personal",
+  listed: false, // TASK-249 (Tushar 2026-10-18): off every list; case study stays reachable by link
   tags: ["PWA", "Offline", "EmulatorJS"],
   filters: ["experiments"],
   status: "live",
@@ -2777,6 +2781,7 @@ export const cinematicPortfolio: Project = {
   tagline:
     "A scroll-driven film portfolio — AI-generated footage of me as the backdrop, Apple-product-page style, no build step.",
   category: "personal",
+  listed: false, // TASK-249 (Tushar 2026-10-18): off every list; case study stays reachable by link
   tags: ["Motion", "Static", "Higgsfield"],
   filters: ["experiments"],
   status: "live",

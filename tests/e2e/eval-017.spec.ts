@@ -17,6 +17,7 @@ import sharp from "sharp";
 import { test, expect } from "./fixtures";
 import { STATIC_ROUTES } from "@/app/sitemap";
 import { projects } from "@/data/projects";
+import { isListed } from "@/lib/portfolio";
 import { collections } from "@/data";
 
 // The expected sitemap URL count is DERIVED from the exact three sources `app/sitemap.ts` composes
@@ -27,10 +28,10 @@ import { collections } from "@/data";
 // into `app/sitemap.ts` too and this count follows automatically.
 const EXPECTED_SITEMAP_COUNT =
   STATIC_ROUTES.length +
-  projects.filter((project) => project.category === "personal").length +
+  projects.filter(isListed).length + // TASK-249: unlisted builds are out of the sitemap
   collections.writing.length;
 
-// "/about" added by TKT-42; "/thinking" + "/playground" added by TKT-78 (M-009) so all seven
+// "/about" added by TKT-42; "/thinking" added by TKT-78 (M-009) (its "/playground" retired, TASK-249) so all the
 // `opengraph-image.tsx` families are covered by the tag + image checks (TC-150).
 const ROUTES = [
   "/",
@@ -39,7 +40,6 @@ const ROUTES = [
   "/work/teachspark",
   "/about",
   "/thinking",
-  "/playground",
   "/contact",
   // TKT-102: the certifications page family.
   "/certifications",

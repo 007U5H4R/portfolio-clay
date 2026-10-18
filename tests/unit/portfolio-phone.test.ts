@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPortfolioProducts, detailHref, filterProducts, hasVideo, listHref, NO_FILTER, parseListFilter, statusOptions } from "@/lib/portfolio";
+import { buildPortfolioProducts, detailHref, filterProducts, hasVideo, isListed, listHref, NO_FILTER, parseListFilter, statusOptions } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
 import { projects } from "@/data/projects";
 
@@ -9,7 +9,8 @@ import { projects } from "@/data/projects";
  */
 const resolveArt = (id: string) => ({ src: `/media/illustrations/covers/${id}.svg`, width: 1600, height: 900, alt: `Illustration of ${id}.` });
 const products = buildPortfolioProducts(projects, portfolioEntries, resolveArt);
-const personal = projects.filter((p) => p.category === "personal");
+// TASK-249 (Tushar 2026-10-18): the listing shows listed builds only.
+const personal = projects.filter(isListed);
 
 describe("phone listing model (TASK-210)", () => {
   it("carries each project's own status, tags, role, build window and at most three metrics (verbatim, with their evidence kind)", () => {
@@ -42,8 +43,10 @@ describe("phone listing model (TASK-210)", () => {
   });
 
   it("a status with no video-bearing build yields an empty list (the page shows its empty state)", () => {
-    const empty = statusOptions(products).find((o) => filterProducts(products, { status: o.value, video: true }).length === 0);
-    expect(empty).toBeTruthy();
+    // TASK-249 (Tushar 2026-10-18): the listed builds all carry a video per status, so strip one status's videos to reach the state.
+    const stripped = products.map((p) => (p.status === "prototype" ? { ...p, pitchVideo: undefined, demoVideo: undefined } : p));
+    const empty = statusOptions(stripped).find((o) => filterProducts(stripped, { status: o.value, video: true }).length === 0);
+    expect(empty?.value).toBe("prototype");
   });
 
   it("round-trips filter and product through the URL; unknown values fall back to no filter", () => {

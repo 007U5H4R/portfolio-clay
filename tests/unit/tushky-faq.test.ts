@@ -236,7 +236,8 @@ describe("TASK-123 FAQ cache — contract, coverage and grounding", () => {
     expect(text("products-built")).toMatch(/uptime after 9 Sep 2026 is unverified/);
     expect(text("impact")).toMatch(/self-reported/);
     expect(text("velora")).toMatch(/mock data/);
-    expect(text("products-built")).toMatch(/built but not launched/);
+    // TASK-249 (Tushar 2026-10-18): Cubicle ("built but not launched") is unlisted; the listed Campfire Board carries the caveat now.
+    expect(text("products-built")).toMatch(/built as a local tool/);
     for (const e of FAQ) expect(e.answer, e.id).not.toMatch(/Bengaluru|Bangalore|\+91/);
   });
 

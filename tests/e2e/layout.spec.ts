@@ -108,7 +108,7 @@ test("primary nav: every navItems entry (TKT-101/102) visible as tabs at every w
   // Derived from lib/nav.ts (TKT-102 added Certifications; TKT-101 adds Projects) — never a literal.
   await expect(links).toHaveCount(navItems.length);
   await expect(nav.locator('a[href="/certifications"]')).toHaveCount(1);
-  // TASK-135: hidden tabs (Thinking, Playground) are kept in lib/nav.ts but never rendered.
+  // TASK-135: hidden tabs (Thinking) are kept in lib/nav.ts but never rendered.
   for (const item of allNavItems.filter((i) => i.hidden)) {
     await expect(nav.locator(`a[href="${item.href}"]`), `${item.label} tab is hidden`).toHaveCount(0);
   }

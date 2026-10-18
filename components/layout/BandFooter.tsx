@@ -29,8 +29,7 @@ export function showGithub(): boolean {
  * heading's accessible text stays "Let's build something people can use.".
  *
  * Only the approved public contact (email → `/contact`, LinkedIn) appears — no phone/DOB/address
- * (EXE-8). The résumé circle derives from `resumeAction()` (PB5). The D8-fallback "Playground" band
- * link is deliberately not added (D8 default = five-item header nav; E-20: it would be one `<li>`).
+ * (EXE-8). The résumé circle derives from `resumeAction()` (PB5).
  */
 export function BandFooter() {
   const resume = resumeAction();

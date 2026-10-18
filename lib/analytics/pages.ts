@@ -11,7 +11,6 @@ export function pageNameFor(path: string): PageName {
   if (p === "/contact") return "contact";
   if (p === "/thinking") return "thinking";
   if (p.startsWith("/thinking/")) return "essay";
-  if (p === "/playground") return "playground";
   if (p === "/certifications") return "certifications";
   if (p === "/card") return "card";
   if (p === "/lab") return "gummy_lab";

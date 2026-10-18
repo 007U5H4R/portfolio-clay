@@ -20,7 +20,6 @@ const ROUTES: { route: string; id: string }[] = [
   { route: "/work", id: "scene-experience" },
   { route: "/thinking", id: "scene-thinking" },
   { route: "/projects", id: "scene-work" },
-  { route: "/playground", id: "scene-playground" },
   { route: "/certifications", id: "scene-certifications" },
   { route: "/contact", id: "scene-contact" },
 ];

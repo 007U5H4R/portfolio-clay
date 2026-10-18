@@ -110,7 +110,6 @@ export const wibStages: WibStage[] = [
     tools: [
       { label: "Vertex AI", evidence: "Vertex AI" },
       { label: "RAG", evidence: "RAG", project: { slug: "railcite", name: "RailCite", evidence: "RAG" } },
-      { label: "Agents", evidence: "multi-agent", project: { slug: "cubicle", name: "Cubicle", evidence: "multi-agent" } },
     ],
   },
   {

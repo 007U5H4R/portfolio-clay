@@ -34,7 +34,7 @@ export const PAGE_ANCHORS = {
 } as const;
 
 /** Top-level routes that always exist. */
-export const STATIC_ROUTES = ['/', '/work', '/projects', '/about', '/thinking', '/contact', '/playground'] as const;
+export const STATIC_ROUTES = ['/', '/work', '/projects', '/about', '/thinking', '/contact'] as const;
 
 /**
  * The full personal-build slug universe (CONTENT_INVENTORY §2.2) — the slugs that back `/work/<slug>`

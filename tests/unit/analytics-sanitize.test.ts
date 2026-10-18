@@ -51,7 +51,7 @@ describe("attribution sanitising (TASK-194)", () => {
 describe("page identity (TASK-194)", () => {
   it.each([
     ["/", "home"], ["/work", "experience"], ["/work/teachspark", "case_study"], ["/projects", "portfolio"], ["/about", "about"],
-    ["/contact", "contact"], ["/thinking", "thinking"], ["/thinking/refusal-is-a-feature", "essay"], ["/playground", "playground"],
+    ["/contact", "contact"], ["/thinking", "thinking"], ["/thinking/refusal-is-a-feature", "essay"], ["/playground", "other"],
     ["/certifications", "certifications"], ["/card", "card"], ["/lab", "gummy_lab"], ["/nope", "other"],
   ])("%s → %s", (path, name) => expect(pageNameFor(path)).toBe(name));
 

@@ -21,7 +21,6 @@ const OPENERS = [
   { route: "/thinking", id: "scene-thinking" },
   { route: `/thinking/${writing[0]!.slug}`, id: "scene-thinking" },
   { route: "/about", id: "scene-about" },
-  { route: "/playground", id: "scene-playground" },
   { route: "/contact", id: "scene-contact" },
 ] as const;
 

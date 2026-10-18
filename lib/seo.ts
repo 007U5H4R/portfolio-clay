@@ -38,6 +38,8 @@ export interface BuildMetadataInput {
   /** Route path, e.g. "/", "/work/teachspark". */
   path: string;
   type?: "website" | "article";
+  /** TASK-249 (Tushar 2026-10-18): unlisted pages stay reachable by link but ask crawlers not to index them (links still followed). */
+  noindex?: boolean;
 }
 
 /** Title/description/canonical/OG/Twitter builder (technical-plan.md §A8) — every absolute-URL
@@ -48,6 +50,7 @@ export function buildMetadata({
   description,
   path,
   type = "website",
+  noindex = false,
 }: BuildMetadataInput): Metadata {
   const base = siteUrl();
   const url = path === "/" ? base : `${base}${path}`;
@@ -58,6 +61,7 @@ export function buildMetadata({
     title: { absolute: title },
     description,
     alternates: { canonical: url },
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type,
       url,

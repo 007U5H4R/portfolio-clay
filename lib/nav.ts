@@ -1,12 +1,9 @@
 /**
  * Primary nav copy (Design.md §4.1, decision D8 — TKT-71; TKT-101 Dev-90): `Home · Experience · Portfolio ·
- * Thinking · About · Playground`. Rendered by `PrimaryNav` as header tabs at every width (TASK-112: no hamburger). `Contact` is
+ * Thinking · About`. Rendered by `PrimaryNav` as header tabs at every width (TASK-112: no hamburger). `Contact` is
  * never a nav item — it is the "Let's connect →" pill, the band and the page CTAs.
  *
- * D8 (proposed default, Tushar to confirm): the band footer (S16) dropped the footer nav that was
- * Playground's only path (E-9), so Playground joins the header as the fifth item. **Revert path:**
- * remove the `Playground` line below to return to four items; then add the band Playground link in
- * `BandFooter` (TKT-72 note, technical-plan E-20) so EVAL-011 reachability still holds.
+ * TASK-249 (Tushar 2026-10-18): the Playground tab (D8) is gone with the page; `/playground` redirects to `/projects`.
  */
 export interface NavItem {
   label: string;
@@ -28,7 +25,6 @@ export const allNavItems: NavItem[] = [
   { label: "Portfolio", href: "/projects" },
   { label: "Thinking", href: "/thinking", hidden: true }, // TASK-135: hidden, page kept
   { label: "About", href: "/about" },
-  { label: "Playground", href: "/playground", hidden: true }, // TASK-135: hidden, page kept (was D8)
   { label: "Certifications", href: "/certifications" }, // TKT-102 (Tushar 2026-09-26)
 ];
 
