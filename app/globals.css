@@ -17893,6 +17893,18 @@ html:has(dialog.more-menu[open]) {
     max-height: 48px;
   }
 }
+/* Slag City's logo is a riveted marquee plate with its lettering inset, so it needs more height to read at the same size. */
+.pf-info-name .pf-logo-img[src*="logo-slag-city"] {
+  max-height: 64px;
+}
+.pf-m-bar-title .pf-logo-img[src*="logo-slag-city"] {
+  max-height: 40px;
+}
+@media (min-width: 1024px) {
+  .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
+    max-height: 76px;
+  }
+}
 
 /* ==================================================================================================
    TASK-252 (Tushar 2026-10-18) · the star nudge under the GitHub link: a small handwritten note (Caveat), muted ink, no
@@ -17901,7 +17913,8 @@ html:has(dialog.more-menu[open]) {
    ================================================================================================== */
 .pf-star-note {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
+  min-height: 44px; /* a real tap target (EVAL-008 ≥ 44 px), even as a quiet text link */
   gap: 6px;
   flex-basis: 100%;
   grid-column: 1 / -1;
