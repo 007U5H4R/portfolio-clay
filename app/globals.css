@@ -17738,16 +17738,16 @@ html:has(dialog.more-menu[open]) {
   transform: rotate(-2deg);
 }
 .more-deco {
+  /* TASK-255 (Tushar 2026-10-18): 3D origami moon vignette (transparent WebP per theme, 288x245 = 3x of this slot); ratio reserved. */
   position: absolute;
   right: 0;
   top: -4px;
-  width: 64px;
-  height: 56px;
-  background: url("/media/menu/sprig.svg") center / contain no-repeat;
+  width: 80px;
+  aspect-ratio: 288 / 245;
+  background: url("/media/menu/moon-light.webp") center / contain no-repeat;
 }
 [data-theme="dark"] .more-deco {
-  width: 76px;
-  background-image: url("/media/menu/moon.svg");
+  background-image: url("/media/menu/moon-dark.webp");
 }
 .more-group {
   flex: none;
@@ -17859,14 +17859,16 @@ html:has(dialog.more-menu[open]) {
   translate: 0 1px;
 }
 .more-land {
+  /* TASK-255 (Tushar 2026-10-18): 3D origami landscape strip (transparent WebP per theme, 1020x285 = 3x of a 340 px sheet); ratio reserved. */
+  box-sizing: content-box;
   flex: none;
-  height: 112px;
+  aspect-ratio: 1020 / 285;
   margin: auto -12px calc(-8px - env(safe-area-inset-bottom, 0px));
   border-top: 12px solid transparent; /* breathing room above the art when the list fills the drawer */
-  background: url("/media/menu/landscape-light.svg") center bottom / cover no-repeat;
+  background: url("/media/menu/landscape-light.webp") center bottom / 100% 100% no-repeat;
 }
 [data-theme="dark"] .more-land {
-  background-image: url("/media/menu/landscape-dark.svg");
+  background-image: url("/media/menu/landscape-dark.webp");
 }
 @media (max-height: 700px) {
   .more-land {
