@@ -31,7 +31,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-3cd44f403102",
+    "profileVersion": "v1-de0107e05e82",
     "dependsOn": [
       "profile",
       "experience",
@@ -86,7 +86,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-def36daac2f1",
+    "profileVersion": "v1-c1cc6d880515",
     "dependsOn": [
       "projects"
     ],
@@ -126,7 +126,7 @@
       "What certifications does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-99fb6bb0b2ac",
+    "profileVersion": "v1-853be03dc28a",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -168,8 +168,8 @@
       "Tell me about TeachSpark.",
       "What is his product thinking process?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-c3d8c555ea4c",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-42ef68576fe5",
     "dependsOn": [
       "impact",
       "experience",
@@ -252,7 +252,7 @@
       "Walk me through a specific project."
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-774b2089a31a",
+    "profileVersion": "v1-7ec5de4eb0c0",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -291,8 +291,8 @@
       "Tell me about TeachSpark.",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-0bcd887fa2e3",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-4f024a427a09",
     "dependsOn": [
       "project:railcite"
     ],
@@ -327,8 +327,8 @@
       "How does he evaluate an AI product?",
       "What did he learn when an assumption failed?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-3253d6cd62ba",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-aa5ad2af9bd8",
     "dependsOn": [
       "project:teachspark",
       "thinking"
@@ -364,8 +364,8 @@
       "Tell me about TeachSpark.",
       "How does he evaluate an AI product?"
     ],
-    "updatedAt": "2026-09-29",
-    "profileVersion": "v1-0bcd887fa2e3",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-4f024a427a09",
     "dependsOn": [
       "project:railcite"
     ],
@@ -403,7 +403,7 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-83ffaedf0cda",
+    "profileVersion": "v1-10ba5e6513d9",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -697,7 +697,7 @@
       "Tell me about Velora."
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-8cb81e8ecf0e",
+    "profileVersion": "v1-2ab3475756d7",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -738,7 +738,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-18",
-    "profileVersion": "v1-c450cdb0ce1e",
+    "profileVersion": "v1-0079e3ca2678",
     "dependsOn": [
       "knowledge",
       "project:railcite",

@@ -93,7 +93,7 @@ export const teachspark: Project = {
   links: {
     live: "https://teachspark-production.up.railway.app",
     github: "https://github.com/007U5H4R/teachspark",
-    repoPublic: false,
+    repoPublic: true, // made public; verified via gh 2026-10-18 (TASK-251)
   },
   hero: {},
   metrics: [
@@ -534,7 +534,7 @@ export const teachspark: Project = {
  * over N queries); the stale deck figures ("148 tests / 5,687 docs" as current) are never used; the
  * one failing test is disclosed as a "stale expectation"; the impeccable P0 "Flagship starter
  * refuses" is stated as found with the fix record noted MISSING. No PII / env-key names; the repo is
- * private (S5) so `repoPublic:false`, no github link.
+ * private (S5) so `repoPublic:false`, no github link. Made public; verified via gh 2026-10-18 (TASK-251).
  */
 export const railcite: Project = {
   slug: "railcite",
@@ -555,7 +555,8 @@ export const railcite: Project = {
   duration: "Aug–Sep 2026",
   links: {
     live: "https://railcite.vercel.app",
-    repoPublic: false,
+    github: "https://github.com/007U5H4R/railcite",
+    repoPublic: true,
   },
   hero: {},
   metrics: [
@@ -1000,8 +1001,8 @@ export const railcite: Project = {
  * as Velora's own data; the procurement interviews are team-pooled (Tushar's individual share not
  * separately recorded); Trust Scores are authored, "shown as if verified" (PRD.md:80 out of scope);
  * the live path "was built but not run against a real project" (SUPABASE.md) so the app runs on mock
- * data; no users / no pilot / no usage data are claimed. Repo private (S5) → `repoPublic:false`, no
- * github link. No PII / .env key names.
+ * data; no users / no pilot / no usage data are claimed. Repo was private (S5); made public, verified via
+ * gh 2026-10-18 (TASK-251). No PII / .env key names.
  */
 export const velora: Project = {
   slug: "velora",
@@ -1020,7 +1021,8 @@ export const velora: Project = {
   duration: "Aug 2026",
   links: {
     live: "https://velora-nu-eight.vercel.app/",
-    repoPublic: false,
+    github: "https://github.com/007U5H4R/velora",
+    repoPublic: true,
   },
   hero: {},
   metrics: [
@@ -1807,7 +1809,7 @@ export const cubicle: Project = {
  * cross-linked to `/work/velora` rather than restated there. Screenshots exist in the source repo
  * but TKT-24 (media) has not landed in this repo yet, so both `PrototypeFrame`s use real, sourced
  * dimensions (1568×661) with `kind:'placeholder'` — never a broken image, never an unsourced visual
- * claim. Repo private → `repoPublic:false`.
+ * claim. Made public; verified via gh 2026-10-18 (TASK-251).
  */
 export const nuptis: Project = {
   slug: "nuptis",
@@ -1828,7 +1830,7 @@ export const nuptis: Project = {
   links: {
     live: "https://nuptis.vercel.app/",
     github: "https://github.com/007U5H4R/nuptis",
-    repoPublic: false,
+    repoPublic: true,
   },
   hero: {},
   metrics: [],
@@ -2642,7 +2644,7 @@ export const tokenToli: Project = {
 
 /**
  * Pratyasa. Live static record of granted patent IN 429867 (§8.8). The site is Tushar's solo build
- * (with Claude); he is co-inventor of the patent it documents. Repo visibility unverified → false.
+ * (with Claude); he is co-inventor of the patent it documents. Made public; verified via gh 2026-10-18 (TASK-251).
  */
 export const pratyasa: Project = {
   slug: "pratyasa",
@@ -2663,7 +2665,7 @@ export const pratyasa: Project = {
   links: {
     live: "https://pratyasa.vercel.app",
     github: "https://github.com/007U5H4R/pratyasa",
-    repoPublic: false,
+    repoPublic: true,
   },
   hero: {},
   metrics: [],
@@ -2829,8 +2831,9 @@ export const cinematicPortfolio: Project = {
 /**
  * Campfire Board (TASK-124). A local-first dashboard — a personal fork of Backlog.md (MrLesk/Backlog.md,
  * MIT) — so the credit to Backlog.md and its authors is part of the record, never implied away. It runs
- * on the owner's machine; a hosted live demo with a sample project is the `live` link, and the GitHub link
- * was removed at Tushar's request (TASK-188, 2026-10-08).
+ * on the owner's machine; a hosted live demo with a sample project is the `live` link. The GitHub link was
+ * removed at Tushar's request (TASK-188, 2026-10-08) and restored when he asked for GitHub on every product:
+ * the fork's remote, pm-dashboard; made public, verified via gh 2026-10-18 (TASK-251).
  * Every field traces to the Campfire README / docs (CONTENT_INVENTORY §8.12, `docs/trace/campfire-board.md`).
  * No users, metrics or outcomes are recorded there, so none are claimed. Card depth, like the thin five.
  */
@@ -2852,7 +2855,8 @@ export const campfireBoard: Project = {
   duration: "Sep 2026",
   links: {
     live: "https://site-eight-lake-51.vercel.app",
-    repoPublic: false, // no repo link shown (TASK-188)
+    github: "https://github.com/007U5H4R/pm-dashboard", // the fork's remote (TASK-251)
+    repoPublic: true,
   },
   hero: {},
   metrics: [],
