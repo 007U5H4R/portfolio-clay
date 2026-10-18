@@ -178,10 +178,14 @@ test("clicking a card fires the analytics event without blocking the new-tab nav
   });
 });
 
-// TASK-218: the footer LEARN → BUILD → APPLY → GROW paper art — present, loaded, keeps its 2167:726 ratio, no overflow at 390.
-test("the learn-build-apply-grow art loads, keeps its ratio and does not overflow at 390", async ({ page }) => {
+// TASK-218: the footer LEARN → BUILD → APPLY → GROW paper art — present, loaded, keeps its 2167:726 ratio, no overflow.
+// TASK-254 (Tushar 2026-10-18): phones (< 640) hide the whole footer, so the art is measured at 768 and absent at 390.
+test("the learn-build-apply-grow art is hidden on phones and keeps its ratio without overflow at 768", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(ROUTE, { waitUntil: "load" });
+  await expect(page.locator(".cert-foot")).toBeHidden();
+  await expect(page.locator(".cert-foot-art:visible")).toHaveCount(0);
+  await page.setViewportSize({ width: 768, height: 1024 });
   const art = page.locator(".cert-foot-art:visible");
   await expect(art).toHaveCount(1);
   await art.scrollIntoViewIfNeeded();
@@ -193,6 +197,7 @@ test("the learn-build-apply-grow art loads, keeps its ratio and does not overflo
 
 // TASK-218 follow-up: the art has no paper background (transparent corners) and each theme shows exactly its own copy.
 test("the learn-build-apply-grow art is transparent and swaps with the theme", async ({ page }) => {
+  test.skip(page.viewportSize()!.width < 640, "TASK-254: phones hide the footer art");
   await page.goto(ROUTE, { waitUntil: "load" });
   for (const theme of ["light", "dark"] as const) {
     await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
