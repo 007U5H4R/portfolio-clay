@@ -7,6 +7,7 @@ import { Sheet } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 import { ProductLogo } from "./ProductLogo";
+import { StarNote } from "./StarNote";
 
 export interface ProductInfoPanelProps {
   product: PortfolioProduct;
@@ -156,6 +157,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
           <NewTabHint />
         </span>
       </Link>
+      {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only where the GitHub strip shows */}
+      {product.githubUrl ? <StarNote name={product.name} href={product.githubUrl} /> : null}
       </div>
       {/* TASK-210: the phone's own actions + outcomes (display: none from 640 px up; the strips above are hidden below it) */}
       <PhoneActions product={product} stageId={stageId} onWatch={onWatch} />

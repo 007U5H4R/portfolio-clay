@@ -17893,3 +17893,48 @@ html:has(dialog.more-menu[open]) {
     max-height: 48px;
   }
 }
+
+/* ==================================================================================================
+   TASK-252 (Tushar 2026-10-18) · the star nudge under the GitHub link: a small handwritten note (Caveat), muted ink, no
+   button chrome. --color-ink-soft on the sheet is ≥ 4.5:1 in both themes (the panel's secondary text colour). The star
+   fills on hover / focus; with reduced motion it still fills, just without the transition.
+   ================================================================================================== */
+.pf-star-note {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  order: 9;
+  margin-top: 2px;
+  color: var(--color-ink-soft);
+  font-size: 1.0625rem;
+  line-height: 1.25;
+  text-decoration: none;
+}
+.pf-m-actions .pf-star-note {
+  margin-top: 8px;
+  justify-content: center;
+  text-align: center;
+}
+.pf-star-icon {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  align-self: center;
+  fill: transparent;
+}
+.pf-star-note:hover,
+.pf-star-note:focus-visible {
+  color: var(--color-navy-2);
+}
+.pf-star-note:hover .pf-star-icon,
+.pf-star-note:focus-visible .pf-star-icon {
+  fill: var(--color-rust);
+  stroke: var(--color-rust);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pf-star-icon {
+    transition: fill 0.25s ease, stroke 0.25s ease;
+  }
+}

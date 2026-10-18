@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, BookOpen, ChevronLeft, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
 import type { MediaMode, PortfolioMetric, PortfolioProduct, ProductLogo as ProductLogoFiles } from "@/lib/portfolio";
 import { ProductLogo } from "./ProductLogo";
+import { StarNote } from "./StarNote";
 
 /**
  * The phone project detail's own pieces (TASK-210; < 640 px only — every `.pf-m-*` block is `display: none` above).
@@ -104,6 +105,8 @@ export function PhoneActions({
           </button>
         ) : null}
       </div>
+      {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only when the GitHub button shows */}
+      {product.githubUrl ? <StarNote name={product.name} href={product.githubUrl} /> : null}
     </div>
   );
 }

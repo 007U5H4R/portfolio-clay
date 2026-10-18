@@ -471,3 +471,20 @@ describe("TASK-250 · product logos replace the name text", () => {
     }
   });
 });
+
+describe("TASK-252 · the star nudge", () => {
+  it("shows (desktop panel + phone actions) only with a GitHub URL, and links to that repo in a new tab", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    const notes = screen.getAllByRole("link", { name: "Star Alpha on GitHub (opens in a new tab)" });
+    expect(notes).toHaveLength(2);
+    for (const note of notes) {
+      expect(note).toHaveAttribute("href", "https://github.com/example/alpha");
+      expect(note).toHaveAttribute("target", "_blank");
+      expect(note.getAttribute("rel")).toContain("noopener");
+      expect(note).toHaveTextContent(/star on the repo/i);
+    }
+    // Beta has no GitHub URL: no note
+    fireEvent.click(screen.getByRole("tab", { name: /Beta/ }));
+    expect(screen.queryByRole("link", { name: /^Star .* on GitHub/ })).toBeNull();
+  });
+});
