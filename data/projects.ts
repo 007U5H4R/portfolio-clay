@@ -1005,7 +1005,7 @@ export const railcite: Project = {
  */
 export const velora: Project = {
   slug: "velora",
-  name: "Nuptis → Velora",
+  name: "Velora",
   tagline: "Two vendor-onboarding products in nine days — and the decision to kill the first.",
   category: "personal",
   tags: ["B2B", "Marketplace", "PM craft"],

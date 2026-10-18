@@ -38,7 +38,7 @@ export const knowledge: KnowledgeEntry[] = [
     evidence: [
       { label: "TeachSpark", href: "/work/teachspark" },
       { label: "RailCite", href: "/work/railcite" },
-      { label: "Nuptis → Velora", href: "/work/velora" },
+      { label: "Velora", href: "/work/velora" },
     ],
     sources: [
       { id: "TS-README-3", label: "TeachSpark README", ref: "TS/README.md:3", inventory: "§9" },

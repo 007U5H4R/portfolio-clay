@@ -237,7 +237,7 @@ test.describe("ask-panel", () => {
     const sources = lastAnswer(page).getByRole("list", { name: "Sources" }).getByRole("link");
     // TASK-124 (8ada55f): the reviewed products answer also cites Campfire Board; TASK-129 adds Slag City; TASK-243 The Shravan's Round.
     // TASK-130: each is a case study, so each opens in a new tab and its name says so.
-    await expect(sources).toHaveText(["TeachSpark", "RailCite", "Nuptis → Velora", "Campfire Board", "Slag City", "The Shravan's Round"].map((name) => `${name} (opens in a new tab)`));
+    await expect(sources).toHaveText(["TeachSpark", "RailCite", "Velora", "Campfire Board", "Slag City", "The Shravan's Round"].map((name) => `${name} (opens in a new tab)`));
     for (const target of await sources.evaluateAll((els) => els.map((a) => a.getAttribute("target")))) expect(target).toBe("_blank");
     for (const href of await sources.evaluateAll((els) => els.map((a) => a.getAttribute("href") ?? "")))
       expect(href).not.toMatch(/^https?:/); // titles only — no raw URLs for this answer
