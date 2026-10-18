@@ -10,6 +10,7 @@ export function StarNote({ name, href }: { name: string; href: string }) {
     <a className="pf-star-note font-hand focus-ring" href={href} target="_blank" rel="noopener noreferrer" aria-label={`Star ${name} on GitHub (opens in a new tab)`}>
       <Star className="pf-star-icon" aria-hidden="true" focusable="false" strokeWidth={1.75} />
       <span>Sparked something? A star on the repo keeps the next build coming</span>
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }
