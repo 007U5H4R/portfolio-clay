@@ -67,3 +67,16 @@ Two paper-cut strips for the phone `/projects` product detail (`.pf-m-ridge` und
 | ridge, light | `phone-detail-ridge-light.webp` | 15836 | `b60693df-b937-439d-85e6-b87ee65bd05e` |
 | landscape + coral ridge + dish, dark | `phone-detail-land-dark.webp` | 18144 | `dc2bf0f4-f3b9-400c-a91e-6b088e46f939` |
 | landscape + coral ridge + dish, light | `phone-detail-land-light.webp` | 21736 | `e42cfc60-0f7b-46ac-9f30-7fd0c3584cac` |
+
+## `/projects` phone-list background (TASK-259, reversible test)
+
+3D origami paper-craft art for the fixed background behind the phone `/projects` list (`components/portfolio/ProjectsMobileBackground.tsx`), light + dark, in `public/media/projects-bg/` (swapped per theme in CSS, so only the active set downloads). Generated with the Higgsfield connector, model `gpt_image_2_5`, quality `medium`, resolution `1k`, `background: transparent` (this time the model returned real alpha, no remover needed; 6 generations total). The alpha is hardened (>= 150), trimmed and the ridge's baked ground strip cropped by `scripts/projects-bg/encode.mjs`, then written as WebP (alpha). Dark variants were generated with the matching light job as an image reference ("same composition, re-coloured for dark mode"). Masters: `/Volumes/E Drive/Dev/.scratch/projects-bg/raw/`. No text in any art.
+
+| File | Job id | Prompt summary | Size |
+| --- | --- | --- | --- |
+| `light-facet.webp` | `a08e5862-4455-434b-bc40-1482c54e34c7` | abstract faceted folded-paper sculpture, ivory/cream, terracotta inner folds, dusty-blue accents, soft daylight | 16 kB (360 px wide) |
+| `light-orbit.webp` | `de3acd65-f192-4d56-a18a-7efcb6ce6f26` | folded polyhedron sphere with one folded-paper orbital ribbon, same palette | 19 kB (360 px) |
+| `light-ridge.webp` | `b1a36dd5-b8a9-4500-b8a5-eaa370b83ddf` | wide layered paper-cut mountain ridge, 21:9, ivory + dusty blue-grey, terracotta edges | 15 kB (960 px) |
+| `dark-facet.webp` | `82e7add1-c0b1-4707-ad26-81b72b2daa60` | ref `a08e5862…`, midnight-navy/cobalt, copper inner folds, moonlit | 17 kB |
+| `dark-orbit.webp` | `9e71a8e2-53fc-4689-b550-d1f8cc43f97f` | ref `de3acd65…`, same re-colour | 20 kB |
+| `dark-ridge.webp` | `c2655098-ba17-466a-9bb6-aca23cf2f18f` | ref `b1a36dd5…`, same re-colour | 21 kB |

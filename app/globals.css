@@ -18485,3 +18485,257 @@ html:has(dialog.more-menu[open]) {
   }
 }
 /* === end TASK-257 === */
+
+/* === TASK-259 origami background (reversible test) ===
+   Styles for components/portfolio/ProjectsMobileBackground.tsx. Phone only: hidden at >= 640 px, where the layer's images are never
+   fetched (display: none). Fixed behind the page (z-index -1, above only the body grain) so the cards' backdrop-filter has art to
+   blur. Colour literals live here (EVAL-020 allows them only in this file). Remove the block + the component to undo. */
+.ob-root {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .ob-root {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+  }
+
+  .ob-wash,
+  .ob-orbits {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* L1 — static theme gradient; translucent so the paper fibre / grain underneath still reads */
+  .ob-wash {
+    background:
+      radial-gradient(120% 55% at 100% 0%, rgba(150, 175, 205, 0.34), transparent 70%),
+      radial-gradient(110% 50% at 0% 100%, rgba(205, 120, 80, 0.2), transparent 72%),
+      linear-gradient(180deg, rgba(243, 234, 216, 0.5), rgba(236, 224, 204, 0.55));
+  }
+  [data-theme="dark"] .ob-wash {
+    background:
+      radial-gradient(120% 55% at 100% 0%, rgba(58, 92, 170, 0.5), transparent 70%),
+      radial-gradient(110% 50% at 0% 100%, rgba(40, 70, 140, 0.45), transparent 72%),
+      linear-gradient(180deg, rgba(14, 22, 44, 0.55), rgba(12, 18, 38, 0.6));
+  }
+
+  /* L2 — slow lighting: two soft blooms whose opacity breathes out of step */
+  .ob-bloom {
+    position: absolute;
+    opacity: 0.5;
+  }
+  .ob-bloom-a {
+    inset: 0 -10% auto 20%;
+    height: 38%;
+    background: radial-gradient(closest-side, rgba(255, 236, 205, 0.8), transparent);
+  }
+  .ob-bloom-b {
+    inset: auto 30% 6% -20%;
+    height: 34%;
+    background: radial-gradient(closest-side, rgba(240, 160, 120, 0.5), transparent);
+  }
+  [data-theme="dark"] .ob-bloom-a {
+    background: radial-gradient(closest-side, rgba(110, 150, 230, 0.55), transparent);
+  }
+  [data-theme="dark"] .ob-bloom-b {
+    background: radial-gradient(closest-side, rgba(220, 130, 90, 0.28), transparent);
+  }
+
+  /* L4 — a few faint orbital curves */
+  .ob-orbits {
+    width: 100%;
+    height: 100%;
+    stroke: rgba(120, 100, 80, 0.2);
+    stroke-width: 1;
+  }
+  [data-theme="dark"] .ob-orbits {
+    stroke: rgba(170, 195, 240, 0.16);
+  }
+
+  /* parallax shell (scroll-driven, below) around a drift shell (ambient loop): the two never share `transform` */
+  .ob-par {
+    position: absolute;
+  }
+  .ob-drift {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    will-change: transform;
+  }
+
+  /* L3 — sculptures at the outer edges, partly cropped by them */
+  .ob-sculpt {
+    background-size: contain;
+    background-position: center;
+  }
+  .ob-par-facet {
+    width: 158px;
+    aspect-ratio: 360 / 447;
+    right: -70px;
+    top: 278px;
+  }
+  .ob-par-orbit {
+    width: 176px;
+    aspect-ratio: 360 / 320;
+    left: -60px;
+    top: 61%;
+  }
+  .ob-facet {
+    background-image: url("/media/projects-bg/light-facet.webp");
+    transform: rotate(14deg);
+    opacity: 1;
+  }
+  .ob-orbit {
+    background-image: url("/media/projects-bg/light-orbit.webp");
+    transform: rotate(-10deg);
+    opacity: 1;
+  }
+  [data-theme="dark"] .ob-facet {
+    background-image: url("/media/projects-bg/dark-facet.webp");
+    opacity: 0.8;
+  }
+  [data-theme="dark"] .ob-orbit {
+    background-image: url("/media/projects-bg/dark-orbit.webp");
+    opacity: 0.9;
+  }
+
+  /* L5 — ridges toward the lower corners: a far one (mirrored, larger, quieter) behind a near one */
+  .ob-ridge {
+    background-size: 100% auto;
+    background-position: bottom;
+  }
+  .ob-par-ridge-far {
+    width: 175vw;
+    aspect-ratio: 960 / 176;
+    left: -78vw;
+    bottom: 10px;
+  }
+  .ob-par-ridge-near {
+    width: 215vw;
+    aspect-ratio: 960 / 176;
+    right: -92vw;
+    bottom: -6px;
+  }
+  .ob-ridge-far {
+    background-image: url("/media/projects-bg/light-ridge.webp");
+    transform: scaleX(-1);
+    opacity: 0.45;
+  }
+  .ob-ridge-near {
+    background-image: url("/media/projects-bg/light-ridge.webp");
+    opacity: 0.95;
+  }
+  [data-theme="dark"] .ob-ridge-far {
+    background-image: url("/media/projects-bg/dark-ridge.webp");
+    opacity: 0.4;
+  }
+  [data-theme="dark"] .ob-ridge-near {
+    background-image: url("/media/projects-bg/dark-ridge.webp");
+    opacity: 0.85;
+  }
+
+  /* motion — only when the reader has not asked for less */
+  @media (prefers-reduced-motion: no-preference) {
+    .ob-bloom-a {
+      animation: ob-bloom-a 46s ease-in-out infinite alternate;
+    }
+    .ob-bloom-b {
+      animation: ob-bloom-b 58s ease-in-out -20s infinite alternate;
+    }
+    .ob-facet {
+      animation: ob-drift-facet 34s ease-in-out infinite alternate;
+    }
+    .ob-orbit {
+      animation: ob-drift-orbit 28s ease-in-out -11s infinite alternate;
+    }
+    .ob-ridge-far {
+      animation: ob-drift-ridge-far 40s ease-in-out -6s infinite alternate;
+    }
+    .ob-ridge-near {
+      animation: ob-drift-ridge-near 31s ease-in-out -17s infinite alternate;
+    }
+
+    /* optional parallax: pure CSS, compositor-driven, only where scroll-driven animations exist */
+    @supports (animation-timeline: scroll()) {
+      .ob-par-facet {
+        animation: ob-par-up linear both;
+        animation-timeline: scroll(root block);
+        --par: -46px;
+      }
+      .ob-par-orbit {
+        animation: ob-par-up linear both;
+        animation-timeline: scroll(root block);
+        --par: -26px;
+      }
+      .ob-par-ridge-near {
+        animation: ob-par-up linear both;
+        animation-timeline: scroll(root block);
+        --par: 18px;
+      }
+    }
+  }
+
+  @keyframes ob-bloom-a {
+    from {
+      opacity: 0.25;
+    }
+    to {
+      opacity: 0.6;
+    }
+  }
+  @keyframes ob-bloom-b {
+    from {
+      opacity: 0.6;
+    }
+    to {
+      opacity: 0.2;
+    }
+  }
+  @keyframes ob-drift-facet {
+    from {
+      transform: translate3d(-4px, 8px, 0) rotate(13.2deg);
+    }
+    to {
+      transform: translate3d(5px, -8px, 0) rotate(14.8deg);
+    }
+  }
+  @keyframes ob-drift-orbit {
+    from {
+      transform: translate3d(5px, -6px, 0) rotate(-10.8deg);
+    }
+    to {
+      transform: translate3d(-4px, 7px, 0) rotate(-9.2deg);
+    }
+  }
+  @keyframes ob-drift-ridge-far {
+    from {
+      transform: scaleX(-1) translate3d(6px, 2px, 0);
+    }
+    to {
+      transform: scaleX(-1) translate3d(-6px, -3px, 0);
+    }
+  }
+  @keyframes ob-drift-ridge-near {
+    from {
+      transform: translate3d(-7px, 3px, 0);
+    }
+    to {
+      transform: translate3d(7px, -4px, 0);
+    }
+  }
+  @keyframes ob-par-up {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(0, var(--par), 0);
+    }
+  }
+}
+/* === end TASK-259 === */
