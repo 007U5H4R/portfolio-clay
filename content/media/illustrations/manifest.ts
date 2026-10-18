@@ -16,6 +16,7 @@
  * TASK-127: `cover-<slug>`, the hand-authored SVG product covers (scripts/portfolio-art/, public-only).
  * TASK-129: `cover-slag-city`, the thirteenth cover, in the same system.
  * TASK-243: `cover-shravans-round`, the fourteenth cover, 3D paper-cut art generated with Higgsfield like TASK-202.
+ * TASK-248: `cover-urja`, the fifteenth cover, the same way.
  * TASK-202: all thirteen covers and the three Featured Work cards are 3D paper-cut art generated with Higgsfield
  * (WebP covers 1344×756; AVIF + WebP back/mid/front layers); provenance in `card-art-README.md` beside the assets.
  * TASK-144.5 (M-010 T3): the seven tab scenes are paper-cut stills, light + dark twins (`darkFile`), WebP, 3168×1344, with
@@ -27,7 +28,7 @@
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot"; // "clip": no entry ships since S24 retired clip A, kept for the alt-prefix table
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "cover-shravans-round" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
+  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "cover-shravans-round" | "cover-urja" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition; the LIGHT rendition when `darkFile` is set)
   darkFile?: string;     // TASK-140 (S23, EV9, EVAL-025): the paired dark-theme rendition — same entry, same alt, identical pixel size
@@ -379,6 +380,17 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     width: 1344,
     height: 756,
     alt: "Illustration of a quiet interview room at dusk: an empty terracotta armchair faces a round wooden table with two cups of chai, a green notebook and pencil, a pocket stopwatch and a brass desk microphone standing inside an amber paper ring of radiating bars, beside a night window and a potted plant.",
+    usedOn: ["/projects"],
+  },
+  {
+    // TASK-248: Urja's cover, 3D paper-cut art (Higgsfield) — carousel cover + stage poster.
+    id: "cover-urja",
+    kind: "scene",
+    file: "",
+    publicSrc: "/media/illustrations/covers/cover-urja.webp",
+    width: 1344,
+    height: 756,
+    alt: "Illustration of a night highway across a dark plain: a painted Indian goods truck with a green tarpaulin load drives toward a distant lit town, its side fuel tank glowing amber like a lantern, beside an open blank notebook and a brass oil lamp, a roadside fuel pump and a milestone, under a plain navy sky.",
     usedOn: ["/projects"],
   },
   {

@@ -39,6 +39,7 @@ Consumed by: `Solution-PRD.md` (content requirements), the ticketing stage (one 
 | `CF` | `/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/` (Campfire Board; added TASK-124, 2026-09-28) |
 | `SC` | `/Volumes/E Drive/Dev/Code/Claude/Slag City/` (Slag City; added TASK-129, 2026-09-29; read-only) |
 | `SR` | `/Volumes/E Drive/Dev/Code/Claude/Mock Interview/` (The Shravan's Round; added TASK-243, 2026-10-17; read-only) |
+| `URJA` | `/Volumes/E Drive/Dev/Code/Claude/urja-artifacts-wt/` (Urja, a clone of github.com/007U5H4R/urja; added TASK-248, 2026-10-18; read-only) |
 | `DL` | `/Users/tushar/Downloads/Documents/` |
 | `MEM` | `/Users/tushar/.claude/projects/-Volumes-E-Drive-Dev-Code-Claude-portfolio/memory/cinematic-portfolio-build.md` |
 
@@ -551,6 +552,21 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Dates:** repo created 2026-09-10; last push 2026-10-16 → "Sep–Oct 2026".
 - **Video:** launch pitch `youtu.be/0cYat1u7lJE` ("Shravans Round Launch") and demo `youtu.be/lwXHhCh1NEE` ("Shravans Round Demo"), channel "The Purposeful PM", public and embeddable (oEmbed, 2026-10-17).
 - **Likeness:** used by the product with consent; the portfolio never shows his face (cover has no people; captures cropped). The `/feedback` capture is the site's own labelled example ("a made-up round").
+- **Metrics / users:** none recorded — publish none.
+
+### 8.15 `urja` (added TASK-248, 2026-10-18)
+
+- **Name / one line:** Urja — "an AI munshi for Indian fleet owners. It reconciles every trip's diesel, tolls and kilometres from vehicle data, and tells the owner each morning, in Hindi or English, where money leaked and how sure it is." (`URJA/Solution-PRD.md` "One line", approved 2026-09-28).
+- **User / problem (`URJA/Discovery-PRD.md`):** owners of 10–100 trucks who run the business from a phone and WhatsApp; "The truck finished the trip — why did I make almost nothing?" Pain figures (fuel 35–45% of operating cost; 15–20% of fuel spend claimed lost) come from vendor blogs and are marked "directional, not proven" — do not publish them as facts.
+- **Built (`URJA/Solution-PRD.md`):** morning brief (Hindi/English, templated), trip evidence, Today (fleet overview with a three.js night reconstruction labelled as such), truck report card, Ask Urja, Why Urja. Five deterministic leakage rules (R1–R5) with High/Medium/Low confidence; low confidence says "Check", never an accusation. Only Ask Urja calls a model (Gemini `gemini-3.5-flash`, labelled fallback).
+- **Data:** simulated — a fictional fleet (Sharma Roadlines, Jaipur, 24 trucks). Driver names in captures are fictional.
+- **Decisions (`URJA/decisions.md`):** S1 problem-first over a telemetry dashboard; S3 small-fleet owner on mobile; S6 rules detect, a live model only answers; S7 north star ₹ recovered/truck/month with a false-accusation guardrail < 10%; D5 shown to the owner as "When Urja was wrong" — 2 of 23 flags (9%) on the simulated month; D3 the 3D truck hero (Tushar's override), labelled a reconstruction.
+- **Quality (`URJA/QA-report.md`; `URJA/evals/reports/eval-report-v1.md`):** 1235 unit passed, 515 e2e passed / 0 failed, LCP 1.80 s, security review PASS with no findings. **Ask eval gate FAIL** (baseline 3/10 answered by the model; final attempt 0/10 on a Gemini free-tier quota) — never claim it passed. Hindi copy awaits a native-speaker review.
+- **Role:** solo — Tushar owns both PRDs; the build ran through AI agents. Built as a concept for a PM interview; the portfolio names no company.
+- **Wording rule (Urja's own):** "unaccounted" / "doesn't add up", never "theft" or "stolen".
+- **Status:** live at `https://urja-three.vercel.app` (HTTP 200, 2026-10-18; live since 2026-10-05). Repo `https://github.com/007U5H4R/urja`, **public** (`gh repo view`, 2026-10-18) → `repoPublic: true`.
+- **Dates:** first commit 2026-09-28; last 2026-10-14 → "Sep–Oct 2026".
+- **Video:** launch and demo films to follow (Tushar, 2026-10-18).
 - **Metrics / users:** none recorded — publish none.
 
 ---

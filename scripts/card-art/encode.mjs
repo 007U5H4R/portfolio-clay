@@ -24,6 +24,7 @@ const COVERS = {
   cubicle: "cover-cubicle", nuptis: "cover-nuptis", pratyasa: "cover-pratyasa", tegaki: "cover-tegaki",
   "dino-arcade-pwa": "cover-dino-arcade-pwa", "cinematic-portfolio": "cover-cinematic-portfolio",
   "shravans-round": "cover-shravans-round",
+  urja: "cover-urja",
 };
 // card → [w, h, bleed, crop-left px, masters back/mid/front]
 const FEATURED = {

@@ -89,6 +89,11 @@ export const MEDIA: MediaRow[] = [
   { slug: "shravans-round", from: "landing-desktop.jpg", to: "landing.webp", width: 1100, extract: { left: 500, top: 0, width: 1100, height: 1000 } },
   { slug: "shravans-round", from: "feedback-desktop.jpg", to: "score-card.webp", width: 1400, extract: { left: 0, top: 0, width: 1600, height: 630 } },
   { slug: "shravans-round", from: "landing-mobile.jpg", to: "landing-mobile.webp", width: 420 },
+  // Urja — live captures of the simulated fleet (2026-10-18, TASK-248). The brief is the phone-width Hindi
+  // page, cropped from the desktop capture to its centre column.
+  { slug: "urja", from: "today-desktop.jpg", to: "today.webp", width: 1400 },
+  { slug: "urja", from: "trip-desktop.jpg", to: "trip.webp", width: 1400 },
+  { slug: "urja", from: "brief-desktop.jpg", to: "brief-hi.webp", width: 420, extract: { left: 556, top: 0, width: 480, height: 1000 } },
 ];
 
 export async function buildMedia(only?: string) {
