@@ -17364,6 +17364,65 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 /* === end TASK-233 === */
 
+/* === TASK-258 (Tushar 2026-10-18) · phone certification tiles in the My Projects list's frosted glass ==========
+   Same recipe as `.pf-m-card.m-float` (TASK-233): see-through fill, restrained blur, fine rim with a brighter top
+   edge, soft shadow, opaque fallbacks for no backdrop-filter / reduced transparency. Phones only; the paper tilt
+   and dot texture give way to the glass, and the badge stays its own crisp print (never inside the blur). */
+@media (max-width: 639px) {
+  .certm-item .certm-tile {
+    --cm-glass: rgba(255, 250, 240, 0.6);
+    --cm-glass-rim: rgba(255, 255, 255, 0.7);
+    --cm-glass-rim-top: rgba(255, 255, 255, 0.95);
+    --cm-glass-shadow: rgba(60, 44, 24, 0.14);
+    --cm-glass-line: rgba(255, 255, 255, 0.75);
+    rotate: 0deg;
+    padding: 14px 14px 12px;
+    border: 1px solid var(--cm-glass-rim);
+    border-top-color: var(--cm-glass-rim-top);
+    border-radius: 22px;
+    background: var(--cm-glass);
+    -webkit-backdrop-filter: blur(14px) saturate(112%);
+    backdrop-filter: blur(14px) saturate(112%);
+    box-shadow:
+      inset 0 1px 0 var(--cm-glass-line),
+      0 1px 2px rgba(60, 44, 24, 0.06),
+      0 12px 28px -10px var(--cm-glass-shadow);
+  }
+  [data-theme="dark"] .certm-item .certm-tile {
+    --cm-glass: rgba(20, 29, 49, 0.6);
+    --cm-glass-rim: rgba(220, 230, 245, 0.16);
+    --cm-glass-rim-top: rgba(220, 230, 245, 0.3);
+    --cm-glass-shadow: rgba(0, 0, 0, 0.4);
+    --cm-glass-line: rgba(255, 255, 255, 0.08);
+  }
+  .certm-item .certm-tile::after {
+    border-radius: 22px;
+  }
+  .certm-tile .certm-badge {
+    border-radius: 14px;
+    mix-blend-mode: normal;
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .certm-item .certm-tile {
+      --cm-glass: rgba(255, 250, 241, 0.97);
+    }
+    [data-theme="dark"] .certm-item .certm-tile {
+      --cm-glass: rgba(20, 29, 49, 0.97);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .certm-item .certm-tile {
+      --cm-glass: rgba(255, 250, 241, 0.97);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    [data-theme="dark"] .certm-item .certm-tile {
+      --cm-glass: rgba(20, 29, 49, 0.97);
+    }
+  }
+}
+/* === end TASK-258 === */
+
 /* === TASK-236 · phone footer: compact the contact block above the waves ===================================
    Tushar 2026-10-16 (foot.md + approved mockup): on phones only (< 640 px) the "Let's connect" content ABOVE the
    paper sea is tightened — spacing and type metrics only, same markup, same order, same words, links and
