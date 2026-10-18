@@ -15904,6 +15904,12 @@ html[data-theme-vt]::view-transition-group(root) {
       align-items: center;
     }
   }
+  /* TASK-256 (Tushar 2026-10-18): from 1280 the sheet gets 46% so the two-column action grid fits whole labels */
+  @media (min-width: 1280px) {
+    .pf-showcase .pf-feature {
+      grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
+    }
+  }
   .pf-showcase .pf-feature::before,
   .pf-showcase .pf-feature::after {
     content: "";
@@ -16056,7 +16062,7 @@ html[data-theme-vt]::view-transition-group(root) {
     justify-content: center;
     gap: 0;
     min-width: 0;
-    padding: clamp(20px, 2.4vw, 32px) clamp(18px, 2.2vw, 30px);
+    padding: clamp(20px, 2.4vw, 32px) clamp(18px, 1.8vw, 26px);
     rotate: none !important;
     filter: none;
   }
@@ -16153,168 +16159,216 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-showcase .pf-info-tagline { order: 3; }
   .pf-showcase .pf-info-desc { order: 4; }
 
-  /* ---- actions: one primary, up to two secondary, then thin-separated text links ---- */
+  /* ---- actions (TASK-256, Tushar 2026-10-18): one filled primary, then a two-column grid of outlined secondaries; a divider-with-star
+     above the primary and (only with a GitHub link) above the star note. Shared by every product; colours are the tokens below. ---- */
+  .pf-showcase .pf-info {
+    --card-accent: var(--color-rust);
+    --card-cta: oklch(0.745 0.15 47);
+    --card-cta-hover: oklch(0.795 0.14 50);
+    --card-cta-ink: oklch(0.2 0.06 267);
+    --card-divider: color-mix(in oklab, var(--color-steel) 48%, transparent);
+    --card-divider-star: color-mix(in oklab, var(--color-steel) 78%, transparent);
+    --card-radius: 14px;
+  }
+  :root[data-theme="dark"] .pf-showcase .pf-info {
+    --card-accent: var(--color-terracotta);
+    --card-divider: color-mix(in oklab, var(--color-steel) 60%, transparent);
+    --card-divider-star: color-mix(in oklab, var(--color-steel) 92%, transparent);
+  }
   .pf-showcase .pf-action-set {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px 12px;
-    margin-top: clamp(14px, 1.6vw, 20px);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 12px;
+    margin-top: clamp(10px, 1.2vw, 16px);
   }
-  .pf-showcase .pf-actions {
-    display: contents;
-  }
+  .pf-showcase .pf-actions,
   .pf-showcase .pf-actions > li {
     display: contents;
   }
-  .pf-showcase .pf-action-set [data-tier="primary"] { --ps-o: 1; }
-  .pf-showcase .pf-action-set [data-tier="secondary"] { --ps-o: 2; }
-  .pf-showcase .pf-action-set [data-tier="tertiary"] { --ps-o: 3; }
-  .pf-showcase .pf-action-set .pf-action {
-    order: var(--ps-o, 3);
-    width: auto;
-    margin: 0;
-    rotate: none;
-    filter: none;
-    border-radius: 12px;
-    box-sizing: border-box;
-    font-family: var(--font-display);
+  .pf-divider {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 18px;
+    margin-block: 6px;
+    pointer-events: none;
   }
+  .pf-divider::before,
+  .pf-divider::after {
+    content: "";
+    flex: 1 1 0;
+    height: 1px;
+    background: var(--card-divider);
+  }
+  .pf-divider svg {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    fill: var(--card-divider-star);
+  }
+  .pf-divider[data-slot="top"] { order: 0; }
+  .pf-divider[data-slot="foot"] { order: 8; }
   .pf-showcase .pf-action::before,
-  .pf-showcase .pf-action::after {
-    content: none;
-  }
-  .pf-showcase .pf-action-icon {
-    width: 22px;
-    height: 22px;
-  }
+  .pf-showcase .pf-action::after,
   .pf-showcase .pf-action-icon::before {
     content: none;
   }
-  .pf-showcase .pf-action-set [data-tier="secondary"] .pf-action-icon {
-    color: var(--ps-accent-ink);
-  }
-  .pf-showcase .pf-action-icon svg {
-    width: 20px;
-    height: 20px;
-  }
-  .pf-showcase .pf-action-hint {
-    display: none;
-  }
-  .pf-showcase .pf-action-label {
-    font-size: 16px;
-    font-weight: 600;
-    white-space: normal;
-    text-decoration: none;
-  }
-  .pf-showcase .pf-action[aria-pressed="true"] .pf-action-label {
-    text-decoration: none;
-  }
-  /* primary: terracotta paper, ivory type, a raised lip */
-  .pf-showcase .pf-action-set .pf-action[data-tier="primary"],
-  .pf-showcase .pf-action-set [data-tier="primary"] > .pf-action {
-    flex: 1 1 100%;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 12px;
+  .pf-showcase .pf-action-set .pf-action.pf-action {
+    order: 2;
+    grid-template-columns: 24px minmax(0, 1fr) 16px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
     min-height: 52px;
-    padding: 8px 20px;
-    color: var(--color-ivory);
-    background-color: var(--ps-accent);
-    background-image: linear-gradient(180deg, color-mix(in oklab, var(--color-ivory) 16%, transparent), transparent 55%), var(--ps-grain);
-    background-size: 100% 100%, 420px 420px;
-    box-shadow:
-      inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 38%, transparent),
-      0 2px 0 color-mix(in oklab, var(--ps-accent) 62%, black),
-      0 8px 12px -6px var(--ps-drop);
-  }
-  .pf-showcase .pf-action-set [data-tier="primary"] .pf-action-label,
-  .pf-showcase .pf-action-set .pf-action[data-tier="primary"] .pf-action-label {
-    font-size: 17px;
-    color: var(--color-ivory);
-  }
-  .pf-showcase .pf-action[data-tier="primary"][aria-pressed="true"],
-  .pf-showcase [data-tier="primary"] > .pf-action[aria-pressed="true"] {
-    box-shadow:
-      inset 0 2px 4px color-mix(in oklab, black 25%, transparent),
-      0 1px 0 color-mix(in oklab, var(--ps-accent) 62%, black);
-  }
-  /* secondary: transparent paper, a thin terracotta border */
-  .pf-showcase .pf-action-set [data-tier="secondary"] > .pf-action {
-    flex: 1 1 170px;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 10px;
-    min-height: 48px;
-    padding: 6px 14px;
-    color: var(--color-navy);
+    margin: 0;
+    padding: 8px 10px 8px 12px;
+    box-sizing: border-box;
+    rotate: none;
+    filter: none;
+    border: 1.5px solid var(--card-accent);
+    border-radius: var(--card-radius);
     background: transparent;
-    border: 1.5px solid var(--ps-accent-ink);
-    box-shadow: 0 1px 0 var(--ps-hi);
-  }
-  .pf-showcase .pf-action-set [data-tier="secondary"] .pf-action-label {
-    font-size: 15.5px;
-    white-space: nowrap;
-  }
-  .pf-showcase .pf-action[data-action="product"] .pf-action-icon,
-  .pf-showcase .pf-action[data-action="demo"] .pf-action-arrow {
-    display: none;
-  }
-  .pf-showcase .pf-action-set [data-tier="secondary"] > .pf-action[aria-pressed="true"] {
-    background: color-mix(in oklab, var(--ps-accent) 14%, transparent);
-    box-shadow: inset 0 1px 3px var(--ps-drop-soft);
-  }
-  /* tertiary: plain text links with thin separators */
-  .pf-showcase .pf-action-set [data-tier="tertiary"] > .pf-action,
-  .pf-showcase .pf-action-set .pf-action[data-tier="tertiary"] {
-    display: inline-flex;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0;
     color: var(--color-navy);
-    background: none;
-    border-radius: 4px;
+    font-family: var(--font-display);
     box-shadow: none;
   }
-  .pf-showcase .pf-action[data-tier="tertiary"] .pf-action-icon,
-  .pf-showcase [data-tier="tertiary"] > .pf-action .pf-action-icon {
-    display: none;
+  .pf-showcase .pf-action-set .pf-action[data-span="full"] {
+    grid-column: 1 / -1;
   }
-  .pf-showcase .pf-action[data-tier="tertiary"] .pf-action-label,
-  .pf-showcase [data-tier="tertiary"] > .pf-action .pf-action-label {
+  .pf-showcase .pf-action-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--card-accent);
+  }
+  .pf-showcase .pf-action-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  .pf-showcase .pf-action-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 15px;
-    font-weight: 500;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
-    text-decoration-color: color-mix(in oklab, var(--color-navy) 45%, transparent);
+    font-weight: 650;
+    line-height: 1.15;
+    white-space: nowrap;
+    text-decoration: none;
   }
-  .pf-showcase [data-sep] > .pf-action,
-  .pf-showcase .pf-action[data-sep] {
-    padding-left: 12px;
-    border-left: 1px solid var(--ps-edge);
-    border-radius: 0;
+  .pf-showcase .pf-action-arrow {
+    width: 16px;
+    height: 16px;
+    color: var(--color-navy);
   }
-  .pf-showcase .pf-action[data-tier="tertiary"] .pf-action-arrow,
-  .pf-showcase [data-tier="tertiary"] > .pf-action .pf-action-arrow {
-    width: 14px;
-    height: 14px;
+  /* the case study reads "Read the case study" at every width the panel shows (the tablet strip rule shortened it) */
+  .pf-showcase .pf-case-lead {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: inherit;
   }
-  .pf-showcase .pf-case-link.pf-action {
-    margin: 0;
-    grid-template-columns: auto;
+  .pf-showcase .pf-case-name::first-letter {
+    text-transform: none;
   }
-  .pf-showcase .pf-case-link .pf-action-label {
+  .pf-showcase .pf-action-set[data-odd] .pf-case-link {
+    grid-column: auto;
+  }
+  .pf-showcase .pf-action-set .pf-case-link[data-span="full"] {
+    grid-column: 1 / -1;
+  }
+  .pf-showcase .pf-action-set .pf-case-link .pf-action-label {
     color: inherit;
   }
-  .pf-showcase .pf-case-link .pf-action-icon {
-    display: none;
+  /* primary: a filled coral bar, dark navy glyphs and type, a soft lip */
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    grid-column: 1 / -1;
+    order: 1;
+    grid-template-columns: 28px minmax(0, 1fr) 22px;
+    gap: 14px;
+    min-height: 62px;
+    padding: 10px 18px;
+    border-color: transparent;
+    background: var(--card-cta);
+    color: var(--card-cta-ink);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white 34%, transparent),
+      0 10px 18px -12px color-mix(in oklab, var(--card-cta) 70%, black);
   }
-  /* when the case study is the only strong action, it is the primary */
-  .pf-showcase .pf-case-link.pf-action[data-tier="primary"] {
-    grid-template-columns: auto minmax(0, 1fr);
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-icon,
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-arrow {
+    color: var(--card-cta-ink);
   }
-  .pf-showcase .pf-case-link.pf-action[data-tier="primary"] .pf-action-icon {
-    display: grid;
-    color: var(--color-ivory);
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-icon,
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-arrow {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-label {
+    font-size: clamp(1.05rem, 4.6cqi, 1.4rem);
+    font-weight: 700;
+  }
+  /* pressed (the video mode now playing) — a state beyond colour: the primary sinks, a secondary tints */
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"][aria-pressed="true"] {
+    box-shadow: inset 0 2px 5px color-mix(in oklab, black 28%, transparent);
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"][aria-pressed="true"] {
+    background: color-mix(in oklab, var(--card-accent) 16%, transparent);
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"]:focus-visible {
+    border-color: color-mix(in oklab, var(--card-accent) 70%, var(--color-navy));
+    background: color-mix(in oklab, var(--card-accent) 10%, transparent);
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"]:focus-visible {
+    background: var(--card-cta-hover);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"]:hover {
+      border-color: color-mix(in oklab, var(--card-accent) 70%, var(--color-navy));
+      background: color-mix(in oklab, var(--card-accent) 10%, transparent);
+    }
+    .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"]:hover {
+      background: var(--card-cta-hover);
+    }
+  }
+  /* motion (the paper-button contract, EVAL-040): a 1 px lift and a 3 px arrow nudge; colours fade; nothing scales */
+  @media (prefers-reduced-motion: no-preference) {
+    .pf-showcase .pf-action-set .pf-action.pf-action {
+      transition:
+        translate var(--dur-l1-out) var(--ease-l1),
+        background-color var(--dur-l1-out) var(--ease-l1),
+        border-color var(--dur-l1-out) var(--ease-l1);
+    }
+    .pf-showcase .pf-action-set .pf-action.pf-action:focus-visible {
+      translate: 0 -1px;
+      --arrow-x: 3px;
+      transition-duration: var(--dur-l1);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .pf-showcase .pf-action-set .pf-action.pf-action:hover {
+        translate: 0 -1px;
+        --arrow-x: 3px;
+        transition-duration: var(--dur-l1);
+      }
+    }
+  }
+  /* two columns only where both labels fit whole; a narrower panel (the 900-1300 columns) stacks them, never clipping a label */
+  @container (max-width: 449px) {
+    .pf-showcase .pf-action-set {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  /* the star note: one line when the panel is wide enough, wrapping below that */
+  @container (min-width: 450px) {
+    .pf-showcase .pf-star-note {
+      white-space: nowrap;
+      font-size: 1.15rem;
+    }
   }
 
   /* ---- the project tray: a paper strip directly beneath the window, same width ---- */
