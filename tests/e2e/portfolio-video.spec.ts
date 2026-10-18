@@ -395,3 +395,44 @@ test.describe("The Shravan's Round real videos on /projects (TASK-243)", () => {
     expect(violations).toEqual([]);
   });
 });
+
+/* TASK-245 — Nuptis's launch pitch + demo (Tushar 2026-10-18) on `/projects`: poster first (no iframe), one
+   privacy-enhanced iframe after Play, Demo swaps the id, no CSP console error. */
+test.describe("Nuptis real videos on /projects (TASK-245)", () => {
+  const PITCH_ID = "sldcfNeQj94";
+  const DEMO_ID = "1F3UfV_cgW4";
+
+  test.beforeEach(() => {
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones (<640) use the TASK-210 detail screen, covered by projects-mobile.spec");
+  });
+
+  test("select Nuptis: poster → one youtube-nocookie iframe; Demo swaps the id; no CSP error", async ({ page, noOverflow }) => {
+    const violations = cspWatch(page);
+    await page.goto("/projects?product=nuptis", { waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const tab = document.querySelector('[role="tab"]');
+      return !!tab && Object.keys(tab).some((k) => k.startsWith("__reactProps"));
+    });
+    await expect(panel(page)).toHaveAttribute("data-active-product", "nuptis");
+    const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
+    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(demoBtn).toBeVisible();
+    await expect(frames(page)).toHaveCount(0);
+
+    await stage(page).getByRole("button", { name: /^Play Nuptis pitch video$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    const src = new URL((await frames(page).getAttribute("src"))!);
+    expect(src.origin).toBe("https://www.youtube-nocookie.com");
+    expect(src.pathname).toBe(`/embed/${PITCH_ID}`);
+    await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
+    await noOverflow(page);
+
+    await demoBtn.click();
+    await expect(frames(page)).toHaveCount(0);
+    await stage(page).getByRole("button", { name: /^Play Nuptis product demonstration$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    expect(await embedId(page)).toBe(DEMO_ID);
+    await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
+    expect(violations).toEqual([]);
+  });
+});

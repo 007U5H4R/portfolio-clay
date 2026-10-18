@@ -49,7 +49,11 @@ export const portfolioEntries: PortfolioEntry[] = [
     demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
   { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt" },
   { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
-  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2" },
+  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2",
+    // Tushar 2026-10-18 (TASK-245): "Nuptis Pitch" (pitch) https://youtu.be/sldcfNeQj94,
+    // "Nuptis Demo" (demo) https://youtu.be/1F3UfV_cgW4 (both public + embeddable).
+    pitchVideo: { provider: "youtube", videoId: "sldcfNeQj94" },
+    demoVideo: { provider: "youtube", videoId: "1F3UfV_cgW4" } },
   { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music",
     // Tushar 2026-10-17 (TASK-242): "Bhakti Vilas Launch music" (pitch) https://youtu.be/6-o7uUh-ewY,
     // "Bhakti Vilas Demo music" (demo) https://youtu.be/ytD0nxWMRWU (both public + embeddable).

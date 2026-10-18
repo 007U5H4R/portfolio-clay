@@ -303,7 +303,11 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const shravan = products.find((p) => p.id === "shravans-round");
     expect(shravan?.pitchVideo).toEqual({ provider: "youtube", videoId: "0cYat1u7lJE", title: "The Shravan's Round pitch video", poster: undefined });
     expect(shravan?.demoVideo).toEqual({ provider: "youtube", videoId: "lwXHhCh1NEE", title: "The Shravan's Round product demonstration", poster: undefined });
-    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark", "pratyasa", "bhakti-vilas", "shravans-round"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-245: Nuptis carries its launch pitch + demo (Tushar 2026-10-18).
+    const nuptis = products.find((p) => p.id === "nuptis");
+    expect(nuptis?.pitchVideo).toEqual({ provider: "youtube", videoId: "sldcfNeQj94", title: "Nuptis pitch video", poster: undefined });
+    expect(nuptis?.demoVideo).toEqual({ provider: "youtube", videoId: "1F3UfV_cgW4", title: "Nuptis product demonstration", poster: undefined });
+    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark", "pratyasa", "bhakti-vilas", "shravans-round", "nuptis"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],
