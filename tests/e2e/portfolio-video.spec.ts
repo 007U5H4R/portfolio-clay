@@ -460,7 +460,7 @@ test.describe("Velora real videos on /projects (TASK-246)", () => {
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
-    await stage(page).getByRole("button", { name: /^Play Nuptis → Velora pitch video$/ }).click();
+    await stage(page).getByRole("button", { name: /^Play Velora pitch video$/ }).click();
     await expect(frames(page)).toHaveCount(1);
     const src = new URL((await frames(page).getAttribute("src"))!);
     expect(src.origin).toBe("https://www.youtube-nocookie.com");
@@ -470,7 +470,7 @@ test.describe("Velora real videos on /projects (TASK-246)", () => {
 
     await demoBtn.click();
     await expect(frames(page)).toHaveCount(0);
-    await stage(page).getByRole("button", { name: /^Play Nuptis → Velora product demonstration$/ }).click();
+    await stage(page).getByRole("button", { name: /^Play Velora product demonstration$/ }).click();
     await expect(frames(page)).toHaveCount(1);
     expect(await embedId(page)).toBe(DEMO_ID);
     await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });

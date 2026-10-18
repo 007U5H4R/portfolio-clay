@@ -30,8 +30,8 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-17",
-    "profileVersion": "v1-8125561c2714",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-a7f607082650",
     "dependsOn": [
       "profile",
       "experience",
@@ -64,7 +64,7 @@
         "href": "/work/railcite"
       },
       {
-        "label": "Nuptis → Velora",
+        "label": "Velora",
         "href": "/work/velora"
       },
       {
@@ -85,8 +85,8 @@
       "Tell me about RailCite.",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-10-17",
-    "profileVersion": "v1-2343b4bb00f5",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-78018d718c61",
     "dependsOn": [
       "projects"
     ],
@@ -125,8 +125,8 @@
       "Tell me about RailCite.",
       "What certifications does he have?"
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-dd49821c6f5a",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-e24e60088a08",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -211,8 +211,8 @@
       "What enterprise programs has he worked on?",
       "What cloud experience does he have?"
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-b0de1a7fafd8",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-7da3f4361920",
     "dependsOn": [
       "skills",
       "experience",
@@ -252,8 +252,8 @@
       "How does he evaluate an AI product?",
       "Walk me through a specific project."
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-1d514c202f51",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-93c8b2a75240",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -386,7 +386,7 @@
     "answer": "Nuptis and Velora are two vendor-onboarding products Tushar built solo in one nine-day sprint. Nuptis came first: vendor ops for wedding-planning agencies. He killed it on day seven, when it had no real pilot data, and rebuilt the idea as Velora, a B2B apparel sourcing marketplace where fashion brands and garment manufacturers swipe to connect and matches turn into bids. Both run live on mock data. Velora's Supabase path was built but never run against a real project, and its Trust Scores are authored rather than checked against any government API.",
     "sources": [
       {
-        "label": "Nuptis → Velora",
+        "label": "Velora",
         "href": "/work/velora"
       },
       {
@@ -403,8 +403,8 @@
       "What did he learn when an assumption failed?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-cc385734d2a1",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-0949b64ac845",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -620,8 +620,8 @@
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-a36486909b6f",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-73093add4823",
     "dependsOn": [
       "credentials",
       "knowledge"
@@ -658,8 +658,8 @@
       "What impact has he created?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-6dfaeae825a7",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-87ce87168fb7",
     "dependsOn": [
       "knowledge",
       "experience"
@@ -697,8 +697,8 @@
       "What is his product thinking process?",
       "Tell me about Velora."
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-4e5427f3376f",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-b833d14fbfb2",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -738,8 +738,8 @@
       "What did he learn when an assumption failed?",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-10-16",
-    "profileVersion": "v1-459d396b7378",
+    "updatedAt": "2026-10-18",
+    "profileVersion": "v1-8bf1b642db26",
     "dependsOn": [
       "knowledge",
       "project:railcite",
