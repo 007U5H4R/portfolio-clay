@@ -56,3 +56,14 @@ Fallback rule (brief item 5): no asset needed the fallback; every project got ne
 | moon, dark (4:3) | `menu/moon-dark.webp` | `329673a2-bb01-4a17-8311-df952f96ad2e` (cut `20691533-a263-4e58-bb3a-ab41f12ef30c`) | reference = light moon; warm-gold crescent, amber stars, navy/deep-blue clouds, navy hill |
 | landscape, light (21:9) | `menu/landscape-light.webp` | `c03aa4b8-69d9-40c4-a60e-4cb6353fbd61` (cut `7e7d9dde-f0e5-4b78-87c8-479102678549`; sibling try `f5cb51d6-c3a0-4370-b014-5547be6b3228` not used) | terracotta/sand/slate/teal folded mountains, faceted evergreens, warm stone foreground with torn edge, orange-and-cream tent at centre |
 | landscape, dark (21:9) | `menu/landscape-dark.webp` | `87854705-a66f-4bb4-9c75-98c92f142c19` (flat white bg, keyed by the script; remover run `3d6dd811-4051-4323-867b-b78172030701` not used) | reference = light landscape; navy/cobalt/teal mountains, dark-green trees, amber tent with warm glow |
+
+## Phone product page art (TASK-257, Tushar 2026-10-18)
+
+Two paper-cut strips for the phone `/projects` product detail (`.pf-m-ridge` under the header, `.pf-m-land` above "At a glance" in `components/portfolio/PhoneDetail.tsx` + `app/globals.css`), dark + light. Higgsfield `gpt_image_2_5`, quality `medium`, resolution `1k`, 21:9, flat white background; keyed to alpha and encoded by `scripts/phone-detail-art/encode.mjs` (900 px wide, transparent WebP). Light variants used the dark job as an image reference (same composition, re-coloured). Masters: `/Volumes/E Drive/Dev/.scratch/phone-detail/art/`. 4 generations, no retries. No text in any art.
+
+| slot | file | bytes | job id |
+|---|---|---|---|
+| ridge, dark | `phone-detail-ridge-dark.webp` | 14212 | `2f654e33-e419-4afa-a0dc-fbc06f80a891` |
+| ridge, light | `phone-detail-ridge-light.webp` | 15836 | `b60693df-b937-439d-85e6-b87ee65bd05e` |
+| landscape + coral ridge + dish, dark | `phone-detail-land-dark.webp` | 18144 | `dc2bf0f4-f3b9-400c-a91e-6b088e46f939` |
+| landscape + coral ridge + dish, light | `phone-detail-land-light.webp` | 21736 | `e42cfc60-0f7b-46ac-9f30-7fd0c3584cac` |

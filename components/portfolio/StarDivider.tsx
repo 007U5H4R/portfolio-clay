@@ -1,4 +1,7 @@
-/** TASK-256 (Tushar 2026-10-18): a thin muted line with a small four-point star at its midpoint (decorative; styled by `.pf-divider`). */
+/**
+ * TASK-256 (Tushar 2026-10-18): a thin muted line with a small four-point star at its midpoint (decorative; styled by
+ * `.pf-divider`). TASK-257: the phone detail reuses it (`.pf-m-actions > .pf-divider`), so desktop and phone share one.
+ */
 export function StarDivider({ slot }: { slot: "top" | "foot" }) {
   return (
     <span className="pf-divider" data-slot={slot} aria-hidden="true">

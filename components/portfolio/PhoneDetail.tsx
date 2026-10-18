@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, ChevronLeft, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronLeft, FileText, Play, Rocket, User, Video } from "lucide-react";
+import type { ReactNode } from "react";
 import type { MediaMode, PortfolioMetric, PortfolioProduct, ProductLogo as ProductLogoFiles } from "@/lib/portfolio";
 import { ProductLogo } from "./ProductLogo";
 import { StarNote } from "./StarNote";
+import { StarDivider } from "./StarDivider";
+import { GithubMark } from "./GithubMark";
 
 /**
  * The phone project detail's own pieces (TASK-210; < 640 px only — every `.pf-m-*` block is `display: none` above).
@@ -23,6 +26,8 @@ export function PhoneDetailBar({ name, logo, onBack }: { name: string; logo?: Pr
       <p className="pf-m-bar-title" aria-hidden="true" data-logo={logo ? "" : undefined}>
         {logo ? <ProductLogo name={name} logo={logo} /> : name}
       </p>
+      {/* TASK-257: the folded-paper ridge under the site header (decorative; pointer-events: none; theme variant by CSS) */}
+      <span className="pf-m-ridge" aria-hidden="true" />
     </div>
   );
 }
@@ -42,7 +47,7 @@ export function PhoneTags({ tags }: { tags: readonly string[] | undefined }) {
 interface LinkDef {
   key: string;
   label: string;
-  Icon: LucideIcon;
+  icon: ReactNode;
   href: string;
 }
 
@@ -63,50 +68,62 @@ export function PhoneActions({
   const primary: MediaMode | null = product.demoVideo ? "demo" : product.pitchVideo ? "pitch" : null;
   const other: MediaMode | null = primary === "demo" && product.pitchVideo ? "pitch" : null;
 
-  const links: LinkDef[] = [{ key: "case", label: "Case study", Icon: BookOpen, href: product.caseStudyHref }];
-  if (product.productUrl) links.push({ key: "live", label: "Live product", Icon: Link2, href: product.productUrl });
-  if (product.githubUrl) links.push({ key: "github", label: "GitHub", Icon: GitBranch, href: product.githubUrl });
-  if (product.prdUrl) links.push({ key: "prd", label: "PRD", Icon: FileText, href: product.prdUrl });
+  const icon = { strokeWidth: 1.75, "aria-hidden": true, focusable: false } as const;
+  const links: LinkDef[] = [{ key: "case", label: "Case study", icon: <BookOpen {...icon} />, href: product.caseStudyHref }];
+  if (product.productUrl) links.push({ key: "live", label: "Live product", icon: <Rocket {...icon} />, href: product.productUrl });
+  if (product.githubUrl) links.push({ key: "github", label: "GitHub", icon: <GithubMark />, href: product.githubUrl });
+  const prd: LinkDef | null = product.prdUrl ? { key: "prd", label: "PRD", icon: <FileText {...icon} />, href: product.prdUrl } : null;
 
-  const count = links.length + (other ? 1 : 0);
+  const renderLink = (link: LinkDef) => {
+    const body = (
+      <>
+        {link.icon}
+        <span>{link.label}</span>
+        <ArrowUpRight className="pf-m-dir pf-m-ext" aria-hidden="true" focusable="false" strokeWidth={1.75} />
+        <span className="sr-only"> (opens in a new tab)</span>
+      </>
+    );
+    const props = { target: "_blank", rel: "noopener noreferrer", className: "pf-m-btn focus-ring", "data-action": link.key } as const;
+    return link.key === "case" ? (
+      <Link key={link.key} href={link.href} {...props}>
+        {body}
+      </Link>
+    ) : (
+      <a key={link.key} href={link.href} {...props}>
+        {body}
+      </a>
+    );
+  };
+
+  const count = links.length + (other ? 1 : 0) + (prd ? 1 : 0);
   return (
     <div className="pf-m-actions" role="group" aria-label={`${product.name} actions`}>
+      <StarDivider slot="top" />
       {primary ? (
         <button type="button" className="pf-m-btn pf-m-primary focus-ring" data-action="watch" data-mode={primary} aria-controls={stageId} onClick={() => onWatch(primary)}>
           <Play aria-hidden="true" focusable="false" strokeWidth={2} />
           <span>{primary === "demo" ? "Watch demo" : "Watch pitch"}</span>
+          <ArrowRight className="pf-m-dir" aria-hidden="true" focusable="false" strokeWidth={2} />
         </button>
       ) : null}
       <div className="pf-m-secondary" data-odd={count % 2 === 1 ? "" : undefined}>
-        {links.map((link) => {
-          const body = (
-            <>
-              <link.Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />
-              <span>{link.label}</span>
-              <ArrowUpRight className="pf-m-ext" aria-hidden="true" focusable="false" strokeWidth={1.75} />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </>
-          );
-          const props = { target: "_blank", rel: "noopener noreferrer", className: "pf-m-btn focus-ring", "data-action": link.key } as const;
-          return link.key === "case" ? (
-            <Link key={link.key} href={link.href} {...props}>
-              {body}
-            </Link>
-          ) : (
-            <a key={link.key} href={link.href} {...props}>
-              {body}
-            </a>
-          );
-        })}
+        {links.map(renderLink)}
         {other ? (
           <button type="button" className="pf-m-btn focus-ring" data-action="watch" data-mode={other} aria-controls={stageId} onClick={() => onWatch(other)}>
-            <Video aria-hidden="true" focusable="false" strokeWidth={1.75} />
+            <Video {...icon} />
             <span>Watch pitch</span>
+            <ArrowRight className="pf-m-dir" aria-hidden="true" focusable="false" strokeWidth={1.75} />
           </button>
         ) : null}
+        {prd ? renderLink(prd) : null}
       </div>
-      {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only when the GitHub button shows */}
-      {product.githubUrl ? <StarNote name={product.name} href={product.githubUrl} /> : null}
+      {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only when the GitHub button shows; TASK-257: set off by the second divider */}
+      {product.githubUrl ? (
+        <>
+          <StarDivider slot="foot" />
+          <StarNote name={product.name} href={product.githubUrl} />
+        </>
+      ) : null}
     </div>
   );
 }
@@ -123,12 +140,21 @@ const KIND_LABEL: Record<PortfolioMetric["kind"], string> = {
  */
 export function PhoneOutcomes({ product }: { product: PortfolioProduct }) {
   const metrics = product.metrics ?? [];
-  const facts: { label: string; value: string }[] = [];
-  if (product.role) facts.push({ label: "Role", value: product.role });
-  if (product.duration) facts.push({ label: "Built", value: product.duration });
+  const facts: { label: string; value: string; icon: ReactNode }[] = [];
+  const icon = { strokeWidth: 1.6, "aria-hidden": true, focusable: false } as const;
+  if (product.role) facts.push({ label: "Role", value: product.role, icon: <User {...icon} /> });
+  if (product.duration) facts.push({ label: "Built", value: product.duration, icon: <CalendarDays {...icon} /> });
   const headingId = `pf-m-outcomes-${product.id}`;
   if (metrics.length === 0 && facts.length === 0) return null;
   return (
+    <>
+    {/* TASK-257: lower paper-cut landscape behind the top of the card (decorative, lazy, ratio reserved) */}
+    <div className="pf-m-land" aria-hidden="true">
+      {(["dark", "light"] as const).map((theme) => (
+        // eslint-disable-next-line @next/next/no-img-element -- pre-sized static WebP, one per theme (CSS shows the matching one)
+        <img key={theme} data-theme-variant={theme} src={`/media/illustrations/phone-detail-land-${theme}.webp`} alt="" width={900} height={234} loading="lazy" decoding="async" />
+      ))}
+    </div>
     <section className="pf-m-outcomes m-solid" aria-labelledby={headingId}>
       <h3 id={headingId} className="pf-m-h3">
         {metrics.length > 0 ? "Key outcomes" : "At a glance"}
@@ -150,12 +176,16 @@ export function PhoneOutcomes({ product }: { product: PortfolioProduct }) {
         <dl className="pf-m-facts">
           {facts.map((fact) => (
             <div key={fact.label}>
-              <dt>{fact.label}</dt>
+              <dt>
+                {fact.icon}
+                <span>{fact.label}</span>
+              </dt>
               <dd>{fact.value}</dd>
             </div>
           ))}
         </dl>
       ) : null}
     </section>
+    </>
   );
 }
