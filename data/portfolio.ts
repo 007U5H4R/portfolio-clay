@@ -32,6 +32,11 @@ import type { PortfolioEntry } from "./schema";
  *                 `lettering` and `coverGlyph` (the plate emblem) are its packaging. Velora's cover shows
  *                 apparel sourcing (its record), not beauty.
  *
+ *   - TASK-250 (Tushar 2026-10-18): `logo` ({ width, height } of the dark-theme file) marks a product that has its own
+ *                 mark/wordmark; it replaces the NAME text on the panel heading and the phone's top bar. The two
+ *                 theme files are derived from the slug (`productLogoSrc`, lib/portfolio.ts); provenance in
+ *                 public/media/logos/products/README.md. A product without `logo` keeps the text name.
+ *
  * Every other product fact (name, proposition, live link, public repo, local demo MP4) is read from
  * `data/projects.ts` by `lib/portfolio.ts`; nothing is repeated here.
  *
@@ -39,32 +44,32 @@ import type { PortfolioEntry } from "./schema";
  * documents, so it is not listed (never invent a product).
  */
 export const portfolioEntries: PortfolioEntry[] = [
-  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText",
+  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText", logo: { width: 853, height: 134 },
     // Tushar 2026-10-07 (TASK-170): "TeachSpark Launch" https://youtu.be/ub7yB4LwMBM, "TeachSpark Demo" https://youtu.be/vWYbkGFjKyQ (both public).
     pitchVideo: { provider: "youtube", videoId: "ub7yB4LwMBM" },
     demoVideo: { provider: "youtube", videoId: "vWYbkGFjKyQ" } },
-  { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront",
+  { slug: "railcite", code: "RC-01", coverLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront", logo: { width: 580, height: 112 },
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
     demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
-  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt",
+  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt", logo: { width: 419, height: 149 },
     // Tushar 2026-10-18 (TASK-246): "Velora Launch v2" (pitch) https://youtu.be/rz1C0hTz1mE,
     // "Velora Demo v2" (demo) https://youtu.be/1BRXGdMqPEs (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "rz1C0hTz1mE" },
     demoVideo: { provider: "youtube", videoId: "1BRXGdMqPEs" } },
   { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
-  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2",
+  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2", logo: { width: 696, height: 174 },
     // Tushar 2026-10-18 (TASK-245): "Nuptis Pitch" (pitch) https://youtu.be/sldcfNeQj94,
     // "Nuptis Demo" (demo) https://youtu.be/1F3UfV_cgW4 (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "sldcfNeQj94" },
     demoVideo: { provider: "youtube", videoId: "1F3UfV_cgW4" } },
-  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music",
+  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music", logo: { width: 587, height: 123 },
     // Tushar 2026-10-17 (TASK-242): "Bhakti Vilas Launch music" (pitch) https://youtu.be/6-o7uUh-ewY,
     // "Bhakti Vilas Demo music" (demo) https://youtu.be/ytD0nxWMRWU (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "6-o7uUh-ewY" },
     demoVideo: { provider: "youtube", videoId: "ytD0nxWMRWU" } },
   { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", coverArt: "cover-token-toli", lettering: "rounded", coverGlyph: "HeartHandshake" },
-  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope",
+  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope", logo: { width: 941, height: 90 },
     // Tushar 2026-10-07 (TASK-179): "pratyasa launch" (a YouTube Short) https://youtube.com/shorts/xqevuhTxKAQ,
     // "pratyasa demo" https://youtu.be/Rl6MQiSBqh8 (both public).
     pitchVideo: { provider: "youtube", videoId: "xqevuhTxKAQ" },
@@ -80,7 +85,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     meta: "Built · live demo",
     coverArt: "cover-campfire-board",
     lettering: "script",
-    coverGlyph: "Flame",
+    coverGlyph: "Flame", logo: { width: 774, height: 156 },
     pitchVideo: { provider: "youtube", videoId: "K_-510L6e7g" },
     demoVideo: { provider: "youtube", videoId: "DkxDQji3dz8" },
   },
@@ -94,7 +99,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     meta: "Live · browser game",
     coverArt: "cover-slag-city",
     lettering: "block",
-    coverGlyph: "Hammer",
+    coverGlyph: "Hammer", logo: { width: 351, height: 134 },
     pitchVideo: { provider: "youtube", videoId: "1xvj8j79Svs" },
     demoVideo: { provider: "youtube", videoId: "tc4QDVl8NJM" },
   },
@@ -108,7 +113,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     meta: "Live · team build",
     coverArt: "cover-shravans-round",
     lettering: "rounded",
-    coverGlyph: "Mic",
+    coverGlyph: "Mic", logo: { width: 916, height: 134 },
     pitchVideo: { provider: "youtube", videoId: "0cYat1u7lJE" },
     demoVideo: { provider: "youtube", videoId: "lwXHhCh1NEE" },
   },
@@ -121,6 +126,6 @@ export const portfolioEntries: PortfolioEntry[] = [
     meta: "Live · simulated fleet",
     coverArt: "cover-urja",
     lettering: "block",
-    coverGlyph: "Fuel",
+    coverGlyph: "Fuel", logo: { width: 391, height: 124 },
   },
 ];

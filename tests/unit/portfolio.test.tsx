@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { IndependentProductsShowcase } from "@/components/portfolio/IndependentProductsShowcase";
 import { EnterpriseClientWork } from "@/components/portfolio/EnterpriseClientWork";
-import { buildPortfolioProducts, isListed, stepIndex, type PortfolioProduct } from "@/lib/portfolio";
+import { buildPortfolioProducts, isListed, productLogoSrc, stepIndex, type PortfolioProduct } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
 import { projects } from "@/data/projects";
 import { enterpriseCases } from "@/data/enterprise";
@@ -139,7 +139,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
   });
 
-  it("changing product stops the player, resets to pitch and updates the panel + URL (replace, no push)", async () => {
+  it("changing product stops the player, starts the new product's video at once and updates the panel + URL (replace, no push)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
@@ -148,30 +148,70 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
 
     fireEvent.click(screen.getByRole("tab", { name: /Beta/ }));
     expect(panel()).toHaveAttribute("data-active-product", "beta");
-    expect(panel()).toHaveAttribute("data-media-mode", "pitch");
-    expect(players(document.body)).toHaveLength(0);
     expect(screen.getByRole("heading", { level: 2, name: "Beta" })).toBeInTheDocument();
     expect(window.location.search).toBe("?product=beta");
     expect(window.history.length).toBe(before);
 
-    // Beta has no pitch: no Pitch action, no play control on the pitch stage — a "coming" tag instead.
+    // TASK-253: Beta has no pitch, only a demo — so the demo starts straight away (exactly one player, autoplay=1, no Play tap).
+    expect(panel()).toHaveAttribute("data-media-mode", "demo");
+    expect(players(document.body)).toHaveLength(1);
+    const demo = screen.getByTitle("Beta product demonstration");
+    expect(demo.getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
+    expect(demo.getAttribute("src")).toContain("autoplay=1");
+    expect(screen.queryByRole("button", { name: /^Play Beta/ })).toBeNull();
     expect(screen.queryByRole("button", { name: "Watch pitch video" })).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Play Beta pitch/ })).toBeNull();
-    expect(screen.getByText("Pitch video coming")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
-    fireEvent.click(screen.getByRole("button", { name: "Play Beta product demonstration" }));
-    expect((await screen.findByTitle("Beta product demonstration")).getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
+
+    // back to Alpha: its pitch (not the demo it had been left on) starts, replacing Beta's player
+    fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
+    expect(panel()).toHaveAttribute("data-media-mode", "pitch");
+    expect(players(document.body)).toHaveLength(1);
+    const pitch = screen.getByTitle("Alpha pitch video");
+    expect(pitch.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/abcdefghijk\?/);
+    expect(pitch.getAttribute("src")).toContain("autoplay=1");
+    expect(pitch.getAttribute("src")).toContain("playsinline=1");
+    expect(pitch.getAttribute("src")).not.toContain("mute=1"); // fine pointer: sound on
+    expect(pitch.getAttribute("allow")).toContain("autoplay");
   });
 
-  it("re-choosing the current product returns it to the pitch poster and stops the player (spec §18)", async () => {
+  it("a touch device starts a selected product muted (pointer: coarse); a Play press is never muted", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({ matches: query.includes("pointer: coarse"), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    fireEvent.click(screen.getByRole("tab", { name: /Gamma/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).toContain("mute=1");
+    fireEvent.click(screen.getByRole("tab", { name: /Gamma/ })); // no video: nothing starts
+    expect(players(document.body)).toHaveLength(0);
+  });
+
+  it("phone: tapping a product in the list opens its detail with the pitch already playing", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    expect(players(document.body)).toHaveLength(0);
+    fireEvent.click(document.querySelector('a[data-product="alpha"]')!);
+    expect(window.location.search).toBe("?product=alpha");
+    expect(players(document.body)).toHaveLength(1);
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).toMatch(/\/embed\/abcdefghijk\?.*autoplay=1/);
+  });
+
+  it("a fresh load shows the poster; the Play press still starts the player, unmuted", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    expect(players(document.body)).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Play Alpha pitch video" }));
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).not.toContain("mute=1");
+  });
+
+  it("re-choosing the current product restarts its pitch in a fresh player (spec §18, TASK-253)", async () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     fireEvent.click(screen.getByRole("button", { name: "Watch demo video" }));
     fireEvent.click(screen.getByRole("button", { name: "Play Alpha product demonstration" }));
     await screen.findByTitle("Alpha product demonstration");
     fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
-    expect(players(document.body)).toHaveLength(0);
-    expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
+    expect(players(document.body)).toHaveLength(1);
+    expect(screen.queryByTitle("Alpha product demonstration")).toBeNull();
+    expect(screen.getByTitle("Alpha pitch video").getAttribute("src")).toContain("autoplay=1");
   });
 
   it("hides every unavailable action — no disabled dead buttons (spec §22)", () => {
@@ -281,7 +321,12 @@ describe("Portfolio data model (spec §5, §21)", () => {
     expect(campfire?.pitchVideo).toEqual({ provider: "youtube", videoId: "K_-510L6e7g", title: "Campfire Board pitch video", poster: undefined });
     expect(campfire?.demoVideo).toEqual({ provider: "youtube", videoId: "DkxDQji3dz8", title: "Campfire Board product demonstration", poster: undefined });
     expect(campfire?.productUrl).toBe("https://site-eight-lake-51.vercel.app"); // hosted live demo (TASK-188)
-    expect(campfire?.githubUrl).toBeUndefined(); // repo link removed at Tushar's request (TASK-188)
+    expect(campfire?.githubUrl).toBe("https://github.com/007U5H4R/pm-dashboard"); // TASK-188 hid it; TASK-251 shows GitHub on every public repo
+    // TASK-251: the verified-public repos link out; the two private teenytinybot repos never do.
+    for (const slug of ["teachspark", "railcite", "velora", "nuptis", "pratyasa", "slag-city", "urja"]) {
+      expect(products.find((p) => p.id === slug)?.githubUrl, slug).toBe(`https://github.com/007U5H4R/${slug}`);
+    }
+    for (const slug of ["bhakti-vilas", "shravans-round"]) expect(products.find((p) => p.id === slug)?.githubUrl, slug).toBeUndefined();
     // TASK-129: Slag City carries its launch pitch + demo, a live product link and its public repo.
     const slag = products.find((p) => p.id === "slag-city");
     expect(slag?.pitchVideo).toEqual({ provider: "youtube", videoId: "1xvj8j79Svs", title: "Slag City pitch video", poster: undefined });
@@ -415,5 +460,71 @@ describe("performance guard (spec §24, §48)", () => {
       const src = readFileSync(resolve(dir, file), "utf8");
       expect(src, file).not.toMatch(/from ["']motion|from ["']framer-motion/);
     }
+  });
+});
+
+describe("TASK-250 · product logos replace the name text", () => {
+  const alpha = FIXTURE[0]!;
+  const withLogo: PortfolioProduct = {
+    ...alpha,
+    logo: { dark: productLogoSrc("alpha", "dark"), light: productLogoSrc("alpha", "light"), width: 400, height: 100 },
+  };
+
+  it("renders both theme files in the panel heading and the heading's accessible name is still the product name", () => {
+    render(<IndependentProductsShowcase products={[withLogo, ...FIXTURE.slice(1)]} />);
+    const heading = screen.getByRole("heading", { level: 2, name: "Alpha" });
+    expect(heading).toHaveAttribute("id", "pf-product-name");
+    const imgs = [...heading.querySelectorAll("img")];
+    expect(imgs.map((img) => img.getAttribute("src"))).toEqual(["/media/logos/products/logo-alpha-dark.webp", "/media/logos/products/logo-alpha-light.webp"]);
+    expect(imgs.map((img) => img.getAttribute("data-theme-variant"))).toEqual(["dark", "light"]);
+    for (const img of imgs) expect(img).toHaveAttribute("alt", "");
+    // the visible name text is gone — only the screen-reader copy remains
+    expect(heading.querySelector(".sr-only")).toHaveTextContent("Alpha");
+  });
+
+  it("the phone's top bar shows the logo (aria-hidden) in place of the name text", () => {
+    window.history.replaceState(null, "", "/projects?product=alpha");
+    render(<IndependentProductsShowcase products={[withLogo, ...FIXTURE.slice(1)]} />);
+    const title = document.querySelector(".pf-m-bar-title")!;
+    expect(title).toHaveAttribute("aria-hidden", "true");
+    expect(title.querySelectorAll("img")).toHaveLength(2);
+  });
+
+  it("a product without a logo keeps the plain text name", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    const heading = screen.getByRole("heading", { level: 2, name: "Alpha" });
+    expect(heading.querySelector("img")).toBeNull();
+    expect(heading).toHaveTextContent("Alpha");
+  });
+
+  it("every logo in the data has both files on disk at the declared dark size, and the real catalogue wires the right src per slug", async () => {
+    const sharp = (await import("sharp")).default;
+    const products = buildPortfolioProducts(projects, portfolioEntries, resolveArt);
+    const withLogos = products.filter((p) => p.logo);
+    expect(withLogos.length).toBeGreaterThan(0);
+    for (const p of withLogos) {
+      expect(p.logo!.dark).toBe(`/media/logos/products/logo-${p.id}-dark.webp`);
+      expect(p.logo!.light).toBe(`/media/logos/products/logo-${p.id}-light.webp`);
+      const dark = await sharp(resolve(process.cwd(), "public", p.logo!.dark.slice(1))).metadata();
+      await sharp(resolve(process.cwd(), "public", p.logo!.light.slice(1))).metadata();
+      expect([dark.width, dark.height]).toEqual([p.logo!.width, p.logo!.height]);
+    }
+  });
+});
+
+describe("TASK-252 · the star nudge", () => {
+  it("shows (desktop panel + phone actions) only with a GitHub URL, and links to that repo in a new tab", () => {
+    render(<IndependentProductsShowcase products={FIXTURE} />);
+    const notes = screen.getAllByRole("link", { name: "Star Alpha on GitHub (opens in a new tab)" });
+    expect(notes).toHaveLength(2);
+    for (const note of notes) {
+      expect(note).toHaveAttribute("href", "https://github.com/example/alpha");
+      expect(note).toHaveAttribute("target", "_blank");
+      expect(note.getAttribute("rel")).toContain("noopener");
+      expect(note).toHaveTextContent(/star on the repo/i);
+    }
+    // Beta has no GitHub URL: no note
+    fireEvent.click(screen.getByRole("tab", { name: /Beta/ }));
+    expect(screen.queryByRole("link", { name: /^Star .* on GitHub/ })).toBeNull();
   });
 });

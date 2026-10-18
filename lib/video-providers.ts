@@ -25,7 +25,7 @@ interface ProviderDef {
   /** The one origin the embed is served from — also the CSP `frame-src` source for this provider. */
   embedOrigin: string;
   idPattern: RegExp;
-  embedUrl: (id: string, autoplay: boolean, origin: string | undefined) => string;
+  embedUrl: (id: string, autoplay: boolean, origin: string | undefined, mute: boolean) => string;
   watchUrl: (id: string) => string;
 }
 
@@ -35,12 +35,13 @@ const PROVIDERS: Record<VideoProvider, ProviderDef> = {
     // Privacy-enhanced host only (spec §1) — never the cookie-setting www.youtube.com embed (tests/unit/csp.test.ts).
     embedOrigin: "https://www.youtube-nocookie.com",
     idPattern: /^[A-Za-z0-9_-]{11}$/,
-    embedUrl: (id, autoplay, origin) => {
+    embedUrl: (id, autoplay, origin, mute) => {
       // rel=0 only LIMITS related videos to the same channel; it does not remove the end screen (§4, §7).
       // enablejsapi + origin are YouTube's documented postMessage handshake — used only to learn that
       // the player came up (or reported an error) so a blocked embed can fall back (§17). No SDK.
       const params = new URLSearchParams({ rel: "0", playsinline: "1" });
       if (autoplay) params.set("autoplay", "1");
+      if (mute) params.set("mute", "1");
       if (origin) {
         params.set("enablejsapi", "1");
         params.set("origin", origin);
@@ -53,12 +54,13 @@ const PROVIDERS: Record<VideoProvider, ProviderDef> = {
     label: "Vimeo",
     embedOrigin: "https://player.vimeo.com",
     idPattern: /^\d{6,12}$/,
-    embedUrl: (id, autoplay) => {
+    embedUrl: (id, autoplay, _origin, mute) => {
       // dnt=1: no tracking cookies. title/byline/portrait=0: no Vimeo chrome over the poster frame.
       // The clean END screen ("Empty") is a per-video / per-account Vimeo embed setting, not a URL
       // parameter — set it in Vimeo when a product moves there (§7).
       const params = new URLSearchParams({ dnt: "1", playsinline: "1", title: "0", byline: "0", portrait: "0" });
       if (autoplay) params.set("autoplay", "1");
+      if (mute) params.set("muted", "1");
       return `https://player.vimeo.com/video/${id}?${params.toString()}`;
     },
     watchUrl: (id) => `https://vimeo.com/${id}`,
@@ -86,6 +88,8 @@ export interface EmbedOptions {
   autoplay?: boolean;
   /** The page origin — enables the ready/error handshake (YouTube). Omit for a bare embed URL. */
   origin?: string;
+  /** TASK-253: start muted — set only for a selection-started video on a touch device, where sound-on autoplay is blocked (the player shows its own unmute control). */
+  mute?: boolean;
 }
 
 /** The iframe `src` for a media item. Throws on an invalid id — an id is never interpolated unchecked. */
@@ -94,7 +98,7 @@ export function embedUrl(media: Pick<VideoMedia, "provider" | "videoId">, opts: 
   if (!def.idPattern.test(media.videoId)) {
     throw new Error(`video-providers: invalid ${def.label} id "${media.videoId}"`);
   }
-  return def.embedUrl(media.videoId, opts.autoplay ?? false, opts.origin);
+  return def.embedUrl(media.videoId, opts.autoplay ?? false, opts.origin, opts.mute ?? false);
 }
 
 /** The secondary "Watch on YouTube ↗" link, shown only when the embed cannot load (spec §16–§17). */

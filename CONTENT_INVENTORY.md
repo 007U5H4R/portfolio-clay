@@ -108,7 +108,7 @@ Status vocabulary: **VERIFIED** (quoted/derived from a cited artifact) · **DRAF
 |---|---|---|---|
 | "Building something AI-native? Let's talk." + email | `PORT` "Email: Tushar_Pathak@outlook.com" | `FinalCTA` | DRAFT (copy) / VERIFIED (email) |
 | LinkedIn `https://www.linkedin.com/in/pathaktushar` | `PORT`; `RESUME` "linkedin.com/pathaktushar" | `Footer` | VERIFIED |
-| GitHub `https://github.com/007U5H4R` (public repos: cinematic-portfolio, dino-arcade-pwa; others private) | `MEM` (cinematic PUBLIC); `AUDIT` git table | `Footer` | VERIFIED |
+| GitHub `https://github.com/007U5H4R` (public repos as of 2026-10-18: all listed builds except bhakti-vilas and shravans-round, which are private under teenytinybot) | `MEM` (cinematic PUBLIC); `AUDIT` git table | `Footer` | VERIFIED |
 | "Built with curiosity." credit line (footer) · "Designed and built with Claude Code" colophon (`/about`) | Brief §39 (footer) · Authorship rule (§ summary line 10) | `Footer` · `AboutColophon` | VERIFIED / DRAFT |
 | Prior portfolio link `https://tushar-pathak.vercel.app/` (cinematic scroll film) | `MEM`; `CN/ledger.md` 08-26 rows | `Footer` | VERIFIED |
 
@@ -298,7 +298,7 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Tags:** AI · WhatsApp · EdTech · **Status:** Live pilot (Twilio sandbox, not a production WhatsApp number — `TS/docs/runbook.md` "sandbox for the case-study cohort"); uptime after 2026-09-09 **unverified**.
 - **Role:** "Author: Tushar Pathak" on all three PRDs; "Built the entire MVP solo (WhatsApp bot, web, admin, analytics)" (`TS/docs/investor/deck-content.md:97`). Group discovery Sat–Mon, individual from Tuesday (`CS4/Week 5 __ Case Study 4 __ Cohort 8.docx`).
 - **Dates:** Discovery + Solution PRD 2026-08-19; first commit 2026-08-20; Final PRD 2026-08-26; mentor feedback captured 2026-08-29; `origin/main` last commit 2026-09-09. 142 commits across branches.
-- **Live:** `https://teachspark-production.up.railway.app` (routes `/join`, `/admin`). **Repo:** `https://github.com/007U5H4R/teachspark` — private (placeholder "Repo available on request").
+- **Live:** `https://teachspark-production.up.railway.app` (routes `/join`, `/admin`). **Repo:** `https://github.com/007U5H4R/teachspark` — now **public** (`gh`, 2026-10-18, TASK-251) → `repoPublic: true`.
 - **Stack (verified `TS/package.json`, `TS/web/package.json`):** Node ≥24.15, Express 5, `@anthropic-ai/sdk` ^0.119, Twilio 6, Supabase JS 2.112, pdfkit, docx, zod 4, node-cron; web: React 19, react-router 8, Vite 8, vite-plugin-pwa, Mixpanel, Clarity; tests vitest 4 + supertest + Testing Library. Hosted on Railway (`railway.json`, `/health`).
 - **Architecture:** "WhatsApp → Twilio → Express → pure state machine → Claude → PDF/DOCX → back to WhatsApp" (`TS/docs/runbook.md:10-65`); `transition()` pure function in `src/bot/machine.ts`; ports/adapters (`src/ports.ts`, `src/adapters/`). Models: `claude-sonnet-5` default, `claude-haiku-4-5` switchable (`src/config.ts`, `src/adapters/anthropic.ts:9`); question-paper path uses structured outputs (`zodOutputFormat`), vision on teacher photos, second QC pass (`src/adapters/anthropic-paper.ts`). "Cost is roughly $0.01 per generation" (runbook).
 - **Problem:** "School teachers (25–40, limited technical training) want to use AI to save time and teach more effectively, but existing resources are generic, fragmented, and disconnected from their classroom context…" (Discovery PRD §6; `DL/Tushar Discovery PRD.pdf` p.9).
@@ -329,7 +329,7 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Tags:** AI · RAG · GovTech · **Status:** LIVE (HTTP 200; `/api/stats` 2026-09-15); nightly crawl via GitHub Actions on a self-hosted Mac runner (`RC/.github/workflows/daily-crawl.yml`).
 - **Role:** "RailCite is a solo-built MVP" (`CS5/docs/final-prd.docx` §0); 104/105 commits by Tushar. Case study: "Week 5 · Case Study 5 · Cohort 8 · Government / Public Sector".
 - **Dates:** Discovery-PRD 2026-08-28; first commit 2026-08-28; last commit 2026-09-05; Final PRD 7 Sep 2026.
-- **Live:** `https://railcite.vercel.app`. **Repo:** `https://github.com/007U5H4R/railcite` — private (placeholder). Canonical checkout `RC` (branch `build/phase5`, 105 commits); `CS5/railcite` is a stale clone.
+- **Live:** `https://railcite.vercel.app`. **Repo:** `https://github.com/007U5H4R/railcite` — now **public** (`gh`, 2026-10-18, TASK-251) → `repoPublic: true`. Canonical checkout `RC` (branch `build/phase5`, 105 commits); `CS5/railcite` is a stale clone.
 - **Stack (verified `RC/package.json`):** Next 15.5, React 19.1, `@anthropic-ai/sdk` ^0.122, Supabase JS 2.112 (Postgres + pgvector), zod 4, motion 13, Mixpanel (EU), Vercel Analytics/Speed Insights; vitest 4, Testing Library. Embeddings Voyage `voyage-3` 1024-dim (`RC/lib/embeddings.ts` L12; `RC/migrations/001_init.sql` L23). Synthesis `claude-sonnet-5` with forced tool `record_conclusion`, union `answered|refused` (`RC/lib/synthesize.ts`); classifier `claude-haiku-4-5-20251001` (`RC/lib/classifyQueryDomain.ts` L55); Hindi translation Sonnet 5 (`RC/lib/translate.ts` L46). Ingest: pdftotext + pdftoppm/tesseract OCR; chunks 1000 tok / 150 overlap. No reranker.
 - **Pipeline:** JWT auth → embed + domain classify → scope-aware cache → `matchChunks` k=8 → threshold 0.32 → synthesize → `validate` → lineage → cache (`RC/app/api/query/route.ts`). System prompt: "EXTRACTIVE ONLY… If no provided passage actually governs the case, you MUST refuse… Never invent circular numbers, dates, or provisions." (`RC/lib/synthesize.ts` L8-21)
 - **Problem:** `CS5/Discovery-PRD.md` L38-41 (quoted in §1.5).
@@ -375,7 +375,7 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Tags:** B2B · Vendor ops · Supabase · **Status:** Live (mock/local-first data); "PROJECT COMPLETE, DEPLOYED & ITERATING" (`CS3/memory.md:4`).
 - **Role:** "Owner: (solo)" (`Nuptis-PRD.md:4`); "I just shipped my first product, solo — Nuptis" (`CS3/Nuptis-LinkedIn-Launch-Post.docx`). Framed as "a grounding/exploration project built alongside the actual Week 4 case study" (`:6`).
 - **Dates:** Cohort Week 4 (Day 1 = 3 Aug 2026); Nuptis PRD 7 Aug; Figma NuptisV2 6 Aug; first commit 2026-08-08; last 2026-09-09 (README rewrite); 21 commits.
-- **Live:** `https://nuptis.vercel.app/`. Figma: `https://www.figma.com/design/2hvOt6R9g9iseQxHXTDRpv/NuptisV2`. **Repo:** `https://github.com/007U5H4R/nuptis` — private (placeholder).
+- **Live:** `https://nuptis.vercel.app/`. Figma: `https://www.figma.com/design/2hvOt6R9g9iseQxHXTDRpv/NuptisV2`. **Repo:** `https://github.com/007U5H4R/nuptis` — now **public** (`gh`, 2026-10-18, TASK-251) → `repoPublic: true`.
 - **Stack (verified `CS3/Nuptis/package.json`):** React 18.3, react-router-dom 6.28 (HashRouter), Supabase JS 2.112, Vite 5.4, TypeScript 5.6; localStorage-first, context+reducer ("The reducer is the API surface"), optional Supabase mirror via 4 Postgres RPCs; 9-table schema (`CS3/Nuptis/supabase/schema.sql`); ~28 KB hand-written CSS. **No lint/test script** (`README.md:98`). **No AI** — `Assistant.tsx` is keyword-matching canned responses.
 - **Problem:** "Wedding planning agencies run 15–30+ vendors across 5–7 ceremonies per wedding, coordinated over spreadsheets and WhatsApp threads, with no structured record of vendor verification status, active work orders, payment milestones, or backup coverage — so a single no-show or scope change turns into a scramble." (`Nuptis-PRD.md:18`)
 - **Users:** Vendor Manager (primary), Event Manager (primary), Finance (secondary), Agency Owner (buyer) (`:39-44`).
@@ -393,7 +393,7 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Tags:** B2B · Marketplace · React 19 · **Status:** Live (mock data; "The live path was built but not run against a real project." `CS3/Velora/SUPABASE.md:67-71`).
 - **Role:** "Owner: Tushar" (`PRD.md:5`); "You're working solo, starting from zero today." (`CS3/PM Strategy Plan.md:7`). Team submission "TrustBridge" (`CS3/CASE STUDY 3 PRD.pdf`) lists "Tushar Pathak | Nuptis / Velora" under §7 prototype links.
 - **Dates:** Velora PRD 10 Aug 2026; all 40+ build commits 2026-08-11 (one-day build); Discovery PRD 12 Aug; last commit 2026-09-09; 46 commits.
-- **Live:** `https://velora-nu-eight.vercel.app/` (also `https://velora-8mzf-eight.vercel.app/`). **Repo:** `https://github.com/007U5H4R/velora` — private (placeholder). Figma URL MISSING.
+- **Live:** `https://velora-nu-eight.vercel.app/` (also `https://velora-8mzf-eight.vercel.app/`). **Repo:** `https://github.com/007U5H4R/velora` — now **public** (`gh`, 2026-10-18, TASK-251) → `repoPublic: true`. Figma URL MISSING.
 - **Stack (verified `CS3/Velora/app/package.json`):** React 19.2, react-router-dom 7.18, framer-motion 13, zustand 5, Supabase JS 2.112, lucide-react, Fraunces/Inter; Vite 8.2, TS 6.0, vitest 4.1, oxlint. Single Zustand store, env-gated Supabase with mock fallback, CSS Modules, PhoneFrame shell; 7-table schema. **No AI**; "Trust Scores are authored, shown as if verified" (`PRD.md:80`).
 - **Problem:** "Discovery today is broken: founders find manufacturers through cold referrals, trade fairs, or Alibaba-style directories where trust is unverified and non-portable." (`PRD.md:11`)
 - **Users (quoted):** Brand (Buyer): "Indie / D2C apparel founder sourcing production. Small MOQs, sustainability-led"; Manufacturer (Vendor): "Garment factory / supplier (e.g. Tiruppur, Ludhiana, Bengaluru)." (`PRD.md:23-24`)
@@ -447,7 +447,7 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Tags:** Patent · Static · Record · **Status:** Live.
 - **Role:** co-inventor (2nd of 5): "I worked across the portable analyser's electronics and firmware, the Android application, sensor preparation, and the validation testing in blood and food samples." (`PT/discoveryPRD.md` L192); page author "Tushar Pathak (with Claude)".
 - **Dates:** PRD rev 2 2026-08-24; commits 2026-08-24 → 2026-09-09 (13).
-- **Live:** `https://pratyasa.vercel.app`. **Repo:** `https://github.com/007U5H4R/pratyasa` (visibility unverified — placeholder).
+- **Live:** `https://pratyasa.vercel.app`. **Repo:** `https://github.com/007U5H4R/pratyasa` — **public** (`gh`, 2026-10-18, TASK-251) → `repoPublic: true`.
 - **Stack:** HTML5 + CSS custom properties/grid + vanilla JS + Web App Manifest; zero third-party requests; system fonts; facts enforced by `PT/pratyasa-site/verify-facts.py` (REQUIRED tokens list L267).
 - **Problem:** "The invention is real, the prototype exists, the science is published… What is missing is any presentable record of it — no page, no narrative, nowhere to point someone who asks." (§1)
 - **Users:** "Recruiters, potential collaborators, colleagues, and the occasional company or investor… *what did you actually build?*" (§3)
@@ -517,7 +517,7 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - **Tags:** Kanban · Gantt · Local-first · **Status:** Built · local tool — "all served from a single local binary"; "one dashboard you launch locally in Chrome"; served at a loopback address (`CF/README.md`). No live URL.
 - **Role:** "a personal fork" (`CF/README.md`). No other authorship line in the README/docs.
 - **Dates:** baseline recorded 2026-09-06 (`CF/docs/BUILD.md`); pilot checklist run 2026-09-06 (`CF/docs/pilot-checklist.md`). → "Sep 2026".
-- **Repo:** `https://github.com/007U5H4R/pm-dashboard` — made **public** at Tushar's request (2026-09-28) → `repoPublic: true`.
+- **Repo:** `https://github.com/007U5H4R/pm-dashboard` — made **public** at Tushar's request (2026-09-28) → `repoPublic: true`; the GitHub link hidden by TASK-188 is shown again (TASK-251, 2026-10-18).
 - **Stack / how it works (`CF/README.md`):** Bun-compiled CLI serving a React + Tailwind single-page app, web UI embedded in the binary ("nothing to deploy"); storage is Markdown files under each project's `backlog/` folder.
 - **Features (`CF/README.md` Highlights):** multi-project switcher (`projects.json` manifest) · Kanban board with an Execution / Workflow toggle · hours-axis Execution Gantt with dependency arrows · Workflow view of the 10 build-workflow stages · Statistics · Artifacts (Markdown / sandboxed HTML / PDF rendered in-app) · light & dark themes.
 - **Evaluation:** pilot checklist (2026-09-06) validated project switching, scripted ticket moves and cross-project isolation at the scripted/API level against two throwaway scratch projects (`CF/docs/pilot-checklist.md`). Not used on the site.
@@ -619,6 +619,6 @@ Field order per pack: slug · name · tagline · category tags · status · role
 - [ ] Mentor grades/feedback for every case except TeachSpark.
 - [ ] Any external validation of resume metrics (all self-reported).
 - [ ] Shellkode / Quantiphi / Godrej scale numbers (clients, team size) beyond what the resume states.
-- [ ] Public GitHub links: all product repos private except cinematic-portfolio and dino-arcade-pwa — decide "on request" placeholder vs making repos public.
+- [ ] Public GitHub links: as of 2026-10-18 only bhakti-vilas and shravans-round (teenytinybot org) stay private — was: decide "on request" placeholder vs making repos public.
 
 **Never publish (hard rule):** TeachSpark sandbox join code (`TS/docs/pilot/pitch.md:15`) · any `.env` value · anything under `Game/neogeo/` · DOB/phone/address · PMP/SAFe-Agilist certification claims · "AI Product Manager" as a title.

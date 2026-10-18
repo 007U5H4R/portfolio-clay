@@ -17856,3 +17856,98 @@ html:has(dialog.more-menu[open]) {
   }
 }
 /* === end TASK-230 follow-up === */
+
+/* ==================================================================================================
+   TASK-250 (Tushar 2026-10-18) · a product's own logo replaces its name text on the panel heading (desktop + phone) and
+   the phone's top bar. Both theme files are in the DOM; the one for the active theme shows (`[data-theme]` on <html>:
+   "-dark" is the light-ink file for the dark theme). Heights are caps — the image keeps its aspect and never overflows.
+   ================================================================================================== */
+.pf-logo-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 40px;
+  object-fit: contain;
+}
+.pf-logo-img[data-theme-variant="dark"],
+[data-theme="dark"] .pf-logo-img[data-theme-variant="light"] {
+  display: none;
+}
+[data-theme="dark"] .pf-logo-img[data-theme-variant="dark"] {
+  display: block;
+}
+.pf-m-bar-title[data-logo] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pf-m-bar-title .pf-logo-img {
+  max-height: 28px;
+}
+.pf-info-name[data-logo] {
+  line-height: 0;
+}
+@media (min-width: 1024px) {
+  .pf-info-name .pf-logo-img {
+    max-height: 48px;
+  }
+}
+/* Slag City's logo is a riveted marquee plate with its lettering inset, so it needs more height to read at the same size. */
+.pf-info-name .pf-logo-img[src*="logo-slag-city"] {
+  max-height: 64px;
+}
+.pf-m-bar-title .pf-logo-img[src*="logo-slag-city"] {
+  max-height: 40px;
+}
+@media (min-width: 1024px) {
+  .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
+    max-height: 76px;
+  }
+}
+
+/* ==================================================================================================
+   TASK-252 (Tushar 2026-10-18) · the star nudge under the GitHub link: a small handwritten note (Caveat), muted ink, no
+   button chrome. --color-ink-soft on the sheet is ≥ 4.5:1 in both themes (the panel's secondary text colour). The star
+   fills on hover / focus; with reduced motion it still fills, just without the transition.
+   ================================================================================================== */
+.pf-star-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* a real tap target (EVAL-008 ≥ 44 px), even as a quiet text link */
+  gap: 6px;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  order: 9;
+  margin-top: 2px;
+  color: var(--color-ink-soft);
+  font-size: 1.0625rem;
+  line-height: 1.25;
+  text-decoration: none;
+}
+.pf-m-actions .pf-star-note {
+  margin-top: 8px;
+  justify-content: center;
+  text-align: center;
+}
+.pf-star-icon {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  align-self: center;
+  fill: transparent;
+}
+.pf-star-note:hover,
+.pf-star-note:focus-visible {
+  color: var(--color-navy-2);
+}
+.pf-star-note:hover .pf-star-icon,
+.pf-star-note:focus-visible .pf-star-icon {
+  fill: var(--color-rust);
+  stroke: var(--color-rust);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pf-star-icon {
+    transition: fill 0.25s ease, stroke 0.25s ease;
+  }
+}

@@ -6,6 +6,8 @@ import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, V
 import { Sheet } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
+import { ProductLogo } from "./ProductLogo";
+import { StarNote } from "./StarNote";
 
 export interface ProductInfoPanelProps {
   product: PortfolioProduct;
@@ -107,8 +109,9 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         <span aria-hidden="true">·</span>
         <span className="pf-info-status">{product.meta}</span>
       </p>
-      <h2 id={headingId} className="pf-info-name">
-        {product.name}
+      {/* TASK-250 (Tushar 2026-10-18): the product's own logo replaces the name text when it has one (the name stays the accessible name) */}
+      <h2 id={headingId} className="pf-info-name" data-logo={product.logo ? "" : undefined}>
+        {product.logo ? <ProductLogo name={product.name} logo={product.logo} /> : product.name}
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
       <p className="pf-info-desc">{product.description}</p>
@@ -154,6 +157,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
           <NewTabHint />
         </span>
       </Link>
+      {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only where the GitHub strip shows */}
+      {product.githubUrl ? <StarNote name={product.name} href={product.githubUrl} /> : null}
       </div>
       {/* TASK-210: the phone's own actions + outcomes (display: none from 640 px up; the strips above are hidden below it) */}
       <PhoneActions product={product} stageId={stageId} onWatch={onWatch} />

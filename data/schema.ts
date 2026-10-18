@@ -136,6 +136,9 @@ export const PortfolioEntry = z.object({
   coverArt: z.string().regex(/^cover-[a-z0-9-]+$/),
   lettering: z.enum(['rounded','slab','script','block','serif','mono']),
   coverGlyph: z.string().min(2),                                             // lucide name (ProductCover map)
+  /* TASK-250 (Tushar 2026-10-18): the product's own logo, shown in place of its name on the panel heading and the
+     phone bar. Pixel size of the dark-theme file; the src pair is derived from the slug (`productLogoSrc`). */
+  logo: z.object({ width: z.number().int().positive(), height: z.number().int().positive() }).optional(),
   pitchVideo: VideoMediaEntry.optional(),
   demoVideo: VideoMediaEntry.optional(),                                     // only when `links.demoVideo` is absent
   prdUrl: z.url().startsWith('https://').optional(),

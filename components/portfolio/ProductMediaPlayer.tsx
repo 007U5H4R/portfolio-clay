@@ -33,6 +33,8 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
   analytics?: { projectId: string; videoType: "pitch" | "demo" } | undefined;
   /** TASK-210: the viewer just pressed "Watch demo / pitch" — that press is the play gesture, so the player starts on mount. Never set by a selection. */
   autoStart?: boolean | undefined;
+  /** TASK-253: the auto-start came from SELECTING the product — on a touch device (`pointer: coarse`) it starts muted, since mobile browsers block sound-on autoplay. */
+  autoMute?: boolean | undefined;
 }
 
 /**
@@ -41,8 +43,8 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
  *
  *   poster  → the custom poster (or `fallbackPoster`) + one Play button. No iframe exists yet (§11).
  *   loading → the Play press mounts ONE privacy-enhanced iframe. `autoplay=1` is set only because the
- *             iframe is created by that press (the viewer asked to play); nothing ever plays on
- *             product selection or page load (§5). Focus moves into the player.
+ *             iframe is created by a viewer's action: the press, or (TASK-253) choosing the product / pressing
+ *             "Watch …" (`autoStart`); nothing ever plays on page load or a deep link (§5). Focus moves into the player.
  *   ready   → the player answered the handshake. Its native UI (incl. fullscreen and YouTube's own
  *             end screen) is never covered or altered (§4, §7, §8).
  *   error   → the player reported an error, the CSP blocked it, or it never came up in time: the
@@ -52,7 +54,7 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
  * The host keys this component by product + mode, so a switch unmounts it — stopping playback — and
  * the next one starts at its poster, from the beginning (§5, §13). One instance → at most one iframe.
  */
-export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, autoStart = false, ...rest }: ProductMediaPlayerProps) {
+export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, autoStart = false, autoMute = false, ...rest }: ProductMediaPlayerProps) {
   const [state, setState] = useState<PlayerState>("poster");
   const [src, setSrc] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
@@ -114,13 +116,15 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
     };
   }, [state, loaded, media.provider, media.videoId]);
 
-  // Keyboard/screen-reader users land in the player they just asked for.
+  // Keyboard/screen-reader users land in the player they just asked for — except when it started because they
+  // chose a product (TASK-253): focus stays on the carousel so the arrow keys keep stepping through the products.
   useEffect(() => {
-    if (state === "loading") frameRef.current?.focus();
-  }, [state]);
+    if (state === "loading" && !(autoStart && autoMute)) frameRef.current?.focus();
+  }, [state, autoStart, autoMute]);
 
-  const play = () => {
-    setSrc(embedUrl(media, { autoplay: true, origin: window.location.origin }));
+  const play = (auto = false) => {
+    const mute = auto && autoMute && window.matchMedia("(pointer: coarse)").matches;
+    setSrc(embedUrl(media, { autoplay: true, origin: window.location.origin, mute }));
     setLoaded(false);
     setState("loading");
   };
@@ -130,7 +134,7 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
   useEffect(() => {
     if (!autoStart || startedRef.current) return;
     startedRef.current = true;
-    play();
+    play(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `play` only reads `media` + the origin, fixed for this mounted player
   }, [autoStart]);
 
@@ -159,7 +163,7 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
             fallbackPoster
           )}
           {state === "poster" ? (
-            <button type="button" className="pf-play focus-ring" onClick={play} aria-label={`Play ${media.title}`}>
+            <button type="button" className="pf-play focus-ring" onClick={() => play()} aria-label={`Play ${media.title}`}>
               <Play aria-hidden="true" focusable="false" strokeWidth={1.75} />
             </button>
           ) : (

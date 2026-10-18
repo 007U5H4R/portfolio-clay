@@ -37,6 +37,12 @@ describe("embedUrl", () => {
     expect(url.searchParams.get("origin")).toBe("https://example.test");
   });
 
+  it("TASK-253: mute is off by default and set only when asked (YouTube mute=1, Vimeo muted=1)", () => {
+    expect(new URL(embedUrl(YT, { autoplay: true })).searchParams.has("mute")).toBe(false);
+    expect(new URL(embedUrl(YT, { autoplay: true, mute: true })).searchParams.get("mute")).toBe("1");
+    expect(new URL(embedUrl({ provider: "vimeo", videoId: "123456789" }, { autoplay: true, mute: true })).searchParams.get("muted")).toBe("1");
+  });
+
   it("Vimeo uses player.vimeo.com with dnt=1 and no Vimeo chrome (§7)", () => {
     const url = new URL(embedUrl(VM));
     expect(url.origin).toBe("https://player.vimeo.com");
