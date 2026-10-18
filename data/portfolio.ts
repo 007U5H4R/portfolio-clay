@@ -47,7 +47,11 @@ export const portfolioEntries: PortfolioEntry[] = [
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
     demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
-  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt" },
+  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt",
+    // Tushar 2026-10-18 (TASK-246): "Velora Launch v2" (pitch) https://youtu.be/rz1C0hTz1mE,
+    // "Velora Demo v2" (demo) https://youtu.be/1BRXGdMqPEs (both public + embeddable).
+    pitchVideo: { provider: "youtube", videoId: "rz1C0hTz1mE" },
+    demoVideo: { provider: "youtube", videoId: "1BRXGdMqPEs" } },
   { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
   { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2",
     // Tushar 2026-10-18 (TASK-245): "Nuptis Pitch" (pitch) https://youtu.be/sldcfNeQj94,
