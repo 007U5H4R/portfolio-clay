@@ -2,11 +2,13 @@
 
 import { NewTabHint } from "@/components/common/NewTabHint";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, BookOpen, FileText, GitBranch, Link2, Play, Video, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
 import { Sheet } from "@/components/paper";
 import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
+import { ACTION_ICON, type ActionIcon } from "./action-icons";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 import { ProductLogo } from "./ProductLogo";
+import { StarDivider } from "./StarDivider";
 import { StarNote } from "./StarNote";
 
 export interface ProductInfoPanelProps {
@@ -24,14 +26,14 @@ export interface ProductInfoPanelProps {
 
 type ExternalKind = "product" | "github" | "prd";
 
-const EXTERNAL: Record<ExternalKind, { label: string; hint: string; icon: LucideIcon; name: (product: string) => string }> = {
-  product: { label: "Open live product", hint: "Open the live product", icon: Link2, name: (p) => `Open live product: ${p}` },
-  github: { label: "GitHub", hint: "View the source", icon: GitBranch, name: (p) => `GitHub: ${p} source code` },
-  prd: { label: "PRD", hint: "Read the product doc", icon: FileText, name: (p) => `PRD: ${p} product requirements document` },
+const EXTERNAL: Record<ExternalKind, { label: string; name: (product: string) => string }> = {
+  product: { label: "Open live product", name: (p) => `Open live product: ${p}` },
+  github: { label: "GitHub", name: (p) => `GitHub: ${p} source code` },
+  prd: { label: "PRD", name: (p) => `PRD: ${p} product requirements document` },
 };
 
-/** One torn strip's inside: icon block · label · hint · arrow (the hint + arrow are visual only). */
-function StripBody({ icon: Icon, label, hint, external }: { icon: LucideIcon; label: string; hint: string; external: boolean }) {
+/** One action's inside: icon · serif label · arrow (↗ external, → internal / in-page; icon + arrow are visual only). */
+function StripBody({ icon: Icon, label, external }: { icon: ActionIcon | typeof Play; label: string; external: boolean }) {
   const Arrow = external ? ArrowUpRight : ArrowRight;
   return (
     <>
@@ -39,9 +41,6 @@ function StripBody({ icon: Icon, label, hint, external }: { icon: LucideIcon; la
         <Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />
       </span>
       <span className="pf-action-label">{label}</span>
-      <span className="pf-action-hint" aria-hidden="true">
-        {hint}
-      </span>
       <Arrow className="pf-action-arrow" aria-hidden="true" focusable="false" strokeWidth={1.75} />
     </>
   );
@@ -67,29 +66,30 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   // the strips + the case study: the phone lays them out as one 2-column grid (an odd count lets the case study span)
   const actionCount = (product.pitchVideo ? 1 : 0) + (product.demoVideo ? 1 : 0) + externals.length + 1;
 
-  // TASK-217 tiers: the primary is the first video there is (pitch, else demo, else the case study); the other video and
-  // the live product are secondary; source / PRD / case study are tertiary text links.
+  // TASK-217 tiers, TASK-256 (Tushar 2026-10-18): the primary is the first video there is (pitch, else demo, else the case
+  // study); every other action is secondary and sits in the two-column grid under it.
   const primary: "pitch" | "demo" | "case" = product.pitchVideo ? "pitch" : product.demoVideo ? "demo" : "case";
-  const tierOf = (action: string): "primary" | "secondary" | "tertiary" =>
-    action === primary ? "primary" : action === "demo" || action === "product" ? "secondary" : "tertiary";
-  // thin separators between the tertiary text links (every one but the first, in DOM order)
-  const tertiaryKeys = [...externals.map((e) => e.kind), "case"].filter((k) => tierOf(k) === "tertiary");
-  const sepFor = (key: string) => (tertiaryKeys.indexOf(key) > 0 ? "" : undefined);
+  const tierOf = (action: string): "primary" | "secondary" => (action === primary ? "primary" : "secondary");
+  // an odd number of secondaries: the last one spans both grid columns so the grid stays balanced
+  const secondaryKeys = [product.pitchVideo ? "pitch" : "", product.demoVideo ? "demo" : "", ...externals.map((e) => e.kind), "case"].filter((k) => k && tierOf(k) === "secondary");
+  const spanFor = (key: string) => (secondaryKeys.length % 2 === 1 && secondaryKeys.at(-1) === key ? "full" : undefined);
   const totalLabel = String(total).padStart(2, "0");
   const position = String(product.position).padStart(2, "0");
   const category = (product.tags ?? []).slice(0, 2).join(" · ");
 
-  const mediaButton = (target: MediaMode, label: string, hint: string, Icon: LucideIcon) => (
-    <li data-tier={tierOf(target)}>
+  const mediaButton = (target: MediaMode, label: string, Icon: ActionIcon | typeof Play) => (
+    <li>
       <button
         type="button"
         className="pf-action focus-ring"
         data-action={target}
+        data-tier={tierOf(target)}
+        data-span={spanFor(target)}
         aria-pressed={mode === target}
         aria-controls={stageId}
         onClick={() => onModeChange(target)}
       >
-        <StripBody icon={Icon} label={label} hint={hint} external={false} />
+        <StripBody icon={Icon} label={label} external={false} />
       </button>
     </li>
   );
@@ -117,22 +117,25 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       <p className="pf-info-desc">{product.description}</p>
       </div>
       <div className="pf-action-set" data-odd={actionCount % 2 === 1 ? "" : undefined}>
+      <StarDivider slot="top" />
       <ul className="pf-actions" aria-label={`${product.name} actions`}>
-        {product.pitchVideo ? mediaButton("pitch", "Watch pitch video", "Plays here", Play) : null}
-        {product.demoVideo ? mediaButton("demo", "Watch demo video", "See it in action", Video) : null}
+        {product.pitchVideo ? mediaButton("pitch", "Watch pitch video", Play) : null}
+        {product.demoVideo ? mediaButton("demo", "Watch demo video", ACTION_ICON.demo) : null}
         {externals.map(({ kind, href }) => {
           const def = EXTERNAL[kind];
           return (
-            <li key={kind} data-tier={tierOf(kind)} data-sep={sepFor(kind)}>
+            <li key={kind}>
               <a
                 className="pf-action focus-ring"
                 data-action={kind}
+                data-tier={tierOf(kind)}
+                data-span={spanFor(kind)}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${def.name(product.name)} (opens in new tab)`}
               >
-                <StripBody icon={def.icon} label={def.label} hint={def.hint} external />
+                <StripBody icon={ACTION_ICON[kind]} label={def.label} external />
               </a>
             </li>
           );
@@ -145,20 +148,25 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         rel="noopener noreferrer"
         className="pf-action pf-case-link focus-ring"
         data-action="case"
+        data-span={spanFor("case")}
         data-tier={tierOf("case")}
-        data-sep={sepFor("case")}
       >
         <span className="pf-action-icon" aria-hidden="true">
-          <BookOpen aria-hidden="true" focusable="false" strokeWidth={1.75} />
+          <ACTION_ICON.case aria-hidden="true" focusable="false" strokeWidth={1.75} />
         </span>
         <span className="pf-action-label">
-          <span className="pf-case-lead">Read the</span>{" "}
-          <span className="pf-case-name">case study</span> <span className="pf-case-arrow" aria-hidden="true">→</span>
+          <span className="pf-case-lead">Read the</span> <span className="pf-case-name">case study</span>
           <NewTabHint />
         </span>
+        <ArrowRight className="pf-action-arrow" aria-hidden="true" focusable="false" strokeWidth={1.75} />
       </Link>
       {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only where the GitHub strip shows */}
-      {product.githubUrl ? <StarNote name={product.name} href={product.githubUrl} /> : null}
+      {product.githubUrl ? (
+        <>
+          <StarDivider slot="foot" />
+          <StarNote name={product.name} href={product.githubUrl} />
+        </>
+      ) : null}
       </div>
       {/* TASK-210: the phone's own actions + outcomes (display: none from 640 px up; the strips above are hidden below it) */}
       <PhoneActions product={product} stageId={stageId} onWatch={onWatch} />
