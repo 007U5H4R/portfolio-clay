@@ -16630,6 +16630,16 @@ html[data-theme-vt]::view-transition-group(root) {
   .xp-role {
     --header-h: 69px; /* the compact header's height: 8 + 44 + 16 padding + 1 border (was 108 with the tab strip) */
   }
+  /* === TASK-272 (Tushar 2026-10-19): the case-study roots use the real phone header height ===
+     :root keeps 119 px (the 640-767 phablet sheet), so below 640 the sticky chapter navs stuck at 125 px under a 69 px header
+     (a 56 px band of body text between them) and chapter jumps landed ~50 px low. Set on the roots, not :root, for the same
+     reason as above (the About fingerprint reads :root-inherited custom properties). */
+  .rcp,
+  .tsp,
+  .csx {
+    --header-h: 69px;
+  }
+  /* === end TASK-272 === */
   .site-header {
     --ht-edge-w: 92px;
     --ht-mid-h: 14px;
