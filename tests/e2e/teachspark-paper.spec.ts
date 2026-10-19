@@ -112,10 +112,11 @@ test.describe("teachspark paper layout", () => {
     expect(outline).toBe("solid");
   });
 
-  test("another case study keeps the shared template (RailCite)", async ({ page }) => {
+  test("another case study keeps its own layout (Urja stays on the shared template)", async ({ page }) => {
     test.skip(width(page) !== 1440, "runs once at desktop width");
-    await page.goto("/work/railcite", { waitUntil: "load" });
+    await page.goto("/work/urja", { waitUntil: "load" });
     await expect(page.locator("article.csx").first()).toBeAttached();
     await expect(page.locator(".tsp")).toHaveCount(0);
+    await expect(page.locator(".rcp")).toHaveCount(0);
   });
 });

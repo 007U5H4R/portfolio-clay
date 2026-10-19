@@ -15,6 +15,7 @@ export const railciteCase: z.input<typeof CaseStudy> = {
     accents: ["rust", "steel", "kraft"],
   },
   story: "Trust",
+  layout: "railcite", // TASK-268: the paper-archive redesign (components/case-study/railcite); every other record keeps its layout
   hero: {
     tagline: "Research on track.",
     proposition:

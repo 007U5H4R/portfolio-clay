@@ -91,3 +91,12 @@ Four supporting scenes, light + dark, in `public/media/case-studies/teachspark/a
 | workflow | `c2589c9c-496b-4c40-ba38-000fe351f74b` (`31bb41fb-815f-4ab5-a3b7-d336059c5879`) | `40fe37b1-df3b-4e84-85ba-223f69371ca6` (`47a39dbb-3809-4f6c-807d-5e15a644e3a2`) |
 | arch | `16fbab7d-7d40-4b2f-9ff0-61586880679c` (`626796a2-eb3b-4791-b239-a8f7abbff97b`) | `95171978-bec3-4e3c-9104-d60075b0958d` (`18f27090-d398-4329-aca4-30989d932937`) |
 | footer | `a1db9d70-21bf-423a-9fca-c8733b5a3531` (keyed, remover unused) | `7107ea53-2aa2-44c5-8f46-c1c1ffc70795` (keyed, remover unused) |
+
+## RailCite paper-archive case study (TASK-268)
+
+Two supporting scenes, light + dark, in `public/media/case-studies/railcite/art/` (`hero`: paper steam train on a three-arch viaduct, circular stack with a blank seal, pines; `footer`: Velora's fashion atelier diorama, no railway props; the page swaps the twins with `[data-theme-art]`). Higgsfield `gpt_image_2_5`, quality `medium`, resolution `1k`, prompts from RCCS.md asset prompts A and D with "isolated on a plain white background" (the model ignores "transparent"). Dark variants used the light job as an image reference ("same composition, re-coloured"). `scripts/railcite-art/encode.mjs` turns the masters into transparent WebP: the hero's white is keyed to alpha (shadows survive as translucent ink); the footer uses Higgsfield `image_background_remover` output (flood-keying left white gaps inside the garment rack). Masters: `/Volumes/E Drive/Dev/.scratch/railcite-redesign/raw/`. No text or UI in any art; the real product UI on the page is the existing `answer.webp` and `sources.webp`.
+
+| scene | light job | dark job |
+|---|---|---|
+| hero | `d32760d5-0922-48cb-b6fd-a360feb8bd55` | `0b678f96-e886-41b6-8c5a-dd908c1a7748` |
+| footer | `2ed6312b-46ba-4f35-824f-ceed2c6f340f` (remover `ee95ff11-b969-4cb7-8d95-fe7e80aa7b80`) | `7a878322-de76-4b4c-b101-00296b683ac7` (remover `46be569f-a64d-464b-861e-923e28d09a0f`) |
