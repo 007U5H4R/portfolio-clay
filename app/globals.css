@@ -17302,7 +17302,7 @@ html[data-theme-vt]::view-transition-group(root) {
   /* the next section's torn edge overlaps the bottom padding: add the pagination's 48 px so it is never covered */
   .chx-wrap:has(.hs-carousel),
   .rvx-wrap:has(.hs-carousel) {
-    padding-bottom: 148px;
+    padding-bottom: 168px;
   }
   .tsx-more {
     margin-top: 12px;
@@ -18912,6 +18912,63 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   }
 }
 /* === end TASK-275 === */
+
+/* === TASK-279 (Tushar 2026-10-19): next-project band, supporting line + cream light tone, dark torn front, torn-top clearance ===
+   `.cs-next-line` is the optional `line` prop (inherits the band's text colour). `[data-tone="cream"]` (the `tone` prop) turns the
+   LIGHT band cream: the surface, its torn front, the ink text and the focus ring use the paper tokens, and a band with a `line` drops
+   the "next up" note (the component does not render it). The cream surface is `--cs-next-cream` (#f7f0e7, one green level under the
+   paper token #f7f1e7): that is the exact flat field the lossy WebP art decodes to, so the art has no visible box edge at any size.
+   Dark is untouched by the cream rules (they are scoped off `[data-theme="dark"]`); a band without data-tone matches none of them.
+   One fix applies to every band (the shared `TornEdge fill="navy"` front is `--color-navy`, which is cream in dark): in dark the torn
+   front takes the band's own surface (ivory = lifted navy), so no cream strip shows above it. (The band's torn top sliding over the
+   section above is the intended TKT-106 slide-over, not an overlap bug: at rest no content sits under it.) Unlayered, after TKT-81. */
+.cs-next-line {
+  max-width: 34ch;
+  font-size: var(--text-body, 1rem);
+  line-height: 1.45;
+  color: inherit;
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] {
+  --cs-next-cream: #f7f0e7;
+  color: var(--color-navy);
+  background-image: linear-gradient(var(--cs-next-cream), var(--cs-next-cream));
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .torn-front {
+  fill: var(--cs-next-cream);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-h {
+  color: var(--color-navy);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-eyebrow,
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-note {
+  color: var(--color-ink-soft);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-link:focus-visible {
+  outline-color: var(--color-rust);
+}
+[data-theme="dark"] .cs-next .torn-front {
+  fill: var(--color-ivory);
+}
+/* The site footer is the next torn sheet: at the end of the page it slides over the band's lower 120 px (phones) / 200 px (TKT-106 lag),
+   which clipped the art. An art band keeps its art clear of the footer at rest (art bottom >= 8 px above the footer's top edge). */
+.cs-next-link:has(.cs-next-art) {
+  padding-bottom: 104px;
+}
+@media (min-width: 768px) {
+  .cs-next-link:has(.cs-next-art) {
+    padding-bottom: 184px;
+  }
+}
+@media (min-width: 900px) {
+  .cs-next-link:has(.cs-next-art) {
+    min-height: calc(clamp(380px, 38vw, 540px) * 0.664 + 16px + 168px);
+    align-content: start;
+  }
+  .cs-next-art {
+    bottom: 168px;
+  }
+}
+/* === end TASK-279 === */
 
 /* === TASK-274 (Tushar 2026-10-19): desktop product tray as a centred stage + the product card's own previous / next + pager ===
    >= 1024 px only (the phone list / detail and the 640-1023 tray are untouched; the pager, the card arrows and the card pager are
