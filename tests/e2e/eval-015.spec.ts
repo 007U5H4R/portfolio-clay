@@ -30,7 +30,7 @@ test("@EVAL-015 VT off: card → case study lands on the identical end state", {
 
   // TASK-130: the case study opens in a new tab.
   const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
-  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.getByRole("heading", { level: 1 })).toContainText("TeachSpark");
 });
 
 test("@EVAL-015 JS off: static HTML carries content and navigation links", { tag: "@EVAL-015" }, async ({
@@ -57,7 +57,7 @@ test("@EVAL-015 JS off: static HTML carries content and navigation links", { tag
     await expect(p.getByRole("heading", { level: 1 })).toContainText("AI-native products");
 
     await p.goto("/work/teachspark", { waitUntil: "domcontentloaded" });
-    await expect(p.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+    await expect(p.getByRole("heading", { level: 1 })).toContainText("TeachSpark");
   } finally {
     await context.close();
   }

@@ -26,8 +26,13 @@ for (const { study, name } of SYSTEM_STUDIES) {
       expect(res?.status()).toBe(200);
 
       await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
-      await expect(page.locator(".csx-hero .csx-tagline")).toHaveText(study.hero.tagline);
+      if (study.layout === "paper") {
+        // TASK-263: the paper layout's h1 is the product name (visually hidden) + its headline; teachspark-paper.spec.ts covers the rest.
+        await expect(page.getByRole("heading", { level: 1 })).toContainText(name);
+      } else {
+        await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+        await expect(page.locator(".csx-hero .csx-tagline")).toHaveText(study.hero.tagline);
+      }
 
       // Every story section is a labelled landmark whose h2 carries its one message (spec §30).
       for (const section of study.sections) {
@@ -104,7 +109,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       await withReducedMotion(page);
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       for (const section of study.sections) {
-        const opacity = await page.locator(`section#${section.id} .csx-sec-body`).evaluate((el) => getComputedStyle(el).opacity);
+        const opacity = await page.locator(study.layout === "paper" ? `section#${section.id}` : `section#${section.id} .csx-sec-body`).evaluate((el) => getComputedStyle(el).opacity);
         expect(opacity, section.id).toBe("1");
       }
     });
@@ -128,7 +133,8 @@ test("case-study system · JS off: the static HTML carries the whole story", { t
     const p = await context.newPage();
     for (const { study, name } of SYSTEM_STUDIES) {
       await p.goto(`/work/${study.slug}`, { waitUntil: "domcontentloaded" });
-      await expect(p.getByRole("heading", { level: 1 })).toHaveText(name);
+      if (study.layout === "paper") await expect(p.getByRole("heading", { level: 1 })).toContainText(name);
+      else await expect(p.getByRole("heading", { level: 1 })).toHaveText(name);
       for (const section of study.sections) {
         await expect(p.getByRole("heading", { level: 2, name: section.headline })).toBeVisible();
       }

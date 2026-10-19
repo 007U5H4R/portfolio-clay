@@ -80,3 +80,14 @@ Two paper-cut strips for the phone `/projects` product detail (`.pf-m-ridge` und
 | `dark-facet.webp` | `82e7add1-c0b1-4707-ad26-81b72b2daa60` | ref `a08e5862…`, midnight-navy/cobalt, copper inner folds, moonlit | 17 kB |
 | `dark-orbit.webp` | `9e71a8e2-53fc-4689-b550-d1f8cc43f97f` | ref `de3acd65…`, same re-colour | 20 kB |
 | `dark-ridge.webp` | `c2655098-ba17-466a-9bb6-aca23cf2f18f` | ref `b1a36dd5…`, same re-colour | 21 kB |
+
+## TeachSpark paper-classroom case study (TASK-263)
+
+Four supporting scenes, light + dark, in `public/media/case-studies/teachspark/art/` (`hero`, `workflow`, `arch`, `footer`; the page swaps them with `[data-theme-art]`, so only the active theme downloads). Higgsfield `gpt_image_2_5`, quality `medium`, resolution `1k`; prompts are the master / workflow / architecture / railway-bridge prompts of the brief (`tics.md`), with "background: transparent". The model returned a baked checkerboard instead of alpha, so cutouts come from Higgsfield `image_background_remover` (hero, workflow, arch); the remover ate the hills of both footer landscapes, so those are keyed from the raw job by `scripts/teachspark-art/encode.mjs` (neutral light pixels flooded from the edges and through the bridge arch). Dark variants used the light job as an image reference ("same composition, re-coloured for dark mode"). Masters: `/Volumes/E Drive/Dev/.scratch/teachspark-redesign/raw/`. No text or UI in any art; the real UI on the page is the existing `landing-mobile.webp` and `loop-chat.webp`.
+
+| scene | light job (remover job) | dark job (remover job) |
+|---|---|---|
+| hero | `bed3895b-091c-48db-b887-633fb7aafe21` (`bfec8f50-1fb6-4311-bfb2-33ed10162942`) | `6b62c6ca-5ee8-46c3-9f2a-880ef7c9ed43` (`ecfbc6ca-592c-40b3-921d-8abdaf82b7ea`); first submit hit a 429 and created no job |
+| workflow | `c2589c9c-496b-4c40-ba38-000fe351f74b` (`31bb41fb-815f-4ab5-a3b7-d336059c5879`) | `40fe37b1-df3b-4e84-85ba-223f69371ca6` (`47a39dbb-3809-4f6c-807d-5e15a644e3a2`) |
+| arch | `16fbab7d-7d40-4b2f-9ff0-61586880679c` (`626796a2-eb3b-4791-b239-a8f7abbff97b`) | `95171978-bec3-4e3c-9104-d60075b0958d` (`18f27090-d398-4329-aca4-30989d932937`) |
+| footer | `a1db9d70-21bf-423a-9fca-c8733b5a3531` (keyed, remover unused) | `7107ea53-2aa2-44c5-8f46-c1c1ffc70795` (keyed, remover unused) |

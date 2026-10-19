@@ -157,7 +157,7 @@ test("VT fallback navigates card -> case study with identical end state", { tag:
 
   // TASK-130: the case study opens in a new tab and lands on the same end state.
   const study = await openCaseStudy(page, page.locator('a[href="/work/teachspark"]').first());
-  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.getByRole("heading", { level: 1 })).toContainText("TeachSpark");
   await expect(study.locator('[style*="project-teachspark"]')).toBeVisible();
 });
 
@@ -190,7 +190,7 @@ test("F6: card -> case study nav does not trip a render loop (React #185)", { ta
   await study.reload({ waitUntil: "load" });
 
   // The real case study renders (not Next's "This page couldn't load" error boundary)...
-  await expect(study.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(study.getByRole("heading", { level: 1 })).toContainText("TeachSpark");
   // ...and no update-depth / render loop was thrown during the navigation.
   const loopErrors = pageErrors.filter(
     (m) => m.includes("Maximum update depth") || m.includes("#185"),
@@ -226,7 +226,7 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
     await expect(p.getByRole("heading", { level: 1 })).toContainText("AI-native products");
 
     await p.goto("/work/teachspark", { waitUntil: "domcontentloaded" });
-    await expect(p.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+    await expect(p.getByRole("heading", { level: 1 })).toContainText("TeachSpark");
   } finally {
     await context.close();
   }

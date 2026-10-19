@@ -33,7 +33,7 @@ test("@EVAL-002 recruiter path: / → /projects → /work/teachspark all resolve
 
   const study = await page.goto("/work/teachspark", { waitUntil: "load" });
   expect(study?.status(), "/work/teachspark must be 200").toBe(200);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("TeachSpark");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("TeachSpark");
 
   // /contact already exists and is a valid hop.
   const contact = await page.goto("/contact", { waitUntil: "load" });

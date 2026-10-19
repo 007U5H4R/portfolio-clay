@@ -15,6 +15,7 @@ export const teachsparkCase: z.input<typeof CaseStudy> = {
     accents: ["forest", "rust", "note"],
   },
   story: "AI into real classroom work",
+  layout: "paper", // TASK-263: the paper-classroom redesign (components/case-study/teachspark); every other record keeps its layout
   extraSources: [
     { id: "TS-OG", label: "TeachSpark landing page (OG cover)", ref: "TS/web/public/og-cover.png; TS/web/public/demo-poster.jpg", inventory: "§8.1" },
     { id: "TS-LOOP", label: "TeachSpark Final PRD: the 2-minute WhatsApp loop", ref: "CS4/docs/assets/p2-whatsapp-loop.jpg", inventory: "§8.1" },
@@ -59,7 +60,7 @@ export const teachsparkCase: z.input<typeof CaseStudy> = {
       id: "whatsapp-experience",
       nav: "Experience",
       eyebrow: "The WhatsApp experience",
-      headline: "One two-minute chat, from “where do I start?” to a worksheet.",
+      headline: "One chat. A ready-to-use worksheet.",
       summary:
         "No new app, no prompt-writing. The teacher answers a few questions in WhatsApp and gets a ready-to-use worksheet as a PDF, plus the reusable prompt behind it.",
       source: "TS-LOOP",

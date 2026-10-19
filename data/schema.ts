@@ -291,8 +291,9 @@ export const CaseStudy = z.object({
     notes: z.array(z.string().min(3).max(32)).max(3).default([]),
     scene: z.object({ src: z.string().regex(/^\/media\/case-studies\/[a-z0-9-]+\/[a-z0-9-]+\.svg$/), width: z.number().int().positive(), height: z.number().int().positive() }).optional(),
   }),
-  /* 'journal' = the bespoke editorial one-pager (Cubicle, Dino Arcade, Velora); 'system' = the shared template. */
-  layout: z.enum(['system','journal']).default('system'),
+  /* 'journal' = the bespoke editorial one-pager (Cubicle, Dino Arcade, Velora); 'paper' = the TeachSpark paper-classroom
+     layout (TASK-263, components/case-study/teachspark); 'system' = the shared template. */
+  layout: z.enum(['system','journal','paper']).default('system'),
   sections: z.array(CaseSection).min(3).max(7),
   evidence: z.array(EvidenceItem).max(12).default([]),
   /* Recorded artifacts CONTENT_INVENTORY §8 lists for this product that its project record doesn't
