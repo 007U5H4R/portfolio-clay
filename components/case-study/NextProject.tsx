@@ -23,11 +23,23 @@ export const BHAKTI_NEXT_ART: NextProjectArt = {
   height: 1062,
 };
 
+/** TASK-279 (Tushar 2026-10-19): the supporting line under the Bhakti Vilas title on the Nuptis band. */
+export const BHAKTI_NEXT_LINE = "Devotion-led wellbeing, with health monitored and cared for.";
+
 export interface NextProjectProps {
   /** The next personal project in `/projects` index order (the page wraps around at the end). */
   project: Pick<Project, "slug" | "name">;
   art?: NextProjectArt | undefined;
+  /** TASK-279: an optional supporting line under the title (one short sentence). Omitted → nothing is rendered. */
+  line?: string | undefined;
+  /**
+   * TASK-279: light-mode surface tone. Omitted → the navy band every study has today. `"cream"` → the band, its torn edge,
+   * its text and its focus ring take the site's paper cream with ink text in light mode; dark mode stays the navy band.
+   */
+  tone?: NextProjectTone | undefined;
 }
+
+export type NextProjectTone = "cream";
 
 /**
  * Next-project band (TKT-81, Design.md §7.3 "Next project", §3.3 = torn + "next up" → 2): a navy
@@ -35,10 +47,12 @@ export interface NextProjectProps {
  * hover, not under reduced motion) and the kraft "next up" annotation. The whole band is one link
  * (TC-156 step 4) with a kraft focus ring; it keeps the `project-{slug}` view-transition name so the
  * next header morphs in (EXE-5) and the explicit accessible name "Next project: {name}".
+ * Optional (TASK-279): `line` adds a supporting sentence under the title; `tone="cream"` turns the light-mode band cream
+ * (see `NextProjectProps`). With neither prop the markup is exactly the original.
  */
-export function NextProject({ project, art }: NextProjectProps) {
+export function NextProject({ project, art, line, tone }: NextProjectProps) {
   return (
-    <section className="cs-next cs-torn-fill" aria-label="Next project">
+    <section className="cs-next cs-torn-fill" aria-label="Next project" data-tone={tone}>
       <TornEdge fill="navy" />
       <Container>
         <ViewTransitionLink
@@ -53,6 +67,7 @@ export function NextProject({ project, art }: NextProjectProps) {
           <h2 className="cs-next-h">
             {project.name} <span className="cs-next-arr" aria-hidden="true">→</span>
           </h2>
+          {line ? <p className="cs-next-line">{line}</p> : null}
           <Annotation size="lg" rotate={-1.5} className="cs-next-note">
             next up
           </Annotation>

@@ -18913,6 +18913,35 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
 }
 /* === end TASK-275 === */
 
+/* === TASK-279 (Tushar 2026-10-19): next-project band, supporting line + cream light tone ===
+   `.cs-next-line` is the optional `line` prop (inherits the band's text colour). `[data-tone="cream"]` (the `tone` prop) turns the
+   LIGHT band cream: the surface, its torn front, the ink text and the focus ring use the paper tokens. Dark is untouched (the
+   rules are scoped off `[data-theme="dark"]`), and a band without data-tone matches none of this. Unlayered, after TKT-81. */
+.cs-next-line {
+  max-width: 34ch;
+  font-size: var(--text-body, 1rem);
+  line-height: 1.45;
+  color: inherit;
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] {
+  color: var(--color-navy);
+  background-image: linear-gradient(var(--color-paper), var(--color-paper));
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .torn-front {
+  fill: var(--color-paper);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-h {
+  color: var(--color-navy);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-eyebrow,
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-note {
+  color: var(--color-ink-soft);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-link:focus-visible {
+  outline-color: var(--color-rust);
+}
+/* === end TASK-279 === */
+
 /* === TASK-274 (Tushar 2026-10-19): desktop product tray as a centred stage + the product card's own previous / next + pager ===
    >= 1024 px only (the phone list / detail and the 640-1023 tray are untouched; the pager, the card arrows and the card pager are
    not even rendered below it). The selected cover is centred, raised and ringed; neighbours step back (`data-rel` = signed distance
