@@ -18843,21 +18843,17 @@ html:has(dialog.more-menu[open]) {
 }
 /* === end TASK-261 === */
 
-/* === TASK-267 (Tushar 2026-10-19): from the two-column window up, the video frame is as tall as the product card
-   (unlayered, like the showcase stage rules it overrides) === */
-@media (min-width: 900px) {
+/* === TASK-267 (Tushar 2026-10-19): the video frame keeps the video's own 16:9 (no letterbox bars) and grows into
+   the page's side margins instead, so it stands about as tall as the product card. From 1024 px the window breaks out
+   of the content column to the viewport less a 24 px gutter (capped); the sheet keeps a fixed-ish width and the stage
+   takes the rest. Unlayered, like the showcase stage rules it overrides. === */
+@media (min-width: 1024px) {
   .pf-showcase .pf-feature {
-    align-items: stretch;
-  }
-  .pf-showcase .pf-feature .pf-stage.paper-sheet {
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-  }
-  .pf-showcase .pf-feature .pf-stage-screen {
-    flex: 1 1 auto;
-    aspect-ratio: auto;
-    min-height: 0;
+    --pf-window: min(calc(100vw - 48px), 1760px);
+    width: var(--pf-window);
+    margin-inline: calc((100% - var(--pf-window)) / 2);
+    grid-template-columns: minmax(0, 1fr) clamp(400px, 27vw, 540px);
+    align-items: center;
   }
 }
 /* === end TASK-267 === */

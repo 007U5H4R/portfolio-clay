@@ -277,7 +277,8 @@ test("layout: poster left of the info panel (~58/42) at ≥900, stacked poster �
     expect(stage.x).toBeLessThan(info.x);
     const ratio = stage.width / (stage.width + info.width);
     expect(ratio).toBeGreaterThan(0.52);
-    expect(ratio).toBeLessThan(0.66);
+    // TASK-267: from 1024 the 16:9 stage takes the window's spare width (~70%); 900–1023 keeps ~58/42
+    expect(ratio).toBeLessThan(width(page) >= 1024 ? 0.76 : 0.66);
   } else {
     const head = await box(".pf-info-head");
     expect(head.y).toBeGreaterThan(stage.y + stage.height - 1);
@@ -429,17 +430,21 @@ test("TASK-262: the demo is the primary bar and the other actions sit two per ro
   expect(boxes.filter((b) => b.clipped)).toEqual([]);
 });
 
-test("TASK-267: the video frame is as tall as the product card", async ({ page }) => {
-  test.skip(width(page) < 900, "the two-column window");
-  await page.goto("/projects", { waitUntil: "load" });
-  await page.evaluate(() => document.fonts.ready);
-  for (const slug of [PERSONAL[0]!.slug, PERSONAL[1]!.slug]) {
-    await page.locator(`[role="tab"][data-product="${slug}"]`).click();
-    await expect(panel(page)).toHaveAttribute("data-active-product", slug);
-    await page.waitForTimeout(350);
-    const stage = (await page.locator(".pf-showcase .pf-stage").boundingBox())!;
-    const info = (await page.locator(".pf-showcase .pf-info").boundingBox())!;
-    expect(Math.abs(stage.height - info.height), slug).toBeLessThanOrEqual(2);
-    expect(Math.abs(stage.y - info.y), slug).toBeLessThanOrEqual(2);
+test("TASK-267: the video frame keeps 16:9 and grows into the side margins, as tall as the card on a wide screen", async ({ page }) => {
+  test.skip(width(page) !== 1440, "the desktop window, checked at w1440 and a 1680 laptop");
+  for (const [w, h] of [[1440, 900], [1680, 1050]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(`/projects?product=${PERSONAL[3]!.slug}`, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const screen = (await page.locator(".pf-showcase .pf-stage-screen").boundingBox())!;
+    expect(Math.abs(screen.width / screen.height - 16 / 9), `w${w}: the frame is the video's 16:9 (no letterbox)`).toBeLessThan(0.02);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth), `w${w}: no horizontal overflow`).toBeLessThanOrEqual(w);
+    const feature = (await page.locator(".pf-showcase .pf-feature").boundingBox())!;
+    expect(feature.x, `w${w}: the window uses the side margins`).toBeLessThanOrEqual(25);
+    if (w === 1680) {
+      const stage = (await page.locator(".pf-showcase .pf-stage").boundingBox())!;
+      const info = (await page.locator(".pf-showcase .pf-info").boundingBox())!;
+      expect(Math.abs(stage.height - info.height), "w1680: video frame as tall as the card").toBeLessThanOrEqual(12);
+    }
   }
 });
