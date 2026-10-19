@@ -293,7 +293,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sgp [data-cs-reveal], .sgp-btn, .sgp-card, .sgp-tile-link { transition: none; }
   .sgp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
-  .sgp-shot .sgp-frame { transform: none; }
+  .sgp-shot[data-i] .sgp-frame { transform: none; }
 }
 
 

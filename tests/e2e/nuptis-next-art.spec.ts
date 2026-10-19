@@ -122,7 +122,7 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
   });
 
   // TASK-282: slag-city now carries The Shravan's Round line (still a navy band); tested in slag-city-paper.spec.ts
-  for (const slug of ["cubicle", "teachspark"]) {
+  for (const slug of ["cubicle", "token-toli"]) {
     test(`${slug}: band unchanged (no line, no tone, navy in light, lifted navy in dark)`, async ({ page }) => {
       await page.goto(`/work/${slug}`, { waitUntil: "load" });
       await band(page).scrollIntoViewIfNeeded();

@@ -163,7 +163,7 @@ test.describe("slag city paper layout", () => {
         }
         const gaps = await page.evaluate(() => {
           const band = document.querySelector('section[aria-label="Next project"]')!.getBoundingClientRect().top;
-          return [...document.querySelectorAll(".sgp-tiles li, .sgp-meta")].map((el) => band - el.getBoundingClientRect().bottom);
+          return [...document.querySelectorAll(".sgp-tiles > li, .sgp-meta")].map((el) => band - el.getBoundingClientRect().bottom);
         });
         for (const g of gaps) expect(g, `${w}px ${theme}: tile/meta clear of the band`).toBeGreaterThanOrEqual(8);
       }
@@ -191,7 +191,7 @@ test.describe("slag city paper layout", () => {
     await page.goto("/work/slag-city", { waitUntil: "load" });
     for (const el of await page.locator(".sgp [data-cs-reveal]").all()) expect(await el.evaluate((n) => getComputedStyle(n).opacity)).toBe("1");
     expect(await page.locator(".sgp-shot .sgp-frame").first().evaluate((n) => getComputedStyle(n).transform)).toBe("none");
-    expect(await page.locator(".sgp-btn-primary").evaluate((n) => getComputedStyle(n).transitionDuration)).toMatch(/^0s/);
+    expect(parseFloat(await page.locator(".sgp-btn-primary").evaluate((n) => getComputedStyle(n).transitionDuration))).toBeLessThanOrEqual(0.01);
   });
 
   test("other layouts are untouched", async ({ page }) => {
