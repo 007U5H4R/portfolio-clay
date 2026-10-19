@@ -5,9 +5,28 @@ import { TornEdge } from "@/components/paper/TornEdge";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { Container } from "@/components/layout/Container";
 
+/** Per-theme artwork for the band (TASK-275): two WebPs generated on each theme's own band colour. */
+export interface NextProjectArt {
+  light: string;
+  dark: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+/** TASK-275 (Tushar 2026-10-19): the Nuptis band's Bhakti Vilas artwork. Other studies pass none. */
+export const BHAKTI_NEXT_ART: NextProjectArt = {
+  light: "/media/case-studies/nuptis/bhakti-next-light.webp",
+  dark: "/media/case-studies/nuptis/bhakti-next-dark.webp",
+  alt: "A paper-craft miniature of an elderly devotee playing a harmonium beside a golden retriever, with a diya and a small heart-pulse care card joined by a paper ribbon: devotion-led wellness and care.",
+  width: 1600,
+  height: 1062,
+};
+
 export interface NextProjectProps {
   /** The next personal project in `/projects` index order (the page wraps around at the end). */
   project: Pick<Project, "slug" | "name">;
+  art?: NextProjectArt | undefined;
 }
 
 /**
@@ -17,7 +36,7 @@ export interface NextProjectProps {
  * (TC-156 step 4) with a kraft focus ring; it keeps the `project-{slug}` view-transition name so the
  * next header morphs in (EXE-5) and the explicit accessible name "Next project: {name}".
  */
-export function NextProject({ project }: NextProjectProps) {
+export function NextProject({ project, art }: NextProjectProps) {
   return (
     <section className="cs-next cs-torn-fill" aria-label="Next project">
       <TornEdge fill="navy" />
@@ -37,6 +56,14 @@ export function NextProject({ project }: NextProjectProps) {
           <Annotation size="lg" rotate={-1.5} className="cs-next-note">
             next up
           </Annotation>
+          {art ? (
+            <span className="cs-next-art" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
+              <img className="cs-next-art-img cs-next-art-light" src={art.light} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
+              {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
+              <img className="cs-next-art-img cs-next-art-dark" src={art.dark} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
+            </span>
+          ) : null}
         </ViewTransitionLink>
       </Container>
     </section>
