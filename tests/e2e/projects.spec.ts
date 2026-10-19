@@ -104,7 +104,7 @@ test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the UR
   // TASK-130 (Dev-131): the case study opens in a new tab; /projects stays put.
   const study = await openCaseStudy(page, cs);
   await expect(study).toHaveURL(new RegExp(`/work/${PERSONAL[0]!.slug}$`));
-  await expect(study.getByRole("heading", { level: 1 })).toHaveText(PERSONAL[0]!.name);
+  await expect(study.getByRole("heading", { level: 1 })).toContainText(PERSONAL[0]!.name); // TASK-263: the h1 carries the headline too
   await study.close();
 });
 
@@ -427,4 +427,19 @@ test("TASK-262: the demo is the primary bar and the other actions sit two per ro
   expect(boxes[0]!.top).toBe(boxes[1]!.top);
   expect(boxes[1]!.left).toBeGreaterThan(boxes[0]!.left);
   expect(boxes.filter((b) => b.clipped)).toEqual([]);
+});
+
+test("TASK-267: the video frame is as tall as the product card", async ({ page }) => {
+  test.skip(width(page) < 900, "the two-column window");
+  await page.goto("/projects", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  for (const slug of [PERSONAL[0]!.slug, PERSONAL[1]!.slug]) {
+    await page.locator(`[role="tab"][data-product="${slug}"]`).click();
+    await expect(panel(page)).toHaveAttribute("data-active-product", slug);
+    await page.waitForTimeout(350);
+    const stage = (await page.locator(".pf-showcase .pf-stage").boundingBox())!;
+    const info = (await page.locator(".pf-showcase .pf-info").boundingBox())!;
+    expect(Math.abs(stage.height - info.height), slug).toBeLessThanOrEqual(2);
+    expect(Math.abs(stage.y - info.y), slug).toBeLessThanOrEqual(2);
+  }
 });
