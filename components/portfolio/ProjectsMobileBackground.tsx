@@ -15,9 +15,10 @@ import { dockItems } from "@/lib/mobile-dock";
  *
  * Styles: the fenced TASK-259 block at the end of app/globals.css.
  *
- * UNDO: set the constant below to `false` (the mount renders nothing and no asset loads), or `git revert` the commit.
+ * TASK-277 (Tushar 2026-10-19): TURNED OFF on every phone tab ("not looking good"); the code, CSS and art stay so it can come back
+ * by setting the constant below to `true`. (The original undo note: set the constant to `false` (the mount renders nothing and no asset loads), or `git revert` the commit.)
  */
-export const ORIGAMI_BG_ENABLED = true;
+export const ORIGAMI_BG_ENABLED = false;
 
 const subscribeNever = () => () => {};
 

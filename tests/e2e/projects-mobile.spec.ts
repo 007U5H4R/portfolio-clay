@@ -358,11 +358,9 @@ test.describe("Phone project list: dock clearance, filter row, background motion
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 
-  test("the background drifts by default and every background animation stops under reduced motion", async ({ page }) => {
+  test("no origami background is rendered while ORIGAMI_BG_ENABLED is off (TASK-277)", async ({ page }) => {
     await openList(page);
-    const running = () => page.evaluate(() => document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.target?.closest?.(".ob-root")).length);
-    await expect.poll(running).toBeGreaterThan(0);
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await expect.poll(running).toBe(0);
+    await expect(page.getByTestId("projects-bg")).toHaveCount(0);
+    await expect(page.locator(".ob-root")).toHaveCount(0);
   });
 });
