@@ -2,6 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
+import { dockItems } from "@/lib/mobile-dock";
 
 /**
  * TASK-259 (reversible test, Tushar 2026-10-18): the "living origami" background behind the PHONE /projects list
@@ -18,6 +20,20 @@ import { createPortal } from "react-dom";
 export const ORIGAMI_BG_ENABLED = true;
 
 const subscribeNever = () => () => {};
+
+/**
+ * TASK-265 (Tushar 2026-10-19): the layer is mounted ONCE, from the root layout, and shown on the phone dock's own routes
+ * only (Home, Xp, Portfolio, About, Certs). Case studies (`/work/<slug>`), the lab, contact, essays and the card have their
+ * own scenes and keep the plain paper. Being in the layout it persists across client navigations (no restart between tabs).
+ * The /projects product detail view hides it in CSS (`.pf-showcase[data-view="detail"]`, see the TASK-265 block).
+ */
+const BG_ROUTES = new Set(dockItems.flatMap((i) => (i.kind === "link" ? [i.href] : [])));
+
+export function SiteMobileBackground() {
+  const pathname = usePathname();
+  const path = pathname && pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  return <ProjectsMobileBackground active={!!path && BG_ROUTES.has(path)} />;
+}
 
 export function ProjectsMobileBackground({ active }: { active: boolean }) {
   // Portalled to <body>: the layer is page decoration, not part of the showcase's box tree (its cropped sculptures are
