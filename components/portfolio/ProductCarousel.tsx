@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { stepIndex, type PortfolioProduct } from "@/lib/portfolio";
+import { useDesktop } from "./use-desktop";
 
 export interface ProductCarouselProps {
   products: readonly PortfolioProduct[];
@@ -22,9 +23,15 @@ export interface ProductCarouselProps {
  * the carousel loops), Home/End jump; the selected tab is scrolled into view inside the track only
  * (its own `scrollLeft`, never the page). The arrow buttons also wrap, so they are never dead. A
  * click selects in place — the page never navigates (spec §18).
+ *
+ * TASK-274 (Tushar 2026-10-19), desktop (≥ 1024 px) only: the tray is a centred stage — the selected card is centred, raised and
+ * ringed, its neighbours step back (`data-rel`, CSS), the edge cards fade out — with the index shown as "04 / 10" and a short
+ * pagination row (`.pf-pager`, one dash per product, `aria-current` on the selected). The pager is only rendered at desktop
+ * width (never a hidden-but-focusable control on a phone). Below 1024 px nothing changes.
  */
 export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }: ProductCarouselProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const desktop = useDesktop();
   const activeIndex = Math.max(
     0,
     products.findIndex((product) => product.id === activeId),
@@ -35,13 +42,20 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
     const track = trackRef.current;
     const tab = track?.querySelector<HTMLElement>(`[data-product="${activeId}"]`);
     if (!track || !tab) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (desktop) {
+      // TASK-274: the selected card sits in the middle of the tray (the track's own scrollLeft only, never the page)
+      // layout offsets, not rects: the selected card is mid-way through its scale-up when this runs
+      const offset = tab.offsetLeft - track.offsetLeft;
+      track.scrollTo({ left: Math.max(0, offset - (track.clientWidth - tab.offsetWidth) / 2), behavior: reduce ? "auto" : "smooth" });
+      return;
+    }
     const left = tab.offsetLeft - track.offsetLeft;
     const right = left + tab.offsetWidth;
     if (left < track.scrollLeft || right > track.scrollLeft + track.clientWidth) {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       track.scrollTo({ left: Math.max(0, left - 8), behavior: reduce ? "auto" : "smooth" });
     }
-  }, [activeId]);
+  }, [activeId, desktop]);
 
   const focusTab = useCallback((id: string) => {
     trackRef.current?.querySelector<HTMLElement>(`[data-product="${id}"]`)?.focus({ preventScroll: true });
@@ -85,7 +99,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
           Select a product
         </p>
         <p className="pf-count">
-          {activeIndex + 1} / {products.length}
+          {desktop ? String(activeIndex + 1).padStart(2, "0") : activeIndex + 1} / {desktop ? String(products.length).padStart(2, "0") : products.length}
         </p>
       </div>
       {/* the announced position (TASK-197): "Railcite, 2 of 13" is read out whenever the selection changes */}
@@ -103,7 +117,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         aria-orientation="horizontal"
         onKeyDown={onKeyDown}
       >
-        {products.map((product) => {
+        {products.map((product, index) => {
           const selected = product.id === activeId;
           return (
             <button
@@ -114,6 +128,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
               className="pf-thumb focus-ring"
               data-product={product.id}
               data-accent={product.accent}
+              data-rel={desktop ? Math.min(Math.abs(index - activeIndex), 3) * Math.sign(index - activeIndex) : undefined}
               aria-selected={selected}
               aria-controls={panelId}
               tabIndex={selected ? 0 : -1}
@@ -144,6 +159,20 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
       <button type="button" className="pf-arrow focus-ring" data-dir="next" aria-label="Next product" onClick={() => step(1, "arrow")}>
         <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />
       </button>
+      {desktop ? (
+        <div className="pf-pager" role="group" aria-label="Choose a product">
+          {products.map((product, index) => (
+            <button
+              key={product.id}
+              type="button"
+              className="pf-pager-dot focus-ring"
+              aria-label={`Select ${product.name}, ${index + 1} of ${products.length}`}
+              aria-current={product.id === activeId ? "true" : undefined}
+              onClick={() => onSelect(product.id, "click")}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -49,7 +49,7 @@ test("carousel is keyboard-operable and announces its position", async ({ page }
   await first.focus();
   await page.keyboard.press("ArrowRight");
   await expect(status).toHaveText(`${PERSONAL[1]!.name}, 2 of ${PERSONAL.length}`);
-  await expect(page.locator(".pf-count")).toHaveText(`2 / ${PERSONAL.length}`);
+  await expect(page.locator(".pf-count")).toHaveText(`02 / ${String(PERSONAL.length).padStart(2, "0")}`);  // TASK-274: two digits at desktop
   await expect(list.getByRole("tab").nth(1)).toBeFocused();
   await page.keyboard.press("End");
   await expect(status).toHaveText(`${PERSONAL.at(-1)!.name}, ${PERSONAL.length} of ${PERSONAL.length}`);

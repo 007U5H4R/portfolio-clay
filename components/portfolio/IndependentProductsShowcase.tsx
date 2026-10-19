@@ -10,6 +10,7 @@ import {
   parseListFilter,
   parseProductParam,
   productHref,
+  stepIndex,
   type ListFilter,
   type MediaMode,
   type PortfolioProduct,
@@ -19,6 +20,9 @@ import { PhoneDetailBar } from "./PhoneDetail";
 import { PhoneProjectList } from "./PhoneProjectList";
 import { ProductCarousel } from "./ProductCarousel";
 import { ProductInfoPanel } from "./ProductInfoPanel";
+import { useDetailNav } from "./use-detail-nav";
+import { useDesktop } from "./use-desktop";
+import { getLenis, scrollToTarget } from "@/lib/smooth-scroll";
 
 export interface IndependentProductsShowcaseProps {
   products: readonly PortfolioProduct[];
@@ -43,6 +47,24 @@ const entryMode = (product: PortfolioProduct): MediaMode =>
  * (a product with no video keeps the pitch stage and its "coming" tag).
  */
 const pickMode = (product: PortfolioProduct): MediaMode => (product.pitchVideo ? "pitch" : product.demoVideo ? "demo" : "pitch");
+
+/**
+ * TASK-274 (Tushar 2026-10-19): after a deliberate pick in the carousel, bring the video + card into view once. Skipped when the
+ * video is already comfortably on screen below the sticky header. Uses the site's smooth-scroll helper (Lenis, which already
+ * clears the header and is absent under reduced motion / on touch); otherwise a native scroll — instant when motion is reduced.
+ * It never touches playback.
+ */
+function revealVideo(): void {
+  const target = document.getElementById(PANEL_ID);
+  const stage = document.getElementById(STAGE_ID);
+  if (!target || !stage) return;
+  const header = document.querySelector<HTMLElement>("header[data-site-header]")?.getBoundingClientRect().height ?? 0;
+  const seen = stage.getBoundingClientRect();
+  if (seen.top >= header && seen.bottom <= window.innerHeight) return;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && getLenis() && scrollToTarget(target)) return;
+  window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - header - 8), behavior: reduce ? "auto" : "smooth" });
+}
 
 /**
  * Section 1's interactive core (TASK-116, spec §3, §6, §8–§10, §18, §50): media stage (left, ~62 %),
@@ -89,6 +111,11 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   const [autoMute, setAutoMute] = useState(false);
   /** True once this page itself pushed the detail entry — only then does `history.back()` land on the listing. */
   const pushed = useRef(false);
+  const desktop = useDesktop();
+  /** TASK-274: bumped by a deliberate carousel pick; the effect below scrolls once the new product has committed. */
+  const [revealTick, setRevealTick] = useState(0);
+  /** TASK-274: the detail-card control that was used, so focus returns to it when the card remounts for the next product. */
+  const navFocus = useRef<string | null>(null);
 
   useEffect(() => {
     if (readDeepLink.current) return;
@@ -201,6 +228,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       setAutoMute(true);
       const url = `${productHref(id)}${window.location.hash}`;
       window.history.replaceState(window.history.state, "", url);
+      if (source === "click") setRevealTick((n) => n + 1);
     },
     [activeProductId, products],
   );
@@ -217,6 +245,35 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   );
 
   const product = products.find((p) => p.id === activeProductId) ?? first;
+
+  useEffect(() => {
+    if (revealTick > 0) revealVideo();
+  }, [revealTick]);
+
+  // keep focus on the card control that was used (the card remounts per product)
+  useEffect(() => {
+    const key = navFocus.current;
+    navFocus.current = null;
+    if (key) document.getElementById(PANEL_ID)?.querySelector<HTMLElement>(`[data-nav-key="${key}"]`)?.focus({ preventScroll: true });
+  }, [activeProductId]);
+
+  const navigateCard = useCallback(
+    (id: string, key: string) => {
+      navFocus.current = key;
+      selectProduct(id, "arrow");
+    },
+    [selectProduct],
+  );
+  const stepCard = useCallback(
+    (delta: number) => {
+      const at = products.findIndex((p) => p.id === activeProductId);
+      const next = products[stepIndex(Math.max(0, at), delta, products.length)];
+      if (next) navigateCard(next.id, delta > 0 ? "next" : "prev");
+    },
+    [products, activeProductId, navigateCard],
+  );
+  const cardGestures = useDetailNav(desktop, stepCard);
+
   if (!product) return null;
 
   return (
@@ -232,6 +289,8 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
         data-active-product={product.id}
         data-media-mode={mediaMode}
         data-enter={enter}
+        tabIndex={desktop ? -1 : undefined}
+        {...cardGestures}
       >
         <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} autoMute={autoMute} />
         <ProductInfoPanel
@@ -243,6 +302,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
           headingId={NAME_ID}
           total={products.length}
           onWatch={watchVideo}
+          nav={desktop ? { products, onNavigate: navigateCard } : undefined}
         />
       </div>
       {/* TASK-217: the picker sits beneath the window it drives (DOM order = visual order). The phone hides it (TASK-210). */}

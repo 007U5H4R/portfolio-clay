@@ -38,7 +38,7 @@ test("regression · the /projects horizontal row is never a hidden, affordance-f
     expect(box.width).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeGreaterThanOrEqual(44);
   }
-  await expect(page.locator(".pf-count")).toHaveText(/^1 \/ \d+$/);
+  await expect(page.locator(".pf-count")).toHaveText(/^0?1 \/ \d+$/);
   await noOverflow(page);
 });
 
