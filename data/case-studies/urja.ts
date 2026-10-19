@@ -11,6 +11,7 @@ import type { CaseStudy } from "../schema";
  */
 export const urjaCase: z.input<typeof CaseStudy> = {
   slug: "urja",
+  layout: "urja", // TASK-284: the paper-craft redesign (components/case-study/urja)
   theme: {
     key: "urja",
     metaphor: "Lamplight on a night highway: a near-black warm ground, amber lamp light, a red figure only where the money doesn't add up",
