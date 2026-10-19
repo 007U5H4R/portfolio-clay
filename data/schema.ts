@@ -293,8 +293,8 @@ export const CaseStudy = z.object({
   }),
   /* 'journal' = the bespoke editorial one-pager (Cubicle, Dino Arcade, Velora); 'paper' = the TeachSpark paper-classroom
      layout (TASK-263, components/case-study/teachspark); 'velora' = the Velora paper-craft layout (TASK-273, components/case-study/velora); 'bhakti' = the Bhakti Vilas paper-craft layout (TASK-276, components/case-study/bhakti-vilas); 'railcite' = the RailCite paper-archive layout (TASK-268,
-     components/case-study/railcite); 'nuptis' = the Nuptis origami paper-craft layout (TASK-278, components/case-study/nuptis); 'pratyasa' = the Pratyasa origami paper-craft layout (TASK-280, components/case-study/pratyasa); 'system' = the shared template. */
-  layout: z.enum(['system','journal','paper','railcite','velora','bhakti','nuptis','pratyasa']).default('system'),
+     components/case-study/railcite); 'nuptis' = the Nuptis origami paper-craft layout (TASK-278, components/case-study/nuptis); 'campfire' = the Campfire Board paper-craft layout (TASK-281, components/case-study/campfire); 'pratyasa' = the Pratyasa origami paper-craft layout (TASK-280, components/case-study/pratyasa); 'system' = the shared template. */
+  layout: z.enum(['system','journal','paper','railcite','velora','bhakti','nuptis','pratyasa','campfire']).default('system'),
   sections: z.array(CaseSection).min(3).max(7),
   evidence: z.array(EvidenceItem).max(12).default([]),
   /* Recorded artifacts CONTENT_INVENTORY §8 lists for this product that its project record doesn't

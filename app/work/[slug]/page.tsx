@@ -16,6 +16,7 @@ import { VeloraView } from "@/components/case-study/velora/VeloraView";
 import { BhaktiVilasView } from "@/components/case-study/bhakti-vilas/BhaktiVilasView";
 import { NuptisView } from "@/components/case-study/nuptis/NuptisView";
 import { PratyasaView } from "@/components/case-study/pratyasa/PratyasaView";
+import { CampfireView } from "@/components/case-study/campfire/CampfireView";
 import "./case-study.css";
 import "./journal.css";
 import "./teachspark-paper.css";
@@ -24,6 +25,7 @@ import "./velora-paper.css";
 import "./bhakti-vilas-paper.css";
 import "./nuptis-paper.css";
 import "./pratyasa-paper.css";
+import "./campfire-paper.css";
 
 /**
  * Only the personal slugs are built; any other `/work/*` slug 404s (dynamicParams=false). Every
@@ -84,6 +86,8 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
         <BhaktiVilasView project={project} study={study} portfolio={portfolio} next={nextProject} />
       ) : study.layout === "nuptis" ? (
         <NuptisView project={project} study={study} portfolio={portfolio} next={nextProject} />
+      ) : study.layout === "campfire" ? (
+        <CampfireView project={project} study={study} portfolio={portfolio} next={nextProject} />
       ) : study.layout === "velora" ? (
         <VeloraView project={project} study={study} portfolio={portfolio} next={nextProject} />
       ) : study.layout === "railcite" ? (
