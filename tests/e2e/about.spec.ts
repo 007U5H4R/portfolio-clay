@@ -167,7 +167,6 @@ test("TASK-213: What Drives Me is removed from the page", async ({ page }) => {
 });
 
 test("TASK-207: every About section body is opaque, so the sheet underneath never shows through on scroll", async ({ page }) => {
-  test.skip(page.viewportSize()!.width < 640, "TASK-265: phones make the bodies transparent on purpose, so the origami layer shows behind every section");
   await page.goto("/about");
   for (const theme of ["light", "dark"] as const) {
     await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
