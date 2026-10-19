@@ -18861,3 +18861,12 @@ html:has(dialog.more-menu[open]) {
   }
 }
 /* === end TASK-267 === */
+
+/* === TASK-265 (Tushar 2026-10-19) · the phone origami background on every dock tab ===
+   The layer (TASK-259 `.ob-*`) is now mounted once from app/layout.tsx (SiteMobileBackground) and renders on the dock routes
+   only. Phone only (< 640 px, via the TASK-259 media query). The /projects product detail screen keeps the plain paper:
+   display: none also stops the layer's images being requested while it is hidden. Kill switch: ORIGAMI_BG_ENABLED. */
+body:has(.pf-showcase[data-view="detail"]) .ob-root {
+  display: none;
+}
+/* === end TASK-265 === */

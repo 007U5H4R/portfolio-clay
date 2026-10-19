@@ -14,6 +14,7 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/navigation/Header";
 import { MobileDock } from "@/components/navigation/MobileDock";
 import { BandFooter } from "@/components/layout/BandFooter";
+import { SiteMobileBackground } from "@/components/portfolio/ProjectsMobileBackground";
 import { HideOnLab } from "@/components/layout/HideOnLab";
 import { AskProvider } from "@/components/ai/AskProvider";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
@@ -101,6 +102,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AnalyticsLoader />
         <AskProvider panelPrompts={PANEL_PROMPTS} faqFreshIds={FAQ_FRESH_IDS}>
           <SkipLink />
+          {/* TASK-265: phone origami background, mounted once for the dock routes (kill switch: ORIGAMI_BG_ENABLED). */}
+          <SiteMobileBackground />
           <Header />
           <main id="main">{children}</main>
           {/* The lab covers the page; its footer animations starved the lab's WebGL boot (TASK-143). */}
