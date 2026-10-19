@@ -86,7 +86,7 @@ export const NEXT = { eyebrow: "Next project", line: "Wedding vendor operations"
 
 /** Encoded sizes (scripts/velora-art/encode.mjs); the hero screen rectangles live in hero-screen.json beside the art. */
 export const ART = {
-  hero: { light: { w: 900, h: 519 }, dark: { w: 900, h: 599 } },
-  footer: { light: { w: 1344, h: 622 }, dark: { w: 1344, h: 724 } },
-  obj: { referral: { w: 220, h: 170 }, directory: { w: 220, h: 176 }, tag: { w: 220, h: 197 }, lens: { w: 220, h: 182 } },
+  hero: { light: { w: 1400, h: 800 }, dark: { w: 1400, h: 974 } },
+  footer: { light: { w: 2600, h: 1666 }, dark: { w: 2600, h: 1753 } },
+  obj: { referral: { w: 340, h: 265 }, directory: { w: 340, h: 271 }, tag: { w: 340, h: 296 }, lens: { w: 340, h: 270 } },
 } as const;
