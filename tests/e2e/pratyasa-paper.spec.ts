@@ -147,7 +147,11 @@ test.describe("pratyasa paper layout", () => {
       expect(await rgb(s.front), `${theme}: the torn front is the band's own colour (no light strip in dark)`).toEqual(bg);
       if (theme === "light") expect(bg).toEqual([0xf7, 0xf0, 0xe7]);
       // the art's decoded flat field is the band colour exactly (a 1-level miss shows as a box)
-      const field = await band(page).locator(`img.cs-next-art-${theme}`).evaluate((img: HTMLImageElement) => { const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext("2d")!; g.drawImage(img, 0, 0); return [...g.getImageData(img.naturalWidth >> 1, 6, 1, 1).data].slice(0, 3); });
+      const art = band(page).locator(`img.cs-next-art-${theme}`);
+      // wait for the image to load and decode; on a cold network it can still be pending after scroll
+      await expect.poll(() => art.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBeGreaterThan(0);
+      await art.evaluate((el: HTMLImageElement) => el.decode());
+      const field = await art.evaluate((img: HTMLImageElement) => { const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext("2d")!; g.drawImage(img, 0, 0); return [...g.getImageData(img.naturalWidth >> 1, 6, 1, 1).data].slice(0, 3); });
       expect(field, `${theme}: art field vs band`).toEqual(bg);
     }
   });
