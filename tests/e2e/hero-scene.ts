@@ -58,10 +58,14 @@ export async function expectCopyWithinOneScroll(page: Page): Promise<void> {
       const r = document.querySelector(sel)!.getBoundingClientRect();
       return { top: r.top + window.scrollY, bottom: r.bottom + window.scrollY };
     };
-    return { h1: top("h1#hero-h"), cta: top(".hero-cta-row"), header: document.querySelector("header")!.getBoundingClientRect().height };
+    const intro = document.querySelector(".hero-intro")?.getBoundingClientRect().height ?? 0;
+    return { h1: top("h1#hero-h"), cta: top(".hero-cta-row"), header: document.querySelector("header")!.getBoundingClientRect().height, intro };
   });
+  // TASK-269 (Tushar 2026-10-19): the intro video grew past Dev-39's 560 px print (~330 px tall); the copy may
+  // sit that much further down, and no more.
+  const budget = vh + Math.max(0, Math.ceil(doc.intro - 330));
   const needed = Math.max(0, Math.ceil(doc.cta.bottom - vh));
-  expect(needed, `scroll needed to reveal the CTAs (${needed}px) is at most one viewport (${vh}px)`).toBeLessThanOrEqual(vh);
+  expect(needed, `scroll needed to reveal the CTAs (${needed}px) is at most one viewport plus the intro's growth (${budget}px)`).toBeLessThanOrEqual(budget);
   await scrollToY(page, needed);
   const h1 = (await page.locator("h1#hero-h").boundingBox())!;
   const cta = (await page.locator(".hero-cta-row").boundingBox())!;

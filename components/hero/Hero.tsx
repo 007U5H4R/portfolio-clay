@@ -121,7 +121,7 @@ export function Hero() {
               <ProductMediaPlayer
                 media={hero.introVideo}
                 className="pf-stage-screen hero-intro-screen"
-                fallbackPoster={<Image src={INTRO_POSTER} alt="" fill sizes="(min-width: 640px) 560px, 92vw" className="pf-stage-poster hero-intro-poster" />}
+                fallbackPoster={<Image src={INTRO_POSTER} alt="" fill sizes="(min-width: 1040px) 960px, 92vw" className="pf-stage-poster hero-intro-poster" />}
               />
             </Sheet>
           </div>
