@@ -428,3 +428,18 @@ test("TASK-262: the demo is the primary bar and the other actions sit two per ro
   expect(boxes[1]!.left).toBeGreaterThan(boxes[0]!.left);
   expect(boxes.filter((b) => b.clipped)).toEqual([]);
 });
+
+test("TASK-267: the video frame is as tall as the product card", async ({ page }) => {
+  test.skip(width(page) < 900, "the two-column window");
+  await page.goto("/projects", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  for (const slug of [PERSONAL[0]!.slug, PERSONAL[1]!.slug]) {
+    await page.locator(`[role="tab"][data-product="${slug}"]`).click();
+    await expect(panel(page)).toHaveAttribute("data-active-product", slug);
+    await page.waitForTimeout(350);
+    const stage = (await page.locator(".pf-showcase .pf-stage").boundingBox())!;
+    const info = (await page.locator(".pf-showcase .pf-info").boundingBox())!;
+    expect(Math.abs(stage.height - info.height), slug).toBeLessThanOrEqual(2);
+    expect(Math.abs(stage.y - info.y), slug).toBeLessThanOrEqual(2);
+  }
+});

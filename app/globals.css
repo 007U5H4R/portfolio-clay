@@ -18841,3 +18841,22 @@ html:has(dialog.more-menu[open]) {
   }
 }
 /* === end TASK-261 === */
+
+/* === TASK-267 (Tushar 2026-10-19): from the two-column window up, the video frame is as tall as the product card
+   (unlayered, like the showcase stage rules it overrides) === */
+@media (min-width: 900px) {
+  .pf-showcase .pf-feature {
+    align-items: stretch;
+  }
+  .pf-showcase .pf-feature .pf-stage.paper-sheet {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+  .pf-showcase .pf-feature .pf-stage-screen {
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+}
+/* === end TASK-267 === */
