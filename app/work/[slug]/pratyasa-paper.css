@@ -1,0 +1,299 @@
+/* ============================================================================================
+   TASK-280 · Pratyasa "origami paper craft" case study (Tushar's brief pratyasa-full-page-redesign.md + mockup).
+   Fenced: every selector starts with `.pra` (the PratyasaView root, chosen by `layout: "pratyasa"`), so no other case study
+   can match anything here. Same architecture as nuptis-paper.css (TASK-278). Paper tokens and color-mix() only (EVAL-020).
+   The hero diorama is painted on each theme's exact page colour (#f7f1e7 / #0b1530 = --color-paper), so the page
+   background is flat (no dot texture) and a soft edge mask feathers the art into it. Forest-green labels and rosettes, kraft and steel as the paper accents.
+   ============================================================================================ */
+
+.pra {
+  --csx-soft: var(--color-ink-soft);
+  --csx-rule: color-mix(in oklab, var(--color-navy) 13%, transparent);
+  --csx-card: var(--color-ivory);
+  --pra-bg: var(--color-paper);
+  --pra-bg-2: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-kraft) 10%);
+  --pra-card: color-mix(in oklab, var(--color-ivory) 92%, var(--color-paper));
+  --pra-accent: var(--color-forest);
+  --pra-on-accent: var(--color-ivory);
+  --pra-accent-ink: var(--color-forest);
+  --pra-teal: var(--color-forest);
+  --pra-sage: color-mix(in oklab, var(--color-forest) 88%, var(--color-navy));
+  --pra-primary: var(--color-navy);
+  --pra-on-primary: var(--color-paper);
+  --pra-t1: color-mix(in oklab, var(--color-green-2) 20%, var(--pra-card));
+  --pra-t2: color-mix(in oklab, var(--color-steel) 17%, var(--pra-card));
+  --pra-t3: color-mix(in oklab, var(--color-kraft) 38%, var(--pra-card));
+  --pra-i1: var(--pra-accent-ink);
+  --pra-i2: color-mix(in oklab, var(--color-steel) 78%, var(--color-navy));
+  --pra-i3: color-mix(in oklab, var(--color-kraft) 40%, var(--color-navy));
+  --pra-track: color-mix(in oklab, var(--color-navy) 34%, transparent);
+  --pra-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 12%, transparent), 0 14px 28px -16px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  --pra-shadow-hover: 0 2px 3px color-mix(in oklab, var(--color-navy) 14%, transparent), 0 22px 36px -16px color-mix(in oklab, var(--color-navy) 38%, transparent);
+  --pra-offset: calc(var(--header-h) + 76px);
+}
+[data-theme="dark"] .pra {
+  --csx-soft: var(--color-navy-2);
+  --pra-bg-2: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory) 12%);
+  --pra-card: color-mix(in oklab, var(--color-ivory) 82%, var(--color-paper));
+  --pra-on-accent: var(--color-paper);
+  --pra-sage: var(--color-forest);
+  --pra-primary: color-mix(in oklab, var(--color-terracotta) 66%, var(--color-kraft) 34%);
+  --pra-on-primary: var(--color-paper);
+  --pra-shadow: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 8%, transparent), 0 18px 30px -16px color-mix(in oklab, var(--color-paper) 85%, transparent);
+  --pra-shadow-hover: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent), 0 24px 38px -16px color-mix(in oklab, var(--color-paper) 95%, transparent);
+}
+.pra {
+  position: relative;
+  background: var(--pra-bg);
+  color: var(--color-navy);
+  overflow-x: clip;
+}
+.pra [id], .pra-anchor { scroll-margin-top: var(--pra-offset); }
+.pra-anchor { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
+.pra img { display: block; max-width: 100%; }
+.pra :where(h1, h2, h3, p, ul, ol, figure, blockquote) { margin: 0; }
+.pra :where(ul, ol) { padding: 0; list-style: none; }
+
+/* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
+.pra [data-theme-art] { width: 100%; height: auto; }
+
+/* Shared paper bits */
+.pra-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--pra-teal); }
+.pra-h2 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 1.08; letter-spacing: -0.015em; max-width: 24ch; }
+.pra-h3 { font-family: inherit; font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 0; }
+.pra-p { font-size: clamp(1rem, 1.4vw, 1.125rem); line-height: 1.55; color: var(--color-navy-2); max-width: 60ch; }
+.pra-small { font-size: 13px; line-height: 1.45; color: var(--csx-soft); }
+.pra-tile {
+  position: relative; flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px;
+  background: var(--pra-t1); color: var(--pra-i1);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 8%, transparent), 0 6px 10px -6px color-mix(in oklab, var(--color-navy) 30%, transparent);
+}
+.pra-tile::after { /* folded corner */
+  content: ""; position: absolute; top: 0; right: 0; width: 13px; height: 13px; border-top-right-radius: 13px;
+  background: linear-gradient(225deg, var(--pra-card) 0 50%, color-mix(in oklab, var(--color-navy) 16%, transparent) 50% 100%);
+}
+[data-i="2"] > .pra-tile, .pra-card[data-i="2"] .pra-tile { background: var(--pra-t2); color: var(--pra-i2); }
+[data-i="3"] > .pra-tile, .pra-card[data-i="3"] .pra-tile { background: var(--pra-t3); color: var(--pra-i3); }
+
+/* ── Hero: copy left; the diorama and the two evidence cards right; the real dashboard full width below ── */
+.pra-hero { position: relative; padding-top: clamp(20px, 3vw, 44px); }
+.pra-hero-in { display: grid; gap: 22px; }
+@media (min-width: 1024px) { .pra-hero-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 3vw, 48px); align-items: center; } }
+.pra-crumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--csx-soft); margin-bottom: 16px !important; }
+.pra-crumb a { color: var(--color-navy-2); }
+.pra-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--pra-teal); margin-bottom: 8px !important; }
+.pra-h1 { font-size: clamp(3.6rem, 9vw, 6.6rem); line-height: 0.96; letter-spacing: -0.03em; font-weight: 500; }
+.pra-tagline { margin-top: 8px !important; font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.12; color: var(--pra-accent-ink); max-width: 20ch; }
+.pra-lede { margin-top: 16px !important; max-width: 46ch; font-size: clamp(1.0625rem, 1.5vw, 1.2rem); line-height: 1.5; color: var(--color-navy-2); }
+.pra-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.pra-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; font-size: 15.5px; font-weight: 600; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
+.pra-btn-primary { background: var(--pra-primary); color: var(--pra-on-primary); box-shadow: var(--pra-shadow); }
+.pra-btn-ghost { border: 1.5px solid color-mix(in oklab, var(--color-navy) 38%, transparent); color: var(--color-navy); background: transparent; }
+@media (hover: hover) {
+  .pra-btn:hover { transform: translateY(-1px); box-shadow: var(--pra-shadow-hover); }
+  .pra-btn-ghost:hover { background: color-mix(in oklab, var(--color-navy) 6%, transparent); }
+}
+.pra-hero-side { display: grid; gap: 14px; min-width: 0; }
+/* The diorama is painted on the page colour; the real photo is framed over its empty paper stage (desktop and tablet),
+   and sits in normal flow, full width, on a phone so the readout stays legible. */
+.pra-stage { position: relative; width: min(100%, 600px); margin-inline: auto; aspect-ratio: var(--ar-l); }
+[data-theme="dark"] .pra-stage { aspect-ratio: var(--ar-d); }
+.pra-stage [data-theme-art] {
+  width: 100%; height: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}
+.pra-stage-fig { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: center; min-width: 0; }
+.pra-stage-cap { text-align: center; }
+.pra-photo { position: absolute; left: 22%; width: 56%; top: 24%; }
+.pra-photo .pra-frame { width: 100%; transform: rotate(-1deg); }
+@media (max-width: 767px) {
+  .pra-stage { aspect-ratio: auto; width: 100%; }
+  .pra-stage [data-theme-art] { width: min(100%, 420px); margin-inline: auto; }
+  .pra-photo { position: relative; left: auto; top: auto; width: 94%; margin: -34% auto 0; }
+  .pra-stage { aspect-ratio: auto !important; }
+}
+
+.pra-facts-wrap { padding-block: clamp(14px, 2vw, 24px) 0; display: grid; gap: 12px; }
+.pra-metrics { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 719px) { .pra-metrics { grid-template-columns: 1fr; } }
+.pra-metrics > li { min-width: 0; }
+.pra-status { display: inline-flex; align-items: center; gap: 8px; justify-self: start; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--color-navy); background: color-mix(in oklab, var(--color-kraft) 30%, var(--pra-card)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-kraft) 55%, transparent); }
+.pra-status svg { flex: none; color: var(--pra-accent-ink); }
+.pra-metric {
+  position: relative; display: block; height: 100%; padding: 14px 16px; border-radius: 14px;
+  background: var(--pra-card); box-shadow: var(--pra-shadow); transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.pra-metric::after { content: ""; position: absolute; top: 0; right: 0; width: 22px; height: 22px; border-top-right-radius: 14px; background: linear-gradient(225deg, var(--pra-bg) 0 50%, var(--pra-t1) 50% 100%); box-shadow: -1px 1px 2px color-mix(in oklab, var(--color-navy) 14%, transparent); }
+@media (hover: hover) { .pra-metric:hover { transform: translateY(-2px); box-shadow: var(--pra-shadow-hover); } }
+.pra-metric-value { font-family: var(--font-display); font-size: clamp(1.9rem, 3vw, 2.6rem); overflow-wrap: anywhere; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pra-metric-label { margin-top: 6px !important; font-size: 15px; line-height: 1.3; font-weight: 500; }
+.pra-metric-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px !important; }
+.pra-metric-note { margin-top: 6px !important; font-size: 13px; line-height: 1.4; color: var(--csx-soft); }
+
+/* The real prototype photo: a paper frame (used in the hero and the page section) */
+.pra-frame { padding: 8px; border-radius: 18px; background: var(--pra-card); box-shadow: var(--pra-shadow-hover); }
+.pra-frame img { width: 100%; height: auto; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--csx-rule); }
+
+/* 01 · problem: five paper tiles joined by green arrows */
+.pra-steps { display: grid; margin-top: 6px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 26px; }
+.pra-step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 10px 14px; border-radius: 16px; background: var(--pra-card); box-shadow: var(--pra-shadow); text-align: center; }
+.pra-step:last-child { grid-column: 1 / -1; }
+.pra-step .pra-tile { width: 56px; height: 56px; }
+.pra-step[data-i="3"] .pra-tile, .pra-step[data-i="4"] .pra-tile, .pra-step[data-i="5"] .pra-tile { background: var(--pra-t1); color: var(--pra-i1); }
+.pra-step + .pra-step::before { content: "→"; position: absolute; left: -22px; top: 40%; width: 18px; text-align: center; font-size: 16px; color: var(--pra-accent-ink); font-weight: 700; }
+.pra-step:nth-child(odd)::before { content: "↓"; left: 50%; top: -22px; transform: translateX(-50%); }
+.pra-step-label { font-size: 15.5px; font-weight: 600; line-height: 1.25; }
+@media (min-width: 900px) {
+  .pra-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 26px; }
+  .pra-step:last-child { grid-column: auto; }
+  .pra-step:nth-child(odd)::before { content: "→"; left: -22px; top: 40%; transform: none; }
+}
+
+/* 03 · product: three real screenshots, large and alternating on desktop */
+.pra-shots { display: grid; gap: 30px; margin-top: 6px; }
+.pra-shot { display: grid; gap: 12px; align-items: center; min-width: 0; }
+@media (min-width: 900px) {
+  .pra-shot { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 32px; }
+  .pra-shot[data-i="2"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); }
+  .pra-shot[data-i="2"] .pra-frame { order: 2; }
+}
+.pra-shot[data-i="1"] .pra-frame { transform: rotate(-0.5deg); }
+.pra-shot[data-i="2"] .pra-frame { transform: rotate(0.5deg); }
+.pra-cap { display: grid; gap: 4px; justify-items: start; }
+.pra-cap-t { font-family: var(--font-display); font-size: clamp(1.3rem, 2vw, 1.7rem); line-height: 1.15; }
+.pra-cap-d { font-size: 15.5px; line-height: 1.45; color: var(--color-navy-2); }
+
+/* 04/07 · cards */
+.pra-cards { display: grid; gap: 14px; margin-top: 4px; }
+@media (min-width: 768px) { .pra-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+.pra-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 16px; background: var(--pra-card); box-shadow: var(--pra-shadow); border-top: 4px solid var(--pra-accent); transition: transform 180ms ease, box-shadow 180ms ease; }
+.pra-card[data-i="2"] { border-top-color: var(--color-kraft); }
+.pra-card[data-i="3"] { border-top-color: var(--color-green-2); }
+@media (hover: hover) { .pra-card:hover { transform: translateY(-2px) rotate(-0.4deg); box-shadow: var(--pra-shadow-hover); } }
+.pra-card .pra-tile { margin-bottom: 4px; }
+.pra-dl { display: grid; gap: 10px; }
+.pra-dl dt { font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pra-teal); }
+.pra-dl dd { margin: 2px 0 0; font-size: 15px; line-height: 1.4; color: var(--color-navy-2); }
+.pra-dl div:nth-child(2) dd { font-weight: 600; color: var(--color-navy); }
+
+/* 05 · system: a horizontal paper flow + the key rules */
+.pra-system { display: grid; gap: 16px; margin-top: 4px; align-items: start; }
+@media (min-width: 1100px) { .pra-system { grid-template-columns: minmax(0, 1fr) 280px; gap: 22px; } }
+.pra-flow { display: grid; gap: 22px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pra-flow-step { position: relative; display: grid; gap: 4px; align-content: start; justify-items: start; padding: 14px 14px 14px; border-radius: 14px; background: var(--pra-card); box-shadow: var(--pra-shadow); border-top: 4px solid var(--pra-accent); }
+.pra-flow-step svg { color: var(--pra-accent-ink); }
+.pra-flow-step[data-i="3"] { border-top-color: var(--color-kraft); }
+.pra-flow-step[data-i="4"] { border-top-color: var(--color-steel); }
+.pra-flow-step[data-i="5"] { border-top-color: var(--color-green-2); }
+.pra-flow-k { font-size: 15px; font-weight: 700; line-height: 1.25; margin-top: 4px; }
+.pra-flow-v { font-size: 13.5px; line-height: 1.4; color: var(--csx-soft); }
+.pra-flow-step + .pra-flow-step::before { content: "→"; position: absolute; left: -20px; top: 18px; width: 16px; text-align: center; color: var(--pra-accent-ink); font-weight: 700; }
+.pra-flow-step:nth-child(odd)::before { content: none; }
+@media (min-width: 640px) { .pra-flow { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; } .pra-flow-step:nth-child(odd)::before { content: "→"; } }
+.pra-rules { padding: 16px 18px; border-radius: 14px; background: var(--pra-card); box-shadow: var(--pra-shadow); }
+.pra-rules ul { display: grid; gap: 8px; margin-top: 10px; }
+.pra-rules li { position: relative; padding-left: 18px; font-size: 14.5px; line-height: 1.45; color: var(--color-navy-2); }
+.pra-rules li::before { content: ""; position: absolute; left: 2px; top: 0.6em; width: 7px; height: 7px; background: var(--pra-accent); transform: rotate(45deg); }
+
+.pra-gaps { padding: 18px 20px; border-radius: 14px; border: 2px dashed color-mix(in oklab, var(--pra-accent) 60%, transparent); background: color-mix(in oklab, var(--pra-accent) 8%, transparent); }
+.pra-gaps ul { display: grid; gap: 9px; margin-top: 10px; }
+.pra-gaps li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.45; color: var(--color-navy); }
+.pra-gaps li::before { content: "–"; position: absolute; left: 4px; color: var(--pra-accent-ink); font-weight: 700; }
+
+/* ── Sticky navigator ─────────────────────────────────────────────────────────────────────── */
+.pra-nav {
+  position: sticky; top: calc(var(--header-h) + 6px); z-index: 5; width: fit-content; max-width: calc(100% - 24px); margin: 26px auto 0; padding: 4px;
+  border-radius: 999px; background: color-mix(in oklab, var(--pra-bg) 88%, transparent); border: 1px solid var(--csx-rule);
+  backdrop-filter: blur(8px); box-shadow: var(--pra-shadow); overflow-x: auto; scrollbar-width: none;
+}
+.pra-nav::-webkit-scrollbar { display: none; }
+.pra-nav-list { display: flex; gap: 2px; }
+.pra-nav-link { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--color-navy-2); text-decoration: none; white-space: nowrap; }
+.pra-nav-n { font-size: 11.5px; font-weight: 700; color: var(--pra-accent-ink); font-variant-numeric: tabular-nums; }
+.pra-nav-link:hover { background: var(--pra-t1); color: var(--color-navy); }
+.pra-nav-link[aria-current="location"] { background: var(--pra-primary); color: var(--pra-on-primary); }
+.pra-nav-link[aria-current="location"] .pra-nav-n { color: inherit; }
+@media (max-width: 520px) { .pra-nav-link { padding: 0 11px; } .pra-nav-n { display: none; } }
+
+/* ── Numbered sections on a dashed coral line ─────────────────────────────────────────────── */
+.pra-body { padding-block: clamp(10px, 2vw, 20px) clamp(40px, 5vw, 72px); }
+.pra-sec { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: clamp(12px, 2vw, 28px); padding-block: clamp(30px, 4vw, 52px); min-width: 0; }
+@media (min-width: 1024px) { .pra-sec { grid-template-columns: 56px minmax(0, 1fr); } }
+.pra-num {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: var(--pra-teal); color: var(--color-paper); font-family: var(--font-display); font-size: 14px; font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1024px) { .pra-num { width: 46px; height: 46px; font-size: 17px; margin-left: 5px; } }
+.pra-sec::before { /* the dashed coral line joining one badge to the next */
+  content: ""; position: absolute; left: 17px; transform: translateX(-50%); top: calc(clamp(30px, 4vw, 52px) + 20px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 20px); width: 0; pointer-events: none;
+  border-left: 2px dashed color-mix(in oklab, var(--pra-accent) 70%, transparent); opacity: 0.7;
+}
+@media (min-width: 1024px) { .pra-sec::before { left: 28px; top: calc(clamp(30px, 4vw, 52px) + 26px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 26px); } }
+.pra-sec:has(+ .pra-sources)::before { display: none; }
+.pra-sec-in { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.pra-sec-in > * { min-width: 0; }
+
+/* Sources */
+.pra-sources { display: grid; gap: 14px; padding-block: clamp(30px, 4vw, 52px) 0; border-top: 1px solid var(--csx-rule); }
+.pra-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.pra-tile-link, .pra-tile-drawer .csx-drawer-open {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 16px; border-radius: 14px;
+  background: var(--pra-t3); color: var(--color-navy); text-decoration: none; border: 0; text-align: left; font-size: 15px; font-weight: 600;
+  box-shadow: var(--pra-shadow); transition: transform 160ms ease, box-shadow 160ms ease; cursor: pointer;
+}
+.pra-tile-drawer .csx-drawer-open { justify-content: space-between; letter-spacing: 0; background: var(--pra-primary); color: var(--pra-on-primary); }
+@media (hover: hover) { .pra-tile-link:hover, .pra-tile-drawer .csx-drawer-open:hover { transform: translateY(-2px); box-shadow: var(--pra-shadow-hover); } }
+.pra-tile-icon { flex: none; color: var(--pra-i3); }
+.pra-tile-text { display: grid; flex: 1; }
+.pra-tile-hint { font-size: 13px; font-weight: 400; color: var(--csx-soft); }
+.pra-meta { margin-top: 2px; }
+
+/* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
+.pra[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 0; transform: translateY(14px); }
+.pra [data-cs-reveal] { transition: opacity 420ms ease, transform 420ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .pra [data-cs-reveal], .pra-btn, .pra-metric, .pra-card, .pra-tile-link { transition: none; }
+  .pra[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
+  .pra-shot .pra-frame { transform: none; }
+}
+
+
+/* ── Pratyasa additions ───────────────────────────────────────────────────────────────────── */
+/* 01 · the missing record is a dashed, empty paper slot */
+.pra-step[data-missing] { background: transparent; box-shadow: none; border: 2px dashed color-mix(in oklab, var(--color-rust) 55%, transparent); }
+.pra-step[data-missing] .pra-tile { background: color-mix(in oklab, var(--color-rust) 14%, var(--pra-card)); color: color-mix(in oklab, var(--color-rust) 70%, var(--color-navy)); }
+.pra-step[data-i="5"] .pra-tile { background: var(--pra-t1); color: var(--pra-i1); }
+.pra-step + .pra-step::before { color: var(--pra-accent-ink); }
+
+/* 02 · contribution chips */
+.pra-contrib { display: grid; gap: 10px; margin-top: 4px; }
+.pra-contrib-label { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pra-teal); }
+.pra-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.pra-chip { padding: 9px 16px; border-radius: 999px; font-size: 15px; font-weight: 600; background: var(--pra-card); box-shadow: var(--pra-shadow); border: 1px solid var(--csx-rule); }
+.pra-shot[data-i="1"] .pra-frame { padding: 0; overflow: hidden; }
+.pra-shot[data-i="1"] .pra-frame img { border-radius: 14px; }
+
+/* 05 · three sample tiles (illustrations of the sample type) */
+.pra-evidence-grid { margin-top: 4px; }
+.pra-samples { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 479px) { .pra-samples { grid-template-columns: 1fr; } }
+.pra-sample { display: grid; justify-items: center; gap: 6px; padding: 18px 12px 14px; border-radius: 16px; text-align: center; background: var(--pra-card); box-shadow: var(--pra-shadow); border-top: 4px solid var(--color-rust); transition: transform 180ms ease, box-shadow 180ms ease; }
+.pra-sample[data-i="2"] { border-top-color: var(--color-kraft); }
+.pra-sample[data-i="3"] { border-top-color: var(--color-green-2); }
+.pra-sample[data-i="1"] .pra-tile { background: color-mix(in oklab, var(--color-rust) 16%, var(--pra-card)); color: color-mix(in oklab, var(--color-rust) 75%, var(--color-navy)); }
+.pra-sample .pra-tile { width: 56px; height: 56px; }
+.pra-sample-k { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.pra-sample-v { font-size: 13.5px; color: var(--csx-soft); }
+.pra-sample-note { margin-top: 10px !important; }
+@media (hover: hover) { .pra-sample:hover { transform: translateY(-2px); box-shadow: var(--pra-shadow-hover); } }
+.pra-gaps { margin-top: 16px; }
+@media (min-width: 1100px) { .pra-evidence-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; align-items: start; } .pra-gaps { margin-top: 0; } }
+@media (prefers-reduced-motion: reduce) { .pra-sample { transition: none; } .pra-photo .pra-frame { transform: none; } }
+.pra-step:first-child::before { content: none !important; }
+/* the device-case photo is near-square: keep it modest beside its caption */
+.pra-shot[data-i="2"] .pra-frame { max-width: 440px; justify-self: start; }
+@media (min-width: 900px) { .pra-shot[data-i="2"] .pra-frame { justify-self: end; } .pra-shot[data-i="2"] { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); justify-content: start; } }
+@media (max-width: 767px) { .pra-stage { margin-top: -36px; } }

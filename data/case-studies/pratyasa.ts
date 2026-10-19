@@ -9,6 +9,7 @@ import type { CaseStudy } from "../schema";
  */
 export const pratyasaCase: z.input<typeof CaseStudy> = {
   slug: "pratyasa",
+  layout: "pratyasa", // TASK-280: the origami paper-craft redesign (components/case-study/pratyasa)
   theme: {
     key: "pratyasa",
     metaphor: "A lab notebook and a certificate: graph-paper ground, a readout-curve rule, a gold certificate frame",
