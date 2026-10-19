@@ -16636,11 +16636,12 @@ html[data-theme-vt]::view-transition-group(root) {
      reason as above (the About fingerprint reads :root-inherited custom properties). */
   .rcp,
   .vlp,
+  .bvp,
   .tsp,
   .csx {
     --header-h: 69px;
   }
-  /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav) === */
+  /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav; TASK-276 adds .bvp: Bhakti Vilas) === */
   .site-header {
     --ht-edge-w: 92px;
     --ht-mid-h: 14px;

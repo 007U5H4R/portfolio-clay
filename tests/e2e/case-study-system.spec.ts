@@ -13,10 +13,13 @@ import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { SYSTEM_STUDIES } from "./case-study-system";
 import { LEARNINGS, SECTION } from "@/components/case-study/velora/copy";
+import { LEARNINGS as BV_LEARNINGS, SECTION as BV_SECTION } from "@/components/case-study/bhakti-vilas/copy";
 
 /** TASK-273: Velora's page headings and learnings are the brief's shorter copy (components/case-study/velora/copy.ts); the first product's evidence row is withheld from its drawer. */
-const PAPER = new Set(["paper", "railcite", "velora"]);
-const headlineOf = (study: { layout: string }, section: { id: string; headline: string }) => (study.layout === "velora" ? SECTION[section.id]!.headline : section.headline);
+const PAPER = new Set(["paper", "railcite", "velora", "bhakti"]);
+/** TASK-276: Bhakti Vilas folds its research section into the problem section (its own anchor, no region/h2 of its own). */
+const isMerged = (study: { layout: string }, section: { id: string }) => study.layout === "bhakti" && section.id === "research";
+const headlineOf = (study: { layout: string }, section: { id: string; headline: string }) => (study.layout === "velora" ? SECTION[section.id]!.headline : study.layout === "bhakti" ? BV_SECTION[section.id]!.headline : section.headline);
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const isEdge = (page: Page) => width(page) === 390 || width(page) === 1440;
@@ -40,6 +43,11 @@ for (const { study, name } of SYSTEM_STUDIES) {
 
       // Every story section is a labelled landmark whose h2 carries its one message (spec §30).
       for (const section of study.sections) {
+        if (isMerged(study, section)) {
+          await expect(page.locator(`[id="${section.id}"]`)).toBeAttached();
+          for (const anchor of section.anchors) await expect(page.locator(`[id="${anchor}"]`)).toBeAttached();
+          continue;
+        }
         const landmark = page.getByRole("region", { name: headlineOf(study, section) });
         await expect(landmark, `section ${section.id}`).toHaveAttribute("id", section.id);
         for (const anchor of section.anchors) await expect(page.locator(`[id="${anchor}"]`)).toBeAttached();
@@ -104,7 +112,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       test.skip(!learnings, "no learnings recorded for this product");
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       if (learnings && learnings.kind === "learnings") {
-        const titles = study.layout === "velora" ? LEARNINGS.map((item) => item.title) : learnings.items.map((item) => item.title);
+        const titles = study.layout === "velora" ? LEARNINGS.map((item) => item.title) : study.layout === "bhakti" ? BV_LEARNINGS.map((item) => item.title) : learnings.items.map((item) => item.title);
         for (const title of titles) await expect(page.getByRole("heading", { level: 3, name: title, exact: true })).toHaveCount(1);
       }
     });
@@ -114,6 +122,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       await withReducedMotion(page);
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       for (const section of study.sections) {
+        if (isMerged(study, section)) continue;
         const opacity = await page.locator(PAPER.has(study.layout) ? `section#${section.id}` : `section#${section.id} .csx-sec-body`).evaluate((el) => getComputedStyle(el).opacity);
         expect(opacity, section.id).toBe("1");
       }
@@ -123,6 +132,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       test.skip(width(page) !== 1440, "runs once at desktop width");
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       for (const section of study.sections) {
+        if (isMerged(study, section)) continue;
         const body = page.locator(`section#${section.id}`);
         await body.scrollIntoViewIfNeeded();
         await expect(body).toHaveAttribute("data-shown", "");
@@ -141,6 +151,7 @@ test("case-study system · JS off: the static HTML carries the whole story", { t
       if (PAPER.has(study.layout)) await expect(p.getByRole("heading", { level: 1 })).toContainText(name);
       else await expect(p.getByRole("heading", { level: 1 })).toHaveText(name);
       for (const section of study.sections) {
+        if (isMerged(study, section)) continue;
         await expect(p.getByRole("heading", { level: 2, name: headlineOf(study, section) })).toBeVisible();
       }
       await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();
