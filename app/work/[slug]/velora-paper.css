@@ -292,12 +292,17 @@
 .vlp-next-art { position: relative; width: 100%; overflow: hidden; }
 .vlp-next-art::before { content: ""; position: absolute; inset: 6% 0 0 24%; background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 22%, transparent), transparent); }
 [data-theme="dark"] .vlp-next-art::before { background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 26%, var(--color-ivory) 14%), transparent); }
-.vlp-next .vlp-next-art img[data-theme-art] { position: relative; width: 165%; max-width: none; margin-left: -62%; }
+/* === TASK-273 (Tushar 2026-10-19): the footer art is a tight crop of the cut-out scene (no empty left third baked into the file);
+   --fx is where the crop's left edge sits in the band, so the scene lands exactly where the old full-width image put it. === */
+.vlp-next .vlp-next-art img[data-theme-art="light"] { --fx: var(--fx-l); }
+.vlp-next .vlp-next-art img[data-theme-art="dark"] { --fx: var(--fx-d); }
+.vlp-next .vlp-next-art img[data-theme-art] { position: relative; width: calc(165% * (1 - var(--fx))); max-width: none; margin-left: calc(-62% + 165% * var(--fx)); }
 @media (min-width: 768px) {
-  .vlp-next .vlp-next-art img[data-theme-art] { width: 100%; margin-left: 0; }
+  .vlp-next .vlp-next-art img[data-theme-art] { width: calc(100% * (1 - var(--fx))); margin-left: calc(100% * var(--fx)); }
   .vlp-next-in { position: absolute; inset: 0; display: flex; justify-content: flex-start; align-items: center; padding-block: 0; pointer-events: none; }
   .vlp-next-link { pointer-events: auto; max-width: 380px; }
 }
+/* === end TASK-273 === */
 .vlp-next-link { display: grid; gap: 4px; text-decoration: none; color: var(--color-navy); padding: 12px 14px; border-radius: 14px; }
 .vlp-next-link:focus-visible { outline: 2px solid var(--color-kraft); outline-offset: 3px; }
 .vlp-next-eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--vlp-teal); }

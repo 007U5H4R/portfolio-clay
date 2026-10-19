@@ -13,6 +13,7 @@ import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components
 import { VelNav } from "./VelNav";
 import { ART, EVIDENCE, HERO, LEARNINGS, NAV, NEXT, PIVOT, PRODUCT, PROBLEM, RESEARCH, SECTION, SOURCES, SUPPORTS_OVERRIDE } from "./copy";
 import screens from "../../../public/media/case-studies/velora/art/hero-screen.json";
+import footerFit from "../../../public/media/case-studies/velora/art/footer-fit.json";
 
 const ART_DIR = "/media/case-studies/velora/art";
 
@@ -393,7 +394,7 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
 
       {/* ── Next project: the only place the first product is named; a wedding vendor-operations paper diorama ── */}
       <section className="vlp-next" aria-label="Next project">
-        <div className="vlp-next-art" aria-hidden="true">
+        <div className="vlp-next-art" aria-hidden="true" style={{ "--fx-l": footerFit.light.x0, "--fx-d": footerFit.dark.x0 } as CSSProperties}>
           <ThemedArt name="footer" size={ART.footer} />
         </div>
         <Container className="vlp-next-in">

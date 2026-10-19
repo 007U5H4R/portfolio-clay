@@ -156,6 +156,28 @@ test.describe("velora paper layout", () => {
     });
   }
 
+  // TASK-273: the art is cut out with a real alpha matte and shipped at >= 2x its rendered width (crisp on retina), at 1440 and 1920.
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1920, height: 1080 }]) {
+    test(`art is at least 2x its rendered width at ${viewport.width}`, async ({ page }) => {
+      test.skip(width(page) < 1024, "desktop-only sizing check");
+      await page.setViewportSize(viewport);
+      await page.goto("/work/velora", { waitUntil: "load" });
+      for (const theme of ["light", "dark"] as const) {
+        await setTheme(page, theme);
+        const imgs = page.locator(`.vlp-hero-scene img[data-theme-art="${theme}"], .vlp-step img, .vlp-next-art img[data-theme-art="${theme}"]`);
+        const count = await imgs.count();
+        expect(count).toBeGreaterThanOrEqual(6);
+        for (let i = 0; i < count; i++) {
+          const img = imgs.nth(i);
+          await img.scrollIntoViewIfNeeded();
+          await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+          const { natural, rendered, src } = await img.evaluate((el: HTMLImageElement) => ({ natural: el.naturalWidth, rendered: el.getBoundingClientRect().width, src: el.src }));
+          expect(natural, `${theme} ${src}`).toBeGreaterThanOrEqual(2 * rendered);
+        }
+      }
+    });
+  }
+
   test("no horizontal overflow at 375, 414, 768 and 1440 in light and dark", async ({ page }) => {
     test.skip(width(page) !== 1440, "sweeps its own widths once");
     for (const w of [375, 414, 768, 1440]) {
