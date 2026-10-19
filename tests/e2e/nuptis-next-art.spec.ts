@@ -6,6 +6,7 @@
  */
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
+import sharp from "sharp";
 
 const setTheme = (page: Page, theme: "light" | "dark") =>
   page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
@@ -68,7 +69,7 @@ async function bandStyles(page: Page) {
     return {
       surface, ring,
       front: front ? rgb(getComputedStyle(front).fill) : null,
-      h: col(".cs-next-h"), eyebrow: col(".cs-next-eyebrow"), note: col(".cs-next-note"), line: opt(".cs-next-line"),
+      h: col(".cs-next-h"), eyebrow: col(".cs-next-eyebrow"), note: opt(".cs-next-note"), line: opt(".cs-next-line"),
       paper: tok("--color-paper"), navy: tok("--color-navy"), rust: tok("--color-rust"), ivory: tok("--color-ivory"),
     };
   });
@@ -83,16 +84,17 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
 
     await setTheme(page, "light");
     const l = await bandStyles(page);
-    expect(l.surface).toEqual(l.paper); // cream = the paper token (#f7f1e7)
-    expect(l.front).toEqual(l.paper);
-    expect(l.surface[0]).toBeGreaterThan(230); // cream, not navy
-    for (const k of ["h", "eyebrow", "line", "note"] as const) expect(ratio(l[k]!, l.surface), `light ${k}`).toBeGreaterThanOrEqual(4.5);
+    expect(l.surface).toEqual([0xf7, 0xf0, 0xe7]); // the art's decoded field; one green level under the paper token (#f7f1e7)
+    for (let c = 0; c < 3; c++) expect(Math.abs(l.surface[c]! - l.paper[c]!)).toBeLessThanOrEqual(1);
+    expect(l.front).toEqual(l.surface);
+    expect(l.note).toBeNull(); // the supporting line replaces "next up"
+    for (const k of ["h", "eyebrow", "line"] as const) expect(ratio(l[k]!, l.surface), `light ${k}`).toBeGreaterThanOrEqual(4.5);
 
     await setTheme(page, "dark");
     const d = await bandStyles(page);
     expect(d.surface).toEqual(d.ivory); // dark band = the lifted-navy card tone, as today
     expect(d.surface[0]).toBeLessThan(60);
-    for (const k of ["h", "eyebrow", "line", "note"] as const) expect(ratio(d[k]!, d.surface), `dark ${k}`).toBeGreaterThanOrEqual(4.5);
+    for (const k of ["h", "eyebrow", "line"] as const) expect(ratio(d[k]!, d.surface), `dark ${k}`).toBeGreaterThanOrEqual(4.5);
   });
 
   test("light focus ring is rust (AA on cream)", async ({ page }) => {
@@ -111,6 +113,7 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
       await page.goto(`/work/${slug}`, { waitUntil: "load" });
       await band(page).scrollIntoViewIfNeeded();
       await expect(band(page).locator(".cs-next-line")).toHaveCount(0);
+      await expect(band(page).locator(".cs-next-note")).toHaveText("next up"); // bands without a line keep it
       expect(await band(page).getAttribute("data-tone")).toBeNull();
       await setTheme(page, "light");
       const l = await bandStyles(page);
@@ -120,6 +123,42 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
       await setTheme(page, "dark");
       const d = await bandStyles(page);
       expect(d.surface).toEqual(d.ivory);
+    });
+  }
+
+  for (const slug of ["cubicle", "nuptis", "tegaki"]) {
+    test(`${slug}: dark band has no light strip above it`, async ({ page }) => {
+      await page.goto(`/work/${slug}`, { waitUntil: "load" });
+      await setTheme(page, "dark");
+      await band(page).scrollIntoViewIfNeeded();
+      await page.waitForTimeout(600);
+      const d = await bandStyles(page);
+      expect(d.front).toEqual(d.surface); // the torn front is the band's own colour, not the cream --color-navy
+      // pixel probe: the bottom row of the torn edge (all front, no ridge) matches the band, across the width
+      const box = (await band(page).boundingBox())!;
+      const y = Math.round(box.y + 42);
+      const shot = await page.screenshot({ clip: { x: 0, y, width: 1280, height: 1 } });
+      const { data: bytes, info } = await sharp(shot).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      let worst = 0;
+      for (let i = 0; i < info.width; i++) for (let c = 0; c < 3; c++) worst = Math.max(worst, Math.abs(bytes[i * 3 + c]! - d.surface[c]!));
+      expect(worst, "max per-channel deviation from the band colour on the torn edge's bottom row").toBeLessThanOrEqual(6);
+    });
+  }
+
+  for (const width of [375, 414, 768, 1024, 1440]) {
+    test(`art clears the footer at the end of the page at ${width}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/work/nuptis", { waitUntil: "load" });
+      for (const theme of ["light", "dark"] as const) {
+        await setTheme(page, theme);
+        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        await page.waitForTimeout(1200); // the scroll-driven slide-over settles
+        const m = await page.evaluate((t) => {
+          const img = document.querySelector(`section[aria-label="Next project"] img.cs-next-art-${t}`)!.getBoundingClientRect();
+          return { artBottom: img.bottom, footerTop: document.querySelector("footer")!.getBoundingClientRect().top };
+        }, theme);
+        expect(m.footerTop - m.artBottom, `${theme}: gap between the art's bottom and the footer's top`).toBeGreaterThanOrEqual(8);
+      }
     });
   }
 

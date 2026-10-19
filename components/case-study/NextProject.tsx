@@ -30,7 +30,7 @@ export interface NextProjectProps {
   /** The next personal project in `/projects` index order (the page wraps around at the end). */
   project: Pick<Project, "slug" | "name">;
   art?: NextProjectArt | undefined;
-  /** TASK-279: an optional supporting line under the title (one short sentence). Omitted → nothing is rendered. */
+  /** TASK-279: an optional supporting line under the title (one short sentence). It replaces the "next up" note; omitted → the band is unchanged. */
   line?: string | undefined;
   /**
    * TASK-279: light-mode surface tone. Omitted → the navy band every study has today. `"cream"` → the band, its torn edge,
@@ -68,9 +68,11 @@ export function NextProject({ project, art, line, tone }: NextProjectProps) {
             {project.name} <span className="cs-next-arr" aria-hidden="true">→</span>
           </h2>
           {line ? <p className="cs-next-line">{line}</p> : null}
-          <Annotation size="lg" rotate={-1.5} className="cs-next-note">
-            next up
-          </Annotation>
+          {line ? null : (
+            <Annotation size="lg" rotate={-1.5} className="cs-next-note">
+              next up
+            </Annotation>
+          )}
           {art ? (
             <span className="cs-next-art" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
