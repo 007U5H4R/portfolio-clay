@@ -10,8 +10,10 @@ import { getCaseStudy } from "@/data/case-studies";
 import { portfolioEntries } from "@/data/portfolio";
 import { CaseStudyView } from "@/components/case-study/system/CaseStudyView";
 import { JournalView } from "@/components/case-study/journal/JournalView";
+import { PaperView } from "@/components/case-study/teachspark/PaperView";
 import "./case-study.css";
 import "./journal.css";
+import "./teachspark-paper.css";
 
 /**
  * Only the personal slugs are built; any other `/work/*` slug 404s (dynamicParams=false). Every
@@ -66,7 +68,9 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   return (
     <>
       <ProgressBar />
-      {study.layout === "journal" ? (
+      {study.layout === "paper" ? (
+        <PaperView project={project} study={study} portfolio={portfolio} next={nextProject} />
+      ) : study.layout === "journal" ? (
         <JournalView project={project} study={study} portfolio={portfolio} next={nextProject} />
       ) : (
         <CaseStudyView project={project} study={study} portfolio={portfolio} next={nextProject} />
