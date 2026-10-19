@@ -11,6 +11,7 @@ import type { CaseStudy } from "../schema";
  */
 export const bhaktiVilasCase: z.input<typeof CaseStudy> = {
   slug: "bhakti-vilas",
+  layout: "bhakti", // TASK-276: the origami paper-craft redesign (components/case-study/bhakti-vilas); every other record keeps its layout
   theme: {
     key: "bhakti-vilas",
     metaphor: "Dawn at a riverside temple: saffron light, diya-flame numerals, a devotional path rather than a clinical one",
