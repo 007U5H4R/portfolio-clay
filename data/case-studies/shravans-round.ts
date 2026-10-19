@@ -17,6 +17,7 @@ export const shravansRoundCase: z.input<typeof CaseStudy> = {
     accents: ["terracotta", "navy-2", "note"],
   },
   story: "Rehearse the round before the round",
+  layout: "shravans-round", // TASK-283: the paper-craft redesign (components/case-study/shravans-round)
   extraSources: [
     { id: "SR-CAPTURES", label: "The Shravan's Round live captures", ref: "shravans-round.vercel.app / and /feedback (captured 2026-10-17)", inventory: "§8.14" },
   ],
