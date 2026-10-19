@@ -12,7 +12,11 @@
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { SYSTEM_STUDIES } from "./case-study-system";
+import { LEARNINGS, SECTION } from "@/components/case-study/velora/copy";
 
+/** TASK-273: Velora's page headings and learnings are the brief's shorter copy (components/case-study/velora/copy.ts); the first product's evidence row is withheld from its drawer. */
+const PAPER = new Set(["paper", "railcite", "velora"]);
+const headlineOf = (study: { layout: string }, section: { id: string; headline: string }) => (study.layout === "velora" ? SECTION[section.id]!.headline : section.headline);
 const BASE_URL = process.env.PW_BASE_URL ?? "http://127.0.0.1:3000";
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const isEdge = (page: Page) => width(page) === 390 || width(page) === 1440;
@@ -26,7 +30,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       expect(res?.status()).toBe(200);
 
       await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-      if (study.layout === "paper" || study.layout === "railcite") {
+      if (PAPER.has(study.layout)) {
         // TASK-263/268: the paper layouts' h1 is the product name (visually hidden) + its headline; teachspark-paper.spec.ts covers the rest.
         await expect(page.getByRole("heading", { level: 1 })).toContainText(name);
       } else {
@@ -36,7 +40,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
 
       // Every story section is a labelled landmark whose h2 carries its one message (spec §30).
       for (const section of study.sections) {
-        const landmark = page.getByRole("region", { name: section.headline });
+        const landmark = page.getByRole("region", { name: headlineOf(study, section) });
         await expect(landmark, `section ${section.id}`).toHaveAttribute("id", section.id);
         for (const anchor of section.anchors) await expect(page.locator(`[id="${anchor}"]`)).toBeAttached();
       }
@@ -73,7 +77,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       await expect(dialog).toBeVisible();
       await expect(open).toHaveAttribute("aria-expanded", "true");
       await expect(dialog.locator(":focus")).toHaveCount(1);
-      await expect(dialog.getByRole("listitem")).toHaveCount(study.evidence.length);
+      await expect(dialog.getByRole("listitem")).toHaveCount(study.layout === "velora" ? study.evidence.length - 1 : study.evidence.length);
       // Tab (and Shift+Tab) never leaves the dialog.
       for (let i = 0; i < study.evidence.length + 3; i++) {
         await page.keyboard.press("Tab");
@@ -100,7 +104,8 @@ for (const { study, name } of SYSTEM_STUDIES) {
       test.skip(!learnings, "no learnings recorded for this product");
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       if (learnings && learnings.kind === "learnings") {
-        for (const item of learnings.items) await expect(page.getByRole("heading", { level: 3, name: item.title, exact: true })).toHaveCount(1);
+        const titles = study.layout === "velora" ? LEARNINGS.map((item) => item.title) : learnings.items.map((item) => item.title);
+        for (const title of titles) await expect(page.getByRole("heading", { level: 3, name: title, exact: true })).toHaveCount(1);
       }
     });
 
@@ -109,7 +114,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       await withReducedMotion(page);
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       for (const section of study.sections) {
-        const opacity = await page.locator(study.layout === "paper" || study.layout === "railcite" ? `section#${section.id}` : `section#${section.id} .csx-sec-body`).evaluate((el) => getComputedStyle(el).opacity);
+        const opacity = await page.locator(PAPER.has(study.layout) ? `section#${section.id}` : `section#${section.id} .csx-sec-body`).evaluate((el) => getComputedStyle(el).opacity);
         expect(opacity, section.id).toBe("1");
       }
     });
@@ -133,10 +138,10 @@ test("case-study system · JS off: the static HTML carries the whole story", { t
     const p = await context.newPage();
     for (const { study, name } of SYSTEM_STUDIES) {
       await p.goto(`/work/${study.slug}`, { waitUntil: "domcontentloaded" });
-      if (study.layout === "paper" || study.layout === "railcite") await expect(p.getByRole("heading", { level: 1 })).toContainText(name);
+      if (PAPER.has(study.layout)) await expect(p.getByRole("heading", { level: 1 })).toContainText(name);
       else await expect(p.getByRole("heading", { level: 1 })).toHaveText(name);
       for (const section of study.sections) {
-        await expect(p.getByRole("heading", { level: 2, name: section.headline })).toBeVisible();
+        await expect(p.getByRole("heading", { level: 2, name: headlineOf(study, section) })).toBeVisible();
       }
       await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();
     }

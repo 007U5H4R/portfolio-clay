@@ -13,7 +13,7 @@ import type { CaseStudy } from "../schema";
  */
 export const veloraCase: z.input<typeof CaseStudy> = {
   slug: "velora",
-  layout: "journal",
+  layout: "velora", // TASK-273: the origami paper-craft redesign (components/case-study/velora); every other record keeps its layout
   theme: {
     key: "velora",
     metaphor: "A fashion sourcing studio: linen moodboard, fabric swatches, garment tags, a stitched rail, sample-tag markers, the struck first concept",
