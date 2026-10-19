@@ -16642,11 +16642,12 @@ html[data-theme-vt]::view-transition-group(root) {
   .cfp,
   .sgp,
   .urp,
+  .srp,
   .tsp,
   .csx {
     --header-h: 69px;
   }
-  /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav; TASK-276 adds .bvp: Bhakti Vilas; TASK-278 adds .nup; TASK-280 adds .pra; TASK-281 adds .cfp; TASK-282 adds .sgp) === */
+  /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav; TASK-276 adds .bvp: Bhakti Vilas; TASK-278 adds .nup; TASK-280 adds .pra; TASK-281 adds .cfp; TASK-282 adds .sgp; TASK-283 adds .srp) === */
   .site-header {
     --ht-edge-w: 92px;
     --ht-mid-h: 14px;
