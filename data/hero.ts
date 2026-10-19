@@ -100,8 +100,8 @@ export const hero = {
   ],
   introVideo: {
     provider: "youtube",
-    videoId: "ZwlfSraVNr8",
+    videoId: "4x-T-dGwsng",
     title: "Tushar Pathak intro video",
-    source: "Tushar 2026-10-05: https://youtu.be/ZwlfSraVNr8, on Home in the hero",
+    source: "Tushar 2026-10-19 (TASK-269): https://youtu.be/4x-T-dGwsng, on Home in the hero (replaces ZwlfSraVNr8)",
   },
 } as const satisfies HeroCopy;
