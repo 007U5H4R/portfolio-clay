@@ -1,0 +1,318 @@
+/* ============================================================================================
+   TASK-282 · Slag City "arcade paper craft" case study (Tushar's brief sc.md + mockups).
+   Fenced: every selector starts with `.sgp` (the SlagCityView root, chosen by `layout: "slagcity"`), so no other case study
+   can match anything here. Same architecture as nuptis-paper.css (TASK-278). Paper tokens and color-mix() only (EVAL-020); the
+   arcade cabinet is the one fixed-dark object (oklch literals), identical in both themes like the real screens inside it.
+   The diorama art is painted on each theme's exact page colour (#f7f1e7 / #0b1530 = --color-paper), so the page background is
+   flat and a radial mask feathers each piece into it. Rust is the accent; a muted teal echoes the arcade HUD near the screens.
+   ============================================================================================ */
+
+.sgp {
+  --csx-soft: var(--color-ink-soft);
+  --csx-rule: color-mix(in oklab, var(--color-navy) 13%, transparent);
+  --csx-card: var(--color-ivory);
+  --sgp-bg: var(--color-paper);
+  --sgp-bg-2: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-kraft) 10%);
+  --sgp-card: color-mix(in oklab, var(--color-ivory) 92%, var(--color-paper));
+  --sgp-accent: var(--color-rust);
+  --sgp-on-accent: var(--color-ivory);
+  --sgp-accent-ink: color-mix(in oklab, var(--color-rust) 72%, var(--color-navy));
+  --sgp-teal: color-mix(in oklab, var(--color-rust) 78%, var(--color-navy));
+  --sgp-sage: color-mix(in oklab, var(--color-forest) 88%, var(--color-navy));
+  --sgp-primary: var(--color-navy);
+  --sgp-on-primary: var(--color-paper);
+  --sgp-t1: color-mix(in oklab, var(--color-rust) 15%, var(--sgp-card));
+  --sgp-t2: color-mix(in oklab, var(--color-steel) 17%, var(--sgp-card));
+  --sgp-t3: color-mix(in oklab, var(--color-green-2) 22%, var(--sgp-card));
+  --sgp-i1: var(--sgp-accent-ink);
+  --sgp-i2: color-mix(in oklab, var(--color-steel) 78%, var(--color-navy));
+  --sgp-i3: var(--color-forest);
+  --sgp-track: color-mix(in oklab, var(--color-navy) 34%, transparent);
+  --sgp-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 12%, transparent), 0 14px 28px -16px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  --sgp-shadow-hover: 0 2px 3px color-mix(in oklab, var(--color-navy) 14%, transparent), 0 22px 36px -16px color-mix(in oklab, var(--color-navy) 38%, transparent);
+  --sgp-offset: calc(var(--header-h) + 76px);
+}
+[data-theme="dark"] .sgp {
+  --csx-soft: var(--color-navy-2);
+  --sgp-bg-2: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory) 12%);
+  --sgp-card: color-mix(in oklab, var(--color-ivory) 82%, var(--color-paper));
+  --sgp-on-accent: var(--color-paper);
+  --sgp-accent-ink: var(--color-terracotta);
+  --sgp-teal: var(--color-terracotta);
+  --sgp-sage: var(--color-forest);
+  --sgp-primary: color-mix(in oklab, var(--color-terracotta) 66%, var(--color-kraft) 34%);
+  --sgp-on-primary: var(--color-paper);
+  --sgp-shadow: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 8%, transparent), 0 18px 30px -16px color-mix(in oklab, var(--color-paper) 85%, transparent);
+  --sgp-shadow-hover: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent), 0 24px 38px -16px color-mix(in oklab, var(--color-paper) 95%, transparent);
+}
+.sgp {
+  position: relative;
+  background: var(--sgp-bg);
+  color: var(--color-navy);
+  overflow-x: clip;
+}
+.sgp [id], .sgp-anchor { scroll-margin-top: var(--sgp-offset); }
+.sgp-anchor { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
+.sgp img { display: block; max-width: 100%; }
+.sgp :where(h1, h2, h3, p, ul, ol, figure, blockquote) { margin: 0; }
+.sgp :where(ul, ol) { padding: 0; list-style: none; }
+
+/* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
+.sgp [data-theme-art] { width: 100%; height: auto; }
+
+/* Shared paper bits */
+.sgp-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sgp-teal); }
+.sgp-h2 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 1.08; letter-spacing: -0.015em; max-width: 24ch; }
+.sgp-h3 { font-family: inherit; font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 0; }
+.sgp-p { font-size: clamp(1rem, 1.4vw, 1.125rem); line-height: 1.55; color: var(--color-navy-2); max-width: 60ch; }
+.sgp-small { font-size: 13px; line-height: 1.45; color: var(--csx-soft); }
+.sgp-date { font-size: 13px; color: var(--csx-soft); font-variant-numeric: tabular-nums; }
+.sgp-tile {
+  position: relative; flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px;
+  background: var(--sgp-t1); color: var(--sgp-i1);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 8%, transparent), 0 6px 10px -6px color-mix(in oklab, var(--color-navy) 30%, transparent);
+}
+.sgp-tile::after { /* folded corner */
+  content: ""; position: absolute; top: 0; right: 0; width: 13px; height: 13px; border-top-right-radius: 13px;
+  background: linear-gradient(225deg, var(--sgp-card) 0 50%, color-mix(in oklab, var(--color-navy) 16%, transparent) 50% 100%);
+}
+[data-i="2"] > .sgp-tile, .sgp-card[data-i="2"] .sgp-tile { background: var(--sgp-t2); color: var(--sgp-i2); }
+[data-i="3"] > .sgp-tile, .sgp-card[data-i="3"] .sgp-tile { background: var(--sgp-t3); color: var(--sgp-i3); }
+
+
+.sgp {
+  --sgp-cyan: color-mix(in oklab, var(--color-green-2) 62%, var(--color-steel));
+  --sgp-cab: oklch(0.2 0.03 40);
+  --sgp-cab-2: oklch(0.29 0.045 40);
+  --sgp-glow: oklch(0.72 0.17 52);
+}
+/* The art twins feather into the page with a radial mask (no box edge can show even if a pixel is a hair off the page hex). */
+.sgp-hero-art [data-theme-art], .sgp-sign [data-theme-art] {
+  -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 78%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 78%, transparent 100%);
+}
+
+/* ── Hero: the real attract screen in a paper-and-card arcade cabinet; the scrapyard diorama under it ── */
+.sgp-hero { position: relative; padding-top: clamp(20px, 3vw, 44px); }
+.sgp-hero-in { display: grid; gap: 18px; grid-template-areas: "copy" "visual"; }
+@media (min-width: 960px) { .sgp-hero-in { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); grid-template-areas: "visual copy"; column-gap: clamp(28px, 4vw, 64px); align-items: center; } }
+.sgp-hero-copy { grid-area: copy; min-width: 0; }
+.sgp-hero-visual { grid-area: visual; min-width: 0; display: grid; justify-items: center; }
+.sgp-crumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--csx-soft); margin-bottom: 14px !important; }
+.sgp-crumb a { color: var(--color-navy-2); }
+.sgp-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sgp-teal); margin-bottom: 4px !important; }
+.sgp-h1 { font-family: var(--font-display); font-size: clamp(3.6rem, 9vw, 6.8rem); line-height: 0.92; letter-spacing: 0.005em; font-weight: 700; text-transform: uppercase; font-stretch: 75%; }
+.sgp-tagline { margin-top: 10px !important; font-family: var(--font-display); font-style: italic; font-size: clamp(1.45rem, 2.8vw, 2.1rem); line-height: 1.14; color: var(--sgp-accent-ink); max-width: 22ch; }
+.sgp-lede { margin-top: 14px !important; max-width: 46ch; font-size: clamp(1.0625rem, 1.5vw, 1.2rem); line-height: 1.5; color: var(--color-navy-2); }
+.sgp-stats { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; max-width: 460px; }
+.sgp-stat {
+  position: relative; height: 100%; padding: 14px 16px; border-radius: 14px; background: var(--sgp-card); box-shadow: var(--sgp-shadow);
+  border-top: 4px solid var(--sgp-accent);
+}
+.sgp-stat-value { font-family: var(--font-display); font-size: clamp(2.2rem, 3.6vw, 3rem); line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.sgp-stat-label { margin-top: 6px !important; font-size: 14.5px; line-height: 1.3; font-weight: 500; }
+.sgp-stat-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px !important; }
+.sgp-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.sgp-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; font-size: 15.5px; font-weight: 600; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
+.sgp-btn-primary { background: var(--sgp-primary); color: var(--sgp-on-primary); box-shadow: var(--sgp-shadow); }
+.sgp-btn-ghost { border: 1.5px solid color-mix(in oklab, var(--color-navy) 38%, transparent); color: var(--color-navy); background: transparent; }
+@media (hover: hover) {
+  .sgp-btn:hover { transform: translateY(-1px); box-shadow: var(--sgp-shadow-hover); }
+  .sgp-btn-ghost:hover { background: color-mix(in oklab, var(--color-navy) 6%, transparent); }
+}
+
+.sgp-cabinet {
+  position: relative; z-index: 1; width: min(100%, 580px); margin: 0; padding: 0 clamp(10px, 2.4vw, 18px) clamp(12px, 2vw, 16px);
+  border-radius: 18px 18px 8px 8px; background: linear-gradient(180deg, var(--sgp-cab-2), var(--sgp-cab) 38%);
+  box-shadow: 0 2px 3px color-mix(in oklab, var(--color-navy) 20%, transparent), 0 26px 36px -20px color-mix(in oklab, var(--color-navy) 55%, transparent), inset 0 0 0 1.5px color-mix(in oklab, var(--sgp-glow) 22%, transparent);
+}
+.sgp-marquee {
+  margin-inline: calc(-1 * clamp(10px, 2.4vw, 18px)); padding: 10px 12px 8px; text-align: center; border-radius: 18px 18px 0 0;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--sgp-cab-2) 80%, var(--sgp-glow)), var(--sgp-cab-2));
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 4.4vw, 2.5rem); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--sgp-glow); text-shadow: 0 0 14px color-mix(in oklab, var(--sgp-glow) 55%, transparent);
+}
+.sgp-bezel { margin-top: 10px; padding: 7px; border-radius: 10px; background: oklch(0.12 0.02 250); box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--sgp-cyan) 40%, transparent), 0 0 20px -6px color-mix(in oklab, var(--sgp-cyan) 55%, transparent); }
+.sgp-bezel img { width: 100%; height: auto; border-radius: 4px; }
+.sgp-deck { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 12px; padding: 8px 18px; border-radius: 8px; background: color-mix(in oklab, var(--sgp-cab-2) 85%, black); }
+.sgp-stick { position: relative; width: 14px; height: 30px; border-radius: 7px; background: oklch(0.12 0.02 250); }
+.sgp-stick::before { content: ""; position: absolute; left: -5px; top: -10px; width: 24px; height: 24px; border-radius: 50%; background: var(--sgp-accent); box-shadow: inset -3px -4px 0 color-mix(in oklab, black 22%, transparent); }
+.sgp-btnrow { display: flex; gap: 10px; }
+.sgp-btnrow i { width: 20px; height: 20px; border-radius: 50%; background: var(--sgp-glow); box-shadow: inset -2px -3px 0 color-mix(in oklab, black 22%, transparent); }
+.sgp-btnrow i:nth-child(2) { background: var(--sgp-cyan); }
+.sgp-hero-art { position: relative; z-index: 0; width: min(100%, 560px); margin-top: -44px; aspect-ratio: var(--ar); pointer-events: none; }
+@media (max-width: 767px) { .sgp-hero-art { width: min(100%, 360px); margin-top: -16px; } }
+
+/* 01 · why it exists: constraint -> decision, the shortened PRD quote and a paper signboard */
+.sgp-why { display: grid; gap: 18px; margin-top: 6px; align-items: start; }
+@media (min-width: 900px) { .sgp-why { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; } }
+.sgp-why-flow { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+@media (min-width: 560px) { .sgp-why-flow { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; } }
+.sgp-why-card { display: grid; gap: 6px; align-content: start; padding: 16px; border-radius: 16px; background: var(--sgp-card); box-shadow: var(--sgp-shadow); border-top: 4px solid var(--color-steel); }
+.sgp-why-card[data-side="decision"] { border-top-color: var(--sgp-accent); }
+.sgp-why-card[data-side="decision"] .sgp-tile { background: var(--sgp-t1); color: var(--sgp-i1); }
+.sgp-why-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sgp-teal); margin-top: 6px !important; }
+.sgp-why-arrow { display: grid; place-items: center; color: var(--sgp-accent-ink); }
+@media (max-width: 559px) { .sgp-why-arrow { transform: rotate(90deg); padding-block: 2px; } }
+.sgp-why-side { display: grid; gap: 14px; justify-items: center; align-content: start; min-width: 0; }
+.sgp-quote { width: 100%; padding: 16px 20px; border-radius: 16px; background: var(--sgp-card); box-shadow: var(--sgp-shadow); border-left: 4px solid var(--sgp-accent); display: grid; gap: 8px; }
+.sgp-quote p { font-family: var(--font-display); font-style: italic; font-size: clamp(1.05rem, 1.6vw, 1.25rem); line-height: 1.35; }
+.sgp-quote figcaption { font-size: 13.5px; color: var(--csx-soft); }
+.sgp-sign { position: relative; width: min(100%, 250px); aspect-ratio: 900 / 831; pointer-events: none; }
+@media (min-width: 900px) { .sgp-sign { width: min(100%, 300px); } }
+
+/* 02 · the game: three real screens in paper frames */
+.sgp-shots { display: grid; gap: 22px; margin-top: 6px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 640px) { .sgp-shots { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sgp-shot[data-i="1"] { grid-column: 1 / -1; } .sgp-shot[data-i="3"] { justify-self: center; } }
+@media (min-width: 1000px) { .sgp-shots { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 230px; } .sgp-shot[data-i="1"] { grid-column: auto; } .sgp-shot[data-i="3"] { justify-self: stretch; } }
+.sgp-shot { display: grid; gap: 10px; min-width: 0; }
+.sgp-shot[data-i="3"] { width: min(100%, 230px); }
+.sgp-frame { padding: 8px; border-radius: 16px; background: var(--sgp-card); box-shadow: var(--sgp-shadow-hover); }
+.sgp-frame img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 0 0 3px oklch(0.14 0.02 250), 0 0 0 4px color-mix(in oklab, var(--sgp-cyan) 45%, transparent); }
+.sgp-frame[data-frame="phone"] { border-radius: 30px; padding: 10px; background: oklch(0.2 0.02 250); box-shadow: var(--sgp-shadow-hover), inset 0 0 0 1.5px color-mix(in oklab, var(--color-kraft) 55%, transparent); }
+.sgp-frame[data-frame="phone"] img { border-radius: 20px; box-shadow: none; }
+.sgp-shot[data-i="1"] .sgp-frame { transform: rotate(-0.4deg); }
+.sgp-shot[data-i="2"] .sgp-frame { transform: rotate(0.4deg); }
+.sgp-cap { display: grid; gap: 2px; justify-items: start; }
+.sgp-cap-t { font-family: var(--font-display); font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.2; }
+.sgp-cap-d { font-size: 14.5px; line-height: 1.4; color: var(--color-navy-2); }
+
+/* 03 · decision cards */
+.sgp-dl { display: grid; gap: 10px; }
+.sgp-dl dt { font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sgp-teal); }
+.sgp-dl dd { margin: 2px 0 0; font-size: 15px; line-height: 1.4; color: var(--color-navy-2); }
+.sgp-dl div:nth-child(2) dd { font-weight: 600; color: var(--color-navy); }
+
+/* 04 · how it works: five paper nodes on a left-to-right path (vertical below 900 px) */
+.sgp-system { display: grid; gap: 16px; margin-top: 4px; align-items: start; }
+@media (min-width: 1100px) { .sgp-system { grid-template-columns: minmax(0, 1fr) 270px; gap: 22px; } }
+.sgp-flow { display: grid; gap: 26px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .sgp-flow { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; } }
+.sgp-flow-step { position: relative; display: grid; gap: 3px; align-content: start; justify-items: start; padding: 14px; border-radius: 14px; background: var(--sgp-card); box-shadow: var(--sgp-shadow); border-top: 4px solid var(--sgp-accent); }
+.sgp-flow-step svg { color: var(--sgp-accent-ink); }
+.sgp-flow-step[data-i="3"] { border-top-color: var(--color-kraft); }
+.sgp-flow-step[data-i="4"] { border-top-color: var(--color-steel); }
+.sgp-flow-step[data-i="5"] { border-top-color: var(--color-green-2); }
+.sgp-flow-n { position: absolute; top: 10px; right: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--sgp-accent); color: var(--sgp-on-accent); font-size: 12px; font-weight: 700; }
+.sgp-flow-k { font-size: 15px; font-weight: 700; line-height: 1.25; margin-top: 4px; }
+.sgp-flow-v { font-size: 13.5px; line-height: 1.4; color: var(--csx-soft); }
+.sgp-flow-step + .sgp-flow-step::before { content: "↓"; position: absolute; left: 50%; top: -24px; width: 20px; transform: translateX(-50%); text-align: center; color: var(--sgp-accent-ink); font-weight: 700; }
+@media (min-width: 900px) { .sgp-flow-step + .sgp-flow-step::before { content: "→"; left: -20px; top: 18px; transform: none; width: 16px; } }
+.sgp-rules { padding: 16px 18px; border-radius: 14px; background: var(--sgp-card); box-shadow: var(--sgp-shadow); }
+.sgp-rules ul { display: grid; gap: 8px; margin-top: 10px; }
+.sgp-rules li { position: relative; padding-left: 18px; font-size: 14.5px; line-height: 1.45; color: var(--color-navy-2); }
+.sgp-rules li::before { content: ""; position: absolute; left: 2px; top: 0.6em; width: 7px; height: 7px; background: var(--sgp-accent); transform: rotate(45deg); }
+
+/* 05 · evidence: honest, a quiet bordered note */
+.sgp-evidence-grid { display: grid; gap: 16px; margin-top: 2px; align-items: start; }
+@media (min-width: 900px) { .sgp-evidence-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; } }
+.sgp-gaps { padding: 16px 20px; border-radius: 14px; border: 2px dashed color-mix(in oklab, var(--sgp-accent) 60%, transparent); background: color-mix(in oklab, var(--sgp-accent) 7%, transparent); }
+.sgp-gaps ul { display: grid; gap: 9px; margin-top: 10px; }
+.sgp-gaps li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.45; color: var(--color-navy); }
+.sgp-gaps li::before { content: "–"; position: absolute; left: 4px; color: var(--sgp-accent-ink); font-weight: 700; }
+
+
+/* ── Sticky navigator ─────────────────────────────────────────────────────────────────────── */
+.sgp-nav {
+  position: sticky; top: calc(var(--header-h) + 6px); z-index: 5; width: fit-content; max-width: calc(100% - 24px); margin: 26px auto 0; padding: 4px;
+  border-radius: 999px; background: color-mix(in oklab, var(--sgp-bg) 88%, transparent); border: 1px solid var(--csx-rule);
+  backdrop-filter: blur(8px); box-shadow: var(--sgp-shadow); overflow-x: auto; scrollbar-width: none;
+}
+.sgp-nav::-webkit-scrollbar { display: none; }
+.sgp-nav-list { display: flex; gap: 2px; }
+.sgp-nav-link { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--color-navy-2); text-decoration: none; white-space: nowrap; }
+.sgp-nav-n { font-size: 11.5px; font-weight: 700; color: var(--sgp-accent-ink); font-variant-numeric: tabular-nums; }
+.sgp-nav-link:hover { background: var(--sgp-t1); color: var(--color-navy); }
+.sgp-nav-link[aria-current="location"] { background: var(--sgp-primary); color: var(--sgp-on-primary); }
+.sgp-nav-link[aria-current="location"] .sgp-nav-n { color: inherit; }
+@media (max-width: 520px) { .sgp-nav-link { padding: 0 11px; } .sgp-nav-n { display: none; } }
+
+/* ── Numbered sections on a dashed coral line ─────────────────────────────────────────────── */
+.sgp-body { padding-block: clamp(10px, 2vw, 20px) clamp(40px, 5vw, 72px); }
+.sgp-sec { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: clamp(12px, 2vw, 28px); padding-block: clamp(30px, 4vw, 52px); min-width: 0; }
+@media (min-width: 1024px) { .sgp-sec { grid-template-columns: 56px minmax(0, 1fr); } }
+.sgp-num {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: var(--sgp-teal); color: var(--color-paper); font-family: var(--font-display); font-size: 14px; font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1024px) { .sgp-num { width: 46px; height: 46px; font-size: 17px; margin-left: 5px; } }
+[data-theme="dark"] .sgp-num { background: var(--color-note); color: var(--color-paper); }
+.sgp-sec::before { /* the dashed coral line joining one badge to the next */
+  content: ""; position: absolute; left: 17px; transform: translateX(-50%); top: calc(clamp(30px, 4vw, 52px) + 20px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 20px); width: 0; pointer-events: none;
+  border-left: 2px dashed color-mix(in oklab, var(--sgp-accent) 70%, transparent); opacity: 0.7;
+}
+@media (min-width: 1024px) { .sgp-sec::before { left: 28px; top: calc(clamp(30px, 4vw, 52px) + 26px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 26px); } }
+.sgp-sec:has(+ .sgp-sources)::before { display: none; }
+.sgp-sec-in { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.sgp-sec-in > * { min-width: 0; }
+
+/* 05 · cards */
+.sgp-cards { display: grid; gap: 14px; margin-top: 4px; }
+@media (min-width: 768px) { .sgp-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+.sgp-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 16px; background: var(--sgp-card); box-shadow: var(--sgp-shadow); border-top: 4px solid var(--sgp-accent); transition: transform 180ms ease, box-shadow 180ms ease; }
+.sgp-card[data-i="2"] { border-top-color: var(--color-steel); }
+.sgp-card[data-i="3"] { border-top-color: var(--color-green-2); }
+@media (hover: hover) { .sgp-card:hover { transform: translateY(-2px) rotate(-0.4deg); box-shadow: var(--sgp-shadow-hover); } }
+.sgp-card .sgp-tile { margin-bottom: 4px; }
+.sgp-card-n { position: absolute; top: 14px; right: 18px; font-family: var(--font-display); font-size: 1.5rem; color: color-mix(in oklab, var(--color-navy) 24%, transparent); }
+.sgp-card-p { font-size: 14.5px; line-height: 1.5; color: var(--color-navy-2); }
+
+/* Sources */
+.sgp-sources { display: grid; gap: 14px; padding-block: clamp(30px, 4vw, 52px) 0; border-top: 1px solid var(--csx-rule); }
+.sgp-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.sgp-tile-link, .sgp-tile-drawer .csx-drawer-open {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 16px; border-radius: 14px;
+  background: var(--sgp-t3); color: var(--color-navy); text-decoration: none; border: 0; text-align: left; font-size: 15px; font-weight: 600;
+  box-shadow: var(--sgp-shadow); transition: transform 160ms ease, box-shadow 160ms ease; cursor: pointer;
+}
+.sgp-tile-drawer .csx-drawer-open { justify-content: space-between; letter-spacing: 0; background: var(--sgp-primary); color: var(--sgp-on-primary); }
+@media (hover: hover) { .sgp-tile-link:hover, .sgp-tile-drawer .csx-drawer-open:hover { transform: translateY(-2px); box-shadow: var(--sgp-shadow-hover); } }
+.sgp-tile-icon { flex: none; color: var(--sgp-i3); }
+.sgp-tile-text { display: grid; flex: 1; }
+.sgp-tile-hint { font-size: 13px; font-weight: 400; color: var(--csx-soft); }
+.sgp-meta { margin-top: 2px; }
+
+
+/* Sources: artifact chips, then the link tiles */
+.sgp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sgp-chips li { padding: 6px 14px; border-radius: 999px; background: var(--sgp-t2); color: var(--color-navy); font-size: 14px; font-weight: 600; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 12%, transparent); }
+.sgp-label-2 { margin-top: 6px !important; }
+.sgp-tile-link[data-action="live"] { background: var(--sgp-accent); color: var(--sgp-on-accent); }
+.sgp-tile-link[data-action="pitch"], .sgp-tile-link[data-action="demo"] { background: var(--sgp-primary); color: var(--sgp-on-primary); }
+.sgp-tile-link[data-action="github"] { background: var(--sgp-t2); }
+.sgp-tile-link[data-action="live"] .sgp-tile-icon, .sgp-tile-link[data-action="pitch"] .sgp-tile-icon, .sgp-tile-link[data-action="demo"] .sgp-tile-icon,
+.sgp-tile-link[data-action="live"] .sgp-tile-hint, .sgp-tile-link[data-action="pitch"] .sgp-tile-hint, .sgp-tile-link[data-action="demo"] .sgp-tile-hint { color: inherit; }
+/* TASK-282: the next band's scroll-driven torn-lag slides it up over the article (up to 200 px; 120 px on phones), so the last
+   Sources row keeps this much clear space beneath it. */
+.sgp-body { padding-bottom: 200px; }
+@media (max-width: 767px) { .sgp-body { padding-bottom: 120px; } }
+
+/* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
+.sgp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 0; transform: translateY(14px); }
+.sgp [data-cs-reveal] { transition: opacity 420ms ease, transform 420ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .sgp [data-cs-reveal], .sgp-btn, .sgp-card, .sgp-tile-link { transition: none; }
+  .sgp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
+  .sgp-shot[data-i] .sgp-frame { transform: none; }
+}
+
+
+/* Dark: the chapter rosettes use the rust accent (the shared note tone is too dim against the navy page). */
+[data-theme="dark"] .sgp-num { background: var(--sgp-accent); color: var(--color-paper); }
+
+/* The next band sits right after this article: its title wraps beside the Shravan's Round art instead of running under it. */
+@media (min-width: 900px) {
+  .sgp ~ .cs-next .cs-next-art { width: clamp(340px, 34vw, 460px); }
+  .sgp ~ .cs-next .cs-next-h { max-width: calc(100% - clamp(340px, 34vw, 460px) - 16px); }
+}
+
+/* Phones and tablets: the real screen comes straight after the title block, before the numbers and buttons. */
+@media (max-width: 959px) {
+  .sgp-hero-in { display: flex; flex-direction: column; gap: 14px; }
+  .sgp-hero-copy { display: contents; }
+  .sgp-hero-visual { order: 1; }
+  .sgp-stats, .sgp-cta { order: 2; }
+  .sgp-stats { margin-top: 4px; }
+  .sgp-cta { margin-top: 0; }
+  .sgp-hero-visual .sgp-hero-art { margin-top: -6px; margin-bottom: 4px; }
+}
