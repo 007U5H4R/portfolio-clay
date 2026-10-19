@@ -2,9 +2,9 @@
 
 import { NewTabHint } from "@/components/common/NewTabHint";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Sheet } from "@/components/paper";
-import type { MediaMode, PortfolioProduct } from "@/lib/portfolio";
+import { stepIndex, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { ACTION_ICON, type ActionIcon } from "./action-icons";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 import { ProductLogo } from "./ProductLogo";
@@ -22,6 +22,12 @@ export interface ProductInfoPanelProps {
   total: number;
   /** TASK-210: the phone's "Watch demo / pitch" — switches the stage to that video and starts it. */
   onWatch: (mode: MediaMode) => void;
+  /**
+   * TASK-274: the desktop-only previous / next arrows (top right) and the pagination row under the actions. Omitted below
+   * 1024 px, so on a phone or tablet none of it is rendered — not merely hidden. `key` names the control so focus can be
+   * put back on it after the card remounts for the next product.
+   */
+  nav?: { products: readonly PortfolioProduct[]; onNavigate: (id: string, key: string) => void } | undefined;
 }
 
 type ExternalKind = "product" | "github" | "prd";
@@ -57,7 +63,7 @@ function StripBody({ icon: Icon, label, external }: { icon: ActionIcon | typeof 
  * tab. An action with nothing behind it is not rendered at all (no disabled dead buttons). The case
  * study link ("Explore the build", spec §4) keeps the recruiter hop to `/work/<slug>` (EVAL-002).
  */
-export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch }: ProductInfoPanelProps) {
+export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch, nav }: ProductInfoPanelProps) {
   const externals: { kind: ExternalKind; href: string }[] = [];
   if (product.productUrl) externals.push({ kind: "product", href: product.productUrl });
   if (product.githubUrl) externals.push({ kind: "github", href: product.githubUrl });
@@ -76,6 +82,11 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   const totalLabel = String(total).padStart(2, "0");
   const position = String(product.position).padStart(2, "0");
   const category = (product.tags ?? []).slice(0, 2).join(" · ");
+  // TASK-274: the same loop as the carousel (stepIndex wraps), so the arrows are never dead
+  const navIndex = nav ? nav.products.findIndex((p) => p.id === product.id) : -1;
+  const adjacent = (delta: number) => (nav && navIndex >= 0 ? nav.products[stepIndex(navIndex, delta, nav.products.length)] : undefined);
+  const prevProduct = adjacent(-1);
+  const nextProduct = adjacent(1);
 
   // the primary bar spells the video out; a half-width secondary keeps it short so two fit a row
   const mediaButton = (target: MediaMode, label: string, Icon: ActionIcon | typeof Play) => (
@@ -97,6 +108,16 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
 
   return (
     <Sheet as="div" variant="card" rotate={0.6} className="pf-info">
+      {nav && prevProduct && nextProduct ? (
+        <div className="pf-info-nav" role="group" aria-label="Browse products">
+          <button type="button" className="pf-info-arrow focus-ring" data-nav-key="prev" aria-label={`Previous: ${prevProduct.name}`} onClick={() => nav.onNavigate(prevProduct.id, "prev")}>
+            <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
+          </button>
+          <button type="button" className="pf-info-arrow focus-ring" data-nav-key="next" aria-label={`Next: ${nextProduct.name}`} onClick={() => nav.onNavigate(nextProduct.id, "next")}>
+            <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />
+          </button>
+        </div>
+      ) : null}
       <div className="pf-info-head">
       <PhoneTags tags={product.tags} />
       <p className="pf-info-kicker">
@@ -169,6 +190,21 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         </>
       ) : null}
       </div>
+      {nav ? (
+        <div className="pf-info-pager" role="group" aria-label="Product position">
+          {nav.products.map((p, index) => (
+            <button
+              key={p.id}
+              type="button"
+              className="pf-info-dot focus-ring"
+              data-nav-key={`dot-${p.id}`}
+              aria-label={`Open ${p.name}, ${index + 1} of ${nav.products.length}`}
+              aria-current={p.id === product.id ? "true" : undefined}
+              onClick={() => nav.onNavigate(p.id, `dot-${p.id}`)}
+            />
+          ))}
+        </div>
+      ) : null}
       {/* TASK-210: the phone's own actions + outcomes (display: none from 640 px up; the strips above are hidden below it) */}
       <PhoneActions product={product} stageId={stageId} onWatch={onWatch} />
       <PhoneOutcomes product={product} />

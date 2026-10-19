@@ -18910,3 +18910,219 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   }
 }
 /* === end TASK-275 === */
+
+/* === TASK-274 (Tushar 2026-10-19): desktop product tray as a centred stage + the product card's own previous / next + pager ===
+   >= 1024 px only (the phone list / detail and the 640-1023 tray are untouched; the pager, the card arrows and the card pager are
+   not even rendered below it). The selected cover is centred, raised and ringed; neighbours step back (`data-rel` = signed distance
+   from the selection); the edge covers fade out through a mask on the track. Perspective is a small rotateY on the cover's own
+   frame only (the poster is never filtered or separately transformed). Transform / opacity only, no loop. Unlayered, after the
+   TASK-217 rules it overrides. === */
+@media (min-width: 1024px) {
+  .pf-showcase .pf-carousel {
+    grid-template-areas:
+      "tag tag tag"
+      "prev track next"
+      ". dots .";
+    row-gap: 2px;
+    padding-bottom: 12px;
+  }
+  .pf-showcase .pf-carousel-tag {
+    margin-left: clamp(54px, 5.4vw, 70px);
+    align-items: baseline;
+  }
+  .pf-showcase .pf-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-track {
+    --pf-gap: clamp(12px, 1.4vw, 22px);
+    --pf-thumb-w: clamp(150px, 12.2vw, 176px);
+    padding: 34px calc(50% - var(--pf-thumb-w) / 2) 30px;
+    scroll-snap-type: none;
+    scroll-padding-inline: 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10%, #000 90%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 10%, #000 90%, transparent 100%);
+  }
+  .pf-showcase .pf-track .pf-thumb {
+    --pf-ry: 0deg;
+    scale: 0.94;
+    translate: none;
+    transform: perspective(1100px) rotateY(var(--pf-ry));
+    transform-origin: 50% 60%;
+    z-index: 0;
+  }
+  .pf-showcase .pf-track .pf-thumb[data-rel="-1"] { --pf-ry: 5deg; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="1"] { --pf-ry: -5deg; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="-2"] { --pf-ry: 7deg; scale: 0.89; translate: 0 8px; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="2"] { --pf-ry: -7deg; scale: 0.89; translate: 0 8px; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="-3"] { --pf-ry: 8deg; scale: 0.84; translate: 0 12px; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="3"] { --pf-ry: -8deg; scale: 0.84; translate: 0 12px; }
+  .pf-showcase .pf-track .pf-thumb[aria-selected="true"] {
+    --pf-ry: 0deg;
+    scale: 1.13;
+    translate: 0 -10px;
+    z-index: 2;
+    box-shadow:
+      0 0 0 1.5px var(--ps-accent-ink),
+      inset 0 1px 0 var(--ps-hi),
+      0 3px 0 var(--ps-under),
+      0 20px 22px -10px var(--ps-drop);
+  }
+  .pf-showcase .pf-track .pf-thumb[aria-selected="true"] .pf-thumb-name {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pf-showcase .pf-track .pf-thumb:not([aria-selected="true"]):hover {
+      translate: 0 -2px;
+    }
+  }
+
+  /* pagination: one short dash per product (a 44 px tall hit area around each), the selected one longer and terracotta */
+  .pf-showcase .pf-pager {
+    grid-area: dots;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+  }
+  .pf-showcase .pf-pager-dot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    margin-inline: -6px; /* 44 px hit box, 32 px pitch: the row stays short */
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .pf-showcase .pf-pager-dot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 6px;
+    translate: -50% -50%;
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--color-steel) 55%, transparent);
+    transition: width 220ms var(--ease-paper), background-color 220ms var(--ease-paper);
+  }
+  .pf-showcase .pf-pager-dot:hover::before {
+    background: color-mix(in oklab, var(--color-steel) 85%, transparent);
+  }
+  .pf-showcase .pf-pager-dot[aria-current="true"]::before {
+    width: 30px;
+    background: var(--ps-accent-ink);
+  }
+
+  /* the product card: previous / next top right, a pager under the actions; ←/→ and a sideways drag step products */
+  .pf-showcase .pf-info.paper-sheet {
+    position: relative;
+    touch-action: pan-y;
+  }
+  .pf-showcase .pf-feature:focus {
+    outline: none;
+  }
+  .pf-showcase .pf-info-nav {
+    position: absolute;
+    top: clamp(10px, 1.1vw, 16px);
+    right: clamp(12px, 1.2vw, 18px);
+    z-index: 2;
+    display: flex;
+    gap: 6px;
+  }
+  .pf-showcase .pf-info-arrow {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    cursor: pointer;
+    border: 0;
+    border-radius: 50%;
+    color: var(--color-navy);
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 0 0 1px var(--ps-edge),
+      0 2px 0 var(--ps-under),
+      0 5px 8px -5px var(--ps-drop);
+    transition: translate 180ms var(--ease-paper), box-shadow 180ms var(--ease-paper);
+  }
+  .pf-showcase .pf-info-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-showcase .pf-info-arrow:hover {
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 0 0 1.5px var(--ps-accent-ink),
+      0 2px 0 var(--ps-under),
+      0 5px 8px -5px var(--ps-drop);
+  }
+  .pf-showcase .pf-info-arrow:active {
+    translate: 0 1px;
+  }
+  .pf-showcase .pf-info-kicker {
+    padding-right: 98px;
+    gap: 4px 8px;
+  }
+  .pf-showcase .pf-info-kicker .pf-info-category {
+    padding-left: 8px;
+    white-space: nowrap;
+  }
+  /* the pager rides in the sheet's bottom padding (extended by 18 px) so the card does not grow past the 16:9 stage (TASK-267) */
+  .pf-showcase .pf-info.paper-sheet {
+    padding-bottom: calc(clamp(20px, 2.4vw, 32px) + 18px);
+  }
+  .pf-showcase .pf-info-pager {
+    position: absolute;
+    inset: auto 0 2px;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-info-dot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    margin-inline: -5px; /* 44 px hit box, 34 px pitch */
+    pointer-events: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .pf-showcase .pf-info-dot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 5px;
+    translate: -50% -50%;
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--color-steel) 55%, transparent);
+    transition: width 220ms var(--ease-paper), background-color 220ms var(--ease-paper);
+  }
+  .pf-showcase .pf-info-dot[aria-current="true"]::before {
+    width: 22px;
+    background: var(--ps-accent-ink);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-showcase .pf-track .pf-thumb,
+    .pf-showcase .pf-pager-dot::before,
+    .pf-showcase .pf-info-arrow,
+    .pf-showcase .pf-info-dot::before {
+      transition: none;
+    }
+  }
+}
+/* === end TASK-274 === */
