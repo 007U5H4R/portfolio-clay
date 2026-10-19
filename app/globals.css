@@ -7482,10 +7482,11 @@ html.lenis body {
    below the first screen). Reuses the portfolio player's screen (`.pf-stage-screen` 16:9, `.pf-play`,
    `.pf-player`). The print is content paper with one tape fastener: the decoration count is unchanged. */
 @layer components {
-  /* 560 px keeps the h1 + CTAs within one scroll at >= 768 (Dev-39) with the print above them. */
+  /* TASK-269 (Tushar 2026-10-19): the intro plays big — up to 960 px, near the hero's full width (was 560 px,
+     Dev-39's keep-the-h1-in-the-first-scroll cap; Tushar chose the bigger video over that). */
   .hero-intro {
     justify-self: center;
-    width: min(100%, 560px);
+    width: min(100%, 960px);
     margin-top: clamp(22px, 2.4vw, 34px);
   }
   .hero-intro-print {
