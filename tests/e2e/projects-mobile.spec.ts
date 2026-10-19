@@ -289,6 +289,17 @@ test.describe("Portfolio on phones (TASK-210)", () => {
     expect(primary.width).toBeGreaterThan(250);
     expect(primary.height).toBeGreaterThanOrEqual(44);
   });
+
+  test("no folded-paper ridge strip sits between the back bar and the hero (TASK-266)", async ({ page }) => {
+    for (const p of PERSONAL.slice(0, 3)) {
+      await openList(page, `?product=${p.slug}`);
+      await expect(detailName(page)).toBeVisible();
+      await expect(page.locator(".pf-m-ridge")).toHaveCount(0);
+      // the bar is just the back button + title row: no art row under it
+      const bar = await page.locator(".pf-m-bar").boundingBox();
+      expect(bar!.height).toBeLessThan(64);
+    }
+  });
 });
 
 test.describe("Portfolio at ≥ 640: the phone design stays out of the way (TASK-210)", () => {

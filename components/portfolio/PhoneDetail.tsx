@@ -26,8 +26,6 @@ export function PhoneDetailBar({ name, logo, onBack }: { name: string; logo?: Pr
       <p className="pf-m-bar-title" aria-hidden="true" data-logo={logo ? "" : undefined}>
         {logo ? <ProductLogo name={name} logo={logo} /> : name}
       </p>
-      {/* TASK-257: the folded-paper ridge under the site header (decorative; pointer-events: none; theme variant by CSS) */}
-      <span className="pf-m-ridge" aria-hidden="true" />
     </div>
   );
 }
