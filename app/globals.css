@@ -18903,3 +18903,50 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   }
 }
 /* === end TASK-271 === */
+
+/* === TASK-275 (Tushar 2026-10-19): Bhakti Vilas artwork in the Nuptis next-project band ===
+   The WebPs are painted on each theme's exact band colour (#0d1734 light, #172646 dark), so there is no
+   cutout; a soft mask feathers the edges into the band. Unlayered: it adds to the layered .cs-next rules. */
+.cs-next-link {
+  position: relative;
+}
+.cs-next-art {
+  display: block;
+  margin-top: 8px;
+  pointer-events: none;
+}
+.cs-next-art-img {
+  display: block;
+  width: min(100%, 420px);
+  height: auto;
+  margin-inline: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
+  mask-composite: intersect;
+}
+.cs-next-art-dark {
+  display: none;
+}
+[data-theme="dark"] .cs-next-art-light {
+  display: none;
+}
+[data-theme="dark"] .cs-next-art-dark {
+  display: block;
+}
+@media (min-width: 900px) {
+  .cs-next-link:has(.cs-next-art) {
+    min-height: calc(clamp(380px, 38vw, 540px) * 0.664 + 16px);
+  }
+  .cs-next-art {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    width: clamp(380px, 38vw, 540px);
+  }
+  .cs-next-art-img {
+    width: 100%;
+  }
+}
+/* === end TASK-275 === */
