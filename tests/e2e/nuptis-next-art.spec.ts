@@ -97,6 +97,19 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
     for (const k of ["h", "eyebrow", "line"] as const) expect(ratio(d[k]!, d.surface), `dark ${k}`).toBeGreaterThanOrEqual(4.5);
   });
 
+  test("unfocused band link has no outline or box-shadow (the rust line in crops is the fixed reading-progress bar)", async ({ page }) => {
+    await page.goto("/work/nuptis", { waitUntil: "load" });
+    for (const theme of ["light", "dark"] as const) {
+      await setTheme(page, theme);
+      await band(page).scrollIntoViewIfNeeded();
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      await page.mouse.move(2, 2);
+      const st = await band(page).locator("a").evaluate((el) => { const c = getComputedStyle(el); return { outline: c.outlineStyle, width: c.outlineWidth, shadow: c.boxShadow }; });
+      expect(st.outline === "none" || st.width === "0px", `${theme} outline`).toBe(true);
+      expect(st.shadow, `${theme} box-shadow`).toBe("none");
+    }
+  });
+
   test("light focus ring is rust (AA on cream)", async ({ page }) => {
     await page.goto("/work/nuptis", { waitUntil: "load" });
     await setTheme(page, "light");
