@@ -104,7 +104,7 @@ test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the UR
   // TASK-130 (Dev-131): the case study opens in a new tab; /projects stays put.
   const study = await openCaseStudy(page, cs);
   await expect(study).toHaveURL(new RegExp(`/work/${PERSONAL[0]!.slug}$`));
-  await expect(study.getByRole("heading", { level: 1 })).toHaveText(PERSONAL[0]!.name);
+  await expect(study.getByRole("heading", { level: 1 })).toContainText(PERSONAL[0]!.name); // TASK-263: the h1 carries the headline too
   await study.close();
 });
 
