@@ -1,0 +1,279 @@
+/* ============================================================================================
+   TASK-284 · Urja "paper craft" case study (Tushar's brief urja.md + mockup).
+   Fenced: every selector starts with `.urp` (the UrjaView root, chosen by `layout: "urja"`), so no other case study can
+   match anything here. Same architecture as nuptis-paper.css (TASK-278). Paper tokens and color-mix() only (EVAL-020).
+   The hero diorama is painted on each theme's exact page colour (--color-paper), so the page background is flat and a soft
+   edge mask feathers the art into it. The real captures are dark UI: they sit in a navy paper frame in both themes.
+   ============================================================================================ */
+
+.urp {
+  --csx-soft: var(--color-ink-soft);
+  --csx-rule: color-mix(in oklab, var(--color-navy) 13%, transparent);
+  --csx-card: var(--color-ivory);
+  --urp-bg: var(--color-paper);
+  --urp-bg-2: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-kraft) 10%);
+  --urp-card: color-mix(in oklab, var(--color-ivory) 92%, var(--color-paper));
+  --urp-accent: var(--color-rust);
+  --urp-on-accent: var(--color-ivory);
+  --urp-accent-ink: color-mix(in oklab, var(--color-rust) 72%, var(--color-navy));
+  --urp-teal: color-mix(in oklab, var(--color-rust) 78%, var(--color-navy));
+  --urp-sage: color-mix(in oklab, var(--color-forest) 88%, var(--color-navy));
+  --urp-primary: var(--color-navy);
+  --urp-on-primary: var(--color-paper);
+  --urp-t1: color-mix(in oklab, var(--color-rust) 15%, var(--urp-card));
+  --urp-t2: color-mix(in oklab, var(--color-steel) 17%, var(--urp-card));
+  --urp-t3: color-mix(in oklab, var(--color-green-2) 22%, var(--urp-card));
+  --urp-i1: var(--urp-accent-ink);
+  --urp-i2: color-mix(in oklab, var(--color-steel) 78%, var(--color-navy));
+  --urp-i3: var(--color-forest);
+  --urp-track: color-mix(in oklab, var(--color-navy) 34%, transparent);
+  --urp-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 12%, transparent), 0 14px 28px -16px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  --urp-shadow-hover: 0 2px 3px color-mix(in oklab, var(--color-navy) 14%, transparent), 0 22px 36px -16px color-mix(in oklab, var(--color-navy) 38%, transparent);
+  --urp-offset: calc(var(--header-h) + 76px);
+}
+[data-theme="dark"] .urp {
+  --csx-soft: var(--color-navy-2);
+  --urp-bg-2: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory) 12%);
+  --urp-card: color-mix(in oklab, var(--color-ivory) 82%, var(--color-paper));
+  --urp-on-accent: var(--color-paper);
+  --urp-accent-ink: var(--color-terracotta);
+  --urp-teal: var(--color-terracotta);
+  --urp-sage: var(--color-forest);
+  --urp-primary: color-mix(in oklab, var(--color-terracotta) 66%, var(--color-kraft) 34%);
+  --urp-on-primary: var(--color-paper);
+  --urp-shadow: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 8%, transparent), 0 18px 30px -16px color-mix(in oklab, var(--color-paper) 85%, transparent);
+  --urp-shadow-hover: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent), 0 24px 38px -16px color-mix(in oklab, var(--color-paper) 95%, transparent);
+}
+.urp {
+  position: relative;
+  background: var(--urp-bg);
+  color: var(--color-navy);
+  overflow-x: clip;
+}
+.urp [id], .urp-anchor { scroll-margin-top: var(--urp-offset); }
+.urp-anchor { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
+.urp img { display: block; max-width: 100%; }
+.urp :where(h1, h2, h3, p, ul, ol, figure, blockquote) { margin: 0; }
+.urp :where(ul, ol) { padding: 0; list-style: none; }
+
+/* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
+.urp [data-theme-art] { width: 100%; height: auto; }
+
+/* Shared paper bits */
+.urp-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--urp-teal); }
+.urp-h2 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 1.08; letter-spacing: -0.015em; max-width: 24ch; }
+.urp-h3 { font-family: inherit; font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 0; }
+.urp-p { font-size: clamp(1rem, 1.4vw, 1.125rem); line-height: 1.55; color: var(--color-navy-2); max-width: 60ch; }
+.urp-small { font-size: 13px; line-height: 1.45; color: var(--csx-soft); }
+.urp-tile {
+  position: relative; flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px;
+  background: var(--urp-t1); color: var(--urp-i1);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 8%, transparent), 0 6px 10px -6px color-mix(in oklab, var(--color-navy) 30%, transparent);
+}
+.urp-tile::after { /* folded corner */
+  content: ""; position: absolute; top: 0; right: 0; width: 13px; height: 13px; border-top-right-radius: 13px;
+  background: linear-gradient(225deg, var(--urp-card) 0 50%, color-mix(in oklab, var(--color-navy) 16%, transparent) 50% 100%);
+}
+[data-i="2"] > .urp-tile, .urp-card[data-i="2"] .urp-tile { background: var(--urp-t2); color: var(--urp-i2); }
+[data-i="3"] > .urp-tile, .urp-card[data-i="3"] .urp-tile { background: var(--urp-t3); color: var(--urp-i3); }
+
+/* 03 · system: a horizontal paper flow + the key rules */
+.urp-system { display: grid; gap: 16px; margin-top: 4px; align-items: start; }
+@media (min-width: 1100px) { .urp-system { grid-template-columns: minmax(0, 1fr) 280px; gap: 22px; } }
+.urp-flow { display: grid; gap: 22px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.urp-flow-step { position: relative; display: grid; gap: 4px; align-content: start; justify-items: start; padding: 14px 14px 14px; border-radius: 14px; background: var(--urp-card); box-shadow: var(--urp-shadow); border-top: 4px solid var(--urp-accent); }
+.urp-flow-step svg { color: var(--urp-accent-ink); }
+.urp-flow-step[data-i="3"] { border-top-color: var(--color-kraft); }
+.urp-flow-step[data-i="4"] { border-top-color: var(--color-steel); }
+.urp-flow-step[data-i="5"] { border-top-color: var(--color-green-2); }
+.urp-flow-k { font-size: 15px; font-weight: 700; line-height: 1.25; margin-top: 4px; }
+.urp-flow-v { font-size: 13.5px; line-height: 1.4; color: var(--csx-soft); }
+.urp-flow-step + .urp-flow-step::before { content: "→"; position: absolute; left: -20px; top: 18px; width: 16px; text-align: center; color: var(--urp-accent-ink); font-weight: 700; }
+.urp-flow-step:nth-child(odd)::before { content: none; }
+@media (min-width: 640px) { .urp-flow { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; } .urp-flow-step:nth-child(odd)::before { content: "→"; } }
+.urp-rules { padding: 16px 18px; border-radius: 14px; background: var(--urp-card); box-shadow: var(--urp-shadow); }
+.urp-rules ul { display: grid; gap: 8px; margin-top: 10px; }
+.urp-rules li { position: relative; padding-left: 18px; font-size: 14.5px; line-height: 1.45; color: var(--color-navy-2); }
+.urp-rules li::before { content: ""; position: absolute; left: 2px; top: 0.6em; width: 7px; height: 7px; background: var(--urp-accent); transform: rotate(45deg); }
+
+/* ── Sticky navigator ─────────────────────────────────────────────────────────────────────── */
+.urp-nav {
+  position: sticky; top: calc(var(--header-h) + 6px); z-index: 5; width: fit-content; max-width: calc(100% - 24px); margin: 26px auto 0; padding: 4px;
+  border-radius: 999px; background: color-mix(in oklab, var(--urp-bg) 88%, transparent); border: 1px solid var(--csx-rule);
+  backdrop-filter: blur(8px); box-shadow: var(--urp-shadow); overflow-x: auto; scrollbar-width: none;
+}
+.urp-nav::-webkit-scrollbar { display: none; }
+.urp-nav-list { display: flex; gap: 2px; }
+.urp-nav-link { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--color-navy-2); text-decoration: none; white-space: nowrap; }
+.urp-nav-n { font-size: 11.5px; font-weight: 700; color: var(--urp-accent-ink); font-variant-numeric: tabular-nums; }
+.urp-nav-link:hover { background: var(--urp-t1); color: var(--color-navy); }
+.urp-nav-link[aria-current="location"] { background: var(--urp-primary); color: var(--urp-on-primary); }
+.urp-nav-link[aria-current="location"] .urp-nav-n { color: inherit; }
+@media (max-width: 520px) { .urp-nav-link { padding: 0 11px; } .urp-nav-n { display: none; } }
+
+/* ── Numbered sections on a dashed coral line ─────────────────────────────────────────────── */
+.urp-body { padding-block: clamp(10px, 2vw, 20px) clamp(40px, 5vw, 72px); }
+.urp-sec { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: clamp(12px, 2vw, 28px); padding-block: clamp(30px, 4vw, 52px); min-width: 0; }
+@media (min-width: 1024px) { .urp-sec { grid-template-columns: 56px minmax(0, 1fr); } }
+.urp-num {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: var(--urp-teal); color: var(--color-paper); font-family: var(--font-display); font-size: 14px; font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1024px) { .urp-num { width: 46px; height: 46px; font-size: 17px; margin-left: 5px; } }
+[data-theme="dark"] .urp-num { background: var(--color-note); color: var(--color-paper); }
+.urp-sec::before { /* the dashed coral line joining one badge to the next */
+  content: ""; position: absolute; left: 17px; transform: translateX(-50%); top: calc(clamp(30px, 4vw, 52px) + 20px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 20px); width: 0; pointer-events: none;
+  border-left: 2px dashed color-mix(in oklab, var(--urp-accent) 70%, transparent); opacity: 0.7;
+}
+@media (min-width: 1024px) { .urp-sec::before { left: 28px; top: calc(clamp(30px, 4vw, 52px) + 26px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 26px); } }
+.urp-sec:has(+ .urp-sources)::before { display: none; }
+.urp-sec-in { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.urp-sec-in > * { min-width: 0; }
+
+/* Sources */
+.urp-sources { display: grid; gap: 14px; padding-block: clamp(30px, 4vw, 52px) 0; border-top: 1px solid var(--csx-rule); }
+.urp-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.urp-tile-link, .urp-drawer .csx-drawer-open {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 16px; border-radius: 14px;
+  background: var(--urp-t3); color: var(--color-navy); text-decoration: none; border: 0; text-align: left; font-size: 15px; font-weight: 600;
+  box-shadow: var(--urp-shadow); transition: transform 160ms ease, box-shadow 160ms ease; cursor: pointer;
+}
+.urp-drawer .csx-drawer-open { justify-content: space-between; letter-spacing: 0; background: var(--urp-primary); color: var(--urp-on-primary); }
+@media (hover: hover) { .urp-tile-link:hover, .urp-drawer .csx-drawer-open:hover { transform: translateY(-2px); box-shadow: var(--urp-shadow-hover); } }
+.urp-tile-icon { flex: none; color: var(--urp-i3); }
+.urp-tile-text { display: grid; flex: 1; }
+.urp-tile-hint { font-size: 13px; font-weight: 400; color: var(--csx-soft); }
+.urp-meta { margin-top: 2px; }
+
+/* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
+.urp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 0; transform: translateY(14px); }
+.urp [data-cs-reveal] { transition: opacity 420ms ease, transform 420ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .urp [data-cs-reveal], .urp-btn, .urp-metric, .urp-card, .urp-stat, .urp-tile-link { transition: none; }
+  .urp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
+}
+
+
+/* ── Hero: copy left; the real Today capture (the pitch video's poster) right; proofs + the diorama below ── */
+.urp-hero { position: relative; padding-top: clamp(20px, 3vw, 44px); }
+.urp-hero-in { display: grid; gap: 22px; }
+@media (min-width: 1024px) { .urp-hero-in { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); column-gap: clamp(24px, 3vw, 48px); align-items: center; } }
+.urp-crumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--csx-soft); margin-bottom: 16px !important; }
+.urp-crumb a { color: var(--color-navy-2); }
+.urp-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--urp-teal); margin-bottom: 8px !important; }
+.urp-h1 { font-size: clamp(3.6rem, 9vw, 6.6rem); line-height: 0.96; letter-spacing: -0.03em; font-weight: 500; }
+.urp-tagline { margin-top: 8px !important; font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.12; color: var(--urp-accent-ink); max-width: 20ch; }
+.urp-lede { margin-top: 16px !important; max-width: 46ch; font-size: clamp(1.0625rem, 1.5vw, 1.2rem); line-height: 1.5; color: var(--color-navy-2); }
+.urp-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.urp-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; font-size: 15.5px; font-weight: 600; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
+.urp-btn-primary { background: var(--urp-primary); color: var(--urp-on-primary); box-shadow: var(--urp-shadow); }
+.urp-btn-ghost { border: 1.5px solid color-mix(in oklab, var(--color-navy) 38%, transparent); color: var(--color-navy); background: transparent; }
+@media (hover: hover) {
+  .urp-btn:hover { transform: translateY(-1px); box-shadow: var(--urp-shadow-hover); }
+  .urp-btn-ghost:hover { background: color-mix(in oklab, var(--color-navy) 6%, transparent); }
+}
+.urp-dash { display: grid; gap: 8px; min-width: 0; }
+.urp-small { text-align: center; }
+.urp-sec .urp-small { text-align: left; }
+
+/* The paper frame round a real capture: a navy mount in both themes, so the dark product UI sits on paper */
+.urp-frame { padding: 8px; border-radius: 18px; background: var(--urp-card); box-shadow: var(--urp-shadow-hover); }
+.urp-frame-dark { background: color-mix(in oklab, var(--color-navy) 90%, var(--color-ivory)); }
+[data-theme="dark"] .urp-frame-dark { background: color-mix(in oklab, var(--color-ivory) 70%, var(--color-paper)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 22%, transparent), 0 18px 30px -16px color-mix(in oklab, var(--color-paper) 90%, transparent); }
+.urp-frame img, .urp-player { display: block; width: 100%; height: auto; border-radius: 12px; }
+.urp-frame img { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-ivory) 14%, transparent); }
+.urp-player { position: relative; overflow: hidden; aspect-ratio: 1400 / 875; background: var(--color-navy); }
+.urp-player > img, .urp-player > iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0; box-shadow: none; }
+.urp-player > .pf-play { position: absolute; right: 14px; bottom: 14px; --pf-play: clamp(52px, 5vw, 72px); } /* bottom-right, clear of the Today UI */
+
+.urp-hero-low { display: grid; gap: 18px; padding-top: clamp(18px, 2.4vw, 30px); align-items: center; }
+@media (min-width: 900px) { .urp-hero-low { grid-template-columns: minmax(0, 1fr) min(100%, 430px); gap: clamp(20px, 3vw, 48px); } }
+.urp-metrics { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 767px) { .urp-metrics { grid-template-columns: 1fr; } }
+.urp-metric {
+  position: relative; display: block; height: 100%; padding: 14px 16px; border-radius: 14px;
+  background: var(--urp-card); box-shadow: var(--urp-shadow); transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.urp-metric::after { content: ""; position: absolute; top: 0; right: 0; width: 22px; height: 22px; border-top-right-radius: 14px; background: linear-gradient(225deg, var(--urp-bg) 0 50%, var(--urp-t1) 50% 100%); box-shadow: -1px 1px 2px color-mix(in oklab, var(--color-navy) 14%, transparent); }
+@media (hover: hover) { .urp-metric:hover { transform: translateY(-2px); box-shadow: var(--urp-shadow-hover); } }
+.urp-metric-value, .urp-stat-value { font-family: var(--font-display); font-size: clamp(2rem, 3.2vw, 2.7rem); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.urp-metric-label, .urp-stat-label { margin-top: 6px !important; font-size: 15px; line-height: 1.3; font-weight: 500; }
+.urp-metric-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px !important; }
+.urp-metric-note { margin-top: 6px !important; font-size: 13px; line-height: 1.4; color: var(--csx-soft); }
+.urp-hero-art { position: relative; width: min(100%, 430px); margin-inline: auto; aspect-ratio: var(--ar); }
+.urp-hero-art [data-theme-art] {
+  width: 100%; height: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}
+@media (max-width: 767px) { .urp-hero-art { width: min(100%, 320px); } }
+
+/* 01 · the road: six stops on one dashed route; the section's own reveal brings it in */
+.urp-road { position: relative; display: grid; gap: 14px; margin-top: 6px; }
+.urp-stop { position: relative; display: flex; align-items: center; gap: 14px; }
+.urp-stop-label { font-size: 15.5px; font-weight: 600; line-height: 1.25; }
+.urp-road::before { content: ""; position: absolute; left: 23px; top: 24px; bottom: 24px; border-left: 3px dashed color-mix(in oklab, var(--color-navy) 38%, transparent); }
+.urp-stop[data-i="1"] .urp-tile, .urp-stop[data-i="6"] .urp-tile { background: var(--urp-primary); color: var(--urp-on-primary); }
+.urp-stop[data-i="2"] .urp-tile, .urp-stop[data-i="4"] .urp-tile { background: var(--urp-t1); color: var(--urp-i1); }
+.urp-stop[data-i="3"] .urp-tile { background: var(--urp-t2); color: var(--urp-i2); }
+.urp-stop[data-i="5"] .urp-tile { background: var(--urp-t3); color: var(--urp-i3); }
+.urp-stop[data-i="1"] .urp-tile::after, .urp-stop[data-i="6"] .urp-tile::after { display: none; }
+@media (min-width: 900px) {
+  .urp-road { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; padding-top: 6px; }
+  .urp-stop { flex-direction: column; text-align: center; gap: 10px; }
+  .urp-road::before { left: 4%; right: 4%; top: 30px; bottom: auto; border-left: 0; border-top: 3px dashed color-mix(in oklab, var(--color-navy) 38%, transparent); }
+  .urp-stop .urp-tile { width: 56px; height: 56px; }
+}
+.urp-quote { position: relative; padding: 18px 22px; border-radius: 16px; background: var(--urp-card); box-shadow: var(--urp-shadow); border-left: 4px solid var(--urp-accent); display: grid; gap: 8px; max-width: 640px; transform: rotate(-0.4deg); }
+.urp-quote p { font-family: var(--font-display); font-style: italic; font-size: clamp(1.15rem, 1.8vw, 1.4rem); line-height: 1.35; }
+.urp-quote figcaption { font-size: 13.5px; color: var(--csx-soft); }
+
+/* 02 · the product: the desktop evidence view large, the Hindi brief smaller beside it */
+.urp-shots { display: grid; gap: 22px; margin-top: 6px; align-items: end; }
+.urp-shot { display: grid; gap: 8px; min-width: 0; justify-items: start; }
+.urp-shot .urp-frame { width: 100%; }
+.urp-shot[data-kind="browser"] .urp-frame { transform: rotate(-0.4deg); }
+.urp-shot[data-kind="phone"] .urp-frame { transform: rotate(0.5deg); width: min(100%, 300px); }
+@media (min-width: 900px) { .urp-shots { grid-template-columns: minmax(0, 1fr) 260px; gap: 32px; } .urp-shot[data-kind="phone"] .urp-frame { width: 100%; } }
+.urp-notes { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 900px) { .urp-notes { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.urp-notes li { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; line-height: 1.25; }
+.urp-note-n { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--urp-t1); color: var(--urp-accent-ink); font-weight: 700; font-size: 13.5px; }
+.urp-split { margin-top: 10px !important; }
+.urp-stack { margin-top: 2px !important; letter-spacing: 0.02em; }
+
+/* 04 · decisions: three paper cards with a CHOSEN stamp */
+.urp-cards { display: grid; gap: 14px; margin-top: 4px; }
+@media (min-width: 768px) { .urp-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+.urp-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 16px; background: var(--urp-card); box-shadow: var(--urp-shadow); border-top: 4px solid var(--urp-accent); transition: transform 180ms ease, box-shadow 180ms ease; }
+.urp-card[data-i="2"] { border-top-color: var(--color-steel); }
+.urp-card[data-i="3"] { border-top-color: var(--color-green-2); }
+@media (hover: hover) { .urp-card:hover { transform: translateY(-2px) rotate(-0.4deg); box-shadow: var(--urp-shadow-hover); } }
+.urp-chosen { position: absolute; top: 16px; right: 16px; padding: 2px 8px; border: 1.5px solid var(--urp-accent-ink); border-radius: 6px; color: var(--urp-accent-ink); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(3deg); }
+.urp-card-tag { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--urp-teal); }
+.urp-card-p { font-size: 15px; line-height: 1.5; color: var(--color-navy-2); }
+
+/* 05 · evidence: counts, the failed gate kept loud, and what is not measured */
+.urp-evidence-grid { display: grid; gap: 16px; align-items: start; }
+@media (min-width: 1100px) { .urp-evidence-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; } }
+.urp-stats { display: grid; gap: 12px; }
+@media (min-width: 560px) { .urp-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+.urp-stat { position: relative; height: 100%; padding: 16px 16px 14px; border-radius: 14px; background: var(--urp-card); box-shadow: var(--urp-shadow); border-top: 4px solid var(--urp-sage); transition: transform 180ms ease, box-shadow 180ms ease; }
+.urp-stat-value { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.urp-stat-value svg { flex: none; color: var(--urp-sage); }
+.urp-stat[data-tone="fail"] { border-top-color: var(--urp-accent); background: color-mix(in oklab, var(--urp-accent) 9%, var(--urp-card)); }
+.urp-stat[data-tone="fail"] .urp-stat-value { font-size: clamp(1.6rem, 2.4vw, 2rem); }
+.urp-stat[data-tone="fail"] svg { color: var(--urp-accent-ink); }
+.urp-gaps { padding: 18px 20px; border-radius: 14px; border: 2px dashed color-mix(in oklab, var(--urp-accent) 60%, transparent); background: color-mix(in oklab, var(--urp-accent) 8%, transparent); }
+.urp-gaps ul { display: grid; gap: 9px; margin-top: 10px; }
+.urp-gaps li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.45; color: var(--color-navy); }
+.urp-gaps li::before { content: "–"; position: absolute; left: 4px; color: var(--urp-accent-ink); font-weight: 700; }
+.urp-types { display: flex; flex-wrap: wrap; gap: 8px; }
+.urp-type { padding: 4px 12px; border-radius: 999px; background: var(--urp-t2); font-size: 13.5px; font-weight: 600; }
+.urp-drawer { max-width: 320px; }
+
+/* The next band's torn-lag slides it over the article by up to 200 px (120 px on phones): keep the last content clear of it */
+.urp-body { padding-bottom: calc(clamp(40px, 5vw, 72px) + 120px); }
+@media (min-width: 768px) { .urp-body { padding-bottom: calc(clamp(40px, 5vw, 72px) + 200px); } }
