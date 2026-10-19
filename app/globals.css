@@ -18862,4 +18862,44 @@ html:has(dialog.more-menu[open]) {
 body:has(.pf-showcase[data-view="detail"]) .ob-root {
   display: none;
 }
+
+/* Option A (Tushar 2026-10-19): the art shows behind EVERY section, not just the first. The section bodies below the first one
+   painted opaque paper over the fixed layer, so on phones they go transparent while the layer is on screen. Cards keep their own
+   surfaces (`.paper-sheet`, `.hs-card`, `.pf-m-card`, `.certm-tile` ...), so text stays on paper or glass; bare headings sit
+   straight on the layer's theme wash. Scoped to "the layer exists and is not hidden for the product detail view", so case
+   studies, the lab, contact and every viewport >= 640 px keep their plain paper (desktop is untouched). The footer band keeps its
+   own opaque fill. Torn edges (`.ct-torn`, `[data-decor="torn"]`) are left as they are. */
+@media (max-width: 639px) {
+  body:has(.ob-root):not(:has(.pf-showcase[data-view="detail"])) :is(
+      .hero-sheet,
+      .acap,
+      .hs-body,
+      .ask-section-body,
+      .xp-edu,
+      .pf-enterprise,
+      .bdx-body,
+      .chx-body,
+      .crx-body,
+      .rvx-body,
+      .tsx-body,
+      .acx,
+      .certm-body
+    ) {
+    background-color: transparent;
+    background-image: none;
+  }
+}
 /* === end TASK-265 === */
+
+/* === TASK-271 (Tushar 2026-10-19) · the origami loops cost nothing at rest ===
+   The six time-based loops (bloom a/b, facet, orbit, far/near ridge) re-composite the whole screen at 60 fps, which is 180
+   DrawFrames per idle 3 s under the glass cards. They now play only while the reader is scrolling or touching, and for a few
+   seconds afterwards (components/portfolio/ProjectsMobileBackground.tsx toggles `data-live` on .ob-root); otherwise they sit
+   `paused`, which keeps their position, so there is no jump on resume. The scroll-driven parallax (.ob-par-*) is compositor
+   work that only runs while scrolling and is not touched. Reduced motion has no loops at all (TASK-259 media query). */
+@media (max-width: 639px) {
+  .ob-root:not([data-live]) :is(.ob-bloom-a, .ob-bloom-b, .ob-facet, .ob-orbit, .ob-ridge-far, .ob-ridge-near) {
+    animation-play-state: paused;
+  }
+}
+/* === end TASK-271 === */
