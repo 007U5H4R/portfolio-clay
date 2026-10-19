@@ -15,6 +15,7 @@ export const nuptisCase: z.input<typeof CaseStudy> = {
     accents: ["terracotta", "forest", "note"],
   },
   story: "Risk-tiered vendor ops (the bet that lost)",
+  layout: "nuptis", // TASK-278: the origami paper-craft redesign (components/case-study/nuptis)
   hero: {
     tagline: "Vendor ops for wedding-planning agencies.",
     proposition:
