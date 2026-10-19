@@ -15,6 +15,7 @@ export const campfireCase: z.input<typeof CaseStudy> = {
     accents: ["terracotta", "note", "navy-2"],
   },
   story: "One dashboard for every project",
+  layout: "campfire", // TASK-281: the paper-craft layout (components/case-study/campfire)
   extraSources: [
     { id: "CF-SCREENS", label: "Campfire Board screenshots", ref: "CF/docs/screenshots/{kanban,gantt,workflow}.jpg", inventory: "§8.12" },
   ],

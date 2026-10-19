@@ -1,0 +1,281 @@
+/* ============================================================================================
+   TASK-281 · Campfire Board "origami paper craft" case study (Tushar's brief Campfire Board-full.md + mockup).
+   Fenced: every selector starts with `.cfp` (the Campfire BoardView root, chosen by `layout: "cfptis"`), so no other case study
+   can match anything here. Same architecture as velora-paper.css (TASK-273). Paper tokens and color-mix() only (EVAL-020).
+   The hero diorama is painted on each theme's exact page colour (#f7f1e7 / #0b1530 = --color-paper), so the page
+   background is flat (no dot texture) and a soft edge mask feathers the art into it. Terracotta labels, sage for measured.
+   ============================================================================================ */
+
+.cfp {
+  --csx-soft: var(--color-ink-soft);
+  --csx-rule: color-mix(in oklab, var(--color-navy) 13%, transparent);
+  --csx-card: var(--color-ivory);
+  --cfp-bg: var(--color-paper);
+  --cfp-bg-2: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-kraft) 10%);
+  --cfp-card: color-mix(in oklab, var(--color-ivory) 92%, var(--color-paper));
+  --cfp-accent: var(--color-rust);
+  --cfp-on-accent: var(--color-ivory);
+  --cfp-accent-ink: color-mix(in oklab, var(--color-rust) 72%, var(--color-navy));
+  --cfp-teal: color-mix(in oklab, var(--color-rust) 78%, var(--color-navy));
+  --cfp-sage: color-mix(in oklab, var(--color-forest) 88%, var(--color-navy));
+  --cfp-primary: var(--color-navy);
+  --cfp-on-primary: var(--color-paper);
+  --cfp-t1: color-mix(in oklab, var(--color-rust) 15%, var(--cfp-card));
+  --cfp-t2: color-mix(in oklab, var(--color-steel) 17%, var(--cfp-card));
+  --cfp-t3: color-mix(in oklab, var(--color-green-2) 22%, var(--cfp-card));
+  --cfp-i1: var(--cfp-accent-ink);
+  --cfp-i2: color-mix(in oklab, var(--color-steel) 78%, var(--color-navy));
+  --cfp-i3: var(--color-forest);
+  --cfp-track: color-mix(in oklab, var(--color-navy) 34%, transparent);
+  --cfp-shadow: 0 1px 2px color-mix(in oklab, var(--color-navy) 12%, transparent), 0 14px 28px -16px color-mix(in oklab, var(--color-navy) 30%, transparent);
+  --cfp-shadow-hover: 0 2px 3px color-mix(in oklab, var(--color-navy) 14%, transparent), 0 22px 36px -16px color-mix(in oklab, var(--color-navy) 38%, transparent);
+  --cfp-offset: calc(var(--header-h) + 76px);
+}
+[data-theme="dark"] .cfp {
+  --csx-soft: var(--color-navy-2);
+  --cfp-bg-2: color-mix(in oklab, var(--color-paper) 88%, var(--color-ivory) 12%);
+  --cfp-card: color-mix(in oklab, var(--color-ivory) 82%, var(--color-paper));
+  --cfp-on-accent: var(--color-paper);
+  --cfp-accent-ink: var(--color-terracotta);
+  --cfp-teal: var(--color-terracotta);
+  --cfp-sage: var(--color-forest);
+  --cfp-primary: color-mix(in oklab, var(--color-terracotta) 66%, var(--color-kraft) 34%);
+  --cfp-on-primary: var(--color-paper);
+  --cfp-shadow: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 8%, transparent), 0 18px 30px -16px color-mix(in oklab, var(--color-paper) 85%, transparent);
+  --cfp-shadow-hover: inset 1px 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent), 0 24px 38px -16px color-mix(in oklab, var(--color-paper) 95%, transparent);
+}
+.cfp {
+  position: relative;
+  background: var(--cfp-bg);
+  color: var(--color-navy);
+  overflow-x: clip;
+}
+.cfp [id], .cfp-anchor { scroll-margin-top: var(--cfp-offset); }
+.cfp-anchor { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
+.cfp img { display: block; max-width: 100%; }
+.cfp :where(h1, h2, h3, p, ul, ol, figure, blockquote) { margin: 0; }
+.cfp :where(ul, ol) { padding: 0; list-style: none; }
+
+/* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
+.cfp [data-theme-art] { width: 100%; height: auto; }
+
+/* Shared paper bits */
+.cfp-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cfp-teal); }
+.cfp-h2 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 1.08; letter-spacing: -0.015em; max-width: 24ch; }
+.cfp-h3 { font-family: inherit; font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 0; }
+.cfp-p { font-size: clamp(1rem, 1.4vw, 1.125rem); line-height: 1.55; color: var(--color-navy-2); max-width: 60ch; }
+.cfp-small { font-size: 13px; line-height: 1.45; color: var(--csx-soft); }
+.cfp-date { font-size: 13px; color: var(--csx-soft); font-variant-numeric: tabular-nums; }
+.cfp-tile {
+  position: relative; flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px;
+  background: var(--cfp-t1); color: var(--cfp-i1);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-navy) 8%, transparent), 0 6px 10px -6px color-mix(in oklab, var(--color-navy) 30%, transparent);
+}
+.cfp-tile::after { /* folded corner */
+  content: ""; position: absolute; top: 0; right: 0; width: 13px; height: 13px; border-top-right-radius: 13px;
+  background: linear-gradient(225deg, var(--cfp-card) 0 50%, color-mix(in oklab, var(--color-navy) 16%, transparent) 50% 100%);
+}
+[data-i="2"] > .cfp-tile, .cfp-card[data-i="2"] .cfp-tile { background: var(--cfp-t2); color: var(--cfp-i2); }
+[data-i="3"] > .cfp-tile, .cfp-card[data-i="3"] .cfp-tile { background: var(--cfp-t3); color: var(--cfp-i3); }
+
+/* ── Hero: copy left; the diorama and the two evidence cards right; the real dashboard full width below ── */
+.cfp-hero { position: relative; padding-top: clamp(20px, 3vw, 44px); }
+.cfp-hero-in { display: grid; gap: 14px; }
+@media (min-width: 1024px) { .cfp-hero-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 3vw, 48px); align-items: center; } }
+.cfp-crumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--csx-soft); margin-bottom: 16px !important; }
+.cfp-crumb a { color: var(--color-navy-2); }
+.cfp-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cfp-teal); margin-bottom: 8px !important; }
+.cfp-h1 { font-size: clamp(3.6rem, 9vw, 6.6rem); line-height: 0.96; letter-spacing: -0.03em; font-weight: 500; }
+.cfp-tagline { margin-top: 8px !important; font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.12; color: var(--cfp-accent-ink); max-width: 20ch; }
+.cfp-lede { margin-top: 16px !important; max-width: 46ch; font-size: clamp(1.0625rem, 1.5vw, 1.2rem); line-height: 1.5; color: var(--color-navy-2); }
+.cfp-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.cfp-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; font-size: 15.5px; font-weight: 600; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
+.cfp-btn-primary { background: var(--cfp-primary); color: var(--cfp-on-primary); box-shadow: var(--cfp-shadow); }
+.cfp-btn-ghost { border: 1.5px solid color-mix(in oklab, var(--color-navy) 38%, transparent); color: var(--color-navy); background: transparent; }
+@media (hover: hover) {
+  .cfp-btn:hover { transform: translateY(-1px); box-shadow: var(--cfp-shadow-hover); }
+  .cfp-btn-ghost:hover { background: color-mix(in oklab, var(--color-navy) 6%, transparent); }
+}
+.cfp-hero-art { position: relative; width: min(100%, 640px); margin-inline: auto; aspect-ratio: var(--ar-l); }
+[data-theme="dark"] .cfp-hero-art { aspect-ratio: var(--ar-d); }
+.cfp-hero-art [data-theme-art] {
+  width: 100%; height: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}
+@media (max-width: 767px) { .cfp-hero-art { width: min(100%, 340px); margin-block: -8px; } }
+.cfp-hero-low { display: grid; gap: 14px; padding-top: 6px; }
+.cfp-metrics { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 639px) { .cfp-metrics { grid-template-columns: 1fr; } }
+.cfp-metric {
+  position: relative; display: block; height: 100%; padding: 14px 16px; border-radius: 14px;
+  background: var(--cfp-card); box-shadow: var(--cfp-shadow); transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.cfp-metric::after { content: ""; position: absolute; top: 0; right: 0; width: 22px; height: 22px; border-top-right-radius: 14px; background: linear-gradient(225deg, var(--cfp-bg) 0 50%, var(--cfp-t1) 50% 100%); box-shadow: -1px 1px 2px color-mix(in oklab, var(--color-navy) 14%, transparent); }
+@media (hover: hover) { .cfp-metric:hover { transform: translateY(-2px); box-shadow: var(--cfp-shadow-hover); } }
+.cfp-metric-value { font-family: var(--font-display); font-size: clamp(2.2rem, 3.6vw, 3rem); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cfp-metric-label { margin-top: 6px !important; font-size: 15px; line-height: 1.3; font-weight: 600; }
+.cfp-metric-note { margin-top: 2px !important; font-size: 13.5px; line-height: 1.4; color: var(--csx-soft); }
+.cfp-metric-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px !important; }
+.cfp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cfp-chips li { padding: 6px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--color-navy-2); background: var(--cfp-card); box-shadow: inset 0 0 0 1px var(--csx-rule); }
+
+/* The real dashboard, the largest product visual in the opening viewport */
+.cfp-dash-wrap { padding-block: clamp(22px, 3vw, 36px) 0; display: grid; gap: 12px; }
+.cfp-dash { display: grid; gap: 8px; justify-items: center; }
+.cfp-dash .cfp-frame { width: 100%; max-width: 1100px; }
+.cfp-frame { padding: 8px; border-radius: 18px; background: var(--cfp-card); box-shadow: var(--cfp-shadow-hover); }
+.cfp-frame img { width: 100%; height: auto; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--csx-rule); }
+
+/* 01 · problem: separate folders feeding one shared view */
+.cfp-fan { display: grid; gap: 10px; margin-top: 6px; justify-items: center; align-items: center; }
+@media (min-width: 900px) { .cfp-fan { grid-template-columns: minmax(0, 1.6fr) 72px minmax(0, 1fr); gap: 16px; } }
+.cfp-fan-folders { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+.cfp-fan-folder { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 8px 14px; border-radius: 14px 14px 10px 10px; background: var(--cfp-t1); color: var(--cfp-i1); box-shadow: var(--cfp-shadow); text-align: center; font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+.cfp-fan-folder::before { content: ""; position: absolute; top: -6px; left: 10px; width: 38%; height: 8px; border-radius: 6px 6px 0 0; background: inherit; }
+.cfp-fan-folder span { color: var(--color-navy); }
+.cfp-fan-folder[data-i="2"] { background: var(--cfp-t2); color: var(--cfp-i2); transform: rotate(0.8deg); }
+.cfp-fan-folder[data-i="3"] { background: var(--cfp-t3); color: var(--cfp-i3); transform: rotate(-0.8deg); }
+.cfp-fan-arrow { position: relative; width: 2px; height: 34px; background: repeating-linear-gradient(180deg, var(--cfp-accent) 0 6px, transparent 6px 10px); }
+.cfp-fan-arrow::after { content: ""; position: absolute; left: 50%; bottom: -2px; width: 10px; height: 10px; border-right: 2px solid var(--cfp-accent); border-bottom: 2px solid var(--cfp-accent); transform: translateX(-50%) rotate(45deg); }
+@media (min-width: 900px) {
+  .cfp-fan-arrow { width: 100%; height: 2px; background: repeating-linear-gradient(90deg, var(--cfp-accent) 0 6px, transparent 6px 10px); }
+  .cfp-fan-arrow::after { left: auto; right: -2px; bottom: 50%; transform: translateY(50%) rotate(-45deg); }
+}
+.cfp-fan-hub { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 96px; padding: 16px 18px; border-radius: 16px; background: var(--cfp-card); box-shadow: var(--cfp-shadow-hover); border-top: 4px solid var(--cfp-accent); font-family: var(--font-display); font-size: 1.25rem; color: var(--color-navy); }
+.cfp-fan-hub svg { color: var(--cfp-accent-ink); flex: none; }
+.cfp-notes { display: flex; flex-wrap: wrap; gap: 10px 22px; font-family: var(--font-display); font-style: italic; font-size: 1.1rem; color: var(--cfp-accent-ink); }
+.cfp-notes li::before { content: "↳ "; }
+
+/* 02 · product: Gantt wide, Kanban and Workflow side by side; the real screenshots, full width of their cell */
+.cfp-shots { display: grid; gap: 28px 24px; margin-top: 6px; }
+@media (min-width: 768px) { .cfp-shots { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cfp-shot[data-i="1"] { grid-column: 1 / -1; } }
+.cfp-shot { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.cfp-shot .cfp-frame { position: relative; margin-top: 28px; }
+.cfp-shot[data-i="1"] .cfp-frame { transform: rotate(-0.4deg); }
+.cfp-shot[data-i="2"] .cfp-frame { transform: rotate(0.4deg); }
+.cfp-shot[data-i="3"] .cfp-frame { transform: rotate(-0.3deg); }
+.cfp-tab { position: absolute; top: -27px; left: 18px; z-index: 1; padding: 4px 14px 5px; border-radius: 8px 8px 0 0; background: var(--cfp-accent); color: var(--cfp-on-accent); font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.cfp-cap { display: grid; gap: 2px; justify-items: start; }
+.cfp-cap-t { font-family: var(--font-display); font-size: clamp(1.25rem, 1.8vw, 1.5rem); line-height: 1.15; }
+.cfp-cap-d { font-size: 15.5px; line-height: 1.45; color: var(--color-navy-2); }
+
+/* 04/07 · cards */
+.cfp-cards { display: grid; gap: 14px; margin-top: 4px; }
+@media (min-width: 768px) { .cfp-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+.cfp-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 16px; background: var(--cfp-card); box-shadow: var(--cfp-shadow); border-top: 4px solid var(--cfp-accent); transition: transform 180ms ease, box-shadow 180ms ease; }
+.cfp-card[data-i="2"] { border-top-color: var(--color-kraft); }
+.cfp-card[data-i="3"] { border-top-color: var(--color-green-2); }
+@media (hover: hover) { .cfp-card:hover { transform: translateY(-2px) rotate(-0.4deg); box-shadow: var(--cfp-shadow-hover); } }
+.cfp-card-p { font-size: 15px; line-height: 1.5; color: var(--color-navy-2); }
+
+/* 03 · decisions: two folded-corner paper cards */
+.cfp-decisions { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .cfp-decisions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cfp-chosen { position: absolute; top: 14px; right: 16px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cfp-sage); background: color-mix(in oklab, var(--cfp-sage) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cfp-sage) 45%, transparent); }
+.cfp-card-note { font-size: 13.5px; line-height: 1.45; color: var(--csx-soft); padding-top: 8px; border-top: 1px dashed var(--csx-rule); }
+
+/* 04 · system: five paper tiles joined by terracotta arrows */
+.cfp-flow { display: grid; gap: 26px; margin-top: 6px; grid-template-columns: 1fr; }
+.cfp-flow-step { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); column-gap: 14px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--cfp-card); box-shadow: var(--cfp-shadow); }
+.cfp-flow-step .cfp-tile { grid-row: 1 / span 2; }
+.cfp-flow-k { font-size: 15.5px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.cfp-flow-v { font-size: 13.5px; line-height: 1.4; color: var(--csx-soft); }
+.cfp-flow-step + .cfp-flow-step::before { content: "↓"; position: absolute; left: 28px; top: -22px; width: 18px; text-align: center; font-size: 16px; font-weight: 700; color: var(--cfp-accent-ink); }
+@media (min-width: 640px) { .cfp-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 28px; } .cfp-flow-step:nth-child(odd):not(:first-child)::before { content: none; } .cfp-flow-step:nth-child(even)::before { content: "→"; left: -24px; top: 50%; transform: translateY(-50%); } .cfp-flow-step:nth-child(3)::before { content: "↘"; left: auto; right: 12px; top: -22px; transform: none; } }
+@media (min-width: 1100px) {
+  .cfp-flow { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; }
+  .cfp-flow-step { grid-template-columns: 1fr; justify-items: center; text-align: center; row-gap: 6px; padding: 16px 10px 14px; }
+  .cfp-flow-step .cfp-tile { grid-row: auto; width: 56px; height: 56px; }
+  .cfp-flow .cfp-flow-step:not(:first-child)::before { content: "→"; left: -24px; top: 38%; right: auto; transform: none; }
+}
+
+/* 05 · evidence: three check cards and a visible caveat */
+.cfp-evidence-grid { display: grid; gap: 16px; margin-top: 4px; align-items: stretch; }
+@media (min-width: 1100px) { .cfp-evidence-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 22px; } }
+.cfp-checks { display: grid; gap: 12px; }
+@media (min-width: 640px) { .cfp-checks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+.cfp-check { position: relative; display: grid; gap: 6px; align-content: start; padding: 16px; border-radius: 14px; background: var(--cfp-card); box-shadow: var(--cfp-shadow); border-top: 4px solid var(--cfp-sage); }
+.cfp-check-icon { color: var(--cfp-sage); }
+.cfp-card-p { font-size: 15px; line-height: 1.5; color: var(--color-navy-2); }
+.cfp-caveat { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; border-radius: 14px; border: 2px dashed color-mix(in oklab, var(--cfp-accent) 60%, transparent); background: color-mix(in oklab, var(--cfp-accent) 8%, transparent); }
+.cfp-caveat-icon { flex: none; color: var(--cfp-accent-ink); margin-top: 2px; }
+.cfp-caveat-text { font-size: clamp(1.02rem, 1.4vw, 1.15rem); font-weight: 600; line-height: 1.4; color: var(--color-navy); }
+.cfp-gaps { display: grid; gap: 8px; margin-top: 12px; }
+.cfp-gaps li { position: relative; padding-left: 18px; font-size: 14.5px; line-height: 1.45; color: var(--color-navy); }
+.cfp-gaps li::before { content: "–"; position: absolute; left: 3px; color: var(--cfp-accent-ink); font-weight: 700; }
+
+/* ── Sticky navigator ─────────────────────────────────────────────────────────────────────── */
+.cfp-nav {
+  position: sticky; top: calc(var(--header-h) + 6px); z-index: 5; width: fit-content; max-width: calc(100% - 24px); margin: 26px auto 0; padding: 4px;
+  border-radius: 999px; background: color-mix(in oklab, var(--cfp-bg) 88%, transparent); border: 1px solid var(--csx-rule);
+  backdrop-filter: blur(8px); box-shadow: var(--cfp-shadow); overflow-x: auto; scrollbar-width: none;
+}
+.cfp-nav::-webkit-scrollbar { display: none; }
+.cfp-nav-list { display: flex; gap: 2px; }
+.cfp-nav-link { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--color-navy-2); text-decoration: none; white-space: nowrap; }
+.cfp-nav-n { font-size: 11.5px; font-weight: 700; color: var(--cfp-accent-ink); font-variant-numeric: tabular-nums; }
+.cfp-nav-link:hover { background: var(--cfp-t1); color: var(--color-navy); }
+.cfp-nav-link[aria-current="location"] { background: var(--cfp-primary); color: var(--cfp-on-primary); }
+.cfp-nav-link[aria-current="location"] .cfp-nav-n { color: inherit; }
+@media (max-width: 520px) { .cfp-nav-link { padding: 0 11px; } .cfp-nav-n { display: none; } }
+
+/* ── Numbered sections on a dashed coral line ─────────────────────────────────────────────── */
+.cfp-body { padding-block: clamp(10px, 2vw, 20px) clamp(40px, 5vw, 72px); }
+/* TASK-281: the next band's scroll-driven torn-lag slides up over the article by up to 200px (120px on phones); keep the Sources tiles clear of it at rest. */
+.cfp-body { padding-bottom: 130px; }
+@media (min-width: 640px) { .cfp-body { padding-bottom: 210px; } }
+.cfp-sec { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: clamp(12px, 2vw, 28px); padding-block: clamp(30px, 4vw, 52px); min-width: 0; }
+@media (min-width: 1024px) { .cfp-sec { grid-template-columns: 56px minmax(0, 1fr); } }
+.cfp-num {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: var(--cfp-teal); color: var(--color-paper); font-family: var(--font-display); font-size: 14px; font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1024px) { .cfp-num { width: 46px; height: 46px; font-size: 17px; margin-left: 5px; } }
+[data-theme="dark"] .cfp-num { background: var(--color-note); color: var(--color-paper); }
+.cfp-sec::before { /* the dashed coral line joining one badge to the next */
+  content: ""; position: absolute; left: 17px; transform: translateX(-50%); top: calc(clamp(30px, 4vw, 52px) + 20px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 20px); width: 0; pointer-events: none;
+  border-left: 2px dashed color-mix(in oklab, var(--cfp-accent) 70%, transparent); opacity: 0.7;
+}
+@media (min-width: 1024px) { .cfp-sec::before { left: 28px; top: calc(clamp(30px, 4vw, 52px) + 26px); bottom: calc(-1 * clamp(30px, 4vw, 52px) - 26px); } }
+.cfp-sec:has(+ .cfp-sources)::before { display: none; }
+.cfp-sec-in { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.cfp-sec-in > * { min-width: 0; }
+
+/* 05 · cards */
+.cfp-cards { display: grid; gap: 14px; margin-top: 4px; }
+@media (min-width: 768px) { .cfp-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+.cfp-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 16px; background: var(--cfp-card); box-shadow: var(--cfp-shadow); border-top: 4px solid var(--cfp-accent); transition: transform 180ms ease, box-shadow 180ms ease; }
+.cfp-card[data-i="2"] { border-top-color: var(--color-steel); }
+.cfp-card[data-i="3"] { border-top-color: var(--color-green-2); }
+@media (hover: hover) { .cfp-card:hover { transform: translateY(-2px) rotate(-0.4deg); box-shadow: var(--cfp-shadow-hover); } }
+.cfp-card .cfp-tile { margin-bottom: 4px; }
+.cfp-card-n { position: absolute; top: 14px; right: 18px; font-family: var(--font-display); font-size: 1.5rem; color: color-mix(in oklab, var(--color-navy) 24%, transparent); }
+.cfp-card-p { font-size: 14.5px; line-height: 1.5; color: var(--color-navy-2); }
+
+/* Sources */
+.cfp-sources { display: grid; gap: 14px; padding-block: clamp(30px, 4vw, 52px) 0; border-top: 1px solid var(--csx-rule); }
+.cfp-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.cfp-tile-link, .cfp-tile-drawer .csx-drawer-open {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 16px; border-radius: 14px;
+  background: var(--cfp-t3); color: var(--color-navy); text-decoration: none; border: 0; text-align: left; font-size: 15px; font-weight: 600;
+  box-shadow: var(--cfp-shadow); transition: transform 160ms ease, box-shadow 160ms ease; cursor: pointer;
+}
+.cfp-tile-drawer .csx-drawer-open { justify-content: space-between; letter-spacing: 0; background: var(--cfp-primary); color: var(--cfp-on-primary); }
+@media (hover: hover) { .cfp-tile-link:hover, .cfp-tile-drawer .csx-drawer-open:hover { transform: translateY(-2px); box-shadow: var(--cfp-shadow-hover); } }
+.cfp-tile-icon { flex: none; color: var(--cfp-i3); }
+.cfp-tile-text { display: grid; flex: 1; }
+.cfp-tile-hint { font-size: 13px; font-weight: 400; color: var(--color-navy-2); }
+.cfp-meta { margin-top: 2px; }
+
+/* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
+.cfp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 0; transform: translateY(14px); }
+.cfp [data-cs-reveal] { transition: opacity 420ms ease, transform 420ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .cfp [data-cs-reveal], .cfp-btn, .cfp-metric, .cfp-card, .cfp-tile-link { transition: none; }
+  .cfp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
+  .cfp-shot .cfp-frame { transform: none; }
+}
+
