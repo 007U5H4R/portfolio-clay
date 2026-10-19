@@ -27,7 +27,7 @@ export interface ProductInfoPanelProps {
 type ExternalKind = "product" | "github" | "prd";
 
 const EXTERNAL: Record<ExternalKind, { label: string; name: (product: string) => string }> = {
-  product: { label: "Open live product", name: (p) => `Open live product: ${p}` },
+  product: { label: "Live product", name: (p) => `Open live product: ${p}` },
   github: { label: "GitHub", name: (p) => `GitHub: ${p} source code` },
   prd: { label: "PRD", name: (p) => `PRD: ${p} product requirements document` },
 };
@@ -66,9 +66,9 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   // the strips + the case study: the phone lays them out as one 2-column grid (an odd count lets the case study span)
   const actionCount = (product.pitchVideo ? 1 : 0) + (product.demoVideo ? 1 : 0) + externals.length + 1;
 
-  // TASK-217 tiers, TASK-256 (Tushar 2026-10-18): the primary is the first video there is (pitch, else demo, else the case
-  // study); every other action is secondary and sits in the two-column grid under it.
-  const primary: "pitch" | "demo" | "case" = product.pitchVideo ? "pitch" : product.demoVideo ? "demo" : "case";
+  // TASK-217 tiers, TASK-256, TASK-262 (Tushar 2026-10-18): the primary is the demo (else the pitch, else the case study);
+  // every other action is secondary and sits two per row under it. The pitch still autoplays first (TASK-253).
+  const primary: "pitch" | "demo" | "case" = product.demoVideo ? "demo" : product.pitchVideo ? "pitch" : "case";
   const tierOf = (action: string): "primary" | "secondary" => (action === primary ? "primary" : "secondary");
   // an odd number of secondaries: the last one spans both grid columns so the grid stays balanced
   const secondaryKeys = [product.pitchVideo ? "pitch" : "", product.demoVideo ? "demo" : "", ...externals.map((e) => e.kind), "case"].filter((k) => k && tierOf(k) === "secondary");
@@ -77,6 +77,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   const position = String(product.position).padStart(2, "0");
   const category = (product.tags ?? []).slice(0, 2).join(" · ");
 
+  // the primary bar spells the video out; a half-width secondary keeps it short so two fit a row
   const mediaButton = (target: MediaMode, label: string, Icon: ActionIcon | typeof Play) => (
     <li>
       <button
@@ -89,7 +90,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         aria-controls={stageId}
         onClick={() => onModeChange(target)}
       >
-        <StripBody icon={Icon} label={label} external={false} />
+        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={tierOf(target) === "primary" ? `${label} video` : label} external={false} />
       </button>
     </li>
   );
@@ -119,8 +120,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       <div className="pf-action-set" data-odd={actionCount % 2 === 1 ? "" : undefined}>
       <StarDivider slot="top" />
       <ul className="pf-actions" aria-label={`${product.name} actions`}>
-        {product.pitchVideo ? mediaButton("pitch", "Watch pitch video", Play) : null}
-        {product.demoVideo ? mediaButton("demo", "Watch demo video", ACTION_ICON.demo) : null}
+        {product.demoVideo ? mediaButton("demo", "Watch demo", ACTION_ICON.demo) : null}
+        {product.pitchVideo ? mediaButton("pitch", "Watch pitch", ACTION_ICON.demo) : null}
         {externals.map(({ kind, href }) => {
           const def = EXTERNAL[kind];
           return (

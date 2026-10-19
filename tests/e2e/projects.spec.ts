@@ -82,7 +82,7 @@ test("@EVAL-011 the carousel lists every personal build; the first is selected i
   await expect(page.locator("video, iframe")).toHaveCount(0);
   await expect(page.locator(".pf-stage .pf-cover")).toHaveCount(1);
   await expect(page.getByRole("button", { name: /^Play / })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: /^Watch (pitch|demo) video$/ })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /^Watch (pitch|demo)( video)?$/ })).toHaveCount(2); // TASK-262: demo is the primary "Watch demo video", pitch a half-width "Watch pitch";
 });
 
 test("@EVAL-002 @EVAL-011 a carousel click updates the panel in place and the URL; the case-study link opens in a new tab", {
@@ -186,7 +186,7 @@ test("TASK-125 RailCite plays its real YouTube pitch, then its demo, in the same
   await expect(panel(page)).toHaveAttribute("data-active-product", "railcite");
   await expect(panel(page)).toHaveAttribute("data-media-mode", "pitch");
   const actions = page.getByRole("list", { name: "RailCite actions" });
-  await expect(actions.getByRole("button", { name: "Pitch video" })).toBeVisible();
+  await expect(actions.getByRole("button", { name: "Watch pitch" })).toBeVisible();
   await expect(actions.getByRole("button", { name: "Demo video" })).toBeVisible();
   await expect(page.locator("video, iframe")).toHaveCount(0); // poster until the viewer presses play
   const stage = page.locator("#pf-stage-screen");
@@ -403,4 +403,28 @@ test("@EVAL-008 every stage cover title fits its cover (each product), ≤ 2 lin
     check("stage", await titleFit(page, ".pf-stage"));
   }
   expect(bad, "cover titles must never be clipped").toEqual([]);
+});
+
+test("TASK-262: the demo is the primary bar and the other actions sit two per row, labels whole", async ({ page }) => {
+  test.skip(width(page) < 900, "the desktop panel's action grid");
+  await page.goto("/projects", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  const primary = page.locator('.pf-action-set .pf-action[data-tier="primary"]');
+  await expect(primary).toHaveAttribute("data-action", "demo");
+  await expect(primary).toHaveText(/Watch demo video/);
+  const boxes = await page.locator('.pf-action-set .pf-action[data-tier="secondary"]').evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect();
+      // the case study's label also holds screen-reader-only text ("Read the", the new-tab hint); measure what shows
+      const label = el.querySelector(".pf-case-name") ?? el.querySelector(".pf-action-label")!;
+      // an ellipsis keeps scrollWidth == clientWidth on some engines, so measure the text itself
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      return { top: Math.round(r.top), left: r.left, clipped: range.getBoundingClientRect().width > el.querySelector(".pf-action-label")!.getBoundingClientRect().width + 1 };
+    }),
+  );
+  expect(boxes.length).toBeGreaterThanOrEqual(4);
+  expect(boxes[0]!.top).toBe(boxes[1]!.top);
+  expect(boxes[1]!.left).toBeGreaterThan(boxes[0]!.left);
+  expect(boxes.filter((b) => b.clipped)).toEqual([]);
 });

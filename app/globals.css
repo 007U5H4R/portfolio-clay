@@ -16260,17 +16260,20 @@ html[data-theme-vt]::view-transition-group(root) {
     height: 16px;
     color: var(--color-navy);
   }
-  /* the case study reads "Read the case study" at every width the panel shows (the tablet strip rule shortened it) */
+  /* TASK-262: half width, the case study reads "Case study" ("Read the" stays for screen readers, as the tablet strip rule does) */
   .pf-showcase .pf-case-lead {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-    white-space: inherit;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pf-showcase .pf-case-name {
+    display: inline-block;
   }
   .pf-showcase .pf-case-name::first-letter {
-    text-transform: none;
+    text-transform: uppercase;
   }
   .pf-showcase .pf-action-set[data-odd] .pf-case-link {
     grid-column: auto;
@@ -16357,10 +16360,29 @@ html[data-theme-vt]::view-transition-group(root) {
       }
     }
   }
-  /* two columns only where both labels fit whole; a narrower panel (the 900-1300 columns) stacks them, never clipping a label */
+  /* TASK-262 (Tushar 2026-10-18): always two per row; a narrower panel (the 900-1300 columns) tightens the buttons so the
+     short labels stay whole instead of stacking */
   @container (max-width: 449px) {
     .pf-showcase .pf-action-set {
-      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+    .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+      grid-template-columns: 18px minmax(0, 1fr) 12px;
+      gap: 5px;
+      padding: 8px 7px 8px 8px;
+    }
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-arrow {
+      width: 12px;
+      height: 12px;
+    }
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      font-size: 13.5px;
+      letter-spacing: -0.01em;
     }
   }
   /* the star note: one line when the panel is wide enough, wrapping below that */
