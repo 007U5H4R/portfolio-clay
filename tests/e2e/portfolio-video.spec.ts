@@ -49,7 +49,7 @@ test.describe("Portfolio showcase video (TASK-122)", () => {
     await gotoBoard(page);
     await expect(panel(page)).toHaveAttribute("data-media-mode", "pitch");
     await expect(frames(page)).toHaveCount(0);
-    const pitchBtn = actions(page).getByRole("button", { name: "Pitch video" });
+    const pitchBtn = actions(page).getByRole("button", { name: "Watch pitch" });
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
     await expect(pitchBtn).toHaveAttribute("aria-pressed", "true");
     await expect(demoBtn).toHaveAttribute("aria-pressed", "false");
@@ -104,7 +104,7 @@ test.describe("Portfolio showcase video (TASK-122)", () => {
     await expect(frames(page)).toHaveCount(0);
     await expect(stage(page).getByText("Pitch video coming")).toBeVisible();
     await expect(stage(page).getByRole("button", { name: /^Play / })).toHaveCount(0);
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toHaveCount(0);
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toHaveCount(0);
   });
 
   test("keyboard: the Demo strip and the Play button work from the keyboard; focus lands in the player", async ({ page }) => {
@@ -118,7 +118,7 @@ test.describe("Portfolio showcase video (TASK-122)", () => {
     await page.keyboard.press("Space");
     await expect(frames(page)).toHaveCount(1);
     await expect(frames(page)).toBeFocused();
-    await actions(page).getByRole("button", { name: "Pitch video" }).focus();
+    await actions(page).getByRole("button", { name: "Watch pitch" }).focus();
     await page.keyboard.press("Enter");
     await expect(frames(page)).toHaveCount(0);
   });
@@ -149,7 +149,7 @@ test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "campfire-board");
     await expect(page.getByRole("tab", { selected: true })).toHaveAttribute("data-product", "campfire-board");
-    const pitchBtn = actions(page).getByRole("button", { name: "Pitch video" });
+    const pitchBtn = actions(page).getByRole("button", { name: "Watch pitch" });
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
     await expect(pitchBtn).toBeVisible();
     await expect(demoBtn).toBeVisible();
@@ -198,7 +198,7 @@ test.describe("Slag City real videos on /projects (TASK-129)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "slag-city");
     await expect(page.getByRole("tab", { selected: true })).toHaveAttribute("data-product", "slag-city");
-    const pitchBtn = actions(page).getByRole("button", { name: "Pitch video" });
+    const pitchBtn = actions(page).getByRole("button", { name: "Watch pitch" });
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
     await expect(pitchBtn).toBeVisible();
     await expect(demoBtn).toBeVisible();
@@ -256,7 +256,7 @@ test.describe("TeachSpark real videos on /projects (TASK-170)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "teachspark");
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
@@ -297,7 +297,7 @@ test.describe("Pratyasa real videos on /projects (TASK-179)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "pratyasa");
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
@@ -338,7 +338,7 @@ test.describe("Bhakti Vilas real videos on /projects (TASK-242)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "bhakti-vilas");
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
@@ -379,7 +379,7 @@ test.describe("The Shravan's Round real videos on /projects (TASK-243)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "shravans-round");
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
@@ -420,7 +420,7 @@ test.describe("Nuptis real videos on /projects (TASK-245)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "nuptis");
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
@@ -461,7 +461,7 @@ test.describe("Velora real videos on /projects (TASK-246)", () => {
     });
     await expect(panel(page)).toHaveAttribute("data-active-product", "velora");
     const demoBtn = actions(page).getByRole("button", { name: "Demo video" });
-    await expect(actions(page).getByRole("button", { name: "Pitch video" })).toBeVisible();
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
     await expect(demoBtn).toBeVisible();
     await expect(frames(page)).toHaveCount(0);
 
@@ -480,5 +480,44 @@ test.describe("Velora real videos on /projects (TASK-246)", () => {
     expect(await embedId(page)).toBe(DEMO_ID);
     await expect(stage(page)).toHaveAttribute("data-player-state", "ready", { timeout: 20_000 });
     expect(violations).toEqual([]);
+  });
+});
+
+/* TASK-264 — Urja's launch pitch + demo (Tushar 2026-10-19) on `/projects` and its case-study hero: poster first,
+   one privacy-enhanced iframe after Play, the demo swaps the id. */
+test.describe("Urja real videos (TASK-264)", () => {
+  const PITCH_ID = "bZbUP3BhXKs";
+  const DEMO_ID = "cDWf1t08lkQ";
+
+  test.beforeEach(() => {
+    test.skip(!["w768", "w1440"].includes(test.info().project.name), "verified at w768 (touch) and w1440; phones use the TASK-210 detail screen");
+  });
+
+  test("select Urja: poster → one youtube-nocookie iframe; Demo swaps the id; no CSP error", async ({ page }) => {
+    const violations = cspWatch(page);
+    await page.goto("/projects?product=urja", { waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const tab = document.querySelector('[role="tab"]');
+      return !!tab && Object.keys(tab).some((k) => k.startsWith("__reactProps"));
+    });
+    await expect(panel(page)).toHaveAttribute("data-active-product", "urja");
+    await expect(actions(page).getByRole("button", { name: "Watch pitch" })).toBeVisible();
+    await stage(page).getByRole("button", { name: /^Play Urja pitch video$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    expect(await embedId(page)).toBe(PITCH_ID);
+
+    await actions(page).getByRole("button", { name: "Watch demo video" }).click();
+    await expect(frames(page)).toHaveCount(0);
+    await stage(page).getByRole("button", { name: /^Play Urja product demonstration$/ }).click();
+    await expect(frames(page)).toHaveCount(1);
+    expect(await embedId(page)).toBe(DEMO_ID);
+    expect(violations).toEqual([]);
+  });
+
+  test("the Urja case study hero plays the launch film, poster first", async ({ page }) => {
+    await page.goto("/work/urja", { waitUntil: "load" });
+    await expect(page.locator("main iframe")).toHaveCount(0);
+    await page.getByRole("button", { name: /^Play / }).first().click();
+    await expect(page.locator('main iframe[src*="youtube-nocookie.com/embed/bZbUP3BhXKs"]')).toHaveCount(1);
   });
 });

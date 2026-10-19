@@ -7,7 +7,7 @@ import type { CaseStudy } from "../schema";
  * say so. Rules raise every flag; only Ask Urja calls a model, and its eval gate failed on the Gemini
  * free-tier quota, so the page says so instead of claiming a pass. Urja's own wording rule holds here too:
  * "unaccounted" or "doesn't add up", never "theft". No users or outcomes are recorded, so none are claimed.
- * The launch and demo films arrive later (Tushar 2026-10-18); the hero is a still until then.
+ * The hero plays the launch film over the Today capture as its poster (TASK-264, Tushar 2026-10-19).
  */
 export const urjaCase: z.input<typeof CaseStudy> = {
   slug: "urja",
@@ -29,12 +29,15 @@ export const urjaCase: z.input<typeof CaseStudy> = {
       { value: "2 of 23", label: "flags wrong in the simulated month, shown to the owner", kind: "structural", note: "The false-accusation guardrail is under 10%, and the product shows it as “When Urja was wrong”.", source: "URJA-DEC" },
     ],
     media: {
-      src: "/media/case-studies/urja/today.webp",
-      alt: "Urja's Today screen for a simulated fleet: “Your trucks earned ₹1,86,400 yesterday. ₹11,430 of it doesn't add up, across 3 trips.”, a night-highway truck reconstruction and three flagged trips.",
-      width: 1400,
-      height: 875,
-      frame: "browser",
-      provenance: "docs/case-study-sources/urja/today-desktop.jpg ← live capture of urja-three.vercel.app (simulated fleet)",
+      video: "pitch",
+      poster: {
+        src: "/media/case-studies/urja/today.webp",
+        alt: "Urja's Today screen for a simulated fleet: “Your trucks earned ₹1,86,400 yesterday. ₹11,430 of it doesn't add up, across 3 trips.”, a night-highway truck reconstruction and three flagged trips.",
+        width: 1400,
+        height: 875,
+        frame: "browser",
+        provenance: "docs/case-study-sources/urja/today-desktop.jpg ← live capture of urja-three.vercel.app (simulated fleet)",
+      },
     },
     layout: "split",
   },

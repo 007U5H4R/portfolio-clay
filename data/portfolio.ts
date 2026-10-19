@@ -127,5 +127,8 @@ export const portfolioEntries: PortfolioEntry[] = [
     coverArt: "cover-urja",
     lettering: "block",
     coverGlyph: "Fuel", logo: { width: 391, height: 124 },
+    // Tushar 2026-10-19 (TASK-264): Urja launch (pitch) https://youtu.be/bZbUP3BhXKs, demo https://youtu.be/cDWf1t08lkQ.
+    pitchVideo: { provider: "youtube", videoId: "bZbUP3BhXKs" },
+    demoVideo: { provider: "youtube", videoId: "cDWf1t08lkQ" },
   },
 ];
