@@ -69,9 +69,11 @@ export function PhoneActions({
   const other: MediaMode | null = primary === "demo" && product.pitchVideo ? "pitch" : null;
 
   const icon = { strokeWidth: 1.75, "aria-hidden": true, focusable: false } as const;
-  const links: LinkDef[] = [{ key: "case", label: "Case study", icon: <BookOpen {...icon} />, href: product.caseStudyHref }];
+  // TASK-262 (Tushar 2026-10-18): the grid reads pitch · live product, then GitHub · case study (desktop matches)
+  const links: LinkDef[] = [];
   if (product.productUrl) links.push({ key: "live", label: "Live product", icon: <Rocket {...icon} />, href: product.productUrl });
   if (product.githubUrl) links.push({ key: "github", label: "GitHub", icon: <GithubMark />, href: product.githubUrl });
+  links.push({ key: "case", label: "Case study", icon: <BookOpen {...icon} />, href: product.caseStudyHref });
   const prd: LinkDef | null = product.prdUrl ? { key: "prd", label: "PRD", icon: <FileText {...icon} />, href: product.prdUrl } : null;
 
   const renderLink = (link: LinkDef) => {
@@ -107,7 +109,6 @@ export function PhoneActions({
         </button>
       ) : null}
       <div className="pf-m-secondary" data-odd={count % 2 === 1 ? "" : undefined}>
-        {links.map(renderLink)}
         {other ? (
           <button type="button" className="pf-m-btn focus-ring" data-action="watch" data-mode={other} aria-controls={stageId} onClick={() => onWatch(other)}>
             <Video {...icon} />
@@ -115,6 +116,7 @@ export function PhoneActions({
             <ArrowRight className="pf-m-dir" aria-hidden="true" focusable="false" strokeWidth={1.75} />
           </button>
         ) : null}
+        {links.map(renderLink)}
         {prd ? renderLink(prd) : null}
       </div>
       {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only when the GitHub button shows; TASK-257: set off by the second divider */}

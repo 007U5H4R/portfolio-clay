@@ -107,7 +107,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
   it("renders all five actions when the data has them — Pitch/Demo switch the stage, links open a new tab", () => {
     render(<IndependentProductsShowcase products={FIXTURE} />);
     const actions = within(screen.getByRole("list", { name: "Alpha actions" }));
-    expect(actions.getByRole("button", { name: "Watch pitch video" })).toHaveAttribute("aria-pressed", "true");
+    expect(actions.getByRole("button", { name: "Watch pitch" })).toHaveAttribute("aria-pressed", "true");
     expect(actions.getByRole("button", { name: "Watch demo video" })).toHaveAttribute("aria-pressed", "false");
     for (const name of [/^Open live product: Alpha/, /^GitHub: Alpha/, /^PRD: Alpha/]) {
       const link = actions.getByRole("link", { name });
@@ -133,7 +133,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(frame.getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/zyxwvutsrqp\?/);
     expect(players(document.body)).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Watch pitch video" }));
+    fireEvent.click(document.querySelector<HTMLElement>(".pf-action[data-action=\"pitch\"]")!); // the desktop strip (the phone has its own "Watch pitch")
     expect(panel()).toHaveAttribute("data-media-mode", "pitch");
     expect(players(document.body)).toHaveLength(0);
     expect(screen.getByRole("button", { name: "Play Alpha pitch video" })).toBeInTheDocument();
@@ -159,7 +159,7 @@ describe("IndependentProductsShowcase — media fixture (spec §8–§10, §22�
     expect(demo.getAttribute("src")).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789\?/);
     expect(demo.getAttribute("src")).toContain("autoplay=1");
     expect(screen.queryByRole("button", { name: /^Play Beta/ })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Watch pitch video" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Watch pitch" })).toBeNull();
 
     // back to Alpha: its pitch (not the demo it had been left on) starts, replacing Beta's player
     fireEvent.click(screen.getByRole("tab", { name: /Alpha/ }));
