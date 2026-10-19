@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { dockItems } from "@/lib/mobile-dock";
@@ -15,18 +15,12 @@ import { dockItems } from "@/lib/mobile-dock";
  *
  * Styles: the fenced TASK-259 block at the end of app/globals.css.
  *
- * UNDO: set the constant below to `false` (the mount renders nothing and no asset loads), or `git revert` the commit.
+ * TASK-277 (Tushar 2026-10-19): TURNED OFF on every phone tab ("not looking good"); the code, CSS and art stay so it can come back
+ * by setting the constant below to `true`. (The original undo note: set the constant to `false` (the mount renders nothing and no asset loads), or `git revert` the commit.)
  */
-export const ORIGAMI_BG_ENABLED = true;
+export const ORIGAMI_BG_ENABLED = false;
 
 const subscribeNever = () => () => {};
-
-/**
- * TASK-271: how long the six time-based loops keep playing after the last scroll / touch before they pause (the CSS pauses
- * them whenever `data-live` is absent; `animation-play-state` keeps their position, so resuming never jumps).
- */
-export const ORIGAMI_LIVE_MS = 7000;
-const ACTIVITY_EVENTS = ["scroll", "touchstart", "touchmove", "pointerdown", "wheel", "keydown"] as const;
 
 /**
  * TASK-265 (Tushar 2026-10-19): the layer is mounted ONCE, from the root layout, and shown on the phone dock's own routes
@@ -46,48 +40,9 @@ export function ProjectsMobileBackground({ active }: { active: boolean }) {
   // Portalled to <body>: the layer is page decoration, not part of the showcase's box tree (its cropped sculptures are
   // meant to overhang the viewport), and a fixed layer inside the page's wrappers could pick up a transformed ancestor.
   const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const rendered = ORIGAMI_BG_ENABLED && active && mounted;
-
-  // TASK-271: the loops play only while the reader is scrolling / touching and for ORIGAMI_LIVE_MS afterwards, never in a
-  // hidden tab. Passive listeners + one timer + a data attribute: no React state per event (OceanGate is the model).
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!rendered || !root || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    let last = 0;
-    let timer: number | undefined;
-    const sleep = () => {
-      timer = undefined;
-      const left = ORIGAMI_LIVE_MS - (performance.now() - last);
-      if (left > 50) timer = window.setTimeout(sleep, left); // activity since the timer was armed: wait out the rest
-      else root.removeAttribute("data-live");
-    };
-    const wake = () => {
-      if (document.visibilityState === "hidden") return;
-      last = performance.now();
-      if (!root.hasAttribute("data-live")) root.setAttribute("data-live", "");
-      if (timer === undefined) timer = window.setTimeout(sleep, ORIGAMI_LIVE_MS);
-    };
-    const onVisibility = () => {
-      if (document.visibilityState !== "hidden") return;
-      window.clearTimeout(timer);
-      timer = undefined;
-      root.removeAttribute("data-live");
-    };
-    wake(); // the first seconds after the page opens
-    for (const e of ACTIVITY_EVENTS) window.addEventListener(e, wake, { passive: true, capture: true });
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      for (const e of ACTIVITY_EVENTS) window.removeEventListener(e, wake, { capture: true });
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.clearTimeout(timer);
-      root.removeAttribute("data-live");
-    };
-  }, [rendered]);
-
-  if (!rendered) return null;
+  if (!ORIGAMI_BG_ENABLED || !active || !mounted) return null;
   return createPortal(
-    <div ref={rootRef} className="ob-root" aria-hidden="true" data-testid="projects-bg">
+    <div className="ob-root" aria-hidden="true" data-testid="projects-bg">
       <div className="ob-wash" />
       <div className="ob-bloom ob-bloom-a" />
       <div className="ob-bloom ob-bloom-b" />
