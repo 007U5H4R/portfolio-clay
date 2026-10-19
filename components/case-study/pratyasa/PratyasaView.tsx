@@ -10,7 +10,7 @@ import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows } from "@/components/case-study/system/case-context";
 import { NextProject } from "@/components/case-study/NextProject";
 import { PraNav } from "./PraNav";
-import { ART, CAMPFIRE_NEXT_ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM } from "./copy";
+import { ART, CAMPFIRE_NEXT_ART, CAMPFIRE_NEXT_LINE, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM } from "./copy";
 
 const ART_DIR = "/media/case-studies/pratyasa/art";
 
@@ -376,7 +376,11 @@ export function PratyasaView({ project, study, portfolio, next }: PratyasaViewPr
       </article>
 
       {/* Next project: the shared band with the Campfire Board artwork (TASK-280) */}
-      <NextProject project={next} art={next.slug === "campfire-board" ? CAMPFIRE_NEXT_ART : undefined} />
+      {next.slug === "campfire-board" ? (
+        <NextProject project={next} art={CAMPFIRE_NEXT_ART} line={CAMPFIRE_NEXT_LINE} tone="cream" />
+      ) : (
+        <NextProject project={next} />
+      )}
     </>
   );
 }

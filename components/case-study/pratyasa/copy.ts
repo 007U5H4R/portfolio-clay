@@ -97,3 +97,6 @@ export const CAMPFIRE_NEXT_ART: NextProjectArt = {
   width: 1600,
   height: 1063,
 };
+
+/** The supporting line under the Campfire Board title (brief section I), shown by NextProject's `line` prop (TASK-279). */
+export const CAMPFIRE_NEXT_LINE = "A Jira board for Gen AI Agents.";

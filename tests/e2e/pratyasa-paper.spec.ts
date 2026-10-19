@@ -132,6 +132,26 @@ test.describe("pratyasa paper layout", () => {
     });
   }
 
+  test("next band: supporting line, cream in light, no light strip in dark, art painted on the band colour", async ({ page }) => {
+    await page.goto("/work/pratyasa", { waitUntil: "load" });
+    await band(page).scrollIntoViewIfNeeded();
+    await expect(band(page).locator(".cs-next-line")).toHaveText("A Jira board for Gen AI Agents.");
+    await expect(band(page).getByText("next up")).toHaveCount(0);
+    // computed colours (any CSS colour syntax) -> rgb, via a canvas
+    const rgb = (css: string) => page.evaluate((c) => { const g = document.createElement("canvas").getContext("2d")!; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); }, css);
+    const surface = () => band(page).evaluate((el) => ({ bg: getComputedStyle(el).backgroundImage.match(/(lab|oklab|rgb|oklch)\([^)]*\)/)![0], front: getComputedStyle(el.querySelector(".torn-front")!).fill }));
+    for (const theme of ["light", "dark"] as const) {
+      await setTheme(page, theme);
+      const s = await surface();
+      const bg = await rgb(s.bg);
+      expect(await rgb(s.front), `${theme}: the torn front is the band's own colour (no light strip in dark)`).toEqual(bg);
+      if (theme === "light") expect(bg).toEqual([0xf7, 0xf0, 0xe7]);
+      // the art's decoded flat field is the band colour exactly (a 1-level miss shows as a box)
+      const field = await band(page).locator(`img.cs-next-art-${theme}`).evaluate((img: HTMLImageElement) => { const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext("2d")!; g.drawImage(img, 0, 0); return [...g.getImageData(img.naturalWidth >> 1, 6, 1, 1).data].slice(0, 3); });
+      expect(field, `${theme}: art field vs band`).toEqual(bg);
+    }
+  });
+
   test("no horizontal overflow at 375, 414, 768 and 1440 in light and dark", async ({ page }) => {
     test.skip(width(page) !== 1440, "sweeps its own widths once");
     for (const w of [375, 414, 768, 1440]) {
