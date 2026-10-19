@@ -239,14 +239,14 @@ test.describe("Portfolio on phones (TASK-210)", () => {
   });
 
   test("nothing sticks out of the viewport at 320 / 360 / 375 / 390 / 430 — listing, empty, detail with and without video", async ({ page }) => {
-    const noVideo = PERSONAL.find((p) => !hasAnyVideo(p.slug))!;
+    const noVideo = PERSONAL.find((p) => !hasAnyVideo(p.slug)); // TASK-264: every product may have a video now
     const withVideo = PERSONAL.find((p) => hasDemo(p.slug) && hasPitch(p.slug))!;
     const longName = PERSONAL.reduce((a, b) => (b.name.length > a.name.length ? b : a));
     const pages = [
       { label: "list", url: "/projects" },
       { label: "empty", url: "/projects?filter=research&video=1" },
       { label: `detail ${withVideo.slug}`, url: `/projects?product=${withVideo.slug}` },
-      { label: `detail ${noVideo.slug}`, url: `/projects?product=${noVideo.slug}` },
+      ...(noVideo ? [{ label: `detail ${noVideo.slug}`, url: `/projects?product=${noVideo.slug}` }] : []),
       { label: `detail ${longName.slug}`, url: `/projects?product=${longName.slug}` },
     ];
     for (const w of [320, 360, 375, 390, 430]) {
