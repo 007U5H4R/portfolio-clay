@@ -18188,7 +18188,6 @@ html:has(dialog.more-menu[open]) {
   height: 14px;
   fill: var(--pf-m-star, var(--color-rust));
 }
-.pf-m-ridge,
 .pf-m-land {
   display: none;
 }
@@ -18210,23 +18209,10 @@ html:has(dialog.more-menu[open]) {
     --pf-m-muted: var(--color-ink-soft);
   }
 
-  /* the folded-paper ridge under the site header: art only, in flow, ratio reserved, fades into the page at its foot */
+  /* the bar sits flush under the site header (TASK-266: the folded-paper ridge strip that used to follow it is gone) */
   .pf-showcase[data-view="detail"] .pf-m-bar {
     row-gap: 0;
     min-height: 0;
-  }
-  .pf-showcase[data-view="detail"] .pf-m-ridge {
-    display: block;
-    grid-column: 1 / -1;
-    aspect-ratio: 900 / 193;
-    margin: -4px calc(-1 * var(--pf-m-edge)) 0;
-    background: url("/media/illustrations/phone-detail-ridge-light.webp") center bottom / 100% 100% no-repeat;
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
-    mask-image: linear-gradient(to bottom, #000 62%, transparent);
-  }
-  :root[data-theme="dark"] .pf-showcase[data-view="detail"] .pf-m-ridge {
-    background-image: url("/media/illustrations/phone-detail-ridge-dark.webp");
   }
 
   /* metadata row: coral index · muted category, mono */

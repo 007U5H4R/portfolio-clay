@@ -59,7 +59,7 @@ Fallback rule (brief item 5): no asset needed the fallback; every project got ne
 
 ## Phone product page art (TASK-257, Tushar 2026-10-18)
 
-Two paper-cut strips for the phone `/projects` product detail (`.pf-m-ridge` under the header, `.pf-m-land` above "At a glance" in `components/portfolio/PhoneDetail.tsx` + `app/globals.css`), dark + light. Higgsfield `gpt_image_2_5`, quality `medium`, resolution `1k`, 21:9, flat white background; keyed to alpha and encoded by `scripts/phone-detail-art/encode.mjs` (900 px wide, transparent WebP). Light variants used the dark job as an image reference (same composition, re-coloured). Masters: `/Volumes/E Drive/Dev/.scratch/phone-detail/art/`. 4 generations, no retries. No text in any art.
+Two paper-cut strips for the phone `/projects` product detail (`.pf-m-ridge` under the header (removed in TASK-266), `.pf-m-land` above "At a glance" in `components/portfolio/PhoneDetail.tsx` + `app/globals.css`), dark + light. Higgsfield `gpt_image_2_5`, quality `medium`, resolution `1k`, 21:9, flat white background; keyed to alpha and encoded by `scripts/phone-detail-art/encode.mjs` (900 px wide, transparent WebP). Light variants used the dark job as an image reference (same composition, re-coloured). Masters: `/Volumes/E Drive/Dev/.scratch/phone-detail/art/`. 4 generations, no retries. No text in any art.
 
 | slot | file | bytes | job id |
 |---|---|---|---|
