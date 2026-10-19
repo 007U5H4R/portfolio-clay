@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { scrollToTarget, setLenis, setLenisWake } from "@/lib/smooth-scroll";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { getLenis, scrollToTarget, setLenis, setLenisWake } from "@/lib/smooth-scroll";
 
 export const SMOOTH_SCROLL_POINTER_QUERY = "(pointer: fine)";
 export const SMOOTH_SCROLL_REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
@@ -35,6 +36,39 @@ function hashTarget(event: MouseEvent): HTMLElement | null {
  * the sticky header, then focus moves to the target (`lib/smooth-scroll.ts`).
  */
 export function SmoothScroll() {
+  const pathname = usePathname();
+  // TASK-270: set by a back/forward `popstate`, cleared by the next click; lets the route-change reset below leave
+  // history traversal to Next's own scroll restoration.
+  const poppedRef = useRef(false);
+
+  // TASK-270: a new page must open at the top. Lenis keeps easing toward its old target after a click, so a link
+  // clicked mid-ease opened the next page part-way down (`stopInertiaOnNavigate` covers `<a>` clicks; this covers
+  // `router.push` and anything else that changes the route). Skipped for a hash URL (the hash handling owns the
+  // landing spot) and for back/forward (Next restores the position).
+  useEffect(() => {
+    const popped = poppedRef.current;
+    poppedRef.current = false;
+    const lenis = getLenis();
+    if (!lenis || popped || window.location.hash) return;
+    // `force` so it also lands while a modal has Lenis paused; no stop()/start() (that would un-pause it).
+    lenis.scrollTo(0, { immediate: true, force: true });
+  }, [pathname]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      poppedRef.current = true;
+    };
+    const onAnyClick = () => {
+      poppedRef.current = false;
+    };
+    window.addEventListener("popstate", onPopState);
+    document.addEventListener("click", onAnyClick, true);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      document.removeEventListener("click", onAnyClick, true);
+    };
+  }, []);
+
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
     if (!window.matchMedia(SMOOTH_SCROLL_POINTER_QUERY).matches) return;
@@ -57,7 +91,7 @@ export function SmoothScroll() {
       // TASK-155: no `autoRaf` — Lenis's own loop re-queued a rAF every frame for the whole visit, idle or not.
       // This loop runs only while Lenis is easing (`isScrolling`) and sleeps otherwise; a wheel
       // event (Lenis's own virtual-scroll listener runs first) or a programmatic scrollTo wakes it.
-      const lenis = new Lenis({ autoRaf: false });
+      const lenis = new Lenis({ autoRaf: false, stopInertiaOnNavigate: true });
       let rafId = 0;
       const tick = (time: number) => {
         rafId = 0;
