@@ -10,6 +10,7 @@ import type { CaseStudy } from "../schema";
  */
 export const slagCityCase: z.input<typeof CaseStudy> = {
   slug: "slag-city",
+  layout: "slagcity", // TASK-282: the arcade paper-craft redesign (components/case-study/slag-city)
   theme: {
     key: "slag-city",
     metaphor: "A coin-op cabinet at night: CRT scanlines, neon-teal HUD frames, coin-slot numerals, molten-orange accents",

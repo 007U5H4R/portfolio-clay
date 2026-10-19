@@ -52,7 +52,8 @@ for (const width of [360, 390]) {
 
     test("generic case study (.csx): chapter sections clear the 69 px header, not 119", async ({ page }, info) => {
       test.skip(info.project.name !== "w390", "viewport is set per describe; run once");
-      await page.goto("/work/slag-city", { waitUntil: "load" });
+      // TASK-282: Slag City now has its own paper layout; token-toli still renders the shared .csx template
+      await page.goto("/work/token-toli", { waitUntil: "load" });
       const h = await rect(page, HEADER);
       expect(h.bottom).toBeLessThanOrEqual(71);
       expect(await page.locator("article.csx").evaluate((el) => getComputedStyle(el).getPropertyValue("--header-h").trim())).toBe("69px");
