@@ -297,3 +297,7 @@
 .pra-shot[data-i="2"] .pra-frame { max-width: 440px; justify-self: start; }
 @media (min-width: 900px) { .pra-shot[data-i="2"] .pra-frame { justify-self: end; } .pra-shot[data-i="2"] { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); justify-content: start; } }
 @media (max-width: 767px) { .pra-stage { margin-top: -36px; } }
+
+/* The shared band slides up over this article by --torn-lag (200 px; 120 px on phones) as it scrolls in, so the last row of the
+   page needs room for it: at rest the source tiles and the footer line must end above the band's torn top. */
+.pra-body { padding-bottom: 120px; }

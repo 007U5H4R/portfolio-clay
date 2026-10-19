@@ -168,6 +168,22 @@ test.describe("pratyasa paper layout", () => {
     expect(await page.locator(".pra-photo .pra-frame").evaluate((n) => getComputedStyle(n).transform)).toBe("none");
   });
 
+  test("the source tiles and the footer line end above the next band once scrolled to the bottom", async ({ page }) => {
+    test.skip(width(page) !== 1440, "sweeps its own widths once");
+    for (const w of [375, 768, 1440]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/work/pratyasa", { waitUntil: "load" });
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await page.waitForTimeout(1200); // the band's scroll-driven slide settles
+      const m = await page.evaluate(() => {
+        const bottoms = [...document.querySelectorAll(".pra-tile-link, .pra-tile-drawer .csx-drawer-open, .pra-meta")].map((e) => e.getBoundingClientRect().bottom);
+        return { lowest: Math.max(...bottoms), bandTop: document.querySelector('section[aria-label="Next project"]')!.getBoundingClientRect().top, n: bottoms.length };
+      });
+      expect(m.n, `${w}px`).toBeGreaterThanOrEqual(6);
+      expect(m.lowest, `${w}px: sources end above the band`).toBeLessThanOrEqual(m.bandTop - 8);
+    }
+  });
+
   test("other layouts are untouched", async ({ page }) => {
     test.skip(width(page) !== 1440, "runs once at desktop width");
     await page.goto("/work/railcite", { waitUntil: "load" });
