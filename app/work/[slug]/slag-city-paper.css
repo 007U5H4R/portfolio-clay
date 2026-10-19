@@ -314,5 +314,5 @@
   .sgp-stats, .sgp-cta { order: 2; }
   .sgp-stats { margin-top: 4px; }
   .sgp-cta { margin-top: 0; }
-  .sgp-hero-visual .sgp-hero-art { margin-bottom: 4px; }
+  .sgp-hero-visual .sgp-hero-art { margin-top: -6px; margin-bottom: 4px; }
 }
