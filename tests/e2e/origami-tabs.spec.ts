@@ -37,6 +37,7 @@ test.describe("origami background on every dock tab (TASK-265)", () => {
   test("the same layer node survives a client navigation between tabs", async ({ page }) => {
     test.skip(width(page) !== 390, "phone only; runs once");
     await page.goto("/", { waitUntil: "load" });
+    await page.locator('[data-testid="projects-bg"]').waitFor({ state: "attached" }); // the layer mounts after hydration
     await page.evaluate(() => ((document.querySelector('[data-testid="projects-bg"]') as HTMLElement & { __keep?: boolean }).__keep = true));
     await page.locator('nav[aria-label="Primary mobile"]').getByRole("link", { name: "About" }).click();
     await expect(page).toHaveURL(/\/about$/);
