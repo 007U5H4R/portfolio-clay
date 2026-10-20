@@ -168,8 +168,8 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
               className="vlp-hero-art"
               style={
                 {
-                  "--sx-l": `${screens.light.left}%`, "--sy-l": `${screens.light.top}%`, "--sw-l": `${screens.light.width}%`, "--sh-l": `${screens.light.height}%`, "--ar-l": `${ART.hero.light.w} / ${ART.hero.light.h}`,
-                  "--sx-d": `${screens.dark.left}%`, "--sy-d": `${screens.dark.top}%`, "--sw-d": `${screens.dark.width}%`, "--sh-d": `${screens.dark.height}%`, "--ar-d": `${ART.hero.dark.w} / ${ART.hero.dark.h}`,
+                  "--sx-l": `${screens.light.left}%`, "--sy-l": `${screens.light.top}%`, "--sw-l": `${screens.light.width}%`, "--sh-l": `${screens.light.height}%`, "--rx-l": `${screens.light.rx}%`, "--ry-l": `${screens.light.ry}%`, "--ar-l": `${ART.hero.light.w} / ${ART.hero.light.h}`,
+                  "--sx-d": `${screens.dark.left}%`, "--sy-d": `${screens.dark.top}%`, "--sw-d": `${screens.dark.width}%`, "--sh-d": `${screens.dark.height}%`, "--rx-d": `${screens.dark.rx}%`, "--ry-d": `${screens.dark.ry}%`, "--ar-d": `${ART.hero.dark.w} / ${ART.hero.dark.h}`,
                 } as CSSProperties
               }
             >
@@ -293,17 +293,20 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
               <div className="vlp-shots">
                 {product.shots.map((shot, index) => (
                   <figure key={shot.src} className="vlp-shot" data-i={index + 1}>
-                    <div className="vlp-frame">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- the real product screenshot, unmodified, sized */}
-                      <img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
+                    <div className="vlp-frame" data-testid="vlp-frame">
+                      {/* the screen box takes the screenshot's own aspect ratio, so the whole width shows and nothing is cropped */}
+                      <div className="vlp-screen" data-testid="vlp-screen" style={{ aspectRatio: `${shot.width} / ${shot.height}` }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element -- the real product screenshot, unmodified, sized */}
+                        <img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
+                      </div>
                     </div>
-                    <figcaption className="vlp-cap">
+                    <figcaption className="vlp-cap" data-testid="vlp-cap">
+                      <span>{PRODUCT.captions[index] ?? shot.caption}</span>
                       {index === 0 ? (
                         <span className="vlp-score" data-testid="score-caveat">
                           {PRODUCT.scoreCaveat}
                         </span>
                       ) : null}
-                      <span>{PRODUCT.captions[index] ?? shot.caption}</span>
                     </figcaption>
                   </figure>
                 ))}
