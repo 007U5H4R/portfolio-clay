@@ -316,12 +316,15 @@ test.describe("velora paper layout", () => {
           const k = img.naturalWidth / w;
           const at = (x: number, y: number) => Array.from(g.getImageData(Math.round(x * k), Math.round(y * k), 1, 1).data.slice(0, 3));
           const i = 3;
-          return [at(i, i), at(w - i, i), at(i, h - i), at(w - i, h - i)];
+          // and a hairline ring just outside each side's midpoint: no bright screen rim may peek past the box
+          const o = 0.6;
+          return [at(i, i), at(w - i, i), at(i, h - i), at(w - i, h - i), at(w / 2, o), at(w / 2, h - o), at(o, h / 2), at(w - o, h / 2)];
         }, { b64: shot.toString("base64"), w: screen.w + 2, h: screen.h + 2 });
-        for (const [n, [r, g, b]] of corners.entries()) {
+        for (const [n, [r, g, b]] of corners.slice(0, 4).entries()) {
           const blankScreen = (r! + g! + b!) / 3 > 150 && Math.abs(r! - b!) < 12 && Math.abs(r! - g!) < 12;
           expect(blankScreen, `corner ${n} shows the art's blank screen (${r},${g},${b})`).toBe(false);
         }
+        for (const [n, [r, g, b]] of corners.slice(4).entries()) expect((r! + g! + b!) / 3, `edge ${n} seam (${r},${g},${b})`).toBeLessThan(32);
       });
     }
   }
