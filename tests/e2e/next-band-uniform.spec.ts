@@ -67,6 +67,50 @@ test.describe("next band: one size on every case study (TASK-290)", () => {
     });
   }
 
+  // TASK-290 mobile follow-up (Tushar 2026-10-20): on phones the single-subject art is BIG and centred on the LOGO row; the bleed band
+  // (RailCite's train on a bridge) keeps its text block to the RIGHT, clear of the train and bridge.
+  // Measured: the bridge's right edge is ~52% of the art (= of the band width, the art is full-bleed), so the text block's left edge
+  // must be >= 55% of the band width.
+  const BLEED_TEXT_MIN_X = 0.55;
+  for (const study of caseStudies) {
+    test(`phone art + logo row: ${study.slug}`, async ({ page }) => {
+      for (const w of [375, 390, 414]) {
+        await page.setViewportSize({ width: w, height: 900 });
+        for (const theme of ["light", "dark"] as const) {
+          const std = await measure(page, "teachspark", theme);
+          await measure(page, study.slug, theme);
+          const tag = `${study.slug} @${w} ${theme}`;
+          const m = await page.evaluate(() => {
+            const band = document.querySelector('section[aria-label="Next project"]')!;
+            const b = band.getBoundingClientRect();
+            const torn = band.querySelector(":scope > svg[data-decor='torn']")?.getBoundingClientRect().height ?? 0;
+            const art = band.querySelector<HTMLElement>(".next-band-art")!;
+            const img = [...art.querySelectorAll("img")].find((i) => getComputedStyle(i).display !== "none")!.getBoundingClientRect();
+            const logoEl = band.querySelector(".next-band-h .cs-logo img:not([style*='none'])") as HTMLElement | null;
+            const visibleLogo = [...band.querySelectorAll<HTMLElement>(".next-band-h img")].find((i) => getComputedStyle(i).display !== "none");
+            const row = (visibleLogo ?? logoEl ?? band.querySelector(".next-band-h")!).getBoundingClientRect();
+            const t = band.querySelector("a")!.getBoundingClientRect();
+            const text = [...band.querySelectorAll<HTMLElement>(".next-band-eyebrow, .next-band-h, .next-band-line")].map((e) => e.getBoundingClientRect());
+            return {
+              bleed: art.dataset.fit === "bleed", body: b.height - torn, bt: b.top + torn, bw: b.width, bl: b.left,
+              ah: img.height, ac: img.top + img.height / 2, ar: img.right, al: img.left, at: img.top, ab: img.bottom,
+              lc: row.top + row.height / 2, tl: t.left,
+              tcl: Math.min(...text.map((r) => r.left)),
+            };
+          });
+          expect(Math.abs(m.body - std.body), `${tag}: band height is TeachSpark's standard`).toBeLessThanOrEqual(2);
+          if (m.bleed) {
+            expect((m.tcl - m.bl) / m.bw, `${tag}: text block sits in the right part of the band (clear of the train and bridge)`).toBeGreaterThanOrEqual(BLEED_TEXT_MIN_X);
+          } else {
+            expect(m.ah / m.body, `${tag}: art height ${m.ah} vs body ${m.body}`).toBeGreaterThanOrEqual(0.7);
+            expect(Math.abs(m.ac - m.lc), `${tag}: art centre ${m.ac} vs logo centre ${m.lc}`).toBeLessThanOrEqual(3);
+            expect(m.ar, `${tag}: the art box (right ${m.ar}) ends before the text block (left ${m.tcl}; art centre ${m.ac}, logo ${m.lc})`).toBeLessThanOrEqual(m.tcl);
+          }
+        }
+      }
+    });
+  }
+
   // TASK-292: every band names its next product in one italic line, and the logo / name / arrow are ONE link to that product.
   for (const study of caseStudies) {
     test(`one-liner + logo link: ${study.slug}`, async ({ page, context }) => {

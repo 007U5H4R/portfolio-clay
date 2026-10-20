@@ -161,7 +161,7 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
 
   // TASK-290: the band is the uniform band, so the art no longer stacks above the footer's top edge (the footer's torn top is meant to
   // overlap the band's last 72px). Its invariant now: the art sits inside the band's body, not hidden by it, and on phones (where the
-  // art is a 64px thumbnail) it also stops above the footer's top. The text/footer clearance is asserted for every band in next-band-uniform.spec.ts.
+  // art is 70% of the body tall, TASK-290 mobile follow-up) it ends within the footer's 44px torn top, never under its solid body. The text/footer clearance is asserted for every band in next-band-uniform.spec.ts.
   for (const width of [375, 414, 768, 1024, 1440]) {
     test(`art stays inside the band at the end of the page at ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
@@ -173,11 +173,11 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
         const m = await page.evaluate((t) => {
           const img = document.querySelector(`section[aria-label="Next project"] img.cs-next-art-${t}`)!.getBoundingClientRect();
           const b = document.querySelector('section[aria-label="Next project"]')!.getBoundingClientRect();
-          return { top: img.top, bottom: img.bottom, bt: b.top, bb: b.bottom, ft: document.querySelector("footer")!.getBoundingClientRect().top };
+          return { top: img.top, bottom: img.bottom, bt: b.top, bb: b.bottom, ft: document.querySelector("footer")!.getBoundingClientRect().top, ftorn: document.querySelector("footer > svg[data-decor='torn']")?.getBoundingClientRect().height ?? 0 };
         }, theme);
         expect(m.top, `${theme}: art top inside the band`).toBeGreaterThanOrEqual(m.bt);
         expect(m.bottom, `${theme}: art bottom inside the band`).toBeLessThanOrEqual(m.bb + 0.5);
-        if (width < 768) expect(m.ft - m.bottom, `${theme}: phone thumbnail clears the footer's top`).toBeGreaterThanOrEqual(8);
+        if (width < 768) expect(m.bottom - m.ft, `${theme}: the big phone art ends within the footer's torn top (never under its solid body)`).toBeLessThanOrEqual(m.ftorn);
       }
     });
   }
