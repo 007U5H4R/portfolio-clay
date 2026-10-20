@@ -9,6 +9,7 @@ import { EvidenceBadge } from "@/components/case-study/system/EvidenceBadge";
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows } from "@/components/case-study/system/case-context";
 import { NextProject } from "@/components/case-study/NextProject";
+import { CaseName } from "@/components/case-study/CaseName";
 import { PraNav } from "./PraNav";
 import { ART, CAMPFIRE_NEXT_ART, CAMPFIRE_NEXT_LINE, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM } from "./copy";
 
@@ -134,7 +135,7 @@ export function PratyasaView({ project, study, portfolio, next }: PratyasaViewPr
               </p>
               <p className="pra-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="pra-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="pra-tagline">{HERO.tagline}</p>
               <p className="pra-lede">{HERO.lede}</p>

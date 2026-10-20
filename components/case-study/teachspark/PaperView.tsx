@@ -13,6 +13,7 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds, videoFor } from "@/components/case-study/system/case-context";
 import { PaperNav } from "./PaperNav";
+import { CaseName } from "@/components/case-study/CaseName";
 import { ARCH, ART, CHIPS, HERO, NAV, WORKFLOW } from "./copy";
 
 const ART_DIR = "/media/case-studies/teachspark/art";
@@ -158,7 +159,8 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
               </p>
               <p className="tsp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="tsp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                <span className="sr-only">{project.name}: </span>
+                <CaseName slug={project.slug} name={project.name} fallback={<span className="sr-only">{project.name}</span>} />
+                <span className="sr-only">: </span>
                 {HERO.headline.map((line) => (
                   <span key={line} className="tsp-h1-line">
                     {line}
@@ -464,7 +466,7 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
           >
             <span className="tsp-next-eyebrow">Next project</span>
             <h2 className="tsp-next-h">
-              {next.name} <span aria-hidden="true">→</span>
+              <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
             {nextLine ? <span className="tsp-next-line">{nextLine}</span> : null}
           </ViewTransitionLink>

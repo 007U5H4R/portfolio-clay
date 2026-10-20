@@ -23,6 +23,7 @@ import {
 import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
+import { CaseName } from "@/components/case-study/CaseName";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -174,7 +175,7 @@ export function RailciteView({ project, study, portfolio, next }: RailciteViewPr
               </p>
               <p className="rcp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="rcp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="rcp-tagline">{study.hero.tagline}</p>
               <p className="rcp-lede">{study.hero.proposition}</p>
@@ -488,7 +489,7 @@ export function RailciteView({ project, study, portfolio, next }: RailciteViewPr
           >
             <span className="rcp-next-eyebrow">{NEXT.eyebrow}</span>
             <h2 className="rcp-next-h">
-              {next.name} <span aria-hidden="true">→</span>
+              <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
             <span className="rcp-next-line">{NEXT.line}</span>
           </ViewTransitionLink>

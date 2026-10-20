@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, BadgeCheck, FileText, GitBranch, Globe, Hands
 import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
+import { CaseName } from "@/components/case-study/CaseName";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -142,7 +143,7 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
               </p>
               <p className="vlp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="vlp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="vlp-tagline">{study.hero.tagline}</p>
               <p className="vlp-lede">{study.hero.proposition}</p>
@@ -408,7 +409,7 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
           >
             <span className="vlp-next-eyebrow">{NEXT.eyebrow}</span>
             <h2 className="vlp-next-h">
-              {next.name} <span aria-hidden="true">→</span>
+              <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
             {next.slug === "nuptis" ? <span className="vlp-next-line">{NEXT.line}</span> : null}
           </ViewTransitionLink>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CaseProof, EvidenceKind } from "@/data/schema";
 import { BadgeLegend } from "@/components/case-study/system/EvidenceBadge";
 import { MetricCard } from "@/components/case-study/system/MetricCard";
+import { CaseName } from "@/components/case-study/CaseName";
 
 export interface JournalHeroProps {
   slug: string;
@@ -42,7 +43,7 @@ export function JournalHero({ slug, name, code, status, tagline, beats, proposit
             <span>{status}</span>
           </p>
           <h1 id="cs-h" className="csx-h1 jx-h1" style={{ viewTransitionName: `project-${slug}` }}>
-            {name}
+            <CaseName slug={slug} name={name} />
           </h1>
           <p className="csx-tagline jx-tagline">{tagline}</p>
           {beats.length > 0 ? (

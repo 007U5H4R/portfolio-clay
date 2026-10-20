@@ -4,6 +4,7 @@ import { Annotation } from "@/components/paper/Annotation";
 import { TornEdge } from "@/components/paper/TornEdge";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { Container } from "@/components/layout/Container";
+import { CaseName } from "./CaseName";
 
 /** Per-theme artwork for the band (TASK-275): two WebPs generated on each theme's own band colour. */
 export interface NextProjectArt {
@@ -65,7 +66,7 @@ export function NextProject({ project, art, line, tone }: NextProjectProps) {
         >
           <span className="cs-next-eyebrow">Next</span>
           <h2 className="cs-next-h">
-            {project.name} <span className="cs-next-arr" aria-hidden="true">→</span>
+            <CaseName slug={project.slug} name={project.name} onDark={tone !== "cream"} /> <span className="cs-next-arr" aria-hidden="true">→</span>
           </h2>
           {line ? <p className="cs-next-line">{line}</p> : null}
           {line ? null : (
