@@ -19708,7 +19708,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     grid-row: 2;
     justify-self: start;
     height: var(--pf-vc-h);
-    margin-top: max(0px, calc((var(--pf-vc-room) - var(--pf-vc-h)) / 2));
+    margin-top: 0; /* sit right under the header; any spare height falls below the row */
     box-sizing: border-box;
   }
   /* ---- the tray: a column, counter on top, arrows at both ends, the covers scrolling between ---- */
