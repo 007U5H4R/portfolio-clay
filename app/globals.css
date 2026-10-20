@@ -19945,6 +19945,12 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     align-items: stretch;
     column-gap: var(--pf-vc-cg);
   }
+  /* TASK-308: hovering the video / card made the pair shake 1 px (Safari, 60 fps recording). The paper-world scene above
+     (hero, scrolled under this sheet) rewrites fractional layer translates on every pointermove; the feature has no layer
+     of its own, so the engine re-squashes/re-snaps it against those moving layers. An own, stable layer pins its raster. */
+  .pf-showcase.pf-vcar .pf-feature {
+    will-change: transform;
+  }
   .pf-showcase.pf-vcar .pf-feature .pf-stage.paper-sheet {
     grid-column: 1;
     grid-row: 1;
