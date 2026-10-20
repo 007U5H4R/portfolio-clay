@@ -84,3 +84,63 @@ test("no overflow and ≥ 44 px targets with a non-default product selected", as
   await noOverflow(page);
   await minTargets(page);
 });
+
+// TASK-287 (Tushar 2026-10-20): "make the carousel a circular loop" — next on the last product lands on the first, prev on the
+// first lands on the last, and the strip keeps moving the same way (clones beside the ends, silently re-centred).
+test("TASK-287: the desktop carousel loops — next from the last is the first, prev from the first is the last", async ({ page, noOverflow }) => {
+  test.skip(width(page) < 1024, "the centred, looping tray is the desktop tier (< 1024 px keeps the plain tray)");
+  const last = PERSONAL.length;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  await page.goto(`/projects?product=${PERSONAL.at(-1)!.slug}`, { waitUntil: "load" });
+  await hydrated(page);
+  const list = page.getByRole("tablist", { name: "Select a product" });
+  const panel = page.getByRole("tabpanel");
+  const track = page.locator(".pf-track");
+  const centred = async (slug: string) => {
+    // the selected real card settles in the middle of the tray (clone swap done), whichever copy it was reached on
+    await expect
+      .poll(async () =>
+        track.evaluate((el, s) => {
+          const tab = el.querySelector<HTMLElement>(`[data-product="${s}"]`)!;
+          const t = tab.getBoundingClientRect();
+          const r = el.getBoundingClientRect();
+          return Math.abs(t.left + t.width / 2 - (r.left + r.width / 2));
+        }, slug),
+      )
+      .toBeLessThan(3);
+  };
+  await expect(page.locator(".pf-count")).toHaveText(`${pad(last)} / ${pad(last)}`);
+  await centred(PERSONAL.at(-1)!.slug);
+  // clones: aria-hidden, unfocusable, no id / data-product duplicates, not in the accessible tab list
+  await expect(track.locator("[data-clone]")).toHaveCount(PERSONAL.length * 2);
+  expect(await track.locator("[data-clone][aria-hidden='true'][tabindex='-1']").count()).toBe(PERSONAL.length * 2);
+  expect(await track.locator("[data-clone][id]").count()).toBe(0);
+  await expect(list.getByRole("tab")).toHaveCount(PERSONAL.length);
+  expect(await page.evaluate(() => new Set([...document.querySelectorAll("[id]")].map((e) => e.id)).size === document.querySelectorAll("[id]").length)).toBe(true);
+
+  await page.getByRole("button", { name: "Next product" }).click();
+  await expect(page.locator(".pf-count")).toHaveText(`01 / ${pad(last)}`);
+  await expect(panel).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
+  await expect(panel.getByRole("heading", { level: 2 })).toHaveText(PERSONAL[0]!.name);
+  await centred(PERSONAL[0]!.slug);
+
+  await page.getByRole("button", { name: "Previous product" }).click();
+  await expect(page.locator(".pf-count")).toHaveText(`${pad(last)} / ${pad(last)}`);
+  await expect(panel).toHaveAttribute("data-active-product", PERSONAL.at(-1)!.slug);
+  await centred(PERSONAL.at(-1)!.slug);
+
+  // the keyboard wraps the same way
+  await list.getByRole("tab", { selected: true }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator(".pf-count")).toHaveText(`01 / ${pad(last)}`);
+  await centred(PERSONAL[0]!.slug);
+  await noOverflow(page);
+});
+
+test("TASK-287: no horizontal page overflow with the loop at the first and last product", async ({ page, noOverflow }) => {
+  for (const p of [PERSONAL[0]!, PERSONAL.at(-1)!]) {
+    await page.goto(`/projects?product=${p.slug}`, { waitUntil: "load" });
+    await hydrated(page);
+    await noOverflow(page);
+  }
+});

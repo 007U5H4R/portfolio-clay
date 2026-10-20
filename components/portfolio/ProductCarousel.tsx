@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { stepIndex, type PortfolioProduct } from "@/lib/portfolio";
@@ -24,6 +24,8 @@ export interface ProductCarouselProps {
  * (its own `scrollLeft`, never the page). The arrow buttons also wrap, so they are never dead. A
  * click selects in place — the page never navigates (spec §18).
  *
+ * TASK-287 (Tushar 2026-10-20): at desktop the strip is a loop — see `vpos` / `settle` below.
+ *
  * TASK-274 (Tushar 2026-10-19), desktop (≥ 1024 px) only: the tray is a centred stage — the selected card is centred, raised and
  * ringed, its neighbours step back (`data-rel`, CSS), the edge cards fade out — with the index shown as "04 / 10" and a short
  * pagination row (`.pf-pager`, one dash per product, `aria-current` on the selected). The pager is only rendered at desktop
@@ -37,10 +39,56 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
     products.findIndex((product) => product.id === activeId),
   );
 
+  // TASK-287: at desktop the track holds three copies of the products (clones, real, clones) and loops. `vpos` is the slot of the
+  // selected cover in that strip: a step moves it by the shortest way round, so the last -> first step lands on a clone beside
+  // the last cover; once the scroll settles the strip silently re-centres on the middle (real) copy.
+  const count = products.length;
+  const home = count + activeIndex;
+  const [vpos, setVpos] = useState(home);
+  const [prevIndex, setPrevIndex] = useState(activeIndex);
+  const [snap, setSnap] = useState(false);
+  if (prevIndex !== activeIndex) {
+    let delta = (((activeIndex - prevIndex) % count) + count) % count;
+    if (delta > count / 2) delta -= count;
+    const moved = vpos + delta;
+    setPrevIndex(activeIndex);
+    setVpos(moved >= 0 && moved < count * 3 ? moved : home);
+  }
+  const latest = useRef({ vpos, home, count });
+  useEffect(() => {
+    latest.current = { vpos, home, count };
+  });
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  /** Once scrolling is idle (a step's smooth scroll, or a swipe): land on the real copy and keep the view inside the middle copy. */
+  const settle = useCallback(() => {
+    clearTimeout(settleTimer.current);
+    settleTimer.current = setTimeout(() => {
+      const track = trackRef.current;
+      const { vpos: at, home: to, count: n } = latest.current;
+      const cards = track?.children;
+      if (!track || !cards || cards.length !== n * 3) return;
+      const left = (i: number) => (cards[i] as HTMLElement).offsetLeft - track.offsetLeft;
+      let scrollLeft = track.scrollLeft + (left(to) - left(at));
+      const period = left(n * 2) - left(n);
+      const middle = scrollLeft + track.clientWidth / 2;
+      if (middle < left(n)) scrollLeft += period;
+      else if (middle >= left(n * 2)) scrollLeft -= period;
+      if (scrollLeft === track.scrollLeft && at === to) return;
+      setSnap(true);
+      track.scrollTo({ left: scrollLeft, behavior: "instant" });
+      setVpos(to);
+      requestAnimationFrame(() => requestAnimationFrame(() => setSnap(false)));
+    }, 140);
+  }, []);
+  useEffect(() => () => clearTimeout(settleTimer.current), []);
+
   // Keep the selected cover inside the track's visible window (horizontal only).
   useEffect(() => {
     const track = trackRef.current;
-    const tab = track?.querySelector<HTMLElement>(`[data-product="${activeId}"]`);
+    const tab = desktop
+      ? (track?.children[vpos] as HTMLElement | undefined)
+      : track?.querySelector<HTMLElement>(`[data-product="${activeId}"]`);
     if (!track || !tab) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (desktop) {
@@ -48,6 +96,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
       // layout offsets, not rects: the selected card is mid-way through its scale-up when this runs
       const offset = tab.offsetLeft - track.offsetLeft;
       track.scrollTo({ left: Math.max(0, offset - (track.clientWidth - tab.offsetWidth) / 2), behavior: reduce ? "auto" : "smooth" });
+      settle();
       return;
     }
     const left = tab.offsetLeft - track.offsetLeft;
@@ -55,7 +104,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
     if (left < track.scrollLeft || right > track.scrollLeft + track.clientWidth) {
       track.scrollTo({ left: Math.max(0, left - 8), behavior: reduce ? "auto" : "smooth" });
     }
-  }, [activeId, desktop]);
+  }, [activeId, desktop, vpos, settle]);
 
   const focusTab = useCallback((id: string) => {
     trackRef.current?.querySelector<HTMLElement>(`[data-product="${id}"]`)?.focus({ preventScroll: true });
@@ -115,22 +164,29 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         role="tablist"
         aria-labelledby="pf-select"
         aria-orientation="horizontal"
+        data-snap={snap ? "" : undefined}
         onKeyDown={onKeyDown}
+        onScroll={desktop ? settle : undefined}
       >
-        {products.map((product, index) => {
-          const selected = product.id === activeId;
+        {(desktop ? [...products, ...products, ...products] : products).map((product, slot) => {
+          const real = !desktop || (slot >= count && slot < count * 2);
+          const selected = real && product.id === activeId;
+          const rel = slot - vpos;
           return (
             <button
-              key={product.id}
-              id={tabId(product.id)}
+              key={`${product.id}-${Math.floor(slot / count)}`}
+              id={real ? tabId(product.id) : undefined}
               type="button"
               role="tab"
               className="pf-thumb focus-ring"
-              data-product={product.id}
+              data-product={real ? product.id : undefined}
+              data-clone={real ? undefined : product.id}
               data-accent={product.accent}
-              data-rel={desktop ? Math.min(Math.abs(index - activeIndex), 3) * Math.sign(index - activeIndex) : undefined}
-              aria-selected={selected}
-              aria-controls={panelId}
+              data-rel={desktop ? Math.min(Math.abs(rel), 3) * Math.sign(rel) : undefined}
+              data-current={desktop && rel === 0 ? "true" : undefined}
+              aria-selected={real ? selected : undefined}
+              aria-hidden={real ? undefined : true}
+              aria-controls={real ? panelId : undefined}
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(product.id, "click")}
             >
