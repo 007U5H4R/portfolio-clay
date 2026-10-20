@@ -47,11 +47,11 @@ export const WORKFLOW = [
  * `step` indexes the record's `system.steps`; block 1 pairs steps 0 and 1 (teacher on WhatsApp → Twilio webhook).
  */
 export const ARCH = [
-  { step: 0, x: 0.1, sub: 1 },
-  { step: 2, x: 0.3 },
-  { step: 3, x: 0.5 },
-  { step: 4, x: 0.71 },
-  { step: 5, x: 0.915 },
+  { step: 0, x: 0.095, sub: 1 },
+  { step: 2, x: 0.298 },
+  { step: 3, x: 0.495 },
+  { step: 4, x: 0.7 },
+  { step: 5, x: 0.905 },
 ] as const;
 
 export const ART = {

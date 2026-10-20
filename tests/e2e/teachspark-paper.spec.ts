@@ -69,6 +69,58 @@ test.describe("teachspark paper layout", () => {
     }
   });
 
+  test("architecture labels sit apart inside the diagram, and the technical notes show (TASK-293)", async ({ page }) => {
+    await page.goto("/work/teachspark", { waitUntil: "load" });
+    await page.locator(".tsp-arch").scrollIntoViewIfNeeded();
+    const art = (await page.locator(".tsp-arch-art").boundingBox())!;
+    const boxes = await page.locator(".tsp-arch-node").evaluateAll((els) =>
+      els.map((el) => {
+        const kids = [...el.children].map((c) => c.getBoundingClientRect());
+        return { left: Math.min(...kids.map((r) => r.left)), right: Math.max(...kids.map((r) => r.right)) };
+      }),
+    );
+    expect(boxes).toHaveLength(5);
+    for (const [i, b] of boxes.entries()) {
+      expect(b.left, `label ${i} left`).toBeGreaterThanOrEqual(art.x - 1);
+      expect(b.right, `label ${i} right`).toBeLessThanOrEqual(art.x + art.width + 1);
+      if (i > 0) expect(b.left, `label ${i} clears label ${i - 1}`).toBeGreaterThan(boxes[i - 1]!.right);
+    }
+    // open by default, and every rule is visible
+    const more = page.locator(".tsp-more").filter({ has: page.locator("summary", { hasText: "Technical notes" }) });
+    await expect(more).toHaveJSProperty("open", true);
+    const notes = more.locator(".tsp-notes li");
+    await expect(notes).toHaveCount(3);
+    for (const note of await notes.all()) await expect(note).toBeVisible();
+  });
+
+  test("funnel: each conversion % labels its bar; the right column holds only the count (TASK-294)", async ({ page }) => {
+    await page.goto("/work/teachspark", { waitUntil: "load" });
+    const steps = page.locator(".tsp-funnel-step");
+    for (const [label, count, pct] of [["Signed up", "17", "23.6%"], ["Onboarded", "12", "71%"], ["Activated", "8", "47%"]] as const) {
+      const step = steps.filter({ has: page.locator(".tsp-funnel-label", { hasText: label }) });
+      await expect(step.locator(".tsp-funnel-value")).toHaveText(count);
+      const note = step.locator(".tsp-funnel-track .tsp-funnel-note");
+      await expect(note).toHaveText(pct);
+      const bar = (await step.locator(".tsp-funnel-bar").boundingBox())!;
+      const box = (await note.boundingBox())!;
+      // right after the bar, on the same row
+      expect(box.x - (bar.x + bar.width)).toBeGreaterThanOrEqual(0);
+      expect(box.x - (bar.x + bar.width)).toBeLessThan(16);
+      expect(Math.abs(box.y + box.height / 2 - (bar.y + bar.height / 2))).toBeLessThan(4);
+    }
+  });
+
+  test("demo: clicking the Watch demo chip starts the video (TASK-295)", async ({ page }) => {
+    await page.goto("/work/teachspark#product-demo", { waitUntil: "load" });
+    const video = page.locator(".tsp-video");
+    await video.scrollIntoViewIfNeeded();
+    await expect(video.locator("iframe")).toHaveCount(0);
+    // the chip is pointer-events:none, so a real click on it lands on the full-poster play button
+    const chip = (await video.locator(".tsp-video-chip").boundingBox())!;
+    await page.mouse.click(chip.x + chip.width / 2, chip.y + chip.height / 2);
+    await expect(video.locator("iframe")).toHaveCount(1);
+  });
+
   test("numbers come from the record: hero proofs and the activation funnel", async ({ page }) => {
     await page.goto("/work/teachspark", { waitUntil: "load" });
     const tiles = page.locator(".tsp-metric");

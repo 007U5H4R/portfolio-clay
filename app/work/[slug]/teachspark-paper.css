@@ -162,6 +162,11 @@
 .tsp-small { font-size: 13px; line-height: 1.45; color: var(--csx-soft); }
 .tsp-more { font-size: 14px; }
 .tsp-more summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; width: fit-content; color: var(--color-forest); }
+/* TASK-293: display:flex hides the native marker, so draw a chevron that shows it opens and closes */
+.tsp-more summary::-webkit-details-marker { display: none; }
+.tsp-more summary::after { content: ""; width: 7px; height: 7px; margin-left: 10px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform 0.2s ease; }
+.tsp-more[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+@media (prefers-reduced-motion: reduce) { .tsp-more summary::after { transition: none; } }
 .tsp-loop { display: grid; gap: 4px; counter-reset: s; margin-block: 4px 8px; }
 .tsp-loop li { counter-increment: s; display: flex; gap: 10px; font-size: 14px; }
 .tsp-loop li::before { content: counter(s); flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--tsp-sage); display: grid; place-items: center; font-size: 12px; font-weight: 600; }
@@ -187,6 +192,13 @@
 .tsp-poster img { height: 100%; width: auto; max-width: 42%; object-fit: contain; border-radius: 16px; box-shadow: var(--tsp-shadow-hover); background: var(--tsp-card); }
 .tsp-poster-a { transform: rotate(-2deg); }
 .tsp-poster-b { transform: rotate(2deg); }
+/* TASK-295: the chip is the poster's only visible play cue, so the play button covers the whole poster
+   (its own disc hidden) and a click anywhere, including on the chip, starts the demo */
+.tsp-video .pf-play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 14px; background: transparent; box-shadow: none; z-index: 2; cursor: pointer; }
+.tsp-video .pf-play svg { display: none; }
+.tsp-video .pf-play:hover, .tsp-video .pf-play:focus-visible { background: transparent; translate: none; scale: none; }
+.tsp-video:has(.pf-play:hover) .tsp-video-chip, .tsp-video:has(.pf-play:focus-visible) .tsp-video-chip { background: var(--tsp-chip); color: var(--color-ivory); }
+.tsp-video:not(:has(.pf-play)) .tsp-video-chip { display: none; }
 .tsp-video-chip { position: absolute; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--tsp-card); box-shadow: var(--tsp-shadow); font-size: 13px; font-weight: 600; pointer-events: none; z-index: 3; }
 .tsp-cap { margin-top: -4px; }
 
@@ -203,9 +215,8 @@
 .tsp-arch-scroll { overflow-x: auto; border-radius: 12px; }
 .tsp-arch-inner { min-width: 440px; padding-bottom: 4px; }
 .tsp-arch-nodes { position: relative; height: 96px; margin-top: 6px; }
-.tsp-arch-node { position: absolute; top: 0; left: calc(var(--x) * 100%); width: 20%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; }
-.tsp-arch-node:first-child { transform: translateX(-34%); }
-.tsp-arch-node:last-child { transform: translateX(-66%); }
+/* TASK-293: every label centred on its icon; 19% wide so neighbours (20% apart) never touch */
+.tsp-arch-node { position: absolute; top: 0; left: calc(var(--x) * 100%); width: 19%; padding-inline: 2px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; }
 .tsp-arch-label { font-size: 13.5px; font-weight: 600; line-height: 1.2; }
 .tsp-arch-note { font-size: 11.5px; line-height: 1.3; color: var(--csx-soft); }
 .tsp-notes { display: grid; gap: 6px; padding-left: 4px !important; }
@@ -215,12 +226,13 @@
 /* 05 · impact */
 .tsp-funnel-steps { display: grid; gap: 8px; }
 .tsp-funnel-step { display: grid; grid-template-columns: minmax(96px, 150px) minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 14px; }
-.tsp-funnel-bar { position: relative; display: block; height: 22px; width: var(--w); background: linear-gradient(90deg, var(--tsp-sage-2), color-mix(in oklab, var(--color-green-2) 55%, var(--color-ivory))); clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%); border-radius: 4px 0 0 4px; }
+.tsp-funnel-track { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tsp-funnel-bar { position: relative; display: block; flex: none; height: 22px; width: calc(var(--w) * 0.84); background: linear-gradient(90deg, var(--tsp-sage-2), color-mix(in oklab, var(--color-green-2) 55%, var(--color-ivory))); clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%); border-radius: 4px 0 0 4px; }
 .tsp-funnel-step[data-key] .tsp-funnel-bar { height: 28px; background: linear-gradient(90deg, var(--tsp-chip), color-mix(in oklab, var(--tsp-chip) 70%, var(--color-ivory))); }
 .tsp-funnel-step[data-key] .tsp-funnel-label, .tsp-funnel-step[data-key] .tsp-funnel-value { font-weight: 700; }
 .tsp-funnel-value { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
-.tsp-funnel-note { font-weight: 400; color: var(--csx-soft); }
-@media (max-width: 480px) { .tsp-funnel-step { grid-template-columns: minmax(0, 1fr) auto; } .tsp-funnel-bar { grid-column: 1 / -1; grid-row: 2; } }
+.tsp-funnel-note { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--csx-soft); }
+@media (max-width: 480px) { .tsp-funnel-step { grid-template-columns: minmax(0, 1fr) auto; } .tsp-funnel-track { grid-column: 1 / -1; grid-row: 2; } }
 .tsp-callouts { display: flex; flex-wrap: wrap; gap: 8px; }
 .tsp-callouts li { padding: 8px 12px; border-radius: 10px; background: var(--tsp-sage); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .tsp-gaps { padding: 12px 14px; border-radius: 12px; border: 1px dashed color-mix(in oklab, var(--color-navy) 28%, transparent); }

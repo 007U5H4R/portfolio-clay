@@ -339,7 +339,7 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
                     {system.caption}. {system.steps[system.steps.length - 1]?.label}: the PDF comes back to the teacher.
                   </figcaption>
                 </figure>
-                <details className="tsp-more">
+                <details className="tsp-more" open>
                   <summary className="focus-ring">Technical notes</summary>
                   <ul className="tsp-notes">
                     {system.rules.map((rule) => (
@@ -362,11 +362,12 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
                         return (
                           <li key={step.label} className="tsp-funnel-step" data-key={key ? "" : undefined} style={{ "--w": `${Math.max((step.value / top) * 100, 5)}%`, "--i": index } as CSSProperties}>
                             <span className="tsp-funnel-label">{step.label}</span>
-                            <span className="tsp-funnel-bar" aria-hidden="true" />
-                            <span className="tsp-funnel-value">
-                              {step.value}
-                              {step.note ? <span className="tsp-funnel-note"> · {step.note}</span> : null}
+                            {/* TASK-294: the conversion % labels its bar; the count stays in the right column */}
+                            <span className="tsp-funnel-track">
+                              <span className="tsp-funnel-bar" aria-hidden="true" />
+                              {step.note ? <span className="tsp-funnel-note">{step.note}</span> : null}
                             </span>
+                            <span className="tsp-funnel-value">{step.value}</span>
                           </li>
                         );
                       })}
