@@ -24,7 +24,7 @@ import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from 
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { CaseName } from "@/components/case-study/CaseName";
-import { nextLineFor } from "@/components/case-study/NextProject";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -32,7 +32,7 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
 import { RailNav } from "./RailNav";
-import { ART, DECISION_TITLES, EVIDENCE, HERO, NAV, NEXT, PROBLEM, PRODUCT, SOURCES, SYSTEM } from "./copy";
+import { ART, DECISION_TITLES, EVIDENCE, HERO, NAV, PROBLEM, PRODUCT, SOURCES, SYSTEM } from "./copy";
 
 const ART_DIR = "/media/case-studies/railcite/art";
 
@@ -488,7 +488,7 @@ export function RailciteView({ project, study, portfolio, next }: RailciteViewPr
             rel="noopener noreferrer"
             className="rcp-next-link next-band-link"
           >
-            <span className="rcp-next-eyebrow next-band-eyebrow">{NEXT.eyebrow}</span>
+            <span className="rcp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
             <h2 className="rcp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>

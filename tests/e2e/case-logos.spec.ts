@@ -53,6 +53,12 @@ for (const [slug, name] of Object.entries(PRODUCTS)) {
       const nextSlug = href!.replace("/work/", "");
       const nextName = PRODUCTS[nextSlug];
       await expect(band(page).locator("a")).toHaveAttribute("aria-label", new RegExp(`^Next project: ${nextName!.replace(/'/g, ".")}`));
+      if (nextSlug === "slag-city") {
+        // TASK-290: Slag City's logo file is an opaque dark plate (a small dark box on the band), so its band shows the plain name
+        await expect(band(page).locator("h2 .cs-logo")).toHaveCount(0);
+        await expect(band(page).locator("h2")).toContainText(nextName!);
+        continue;
+      }
       const pinned = (await band(page).locator(".cs-logo[data-on-dark]").count()) > 0;
       const next = await shown(page, band(page).locator("h2"));
       expect(next.count, `${slug} band ${theme}: exactly one logo shows`).toBe(1);

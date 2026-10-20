@@ -76,16 +76,21 @@ test.describe("next band: one size on every case study (TASK-290)", () => {
         const band = page.locator('section[aria-label="Next project"]');
         await band.scrollIntoViewIfNeeded();
         await expect(band.locator("a"), `${study.slug} @${w}: one link, one tab stop`).toHaveCount(1);
+        await expect(band.locator(".next-band-eyebrow"), `${study.slug}: one eyebrow wording on every band`).toHaveText("Next project");
+        await expect(band.locator(".next-band-art"), `${study.slug}: the next product's band has its art`).toHaveCount(1);
         const href = (await band.locator("a").getAttribute("href"))!;
         expect(href).toMatch(/^\/work\/[a-z-]+$/);
         const line = band.locator(".next-band-line");
         await expect(line, `${study.slug} @${w}: one-liner present`).toHaveCount(1);
         const m = await line.evaluate((el) => {
           const cs = getComputedStyle(el), r = el.getBoundingClientRect(), b = el.closest("section")!.getBoundingClientRect();
-          return { h: r.height, lh: parseFloat(cs.lineHeight), fs: cs.fontStyle, ff: cs.fontFamily, inside: r.top >= b.top && r.bottom <= b.bottom && r.left >= b.left && r.right <= b.right, text: el.textContent ?? "" };
+          return { h: r.height, lh: parseFloat(cs.lineHeight), clipped: el.scrollWidth > el.clientWidth, fs: cs.fontStyle, ff: cs.fontFamily, inside: r.top >= b.top && r.bottom <= b.bottom && r.left >= b.left && r.right <= b.right, text: el.textContent ?? "" };
         });
         expect(m.text.length, `${study.slug}: one-liner text`).toBeGreaterThan(7);
         expect(m.h, `${study.slug} @${w}: one line (${m.h} vs ${m.lh})`).toBeLessThanOrEqual(m.lh * 1.4);
+        expect(m.clipped, `${study.slug} @${w}: the one-liner is not truncated`).toBe(false);
+        const hOver = await band.locator("h2").evaluate((h) => { const r = h.getBoundingClientRect(), lr = (h.querySelector(".cs-logo") ?? h).getBoundingClientRect(); const a = h.lastElementChild!.getBoundingClientRect(); return Math.max(h.scrollWidth - h.clientWidth, a.right - r.right, lr.right - r.right); });
+        expect(hOver, `${study.slug} @${w}: the name and arrow stay inside their line`).toBeLessThanOrEqual(1);
         expect(m.fs).toBe("italic");
         expect(m.inside, `${study.slug} @${w}: one-liner inside the band`).toBe(true);
       }

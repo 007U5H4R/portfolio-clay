@@ -82,7 +82,7 @@ test.describe("shravan's round paper layout", () => {
     const band = page.locator(BAND);
     await expect(band.locator("h2")).toContainText("Urja");
     await expect(band.getByRole("link", { name: /^Next project: Urja/ })).toHaveAttribute("href", "/work/urja");
-    await expect(band.locator(".cs-next-line")).toHaveText("Truck fleet management dashboard");
+    await expect(band.locator(".cs-next-line")).toHaveText("Truck fleet dashboard");
     await expect(band).toHaveAttribute("data-tone", "cream");
     await expect(band.locator("img.cs-next-art-light")).toHaveAttribute("src", /shravans-round\/art\/urja-next-light\.webp/);
   });

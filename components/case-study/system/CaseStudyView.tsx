@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { CaseImage, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
 import type { VideoMedia } from "@/lib/video-providers";
 import { Container } from "@/components/layout/Container";
-import { NextProject, BHAKTI_NEXT_ART } from "@/components/case-study/NextProject";
+import { NextProject } from "@/components/case-study/NextProject";
 import { CaseStudyHero } from "./CaseStudyHero";
 import { CaseStudyNav } from "./CaseStudyNav";
 import { SectionFrame } from "./SectionFrame";
@@ -154,11 +154,7 @@ export function CaseStudyView({ project, study, portfolio, next }: CaseStudyView
         ) : null}
         <CaseStudyCTA actions={actions} meta={[project.role, project.duration, portfolio.meta]} />
       </article>
-      <NextProject
-        project={next}
-        art={project.slug === "nuptis" && next.slug === "bhakti-vilas" ? BHAKTI_NEXT_ART : undefined}
-        tone={project.slug === "nuptis" && next.slug === "bhakti-vilas" ? "cream" : undefined}
-      />
+      <NextProject project={next} />
     </>
   );
 }

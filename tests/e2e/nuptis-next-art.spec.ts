@@ -123,17 +123,17 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
 
   // TASK-282: slag-city now carries The Shravan's Round line (still a navy band); tested in slag-city-paper.spec.ts
   for (const slug of ["cubicle", "token-toli"]) {
-    test(`${slug}: band keeps its surface (no tone, navy in light, lifted navy in dark; TASK-292: carries its one-liner)`, async ({ page }) => {
+    test(`${slug}: band is the next product's own band (TASK-290: its art and cream tone from NEXT_BAND_ART; TASK-292: its one-liner)`, async ({ page }) => {
       await page.goto(`/work/${slug}`, { waitUntil: "load" });
       await band(page).scrollIntoViewIfNeeded();
       await expect(band(page).locator(".cs-next-line")).toHaveCount(1);
       await expect(band(page).locator(".cs-next-note")).toHaveCount(0); // the one-liner replaced "next up" on every band (TASK-292)
-      expect(await band(page).getAttribute("data-tone")).toBeNull();
+      expect(await band(page).getAttribute("data-tone")).toBe("cream"); // Campfire Board / Pratyasa bands are painted on the cream surface
+      await expect(band(page).locator(".cs-next-art")).toHaveCount(1);
       await setTheme(page, "light");
       const l = await bandStyles(page);
-      expect(l.surface).toEqual(l.navy);
-      expect(l.front).toEqual(l.navy);
-      expect(l.h).toEqual(l.ivory);
+      expect(l.surface).toEqual([0xf7, 0xf0, 0xe7]);
+      expect(l.front).toEqual(l.surface);
       await setTheme(page, "dark");
       const d = await bandStyles(page);
       expect(d.surface).toEqual(d.ivory);

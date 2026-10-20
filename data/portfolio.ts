@@ -80,7 +80,7 @@ export const portfolioEntries: PortfolioEntry[] = [
   {
     slug: "campfire-board",
     code: "CF-01",
-    coverLine: "One dashboard, every project", nextLine: "A Jira board for Gen AI Agents",
+    coverLine: "One dashboard, every project", nextLine: "A board for AI agents",
     accent: "terracotta",
     meta: "Built · live demo",
     coverArt: "cover-campfire-board",
@@ -121,7 +121,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     // TASK-248 (Tushar 2026-10-18): Urja; the launch and demo films follow (Tushar: "I will share the launch and demo video links tomorrow").
     slug: "urja",
     code: "UR-01",
-    coverLine: "Every rupee, accounted for", nextLine: "Truck fleet management dashboard",
+    coverLine: "Every rupee, accounted for", nextLine: "Truck fleet dashboard",
     accent: "terracotta",
     meta: "Live · simulated fleet",
     coverArt: "cover-urja",

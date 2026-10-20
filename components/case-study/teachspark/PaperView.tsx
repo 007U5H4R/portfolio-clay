@@ -13,7 +13,7 @@ import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds, videoFor } from "@/components/case-study/system/case-context";
 import { PaperNav } from "./PaperNav";
 import { CaseName } from "@/components/case-study/CaseName";
-import { nextLineFor } from "@/components/case-study/NextProject";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { ARCH, ART, CHIPS, HERO, NAV, WORKFLOW } from "./copy";
 
 const ART_DIR = "/media/case-studies/teachspark/art";
@@ -464,7 +464,7 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
             rel="noopener noreferrer"
             className="tsp-next-link next-band-link"
           >
-            <span className="tsp-next-eyebrow next-band-eyebrow">Next project</span>
+            <span className="tsp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
             <h2 className="tsp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>

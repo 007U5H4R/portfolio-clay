@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import type { Project } from "@/data/schema";
 import { TornEdge } from "@/components/paper/TornEdge";
@@ -5,6 +6,7 @@ import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink
 import { Container } from "@/components/layout/Container";
 import { portfolioEntries } from "@/data/portfolio";
 import { CaseName } from "./CaseName";
+import { NEXT_BAND_ART } from "./next-art";
 
 /** Per-theme artwork for the band (TASK-275): two WebPs generated on each theme's own band colour. */
 export interface NextProjectArt {
@@ -13,16 +15,15 @@ export interface NextProjectArt {
   alt: string;
   width: number;
   height: number;
+  /** Fraction of the image width that is empty on its left (a transparent cut-out): trimmed so the subject sits at the band edge. */
+  x0?: number;
 }
 
-/** TASK-275 (Tushar 2026-10-19): the Nuptis band's Bhakti Vilas artwork. Other studies pass none. */
-export const BHAKTI_NEXT_ART: NextProjectArt = {
-  light: "/media/case-studies/nuptis/bhakti-next-light.webp",
-  dark: "/media/case-studies/nuptis/bhakti-next-dark.webp",
-  alt: "A paper-craft miniature of an elderly devotee playing a harmonium beside a golden retriever, with a diya and a small heart-pulse care card joined by a paper ribbon: devotion-led wellness and care.",
-  width: 1600,
-  height: 1062,
-};
+/** The eyebrow on every next band (NextProject and the four paper bands): one source. */
+export const NEXT_EYEBROW = "Next project";
+
+/** Products whose logo file is an opaque dark plate (Slag City's metal sign), which reads as a small dark box on a band: the band shows the plain name. */
+const PLAIN_NAME_IN_BAND = new Set(["slag-city"]);
 
 /** TASK-292: the one-line description under a product's name on every next band. One source: `nextLine` on its `data/portfolio.ts` entry. */
 export function nextLineFor(slug: string): string | undefined {
@@ -32,12 +33,6 @@ export function nextLineFor(slug: string): string | undefined {
 export interface NextProjectProps {
   /** The next personal project in `/projects` index order (the page wraps around at the end). */
   project: Pick<Project, "slug" | "name">;
-  art?: NextProjectArt | undefined;
-  /**
-   * TASK-279: light-mode surface tone. Omitted → the navy band every study has today. `"cream"` → the band, its torn edge,
-   * its text and its focus ring take the site's paper cream with ink text in light mode; dark mode stays the navy band.
-   */
-  tone?: NextProjectTone | undefined;
 }
 
 export type NextProjectTone = "cream";
@@ -51,13 +46,14 @@ export type NextProjectTone = "cream";
  * TASK-292: the supporting line under the title is the product's `nextLine` (data/portfolio.ts). Optional (TASK-279): `tone="cream"`
  * turns the light-mode band cream (see `NextProjectProps`).
  */
-export function NextProject({ project, art, tone }: NextProjectProps) {
+export function NextProject({ project }: NextProjectProps) {
   const line = nextLineFor(project.slug);
+  const { art, tone } = NEXT_BAND_ART[project.slug] ?? {};
   return (
     <section className="cs-next cs-torn-fill next-band" aria-label="Next project" data-tone={tone}>
       <TornEdge fill="navy" />
       {art ? (
-        <span className="cs-next-art next-band-art" aria-hidden="true">
+        <span className="cs-next-art next-band-art" aria-hidden="true" style={art.x0 ? ({ "--na-x0": art.x0 } as CSSProperties) : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
           <img className="cs-next-art-img cs-next-art-light" src={art.light} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
           {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
@@ -73,9 +69,9 @@ export function NextProject({ project, art, tone }: NextProjectProps) {
           rel="noopener noreferrer"
           className="cs-next-link next-band-link"
         >
-          <span className="cs-next-eyebrow next-band-eyebrow">Next</span>
+          <span className="cs-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
           <h2 className="cs-next-h next-band-h">
-            <CaseName slug={project.slug} name={project.name} onDark={tone !== "cream"} /> <span className="cs-next-arr" aria-hidden="true">→</span>
+            {PLAIN_NAME_IN_BAND.has(project.slug) ? project.name : <CaseName slug={project.slug} name={project.name} onDark={tone !== "cream"} />} <span className="cs-next-arr" aria-hidden="true">→</span>
           </h2>
           {line ? <p className="cs-next-line next-band-line">{line}</p> : null}
         </ViewTransitionLink>

@@ -5,7 +5,7 @@ import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from 
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { CaseName } from "@/components/case-study/CaseName";
-import { nextLineFor } from "@/components/case-study/NextProject";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -13,7 +13,7 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
 import { BvNav } from "./BvNav";
-import { APPROACH, ART, EVIDENCE, HERO, LEARNINGS, NAV, NEXT, PROBLEM, PROTOTYPE, SECTION, SOURCES } from "./copy";
+import { APPROACH, ART, EVIDENCE, HERO, LEARNINGS, NAV, PROBLEM, PROTOTYPE, SECTION, SOURCES } from "./copy";
 
 const ART_DIR = "/media/case-studies/bhakti-vilas/art";
 
@@ -400,7 +400,7 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
             rel="noopener noreferrer"
             className="bvp-next-link next-band-link"
           >
-            <span className="bvp-next-eyebrow next-band-eyebrow">{NEXT.eyebrow}</span>
+            <span className="bvp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
             <h2 className="bvp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>

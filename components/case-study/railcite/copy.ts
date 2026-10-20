@@ -64,7 +64,6 @@ export const SOURCES = {
   chip: "Sources",
 } as const;
 
-export const NEXT = { eyebrow: "Next" } as const;
 
 export const ART = {
   hero: { w: 900, h: 591 },

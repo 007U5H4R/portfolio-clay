@@ -291,8 +291,6 @@
 /* ── Next project: a wedding vendor-operations paper diorama (the only place the first product is named) ── */
 /* TASK-290: size, art box, fit and text placement are the shared `.next-band` rules (globals.css); only colours live here. */
 .vlp-next { background: var(--vlp-bg-2); }
-.vlp-next-art img[data-theme-art="light"] { --na-x0: var(--fx-l); }
-.vlp-next-art img[data-theme-art="dark"] { --na-x0: var(--fx-d); } /* the tight crop's left edge in the old full-width frame: trim it */
 .vlp-next-link { color: var(--color-navy); }
 .vlp-next-eyebrow { color: var(--vlp-teal); }
 .vlp-next-line { color: var(--color-navy-2); }
