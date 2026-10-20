@@ -19956,4 +19956,19 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     font-size: clamp(15px, calc(var(--pf-vc-h) * 0.03), 18px);
   }
 }
+@media (min-width: 1024px) {
+  /* the pointer shares the track's grid cell, so its centre is the selected card's centre; it pokes out into the gap */
+  .pf-showcase.pf-vcar .pf-vcar-pointer {
+    grid-area: track;
+    justify-self: end;
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-right: calc(-1 * (6px + var(--pf-vc-gap) * 0.55));
+    border-block: 9px solid transparent;
+    border-left: 12px solid var(--color-terracotta);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
 /* === end TASK-301 === */

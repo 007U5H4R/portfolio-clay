@@ -235,6 +235,8 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
       <button type="button" className="pf-arrow focus-ring" data-dir="next" aria-label="Next product" onClick={() => step(1, "arrow")}>
         {vertical ? <ChevronDown aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />}
       </button>
+      {/* TASK-301: a small pointer from the selected (always centred) card toward the video */}
+      {vertical ? <span className="pf-vcar-pointer" aria-hidden="true" /> : null}
       {desktop && !vertical ? (
         <div className="pf-pager" role="group" aria-label="Choose a product">
           {products.map((product, index) => (

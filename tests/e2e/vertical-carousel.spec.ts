@@ -179,6 +179,25 @@ test("TASK-301: the loop wraps both ways by arrows buttons and ArrowUp / ArrowDo
   await expect(page.getByRole("tablist", { name: "Select a product" })).toHaveAttribute("aria-orientation", "vertical");
 });
 
+test("TASK-301: a pointer sits beside the selected card, in the gap toward the video", async ({ page }) => {
+  for (const [vw, vh] of [[1280, 800], [1440, 900], [1920, 1080]] as const) {
+    await open(page, vw, vh, "light");
+    await page.locator('.pf-showcase .pf-carousel .pf-arrow[data-dir="next"]').click();
+    await page.waitForTimeout(900); // the strip settles and re-centres
+    const m = await page.evaluate(() => {
+      const r = (el: Element | null) => el!.getBoundingClientRect();
+      const sel = [...document.querySelectorAll(".pf-showcase .pf-track .pf-thumb")].find((t) => t.getAttribute("aria-selected") === "true" || t.getAttribute("data-current") === "true");
+      const p = r(document.querySelector(".pf-showcase .pf-vcar-pointer"));
+      const s = r(sel!);
+      return { pc: p.top + p.height / 2, sc: s.top + s.height / 2, pl: p.left, pr: p.right, car: r(document.querySelector(".pf-showcase .pf-carousel")).right, feat: r(document.querySelector(".pf-showcase .pf-feature")).left, w: p.width };
+    });
+    expect(m.w, "pointer drawn").toBeGreaterThan(6);
+    expect(Math.abs(m.pc - m.sc), `${vw}: pointer centred on the selected card`).toBeLessThan(4);
+    expect(m.pr, `${vw}: pointer ends before the video`).toBeLessThanOrEqual(m.feat + 1);
+    expect(m.pl, `${vw}: pointer starts at the carousel edge`).toBeGreaterThanOrEqual(m.car - 8);
+  }
+});
+
 test("TASK-301: the clones stay aria-hidden, unfocusable and id-free", async ({ page }) => {
   await open(page, 1440, 900, "light");
   const info = await page.evaluate(() => {
