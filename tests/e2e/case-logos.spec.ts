@@ -42,11 +42,9 @@ for (const [slug, name] of Object.entries(PRODUCTS)) {
       const h1 = page.locator("h1#cs-h");
       await expect(h1.locator(".cs-logo")).toHaveCount(1);
       await expect(page.getByRole("heading", { level: 1 })).toContainText(name);
-      // the hero's own surface decides which file: the system template's dark heroes stay dark in both themes
-      const heroDark = slug === "shravans-round";
       const hero = await shown(page, h1);
       expect(hero.count, `${slug} hero ${theme}: exactly one logo shows`).toBe(1);
-      expect(hero.src).toBe(`/media/logos/products/logo-${slug}-${heroDark ? "dark" : theme === "dark" ? "dark" : "light"}.webp`);
+      expect(hero.src).toBe(`/media/logos/products/logo-${slug}-${theme}.webp`);
       expect(hero.alt).toBe("");
       expect(hero.nat).toBeGreaterThanOrEqual(hero.w); // never upscaled
       // next band
@@ -61,6 +59,9 @@ for (const [slug, name] of Object.entries(PRODUCTS)) {
       expect(next.src).toBe(`/media/logos/products/logo-${nextSlug}-${pinned || theme === "dark" ? "dark" : "light"}.webp`);
       await expect(band(page).locator("h2")).toContainText(nextName!);
       await expect(band(page).locator("h2")).toContainText("→");
+      const gap = await band(page).locator("h2").evaluate((h) => { const l = h.querySelector(".cs-logo")!.getBoundingClientRect(); const a = h.querySelector("[aria-hidden=true]:not(.cs-logo):not(img)")!.getBoundingClientRect(); return a.left - l.right; });
+      expect(gap, `${slug} band: the arrow sits right after the logo`).toBeGreaterThanOrEqual(0);
+      expect(gap).toBeLessThanOrEqual(40);
       if (nextSlug !== "shravans-round") expect(next.nat).toBeGreaterThanOrEqual(next.w);
     }
     for (const w of WIDTHS) {

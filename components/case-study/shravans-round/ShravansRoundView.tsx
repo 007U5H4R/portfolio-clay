@@ -9,6 +9,7 @@ import { EvidenceBadge } from "@/components/case-study/system/EvidenceBadge";
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows } from "@/components/case-study/system/case-context";
 import { NextProject } from "@/components/case-study/NextProject";
+import { CaseName } from "@/components/case-study/CaseName";
 import { SrpNav } from "./SrpNav";
 import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROMISES, ROUND, SECTION, SOURCES, SYSTEM, URJA_NEXT_ART, URJA_NEXT_LINE } from "./copy";
 
@@ -128,7 +129,7 @@ export function ShravansRoundView({ project, study, portfolio, next }: ShravansR
               </p>
               <p className="srp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="srp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="srp-tagline">{HERO.tagline}</p>
               <p className="srp-lede">{HERO.lede}</p>

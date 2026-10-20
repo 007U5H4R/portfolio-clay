@@ -19246,10 +19246,12 @@ h1 > .cs-logo {
 }
 .csx-h1 > .cs-logo,
 .jx-h1 > .cs-logo { --cs-logo-h: clamp(44px, 5.2vw, 72px); }
-:is(.cfp-h1, .bvp-h1, .pra-h1, .nup-h1, .urp-h1, .sgp-h1, .rcp-h1, .vlp-h1) > .cs-logo { --cs-logo-h: clamp(48px, 7vw, 84px); }
+:is(.cfp-h1, .bvp-h1, .pra-h1, .nup-h1, .urp-h1, .srp-h1, .sgp-h1, .rcp-h1, .vlp-h1) > .cs-logo { --cs-logo-h: clamp(48px, 7vw, 84px); }
 .tsp-h1 > .cs-logo { --cs-logo-h: clamp(36px, 4.4vw, 56px); margin-bottom: 12px; }
+.srp-h1:has(> .cs-logo) { max-width: none; }
 /* Next band: the logo sits where the name did, the arrow stays right after it. */
-h2 > .cs-logo { max-width: calc(100% - 1.4em); }
+h2 > .cs-logo { width: min(calc(var(--cs-logo-h) * var(--cs-logo-ar)), calc(100% - 1.4em)); max-width: none; }
+h2 > .cs-logo .pf-logo-img { width: 100%; }
 .cs-next-h > .cs-logo { --cs-logo-h: clamp(40px, 5vw, 72px); }
 :is(.bvp-next-h, .rcp-next-h, .vlp-next-h) > .cs-logo { --cs-logo-h: clamp(34px, 4vw, 52px); }
 .tsp-next-h > .cs-logo { --cs-logo-h: clamp(30px, 3.4vw, 44px); }
