@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronLeft, FileText, Play, Rocket, User, Video } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, ChevronLeft, FileText, User } from "lucide-react";
 import type { ReactNode } from "react";
 import type { MediaMode, PortfolioMetric, PortfolioProduct, ProductLogo as ProductLogoFiles } from "@/lib/portfolio";
 import { ProductLogo } from "./ProductLogo";
 import { StarNote } from "./StarNote";
 import { StarDivider } from "./StarDivider";
-import { GithubMark } from "./GithubMark";
+import { OrigamiIcon } from "./OrigamiIcon";
 
 /**
  * The phone project detail's own pieces (TASK-210; < 640 px only — every `.pf-m-*` block is `display: none` above).
@@ -69,9 +69,9 @@ export function PhoneActions({
   const icon = { strokeWidth: 1.75, "aria-hidden": true, focusable: false } as const;
   // TASK-262 (Tushar 2026-10-18): the grid reads pitch · live product, then GitHub · case study (desktop matches)
   const links: LinkDef[] = [];
-  if (product.productUrl) links.push({ key: "live", label: "Live product", icon: <Rocket {...icon} />, href: product.productUrl });
-  if (product.githubUrl) links.push({ key: "github", label: "GitHub", icon: <GithubMark />, href: product.githubUrl });
-  links.push({ key: "case", label: "Case study", icon: <BookOpen {...icon} />, href: product.caseStudyHref });
+  if (product.productUrl) links.push({ key: "live", label: "Live product", icon: <OrigamiIcon name="rocket" primary={false} />, href: product.productUrl });
+  if (product.githubUrl) links.push({ key: "github", label: "GitHub", icon: <OrigamiIcon name="cat" primary={false} />, href: product.githubUrl });
+  links.push({ key: "case", label: "Case study", icon: <OrigamiIcon name="document" primary={false} />, href: product.caseStudyHref });
   const prd: LinkDef | null = product.prdUrl ? { key: "prd", label: "PRD", icon: <FileText {...icon} />, href: product.prdUrl } : null;
 
   const renderLink = (link: LinkDef) => {
@@ -101,7 +101,7 @@ export function PhoneActions({
       <StarDivider slot="top" />
       {primary ? (
         <button type="button" className="pf-m-btn pf-m-primary focus-ring" data-action="watch" data-mode={primary} aria-controls={stageId} onClick={() => onWatch(primary)}>
-          <Play aria-hidden="true" focusable="false" strokeWidth={2} />
+          <OrigamiIcon name={primary === "demo" ? "play" : "camera"} primary />
           <span>{primary === "demo" ? "Watch demo" : "Watch pitch"}</span>
           <ArrowRight className="pf-m-dir" aria-hidden="true" focusable="false" strokeWidth={2} />
         </button>
@@ -109,7 +109,7 @@ export function PhoneActions({
       <div className="pf-m-secondary" data-odd={count % 2 === 1 ? "" : undefined}>
         {other ? (
           <button type="button" className="pf-m-btn focus-ring" data-action="watch" data-mode={other} aria-controls={stageId} onClick={() => onWatch(other)}>
-            <Video {...icon} />
+            <OrigamiIcon name="camera" primary={false} />
             <span>Watch pitch</span>
             <ArrowRight className="pf-m-dir" aria-hidden="true" focusable="false" strokeWidth={1.75} />
           </button>

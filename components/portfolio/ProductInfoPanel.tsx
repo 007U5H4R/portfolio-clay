@@ -6,7 +6,8 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Sheet } from "@/components/paper";
 import { stepIndex, type CoverArt, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
-import { ACTION_ICON, type ActionIcon } from "./action-icons";
+import { ACTION_ICON, ORIGAMI_FOR_ACTION, type ActionIcon } from "./action-icons";
+import { OrigamiIcon } from "./OrigamiIcon";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 import { ProductLogo } from "./ProductLogo";
 import { StarDivider } from "./StarDivider";
@@ -42,12 +43,13 @@ const EXTERNAL: Record<ExternalKind, { label: string; name: (product: string) =>
 };
 
 /** One action's inside: icon · serif label · arrow (↗ external, → internal / in-page; icon + arrow are visual only). */
-function StripBody({ icon: Icon, label, external }: { icon: ActionIcon | typeof Play; label: string; external: boolean }) {
+function StripBody({ icon: Icon, label, external, action, tier }: { icon: ActionIcon | typeof Play; label: string; external: boolean; action: string; tier: "primary" | "secondary" }) {
   const Arrow = external ? ArrowUpRight : ArrowRight;
+  const origami = ORIGAMI_FOR_ACTION[action];
   return (
     <>
-      <span className="pf-action-icon" aria-hidden="true">
-        <Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />
+      <span className="pf-action-icon" aria-hidden="true" data-origami={origami ? "" : undefined}>
+        {origami ? <OrigamiIcon name={origami} primary={tier === "primary"} /> : <Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />}
       </span>
       <span className="pf-action-label">{label}</span>
       <Arrow className="pf-action-arrow" aria-hidden="true" focusable="false" strokeWidth={1.75} />
@@ -104,7 +106,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         aria-controls={stageId}
         onClick={() => onModeChange(target)}
       >
-        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={tierOf(target) === "primary" ? `${label} video` : label} external={false} />
+        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={tierOf(target) === "primary" ? `${label} video` : label} external={false} action={target} tier={tierOf(target)} />
       </button>
     </li>
   );
@@ -167,7 +169,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
                 rel="noopener noreferrer"
                 aria-label={`${def.name(product.name)} (opens in new tab)`}
               >
-                <StripBody icon={ACTION_ICON[kind]} label={def.label} external />
+                <StripBody icon={ACTION_ICON[kind]} label={def.label} external action={kind} tier={tierOf(kind)} />
               </a>
             </li>
           );
@@ -183,8 +185,8 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         data-span={spanFor("case")}
         data-tier={tierOf("case")}
       >
-        <span className="pf-action-icon" aria-hidden="true">
-          <ACTION_ICON.case aria-hidden="true" focusable="false" strokeWidth={1.75} />
+        <span className="pf-action-icon" aria-hidden="true" data-origami="">
+          <OrigamiIcon name="document" primary={tierOf("case") === "primary"} />
         </span>
         <span className="pf-action-label">
           <span className="pf-case-lead">Read the</span> <span className="pf-case-name">case study</span>
