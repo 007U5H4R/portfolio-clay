@@ -357,7 +357,11 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const velora = products.find((p) => p.id === "velora");
     expect(velora?.pitchVideo).toEqual({ provider: "youtube", videoId: "rz1C0hTz1mE", title: "Velora pitch video", poster: undefined });
     expect(velora?.demoVideo).toEqual({ provider: "youtube", videoId: "1BRXGdMqPEs", title: "Velora product demonstration", poster: undefined });
-    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark", "pratyasa", "bhakti-vilas", "shravans-round", "nuptis", "velora"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
+    // TASK-264: Urja carries its launch pitch + demo (Tushar 2026-10-19).
+    const urja = products.find((p) => p.id === "urja");
+    expect(urja?.pitchVideo).toEqual({ provider: "youtube", videoId: "bZbUP3BhXKs", title: "Urja pitch video", poster: undefined });
+    expect(urja?.demoVideo).toEqual({ provider: "youtube", videoId: "cDWf1t08lkQ", title: "Urja product demonstration", poster: undefined });
+    expect(products.filter((p) => !["railcite", "campfire-board", "slag-city", "teachspark", "pratyasa", "bhakti-vilas", "shravans-round", "nuptis", "velora", "urja"].includes(p.id)).every((p) => !p.pitchVideo && !p.demoVideo)).toBe(true);
     // An entry's { provider, videoId } becomes the player's media with the default title (spec §15).
     const withPitch = buildPortfolioProducts(
       [first!],
