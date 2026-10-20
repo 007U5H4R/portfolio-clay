@@ -80,8 +80,19 @@ describe("/work Experience page (TKT-101)", () => {
       expect(li.querySelector(".ct-city")?.textContent).toBe(`Location: ${entry.institution.slice(at + 2)}`);
       expect(card.getByText(entry.degree)).toBeTruthy();
       expect(li.querySelector(`time[datetime="${entry.year}"]`)?.textContent).toBe(entry.year);
+      // TASK-306: a programme with a start year shows the range, e.g. "2020 – 2022"
+      if (entry.startYear) expect(li.querySelector(".ct-date-text")?.textContent).toBe(`${entry.startYear} – ${entry.year}`);
       expect(Array.from(li.querySelectorAll(".ct-bullets li")).map((b) => b.textContent)).toEqual(entry.highlights);
     });
+  });
+
+  it("TASK-306: the Amex card reads 'American Express' with no employer-of-record note; both degrees show year ranges", () => {
+    const { container } = render(<ExperiencePage />);
+    const headings = Array.from(section(container, "work-experience").querySelectorAll("h3")).map((h) => h.textContent);
+    expect(headings).toContain("American Express");
+    expect(headings.join(" ")).not.toContain("IntraEdge");
+    const dates = Array.from(section(container, "education").querySelectorAll(".ct-date-text")).map((d) => d.textContent);
+    expect(dates).toEqual(["2020 – 2022", "2012 – 2016"]);
   });
 
   it("logos are content with the organisation's name as alt; every organisation shows its official mark", () => {

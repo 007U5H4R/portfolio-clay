@@ -9,9 +9,8 @@ import type { Experience } from "./schema";
  * independently measured (§4.4 last row: "no external validation on disk").
  *
  * No methodology/certification credential strings, and no DOB, phone, or address, appear here (the
- * methodology mention lives in `skills.ts`'s Execution cluster instead). "American Express (via
- * IntraEdge)" is split as `company` + `companyNote` per the schema's own comment; the two render
- * however TSK-23 composes them.
+ * methodology mention lives in `skills.ts`'s Execution cluster instead). The employer is shown as
+ * "American Express" alone (TASK-306, Tushar 2026-10-20); `companyNote` stays optional in the schema.
  *
  * This module imports the schema as a type only (never a value) so no client bundle pulls in zod;
  * validation runs at build time in `scripts/validate-content.ts` (prebuild) and in Vitest.
@@ -106,7 +105,6 @@ export const experience: Experience[] = [
     ],
     location: "Bengaluru", // CONTENT_INVENTORY §4.5 (RESUME) — city only
     company: "American Express",
-    companyNote: "via IntraEdge",
     title: "Senior Product Manager (Accounts Receivable)",
     dates: { start: "2026-06" },
     context: "Legacy Triumph platform being migrated to the cloud-native MARS microservices platform.",
@@ -118,6 +116,6 @@ export const experience: Experience[] = [
       { text: "-30% development effort with Devin GenAI adoption (self-reported)", kind: "self-reported", source: "RESUME" },
       { text: "+25% developer productivity (self-reported)", kind: "self-reported", source: "RESUME" },
     ],
-    sources: [{ id: "RESUME", label: "Résumé — American Express (via IntraEdge)", ref: "RESUME", inventory: "§4.5" }],
+    sources: [{ id: "RESUME", label: "Résumé — American Express", ref: "RESUME", inventory: "§4.5" }],
   },
 ];

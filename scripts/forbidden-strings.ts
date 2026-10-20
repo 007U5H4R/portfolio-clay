@@ -126,6 +126,8 @@ function baseRules(): Rule[] {
     { name: "phone 10-digit", re: /\b\d{10}\b/, only: ["data", "content"] },
     { name: ".env key", re: /ANTHROPIC_API_KEY|SUPABASE_|TWILIO_|VOYAGE_/ },
     { name: "local path", re: /\/Volumes\/E Drive\//, only: ["app", "components", "public", "bundle"] },
+    // TASK-306 (Tushar 2026-10-20): the employer is shown as "American Express" alone, everywhere.
+    { name: "employer-of-record note", re: /IntraEdge/i },
   ];
 }
 

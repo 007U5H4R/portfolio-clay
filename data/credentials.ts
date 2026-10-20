@@ -127,7 +127,10 @@ export interface EducationEntry {
   degree: string;
   /** "<institution>, <city>" as the résumé prints it — `/work` splits the city off at the last comma. */
   institution: string;
+  /** Graduation year. */
   year: string;
+  /** First year of the programme — `/work` shows `startYear – year` when present. */
+  startYear?: string;
   source: string;
   /**
    * Card bullets for the `/work` Education timeline (TKT-101 round 2): transcribed verbatim from
@@ -145,6 +148,7 @@ export const education: EducationEntry[] = [
     degree: "M.Tech., Nanotechnology",
     institution: "National Institute of Technology Calicut, Kozhikode",
     year: "2022",
+    startYear: "2020",
     source: "RESUME Education",
     highlights: [
       "Built advanced expertise in nanotechnology, materials science, and applied research.",
@@ -157,6 +161,7 @@ export const education: EducationEntry[] = [
     degree: "B.E., Mechanical Engineering",
     institution: "Bhilai Institute of Technology, Durg",
     year: "2016",
+    startYear: "2012",
     source: "RESUME Education",
     highlights: [
       "Developed a strong foundation in core engineering, analytical thinking, and structured problem solving.",

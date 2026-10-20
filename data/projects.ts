@@ -2982,7 +2982,7 @@ export const shravansRound: Project = {
  * page is generated (generateStaticParams filters category==='personal').
  */
 
-/** American Express (via IntraEdge), Jun 2026–present. Tags per §2.3 (Enterprise · Cloud · GenAI). */
+/** American Express, Jun 2026–present. Tags per §2.3 (Enterprise · Cloud · GenAI). */
 export const marsArModernization: Project = {
   slug: "mars-ar-modernization",
   name: "Accounts Receivable Modernization — American Express",
@@ -3005,7 +3005,7 @@ export const marsArModernization: Project = {
   metrics: [],
   overview: {
     thirtySecond: [
-      "Senior Product Manager for Accounts Receivable at American Express (via IntraEdge): migrating 35+ capabilities from the legacy Triumph platform to the cloud-native MARS microservices platform and championing Devin GenAI adoption. Self-reported, resume-sourced.",
+      "Senior Product Manager for Accounts Receivable at American Express: migrating 35+ capabilities from the legacy Triumph platform to the cloud-native MARS microservices platform and championing Devin GenAI adoption. Self-reported, resume-sourced.",
     ],
     deepDive: false,
   },
@@ -3013,7 +3013,7 @@ export const marsArModernization: Project = {
   thinking: [],
   learnings: [],
   sources: [
-    { id: "RESUME-AMEX", label: "Résumé — American Express (via IntraEdge)", ref: "portfolio/resume.pdf (AmEx section)", inventory: "§2.3" },
+    { id: "RESUME-AMEX", label: "Résumé — American Express", ref: "portfolio/resume.pdf (AmEx section)", inventory: "§2.3" },
   ],
 };
 
