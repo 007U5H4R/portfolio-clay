@@ -95,5 +95,3 @@ export const SLAG_NEXT_ART: NextProjectArt = {
   height: 1063,
 };
 
-/** The supporting line under the band title (TASK-279 `line` prop). */
-export const NEXT_LINE = "A 90’s arcade game.";

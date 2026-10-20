@@ -2,7 +2,6 @@ import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Clock, GitBranch, Globe, Play, PlayCircle, UserCheck, Users } from "lucide-react";
 import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
-import { getCaseStudy } from "@/data/case-studies";
 import { Container } from "@/components/layout/Container";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
@@ -14,6 +13,7 @@ import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds, videoFor } from "@/components/case-study/system/case-context";
 import { PaperNav } from "./PaperNav";
 import { CaseName } from "@/components/case-study/CaseName";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { ARCH, ART, CHIPS, HERO, NAV, WORKFLOW } from "./copy";
 
 const ART_DIR = "/media/case-studies/teachspark/art";
@@ -137,8 +137,7 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
   const actions = caseActions(project, portfolio);
   const kinds = legendKinds(study);
   const rows = evidenceRows(project, study);
-  const nextCase = getCaseStudy(next.slug);
-  const nextLine = nextCase?.hero.tagline;
+  const nextLine = nextLineFor(next.slug);
   let n = 0;
 
   return (
@@ -452,24 +451,24 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
       </article>
 
       {/* ── Next project: a paper landscape band; the whole band is one link (same contract as NextProject) ── */}
-      <section className="tsp-next" aria-label="Next project">
-        <div className="tsp-next-art" aria-hidden="true">
+      <section className="tsp-next next-band" aria-label="Next project">
+        <div className="tsp-next-art next-band-art" data-fit="bleed" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="tsp-next-in">
+        <Container className="tsp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="tsp-next-link"
+            className="tsp-next-link next-band-link"
           >
-            <span className="tsp-next-eyebrow">Next project</span>
-            <h2 className="tsp-next-h">
+            <span className="tsp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
+            <h2 className="tsp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            {nextLine ? <span className="tsp-next-line">{nextLine}</span> : null}
+            {nextLine ? <span className="tsp-next-line next-band-line">{nextLine}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

@@ -141,7 +141,7 @@ test.describe("pratyasa paper layout", () => {
   test("next band: supporting line, cream in light, no light strip in dark, art painted on the band colour", async ({ page }) => {
     await page.goto("/work/pratyasa", { waitUntil: "load" });
     await band(page).scrollIntoViewIfNeeded();
-    await expect(band(page).locator(".cs-next-line")).toHaveText("A Jira board for Gen AI Agents.");
+    await expect(band(page).locator(".cs-next-line")).toHaveText("A board for AI agents");
     await expect(band(page).getByText("next up")).toHaveCount(0);
     // computed colours (any CSS colour syntax) -> rgb, via a canvas
     const rgb = (css: string) => page.evaluate((c) => { const g = document.createElement("canvas").getContext("2d")!; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); }, css);

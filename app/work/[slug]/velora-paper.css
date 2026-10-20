@@ -58,7 +58,7 @@
 .vlp :where(ul, ol) { padding: 0; list-style: none; }
 
 /* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
-.vlp [data-theme-art], .vlp-next [data-theme-art] { width: 100%; height: auto; }
+.vlp [data-theme-art] { width: 100%; height: auto; }
 
 /* Shared paper bits */
 .vlp-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--vlp-teal); }
@@ -289,27 +289,11 @@
 .vlp-meta { margin-top: 2px; }
 
 /* ── Next project: a wedding vendor-operations paper diorama (the only place the first product is named) ── */
-.vlp-next { position: relative; margin-bottom: -72px; display: flex; flex-direction: column; background: var(--vlp-bg-2); overflow: clip; }
-.vlp-next-in { order: -1; padding-block: clamp(28px, 4vw, 48px) 4px; position: relative; z-index: 1; }
-.vlp-next-art { position: relative; width: 100%; overflow: hidden; }
-.vlp-next-art::before { content: ""; position: absolute; inset: 6% 0 0 24%; background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 22%, transparent), transparent); }
-[data-theme="dark"] .vlp-next-art::before { background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 26%, var(--color-ivory) 14%), transparent); }
-/* === TASK-273 (Tushar 2026-10-19): the footer art is a tight crop of the cut-out scene (no empty left third baked into the file);
-   --fx is where the crop's left edge sits in the band, so the scene lands exactly where the old full-width image put it. === */
-.vlp-next .vlp-next-art img[data-theme-art="light"] { --fx: var(--fx-l); }
-.vlp-next .vlp-next-art img[data-theme-art="dark"] { --fx: var(--fx-d); }
-.vlp-next .vlp-next-art img[data-theme-art] { position: relative; width: calc(165% * (1 - var(--fx))); max-width: none; margin-left: calc(-62% + 165% * var(--fx)); }
-@media (min-width: 768px) {
-  .vlp-next .vlp-next-art img[data-theme-art] { width: calc(100% * (1 - var(--fx))); margin-left: calc(100% * var(--fx)); }
-  .vlp-next-in { position: absolute; inset: 0; display: flex; justify-content: flex-start; align-items: center; padding-block: 0; pointer-events: none; }
-  .vlp-next-link { pointer-events: auto; max-width: 380px; }
-}
-/* === end TASK-273 === */
-.vlp-next-link { display: grid; gap: 4px; text-decoration: none; color: var(--color-navy); padding: 12px 14px; border-radius: 14px; }
-.vlp-next-link:focus-visible { outline: 2px solid var(--color-kraft); outline-offset: 3px; }
-.vlp-next-eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--vlp-teal); }
-.vlp-next-h { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1; letter-spacing: -0.02em; }
-.vlp-next-line { font-family: var(--font-display); font-style: italic; font-size: 18px; color: var(--color-navy-2); }
+/* TASK-290: size, art box, fit and text placement are the shared `.next-band` rules (globals.css); only colours live here. */
+.vlp-next { background: var(--vlp-bg-2); }
+.vlp-next-link { color: var(--color-navy); }
+.vlp-next-eyebrow { color: var(--vlp-teal); }
+.vlp-next-line { color: var(--color-navy-2); }
 @media (hover: hover) { .vlp-next-link:hover .vlp-next-h { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; } }
 
 /* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
@@ -320,5 +304,4 @@
   .vlp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .vlp-shot .vlp-frame, .vlp-card, .vlp-retired-card, .vlp-score { transform: none; }
 }
-@media (max-width: 767px) { .vlp-next { padding-bottom: 64px; } } /* the site footer's torn edge overlaps the band's last 72px */
 .vlp-rule { margin-top: -4px; }

@@ -82,7 +82,6 @@ export const SUPPORTS_OVERRIDE: Record<string, string> = {
   "Nine-day series": "The day-seven decision and the closing line",
 };
 
-export const NEXT = { eyebrow: "Next project", line: "Wedding vendor operations" } as const;
 
 /** Encoded sizes (scripts/velora-art/encode.mjs); the hero screen rectangles live in hero-screen.json beside the art. */
 export const ART = {

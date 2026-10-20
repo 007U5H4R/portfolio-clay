@@ -81,7 +81,6 @@ export const LEARNINGS = [
 
 export const SOURCES = { headline: "Built on real artifacts.", chip: "Source material" } as const;
 
-export const NEXT = { eyebrow: "Next project", line: "A patented portable device for rapid endotoxin detection." } as const;
 
 /** Encoded sizes (scripts/bv-art/encode.sh). */
 export const ART = {

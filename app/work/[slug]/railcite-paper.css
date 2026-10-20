@@ -56,7 +56,7 @@
 .rcp :where(ul, ol) { padding: 0; list-style: none; }
 
 /* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
-.rcp [data-theme-art], .rcp-next [data-theme-art] { width: 100%; height: auto; }
+.rcp [data-theme-art] { width: 100%; height: auto; }
 
 /* Shared paper bits */
 .rcp-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rcp-accent-ink); }
@@ -305,24 +305,12 @@
 .rcp-meta { margin-top: 2px; }
 
 /* ── Next project: a fashion atelier on paper (Velora is apparel, not railways) ───────────── */
-.rcp-next { position: relative; margin-bottom: -72px; display: flex; flex-direction: column; background: var(--rcp-bg-2); overflow: clip; }
-.rcp-next-in { order: -1; padding-block: clamp(28px, 4vw, 48px) 4px; position: relative; z-index: 1; }
-.rcp-next-art { position: relative; width: 100%; overflow: hidden; }
-.rcp-next-art::before { /* a warm pool of light behind the garments: navy jackets need a lighter ground at night */
-  content: ""; position: absolute; inset: 6% 0 0 24%; background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 26%, transparent), transparent);
-}
-[data-theme="dark"] .rcp-next-art::before { background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory) 20%), transparent); }
-.rcp-next .rcp-next-art img[data-theme-art] { position: relative; width: 165%; max-width: none; margin-left: -62%; }
-@media (min-width: 768px) {
-  .rcp-next .rcp-next-art img[data-theme-art] { width: 100%; margin-left: 0; }
-  .rcp-next-in { position: absolute; inset: 0; display: flex; justify-content: flex-start; align-items: center; padding-block: 0; pointer-events: none; }
-  .rcp-next-link { pointer-events: auto; max-width: 380px; }
-}
-.rcp-next-link { display: grid; gap: 4px; text-decoration: none; color: var(--color-navy); padding: 12px 14px; border-radius: 14px; }
-.rcp-next-link:focus-visible { outline: 2px solid var(--color-kraft); outline-offset: 3px; }
-.rcp-next-eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rcp-accent-ink); }
-.rcp-next-h { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1; letter-spacing: -0.02em; }
-.rcp-next-line { font-size: 16px; color: var(--color-navy-2); }
+/* TASK-290: size, art box, fit and text placement are the shared `.next-band` rules (globals.css); only colours live here. */
+.rcp-next { background: var(--rcp-bg-2); }
+.rcp-next-art { --na-x0: 0.29; } /* the cut-out carries an empty left 29% */
+.rcp-next-link { color: var(--color-navy); }
+.rcp-next-eyebrow { color: var(--rcp-accent-ink); }
+.rcp-next-line { color: var(--color-navy-2); }
 @media (hover: hover) { .rcp-next-link:hover .rcp-next-h { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; } }
 
 /* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
@@ -333,5 +321,4 @@
   .rcp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .rcp-hero-card, .rcp-shot .rcp-frame { transform: none; }
 }
-@media (max-width: 767px) { .rcp-next { padding-bottom: 64px; } } /* the site footer's torn edge overlaps the band's last 72px */
 .rcp-rule { margin-top: -4px; }

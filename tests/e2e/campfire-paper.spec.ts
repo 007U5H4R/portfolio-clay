@@ -114,7 +114,7 @@ test.describe("campfire paper layout", () => {
       await expect(art).toHaveAttribute("src", new RegExp(`slag-next-${theme}\\.webp$`));
       await expect(band(page).locator(`img.cs-next-art-${other}`)).toBeHidden();
       await expect(band(page).locator("h2")).toContainText("Slag City");
-      await expect(band(page).locator(".cs-next-line")).toHaveText("A 90’s arcade game.");
+      await expect(band(page).locator(".cs-next-line")).toHaveText("A 90’s arcade game");
       await expect(band(page).locator("a")).toHaveAttribute("href", "/work/slag-city");
       await expect.poll(() => art.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBeGreaterThan(0);
       const b = await art.evaluate((el: HTMLImageElement) => ({ natural: el.naturalWidth, shown: el.getBoundingClientRect().width }));

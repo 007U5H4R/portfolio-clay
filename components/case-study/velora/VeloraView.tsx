@@ -5,6 +5,7 @@ import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from 
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { CaseName } from "@/components/case-study/CaseName";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -12,9 +13,8 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
 import { VelNav } from "./VelNav";
-import { ART, EVIDENCE, HERO, LEARNINGS, NAV, NEXT, PIVOT, PRODUCT, PROBLEM, RESEARCH, SECTION, SOURCES, SUPPORTS_OVERRIDE } from "./copy";
+import { ART, EVIDENCE, HERO, LEARNINGS, NAV, PIVOT, PRODUCT, PROBLEM, RESEARCH, SECTION, SOURCES, SUPPORTS_OVERRIDE } from "./copy";
 import screens from "../../../public/media/case-studies/velora/art/hero-screen.json";
-import footerFit from "../../../public/media/case-studies/velora/art/footer-fit.json";
 
 const ART_DIR = "/media/case-studies/velora/art";
 
@@ -397,24 +397,24 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
       </article>
 
       {/* ── Next project: the only place the first product is named; a wedding vendor-operations paper diorama ── */}
-      <section className="vlp-next" aria-label="Next project">
-        <div className="vlp-next-art" aria-hidden="true" style={{ "--fx-l": footerFit.light.x0, "--fx-d": footerFit.dark.x0 } as CSSProperties}>
+      <section className="vlp-next next-band" aria-label="Next project">
+        <div className="vlp-next-art next-band-art" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="vlp-next-in">
+        <Container className="vlp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="vlp-next-link"
+            className="vlp-next-link next-band-link"
           >
-            <span className="vlp-next-eyebrow">{NEXT.eyebrow}</span>
-            <h2 className="vlp-next-h">
+            <span className="vlp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
+            <h2 className="vlp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            {next.slug === "nuptis" ? <span className="vlp-next-line">{NEXT.line}</span> : null}
+            {nextLineFor(next.slug) ? <span className="vlp-next-line next-band-line">{nextLineFor(next.slug)}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

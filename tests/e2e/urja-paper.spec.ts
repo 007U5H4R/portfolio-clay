@@ -89,7 +89,7 @@ test.describe("urja paper layout", () => {
     });
     expect(body).not.toMatch(/teachspark|railcite|velora|nuptis|bhakti|pratyasa|tushky|cubicle|tegaki|token ?toli|campfire|slag|shravan/i);
     await expect(band(page).locator("h2")).toContainText("TeachSpark");
-    await expect(band(page).locator(".cs-next-line")).toHaveText("WhatsApp chatbot that helps teachers create worksheets, exam papers and more.");
+    await expect(band(page).locator(".cs-next-line")).toHaveText("AI worksheets for teachers");
     await expect(band(page).locator(".cs-next-note")).toHaveCount(0);
     expect(await band(page).textContent()).not.toMatch(/truck|fleet|fuel|toll|road/i);
     await expect(band(page).getByRole("link", { name: /^Next project: TeachSpark/ })).toHaveAttribute("href", "/work/teachspark");

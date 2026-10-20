@@ -5,6 +5,7 @@ import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from 
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { CaseName } from "@/components/case-study/CaseName";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -12,7 +13,7 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
 import { BvNav } from "./BvNav";
-import { APPROACH, ART, EVIDENCE, HERO, LEARNINGS, NAV, NEXT, PROBLEM, PROTOTYPE, SECTION, SOURCES } from "./copy";
+import { APPROACH, ART, EVIDENCE, HERO, LEARNINGS, NAV, PROBLEM, PROTOTYPE, SECTION, SOURCES } from "./copy";
 
 const ART_DIR = "/media/case-studies/bhakti-vilas/art";
 
@@ -386,24 +387,24 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
       </article>
 
       {/* ── Next project: the only place another product is named; a paper-craft biosensor for Pratyasa ── */}
-      <section className="bvp-next" aria-label="Next project">
-        <div className="bvp-next-art" aria-hidden="true">
+      <section className="bvp-next next-band" aria-label="Next project">
+        <div className="bvp-next-art next-band-art" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="bvp-next-in">
+        <Container className="bvp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="bvp-next-link"
+            className="bvp-next-link next-band-link"
           >
-            <span className="bvp-next-eyebrow">{NEXT.eyebrow}</span>
-            <h2 className="bvp-next-h">
+            <span className="bvp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
+            <h2 className="bvp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            {next.slug === "pratyasa" ? <span className="bvp-next-line">{NEXT.line}</span> : null}
+            {nextLineFor(next.slug) ? <span className="bvp-next-line next-band-line">{nextLineFor(next.slug)}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

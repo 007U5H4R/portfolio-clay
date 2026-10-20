@@ -120,7 +120,7 @@ test.describe("bhakti vilas paper layout", () => {
     const band = page.locator('section[aria-label="Next project"]');
     await expect(band.locator(".bvp-next-eyebrow")).toHaveText("Next project");
     await expect(band.locator(".bvp-next-h")).toContainText("Pratyasa");
-    await expect(band.locator(".bvp-next-line")).toHaveText("A patented portable device for rapid endotoxin detection.");
+    await expect(band.locator(".bvp-next-line")).toHaveText("A patent, on the record");
     await expect(band.getByRole("link", { name: /^Next project: Pratyasa/ })).toHaveAttribute("href", "/work/pratyasa");
     await expect(band).not.toContainText(/clinically approved|FDA|deployed in|diagnos/i);
     // footer art is the biosensor scene (not the devotional diorama), decorative

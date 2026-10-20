@@ -67,8 +67,6 @@ export const ART = {
   sign: { w: 900, h: 831 },
 } as const;
 
-/** The band's supporting line: the live product page's own words (its hero: "Rehearse the round before the round."; 20-minute AI mock PM interview). */
-export const SHRAVAN_NEXT_LINE = "Rehearse the round before the round: a 20-minute AI mock PM interview.";
 
 /**
  * The Shravan's Round band artwork: a paper desk with a laptop showing a faceless folded-paper interviewer bust, a listening

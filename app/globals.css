@@ -18874,24 +18874,6 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
 /* === TASK-275 (Tushar 2026-10-19): Bhakti Vilas artwork in the Nuptis next-project band ===
    The WebPs are painted on each theme's exact band colour (#0d1734 light, #172646 dark), so there is no
    cutout; a soft mask feathers the edges into the band. Unlayered: it adds to the layered .cs-next rules. */
-.cs-next-link {
-  position: relative;
-}
-.cs-next-art {
-  display: block;
-  margin-top: 8px;
-  pointer-events: none;
-}
-.cs-next-art-img {
-  display: block;
-  width: min(100%, 420px);
-  height: auto;
-  margin-inline: auto;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
-  mask-composite: intersect;
-}
 .cs-next-art-dark {
   display: none;
 }
@@ -18901,20 +18883,11 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
 [data-theme="dark"] .cs-next-art-dark {
   display: block;
 }
-@media (min-width: 900px) {
-  .cs-next-link:has(.cs-next-art) {
-    min-height: calc(clamp(380px, 38vw, 540px) * 0.664 + 16px);
-  }
-  .cs-next-art {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    margin: 0;
-    width: clamp(380px, 38vw, 540px);
-  }
-  .cs-next-art-img {
-    width: 100%;
-  }
+.cs-next-art-img {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
+  mask-composite: intersect;
 }
 /* === end TASK-275 === */
 
@@ -18953,25 +18926,6 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
 }
 [data-theme="dark"] .cs-next .torn-front {
   fill: var(--color-ivory);
-}
-/* The site footer is the next torn sheet: at the end of the page it slides over the band's lower 120 px (phones) / 200 px (TKT-106 lag),
-   which clipped the art. An art band keeps its art clear of the footer at rest (art bottom >= 8 px above the footer's top edge). */
-.cs-next-link:has(.cs-next-art) {
-  padding-bottom: 104px;
-}
-@media (min-width: 768px) {
-  .cs-next-link:has(.cs-next-art) {
-    padding-bottom: 184px;
-  }
-}
-@media (min-width: 900px) {
-  .cs-next-link:has(.cs-next-art) {
-    min-height: calc(clamp(380px, 38vw, 540px) * 0.664 + 16px + 168px);
-    align-content: start;
-  }
-  .cs-next-art {
-    bottom: 168px;
-  }
 }
 /* === end TASK-279 === */
 
@@ -19563,3 +19517,169 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
 }
 /* === end TASK-291 === */
+/* === TASK-290 (Tushar 2026-10-20): ONE next-project band for every case study ===
+   The TeachSpark band (TASK-288) is the standard and this is its single source: `.next-band` is on NextProject (shared by the system,
+   journal, Nuptis, Campfire, Pratyasa, Slag City, Shravan's Round and Urja pages) and on the TeachSpark / RailCite / Velora / Bhakti Vilas
+   paper bands. Body height (the torn top of a NextProject band, 44px, tears over the section above and is not counted):
+   5:2 on phones (150px at 375); 1344:262 from 768 with a 190px floor (190 @768, ~200 @1024, ~281 @1440).
+   The size comes from a spacer (`::after`); the art and the text overlay are absolute, so neither can change the footprint.
+   Art: `data-fit="bleed"` (TeachSpark's wide landscape) fills the box with object-fit cover and an object-position crop; every other
+   art is a single subject (people, trucks, an arcade) that a 5:1 crop would slice, so its image is the band's body height, natural
+   ratio (still object-fit cover, never distorted), parked at the left; `--na-x0` trims the empty left part some cut-outs carry.
+   Text: top right over the empty part of the art, at every width. Motion: the torn-lag slide under the site footer is off (it hid
+   the lower 120-200px of a band this short); the designed 72px torn-edge overlap (margin-bottom) is all that sits under the footer. */
+.next-band {
+  position: relative;
+  margin-bottom: -72px;
+  overflow: clip;
+  animation: none;
+}
+.next-band::after {
+  content: "";
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 2;
+}
+/* Rest position: the section above a NextProject band is the "content above the tear" of TKT-106 and lagged 120-200px DOWN under the
+   band as it scrolled in, which a half-height band cannot afford (the lag would cover that section's last rows). It stays put: its
+   own bottom padding (which already reserved the 44px torn overlap) is the rest gap. */
+:has(+ .next-band) {
+  animation: none;
+}
+.cs-next.next-band::after {
+  margin-top: 1px; /* the TornEdge's -1px bottom margin: the body (below the 44px tear) is exactly the spacer */
+}
+.next-band-art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cs-next.next-band .next-band-art {
+  top: 44px;
+}
+.next-band .next-band-art img {
+  position: absolute;
+  top: 0;
+  bottom: auto;
+  left: clamp(8px, 7vw, 140px);
+  width: auto;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+  object-position: 50% 50%;
+  translate: calc(var(--na-x0, 0) * -100%) 0;
+}
+.next-band .next-band-art[data-fit="bleed"] img {
+  inset: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  translate: none;
+  object-position: 12% 50%;
+}
+.next-band-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-block: 6px 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.cs-next.next-band .next-band-in {
+  top: 44px;
+}
+.next-band .next-band-link {
+  display: grid;
+  gap: 4px;
+  max-width: 440px;
+  padding: 4px 8px;
+  border-radius: 14px;
+  text-decoration: none;
+  pointer-events: auto;
+}
+.next-band .next-band-link:focus-visible {
+  outline: 2px solid var(--color-kraft);
+  outline-offset: 3px;
+}
+.next-band .next-band-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.next-band .next-band-h {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: normal;
+}
+/* TASK-292: every band carries its product's one-liner (nextLine), italic serif, always on ONE line. */
+.next-band .next-band-line {
+  max-width: none;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Phones: only ~64px of text height clears the footer's torn top (the band's last 72px sit under it), so a single-subject art is a 64px
+   thumbnail at the left and the text column sits to its right: the title on one line, the supporting line cut to one line with an
+   ellipsis (the full sentence stays in the DOM and in the link's accessible name). TeachSpark's landscape bleed art keeps its
+   full-width text over the sky. */
+@media (max-width: 767px) {
+  .next-band .next-band-art:not([data-fit="bleed"]) img {
+    top: 2px;
+    left: 8px;
+    height: 64px;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-link {
+    max-width: calc(100% - 112px);
+    min-width: 0;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-h {
+    font-size: 1.35rem;
+    white-space: nowrap;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-line {
+    font-size: 13px;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-eyebrow {
+    font-size: 10.5px;
+  }
+}
+@media (min-width: 768px) {
+  .next-band::after {
+    aspect-ratio: 1344 / 262;
+    min-height: 190px;
+  }
+  .next-band .next-band-art[data-fit="bleed"] img {
+    object-position: 50% 41%;
+  }
+  .next-band-in {
+    padding-block: clamp(12px, 2vw, 32px) 0;
+  }
+  .next-band .next-band-link {
+    padding-block: 8px;
+  }
+  .next-band .next-band-eyebrow {
+    font-size: 12.5px;
+  }
+  .next-band .next-band-line {
+    font-size: 16px;
+  }
+}
+/* A logo over TeachSpark's bleed art gets a soft halo in the band colour (the art can sit behind it on phones). */
+.next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .pf-logo-img {
+  filter: drop-shadow(0 0 5px var(--tsp-bg-2)) drop-shadow(0 0 2px var(--tsp-bg-2));
+}
+/* The logo (TASK-285) takes the same height in every band, TeachSpark's. */
+.next-band .next-band-h > .cs-logo {
+  --cs-logo-h: clamp(30px, 3.4vw, 44px);
+}
+/* === end TASK-290 === */

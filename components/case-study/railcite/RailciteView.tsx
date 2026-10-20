@@ -24,6 +24,7 @@ import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from 
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { CaseName } from "@/components/case-study/CaseName";
+import { NEXT_EYEBROW, nextLineFor } from "@/components/case-study/NextProject";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -31,7 +32,7 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
 import { RailNav } from "./RailNav";
-import { ART, DECISION_TITLES, EVIDENCE, HERO, NAV, NEXT, PROBLEM, PRODUCT, SOURCES, SYSTEM } from "./copy";
+import { ART, DECISION_TITLES, EVIDENCE, HERO, NAV, PROBLEM, PRODUCT, SOURCES, SYSTEM } from "./copy";
 
 const ART_DIR = "/media/case-studies/railcite/art";
 
@@ -474,24 +475,24 @@ export function RailciteView({ project, study, portfolio, next }: RailciteViewPr
       </article>
 
       {/* ── Next project: a fashion paper diorama (Velora is apparel); the whole band is one link ── */}
-      <section className="rcp-next" aria-label="Next project">
-        <div className="rcp-next-art" aria-hidden="true">
+      <section className="rcp-next next-band" aria-label="Next project">
+        <div className="rcp-next-art next-band-art" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="rcp-next-in">
+        <Container className="rcp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="rcp-next-link"
+            className="rcp-next-link next-band-link"
           >
-            <span className="rcp-next-eyebrow">{NEXT.eyebrow}</span>
-            <h2 className="rcp-next-h">
+            <span className="rcp-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
+            <h2 className="rcp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            <span className="rcp-next-line">{NEXT.line}</span>
+            {nextLineFor(next.slug) ? <span className="rcp-next-line next-band-line">{nextLineFor(next.slug)}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>
