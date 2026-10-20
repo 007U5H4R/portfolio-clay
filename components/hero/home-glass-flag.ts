@@ -8,4 +8,4 @@
  * class that is only emitted while this is true). Kept in its own tiny module so specs can import it
  * without pulling in the component tree. Same pattern as `ORIGAMI_BG_ENABLED`.
  */
-export const HOME_GLASS_HERO_ENABLED = true;
+export const HOME_GLASS_HERO_ENABLED = false;
