@@ -6,9 +6,11 @@
  */
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+import { resumeAction, site } from "../../lib/site";
 
 const WIDTHS = [320, 360, 375, 390, 412, 430];
-const ROWS = ["Home", "Experience", "Portfolio", "Ask Tushky", "About", "Certifications", "Let's connect", "LinkedIn"];
+const ROWS = ["Home", "Experience", "Portfolio", "Ask Tushky", "About", "Certifications", "Let's connect", "LinkedIn", "GitHub", "Resume"];
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
 const setTheme = (page: Page, theme: "light" | "dark") => page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
 const SHEET = "dialog.more-menu .more-sheet";
@@ -101,7 +103,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
         expect(g.left).toBeCloseTo(0, 0);
         expect(g.w / w).toBeGreaterThanOrEqual(0.7);
         expect(g.w / w).toBeLessThanOrEqual(0.83);
-        expect(g.rows).toHaveLength(8);
+        expect(g.rows).toHaveLength(10);
         for (const r of g.rows) {
           expect(r.h, `row height at ${w}`).toBeGreaterThanOrEqual(44);
           expect(r.l).toBeGreaterThanOrEqual(0);
@@ -120,8 +122,26 @@ test.describe("phone menu drawer (TASK-232)", () => {
         await expect(li).toHaveAttribute("target", "_blank");
         expect(await li.getAttribute("rel")).toContain("noopener");
         await expect(li.locator("svg").first()).toBeAttached();
+        // TASK-302: GitHub and Resume follow LinkedIn, same destinations as the footer, new tab, noopener, sr-only hint
+        for (const [name, href] of [["GitHub", site.github], ["Resume", resumeAction().href]] as const) {
+          const a = dlg.getByRole("link", { name: new RegExp(name) });
+          await expect(a).toHaveAttribute("href", href);
+          await expect(a).toHaveAttribute("target", "_blank");
+          expect(await a.getAttribute("rel")).toContain("noopener");
+          await expect(a.locator("svg").first()).toBeAttached();
+          await expect(a.locator(".sr-only")).toHaveText("(opens in a new tab)");
+        }
         await expect(dlg.getByRole("link", { name: /Let's connect/ })).toHaveAttribute("href", "/contact");
         await expect(dlg.getByRole("button", { name: /Ask Tushky/ })).toBeVisible();
+
+        // TASK-302: frosted glass rows (computed backdrop-filter blur) and a clean axe pass on the open menu
+        const filters = await page.evaluate(() =>
+          [...document.querySelectorAll(".more-menu .more-row")].map((r) => getComputedStyle(r).backdropFilter),
+        );
+        expect(filters).toHaveLength(10);
+        for (const f of filters) expect(f, `backdrop-filter at ${w}`).toContain("blur");
+        const axe = await new AxeBuilder({ page }).include("dialog.more-menu").withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+        expect(axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`), `axe at ${w}`).toEqual([]);
 
         await page.keyboard.press("Escape");
         await expect(dlg).toHaveCount(0);
@@ -217,7 +237,7 @@ test.describe("phone menu drawer (TASK-232)", () => {
     await page.getByRole("button", { name: "More", exact: true }).click();
     await page.waitForTimeout(450);
     await expect(page.getByRole("button", { name: "Close menu" })).toBeInViewport();
-    const last = page.locator("dialog.more-menu").getByRole("link", { name: /LinkedIn/ });
+    const last = page.locator("dialog.more-menu").getByRole("link", { name: /Resume/ });
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport();
   });

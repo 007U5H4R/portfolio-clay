@@ -1,5 +1,5 @@
 import { dockItems, activeDockHref, type DockLink } from "@/lib/mobile-dock";
-import { site } from "@/lib/site";
+import { resumeAction, site } from "@/lib/site";
 
 /**
  * TASK-232 — the phone drawer's destinations (the menu behind the header's kebab, < 640 px). Routes and icons come from the dock
@@ -10,7 +10,7 @@ export interface MenuLink {
   kind: "link";
   label: string;
   href: string;
-  icon: string | "linkedin";
+  icon: string | "linkedin" | "github" | "resume";
   external?: boolean;
 }
 export interface MenuAsk {
@@ -49,6 +49,9 @@ export const menuGroups: MenuGroup[] = [
     items: [
       { kind: "link", label: "Let's connect", href: "/contact", icon: "/media/mobile-nav/connect.webp" },
       { kind: "link", label: "LinkedIn", href: site.linkedin, icon: "linkedin", external: true },
+      // TASK-302: the same destinations the footer's Social icons use (`site.github`, `resumeAction().href`), nothing new.
+      ...(site.github ? [{ kind: "link" as const, label: "GitHub", href: site.github, icon: "github", external: true }] : []),
+      { kind: "link", label: "Resume", href: resumeAction().href, icon: "resume", external: true },
     ],
   },
 ];

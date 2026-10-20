@@ -11,7 +11,7 @@ import { Monogram } from "./Monogram";
 /**
  * MoreMenu (TASK-205, redesigned TASK-232): the phone-only (< 640 px; CSS hides the kebab at every wider width, so desktop and tablet keep
  * the tab-only header) paper-craft drawer behind the header's kebab. It slides in from the LEFT and back out to the left. Destinations
- * are in `lib/mobile-menu` (Portfolio: Home, Experience, Portfolio, Ask Tushky, About, Certifications; Connect: Let's connect, LinkedIn).
+ * are in `lib/mobile-menu` (Portfolio: Home, Experience, Portfolio, Ask Tushky, About, Certifications; Connect: Let's connect, LinkedIn, GitHub, Resume).
  * "Ask Tushky" opens the same global Ask drawer as the dock. Theme stays on the header's own switch — no second control.
  *
  * Built on a native `<dialog>` opened with `showModal()` (focus trap, Esc, inert page behind it) and mounted only while open or closing,
@@ -30,12 +30,32 @@ function LinkedInMark() {
   );
 }
 
+// Same GitHub mark and document glyph the band footer's Social icons use.
+function GitHubMark() {
+  return (
+    <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+      />
+    </svg>
+  );
+}
+
+function ResumeMark() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M6 2h8l6 6v14H6V2zm7 1.5V9h5.5L13 3.5zM8 12h8v1.6H8V12zm0 3.4h8V17H8v-1.6zm0 3.4h5.5v1.6H8v-1.6z" />
+    </svg>
+  );
+}
+
 function RowIcon({ icon }: { icon: string }) {
   return (
     <span className="more-icon" aria-hidden="true">
-      {icon === "linkedin" ? (
-        <span className="more-in">
-          <LinkedInMark />
+      {icon === "linkedin" || icon === "github" || icon === "resume" ? (
+        <span className={`more-in more-in-${icon}`}>
+          {icon === "linkedin" ? <LinkedInMark /> : icon === "github" ? <GitHubMark /> : <ResumeMark />}
         </span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element -- 120 px decorative webp, already optimised
