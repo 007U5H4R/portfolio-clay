@@ -397,24 +397,24 @@ export function VeloraView({ project, study, portfolio, next }: VeloraViewProps)
       </article>
 
       {/* ── Next project: the only place the first product is named; a wedding vendor-operations paper diorama ── */}
-      <section className="vlp-next" aria-label="Next project">
-        <div className="vlp-next-art" aria-hidden="true" style={{ "--fx-l": footerFit.light.x0, "--fx-d": footerFit.dark.x0 } as CSSProperties}>
+      <section className="vlp-next next-band" aria-label="Next project">
+        <div className="vlp-next-art next-band-art" aria-hidden="true" style={{ "--fx-l": footerFit.light.x0, "--fx-d": footerFit.dark.x0 } as CSSProperties}>
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="vlp-next-in">
+        <Container className="vlp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="vlp-next-link"
+            className="vlp-next-link next-band-link"
           >
-            <span className="vlp-next-eyebrow">{NEXT.eyebrow}</span>
-            <h2 className="vlp-next-h">
+            <span className="vlp-next-eyebrow next-band-eyebrow">{NEXT.eyebrow}</span>
+            <h2 className="vlp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            {next.slug === "nuptis" ? <span className="vlp-next-line">{NEXT.line}</span> : null}
+            {next.slug === "nuptis" ? <span className="vlp-next-line next-band-line">{NEXT.line}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

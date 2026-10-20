@@ -300,12 +300,6 @@
 /* Dark: the chapter rosettes use the rust accent (the shared note tone is too dim against the navy page). */
 [data-theme="dark"] .sgp-num { background: var(--sgp-accent); color: var(--color-paper); }
 
-/* The next band sits right after this article: its title wraps beside the Shravan's Round art instead of running under it. */
-@media (min-width: 900px) {
-  .sgp ~ .cs-next .cs-next-art { width: clamp(340px, 34vw, 460px); }
-  .sgp ~ .cs-next .cs-next-h { max-width: calc(100% - clamp(340px, 34vw, 460px) - 16px); }
-}
-
 /* Phones and tablets: the real screen comes straight after the title block, before the numbers and buttons. */
 @media (max-width: 959px) {
   .sgp-hero-in { display: flex; flex-direction: column; gap: 14px; }

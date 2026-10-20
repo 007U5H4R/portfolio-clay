@@ -386,24 +386,24 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
       </article>
 
       {/* ── Next project: the only place another product is named; a paper-craft biosensor for Pratyasa ── */}
-      <section className="bvp-next" aria-label="Next project">
-        <div className="bvp-next-art" aria-hidden="true">
+      <section className="bvp-next next-band" aria-label="Next project">
+        <div className="bvp-next-art next-band-art" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="bvp-next-in">
+        <Container className="bvp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="bvp-next-link"
+            className="bvp-next-link next-band-link"
           >
-            <span className="bvp-next-eyebrow">{NEXT.eyebrow}</span>
-            <h2 className="bvp-next-h">
+            <span className="bvp-next-eyebrow next-band-eyebrow">{NEXT.eyebrow}</span>
+            <h2 className="bvp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            {next.slug === "pratyasa" ? <span className="bvp-next-line">{NEXT.line}</span> : null}
+            {next.slug === "pratyasa" ? <span className="bvp-next-line next-band-line">{NEXT.line}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

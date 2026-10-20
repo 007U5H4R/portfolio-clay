@@ -53,35 +53,35 @@ export type NextProjectTone = "cream";
  */
 export function NextProject({ project, art, line, tone }: NextProjectProps) {
   return (
-    <section className="cs-next cs-torn-fill" aria-label="Next project" data-tone={tone}>
+    <section className="cs-next cs-torn-fill next-band" aria-label="Next project" data-tone={tone}>
       <TornEdge fill="navy" />
-      <Container>
+      {art ? (
+        <span className="cs-next-art next-band-art" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
+          <img className="cs-next-art-img cs-next-art-light" src={art.light} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
+          <img className="cs-next-art-img cs-next-art-dark" src={art.dark} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
+        </span>
+      ) : null}
+      <Container className="next-band-in">
         <ViewTransitionLink
           href={`/work/${project.slug}`}
           transitionName={`project-${project.slug}`}
           aria-label={`Next project: ${project.name} ${NEW_TAB_HINT}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="cs-next-link"
+          className="cs-next-link next-band-link"
         >
-          <span className="cs-next-eyebrow">Next</span>
-          <h2 className="cs-next-h">
+          <span className="cs-next-eyebrow next-band-eyebrow">Next</span>
+          <h2 className="cs-next-h next-band-h">
             <CaseName slug={project.slug} name={project.name} onDark={tone !== "cream"} /> <span className="cs-next-arr" aria-hidden="true">→</span>
           </h2>
-          {line ? <p className="cs-next-line">{line}</p> : null}
+          {line ? <p className="cs-next-line next-band-line">{line}</p> : null}
           {line ? null : (
             <Annotation size="lg" rotate={-1.5} className="cs-next-note">
               next up
             </Annotation>
           )}
-          {art ? (
-            <span className="cs-next-art" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
-              <img className="cs-next-art-img cs-next-art-light" src={art.light} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
-              {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized, pre-compressed static WebP, one per theme */}
-              <img className="cs-next-art-img cs-next-art-dark" src={art.dark} alt="" width={art.width} height={art.height} loading="lazy" decoding="async" />
-            </span>
-          ) : null}
         </ViewTransitionLink>
       </Container>
     </section>

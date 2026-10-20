@@ -58,7 +58,7 @@
 .bvp :where(ul, ol) { padding: 0; list-style: none; }
 
 /* Theme art twins: the inactive rendition is display:none via the global [data-theme-art] rule (never fetched while lazy). */
-.bvp [data-theme-art], .bvp-next [data-theme-art] { width: 100%; height: auto; }
+.bvp [data-theme-art] { width: 100%; height: auto; }
 
 /* Shared paper bits */
 .bvp-label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--bvp-teal); }
@@ -277,20 +277,12 @@
 .bvp-meta { margin-top: 2px; }
 
 /* ── Next project: a paper-craft biosensor for Pratyasa (the only place another product is named) ── */
-.bvp-next { position: relative; margin-bottom: -72px; display: flex; flex-direction: column; background: var(--color-paper); overflow: clip; }
-.bvp-next-in { order: -1; padding-block: clamp(28px, 4vw, 48px) 4px; position: relative; z-index: 1; }
-.bvp-next-art { position: relative; width: 100%; max-width: 1200px; margin-inline: auto; overflow: hidden; }
-.bvp-next .bvp-next-art img[data-theme-art] { position: relative; width: 170%; max-width: none; height: auto; margin-left: -66%; }
-@media (min-width: 768px) {
-  .bvp-next .bvp-next-art img[data-theme-art] { width: 100%; margin-left: 0; }
-  .bvp-next-in { position: absolute; inset: 0; display: flex; justify-content: flex-start; align-items: center; padding-block: 0; pointer-events: none; }
-  .bvp-next-link { pointer-events: auto; max-width: 380px; }
-}
-.bvp-next-link { display: grid; gap: 4px; text-decoration: none; color: var(--color-navy); padding: 12px 14px; border-radius: 14px; }
-.bvp-next-link:focus-visible { outline: 2px solid var(--color-kraft); outline-offset: 3px; }
-.bvp-next-eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bvp-teal); }
-.bvp-next-h { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1; letter-spacing: -0.02em; }
-.bvp-next-line { max-width: 26ch; font-family: var(--font-display); font-style: italic; font-size: 18px; line-height: 1.3; color: var(--color-navy-2); }
+/* TASK-290: size, art box, fit and text placement are the shared `.next-band` rules (globals.css); only colours live here. */
+.bvp-next { background: var(--color-paper); }
+.bvp-next-art { --na-x0: 0.5; } /* the scene sits in the right half of the frame */
+.bvp-next-link { color: var(--color-navy); }
+.bvp-next-eyebrow { color: var(--bvp-teal); }
+.bvp-next-line { font-family: var(--font-display); font-style: italic; color: var(--color-navy-2); }
 @media (hover: hover) { .bvp-next-link:hover .bvp-next-h { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; } }
 
 /* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */
@@ -301,7 +293,6 @@
   .bvp[data-motion="on"] [data-cs-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .bvp-card { transform: none; }
 }
-@media (max-width: 767px) { .bvp-next { padding-bottom: 64px; } } /* the site footer's torn edge overlaps the band's last 72px */
 .bvp-rule { margin-top: -4px; }
 /* The browser frame's shadow must fall, not glow, on the night scene (the navy token is ivory there). */
 [data-theme="dark"] .bvp-hero-screen { box-shadow: var(--bvp-shadow-hover); border-color: color-mix(in oklab, var(--color-navy) 18%, transparent); }

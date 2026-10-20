@@ -452,24 +452,24 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
       </article>
 
       {/* ── Next project: a paper landscape band; the whole band is one link (same contract as NextProject) ── */}
-      <section className="tsp-next" aria-label="Next project">
-        <div className="tsp-next-art" aria-hidden="true">
+      <section className="tsp-next next-band" aria-label="Next project">
+        <div className="tsp-next-art next-band-art" data-fit="bleed" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="tsp-next-in">
+        <Container className="tsp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="tsp-next-link"
+            className="tsp-next-link next-band-link"
           >
-            <span className="tsp-next-eyebrow">Next project</span>
-            <h2 className="tsp-next-h">
+            <span className="tsp-next-eyebrow next-band-eyebrow">Next project</span>
+            <h2 className="tsp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            {nextLine ? <span className="tsp-next-line">{nextLine}</span> : null}
+            {nextLine ? <span className="tsp-next-line next-band-line">{nextLine}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

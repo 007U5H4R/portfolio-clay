@@ -474,24 +474,24 @@ export function RailciteView({ project, study, portfolio, next }: RailciteViewPr
       </article>
 
       {/* ── Next project: a fashion paper diorama (Velora is apparel); the whole band is one link ── */}
-      <section className="rcp-next" aria-label="Next project">
-        <div className="rcp-next-art" aria-hidden="true">
+      <section className="rcp-next next-band" aria-label="Next project">
+        <div className="rcp-next-art next-band-art" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
-        <Container className="rcp-next-in">
+        <Container className="rcp-next-in next-band-in">
           <ViewTransitionLink
             href={`/work/${next.slug}`}
             transitionName={`project-${next.slug}`}
             aria-label={`Next project: ${next.name} ${NEW_TAB_HINT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="rcp-next-link"
+            className="rcp-next-link next-band-link"
           >
-            <span className="rcp-next-eyebrow">{NEXT.eyebrow}</span>
-            <h2 className="rcp-next-h">
+            <span className="rcp-next-eyebrow next-band-eyebrow">{NEXT.eyebrow}</span>
+            <h2 className="rcp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            <span className="rcp-next-line">{NEXT.line}</span>
+            <span className="rcp-next-line next-band-line">{NEXT.line}</span>
           </ViewTransitionLink>
         </Container>
       </section>
