@@ -131,7 +131,7 @@ for (const [vw, vh] of SIZES) {
         if (i < PERSONAL.length - 1) {
           await page.getByRole("button", { name: "Next product" }).click();
           await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
-          await page.waitForTimeout(120);
+          await page.waitForTimeout(400); // TASK-304: the card enters over 300 ms (pf-enter); measuring at ~120 ms raced it (1.17 px off, also with the paper player off)
         }
       }
       test.info().annotations.push({ type: "worst-card-overflow", description: `${worst.slug}: ${worst.clip}px` });
@@ -286,7 +286,7 @@ for (const [vw, vh] of SIZES) {
         if (i < PERSONAL.length - 1) {
           await page.getByRole("button", { name: "Next product" }).click();
           await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
-          await page.waitForTimeout(120);
+          await page.waitForTimeout(400); // TASK-304: the card enters over 300 ms (pf-enter); measuring at ~120 ms raced it (1.17 px off, also with the paper player off)
         }
         continue;
       }
@@ -306,7 +306,7 @@ for (const [vw, vh] of SIZES) {
       if (i < PERSONAL.length - 1) {
         await page.getByRole("button", { name: "Next product" }).click();
         await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
-        await page.waitForTimeout(120);
+        await page.waitForTimeout(400); // TASK-304: the card enters over 300 ms (pf-enter); measuring at ~120 ms raced it (1.17 px off, also with the paper player off)
       }
     }
     test.info().annotations.push({ type: "poster-sizes", description: `${vw}x${vh}: ${sizes.join(", ")}; hidden: ${hiddenSlugs.join(",") || "none"}` });
