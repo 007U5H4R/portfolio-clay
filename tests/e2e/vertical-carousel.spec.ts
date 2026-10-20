@@ -7,6 +7,7 @@
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
+import { PAPER_CARD_ENABLED } from "@/components/portfolio/paper-card-flag";
 import { projects } from "@/data/projects";
 import { isListed } from "@/lib/portfolio";
 
@@ -80,7 +81,8 @@ const measure = (page: Page) =>
       topGap: top - info.top,
       botGap: info.bottom - bottom,
       rightGap: info.right - right,
-      pagerClear: pager.top - bottom,
+      // TASK-303: the paper card tucks the pager's 44 px hit boxes into its border, so its clearance is measured to the visible pill
+      pagerClear: (document.querySelector(".pf-info.pf-paper") ? pager.top + pager.height / 2 - 3 : pager.top) - bottom,
       pagerInside: pager.bottom - 8 <= info.bottom,
       smallTargets: [...document.querySelectorAll(".pf-showcase .pf-carousel button, .pf-showcase .pf-info button, .pf-showcase .pf-info a")].filter((e) => !e.hasAttribute("data-clone") && (e.getBoundingClientRect().height < 43.5 || e.getBoundingClientRect().width < 43.5) && e.getBoundingClientRect().width > 0).length,
       visible,
@@ -268,6 +270,7 @@ const posterMeasure = (page: Page) =>
 
 for (const [vw, vh] of SIZES) {
   test(`TASK-301: each product's poster art fills the card between the text and the actions at ${vw}x${vh}`, async ({ page }) => {
+    test.skip(PAPER_CARD_ENABLED, "TASK-303: the paper card shows the poster at its own aspect ratio, not stretched to fill the card (paper-card.spec.ts)");
     test.setTimeout(150_000);
     await open(page, vw, vh, "light");
     const sizes: string[] = [];

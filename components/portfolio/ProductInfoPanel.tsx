@@ -1,6 +1,7 @@
 "use client";
 
 import { NewTabHint } from "@/components/common/NewTabHint";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
@@ -8,6 +9,8 @@ import { Sheet } from "@/components/paper";
 import { stepIndex, type CoverArt, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { ACTION_ICON, ORIGAMI_FOR_ACTION, type ActionIcon } from "./action-icons";
 import { OrigamiIcon } from "./OrigamiIcon";
+import { OrigamiArrow } from "./OrigamiArrow";
+import { PAPER_CARD_ENABLED } from "./paper-card-flag";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 import { ProductLogo } from "./ProductLogo";
 import { StarDivider } from "./StarDivider";
@@ -92,6 +95,10 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   const adjacent = (delta: number) => (nav && navIndex >= 0 ? nav.products[stepIndex(navIndex, delta, nav.products.length)] : undefined);
   const prevProduct = adjacent(-1);
   const nextProduct = adjacent(1);
+  // TASK-303: only where the vertical-carousel card renders (that is the only place `poster` is passed)
+  const paper = PAPER_CARD_ENABLED && !!poster;
+  // the pills are the card's own data: its code, then each part of its status line
+  const pills = paper ? [product.code, ...product.meta.split(" · ")].filter(Boolean) : [];
 
   // the primary bar spells the video out; a half-width secondary keeps it short so two fit a row
   const mediaButton = (target: MediaMode, label: string, Icon: ActionIcon | typeof Play) => (
@@ -112,14 +119,14 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   );
 
   return (
-    <Sheet as="div" variant="card" rotate={0.6} className="pf-info">
+    <Sheet as="div" variant="card" rotate={0.6} className={paper ? "pf-info pf-paper" : "pf-info"}>
       {nav && prevProduct && nextProduct ? (
         <div className="pf-info-nav" role="group" aria-label="Browse products">
-          <button type="button" className="pf-info-arrow focus-ring" data-nav-key="prev" aria-label={`Previous: ${prevProduct.name}`} onClick={() => nav.onNavigate(prevProduct.id, "prev")}>
-            <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
+          <button type="button" className="pf-info-arrow focus-ring" data-nav-key="prev" aria-label={paper ? "Previous project" : `Previous: ${prevProduct.name}`} onClick={() => nav.onNavigate(prevProduct.id, "prev")}>
+            {paper ? <OrigamiArrow direction="left" /> : <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />}
           </button>
-          <button type="button" className="pf-info-arrow focus-ring" data-nav-key="next" aria-label={`Next: ${nextProduct.name}`} onClick={() => nav.onNavigate(nextProduct.id, "next")}>
-            <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />
+          <button type="button" className="pf-info-arrow focus-ring" data-nav-key="next" aria-label={paper ? "Next project" : `Next: ${nextProduct.name}`} onClick={() => nav.onNavigate(nextProduct.id, "next")}>
+            {paper ? <OrigamiArrow direction="right" /> : <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />}
           </button>
         </div>
       ) : null}
@@ -141,14 +148,23 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         {product.logo ? <ProductLogo name={product.name} logo={product.logo} /> : product.name}
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
-      <p className="pf-info-desc">{product.description}</p>
+      <p className="pf-info-desc" title={paper ? product.description : undefined}>{product.description}</p>
       </div>
       {poster ? (
         <span className="pf-info-poster" aria-hidden="true" data-poster={poster.src}>
-          <span className="pf-info-poster-frame">
+          <span className="pf-info-poster-frame" style={paper ? ({ "--pc-ar": poster.width / poster.height } as CSSProperties) : undefined}>
             <Image src={poster.src} alt="" fill sizes="(min-width: 1024px) 440px, 0px" decoding="async" loading="lazy" unoptimized={poster.src.endsWith(".svg")} className="pf-info-poster-img" />
           </span>
         </span>
+      ) : null}
+      {paper ? (
+        <ul className="pf-pc-pills" aria-label="Project details">
+          {pills.map((pill, index) => (
+            <li key={pill} data-pill={index === 0 ? "id" : index === 1 ? "status" : "state"}>
+              {pill}
+            </li>
+          ))}
+        </ul>
       ) : null}
       <div className="pf-action-set" data-odd={actionCount % 2 === 1 ? "" : undefined}>
       <StarDivider slot="top" />
