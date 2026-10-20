@@ -37,6 +37,38 @@ test.describe("teachspark paper layout", () => {
     expect(consoleErrors).toEqual([]);
   });
 
+  test("next band is about half its former height; text stays inside the band; art stays undistorted (TASK-288)", async ({ page }) => {
+    await page.goto("/work/teachspark", { waitUntil: "load" });
+    const w = width(page);
+    for (const theme of ["light", "dark"] as const) {
+      await setTheme(page, theme);
+      const band = page.locator('section[aria-label="Next project"]');
+      const img = band.locator(`img[data-theme-art="${theme}"]`);
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await page.waitForTimeout(1200); // the footer slide-over settles
+      await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+      await img.evaluate((el: HTMLImageElement) => el.decode());
+      const m = await page.evaluate(() => {
+        const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+        const b = r(".tsp-next"), t = r(".tsp-next-link");
+        const shown = [...document.querySelectorAll<HTMLImageElement>(".tsp-next-art img")].find((i) => getComputedStyle(i).display !== "none")!;
+        const cs = getComputedStyle(shown);
+        return { bt: b.top, bb: b.bottom, bh: b.height, tt: t.top, tb: t.bottom, tl: t.left, tr: t.right, bl: b.left, br: b.right, ft: document.querySelector("footer")!.getBoundingClientRect().top, fit: cs.objectFit };
+      });
+      // before TASK-288 the band was the art's full 1344x492 frame (+ the stacked 146px text block below 768px): 283 @375, 281 @768, 527 @1440
+      const oldHeight = (w < 768 ? 146 : 0) + (w * 492) / 1344;
+      // ≤55% at 375 / 1440; the tablet widths keep a 190px floor so the text clears the footer's torn edge (≤72% there)
+      const limit = w >= 1440 || w < 768 ? 0.55 : 0.72;
+      expect(m.bh, `${theme} band height ${m.bh} vs old ${oldHeight}`).toBeLessThanOrEqual(oldHeight * limit);
+      expect(m.tt).toBeGreaterThanOrEqual(m.bt);
+      expect(m.tb).toBeLessThanOrEqual(m.bb);
+      expect(m.tl).toBeGreaterThanOrEqual(m.bl);
+      expect(m.tr).toBeLessThanOrEqual(m.br);
+      expect(m.ft - m.tb, `${theme}: text clears the footer's top edge at the end of the page`).toBeGreaterThanOrEqual(8);
+      expect(m.fit).toBe("cover"); // reframed, never squashed
+    }
+  });
+
   test("numbers come from the record: hero proofs and the activation funnel", async ({ page }) => {
     await page.goto("/work/teachspark", { waitUntil: "load" });
     const tiles = page.locator(".tsp-metric");
