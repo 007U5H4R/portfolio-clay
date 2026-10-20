@@ -20676,12 +20676,12 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
 
   /* ---- tiles ---- */
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track {
-    padding: 12px 9px;
+    padding: 12px 5px; /* TASK-305 follow-up: 4px more tile width each side for the larger art + text */
     gap: 10px;
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
-    gap: 8px;
-    padding: 8px 8px 8px 8px;
+    gap: 7px;
+    padding: 8px 10px 8px 7px; /* right room so the name never sits under the selection arrow */
     border: 1px solid var(--ps2-edge);
     border-radius: 12px;
     color: var(--ps2-text);
@@ -20713,9 +20713,10 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
       0 12px 14px -8px var(--ps2-shadow);
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
-    width: clamp(50px, 31%, 82px);
-    align-self: center;
-    aspect-ratio: 16 / 9;
+    /* TASK-305 follow-up: the art fills the tile's height at ~40% of the tile's width; the text column sits to its right */
+    width: clamp(58px, 40%, 100px);
+    align-self: stretch;
+    aspect-ratio: auto;
     height: auto;
     border-radius: 6px;
   }
@@ -20729,7 +20730,9 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
     font-family: var(--font-display);
-    font-size: clamp(13px, 0.95vw, 14.5px);
+    font-size: clamp(12.5px, 0.88vw, 13.5px);
+    -webkit-line-clamp: 3; /* the narrower text column may wrap "The Shravan's Round" to three lines */
+    line-clamp: 3;
     font-weight: 650;
     line-height: 1.12;
     color: var(--ps2-text);
@@ -20786,15 +20789,22 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     translate: 0 0;
   }
 
-  /* ---- the selection arrow: decorative, beside the selected tile, straddling the panel's right edge ---- */
+  /* ---- the selection arrow: decorative, on top of the selected tile, straddling its right border, inside the panel ---- */
   .pf-showcase.pf-vcar.pf-psel .pf-vcar-pointer {
     display: grid;
     place-items: center;
     --oa-size: 24px;
     width: 24px;
     height: 24px;
-    margin-right: calc(-1 * (8px + 20px));
+    margin-right: -4px;
     border: 0;
+    /* front layer: above the tiles and the video frame (.pf-feature, z-index 2) */
+    position: relative;
+    z-index: 10;
+  }
+  /* lift the panel above the video frame so nothing covers the arrow */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel {
+    z-index: 3;
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow .oa {
     --oa-size: 26px;
