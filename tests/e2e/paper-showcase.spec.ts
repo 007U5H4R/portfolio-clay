@@ -136,3 +136,73 @@ test("no horizontal overflow and the tray scrolls instead of squeezing the cards
   const first = (await tabs(page).nth(0).boundingBox())!;
   expect(first.width, "cards keep a readable width").toBeGreaterThanOrEqual(120);
 });
+
+// TASK-291 (Tushar 2026-10-20): the video, the card and the tray share one screen on a desktop. The video frame and the card are the
+// same height, the tray spans video-left .. card-right, and with the stage top just under the header the tray's bottom is still in
+// the viewport; every product's card content fits, and the video frame is exactly the video's 16:9 with no bars.
+for (const [vw, vh] of [[1440, 900], [1280, 800]] as const) {
+  for (const theme of ["light", "dark"] as const) {
+    test(`TASK-291: video, card and tray fit one ${vw}x${vh} screen, ${theme} (equal heights, tray edges, no clipping, 16:9 media)`, async ({ page }) => {
+      test.skip(width(page) !== 1440, "desktop sizes are set inside the test; run once");
+      test.setTimeout(120_000);
+      await page.setViewportSize({ width: vw, height: vh });
+      await open(page);
+      await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+      await page.evaluate(() => document.fonts.ready);
+      // the landing position: the paper frame (10 px above the stage) sits 8 px under the sticky header
+      await page.evaluate(() => {
+        const header = document.querySelector("header[data-site-header]")!.getBoundingClientRect().height;
+        const pad = parseFloat(getComputedStyle(document.querySelector(".pf-showcase")!).getPropertyValue("--pf-pad")) || 0;
+        window.scrollTo(0, document.querySelector(".pf-feature")!.getBoundingClientRect().top + window.scrollY - header - 8 - pad);
+      });
+      await page.waitForTimeout(500);
+      const header = await page.evaluate(() => document.querySelector("header[data-site-header]")!.getBoundingClientRect().bottom);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth), "no horizontal overflow").toBeLessThanOrEqual(vw);
+
+      for (let i = 0; i < PERSONAL.length; i += 1) {
+        const m = await page.evaluate(() => {
+          const r = (sel: string) => document.querySelector(sel)!.getBoundingClientRect();
+          const stage = r(".pf-showcase .pf-stage");
+          const info = r(".pf-showcase .pf-info");
+          const tray = r(".pf-showcase .pf-carousel");
+          const screen = r(".pf-showcase .pf-stage-screen");
+          const media = document.querySelector(".pf-stage-screen img, .pf-stage-screen iframe")!.getBoundingClientRect();
+          // the card's content (head, actions, star note) against the card's own box; its pager rides in the bottom padding
+          let top = Infinity;
+          let bottom = -Infinity;
+          for (const el of document.querySelectorAll(".pf-showcase .pf-info .pf-info-head > :not(ul), .pf-showcase .pf-info .pf-action-set, .pf-showcase .pf-info .pf-star-note")) {
+            const q = el.getBoundingClientRect();
+            if (q.height < 2) continue;
+            top = Math.min(top, q.top);
+            bottom = Math.max(bottom, q.bottom);
+          }
+          return {
+            stage: { x: stage.x, y: stage.y, h: stage.height },
+            info: { y: info.y, h: info.height, right: info.right, bottom: info.bottom },
+            tray: { x: tray.x, right: tray.right, bottom: tray.bottom },
+            screen: { w: screen.width, h: screen.height },
+            media: { x: media.x - screen.x, y: media.y - screen.y, r: screen.right - media.right, b: screen.bottom - media.bottom, w: media.width, h: media.height },
+            topGap: top - info.top,
+            botGap: info.bottom - bottom,
+          };
+        });
+        const tag = `${PERSONAL[i]!.slug} @${vw}x${vh} ${theme}`;
+        expect(Math.abs(m.stage.h - m.info.h), `${tag}: video frame and card are the same height`).toBeLessThanOrEqual(2);
+        expect(Math.abs(m.tray.x - m.stage.x), `${tag}: tray left edge = video left edge`).toBeLessThanOrEqual(1);
+        expect(Math.abs(m.tray.right - m.info.right), `${tag}: tray right edge = card right edge`).toBeLessThanOrEqual(1);
+        expect(m.tray.bottom, `${tag}: the tray (and its pager) ends inside the viewport`).toBeLessThanOrEqual(vh);
+        expect(m.stage.y, `${tag}: the stage starts under the header`).toBeGreaterThanOrEqual(header);
+        expect(m.topGap, `${tag}: card content is not cut off at the top`).toBeGreaterThanOrEqual(0);
+        expect(m.botGap, `${tag}: card content clears the card's pager`).toBeGreaterThanOrEqual(20);
+        expect(Math.abs(m.screen.w / m.screen.h - 16 / 9), `${tag}: the video frame is 16:9`).toBeLessThan(0.01);
+        expect(Math.abs(m.media.w / m.media.h - 16 / 9), `${tag}: the media box is 16:9`).toBeLessThan(0.01);
+        for (const gap of [m.media.x, m.media.y, m.media.r, m.media.b]) expect(Math.abs(gap), `${tag}: media fills the frame`).toBeLessThanOrEqual(1);
+        if (i < PERSONAL.length - 1) {
+          await page.getByRole("button", { name: "Next product" }).first().click();
+          await expect(panel(page).locator(".pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+          await page.waitForTimeout(150);
+        }
+      }
+    });
+  }
+}
