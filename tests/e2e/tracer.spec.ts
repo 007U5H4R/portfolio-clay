@@ -95,7 +95,7 @@ test("hero banner illustration is visible, alt-sourced from the manifest, and re
 // TKT-108 (Tushar 2026-09-26): the primary targets `/projects` (TKT-101's route) and the secondary is
 // "Ask Tushky", still `#ask`, described by its "My AI portfolio assistant" caption.
 test("hero CTAs are present and target /projects and #ask", async ({ page }) => {
-  test.skip(HOME_GLASS_HERO_ENABLED, "previous-hero assertions: the TASK-289 glass hero replaces this copy (see home-glass-hero.spec.ts); they run when HOME_GLASS_HERO_ENABLED is false");
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   await page.goto("/", { waitUntil: "load" });
   const primary = page.getByRole("link", { name: "View my work →" });
   await expect(primary).toBeVisible();
@@ -225,7 +225,7 @@ test("static HTML carries content and navigation with JS disabled", { tag: "@EVA
     await expect(
       p.locator('nav[aria-label="Primary"] a[href="/projects"]', { hasText: "Portfolio" }).first(),
     ).toHaveCount(1);
-    await expect(p.getByRole("heading", { level: 1 })).toContainText(HOME_GLASS_HERO_ENABLED ? "products that matter" : "AI-native products");
+    await expect(p.getByRole("heading", { level: 1 })).toContainText(HOME_GLASS_HERO_ENABLED && (p.viewportSize()?.width ?? 0) >= 1024 ? "products that matter" : "AI-native products");
 
     await p.goto("/work/teachspark", { waitUntil: "domcontentloaded" });
     await expect(p.getByRole("heading", { level: 1 })).toContainText("TeachSpark");

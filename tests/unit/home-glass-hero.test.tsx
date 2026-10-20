@@ -31,14 +31,20 @@ afterEach(() => {
 });
 
 describe("HOME_GLASS_HERO_ENABLED — flag ON", () => {
-  it("renders the glass panel with exactly the specified copy and one h1", async () => {
+  it("renders the glass panel with exactly the specified copy and its own unique h1", async () => {
     const doc = await renderHero(true);
     expect(doc.querySelector("section.hero")?.classList.contains("hero-glass-on")).toBe(true);
-    expect(doc.querySelectorAll("h1")).toHaveLength(1);
+    // Both variants are in the HTML (CSS shows the glass one from 1024 up, the previous hero below), so the ids must be unique
+    // and the section is named by neither h1.
+    expect(doc.querySelector("section.hero")?.hasAttribute("aria-labelledby")).toBe(false);
+    const ids = [...doc.querySelectorAll("[id]")].map((e) => e.id);
+    expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+    expect(doc.querySelectorAll("[data-hero-glass] h1")).toHaveLength(1);
+    expect(doc.querySelector("[data-hero-glass] h1")?.id).toBe("hero-glass-h");
     expect(doc.querySelectorAll("[data-hero-glass]")).toHaveLength(1);
     const panel = doc.querySelector("[data-hero-glass]")!;
     expect(panel.closest(".hero-banner")).not.toBeNull(); // rides the banner's parallax; the art layers are siblings
-    expect(panel.querySelector(".hero-glass-eyebrow")?.textContent).toBe("AI PRODUCT MANAGER · BUILDER");
+    expect(panel.querySelector(".hero-glass-eyebrow")?.textContent).toBe("PRODUCT MANAGER · AI BUILDER");
     expect(panel.querySelector("h1")?.textContent).toBe("I turn complex ideas into products that matter.");
     expect(panel.querySelector(".hero-glass-support")?.textContent).toBe(
       "Building AI-powered products for real people, from enterprise systems to indie experiments.",
@@ -48,18 +54,16 @@ describe("HOME_GLASS_HERO_ENABLED — flag ON", () => {
       ["Explore my work →", "#selected-work"],
       ["Let's connect", "/contact"],
     ]);
-    expect(HERO_GLASS_COPY.eyebrow).toBe("AI PRODUCT MANAGER · BUILDER");
+    expect(HERO_GLASS_COPY.eyebrow).toBe("PRODUCT MANAGER · AI BUILDER");
   });
 
-  it("drops the old copy block, intro video and hand line, and keeps the art + torn sheet", async () => {
+  it("keeps the previous hero's sheet in the HTML (shown below 1024 by CSS), the art and a single torn edge", async () => {
     const doc = await renderHero(true);
-    expect(doc.body.textContent).not.toContain(hero.eyebrow.text);
-    expect(doc.body.textContent).not.toContain("View my work");
-    expect(doc.body.textContent).not.toContain("Ask Tushky");
-    expect(doc.querySelector(".hero-intro")).toBeNull();
+    expect(doc.querySelector("h1#hero-h")?.textContent).toBe("I turn messy problems into AI-native products people actually use.");
+    expect(doc.querySelector("section.hero-sheet#hero-copy")).not.toBeNull();
     expect(doc.querySelector("[data-paper-scene]")).not.toBeNull();
     expect(doc.querySelectorAll(".hero-polaroid")).toHaveLength(3);
-    expect(doc.querySelector(".hero-glass-sheet [data-decor='torn']")).not.toBeNull();
+    expect(doc.querySelectorAll(".hero-sheet [data-decor='torn']")).toHaveLength(1); // one torn edge, no second sheet
   });
 });
 
@@ -67,9 +71,9 @@ describe("HOME_GLASS_HERO_ENABLED — flag OFF (the previous hero, exactly)", ()
   it("renders the old copy, old CTAs, intro video and sheet; no glass markup or scope class", async () => {
     const doc = await renderHero(false);
     const section = doc.querySelector("section.hero")!;
+    expect(section.getAttribute("aria-labelledby")).toBe("hero-h");
     expect(section.getAttribute("class")).toBe("hero"); // no hero-glass-on scope: every glass CSS rule is inert
     expect(doc.querySelector("[data-hero-glass]")).toBeNull();
-    expect(doc.querySelector(".hero-glass-sheet")).toBeNull();
     expect(doc.querySelectorAll("h1")).toHaveLength(1);
     expect(doc.querySelector("h1#hero-h")?.textContent).toBe("I turn messy problems into AI-native products people actually use.");
     expect(doc.querySelector(".hero-eyebrow")?.textContent).toBe(hero.eyebrow.text);

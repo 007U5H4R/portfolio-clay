@@ -13,13 +13,16 @@ import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 test.skip(!HOME_GLASS_HERO_ENABLED, "TASK-289: the glass hero is switched off (HOME_GLASS_HERO_ENABLED = false)");
 
 const COPY = {
-  eyebrow: "AI PRODUCT MANAGER · BUILDER",
+  eyebrow: "PRODUCT MANAGER · AI BUILDER",
   headline: "I turn complex ideas into products that matter.",
   support: "Building AI-powered products for real people, from enterprise systems to indie experiments.",
   primary: "Explore my work →",
   secondary: "Let's connect",
 };
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
+/** The glass hero shows from the site's desktop tier up (1024); below it the previous hero shows, unchanged. */
+const GLASS_MIN = 1024;
+const glassOnly = (page: Page) => test.skip(width(page) < GLASS_MIN, "TASK-289 is desktop-only: the glass hero shows from 1024 up");
 const panel = (page: Page) => page.locator("[data-hero-glass]");
 
 async function setTheme(page: Page, theme: "light" | "dark") {
@@ -42,10 +45,31 @@ async function settle(page: Page) {
   });
 }
 
-test("copy: exactly the specified strings, one h1, nothing else in the panel", async ({ page }) => {
+test("below 1024 the previous hero shows, unchanged: one h1 (the old one), no glass panel", async ({ page }) => {
+  test.skip(width(page) >= GLASS_MIN, "phone and tablet only");
   await settle(page);
-  await expect(page.locator("h1")).toHaveCount(1);
-  await expect(page.locator("h1")).toHaveText(COPY.headline);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("AI-native products");
+  await expect(panel(page)).toBeHidden();
+  await expect(page.locator(".hero-intro")).toBeVisible();
+  await expect(page.locator(".hero-cta-row").getByRole("link", { name: /View my work/ })).toBeVisible();
+  await expect(page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" })).toBeVisible();
+  expect(await page.evaluate(() => [...document.querySelectorAll("[id]")].map((e) => e.id).filter((id, i, a) => a.indexOf(id) !== i))).toEqual([]);
+  await noOverflowCheck(page);
+});
+
+async function noOverflowCheck(page: Page) {
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+}
+
+test("copy: exactly the specified strings, one h1 in the accessibility tree, nothing else in the panel", async ({ page }) => {
+  glassOnly(page);
+  await settle(page);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(COPY.headline);
+  // the previous hero's h1 is in the HTML but display:none, so out of the accessibility tree; ids stay unique
+  await expect(page.locator("#hero-h")).toBeHidden();
+  expect(await page.evaluate(() => [...document.querySelectorAll("[id]")].map((e) => e.id).filter((id, i, a) => a.indexOf(id) !== i))).toEqual([]);
   const p = panel(page);
   await expect(p).toHaveCount(1);
   await expect(p.locator(".hero-glass-eyebrow")).toHaveText(COPY.eyebrow);
@@ -59,7 +83,7 @@ test("copy: exactly the specified strings, one h1, nothing else in the panel", a
     "DIV.hero-glass-cta",
   ]);
   await expect(p.locator("img, svg, picture")).toHaveCount(0);
-  await expect(page.locator(".hero-intro, .hero-hand-sub, .hero-tushky")).toHaveCount(0);
+  await expect(page.locator(".hero-intro, .hero-hand-sub, .hero-tushky, .hero-cta-row").locator("visible=true")).toHaveCount(0);
 });
 
 test("art untouched: the four layers keep their order and depths; the panel is outside the scene root", async ({ page }) => {
@@ -70,7 +94,8 @@ test("art untouched: the four layers keep their order and depths; the panel is o
   await expect(page.locator(".hero-polaroid")).toHaveCount(3);
 });
 
-test("placement: clear of the face, the laptop and the dog; never covers the art when stacked", async ({ page }) => {
+test("placement: clear of the face, the laptop and the dog", async ({ page }) => {
+  glassOnly(page);
   await settle(page);
   const { scene, box } = await page.evaluate(() => {
     const r = (s: string) => { const b = document.querySelector(s)!.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; };
@@ -82,19 +107,14 @@ test("placement: clear of the face, the laptop and the dog; never covers the art
     const [fx0, fy0, fx1, fy1] = [scene.x + f[0] * scene.w, scene.y + f[1] * scene.h, scene.x + f[2] * scene.w, scene.y + f[3] * scene.h];
     return box.x < fx1 && box.x + box.w > fx0 && box.y < fy1 && box.y + box.h > fy0;
   };
-  if (width(page) >= 1000) {
-    for (const [name, f] of Object.entries(regions)) expect(overlap(f), `panel overlaps the ${name}`).toBe(false);
-    expect(box.x).toBeGreaterThanOrEqual(scene.x);
-    expect(box.x + box.w).toBeLessThanOrEqual(scene.x + scene.w * 0.45);
-  } else {
-    // Stacked under the art: at most the art's torn bottom strip (12 px) is overlapped.
-    expect(box.y).toBeGreaterThanOrEqual(scene.y + scene.h - 12);
-  }
+  for (const [name, f] of Object.entries(regions)) expect(overlap(f), `panel overlaps the ${name}`).toBe(false);
+  expect(box.x).toBeGreaterThanOrEqual(scene.x);
+  expect(box.x + box.w).toBeLessThanOrEqual(scene.x + scene.w * 0.45);
   expect(box.w, "compact: never full-bleed").toBeLessThanOrEqual(Math.min(width(page) - 16, 660));
 });
 
 test("the panel takes pointer events only inside its own box", async ({ page }) => {
-  test.skip(width(page) < 1000, "overlay layout only");
+  glassOnly(page);
   await settle(page);
   const b = (await panel(page).boundingBox())!;
   const hit = (x: number, y: number) => page.evaluate(([px = 0, py = 0]) => !!document.elementFromPoint(px, py)?.closest("[data-hero-glass]"), [x, y]);
@@ -105,6 +125,7 @@ test("the panel takes pointer events only inside its own box", async ({ page }) 
 
 for (const theme of ["light", "dark"] as const) {
   test(`${theme}: glass surface, readable, axe-clean, no overflow, targets ≥ 44px`, async ({ page, axe, noOverflow }) => {
+    glassOnly(page);
     await setTheme(page, theme);
     await settle(page);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -127,6 +148,7 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 test("Explore my work: same tab, URL unchanged, lands on the Selected work heading below the header", async ({ page }) => {
+  glassOnly(page);
   await settle(page);
   const url = page.url();
   const pagesBefore = page.context().pages().length;
@@ -148,7 +170,7 @@ test("Explore my work: same tab, URL unchanged, lands on the Selected work headi
 });
 
 test("Explore my work: keyboard activation, visible focus ring", async ({ page }) => {
-  test.skip(width(page) < 640, "keyboard path is covered on the desktop projects");
+  glassOnly(page);
   await settle(page);
   const link = panel(page).getByRole("link", { name: COPY.primary });
   for (let i = 0; i < 40; i++) {
@@ -185,6 +207,7 @@ test("Explore my work under prefers-reduced-motion: an instant jump", async ({ b
 });
 
 test("Let's connect: the site's existing /contact destination, same behaviour as the header pill", async ({ page }) => {
+  glassOnly(page);
   await settle(page);
   const link = panel(page).getByRole("link", { name: COPY.secondary });
   await expect(link).toHaveAttribute("href", "/contact");
@@ -224,7 +247,7 @@ for (const theme of ["light", "dark"] as const) {
       await settle(page);
       await page.waitForTimeout(1200);
       await page.screenshot({ path: `${OUT}/${process.env.HG_CROPS}-${w}-${theme}.png` });
-      if (process.env.HG_CROPS === "after" && (w === 375 || w === 1440) && theme === "light") {
+      if (process.env.HG_CROPS === "after" && w === 1440 && theme === "light") {
         await panel(page).getByRole("link", { name: COPY.primary }).click();
         await page.waitForTimeout(2500);
         await page.screenshot({ path: `${OUT}/after-explore-${w}-${theme}.png` });

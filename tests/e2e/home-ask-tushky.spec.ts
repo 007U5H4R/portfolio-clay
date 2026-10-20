@@ -119,7 +119,7 @@ test.describe("home ask tushky", () => {
   test("spec §24: the hero \"✦ Ask Tushky\" CTA opens the drawer from the RIGHT; focus returns to it; #ask stays its fallback", async ({
     page,
   }) => {
-    test.skip(HOME_GLASS_HERO_ENABLED, "previous-hero assertions: the TASK-289 glass hero replaces this copy (see home-glass-hero.spec.ts); they run when HOME_GLASS_HERO_ENABLED is false");
+    test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
     await page.goto("/", { waitUntil: "load" });
     const cta = page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" });
     await expect(cta).toHaveAttribute("href", "#ask"); // no-JS fallback

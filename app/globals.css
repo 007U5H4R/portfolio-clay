@@ -19265,10 +19265,13 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
    The art, its layers, the parallax and the polaroids are untouched; the panel is one more child of `.hero-banner`
    (so it rides the banner's scroll parallax). Tokens + color-mix() only (EVAL-020); light/dark come from the role
    tokens (`--color-ivory`, `--color-paper`, `--color-navy` swap under [data-theme="dark"]).
-   ≥ 1000: absolutely placed in the art's upper-left negative space, in banner-width units (`cqw`, the banner is an
+   ≥ 1024 (below it the previous hero shows, unchanged): absolutely placed in the art's upper-left negative space, in banner-width units (`cqw`, the banner is an
    inline-size container ≥ 768): left 3cqw → right edge 41cqw, clear of the face (≈ 44–55 % of the width) and the laptop. The panel's box
-   is the only thing that takes pointer events. < 1000: it sits in flow under the art (so it can never cover the character),
-   its bottom margin clearing the next sheet's 44 px torn edge. */
+   is the only thing that takes pointer events. Below 1024 the panel is `display: none` and the previous
+   hero's sheet shows exactly as before (desktop-only test, Tushar 2026-10-20). */
+.hero-glass-on .hero-glass {
+  display: none;
+}
 .hero-glass-on .hero-glass {
   position: relative;
   z-index: 5;
@@ -19361,23 +19364,16 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   border: 1.5px solid var(--line-strong);
   box-shadow: none;
 }
-@media (min-width: 768px) and (max-width: 999px) {
+/* ≥ 1024 (the site's desktop tier): the glass hero replaces the previous hero's copy sheet. Both are in the HTML; the other is
+   `display: none` (out of the accessibility tree, nothing focusable). */
+@media (min-width: 1024px) {
+  /* The previous sheet keeps only its torn edge (the paper still slides over the art); its copy and marginalia are hidden. */
+  .hero-glass-on .hero-sheet .hero-copy,
+  .hero-glass-on .hero-sheet .hero-margin {
+    display: none;
+  }
   .hero-glass-on .hero-glass {
-    width: min(100% - 64px, 600px);
-    padding: 26px 28px 28px;
-  }
-  .hero-glass-on .hero-glass-h1 {
-    font-size: 38px;
-  }
-  .hero-glass-on .hero-glass-support {
-    font-size: 17px;
-  }
-  .hero-glass-on .hero-glass-cta .hero-btn {
-    flex: 0 1 auto;
-  }
-}
-@media (min-width: 1000px) {
-  .hero-glass-on .hero-glass {
+    display: block;
     position: absolute;
     top: 3.2cqw;
     left: 3cqw;

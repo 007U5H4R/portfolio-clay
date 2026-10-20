@@ -107,7 +107,7 @@ test("TKT-106 main itself never lags; only its last child does", async ({ page }
 });
 
 test("TKT-106 a keyboard-focused hero CTA is never hidden under the Credentials sheet", async ({ page }) => {
-  test.skip(HOME_GLASS_HERO_ENABLED, "previous-hero assertions: the TASK-289 glass hero replaces this copy (see home-glass-hero.spec.ts); they run when HOME_GLASS_HERO_ENABLED is false");
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   test.skip(width(page) !== 1440, "measured at w1440");
   await page.goto("/", { waitUntil: "load" });
   const vh = page.viewportSize()!.height;
