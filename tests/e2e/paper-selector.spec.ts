@@ -13,7 +13,7 @@ import { isListed } from "@/lib/portfolio";
 const PERSONAL = projects.filter(isListed);
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const TOTAL = PERSONAL.length;
-const SIZES = [[1280, 800], [1440, 900], [1920, 1080]] as const;
+const SIZES = [[1280, 800], [1440, 900], [1512, 860], [1920, 1080]] as const;
 const CROPS = process.env.PSEL_CROPS;
 
 test.beforeEach(({ page }) => {
@@ -105,20 +105,50 @@ for (const [vw, vh] of SIZES) {
         expect(m.shadow, `${dir} arrow has no ring`).toBe("none");
       }
 
-      // the right arrow sits beside the selected tile, vertically centred on it, short of the video
+      // the right arrow sits ON the selected tile's right side (straddling its border, inside the panel), is the front layer, and never covers the text
       const g = await page.evaluate(() => {
         const r = (el: Element | null) => el!.getBoundingClientRect();
-        const tile = r(document.querySelector('.pf-showcase .pf-track .pf-thumb[aria-selected="true"]'));
-        const ptr = r(document.querySelector(".pf-showcase .pf-vcar-pointer"));
-        const feat = r(document.querySelector(".pf-showcase .pf-feature"));
+        const tileEl = document.querySelector<HTMLElement>('.pf-showcase .pf-track .pf-thumb[aria-selected="true"]')!;
+        const tile = r(tileEl);
+        const ptrEl = document.querySelector<HTMLElement>(".pf-showcase .pf-vcar-pointer")!;
+        const ptr = r(ptrEl);
+        const panel = r(document.querySelector(".pf-showcase .pf-carousel[data-paper-selector]"));
+        const art = r(tileEl.querySelector(".pf-thumb-art"));
+        const meta = r(tileEl.querySelector(".pf-thumb-meta"));
+        const name = tileEl.querySelector<HTMLElement>(".pf-thumb-name")!;
+        const nr = document.createRange();
+        nr.selectNodeContents(name);
+        const text = nr.getBoundingClientRect();
         const dir = document.querySelector(".pf-showcase .pf-vcar-pointer .oa[data-dir='right']");
-        return { tileMid: tile.top + tile.height / 2, tileRight: tile.right, ptrMid: ptr.top + ptr.height / 2, ptrLeft: ptr.left, ptrRight: ptr.right, ptrW: ptr.width, featLeft: feat.left, hasArt: !!dir };
+        const cx = ptr.left + ptr.width / 2;
+        const cy = ptr.top + ptr.height / 2;
+        const prev = ptrEl.style.pointerEvents;
+        ptrEl.style.pointerEvents = "auto"; // the arrow is decorative (pointer-events: none); make it hit-testable for the paint-order check
+        const top = document.elementFromPoint(cx, cy);
+        const topIsArrow = !!top && ptrEl.contains(top);
+        ptrEl.style.pointerEvents = prev;
+        return {
+          tileMid: tile.top + tile.height / 2, tileRight: tile.right, tileLeft: tile.left, ptrMid: cy, ptrCx: cx, ptrLeft: ptr.left, ptrRight: ptr.right, ptrW: ptr.width,
+          panelRight: panel.right, hasArt: !!dir, topIsArrow,
+          artW: art.width, artH: art.height, artRight: art.right, metaLeft: meta.left, tileW: tile.width, tileH: tile.height,
+          textLeft: text.left, textRight: text.right, nameClipped: name.scrollWidth > name.clientWidth + 1,
+        };
       });
       expect(g.hasArt, "pointer holds the arrow art").toBe(true);
       expect(Math.abs(g.ptrMid - g.tileMid), "right arrow centred on the selected tile").toBeLessThan(4);
-      expect(g.ptrLeft, "right arrow is to the right of the tile").toBeGreaterThanOrEqual(g.tileRight - 1);
-      expect(g.ptrRight, "right arrow ends before the video").toBeLessThanOrEqual(g.featLeft + 1);
+      expect(Math.abs(g.ptrCx - g.tileRight), "right arrow centre is on the tile's right border (+-4px)").toBeLessThanOrEqual(4);
+      expect(g.ptrCx, "right arrow centre is inside the tile's span").toBeGreaterThan(g.tileLeft);
+      expect(g.ptrRight, "right arrow stays inside the panel").toBeLessThanOrEqual(g.panelRight);
       expect(g.ptrW, "right arrow is drawn").toBeGreaterThan(8);
+      expect(g.topIsArrow, "right arrow is the topmost element at its centre").toBe(true);
+      expect(g.ptrLeft, "right arrow does not cover the name text").toBeGreaterThanOrEqual(g.textRight - 0.5);
+      // the tile art fills the tile's height at ~40% of its width; the text column is to the art's right, not clipped
+      expect(g.artW * g.artH, "tile art area is >= 1.3x the old 61x34 thumbnail").toBeGreaterThanOrEqual(61 * 34 * 1.3);
+      expect(g.artW, "tile art is not narrower than ~the old width").toBeGreaterThanOrEqual(55);
+      expect(g.artH, "tile art fills the tile's height (minus padding)").toBeGreaterThanOrEqual(g.tileH - 20);
+      expect(g.metaLeft, "text column starts right of the art").toBeGreaterThanOrEqual(g.artRight);
+      expect(g.textLeft, "name text is right of the art").toBeGreaterThanOrEqual(g.artRight);
+      expect(g.nameClipped, "the product name is not clipped").toBe(false);
       expect(await page.evaluate(() => document.documentElement.scrollWidth), "no horizontal overflow").toBeLessThanOrEqual(vw);
     });
   }
@@ -153,7 +183,7 @@ test("TASK-305: every tile shows its product's existing thumbnail, loaded and de
     expect(r.loaded, `${r.name}: thumbnail loaded`).toBe(true);
     expect(r.src, `${r.name}: the existing cover art`).toContain("cover-");
     if (r.poster) expect(r.src, `${r.name}: tile art = the card's art for this product`).toBe(r.poster);
-    expect(Math.abs(r.ratio - 16 / 9), `${r.name}: thumbnail box keeps 16:9 (no layout shift)`).toBeLessThan(0.05);
+    expect(r.ratio, `${r.name}: thumbnail box is taller than the old 16:9 strip (fills the tile height, cover-cropped)`).toBeLessThan(1.4);
     expect(r.fit).toBe("cover");
     mapping.push(`${PERSONAL[i]!.slug} -> ${r.src.split("/").pop()}`);
     if (i < TOTAL - 1) {

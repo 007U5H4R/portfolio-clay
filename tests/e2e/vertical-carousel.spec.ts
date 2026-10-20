@@ -196,7 +196,7 @@ test("TASK-301: a pointer sits beside the selected card, in the gap toward the v
     expect(m.w, "pointer drawn").toBeGreaterThan(6);
     expect(Math.abs(m.pc - m.sc), `${vw}: pointer centred on the selected card`).toBeLessThan(4);
     expect(m.pr, `${vw}: pointer ends before the video`).toBeLessThanOrEqual(m.feat + 1);
-    expect(m.pl, `${vw}: pointer starts at the carousel edge`).toBeGreaterThanOrEqual(m.car - 8);
+    expect(m.pl, `${vw}: pointer is at the carousel's right edge (TASK-305: on the selected tile's right side, inside the panel)`).toBeGreaterThanOrEqual(m.car - 32);
   }
 });
 
