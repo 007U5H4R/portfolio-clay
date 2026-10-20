@@ -108,11 +108,12 @@
   background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 30%, transparent), transparent);
 }
 [data-theme="dark"] .vlp-hero-art::before { background: radial-gradient(closest-side, color-mix(in oklab, var(--color-kraft) 28%, var(--color-ivory) 14%), transparent); }
-.vlp-hero-scene { position: relative; z-index: 1; --sx: var(--sx-l); --sy: var(--sy-l); --sw: var(--sw-l); --sh: var(--sh-l); aspect-ratio: var(--ar-l); }
-[data-theme="dark"] .vlp-hero-scene { --sx: var(--sx-d); --sy: var(--sy-d); --sw: var(--sw-d); --sh: var(--sh-d); aspect-ratio: var(--ar-d); }
+.vlp-hero-scene { position: relative; z-index: 1; --sx: var(--sx-l); --sy: var(--sy-l); --sw: var(--sw-l); --sh: var(--sh-l); --rx: var(--rx-l); --ry: var(--ry-l); aspect-ratio: var(--ar-l); }
+[data-theme="dark"] .vlp-hero-scene { --sx: var(--sx-d); --sy: var(--sy-d); --sw: var(--sw-d); --sh: var(--sh-d); --rx: var(--rx-d); --ry: var(--ry-d); aspect-ratio: var(--ar-d); }
 .vlp-hero-scene [data-theme-art] { position: absolute; inset: 0; }
-.vlp-hero-screen { position: absolute; z-index: 2; left: var(--sx); top: var(--sy); width: var(--sw); height: var(--sh); overflow: hidden; border-radius: 4% / 2.8%; background: #17181b; }
-.vlp-hero-screen img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.vlp-hero-screen { position: absolute; z-index: 2; left: var(--sx); top: var(--sy); width: var(--sw); height: var(--sh); overflow: hidden; border-radius: var(--rx) / var(--ry); background: #1c1d21; /* = the screenshot's own edge colour */ }
+.vlp-hero-screen { margin: 0; }
+.vlp-hero-screen img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: top center; } /* whole screenshot, never cropped or stretched; dark art's opening is a touch wider, so a 1px-invisible side bar in the screenshot's edge colour */
 .vlp-sticky {
   position: absolute; z-index: 3; left: 0; top: 0; width: 30%; min-width: 104px; padding: 12px 12px 14px; border-radius: 3px 3px 12px 3px;
   background: color-mix(in oklab, var(--color-note) 88%, var(--color-ivory)); color: var(--color-navy);
@@ -235,14 +236,15 @@
 .vlp-flow-step svg { color: var(--vlp-i3); }
 .vlp-flow-step + .vlp-flow-step::before { content: "→"; position: absolute; left: -22px; width: 16px; text-align: center; color: var(--vlp-accent-ink); font-weight: 700; }
 .vlp-shots { display: grid; gap: 26px; margin-top: 8px; justify-items: center; }
-@media (min-width: 700px) { .vlp-shots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: start; justify-items: stretch; } .vlp-shot[data-i="2"] { margin-top: 28px; } }
+@media (min-width: 700px) { .vlp-shots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: start; justify-items: stretch; } }
 .vlp-shot { width: min(100%, 320px); }
 .vlp-frame { padding: 8px; border-radius: 22px; background: var(--vlp-card); box-shadow: var(--vlp-shadow-hover); }
-.vlp-frame img { width: 100%; height: auto; border-radius: 15px; box-shadow: inset 0 0 0 1px var(--csx-rule); }
+.vlp-screen { position: relative; overflow: hidden; border-radius: 15px; background: #1c1d21; box-shadow: inset 0 0 0 1px var(--csx-rule); }
+.vlp-screen img { display: block; width: 100%; height: 100%; object-fit: fill; } /* the box has the image's own ratio: fit to width, no crop, no stretch */
 .vlp-shot[data-i="1"] .vlp-frame { transform: rotate(-0.8deg); }
 .vlp-shot[data-i="3"] .vlp-frame { transform: rotate(0.8deg); }
-.vlp-cap { display: grid; gap: 8px; justify-items: start; margin-top: 10px; font-size: 14.5px; font-weight: 600; line-height: 1.35; color: var(--color-navy-2); }
-.vlp-score { position: relative; display: inline-block; padding: 5px 12px 5px 14px; border-radius: 3px 12px 12px 3px; background: color-mix(in oklab, var(--color-note) 88%, var(--color-ivory)); color: var(--color-navy); font-size: 13px; font-weight: 700; box-shadow: var(--shadow-sticky); transform: rotate(-1deg); }
+.vlp-cap { display: grid; grid-template-rows: auto auto; align-content: start; gap: 8px; justify-items: start; min-height: 4.6em; margin-top: 14px; font-size: 14.5px; font-weight: 600; line-height: 1.35; color: var(--color-navy-2); }
+.vlp-score { position: relative; display: inline-block; padding: 5px 12px 5px 14px; border-radius: 3px 12px 12px 3px; background: color-mix(in oklab, var(--color-note) 88%, var(--color-ivory)); color: var(--color-navy); font-size: 13px; font-weight: 700; box-shadow: var(--shadow-sticky); }
 [data-theme="dark"] .vlp-score { color: var(--color-paper); }
 
 /* 05 · cards */

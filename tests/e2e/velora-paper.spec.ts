@@ -119,7 +119,7 @@ test.describe("velora paper layout", () => {
     await expect(shot.locator("img")).toHaveAttribute("src", "/media/case-studies/velora/trust-profile.webp");
     await expect(shot.locator('[data-testid="score-caveat"]')).toHaveText("Trust score · authored prototype data");
     const [img, tag] = await Promise.all([shot.locator("img").boundingBox(), shot.locator('[data-testid="score-caveat"]').boundingBox()]);
-    expect(tag!.y - (img!.y + img!.height)).toBeLessThan(40);
+    expect(tag!.y - (img!.y + img!.height)).toBeLessThan(80); // under the caption line, in the same figcaption (TASK-296)
     // secondary research: the qualifier is in the strip's own figure, right under the bar
     const strip = page.locator(".vlp-strip");
     await expect(strip.locator(".vlp-qualifier")).toHaveText("Secondary research · verify before external use");
@@ -217,4 +217,90 @@ test.describe("velora paper layout", () => {
     await expect(page.locator("article.rcp")).toHaveCount(1);
     await expect(page.locator(".vlp")).toHaveCount(0);
   });
+
+  // TASK-296: every screenshot sits inside its device screen, whole width, never cropped or stretched.
+  type Box = { x: number; y: number; w: number; h: number };
+  const waitDecoded = (page: Page, selector: string) =>
+    page.locator(selector).evaluateAll((els) =>
+      Promise.all(
+        (els as HTMLImageElement[]).map(async (el) => {
+          for (let i = 0; i < 100 && !(el.complete && el.naturalWidth > 0); i++) await new Promise((r) => setTimeout(r, 50));
+          await el.decode();
+        }),
+      ),
+    );
+  const measure = (img: Element, screen: Element) => {
+    const i = img.getBoundingClientRect();
+    const s = screen.getBoundingClientRect();
+    const el = img as HTMLImageElement;
+    // untransformed layout size: the shot frames are rotated, which inflates getBoundingClientRect
+    return { lay: { w: el.offsetWidth, h: el.offsetHeight }, layScreen: { w: (screen as HTMLElement).offsetWidth }, img: { x: i.x, y: i.y, w: i.width, h: i.height }, screen: { x: s.x, y: s.y, w: s.width, h: s.height }, nat: { w: el.naturalWidth, h: el.naturalHeight } };
+  };
+  const within = (inner: Box, outer: Box, tol = 1) => inner.x >= outer.x - tol && inner.y >= outer.y - tol && inner.x + inner.w <= outer.x + outer.w + tol && inner.y + inner.h <= outer.y + outer.h + tol;
+
+  for (const vw of [375, 1440]) {
+    for (const theme of ["light", "dark"] as const) {
+      test(`phone mockups: screenshot fills its screen, uncropped and unstretched, captions clear (${vw}, ${theme})`, async ({ page }) => {
+        test.skip(width(page) !== 1440, "sets its own viewport; runs once");
+        await page.setViewportSize({ width: vw, height: 900 });
+        await page.goto("/work/velora", { waitUntil: "load" });
+        await setTheme(page, theme);
+        const shots = page.locator(".vlp-shot");
+        await expect(shots).toHaveCount(3);
+        for (let i = 0; i < 3; i++) {
+          await shots.nth(i).scrollIntoViewIfNeeded();
+          await waitDecoded(page, `.vlp-shot[data-i="${i + 1}"] img`);
+        }
+        const frames = await page.locator(".vlp-shot").evaluateAll((els, fn) => {
+          const m = new Function("img", "screen", `return (${fn})(img, screen)`) as (a: Element, b: Element) => unknown;
+          return els.map((el) => {
+            const r = m(el.querySelector(".vlp-screen img")!, el.querySelector(".vlp-screen")!) as Record<string, unknown>;
+            const c = el.querySelector(".vlp-cap")!.getBoundingClientRect();
+            const f = el.querySelector(".vlp-frame")!.getBoundingClientRect();
+            const sec = el.closest(".vlp-sec")!.getBoundingClientRect();
+            return { ...r, cap: { x: c.x, y: c.y, w: c.width, h: c.height }, frame: { x: f.x, y: f.y, w: f.width, h: f.height }, sec: { x: sec.x, y: sec.y, w: sec.width, h: sec.height } };
+          });
+        }, measure.toString());
+        type M = { lay: { w: number; h: number }; layScreen: { w: number }; img: Box; screen: Box; nat: { w: number; h: number }; cap: Box; frame: Box; sec: Box };
+        for (const [i, m] of (frames as M[]).entries()) {
+          const tag = `shot ${i + 1}`;
+          expect(within(m.img, m.screen), `${tag}: img inside screen`).toBe(true);
+          expect(Math.abs(m.lay.w / m.lay.h / (m.nat.w / m.nat.h) - 1), `${tag}: aspect ratio`).toBeLessThan(0.01);
+          expect(m.lay.w, `${tag}: no horizontal clipping`).toBeGreaterThanOrEqual(m.layScreen.w - 2);
+          expect(m.lay.w, `${tag}: not wider than screen`).toBeLessThanOrEqual(m.layScreen.w + 1);
+          expect(within(m.cap, { x: 0, y: m.sec.y, w: vw, h: m.sec.h }, 0.5), `${tag}: caption inside viewport and section`).toBe(true);
+          expect(m.cap.y, `${tag}: caption below its device`).toBeGreaterThanOrEqual(m.frame.y + m.frame.h - 3);
+          const next = (frames as M[])[i + 1];
+          if (next && next.frame.y < m.cap.y + m.cap.h) expect(m.cap.x + m.cap.w, `${tag}: caption clear of next device`).toBeLessThanOrEqual(next.frame.x + 1); // side by side
+          if (next && next.frame.y >= m.cap.y + m.cap.h - 1) expect(next.frame.y, `${tag}: caption above next device`).toBeGreaterThanOrEqual(m.cap.y + m.cap.h - 3); // stacked
+        }
+      });
+
+      test(`hero tablet: screenshot sits in the art's screen opening, never cropped or stretched (${vw}, ${theme})`, async ({ page }) => {
+        test.skip(width(page) !== 1440, "sets its own viewport; runs once");
+        await page.setViewportSize({ width: vw, height: 900 });
+        await page.goto("/work/velora", { waitUntil: "load" });
+        await setTheme(page, theme);
+        await waitDecoded(page, ".vlp-hero-screen img");
+        const m = await page.locator(".vlp-hero-screen").evaluate((screen, fn) => {
+          const mm = new Function("img", "screen", `return (${fn})(img, screen)`) as (a: Element, b: Element) => unknown;
+          return mm(screen.querySelector("img")!, screen);
+        }, measure.toString());
+        const { img, screen, nat } = m as { img: Box; screen: Box; nat: { w: number; h: number } };
+        // object-fit: contain inside the box, so the painted picture is the contained rect
+        const scale = Math.min(screen.w / nat.w, screen.h / nat.h);
+        const painted = { w: nat.w * scale, h: nat.h * scale };
+        expect(within(img, screen), "img element inside the opening").toBe(true);
+        expect(painted.w, "whole width shows (within the dark art's 6% wider opening)").toBeGreaterThanOrEqual(screen.w * 0.9 - 2);
+        expect(Math.abs(painted.h - screen.h) <= 2 || Math.abs(painted.w - screen.w) <= 2, "touches the opening on at least one axis").toBe(true);
+        // the opening sits where the art's blank screen is: inside the scene, with the art's measured box
+        const scene = await page.locator(".vlp-hero-scene").boundingBox();
+        const box = (theme === "light" ? { l: 50.66, t: 5.81, w: 22.56, h: 58.7 } : { l: 51.19, t: 19.62, w: 26.16, h: 52.46 });
+        expect(Math.abs(screen.x - (scene!.x + (scene!.width * box.l) / 100))).toBeLessThanOrEqual(1);
+        expect(Math.abs(screen.y - (scene!.y + (scene!.height * box.t) / 100))).toBeLessThanOrEqual(1.5);
+        expect(Math.abs(screen.w - (scene!.width * box.w) / 100)).toBeLessThanOrEqual(1);
+        expect(Math.abs(screen.h - (scene!.height * box.h) / 100)).toBeLessThanOrEqual(1.5);
+      });
+    }
+  }
 });
