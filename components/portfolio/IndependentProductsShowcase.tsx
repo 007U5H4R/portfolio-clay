@@ -24,6 +24,7 @@ import { useDetailNav } from "./use-detail-nav";
 import { useDesktop } from "./use-desktop";
 import { VERTICAL_CAROUSEL_ENABLED } from "./vertical-carousel-flag";
 import { PAPER_PLAYER_ENABLED } from "./paper-player-flag";
+import { PAPER_SELECTOR_ENABLED } from "./paper-selector-flag";
 import { getLenis, scrollToTarget } from "@/lib/smooth-scroll";
 
 export interface IndependentProductsShowcaseProps {
@@ -279,7 +280,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   if (!product) return null;
 
   return (
-    <div className={VERTICAL_CAROUSEL_ENABLED ? "pf-showcase pf-vcar" : "pf-showcase"} data-view={view}>
+    <div className={VERTICAL_CAROUSEL_ENABLED ? (PAPER_SELECTOR_ENABLED && desktop ? "pf-showcase pf-vcar pf-psel" : "pf-showcase pf-vcar") : "pf-showcase"} data-view={view}>
       {intro}
       {view === "detail" ? <PhoneDetailBar name={product.name} logo={product.logo} onBack={backToList} /> : null}
       <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />

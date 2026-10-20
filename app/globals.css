@@ -20580,3 +20580,223 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
 }
 /* end OrigamiArrow */
+/* TASK-305 paper selector (Tushar 2026-10-20): the vertical product carousel as an origami paper selector. Desktop only (>= 1024 px):
+   every rule is under `.pf-showcase.pf-vcar.pf-psel` (emitted only while PAPER_SELECTOR_ENABLED) and, for the tray's parts, under
+   `[data-paper-selector]` (emitted only at desktop width) - flag false or a phone = the TASK-301 carousel exactly. */
+@media (min-width: 1024px) {
+  /* the panel keeps the TASK-301 width (the card is sized from the room left over; TASK-303's description needs it), wider only on big screens */
+  .pf-showcase.pf-vcar.pf-psel {
+    --ps2-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    --ps2-panel: #efe6d3;
+    --ps2-tile: #f8f2e4;
+    --ps2-tile-on: #fbf7ec;
+    --ps2-edge: rgb(88 62 34 / 0.2);
+    --ps2-text: #1c2142;
+    --ps2-soft: #5b607a;
+    --ps2-accent: #c0502f;
+    --ps2-shadow: rgb(72 48 24 / 0.22);
+    --oa-face: #c8553a;
+    --oa-shade: #8f3420;
+    --oa-lit: #e98a5b;
+    --oa-shadow: rgb(60 30 16 / 0.35);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar.pf-psel {
+    --ps2-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .9 0 0 0 0 .85 0 0 0 0 .8 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    --ps2-panel: #262d3e;
+    --ps2-tile: #313950;
+    --ps2-tile-on: #38405a;
+    --ps2-edge: rgb(255 238 214 / 0.14);
+    --ps2-text: #f4ead8;
+    --ps2-soft: #a9afc4;
+    --ps2-accent: #e2714d;
+    --ps2-shadow: rgb(6 8 18 / 0.5);
+    --oa-face: #e0674a;
+    --oa-shade: #a8402a;
+    --oa-lit: #f09a68;
+    --oa-shadow: rgb(0 0 0 / 0.5);
+  }
+
+  /* ---- the panel ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] {
+    padding: 14px 6px 4px;
+    row-gap: 0;
+    color: var(--ps2-text);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector]::before {
+    inset: 0;
+    border-radius: 18px;
+    background-color: var(--ps2-panel);
+    background-image: var(--ps2-grain);
+    background-size: 160px 160px;
+    box-shadow:
+      inset 0 0 0 1px var(--ps2-edge),
+      inset 0 1px 0 rgb(255 255 255 / 0.18),
+      0 2px 0 -1px var(--ps2-edge),
+      0 14px 24px -14px var(--ps2-shadow);
+  }
+  /* ---- header: serif title left, mono index right ---- */
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-carousel-tag {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    align-self: stretch;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0 2px 4px;
+    gap: 4px;
+    text-align: left;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-select {
+    font-family: var(--font-display);
+    font-size: clamp(9.5px, 0.72vw, 12.5px);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.15;
+    color: var(--ps2-text);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(9.5px, 0.72vw, 12px);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--ps2-soft);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count .ps-cur {
+    color: var(--ps2-accent);
+    font-weight: 700;
+  }
+
+  /* ---- tiles ---- */
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track {
+    padding: 12px 9px;
+    gap: 10px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
+    gap: 8px;
+    padding: 8px 8px 8px 8px;
+    border: 1px solid var(--ps2-edge);
+    border-radius: 12px;
+    color: var(--ps2-text);
+    background-color: var(--ps2-tile);
+    background-image: var(--ps2-grain);
+    background-size: 160px 160px;
+    transform: none;
+    rotate: none;
+    scale: 0.97;
+    translate: none;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      0 2px 0 -1px var(--ps2-edge),
+      0 5px 8px -6px var(--ps2-shadow);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([data-rel="-2"], [data-rel="-3"], [data-rel="2"], [data-rel="3"]) {
+    scale: 0.94;
+    translate: none;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    scale: 1.04;
+    z-index: 2;
+    background-color: var(--ps2-tile-on);
+    border-color: var(--ps2-accent);
+    /* a thin terracotta outline, a small offset paper layer behind, a soft lift */
+    box-shadow:
+      0 0 0 1px var(--ps2-accent),
+      3px 4px 0 0 color-mix(in oklab, var(--ps2-accent) 38%, var(--ps2-panel)),
+      0 12px 14px -8px var(--ps2-shadow);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+    width: clamp(50px, 31%, 82px);
+    align-self: center;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border-radius: 6px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-num {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ps2-accent);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-family: var(--font-display);
+    font-size: clamp(13px, 0.95vw, 14.5px);
+    font-weight: 650;
+    line-height: 1.12;
+    color: var(--ps2-text);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:not([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-weight: 600;
+    color: color-mix(in oklab, var(--ps2-text) 82%, var(--ps2-tile));
+  }
+
+  /* ---- arrow slots: a real button with a 44 px hit area, no visible disc ---- */
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--oa-face);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow:focus-visible {
+    outline: 2px solid var(--ps2-accent);
+    outline-offset: 0;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow {
+      transition:
+        translate 160ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        filter 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="prev"]:focus-visible {
+    translate: 0 -2px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="next"]:focus-visible {
+    translate: 0 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="prev"]:hover {
+      translate: 0 -2px;
+    }
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="next"]:hover {
+      translate: 0 2px;
+    }
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir]:active {
+    translate: 0 0;
+  }
+
+  /* ---- the selection arrow: decorative, beside the selected tile, straddling the panel's right edge ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-vcar-pointer {
+    display: grid;
+    place-items: center;
+    --oa-size: 24px;
+    width: 24px;
+    height: 24px;
+    margin-right: calc(-1 * (8px + 20px));
+    border: 0;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow .oa {
+    --oa-size: 26px;
+  }
+}
+@media (min-width: 1700px) {
+  .pf-showcase.pf-vcar.pf-psel {
+    --pf-vc-w: 232px;
+  }
+}
+/* end TASK-305 */
