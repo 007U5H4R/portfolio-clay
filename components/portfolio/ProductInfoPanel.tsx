@@ -193,7 +193,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         <ArrowRight className="pf-action-arrow" aria-hidden="true" focusable="false" strokeWidth={1.75} />
       </Link>
       {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only where the GitHub strip shows */}
-      {product.githubUrl ? (
+      {product.githubUrl && !poster ? (
         <>
           <StarDivider slot="foot" />
           <StarNote name={product.name} href={product.githubUrl} />

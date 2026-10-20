@@ -55,7 +55,7 @@ const measure = (page: Page) =>
     let top = Infinity;
     let bottom = -Infinity;
     let right = -Infinity;
-    for (const el of document.querySelectorAll(".pf-showcase .pf-info .pf-info-head > :not(ul), .pf-showcase .pf-info .pf-action-set, .pf-showcase .pf-info .pf-star-note")) {
+    for (const el of document.querySelectorAll(".pf-showcase .pf-info .pf-info-head > :not(ul), .pf-showcase .pf-info .pf-action-set, .pf-showcase .pf-info .pf-action-set .pf-star-note")) {
       const q = el.getBoundingClientRect();
       if (q.height < 2) continue;
       top = Math.min(top, q.top);
@@ -278,9 +278,10 @@ for (const [vw, vh] of SIZES) {
       expect(m, `${tag}: the card has a poster`).not.toBeNull();
       if (!m) continue;
       if (m.hidden) {
+        expect(await page.locator(".pf-showcase .pf-info .pf-action-set .pf-star-note").count(), `${tag}: the star note is dropped from the card`).toBe(0);
         // graceful hide: only allowed where the card truly has no room (the slot is tiny), never when it could have shown
         hiddenSlugs.push(PERSONAL[i]!.slug + ":" + Math.round(m.slot));
-        expect(m.slot, `${tag}: poster hidden only when the free space is under 60px`).toBeLessThanOrEqual(60);
+        expect(m.slot, `${tag}: poster hidden only when the free space is under 56px`).toBeLessThanOrEqual(56);
         expect(Math.abs(m.pagerToCta), `${tag}: actions sit just above the pager`).toBeLessThanOrEqual(16);
         if (i < PERSONAL.length - 1) {
           await page.getByRole("button", { name: "Next product" }).click();
@@ -290,6 +291,7 @@ for (const [vw, vh] of SIZES) {
         continue;
       }
       sizes.push(`${Math.round(m.w)}x${Math.round(m.h)}`);
+      expect(await page.locator(".pf-showcase .pf-info .pf-action-set .pf-star-note").count(), `${tag}: the star note is dropped from the card`).toBe(0);
       expect(m.metaGap, `${tag}: poster clear of the meta line`).toBeGreaterThanOrEqual(6);
       expect(m.ctaGap, `${tag}: poster clear of the actions`).toBeGreaterThanOrEqual(6);
       expect(m.h, `${tag}: poster is tall enough to read`).toBeGreaterThanOrEqual(44);
@@ -308,6 +310,7 @@ for (const [vw, vh] of SIZES) {
       }
     }
     test.info().annotations.push({ type: "poster-sizes", description: `${vw}x${vh}: ${sizes.join(", ")}; hidden: ${hiddenSlugs.join(",") || "none"}` });
+    if (vw >= 1440) expect(Math.min(...sizes.map((z) => Number(z.split("x")[1]))), `${vw}x${vh}: poster at least 110px tall`).toBeGreaterThanOrEqual(110);
     if (vw >= 1440) expect(hiddenSlugs, `${vw}x${vh}: every product shows its poster`).toEqual([]);
   });
 }
@@ -316,7 +319,7 @@ if (CROPS) {
   const tallest = PERSONAL.reduce((a, p) => (p.tagline.length > a.tagline.length ? p : a), PERSONAL[0]!);
   for (const [vw, vh] of SIZES.filter(([w]) => w !== 1920)) {
     for (const theme of ["light", "dark"] as const) {
-      for (const [label, slug] of [["01", PERSONAL[0]!.slug], ["06-pratyasa", "pratyasa"], ["tallest-" + tallest.slug, tallest.slug]] as const) {
+      for (const [label, slug] of [["01", PERSONAL[0]!.slug], ["06-pratyasa", "pratyasa"], ["02-railcite", "railcite"], ["tallest-" + tallest.slug, tallest.slug]] as const) {
         test(`crop ${vw}x${vh} ${theme} ${label}`, async ({ browser }) => {
           const ctx = await browser.newContext({ viewport: { width: vw, height: vh }, deviceScaleFactor: 2, reducedMotion: "reduce" });
           const page = await ctx.newPage();
