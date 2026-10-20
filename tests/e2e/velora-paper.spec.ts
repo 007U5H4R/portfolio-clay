@@ -104,7 +104,7 @@ test.describe("velora paper layout", () => {
     await expect(band.locator(".vlp-next-h")).toContainText("Nuptis");
     await expect(band.getByRole("link", { name: /^Next project: Nuptis/ })).toHaveAttribute("href", "/work/nuptis");
     // footer art is the wedding vendor-operations scene, decorative
-    for (const img of await band.locator("img").all()) {
+    for (const img of await band.locator("img:not(.pf-logo-img)").all()) {
       await expect(img).toHaveAttribute("alt", "");
       expect(await img.getAttribute("src")).toMatch(/\/velora\/art\/footer-(light|dark)\.webp$/);
     }

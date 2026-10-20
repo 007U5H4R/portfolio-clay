@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, BadgeCheck, Eye, Globe, HeartHandshake, PlayC
 import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
+import { CaseName } from "@/components/case-study/CaseName";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -137,7 +138,7 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
               </p>
               <p className="bvp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="bvp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="bvp-tagline">{study.hero.tagline}</p>
               <p className="bvp-lede">{HERO.description}</p>
@@ -402,7 +403,7 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
           >
             <span className="bvp-next-eyebrow">{NEXT.eyebrow}</span>
             <h2 className="bvp-next-h">
-              {next.name} <span aria-hidden="true">→</span>
+              <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
             {next.slug === "pratyasa" ? <span className="bvp-next-line">{NEXT.line}</span> : null}
           </ViewTransitionLink>

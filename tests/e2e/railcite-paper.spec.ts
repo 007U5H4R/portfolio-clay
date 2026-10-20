@@ -96,8 +96,8 @@ test.describe("railcite paper layout", () => {
   test("the next band is Velora's fashion scene, decorative, and links to Velora", async ({ page }) => {
     await page.goto("/work/railcite", { waitUntil: "load" });
     const band = page.locator('section[aria-label="Next project"]');
-    await expect(band.locator("img")).toHaveCount(2); // light + dark twins; one is display:none
-    for (const img of await band.locator("img").all()) {
+    await expect(band.locator("img:not(.pf-logo-img)")).toHaveCount(2); // light + dark twins; one is display:none
+    for (const img of await band.locator("img:not(.pf-logo-img)").all()) {
       await expect(img).toHaveAttribute("alt", "");
       expect(await img.getAttribute("src")).toMatch(/\/railcite\/art\/footer-(light|dark)\.webp$/);
     }

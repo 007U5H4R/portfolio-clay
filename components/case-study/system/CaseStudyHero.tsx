@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CaseImage, CaseProof, EvidenceKind } from "@/data/schema";
 import type { VideoMedia } from "@/lib/video-providers";
 import { Container } from "@/components/layout/Container";
+import { CaseName } from "../CaseName";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { CaseImageFrame } from "./CaseImageFrame";
 import { BadgeLegend } from "./EvidenceBadge";
@@ -49,7 +50,7 @@ export function CaseStudyHero(props: CaseStudyHeroProps) {
             <span>{status}</span>
           </p>
           <h1 id="cs-h" className="csx-h1" style={{ viewTransitionName: `project-${slug}` }}>
-            {name}
+            <CaseName slug={slug} name={name} />
           </h1>
           <p className="csx-tagline">{tagline}</p>
           <p className="csx-prop">{proposition}</p>

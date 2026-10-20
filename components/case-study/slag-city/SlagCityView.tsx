@@ -9,6 +9,7 @@ import { EvidenceBadge } from "@/components/case-study/system/EvidenceBadge";
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows } from "@/components/case-study/system/case-context";
 import { NextProject } from "@/components/case-study/NextProject";
+import { CaseName } from "@/components/case-study/CaseName";
 import { SgNav } from "./SgNav";
 import { ART, DECISIONS, EVIDENCE, HERO, NAV, SECTION, SHOTS, SHRAVAN_NEXT_ART, SHRAVAN_NEXT_LINE, SOURCES, SYSTEM, WHY } from "./copy";
 
@@ -134,7 +135,7 @@ export function SlagCityView({ project, study, portfolio, next }: SlagCityViewPr
               </p>
               <p className="sgp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="sgp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="sgp-tagline">{HERO.tagline}</p>
               <p className="sgp-lede">{HERO.lede}</p>

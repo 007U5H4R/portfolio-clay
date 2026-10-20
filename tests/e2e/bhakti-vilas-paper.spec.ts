@@ -127,7 +127,7 @@ test.describe("bhakti vilas paper layout", () => {
     await expect(band.getByRole("link", { name: /^Next project: Pratyasa/ })).toHaveAttribute("href", "/work/pratyasa");
     await expect(band).not.toContainText(/clinically approved|FDA|deployed in|diagnos/i);
     // footer art is the biosensor scene (not the devotional diorama), decorative
-    for (const img of await band.locator("img").all()) {
+    for (const img of await band.locator("img:not(.pf-logo-img)").all()) {
       await expect(img).toHaveAttribute("alt", "");
       expect(await img.getAttribute("src")).toMatch(/\/bhakti-vilas\/art\/footer-(light|dark)\.webp$/);
     }

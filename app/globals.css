@@ -19206,3 +19206,53 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
     transition: none;
   }
 }
+
+/* === TASK-285 (Tushar 2026-10-19): product logo in place of the name in case-study heroes and next bands ===
+   `CaseName` renders both theme files (the TASK-250 `.pf-logo-img` rules above pick the one for <html data-theme>) inside `.cs-logo`.
+   Width is derived from the height cap (`--cs-logo-h` x the file's aspect `--cs-logo-ar`) and clamped to the column, height stays
+   auto, so a very wide wordmark (Pratyasa) shrinks with its column instead of overflowing and nothing is ever stretched.
+   `[data-on-dark]` and the dark system-template heroes pin the light-ink file (those surfaces are dark in both themes). */
+.cs-logo {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+  max-width: 100%;
+  --cs-logo-h: clamp(44px, 5.2vw, 72px);
+}
+.cs-logo .pf-logo-img {
+  width: min(100%, calc(var(--cs-logo-h) * var(--cs-logo-ar)));
+  max-width: none;
+  max-height: none;
+  height: auto;
+}
+.cs-logo[data-on-dark] .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="urja"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="slag-city"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="shravans-round"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="cinematic-portfolio"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"] {
+  display: none;
+}
+.cs-logo[data-on-dark] .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="urja"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="slag-city"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="shravans-round"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="cinematic-portfolio"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"] {
+  display: block;
+}
+/* Hero h1: the logo is the title block, left-aligned under the eyebrow. */
+h1 > .cs-logo {
+  display: block;
+  margin-block: 4px 6px;
+}
+.csx-h1 > .cs-logo,
+.jx-h1 > .cs-logo { --cs-logo-h: clamp(44px, 5.2vw, 72px); }
+:is(.cfp-h1, .bvp-h1, .pra-h1, .nup-h1, .urp-h1, .srp-h1, .sgp-h1, .rcp-h1, .vlp-h1) > .cs-logo { --cs-logo-h: clamp(48px, 7vw, 84px); }
+.tsp-h1 > .cs-logo { --cs-logo-h: clamp(36px, 4.4vw, 56px); margin-bottom: 12px; }
+.srp-h1:has(> .cs-logo) { max-width: none; }
+/* Next band: the logo sits where the name did, the arrow stays right after it. */
+h2 > .cs-logo { width: min(calc(var(--cs-logo-h) * var(--cs-logo-ar)), calc(100% - 1.4em)); max-width: none; }
+h2 > .cs-logo .pf-logo-img { width: 100%; }
+.cs-next-h > .cs-logo { --cs-logo-h: clamp(40px, 5vw, 72px); }
+:is(.bvp-next-h, .rcp-next-h, .vlp-next-h) > .cs-logo { --cs-logo-h: clamp(34px, 4vw, 52px); }
+.tsp-next-h > .cs-logo { --cs-logo-h: clamp(30px, 3.4vw, 44px); }
+/* === end TASK-285 === */

@@ -10,6 +10,7 @@ import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, videoFor } from "@/components/case-study/system/case-context";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { NextProject } from "@/components/case-study/NextProject";
+import { CaseName } from "@/components/case-study/CaseName";
 import { UrpNav } from "./UrpNav";
 import { ART, DECISIONS, EVIDENCE, HERO, NAV, NEXT_LINE, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM, TEACHSPARK_NEXT_ART } from "./copy";
 
@@ -113,7 +114,7 @@ export function UrjaView({ project, study, portfolio, next }: UrjaViewProps) {
               </p>
               <p className="urp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="urp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="urp-tagline">{HERO.tagline}</p>
               <p className="urp-lede">{HERO.lede}</p>

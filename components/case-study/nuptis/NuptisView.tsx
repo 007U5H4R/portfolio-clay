@@ -9,6 +9,7 @@ import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/Evide
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
 import { NextProject, BHAKTI_NEXT_ART, BHAKTI_NEXT_LINE } from "@/components/case-study/NextProject";
+import { CaseName } from "@/components/case-study/CaseName";
 import { NupNav } from "./NupNav";
 import { ART, DECISIONS, EVIDENCE, HERO, INSIGHT, LEARNINGS, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM } from "./copy";
 
@@ -137,7 +138,7 @@ export function NuptisView({ project, study, portfolio, next }: NuptisViewProps)
               </p>
               <p className="nup-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="nup-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="nup-tagline">{HERO.tagline}</p>
               <p className="nup-lede">{HERO.lede}</p>

@@ -9,6 +9,7 @@ import { EvidenceBadge } from "@/components/case-study/system/EvidenceBadge";
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows } from "@/components/case-study/system/case-context";
 import { NextProject } from "@/components/case-study/NextProject";
+import { CaseName } from "@/components/case-study/CaseName";
 import { CfpNav } from "./CfpNav";
 import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, NEXT_LINE, SLAG_NEXT_ART, SOURCES, SYSTEM } from "./copy";
 
@@ -144,7 +145,7 @@ export function CampfireView({ project, study, portfolio, next }: CampfireViewPr
               </p>
               <p className="cfp-kicker">{HERO.kicker}</p>
               <h1 id="cs-h" className="cfp-h1" style={{ viewTransitionName: `project-${project.slug}` }}>
-                {project.name}
+                <CaseName slug={project.slug} name={project.name} />
               </h1>
               <p className="cfp-tagline">{HERO.tagline}</p>
               <p className="cfp-lede">{HERO.lede}</p>
