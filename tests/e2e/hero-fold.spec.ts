@@ -14,6 +14,7 @@
  * translate is applied: the layers scroll together.
  */
 import { test, expect } from "./fixtures";
+import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 import type { Page } from "@playwright/test";
 import { hero } from "@/data/hero";
 // The manifest directly (not `lib/illustrations.ts`, whose static image imports Playwright cannot load).
@@ -27,6 +28,7 @@ const width = (page: Page) => page.viewportSize()?.width ?? 0;
 // width, so on phones the h1, hand line and CTAs move below the first screen. The first viewport keeps the
 // header name, the eyebrow title, the banner desk and the video; the rest is at most one scroll away.
 test("@EVAL-001 w390: name, title, desk and the intro video sit in the first viewport; h1 + CTAs one scroll away", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   test.skip(width(page) !== 390, "the first-viewport rule applies < 768 only (TKT-96, Dev-39)");
   await page.goto("/", { waitUntil: "load" });
   const vh = page.viewportSize()!.height;
@@ -51,6 +53,7 @@ test("@EVAL-001 w390: name, title, desk and the intro video sit in the first vie
 });
 
 test("@EVAL-001 ≥ 768: the banner shows the whole scene and the h1 + CTAs are one scroll away", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   test.skip(width(page) < 768, "the whole-scene rule applies ≥ 768 (TKT-96, Dev-39)");
   await page.goto("/", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
@@ -118,6 +121,7 @@ for (const { route, paper, image, animated } of LAYERS) {
  * also proves the h1 still renders in Fraunces, guarding the literal family name in the TKT-92r3 CSS.
  */
 test("TKT-92r3 hero eyebrow + h1 keep their boxes across the font swap", async ({ browser, page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   const viewport = page.viewportSize()!;
   const boxes = async (blockFonts: boolean) => {
     const { baseURL, isMobile, hasTouch, deviceScaleFactor, userAgent } = test.info().project.use;
@@ -236,6 +240,7 @@ test("hero polaroids sit on the banner's blank papers, clear of the face and the
  * horizontal overflow at any project width.
  */
 test("TKT-108 hero copy block: three-line h1 ≥ 768, hand line, Ask Tushky caption + sticker, margin notes ≥ 1024", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   await page.goto("/", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
   const h1 = page.locator("h1#hero-h");

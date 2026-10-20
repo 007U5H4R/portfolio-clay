@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { HeroAskLink } from "@/components/hero/HeroAskLink";
+import { HeroGlass } from "@/components/hero/HeroGlass";
+import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
@@ -66,7 +68,12 @@ const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
  */
 export function Hero() {
   return (
-    <section className="hero" aria-labelledby="hero-h">
+    <section
+      className={HOME_GLASS_HERO_ENABLED ? "hero hero-glass-on" : "hero"}
+      // Flag on: both variants are in the HTML and CSS shows one (glass ≥ 1024, the previous hero below), so the section is
+      // named by neither h1 (a hidden one would still feed aria-labelledby). Flag off: unchanged.
+      aria-labelledby={HOME_GLASS_HERO_ENABLED ? undefined : "hero-h"}
+    >
       <div className="hero-banner">
         {/* M-011 P1: the banner is the layered Paper World scene (four layers, light + dark twins); < 768 a 16:10 cover crop on the focal point (wide enough that the tall paper and the yellow note both fit with their polaroids). */}
         <PaperParallaxScene id="hero-home" priority focal={{ x: BANNER_FOCAL_X }} narrowAspect="16 / 10" />
@@ -83,6 +90,9 @@ export function Hero() {
         </div>
 
         <Postmark className="hero-stamp" />
+
+        {/* TASK-289 test (HOME_GLASS_HERO_ENABLED): the one glass panel over the art's upper-left. `display: none` below 1024. */}
+        {HOME_GLASS_HERO_ENABLED ? <HeroGlass /> : null}
       </div>
 
       {/* TKT-108: the paper sheet is its own counting unit (nested section, Design.md §3.2 rule 1 / Dev-50). */}

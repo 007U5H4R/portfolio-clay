@@ -12,6 +12,7 @@
  *               in eval-017.spec.ts; this is the home-assembly smoke of the same set).
  */
 import { test, expect } from "./fixtures";
+import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 import { collectDecorations, RULE_LIMITS } from "./eval-018-lib";
 import { hero } from "@/data/hero";
 import { resumeAction, site } from "@/lib/site";
@@ -41,7 +42,7 @@ test("@EVAL-017 home assembles its five sections in order, then the band footer"
   await expect(sections).toHaveCount(5);
 
   // The hero is the first section (no id — it carries the h1); the remaining three are id'd.
-  await expect(sections.nth(0).locator("h1")).toBeVisible();
+  await expect(sections.nth(0).getByRole("heading", { level: 1 })).toBeVisible();
   await expect(sections.nth(1)).toHaveAttribute("id", "credentials");
   await expect(sections.nth(2)).toHaveAttribute("id", "selected-work");
   await expect(sections.nth(3)).toHaveAttribute("id", "awards");
@@ -75,12 +76,13 @@ test("home sections use the 72/96/128 vertical-rhythm ladder for the current vie
 // strictly increasing.
 // ---------------------------------------------------------------------------
 test("@EVAL-008 mobile visual order is monotonic top-to-bottom at 390", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   test.skip(width(page) !== 390, "mobile reading order checked at w390");
   await page.goto("/", { waitUntil: "load" });
 
   const ordered = [
     page.getByRole("img", { name: HERO_BANNER_ALT }),
-    page.locator("h1"),
+    page.getByRole("heading", { level: 1 }),
     page.getByRole("link", { name: "View my work →" }),
     page.locator("#credentials-heading"),
     page.locator("#selected-work-heading"),
@@ -215,6 +217,7 @@ test("TC-151 home sections alternate their paper fills and open with a torn edge
 // inside the ≤ 4 budget. Exact counts are asserted so any drift is a deliberate edit here.
 // ---------------------------------------------------------------------------
 test("@EVAL-018 home per-section decoration counts match the design of record", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   test.skip(![390, 1440].includes(width(page)), "EVAL-018 is measured at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
@@ -228,7 +231,8 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
   // the one marginalia `collage` (4, every width).
   expect(counts).toEqual({
     header: mobile ? 0 : 1,
-    'section[aria-labelledby="hero-h"]': 1,
+    // With TASK-289's flag on the hero section carries no aria-labelledby (both h1s are in the HTML), so the unit label is positional.
+    [HOME_GLASS_HERO_ENABLED ? "section:nth(1)" : 'section[aria-labelledby="hero-h"]']: 1,
     "section#hero-copy": 4,
     // TASK-211: the three replacement sections each keep only their torn edge (cards are content paper).
     "section#credentials": 1,
@@ -251,6 +255,7 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
 // Scoring the comprehension itself is manual (evals/results/eval-001-m009-home.md).
 // ---------------------------------------------------------------------------
 test("@EVAL-001 the six 5-second-test elements sit in the first viewport (w390) / the whole scene then the copy (w1440)", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "previous-hero assertions: from 1024 up the TASK-289 glass hero replaces this copy (home-glass-hero.spec.ts); below 1024, or with HOME_GLASS_HERO_ENABLED false, they run");
   test.skip(![390, 1440].includes(width(page)), "EVAL-001 is scored at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
   if (width(page) === 1440) {
