@@ -11,8 +11,7 @@ export const HERO = {
   lede: "Risk-based onboarding, work orders, payment milestones and pre-vetted backups in one workspace.",
   /** Labels for the record's two hero proofs (same order; values and badges come from the record). */
   proofLabels: ["Figma frames, with an AA audit", "Retired in favour of Velora"],
-  /** The second proof is a project decision, not a product metric. */
-  proofNotes: ["Design evidence", "A project decision, not a product metric"],
+  proofNotes: ["Design evidence", "Design evidence"],
 } as const;
 
 export const NAV = [
