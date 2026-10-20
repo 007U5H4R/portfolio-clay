@@ -39,7 +39,7 @@ export const veloraCase: z.input<typeof CaseStudy> = {
       width: 540,
       height: 803,
       frame: "phone",
-      provenance: "docs/case-study-sources/velora/role-select.jpg ← Case Study 3/Velora/docs/screenshots/role-select.jpg",
+      provenance: "docs/case-study-sources/velora/role-select.jpg ← re-captured uncropped from the live app velora-nu-eight.vercel.app/ (mock data, 390px wide), 2026-10-20 (TASK-296); the original Case Study 3 capture was cut off on the right",
     },
     pivotFrom: {
       src: "/media/case-studies/velora/nuptis-dashboard.webp",
@@ -122,7 +122,7 @@ export const veloraCase: z.input<typeof CaseStudy> = {
           height: 803,
           frame: "phone",
           caption: "Trust profile",
-          provenance: "docs/case-study-sources/velora/trust-profile.jpg ← Case Study 3/Velora/docs/screenshots/trust-profile.jpg",
+          provenance: "docs/case-study-sources/velora/trust-profile.jpg ← re-captured uncropped from the live app velora-nu-eight.vercel.app/vendor/v-loomcraft (mock data, 390px wide), 2026-10-20 (TASK-296); the original Case Study 3 capture was cut off on the right",
         },
         {
           src: "/media/case-studies/velora/rfps.webp",
@@ -131,7 +131,7 @@ export const veloraCase: z.input<typeof CaseStudy> = {
           height: 803,
           frame: "phone",
           caption: "A brand’s RFPs",
-          provenance: "docs/case-study-sources/velora/rfps.jpg ← Case Study 3/Velora/docs/screenshots/rfps.jpg",
+          provenance: "docs/case-study-sources/velora/rfps.jpg ← re-captured uncropped from the live app velora-nu-eight.vercel.app/rfps (mock data, 390px wide), 2026-10-20 (TASK-296); the original Case Study 3 capture was cut off on the right",
         },
         {
           src: "/media/case-studies/velora/bids.webp",
@@ -140,7 +140,7 @@ export const veloraCase: z.input<typeof CaseStudy> = {
           height: 803,
           frame: "phone",
           caption: "Bids, sorted by best match",
-          provenance: "docs/case-study-sources/velora/bids.jpg ← Case Study 3/Velora/docs/screenshots/bids.jpg",
+          provenance: "docs/case-study-sources/velora/bids.jpg ← re-captured uncropped from the live app velora-nu-eight.vercel.app/bids/rfp-tees (mock data, 390px wide), 2026-10-20 (TASK-296); the original Case Study 3 capture was cut off on the right",
         },
       ],
     },
