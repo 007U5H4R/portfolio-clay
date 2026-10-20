@@ -46,6 +46,8 @@ export interface PortfolioProduct {
   tagline: string;
   /** The one-sentence proposition (spec §11: 2–4 lines). */
   description: string;
+  /** TASK-303 r2: the desktop paper card's shorter wording of `description`, when the full one would be cut off. */
+  cardLine?: string | undefined;
   statusLabel: string;
   /** Tiny status metadata for the info sheet (TASK-121 §5.4) — a shortening of `statusLabel`. */
   meta: string;
@@ -128,6 +130,7 @@ export function buildPortfolioProducts(
         name: project.name,
         tagline: entry.coverLine,
         description: project.tagline,
+        cardLine: entry.cardLine,
         statusLabel: project.statusLabel,
         meta: entry.meta,
         logo: entry.logo ? { dark: productLogoSrc(project.slug, "dark"), light: productLogoSrc(project.slug, "light"), ...entry.logo } : undefined,

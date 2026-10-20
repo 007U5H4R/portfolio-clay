@@ -148,7 +148,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         {product.logo ? <ProductLogo name={product.name} logo={product.logo} /> : product.name}
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
-      <p className="pf-info-desc" title={paper ? product.description : undefined}>{product.description}</p>
+      <p className="pf-info-desc" title={paper ? product.description : undefined}>{paper ? (product.cardLine ?? product.description) : product.description}</p>
       </div>
       {poster ? (
         <span className="pf-info-poster" aria-hidden="true" data-poster={poster.src}>
