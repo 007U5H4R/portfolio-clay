@@ -20010,6 +20010,35 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     gap: 6px;
     padding-top: 0;
   }
+  /* the cover art fills the card's free middle; the text stays on top and the actions stay pinned to the bottom */
+  .pf-showcase.pf-vcar .pf-info-poster {
+    position: relative;
+    display: block;
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+  }
+  .pf-showcase.pf-vcar .pf-info-poster-frame {
+    position: absolute;
+    inset: 8px 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--color-paper-2, #ece4d3);
+    box-shadow:
+      inset 0 0 0 1px var(--ps-edge, rgba(0, 0, 0, 0.12)),
+      0 1px 0 var(--ps-hi, rgba(255, 255, 255, 0.5)),
+      0 6px 10px -6px var(--ps-drop-soft, rgba(60, 40, 20, 0.35));
+  }
+  /* too little room: drop the art rather than squash it */
+  @container (max-height: 60px) {
+    .pf-showcase.pf-vcar .pf-info-poster-frame {
+      display: none;
+    }
+  }
+  .pf-showcase.pf-vcar .pf-info-poster-img {
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
   .pf-showcase.pf-vcar .pf-divider {
     display: none;
   }

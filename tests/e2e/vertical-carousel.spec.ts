@@ -227,11 +227,96 @@ test("TASK-301: choosing a thumbnail keeps carousel, card and video in sync", as
   await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`03 / ${pad2(PERSONAL.length)}`);
 });
 
+const posterMeasure = (page: Page) =>
+  page.evaluate(async () => {
+    const img = document.querySelector<HTMLImageElement>(".pf-showcase .pf-info .pf-info-poster-img");
+    if (!img) return null;
+    const hiddenFrame = getComputedStyle(img.parentElement!).display === "none";
+    if (hiddenFrame) {
+      const cta0 = document.querySelector(".pf-showcase .pf-info .pf-action-set")!.getBoundingClientRect();
+      const pager0 = document.querySelector(".pf-showcase .pf-info-dot")!.getBoundingClientRect();
+      return { hidden: true as const, slot: img.closest(".pf-info-poster")!.getBoundingClientRect().height, pagerToCta: pager0.top - cta0.bottom };
+    }
+    const deadline = Date.now() + 8000;
+    while (!(img.complete && img.naturalWidth > 0) && Date.now() < deadline) await new Promise((r) => setTimeout(r, 50));
+    await img.decode();
+    const box = img.getBoundingClientRect();
+    const frame = img.parentElement!.getBoundingClientRect();
+    const head = [...document.querySelectorAll(".pf-showcase .pf-info .pf-info-head > *")].map((e) => e.getBoundingClientRect()).filter((q) => q.height > 2);
+    const metaBottom = Math.max(...head.map((q) => q.bottom));
+    const cta = document.querySelector(".pf-showcase .pf-info .pf-action-set")!.getBoundingClientRect();
+    const pager = document.querySelector(".pf-showcase .pf-info-dot")!.getBoundingClientRect();
+    const urlOf = (el: Element | null) => {
+      const src = (el as HTMLImageElement | null)?.currentSrc || (el as HTMLImageElement | null)?.src || "";
+      return new URL(src, location.href).searchParams.get("url") ?? src;
+    };
+    const selected = document.querySelector('.pf-showcase .pf-track .pf-thumb[aria-selected="true"] img');
+    return {
+      hidden: false as const,
+      top: box.top, bottom: box.bottom, w: box.width, h: box.height,
+      frameW: frame.width, frameH: frame.height,
+      fit: getComputedStyle(img).objectFit,
+      ariaHidden: img.closest(".pf-info-poster")!.getAttribute("aria-hidden") === "true" && img.getAttribute("alt") === "",
+      metaGap: box.top - metaBottom,
+      ctaGap: cta.top - box.bottom,
+      ctaToPager: cta.bottom - pager.top,
+      pagerToCta: pager.top - cta.bottom,
+      src: urlOf(img), thumbSrc: urlOf(selected),
+      natural: img.naturalWidth / img.naturalHeight,
+    };
+  });
+
+for (const [vw, vh] of SIZES) {
+  test(`TASK-301: each product's poster art fills the card between the text and the actions at ${vw}x${vh}`, async ({ page }) => {
+    test.setTimeout(150_000);
+    await open(page, vw, vh, "light");
+    const sizes: string[] = [];
+    const hiddenSlugs: string[] = [];
+    for (let i = 0; i < PERSONAL.length; i += 1) {
+      const m = await posterMeasure(page);
+      const tag = `${PERSONAL[i]!.slug} @${vw}x${vh}`;
+      expect(m, `${tag}: the card has a poster`).not.toBeNull();
+      if (!m) continue;
+      if (m.hidden) {
+        // graceful hide: only allowed where the card truly has no room (the slot is tiny), never when it could have shown
+        hiddenSlugs.push(PERSONAL[i]!.slug + ":" + Math.round(m.slot));
+        expect(m.slot, `${tag}: poster hidden only when the free space is under 60px`).toBeLessThanOrEqual(60);
+        expect(Math.abs(m.pagerToCta), `${tag}: actions sit just above the pager`).toBeLessThanOrEqual(16);
+        if (i < PERSONAL.length - 1) {
+          await page.getByRole("button", { name: "Next product" }).click();
+          await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+          await page.waitForTimeout(120);
+        }
+        continue;
+      }
+      sizes.push(`${Math.round(m.w)}x${Math.round(m.h)}`);
+      expect(m.metaGap, `${tag}: poster clear of the meta line`).toBeGreaterThanOrEqual(6);
+      expect(m.ctaGap, `${tag}: poster clear of the actions`).toBeGreaterThanOrEqual(6);
+      expect(m.h, `${tag}: poster is tall enough to read`).toBeGreaterThanOrEqual(44);
+      expect(m.src, `${tag}: poster is this product's art`).toContain("cover-");
+      expect(m.src, `${tag}: poster = the carousel cover`).toBe(m.thumbSrc);
+      expect(m.fit, `${tag}: cover-fit, never stretched`).toBe("cover");
+      expect(Math.abs(m.w - m.frameW) + Math.abs(m.h - m.frameH), `${tag}: image fills its frame exactly`).toBeLessThanOrEqual(1);
+      expect(m.ariaHidden, `${tag}: decorative (alt empty, aria-hidden)`).toBe(true);
+      expect(Math.abs(m.natural - 16 / 9), `${tag}: source art is 16:9`).toBeLessThan(0.02);
+      expect(Math.abs(m.pagerToCta), `${tag}: actions sit just above the pager`).toBeLessThanOrEqual(16);
+      expect(m.pagerToCta, `${tag}: actions do not overlap the pager`).toBeGreaterThanOrEqual(-2);
+      if (i < PERSONAL.length - 1) {
+        await page.getByRole("button", { name: "Next product" }).click();
+        await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+        await page.waitForTimeout(120);
+      }
+    }
+    test.info().annotations.push({ type: "poster-sizes", description: `${vw}x${vh}: ${sizes.join(", ")}; hidden: ${hiddenSlugs.join(",") || "none"}` });
+    if (vw >= 1440) expect(hiddenSlugs, `${vw}x${vh}: every product shows its poster`).toEqual([]);
+  });
+}
+
 if (CROPS) {
   const tallest = PERSONAL.reduce((a, p) => (p.tagline.length > a.tagline.length ? p : a), PERSONAL[0]!);
-  for (const [vw, vh] of SIZES) {
+  for (const [vw, vh] of SIZES.filter(([w]) => w !== 1920)) {
     for (const theme of ["light", "dark"] as const) {
-      for (const [label, slug] of [["01", PERSONAL[0]!.slug], ["tallest-" + tallest.slug, tallest.slug]] as const) {
+      for (const [label, slug] of [["01", PERSONAL[0]!.slug], ["06-pratyasa", "pratyasa"], ["tallest-" + tallest.slug, tallest.slug]] as const) {
         test(`crop ${vw}x${vh} ${theme} ${label}`, async ({ browser }) => {
           const ctx = await browser.newContext({ viewport: { width: vw, height: vh }, deviceScaleFactor: 2, reducedMotion: "reduce" });
           const page = await ctx.newPage();

@@ -304,6 +304,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
           total={products.length}
           onWatch={watchVideo}
           nav={desktop ? { products, onNavigate: navigateCard } : undefined}
+          poster={VERTICAL_CAROUSEL_ENABLED && desktop ? product.art : undefined}
         />
       </div>
       {/* TASK-217: the picker sits beneath the window it drives (DOM order = visual order). The phone hides it (TASK-210). */}
