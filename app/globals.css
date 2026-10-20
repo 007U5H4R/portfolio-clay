@@ -9542,13 +9542,13 @@ html.lenis body {
   /* (hover / focus lift, the name underline and the shadow crossfade: the TASK-186 / P2 block at the end of this file) */
   /* selected: rises 8 px, a longer shadow, a hand-drawn marker frame, a pin and a marker swipe on the
      plate (shape cues, never colour alone) */
-  .pf-thumb[aria-selected="true"] {
+  .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
     translate: 0 -8px;
     box-shadow:
       0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
       0 22px 24px -10px color-mix(in oklab, var(--color-terracotta) 44%, transparent);
   }
-  .pf-thumb[aria-selected="true"]::after {
+  .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
     content: "";
     position: absolute;
     inset: -13px;
@@ -9557,7 +9557,7 @@ html.lenis body {
     border-image: url("/media/portfolio/decor/select-frame.svg") 32 / 16px / 0 stretch;
     pointer-events: none;
   }
-  .pf-thumb[aria-selected="true"]::before {
+  .pf-thumb:is([aria-selected="true"], [data-current="true"])::before {
     content: "";
     position: absolute;
     top: -13px;
@@ -9867,7 +9867,7 @@ html.lenis body {
   @media (prefers-reduced-motion: reduce) {
     .pf-thumb,
     .pf-thumb:hover,
-    .pf-thumb[aria-selected="true"],
+    .pf-thumb:is([aria-selected="true"], [data-current="true"]),
     .pf-action,
     .pf-action:hover,
     .pf-action::before,
@@ -13832,7 +13832,7 @@ html[data-theme-vt]::view-transition-group(root) {
   scale: 0.94;
   transform-origin: 50% 70%;
 }
-.pf-thumb[aria-selected="true"] {
+.pf-thumb:is([aria-selected="true"], [data-current="true"]) {
   scale: 1;
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -16562,7 +16562,7 @@ html[data-theme-vt]::view-transition-group(root) {
     color: var(--color-ink-soft);
   }
   /* quiet when idle, raised and ringed when selected (a shape cue as well as colour) */
-  .pf-showcase .pf-thumb[aria-selected="true"] {
+  .pf-showcase .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
     translate: 0 -6px;
     border-color: var(--ps-accent-ink);
     box-shadow:
@@ -16571,7 +16571,7 @@ html[data-theme-vt]::view-transition-group(root) {
       0 2px 0 var(--ps-under),
       0 14px 16px -8px var(--ps-drop);
   }
-  .pf-showcase .pf-thumb[aria-selected="true"]::after {
+  .pf-showcase .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
     content: "";
     position: absolute;
     left: 50%;
@@ -19024,7 +19024,7 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   .pf-showcase .pf-track .pf-thumb[data-rel="2"] { --pf-ry: -7deg; scale: 0.89; translate: 0 8px; }
   .pf-showcase .pf-track .pf-thumb[data-rel="-3"] { --pf-ry: 8deg; scale: 0.84; translate: 0 12px; }
   .pf-showcase .pf-track .pf-thumb[data-rel="3"] { --pf-ry: -8deg; scale: 0.84; translate: 0 12px; }
-  .pf-showcase .pf-track .pf-thumb[aria-selected="true"] {
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
     --pf-ry: 0deg;
     scale: 1.13;
     translate: 0 -10px;
@@ -19035,7 +19035,7 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
       0 3px 0 var(--ps-under),
       0 20px 22px -10px var(--ps-drop);
   }
-  .pf-showcase .pf-track .pf-thumb[aria-selected="true"] .pf-thumb-name {
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
     font-size: 17px;
     font-weight: 700;
   }
@@ -19190,3 +19190,19 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   }
 }
 /* === end TASK-274 === */
+
+/* === TASK-287 (Tushar 2026-10-20): the desktop product tray loops. The track holds three copies of the products (the outer two are
+   aria-hidden clones); the selected cover is always scrolled to the centre and the strip silently re-centres on the middle copy, so
+   next on the last product / prev on the first keep moving the same way. A scrollbar would only show the position inside the triple
+   strip, so it is hidden here; `data-snap` freezes the covers' transitions for the frame the clone is swapped for the real one. === */
+@media (min-width: 1024px) {
+  .pf-showcase .pf-track {
+    scrollbar-width: none;
+  }
+  .pf-showcase .pf-track::-webkit-scrollbar {
+    display: none;
+  }
+  .pf-showcase .pf-track[data-snap] .pf-thumb {
+    transition: none;
+  }
+}
