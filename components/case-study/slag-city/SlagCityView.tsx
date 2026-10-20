@@ -11,7 +11,7 @@ import { accentVars, caseActions, evidenceRows } from "@/components/case-study/s
 import { NextProject } from "@/components/case-study/NextProject";
 import { CaseName } from "@/components/case-study/CaseName";
 import { SgNav } from "./SgNav";
-import { ART, DECISIONS, EVIDENCE, HERO, NAV, SECTION, SHOTS, SHRAVAN_NEXT_ART, SHRAVAN_NEXT_LINE, SOURCES, SYSTEM, WHY } from "./copy";
+import { ART, DECISIONS, EVIDENCE, HERO, NAV, SECTION, SHOTS, SHRAVAN_NEXT_ART, SOURCES, SYSTEM, WHY } from "./copy";
 
 const ART_DIR = "/media/case-studies/slag-city/art";
 
@@ -384,7 +384,7 @@ export function SlagCityView({ project, study, portfolio, next }: SlagCityViewPr
       </article>
 
       {/* Next project: the shared band with The Shravan's Round artwork */}
-      <NextProject project={next} art={next.slug === "shravans-round" ? SHRAVAN_NEXT_ART : undefined} line={next.slug === "shravans-round" ? SHRAVAN_NEXT_LINE : undefined} />
+      <NextProject project={next} art={next.slug === "shravans-round" ? SHRAVAN_NEXT_ART : undefined} />
     </>
   );
 }

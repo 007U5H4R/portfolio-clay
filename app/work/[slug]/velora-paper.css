@@ -295,7 +295,7 @@
 .vlp-next-art img[data-theme-art="dark"] { --na-x0: var(--fx-d); } /* the tight crop's left edge in the old full-width frame: trim it */
 .vlp-next-link { color: var(--color-navy); }
 .vlp-next-eyebrow { color: var(--vlp-teal); }
-.vlp-next-line { font-family: var(--font-display); font-style: italic; color: var(--color-navy-2); }
+.vlp-next-line { color: var(--color-navy-2); }
 @media (hover: hover) { .vlp-next-link:hover .vlp-next-h { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; } }
 
 /* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */

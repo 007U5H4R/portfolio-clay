@@ -101,7 +101,7 @@ test.describe("slag city paper layout", () => {
     const band = page.locator('section[aria-label="Next project"]');
     await expect(band.locator("h2")).toContainText("The Shravan's Round");
     await expect(band.getByRole("link", { name: /^Next project: The Shravan's Round/ })).toHaveAttribute("href", "/work/shravans-round");
-    await expect(band.locator(".cs-next-line")).toHaveText("Rehearse the round before the round: a 20-minute AI mock PM interview.");
+    await expect(band.locator(".cs-next-line")).toHaveText("Rehearse the round first");
     await expect(band.locator("img.cs-next-art-light")).toHaveAttribute("src", /slag-city\/art\/band-light\.webp/);
     await expect(band.locator("img.cs-next-art-dark")).toHaveAttribute("src", /slag-city\/art\/band-dark\.webp/);
     const text = ((await band.textContent()) ?? "") + (await band.locator("img").evaluateAll((els) => els.map((e) => `${e.getAttribute("src") ?? ""} ${e.getAttribute("alt") ?? ""}`).join(" ")));

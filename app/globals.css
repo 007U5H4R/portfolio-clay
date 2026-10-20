@@ -19540,6 +19540,12 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   width: 100%;
   aspect-ratio: 5 / 2;
 }
+/* Rest position: the section above a NextProject band is the "content above the tear" of TKT-106 and lagged 120-200px DOWN under the
+   band as it scrolled in, which a half-height band cannot afford (the lag would cover that section's last rows). It stays put: its
+   own bottom padding (which already reserved the 44px torn overlap) is the rest gap. */
+:has(+ .next-band) {
+  animation: none;
+}
 .cs-next.next-band::after {
   margin-top: 1px; /* the TornEdge's -1px bottom margin: the body (below the 44px tear) is exactly the spacer */
 }
@@ -19611,13 +19617,16 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   line-height: 1.02;
   letter-spacing: normal;
 }
+/* TASK-292: every band carries its product's one-liner (nextLine), italic serif, always on ONE line. */
 .next-band .next-band-line {
   max-width: none;
+  font-family: var(--font-display);
+  font-style: italic;
   font-size: 14px;
   line-height: 1.35;
-}
-.next-band .cs-next-note {
-  display: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* Phones: only ~64px of text height clears the footer's torn top (the band's last 72px sit under it), so a single-subject art is a 64px
    thumbnail at the left and the text column sits to its right: the title on one line, the supporting line cut to one line with an
@@ -19638,10 +19647,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     white-space: nowrap;
   }
   .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-line {
-    font-size: 12.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 13px;
   }
   .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-eyebrow {
     font-size: 10.5px;
@@ -19667,6 +19673,10 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .next-band .next-band-line {
     font-size: 16px;
   }
+}
+/* A logo over TeachSpark's bleed art gets a soft halo in the band colour (the art can sit behind it on phones). */
+.next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .pf-logo-img {
+  filter: drop-shadow(0 0 5px var(--tsp-bg-2)) drop-shadow(0 0 2px var(--tsp-bg-2));
 }
 /* The logo (TASK-285) takes the same height in every band, TeachSpark's. */
 .next-band .next-band-h > .cs-logo {

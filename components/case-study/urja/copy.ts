@@ -89,5 +89,3 @@ export const TEACHSPARK_NEXT_ART = {
   height: 1080,
 } as const;
 
-/** The TeachSpark band (the next project): line from the brief; art painted on each theme's band colour. */
-export const NEXT_LINE = "WhatsApp chatbot that helps teachers create worksheets, exam papers and more.";

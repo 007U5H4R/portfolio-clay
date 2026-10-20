@@ -12,7 +12,7 @@ import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { NextProject } from "@/components/case-study/NextProject";
 import { CaseName } from "@/components/case-study/CaseName";
 import { UrpNav } from "./UrpNav";
-import { ART, DECISIONS, EVIDENCE, HERO, NAV, NEXT_LINE, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM, TEACHSPARK_NEXT_ART } from "./copy";
+import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM, TEACHSPARK_NEXT_ART } from "./copy";
 
 const ART_DIR = "/media/case-studies/urja/art";
 
@@ -351,7 +351,6 @@ export function UrjaView({ project, study, portfolio, next }: UrjaViewProps) {
       <NextProject
         project={next}
         art={next.slug === "teachspark" ? TEACHSPARK_NEXT_ART : undefined}
-        line={next.slug === "teachspark" ? NEXT_LINE : undefined}
         tone={next.slug === "teachspark" ? "cream" : undefined}
       />
     </>

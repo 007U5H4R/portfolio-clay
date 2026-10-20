@@ -11,7 +11,7 @@ import { accentVars, caseActions, evidenceRows } from "@/components/case-study/s
 import { NextProject } from "@/components/case-study/NextProject";
 import { CaseName } from "@/components/case-study/CaseName";
 import { CfpNav } from "./CfpNav";
-import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, NEXT_LINE, SLAG_NEXT_ART, SOURCES, SYSTEM } from "./copy";
+import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, SLAG_NEXT_ART, SOURCES, SYSTEM } from "./copy";
 
 const ART_DIR = "/media/case-studies/campfire-board/art";
 
@@ -371,7 +371,7 @@ export function CampfireView({ project, study, portfolio, next }: CampfireViewPr
       </article>
 
       {/* Next project: the shared band with the Slag City arcade artwork (TASK-281) */}
-      <NextProject project={next} art={next.slug === "slag-city" ? SLAG_NEXT_ART : undefined} line={next.slug === "slag-city" ? NEXT_LINE : undefined} />
+      <NextProject project={next} art={next.slug === "slag-city" ? SLAG_NEXT_ART : undefined} />
     </>
   );
 }

@@ -282,7 +282,7 @@
 .bvp-next-art { --na-x0: 0.5; } /* the scene sits in the right half of the frame */
 .bvp-next-link { color: var(--color-navy); }
 .bvp-next-eyebrow { color: var(--bvp-teal); }
-.bvp-next-line { font-family: var(--font-display); font-style: italic; color: var(--color-navy-2); }
+.bvp-next-line { color: var(--color-navy-2); }
 @media (hover: hover) { .bvp-next-link:hover .bvp-next-h { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; } }
 
 /* ── Motion: a restrained fade/rise per section, only when JS is on and motion is allowed ─── */

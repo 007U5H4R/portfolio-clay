@@ -67,6 +67,40 @@ test.describe("next band: one size on every case study (TASK-290)", () => {
     });
   }
 
+  // TASK-292: every band names its next product in one italic line, and the logo / name / arrow are ONE link to that product.
+  for (const study of caseStudies) {
+    test(`one-liner + logo link: ${study.slug}`, async ({ page, context }) => {
+      for (const w of [375, 1440]) {
+        await page.setViewportSize({ width: w, height: 900 });
+        await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
+        const band = page.locator('section[aria-label="Next project"]');
+        await band.scrollIntoViewIfNeeded();
+        await expect(band.locator("a"), `${study.slug} @${w}: one link, one tab stop`).toHaveCount(1);
+        const href = (await band.locator("a").getAttribute("href"))!;
+        expect(href).toMatch(/^\/work\/[a-z-]+$/);
+        const line = band.locator(".next-band-line");
+        await expect(line, `${study.slug} @${w}: one-liner present`).toHaveCount(1);
+        const m = await line.evaluate((el) => {
+          const cs = getComputedStyle(el), r = el.getBoundingClientRect(), b = el.closest("section")!.getBoundingClientRect();
+          return { h: r.height, lh: parseFloat(cs.lineHeight), fs: cs.fontStyle, ff: cs.fontFamily, inside: r.top >= b.top && r.bottom <= b.bottom && r.left >= b.left && r.right <= b.right, text: el.textContent ?? "" };
+        });
+        expect(m.text.length, `${study.slug}: one-liner text`).toBeGreaterThan(7);
+        expect(m.h, `${study.slug} @${w}: one line (${m.h} vs ${m.lh})`).toBeLessThanOrEqual(m.lh * 1.4);
+        expect(m.fs).toBe("italic");
+        expect(m.inside, `${study.slug} @${w}: one-liner inside the band`).toBe(true);
+      }
+      // clicking the logo (or the name when a product has no logo file) opens the next case study
+      const band = page.locator('section[aria-label="Next project"]');
+      const href = (await band.locator("a").getAttribute("href"))!;
+      const target = band.locator(".cs-logo img").filter({ visible: true }).first();
+      const clickable = (await target.count()) ? target : band.locator("h2");
+      const [popup] = await Promise.all([context.waitForEvent("page"), clickable.click()]);
+      await popup.waitForLoadState("domcontentloaded");
+      expect(new URL(popup.url()).pathname).toBe(href);
+      await popup.close();
+    });
+  }
+
   // Review crops (not an assertion): NEXT_BAND_CROPS=<dir> writes each band, as seen at the end of the page, at 2x.
   const cropDir = process.env.NEXT_BAND_CROPS;
   test.describe("review crops", () => {

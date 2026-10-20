@@ -126,6 +126,8 @@ export const PortfolioEntry = z.object({
   slug: Slug,                                                                // a personal `Project.slug`
   code: z.string().regex(/^[A-Z]{2}-\d{2}$/),                                // cover code, 'TS-01'
   coverLine: z.string().min(8).max(32),                                      // short cover tagline
+  /* TASK-292: the one-liner under the product's name on every other case study's next-project band (one source; <= 40 chars so it holds one line on a phone). Worded from the record's own coverLine / existing band copy, no new claim. */
+  nextLine: z.string().min(8).max(40).optional(),
   accent: PortfolioAccent,
   /* TASK-121 (rectify spec §5.4): the tiny status metadata on the info sheet — a shortening of the
      project's own `statusLabel` (the full sentence stays on the case study), never a new claim. */

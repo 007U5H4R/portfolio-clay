@@ -2,7 +2,6 @@ import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Clock, GitBranch, Globe, Play, PlayCircle, UserCheck, Users } from "lucide-react";
 import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from "@/data/schema";
-import { getCaseStudy } from "@/data/case-studies";
 import { Container } from "@/components/layout/Container";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
@@ -14,6 +13,7 @@ import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds, videoFor } from "@/components/case-study/system/case-context";
 import { PaperNav } from "./PaperNav";
 import { CaseName } from "@/components/case-study/CaseName";
+import { nextLineFor } from "@/components/case-study/NextProject";
 import { ARCH, ART, CHIPS, HERO, NAV, WORKFLOW } from "./copy";
 
 const ART_DIR = "/media/case-studies/teachspark/art";
@@ -137,8 +137,7 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
   const actions = caseActions(project, portfolio);
   const kinds = legendKinds(study);
   const rows = evidenceRows(project, study);
-  const nextCase = getCaseStudy(next.slug);
-  const nextLine = nextCase?.hero.tagline;
+  const nextLine = nextLineFor(next.slug);
   let n = 0;
 
   return (

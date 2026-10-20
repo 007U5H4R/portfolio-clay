@@ -35,7 +35,7 @@ test("other case studies' next bands have no artwork", async ({ page }) => {
 });
 
 /* ---- TASK-279: supporting line + cream light tone ---- */
-const LINE = "Devotion-led wellbeing, with health monitored and cared for.";
+const LINE = "Devotion-led wellbeing"; // TASK-292: the product's one-liner (nextLine in data/portfolio.ts)
 type Rgb = [number, number, number];
 const lum = ([r, g, b]: Rgb) => {
   const f = (v: number) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
@@ -123,11 +123,11 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
 
   // TASK-282: slag-city now carries The Shravan's Round line (still a navy band); tested in slag-city-paper.spec.ts
   for (const slug of ["cubicle", "token-toli"]) {
-    test(`${slug}: band unchanged (no line, no tone, navy in light, lifted navy in dark)`, async ({ page }) => {
+    test(`${slug}: band keeps its surface (no tone, navy in light, lifted navy in dark; TASK-292: carries its one-liner)`, async ({ page }) => {
       await page.goto(`/work/${slug}`, { waitUntil: "load" });
       await band(page).scrollIntoViewIfNeeded();
-      await expect(band(page).locator(".cs-next-line")).toHaveCount(0);
-      await expect(band(page).locator(".cs-next-note")).toHaveText("next up"); // bands without a line keep it
+      await expect(band(page).locator(".cs-next-line")).toHaveCount(1);
+      await expect(band(page).locator(".cs-next-note")).toHaveCount(0); // the one-liner replaced "next up" on every band (TASK-292)
       expect(await band(page).getAttribute("data-tone")).toBeNull();
       await setTheme(page, "light");
       const l = await bandStyles(page);
@@ -159,19 +159,25 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
     });
   }
 
+  // TASK-290: the band is the uniform band, so the art no longer stacks above the footer's top edge (the footer's torn top is meant to
+  // overlap the band's last 72px). Its invariant now: the art sits inside the band's body, not hidden by it, and on phones (where the
+  // art is a 64px thumbnail) it also stops above the footer's top. The text/footer clearance is asserted for every band in next-band-uniform.spec.ts.
   for (const width of [375, 414, 768, 1024, 1440]) {
-    test(`art clears the footer at the end of the page at ${width}`, async ({ page }) => {
+    test(`art stays inside the band at the end of the page at ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/work/nuptis", { waitUntil: "load" });
       for (const theme of ["light", "dark"] as const) {
         await setTheme(page, theme);
         await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-        await page.waitForTimeout(1200); // the scroll-driven slide-over settles
+        await page.waitForTimeout(900);
         const m = await page.evaluate((t) => {
           const img = document.querySelector(`section[aria-label="Next project"] img.cs-next-art-${t}`)!.getBoundingClientRect();
-          return { artBottom: img.bottom, footerTop: document.querySelector("footer")!.getBoundingClientRect().top };
+          const b = document.querySelector('section[aria-label="Next project"]')!.getBoundingClientRect();
+          return { top: img.top, bottom: img.bottom, bt: b.top, bb: b.bottom, ft: document.querySelector("footer")!.getBoundingClientRect().top };
         }, theme);
-        expect(m.footerTop - m.artBottom, `${theme}: gap between the art's bottom and the footer's top`).toBeGreaterThanOrEqual(8);
+        expect(m.top, `${theme}: art top inside the band`).toBeGreaterThanOrEqual(m.bt);
+        expect(m.bottom, `${theme}: art bottom inside the band`).toBeLessThanOrEqual(m.bb + 0.5);
+        if (width < 768) expect(m.ft - m.bottom, `${theme}: phone thumbnail clears the footer's top`).toBeGreaterThanOrEqual(8);
       }
     });
   }

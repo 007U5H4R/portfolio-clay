@@ -24,6 +24,7 @@ import type { CaseProof, CaseSection, CaseStudy, PortfolioEntry, Project } from 
 import { Container } from "@/components/layout/Container";
 import { ViewTransitionLink } from "@/components/interactions/ViewTransitionLink";
 import { CaseName } from "@/components/case-study/CaseName";
+import { nextLineFor } from "@/components/case-study/NextProject";
 import { NEW_TAB_HINT } from "@/lib/case-study-link";
 import { formatAsOf } from "@/lib/format";
 import { CaseMotion } from "@/components/case-study/system/CaseMotion";
@@ -491,7 +492,7 @@ export function RailciteView({ project, study, portfolio, next }: RailciteViewPr
             <h2 className="rcp-next-h next-band-h">
               <CaseName slug={next.slug} name={next.name} /> <span aria-hidden="true">→</span>
             </h2>
-            <span className="rcp-next-line next-band-line">{NEXT.line}</span>
+            {nextLineFor(next.slug) ? <span className="rcp-next-line next-band-line">{nextLineFor(next.slug)}</span> : null}
           </ViewTransitionLink>
         </Container>
       </section>

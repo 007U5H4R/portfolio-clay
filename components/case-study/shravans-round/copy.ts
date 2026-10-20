@@ -105,5 +105,3 @@ export const URJA_NEXT_ART = {
   height: ART.next.light.h,
 } as const;
 
-/** TASK-279: the supporting line under the Urja title. It is Urja's own descriptor (the brief), a product label, not a claim. */
-export const URJA_NEXT_LINE = "Truck fleet management dashboard";

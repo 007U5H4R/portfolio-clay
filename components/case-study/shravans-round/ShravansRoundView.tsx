@@ -11,7 +11,7 @@ import { accentVars, caseActions, evidenceRows } from "@/components/case-study/s
 import { NextProject } from "@/components/case-study/NextProject";
 import { CaseName } from "@/components/case-study/CaseName";
 import { SrpNav } from "./SrpNav";
-import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROMISES, ROUND, SECTION, SOURCES, SYSTEM, URJA_NEXT_ART, URJA_NEXT_LINE } from "./copy";
+import { ART, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROMISES, ROUND, SECTION, SOURCES, SYSTEM, URJA_NEXT_ART } from "./copy";
 
 const ART_DIR = "/media/case-studies/shravans-round/art";
 
@@ -366,7 +366,6 @@ export function ShravansRoundView({ project, study, portfolio, next }: ShravansR
       <NextProject
         project={next}
         art={next.slug === "urja" ? URJA_NEXT_ART : undefined}
-        line={next.slug === "urja" ? URJA_NEXT_LINE : undefined}
         tone={next.slug === "urja" ? "cream" : undefined}
       />
     </>

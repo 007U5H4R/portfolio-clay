@@ -8,7 +8,7 @@ import { CaseMotion } from "@/components/case-study/system/CaseMotion";
 import { BadgeLegend, EvidenceBadge } from "@/components/case-study/system/EvidenceBadge";
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components/case-study/system/case-context";
-import { NextProject, BHAKTI_NEXT_ART, BHAKTI_NEXT_LINE } from "@/components/case-study/NextProject";
+import { NextProject, BHAKTI_NEXT_ART } from "@/components/case-study/NextProject";
 import { CaseName } from "@/components/case-study/CaseName";
 import { NupNav } from "./NupNav";
 import { ART, DECISIONS, EVIDENCE, HERO, INSIGHT, LEARNINGS, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM } from "./copy";
@@ -401,7 +401,6 @@ export function NuptisView({ project, study, portfolio, next }: NuptisViewProps)
       <NextProject
         project={next}
         art={next.slug === "bhakti-vilas" ? BHAKTI_NEXT_ART : undefined}
-        line={next.slug === "bhakti-vilas" ? BHAKTI_NEXT_LINE : undefined}
         tone={next.slug === "bhakti-vilas" ? "cream" : undefined}
       />
     </>
