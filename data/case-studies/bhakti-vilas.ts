@@ -155,11 +155,6 @@ export const bhaktiVilasCase: z.input<typeof CaseStudy> = {
       proofs: [
         { value: "0", label: "console errors in the 390 and 360 px mobile audit", kind: "measured", source: "BV-MEMORY" },
       ],
-      gaps: [
-        "No users and no product metrics; the survey numbers describe the market, not this prototype.",
-        "Translation covers about 90 of ~500 strings, and the medical copy is unreviewed.",
-        "The team PRD carries no author names.",
-      ],
     },
     {
       kind: "learnings",

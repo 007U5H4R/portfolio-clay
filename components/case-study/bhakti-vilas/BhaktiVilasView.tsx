@@ -207,7 +207,6 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
               {research ? (
                 <div id="research" className="bvp-research">
                   <Anchors ids={research.anchors} />
-                  <p className="bvp-small">{research.intro}</p>
                 </div>
               ) : null}
             </Sec>
@@ -290,7 +289,6 @@ export function BhaktiVilasView({ project, study, portfolio, next }: BhaktiVilas
                   <h3 className="bvp-h3">{EVIDENCE.researchTitle}</h3>
                   <p className="bvp-chip">{EVIDENCE.researchChip}</p>
                   <ul className="bvp-plist">
-                    <li>{EVIDENCE.surveys}</li>
                     {research?.insight ? <li>{research.insight.text}</li> : null}
                     {research?.quotes[1] ? (
                       <li>
