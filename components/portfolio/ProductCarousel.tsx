@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { stepIndex, type PortfolioProduct } from "@/lib/portfolio";
 import { useDesktop } from "./use-desktop";
+import { VERTICAL_CAROUSEL_ENABLED } from "./vertical-carousel-flag";
 
 export interface ProductCarouselProps {
   products: readonly PortfolioProduct[];
@@ -34,6 +35,8 @@ export interface ProductCarouselProps {
 export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }: ProductCarouselProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const desktop = useDesktop();
+  // TASK-301: the experiment — a vertical tray at desktop width (same loop, on the y axis)
+  const vertical = VERTICAL_CAROUSEL_ENABLED && desktop;
   const activeIndex = Math.max(
     0,
     products.findIndex((product) => product.id === activeId),
@@ -58,6 +61,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
   useEffect(() => {
     latest.current = { vpos, home, count };
   });
+  const placed = useRef(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   /** Once scrolling is idle (a step's smooth scroll, or a swipe): land on the real copy and keep the view inside the middle copy. */
@@ -68,19 +72,20 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
       const { vpos: at, home: to, count: n } = latest.current;
       const cards = track?.children;
       if (!track || !cards || cards.length !== n * 3) return;
-      const left = (i: number) => (cards[i] as HTMLElement).offsetLeft - track.offsetLeft;
-      let scrollLeft = track.scrollLeft + (left(to) - left(at));
+      const left = (i: number) => (vertical ? (cards[i] as HTMLElement).offsetTop - track.offsetTop : (cards[i] as HTMLElement).offsetLeft - track.offsetLeft);
+      const current = vertical ? track.scrollTop : track.scrollLeft;
+      let scrollLeft = current + (left(to) - left(at));
       const period = left(n * 2) - left(n);
-      const middle = scrollLeft + track.clientWidth / 2;
+      const middle = scrollLeft + (vertical ? track.clientHeight : track.clientWidth) / 2;
       if (middle < left(n)) scrollLeft += period;
       else if (middle >= left(n * 2)) scrollLeft -= period;
-      if (scrollLeft === track.scrollLeft && at === to) return;
+      if (scrollLeft === current && at === to) return;
       setSnap(true);
-      track.scrollTo({ left: scrollLeft, behavior: "instant" });
+      track.scrollTo(vertical ? { top: scrollLeft, behavior: "instant" } : { left: scrollLeft, behavior: "instant" });
       setVpos(to);
       requestAnimationFrame(() => requestAnimationFrame(() => setSnap(false)));
     }, 140);
-  }, []);
+  }, [vertical]);
   useEffect(() => () => clearTimeout(settleTimer.current), []);
 
   // Keep the selected cover inside the track's visible window (horizontal only).
@@ -94,8 +99,15 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
     if (desktop) {
       // TASK-274: the selected card sits in the middle of the tray (the track's own scrollLeft only, never the page)
       // layout offsets, not rects: the selected card is mid-way through its scale-up when this runs
-      const offset = tab.offsetLeft - track.offsetLeft;
-      track.scrollTo({ left: Math.max(0, offset - (track.clientWidth - tab.offsetWidth) / 2), behavior: reduce ? "auto" : "smooth" });
+      if (vertical) {
+        const offsetY = tab.offsetTop - track.offsetTop;
+        // the first placement (hydration) jumps straight to the selected cover; later steps glide
+        track.scrollTo({ top: Math.max(0, offsetY - (track.clientHeight - tab.offsetHeight) / 2), behavior: reduce || !placed.current ? "instant" : "smooth" });
+        placed.current = true;
+      } else {
+        const offset = tab.offsetLeft - track.offsetLeft;
+        track.scrollTo({ left: Math.max(0, offset - (track.clientWidth - tab.offsetWidth) / 2), behavior: reduce ? "auto" : "smooth" });
+      }
       settle();
       return;
     }
@@ -104,7 +116,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
     if (left < track.scrollLeft || right > track.scrollLeft + track.clientWidth) {
       track.scrollTo({ left: Math.max(0, left - 8), behavior: reduce ? "auto" : "smooth" });
     }
-  }, [activeId, desktop, vpos, settle]);
+  }, [activeId, desktop, vertical, vpos, settle]);
 
   const focusTab = useCallback((id: string) => {
     trackRef.current?.querySelector<HTMLElement>(`[data-product="${id}"]`)?.focus({ preventScroll: true });
@@ -120,6 +132,14 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     let target: PortfolioProduct | undefined;
     switch (event.key) {
+      case "ArrowDown":
+        if (!vertical) return;
+        target = products[stepIndex(activeIndex, 1, products.length)];
+        break;
+      case "ArrowUp":
+        if (!vertical) return;
+        target = products[stepIndex(activeIndex, -1, products.length)];
+        break;
       case "ArrowRight":
         target = products[stepIndex(activeIndex, 1, products.length)];
         break;
@@ -142,7 +162,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
   };
 
   return (
-    <div className="pf-carousel">
+    <div className="pf-carousel" data-vertical={vertical ? "" : undefined}>
       <div className="pf-carousel-tag">
         <p id="pf-select" className="pf-select">
           Select a product
@@ -156,14 +176,14 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         {products[activeIndex]?.name}, {activeIndex + 1} of {products.length}
       </p>
       <button type="button" className="pf-arrow focus-ring" data-dir="prev" aria-label="Previous product" onClick={() => step(-1, "arrow")}>
-        <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />
+        {vertical ? <ChevronUp aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />}
       </button>
       <div
         ref={trackRef}
         className="pf-track"
         role="tablist"
         aria-labelledby="pf-select"
-        aria-orientation="horizontal"
+        aria-orientation={vertical ? "vertical" : "horizontal"}
         data-snap={snap ? "" : undefined}
         onKeyDown={onKeyDown}
         onScroll={desktop ? settle : undefined}
@@ -213,9 +233,9 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         })}
       </div>
       <button type="button" className="pf-arrow focus-ring" data-dir="next" aria-label="Next product" onClick={() => step(1, "arrow")}>
-        <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />
+        {vertical ? <ChevronDown aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />}
       </button>
-      {desktop ? (
+      {desktop && !vertical ? (
         <div className="pf-pager" role="group" aria-label="Choose a product">
           {products.map((product, index) => (
             <button

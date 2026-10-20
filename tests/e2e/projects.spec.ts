@@ -19,6 +19,7 @@
  * Tags carried so the tests surface under the relevant eval ids (`pnpm eval --only …`).
  */
 import { test, expect } from "./fixtures";
+import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
 import { openCaseStudy } from "./case-study-system";
 import { projects } from "@/data/projects";
 import { isListed } from "@/lib/portfolio";
@@ -203,6 +204,7 @@ test("TASK-125 RailCite plays its real YouTube pitch, then its demo, in the same
 });
 
 test("the selected card is marked by shape (ring + lift + indicator bar), not colour alone", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   test.skip(width(page) !== 1440, "selection styling checked once at w1440");
   await page.goto("/projects", { waitUntil: "load" });
   const outline = (sel: string) =>
@@ -255,6 +257,7 @@ test("@EVAL-013 enterprise: six grouped case files below the showcase, no budget
 // GENERAL — layout, EVAL-018, EVAL-008, EVAL-006
 // ---------------------------------------------------------------------------
 test("layout: poster left of the info panel (~58/42) at ≥900, stacked poster → info below; the tray beneath the window at every width ≥640 (TASK-217, was TASK-197); on a phone the listing replaces the carousel (TASK-210)", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await page.goto("/projects", { waitUntil: "load" });
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
   if (width(page) < 640) {
@@ -287,6 +290,7 @@ test("layout: poster left of the info panel (~58/42) at ≥900, stacked poster �
 });
 
 test("@EVAL-008 the carousel swipes inside its track; 5–7 covers show at 1440 (phones use the listing, TASK-210)", { tag: "@EVAL-008" }, async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   const w = width(page);
   test.skip(w !== 1440, "cover counts asserted at the desktop width (the phone tier has no carousel; 640–1023 is unchanged TASK-197)");
   await page.goto("/projects", { waitUntil: "load" });
@@ -302,6 +306,7 @@ test("@EVAL-008 the carousel swipes inside its track; 5–7 covers show at 1440 
 });
 
 test("@EVAL-008 /projects has no horizontal overflow and ≥44 targets", { tag: "@EVAL-008" }, async ({ page, noOverflow, minTargets }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await page.goto("/projects", { waitUntil: "load" });
   await noOverflow(page);
   await minTargets(page);
@@ -407,6 +412,7 @@ test("@EVAL-008 every stage cover title fits its cover (each product), ≤ 2 lin
 });
 
 test("TASK-262: the demo is the primary bar and the other actions sit two per row, labels whole", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   test.skip(width(page) < 900, "the desktop panel's action grid");
   await page.goto("/projects", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
@@ -431,6 +437,7 @@ test("TASK-262: the demo is the primary bar and the other actions sit two per ro
 });
 
 test("TASK-267: the video frame keeps 16:9 and grows into the side margins, as tall as the card on a wide screen", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   test.skip(width(page) !== 1440, "the desktop window, checked at w1440 and a 1680 laptop");
   for (const [w, h] of [[1440, 900], [1680, 1050]] as const) {
     await page.setViewportSize({ width: w, height: h });

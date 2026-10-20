@@ -9,6 +9,7 @@
  *   OVERFLOW  no horizontal overflow and ≥ 44 px targets with a non-default project selected.
  */
 import { test, expect } from "./fixtures";
+import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
 import { projects } from "@/data/projects";
 import { isListed } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
@@ -79,6 +80,7 @@ test("the actions shown follow the project data for every product", async ({ pag
 });
 
 test("no overflow and ≥ 44 px targets with a non-default product selected", async ({ page, noOverflow, minTargets }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && (page.viewportSize()?.width ?? 0) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await page.goto(`/projects?product=${PERSONAL[3]!.slug}`, { waitUntil: "load" });
   await hydrated(page);
   await noOverflow(page);
