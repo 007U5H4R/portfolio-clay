@@ -100,9 +100,9 @@
 [data-theme="dark"] .cfp-hero-art { aspect-ratio: var(--ar-d); }
 .cfp-hero-art [data-theme-art] {
   width: 100%; height: auto;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent), linear-gradient(180deg, transparent, black 7%, black 93%, transparent);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent), linear-gradient(180deg, transparent, black 7%, black 93%, transparent);
   mask-composite: intersect;
 }
 @media (max-width: 767px) { .cfp-hero-art { width: min(100%, 340px); margin-block: -8px; } }
