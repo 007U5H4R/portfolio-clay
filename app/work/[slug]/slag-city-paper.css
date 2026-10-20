@@ -82,14 +82,14 @@
 
 .sgp {
   --sgp-cyan: color-mix(in oklab, var(--color-green-2) 62%, var(--color-steel));
-  --sgp-cab: oklch(0.2 0.03 40);
-  --sgp-cab-2: oklch(0.29 0.045 40);
-  --sgp-glow: oklch(0.72 0.17 52);
+  --sgp-cab: var(--lit-sgp-cab);
+  --sgp-cab-2: var(--lit-sgp-cab-2);
+  --sgp-glow: var(--lit-sgp-glow);
 }
 /* The art twins feather into the page with a radial mask (no box edge can show even if a pixel is a hair off the page hex). */
 .sgp-hero-art [data-theme-art], .sgp-sign [data-theme-art] {
-  -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 78%, transparent 100%);
-  mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 78%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 78%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 78%, transparent 100%);
 }
 
 /* ── Hero: the real attract screen in a paper-and-card arcade cabinet; the scrapyard diorama under it ── */
@@ -132,10 +132,10 @@
   font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 4.4vw, 2.5rem); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--sgp-glow); text-shadow: 0 0 14px color-mix(in oklab, var(--sgp-glow) 55%, transparent);
 }
-.sgp-bezel { margin-top: 10px; padding: 7px; border-radius: 10px; background: oklch(0.12 0.02 250); box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--sgp-cyan) 40%, transparent), 0 0 20px -6px color-mix(in oklab, var(--sgp-cyan) 55%, transparent); }
+.sgp-bezel { margin-top: 10px; padding: 7px; border-radius: 10px; background: var(--lit-sgp-bezel); box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--sgp-cyan) 40%, transparent), 0 0 20px -6px color-mix(in oklab, var(--sgp-cyan) 55%, transparent); }
 .sgp-bezel img { width: 100%; height: auto; border-radius: 4px; }
 .sgp-deck { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 12px; padding: 8px 18px; border-radius: 8px; background: color-mix(in oklab, var(--sgp-cab-2) 85%, black); }
-.sgp-stick { position: relative; width: 14px; height: 30px; border-radius: 7px; background: oklch(0.12 0.02 250); }
+.sgp-stick { position: relative; width: 14px; height: 30px; border-radius: 7px; background: var(--lit-sgp-bezel); }
 .sgp-stick::before { content: ""; position: absolute; left: -5px; top: -10px; width: 24px; height: 24px; border-radius: 50%; background: var(--sgp-accent); box-shadow: inset -3px -4px 0 color-mix(in oklab, black 22%, transparent); }
 .sgp-btnrow { display: flex; gap: 10px; }
 .sgp-btnrow i { width: 20px; height: 20px; border-radius: 50%; background: var(--sgp-glow); box-shadow: inset -2px -3px 0 color-mix(in oklab, black 22%, transparent); }
@@ -168,8 +168,8 @@
 .sgp-shot { display: grid; gap: 10px; min-width: 0; }
 .sgp-shot[data-i="3"] { width: min(100%, 230px); }
 .sgp-frame { padding: 8px; border-radius: 16px; background: var(--sgp-card); box-shadow: var(--sgp-shadow-hover); }
-.sgp-frame img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 0 0 3px oklch(0.14 0.02 250), 0 0 0 4px color-mix(in oklab, var(--sgp-cyan) 45%, transparent); }
-.sgp-frame[data-frame="phone"] { border-radius: 30px; padding: 10px; background: oklch(0.2 0.02 250); box-shadow: var(--sgp-shadow-hover), inset 0 0 0 1.5px color-mix(in oklab, var(--color-kraft) 55%, transparent); }
+.sgp-frame img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 0 0 3px var(--lit-sgp-rim), 0 0 0 4px color-mix(in oklab, var(--sgp-cyan) 45%, transparent); }
+.sgp-frame[data-frame="phone"] { border-radius: 30px; padding: 10px; background: var(--lit-sgp-phone); box-shadow: var(--sgp-shadow-hover), inset 0 0 0 1.5px color-mix(in oklab, var(--color-kraft) 55%, transparent); }
 .sgp-frame[data-frame="phone"] img { border-radius: 20px; box-shadow: none; }
 .sgp-shot[data-i="1"] .sgp-frame { transform: rotate(-0.4deg); }
 .sgp-shot[data-i="2"] .sgp-frame { transform: rotate(0.4deg); }

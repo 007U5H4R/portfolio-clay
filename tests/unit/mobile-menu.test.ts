@@ -7,7 +7,7 @@ describe("mobile menu (TASK-232)", () => {
   it("has exactly the Portfolio and Connect groups in the briefed order", () => {
     expect(menuGroups.map((g) => g.label)).toEqual(["Portfolio", "Connect"]);
     expect(menuGroups[0]!.items.map((i) => i.label)).toEqual(["Home", "Experience", "Portfolio", "Ask Tushky", "About", "Certifications"]);
-    expect(menuGroups[1]!.items.map((i) => i.label)).toEqual(["Let's connect", "LinkedIn"]);
+    expect(menuGroups[1]!.items.map((i) => i.label)).toEqual(["Let's connect", "LinkedIn", "GitHub", "Resume"]);
   });
 
   it("drops Product thinking and Gummy Lab from the drawer only", () => {

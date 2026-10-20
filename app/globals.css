@@ -20800,3 +20800,53 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
 }
 /* end TASK-305 */
+
+/* TASK-304 paper player palette (moved from components/portfolio/paper-player.css so colour literals stay in this file; EVAL-020) */
+:root {
+  --pp-terra: oklch(0.57 0.15 37);
+  --pp-terra-hi: oklch(0.66 0.15 41);
+  --pp-terra-lo: oklch(0.45 0.13 32);
+  --pp-burnt: oklch(0.4 0.13 29);
+  --pp-orange: oklch(0.73 0.15 55);
+  --pp-shell: oklch(0.965 0.02 85);
+  --pp-ink: oklch(0.25 0.05 262);
+  --pp-ink-2: oklch(0.42 0.04 262);
+  --pp-panel: color-mix(in oklab, var(--pp-shell) 90%, transparent);
+  --pp-shadow: oklch(0.3 0.06 40 / 0.32);
+  --pp-focus: oklch(0.45 0.16 262);
+  --pp-hl-16: oklch(1 0 0 / 0.16);
+  --pp-dk-20: oklch(0 0 0 / 0.2);
+  --pp-hl-14: oklch(1 0 0 / 0.14);
+  --pp-ring: oklch(0.45 0.1 35 / 0.35);
+  --pp-screen-glow: oklch(0.2 0.08 30 / 0.45);
+  --pp-screen-inset: oklch(0.15 0.05 40 / 0.18);
+  --pp-hl-25: oklch(1 0 0 / 0.25);
+  --pp-arrow-shadow: oklch(0.1 0.04 30 / 0.5);
+  --pp-f-face: oklch(0.63 0.17 40);
+  --pp-f-shade: oklch(0.46 0.15 30);
+  --pp-f-lit: oklch(0.77 0.15 58);
+  --pp-f-under: oklch(0.53 0.15 34);
+  --pp-f-edge: oklch(1 0 0 / 0.18);
+}
+:root[data-theme="dark"] {
+  --pp-terra: oklch(0.57 0.15 35);
+  --pp-terra-hi: oklch(0.65 0.14 38);
+  --pp-terra-lo: oklch(0.4 0.12 30);
+  --pp-shell: oklch(0.255 0.035 257);
+  --pp-ink: oklch(0.95 0.025 85);
+  --pp-ink-2: oklch(0.8 0.025 80);
+  --pp-shadow: oklch(0.08 0.03 260 / 0.6);
+  --pp-focus: oklch(0.86 0.1 75);
+}
+
+/* Case-study paper pages: component colour values kept here so colour literals stay in this file (EVAL-020). Values unchanged. */
+:root {
+  --lit-sgp-cab: oklch(0.2 0.03 40);
+  --lit-sgp-cab-2: oklch(0.29 0.045 40);
+  --lit-sgp-glow: oklch(0.72 0.17 52);
+  --lit-sgp-bezel: oklch(0.12 0.02 250);
+  --lit-sgp-rim: oklch(0.14 0.02 250);
+  --lit-sgp-phone: oklch(0.2 0.02 250);
+  --lit-vlp-screen: #1c1d21;
+  --lit-vlp-rim: #151515;
+}
