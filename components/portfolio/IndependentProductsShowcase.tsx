@@ -280,7 +280,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   if (!product) return null;
 
   return (
-    <div className={VERTICAL_CAROUSEL_ENABLED ? (PAPER_SELECTOR_ENABLED ? "pf-showcase pf-vcar pf-paper" : "pf-showcase pf-vcar") : "pf-showcase"} data-view={view}>
+    <div className={VERTICAL_CAROUSEL_ENABLED ? (PAPER_SELECTOR_ENABLED && desktop ? "pf-showcase pf-vcar pf-psel" : "pf-showcase pf-vcar") : "pf-showcase"} data-view={view}>
       {intro}
       {view === "detail" ? <PhoneDetailBar name={product.name} logo={product.logo} onBack={backToList} /> : null}
       <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
