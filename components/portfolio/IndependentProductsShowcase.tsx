@@ -23,6 +23,7 @@ import { ProductInfoPanel } from "./ProductInfoPanel";
 import { useDetailNav } from "./use-detail-nav";
 import { useDesktop } from "./use-desktop";
 import { VERTICAL_CAROUSEL_ENABLED } from "./vertical-carousel-flag";
+import { PAPER_PLAYER_ENABLED } from "./paper-player-flag";
 import { getLenis, scrollToTarget } from "@/lib/smooth-scroll";
 
 export interface IndependentProductsShowcaseProps {
@@ -293,7 +294,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
         tabIndex={desktop ? -1 : undefined}
         {...cardGestures}
       >
-        <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} autoMute={autoMute} />
+        <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} autoMute={autoMute} paper={PAPER_PLAYER_ENABLED && VERTICAL_CAROUSEL_ENABLED && desktop} />
         <ProductInfoPanel
           key={product.id}
           product={product}

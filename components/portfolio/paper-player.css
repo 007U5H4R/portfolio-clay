@@ -1,0 +1,183 @@
+/* TASK-304 paper player — desktop only (>= 1024 px, the vertical-carousel stage). Every rule needs `.pf-paper`, a class MainMediaStage emits only
+   while PAPER_PLAYER_ENABLED && VERTICAL_CAROUSEL_ENABLED && desktop; flag false = none of this can match. The frame is the stage's own padding
+   ring, so the 16:9 screen, the stage height and the equal-column rules are exactly the ones they were. */
+:root {
+  --pp-terra: oklch(0.57 0.15 37);
+  --pp-terra-hi: oklch(0.66 0.15 41);
+  --pp-terra-lo: oklch(0.45 0.13 32);
+  --pp-burnt: oklch(0.4 0.13 29);
+  --pp-orange: oklch(0.73 0.15 55);
+  --pp-shell: oklch(0.965 0.02 85);
+  --pp-ink: oklch(0.25 0.05 262);
+  --pp-ink-2: oklch(0.42 0.04 262);
+  --pp-panel: color-mix(in oklab, var(--pp-shell) 90%, transparent);
+  --pp-shadow: oklch(0.3 0.06 40 / 0.32);
+  --pp-focus: oklch(0.45 0.16 262);
+}
+:root[data-theme="dark"] {
+  --pp-terra: oklch(0.57 0.15 35);
+  --pp-terra-hi: oklch(0.65 0.14 38);
+  --pp-terra-lo: oklch(0.4 0.12 30);
+  --pp-shell: oklch(0.255 0.035 257);
+  --pp-ink: oklch(0.95 0.025 85);
+  --pp-ink-2: oklch(0.8 0.025 80);
+  --pp-shadow: oklch(0.08 0.03 260 / 0.6);
+  --pp-focus: oklch(0.86 0.1 75);
+}
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar .pf-stage.pf-paper.paper-sheet {
+    rotate: none;
+    filter: none;
+    border-radius: 14px;
+    background-color: var(--pp-terra);
+    background-image:
+      linear-gradient(135deg, oklch(1 0 0 / 0.16), transparent 38%, transparent 62%, oklch(0 0 0 / 0.2)),
+      var(--pf-fibers);
+    background-size: auto, 420px 420px;
+    box-shadow:
+      inset 0 0 0 1px oklch(1 0 0 / 0.14),
+      0 0 0 3px var(--pp-shell),
+      0 0 0 4px oklch(0.45 0.1 35 / 0.35),
+      0 10px 18px -8px var(--pp-shadow);
+  }
+  .pf-paper > :is(.pf-stage-backing, .pf-stage-mat) {
+    display: none;
+  }
+  .pf-paper .pf-stage-screen {
+    border-radius: 6px;
+    clip-path: none;
+    box-shadow: 0 0 0 1px var(--pp-terra-lo), 0 0 6px 1px oklch(0.2 0.08 30 / 0.45);
+  }
+  .pf-paper .pf-stage-screen:not([data-player-state="loading"], [data-player-state="ready"])::after {
+    box-shadow: inset 0 0 18px oklch(0.15 0.05 40 / 0.18);
+  }
+
+  /* the section tab: a trapezoid notched into the frame's top-left edge */
+  .pf-showcase.pf-vcar .pf-paper .pf-stage-label {
+    top: 0;
+    left: clamp(22px, 2.6%, 40px);
+    z-index: 6;
+    isolation: isolate;
+    padding: 7px 22px 10px;
+    font-family: var(--font-body, inherit);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--pp-ink);
+    rotate: none;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    filter: drop-shadow(0 2px 2px var(--pp-shadow));
+    pointer-events: none;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-stage-label::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--pp-shell);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: none;
+    mask: none;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 9px 100%);
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* title panel over the poster (existing logo + existing title only) */
+  .pf-paper .pp-title {
+    z-index: 2;
+    align-self: start;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 30px 0 0 14px;
+    padding: 6px 12px 7px;
+    max-width: min(46%, 300px);
+    border-radius: 6px;
+    background: var(--pp-panel);
+    box-shadow: 0 1px 0 oklch(1 0 0 / 0.25) inset, 0 3px 8px -4px var(--pp-shadow);
+    pointer-events: none;
+  }
+  .pf-paper .pp-title .pf-logo-img {
+    max-height: 22px;
+    max-width: 150px;
+  }
+  .pf-paper .pp-title-text {
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--pp-ink);
+  }
+  .pf-paper .pp-watch {
+    z-index: 2;
+    align-self: end;
+    justify-self: end;
+    margin: 0 12px 12px 0;
+    padding: 5px 11px 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pp-ink);
+    background: var(--pp-panel);
+    text-decoration: none;
+    box-shadow: 0 3px 8px -4px var(--pp-shadow);
+  }
+  .pf-paper .pp-watch:hover {
+    background: var(--pp-shell);
+  }
+
+  /* the play control: an invisible >= 44 px hit area around a folded-paper triangle, no disc */
+  .pf-showcase.pf-vcar .pf-paper .pf-stage-screen > .pf-play {
+    --pf-play: clamp(88px, 8vw, 116px);
+    left: calc(50% - var(--pf-play) / 2);
+    top: calc(50% - var(--pf-play) / 2);
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-stage-screen > .pf-play:is(:hover, :focus-visible, :active) {
+    background: none;
+  }
+  .pf-paper .pf-play .pp-origami {
+    width: 86%;
+    height: 86%;
+    margin: 0;
+    fill: none;
+    filter: drop-shadow(3px 5px 4px oklch(0.1 0.04 30 / 0.5));
+    transition: transform 160ms ease;
+  }
+  .pf-paper .pf-play:hover .pp-origami {
+    transform: translateY(-2px) scale(1.04);
+  }
+  .pf-paper .pf-play:active .pp-origami {
+    transform: translateY(0) scale(0.98);
+  }
+  .pf-paper .pf-play:focus-visible,
+  .pf-paper .pp-watch:focus-visible {
+    outline: 3px solid var(--pp-focus);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+  .pp-origami .pp-f-face { fill: oklch(0.63 0.17 40); }
+  .pp-origami .pp-f-shade { fill: oklch(0.46 0.15 30); }
+  .pp-origami .pp-f-lit { fill: oklch(0.77 0.15 58); }
+  .pp-origami .pp-f-under { fill: oklch(0.53 0.15 34); }
+  .pp-origami polygon { stroke: oklch(1 0 0 / 0.18); stroke-width: 0.6; stroke-linejoin: round; }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .pf-paper .pf-play .pp-origami {
+    transition: none;
+  }
+  .pf-paper .pf-play:hover .pp-origami,
+  .pf-paper .pf-play:active .pp-origami {
+    transform: none;
+  }
+}

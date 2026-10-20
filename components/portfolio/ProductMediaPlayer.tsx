@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import Image from "next/image";
 import { AlertTriangle, Play } from "lucide-react";
+import { ProductLogo } from "./ProductLogo";
+import type { ProductLogo as ProductLogoFiles } from "@/lib/portfolio";
 import { useVideoAnalytics } from "@/lib/analytics/use-video-analytics";
 import {
   embedOrigin,
@@ -35,6 +37,8 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
   autoStart?: boolean | undefined;
   /** TASK-253: the auto-start came from SELECTING the product — on a touch device (`pointer: coarse`) it starts muted, since mobile browsers block sound-on autoplay. */
   autoMute?: boolean | undefined;
+  /** TASK-304: the origami paper skin (desktop stage). Adds the title panel, the folded play triangle and a YouTube link in the poster state. */
+  paper?: { name: string; logo?: ProductLogoFiles | undefined } | undefined;
 }
 
 /**
@@ -54,7 +58,7 @@ export interface ProductMediaPlayerProps extends Omit<HTMLAttributes<HTMLDivElem
  * The host keys this component by product + mode, so a switch unmounts it — stopping playback — and
  * the next one starts at its poster, from the beginning (§5, §13). One instance → at most one iframe.
  */
-export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, autoStart = false, autoMute = false, ...rest }: ProductMediaPlayerProps) {
+export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = READY_TIMEOUT_MS, analytics, autoStart = false, autoMute = false, paper, ...rest }: ProductMediaPlayerProps) {
   const [state, setState] = useState<PlayerState>("poster");
   const [src, setSrc] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
@@ -141,7 +145,7 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
   const showFrame = (state === "loading" || state === "ready") && src;
 
   return (
-    <div {...rest} data-no-trail="" data-player-state={state} data-provider={media.provider}>
+    <div {...rest} {...(paper ? { "data-paper-player": "" } : {})} data-no-trail="" data-player-state={state} data-provider={media.provider}>
       {showFrame ? (
         <iframe
           ref={frameRef}
@@ -163,9 +167,23 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
             fallbackPoster
           )}
           {state === "poster" ? (
-            <button type="button" className="pf-play focus-ring" onClick={() => play()} aria-label={`Play ${media.title}`}>
-              <Play aria-hidden="true" focusable="false" strokeWidth={1.75} />
-            </button>
+            <>
+              {paper ? (
+                <>
+                  <span className="pp-title">
+                    {paper.logo ? <ProductLogo name={paper.name} logo={paper.logo} /> : null}
+                    <span className="pp-title-text">{media.title}</span>
+                  </span>
+                  <a href={watchUrl(media)} target="_blank" rel="noopener noreferrer" className="pp-watch focus-ring">
+                    Watch on {label} <span aria-hidden="true">↗</span>
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </>
+              ) : null}
+              <button type="button" className="pf-play focus-ring" onClick={() => play()} aria-label={`Play ${media.title}`}>
+                {paper ? <OrigamiPlay /> : <Play aria-hidden="true" focusable="false" strokeWidth={1.75} />}
+              </button>
+            </>
           ) : (
             <p className="pf-stage-error" role="alert">
               <AlertTriangle aria-hidden="true" focusable="false" strokeWidth={1.75} />
@@ -179,5 +197,17 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
         </>
       )}
     </div>
+  );
+}
+
+/** TASK-304: the folded-paper play triangle — four facets (burnt-red shadow fold, terracotta face, warm-orange lit tip, deep underside). */
+function OrigamiPlay() {
+  return (
+    <svg className="pp-origami" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <polygon className="pp-f-under" points="28,90 92,50 60,52" />
+      <polygon className="pp-f-face" points="28,10 92,50 60,52" />
+      <polygon className="pp-f-lit" points="62,31 92,50 60,52" />
+      <polygon className="pp-f-shade" points="28,10 28,90 60,52" />
+    </svg>
   );
 }

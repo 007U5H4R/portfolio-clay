@@ -4,6 +4,7 @@ import { Sheet } from "@/components/paper";
 import { mediaFor, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { ProductCover } from "./ProductCover";
 import { ProductMediaPlayer } from "./ProductMediaPlayer";
+import "./paper-player.css";
 
 export interface MainMediaStageProps {
   product: PortfolioProduct;
@@ -15,6 +16,8 @@ export interface MainMediaStageProps {
   autoStart?: boolean;
   /** TASK-253: the start came from choosing the product (muted on touch devices, see the player). */
   autoMute?: boolean;
+  /** TASK-304: render the origami paper player (desktop vertical-carousel stage only; the host decides). */
+  paper?: boolean;
 }
 
 const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "demo video" };
@@ -37,19 +40,19 @@ const MODE_LABEL: Record<MediaMode, string> = { pitch: "pitch video", demo: "dem
  *              falls back to the poster + "Video unavailable here." (TASK-122, spec §10–§17).
  *   no video → the cover + a small torn "Pitch video coming" tag — never a dead play button (§22).
  */
-export function MainMediaStage({ product, mode, enter, id, autoStart = false, autoMute = false }: MainMediaStageProps) {
+export function MainMediaStage({ product, mode, enter, id, autoStart = false, autoMute = false, paper = false }: MainMediaStageProps) {
   const media = mediaFor(product, mode);
   const cover = <ProductCover product={product} size="stage" />;
 
   return (
-    <Sheet as="figure" variant="photo" className="pf-stage">
+    <Sheet as="figure" variant="photo" className={paper ? "pf-stage pf-paper" : "pf-stage"}>
       <span className="pf-stage-backing" aria-hidden="true" />
       <span className="pf-stage-mat" aria-hidden="true" />
       <span className="pf-stage-label" data-micro-label="" aria-hidden="true">
         {mode === "pitch" ? "Pitch video" : "Demo video"}
       </span>
       {media ? (
-        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} autoStart={autoStart} autoMute={autoMute} />
+        <ProductMediaPlayer id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode} media={media} fallbackPoster={cover} analytics={{ projectId: product.id, videoType: mode }} autoStart={autoStart} autoMute={autoMute} paper={paper ? { name: product.name, logo: product.logo } : undefined} />
       ) : (
         <div id={id} className="pf-stage-screen" data-enter={enter} data-mode={mode}>
           {cover}
