@@ -100,14 +100,42 @@ for (const theme of ["light", "dark"] as const) {
       // pills + description are the project's own data
       const pills = await card.locator(".pf-pc-pills li").allTextContents();
       expect(pills).toEqual([entry.code, ...entry.meta.split(" · ")]);
-      await expect(card.locator(".pf-info-desc")).toHaveText(project.tagline);
+      await expect(card.locator(".pf-info-desc")).toHaveText(entry.cardLine ?? project.tagline);
+      await expect(card.locator(".pf-info-desc")).toHaveAttribute("title", project.tagline);
       await expect(card.locator(".pf-info-desc")).toBeVisible(); // 1440x900 has the room (a short card gives it up)
+      // TASK-303 r2: the description uses two lines above the CTA, and the actions stay inside the card
+      const fit = await card.evaluate((el) => {
+        const desc = el.querySelector(".pf-info-desc")!.getBoundingClientRect();
+        const lh = parseFloat(getComputedStyle(el.querySelector(".pf-info-desc")!).lineHeight);
+        const cta = el.querySelector(".pf-action-set")!.getBoundingClientRect();
+        const d = el.querySelector(".pf-info-desc")!;
+        return { lines: Math.round(desc.height / lh), clipped: d.scrollHeight - d.clientHeight, descBottom: desc.bottom, ctaTop: cta.top, ctaBottom: cta.bottom, cardBottom: el.getBoundingClientRect().bottom };
+      });
+      if ((entry.cardLine ?? project.tagline).length > 70) expect(fit.lines).toBe(2);
+      expect(fit.clipped, "the description shows in full — shorten its cardLine if this fails").toBeLessThanOrEqual(1);
+      expect(fit.descBottom).toBeLessThanOrEqual(fit.ctaTop);
+      expect(fit.ctaBottom).toBeLessThanOrEqual(fit.cardBottom);
 
       // nothing spills sideways
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
     });
   }
 }
+
+// TASK-303 r2 (Tushar 2026-10-20): every product's description shows in full at 1440x900 — none ends in an ellipsis.
+test("TASK-303: no product's card description is cut off at 1440x900", async ({ page }) => {
+  test.skip(!PAPER_CARD_ENABLED || !VERTICAL_CAROUSEL_ENABLED, "paper card flag is off");
+  test.setTimeout(180_000);
+  const clipped: string[] = [];
+  for (const project of PERSONAL) {
+    await open(page, 1440, 900, project.slug, "light");
+    const desc = page.locator(".pf-info.pf-paper .pf-info-desc");
+    if (!(await desc.isVisible())) continue;
+    const over = await desc.evaluate((d) => d.scrollHeight - d.clientHeight);
+    if (over > 1) clipped.push(`${project.slug} (+${over}px)`);
+  }
+  expect(clipped, "shorten these products' `cardLine` in data/portfolio.ts").toEqual([]);
+});
 
 test("TASK-303: the phone card is unchanged (desktop-only redesign)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

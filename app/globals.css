@@ -20399,7 +20399,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     display: block;
     box-sizing: content-box;
     /* never wider than the card, never taller than its share of it: a taller poster is narrower (centred), never cropped */
-    width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.37 - 6px) * var(--pc-ar)));
+    width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.345 - 6px) * var(--pc-ar)));
     margin-inline: auto;
     aspect-ratio: var(--pc-ar);
     border: 3px solid var(--pc-terra);
@@ -20451,13 +20451,14 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     max-width: none;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
     overflow: hidden;
   }
-  /* one line where the card is short; two where the window has the room (the full text is the title) */
+  /* TASK-303 r2 (Tushar 2026-10-20): the short description fills the space above the CTA — two lines,
+     three where the window has the room (the full text is the title) */
   @media (min-width: 1800px) and (min-height: 1000px) {
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
     }
   }
   /* ---- actions ---- */

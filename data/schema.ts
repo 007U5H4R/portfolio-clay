@@ -128,6 +128,9 @@ export const PortfolioEntry = z.object({
   coverLine: z.string().min(8).max(32),                                      // short cover tagline
   /* TASK-292: the one-liner under the product's name on every other case study's next-project band (one source; <= 40 chars so it holds one line on a phone). Worded from the record's own coverLine / existing band copy, no new claim. */
   nextLine: z.string().min(8).max(40).optional(),
+  /* TASK-303 r2 (Tushar 2026-10-20): a shorter wording of the project's own tagline for the desktop paper card, where the
+     full tagline would be cut off; condensed from the tagline, no new claim. The phone card and case study keep the tagline. */
+  cardLine: z.string().min(20).max(100).optional(),
   accent: PortfolioAccent,
   /* TASK-121 (rectify spec §5.4): the tiny status metadata on the info sheet — a shortening of the
      project's own `statusLabel` (the full sentence stays on the case study), never a new claim. */
