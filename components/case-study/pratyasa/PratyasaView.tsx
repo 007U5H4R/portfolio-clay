@@ -9,6 +9,7 @@ import { EvidenceBadge } from "@/components/case-study/system/EvidenceBadge";
 import { EvidenceDrawer } from "@/components/case-study/system/EvidenceDrawer";
 import { accentVars, caseActions, evidenceRows } from "@/components/case-study/system/case-context";
 import { NextProject } from "@/components/case-study/NextProject";
+import { papers } from "@/data/credentials";
 import { CaseName } from "@/components/case-study/CaseName";
 import { PraNav } from "./PraNav";
 import { ART, CAMPFIRE_NEXT_ART, CAMPFIRE_NEXT_LINE, DECISIONS, EVIDENCE, HERO, NAV, PRODUCT, PROBLEM, SECTION, SOURCES, SYSTEM } from "./copy";
@@ -109,6 +110,7 @@ export function PratyasaView({ project, study, portfolio, next }: PratyasaViewPr
   const decisions = sec("decisions");
   const system = sec("system");
   const outcome = sec("outcome");
+  const paper = papers.find((p) => p.id === "langmuir-2025");
   const actions = caseActions(project, portfolio);
   const live = actions.find((a) => a.kind === "live");
   const github = actions.find((a) => a.kind === "github");
@@ -334,6 +336,25 @@ export function PratyasaView({ project, study, portfolio, next }: PratyasaViewPr
                       {outcome.gaps.map((gap) => (
                         <li key={gap}>{gap}</li>
                       ))}
+                      {/* TASK-299: the paper the device's results come from, read from the credentials record */}
+                      {paper?.doiHref ? (
+                        <li className="pra-paper">
+                          <span className="pra-paper-head">
+                            <span className="pra-paper-badge" aria-hidden="true">
+                              <FileText size={16} strokeWidth={1.8} />
+                            </span>
+                            <span className="pra-paper-cite">
+                              {paper.journal} {paper.year}
+                            </span>
+                          </span>
+                          <span className="pra-paper-title">{paper.title}</span>
+                          <a href={paper.doiHref} target="_blank" rel="noopener noreferrer" className="pra-paper-doi focus-ring">
+                            DOI {paper.doi}
+                            <ArrowUpRight aria-hidden="true" focusable="false" size={14} strokeWidth={2} />
+                            <span className="sr-only"> {NEW_TAB_HINT}</span>
+                          </a>
+                        </li>
+                      ) : null}
                     </ul>
                   </div>
                 ) : null}

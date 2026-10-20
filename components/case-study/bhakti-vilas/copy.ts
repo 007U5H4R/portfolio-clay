@@ -65,9 +65,7 @@ export const PROTOTYPE = {
 
 export const EVIDENCE = {
   researchTitle: "Research findings",
-  researchChip: "Team research · not Tushar’s fieldwork",
-  /** The survey sizes, exactly as the record's research intro states them. */
-  surveys: "Family surveys (n=23 deep-dive, n=47 broad) and a healthcare-worker survey (n=12), from Prashant’s pod.",
+  researchChip: "Team research",
   checks: "The session-booking flow was verified end to end.",
   prototypeTitle: "Prototype checks",
   prototypeChip: "Mock-data prototype checks",

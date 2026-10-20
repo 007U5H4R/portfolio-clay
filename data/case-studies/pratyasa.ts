@@ -133,7 +133,7 @@ export const pratyasaCase: z.input<typeof CaseStudy> = {
       headline: "Live, and linked from the scroll-film portfolio.",
       anchors: ["06-evaluation", "07-outcome", "08-what-i-learned"],
       intro: "The device itself was validated in whole blood, mayonnaise and fruit juice, as reported in the published paper. Those are science results, not product metrics.",
-      gaps: ["No traffic or visit data is recorded for the page.", "The Soft Matter paper’s DOI is still missing from the record."],
+      gaps: ["No traffic or visit data is recorded for the page."],
     },
   ],
   evidence: [

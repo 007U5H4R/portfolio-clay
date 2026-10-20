@@ -74,17 +74,14 @@ test.describe("bhakti vilas paper layout", () => {
       await expect(stats.nth(i).locator(".csx-badge")).toContainText("Measured");
       if (proof.asOf) await expect(stats.nth(i).locator(".bvp-date")).toHaveText(formatAsOf(proof.asOf));
     }
-    // the survey sizes on the page are the record's own
+    // TASK-298: the findings list starts at the insight; no survey-size line, intro paragraph or gaps box
     const research = sec("research");
     const panel = page.locator('.bvp-panel[data-panel="research"]');
-    for (const n of ["n=23", "n=47", "n=12"]) {
-      expect(research.intro).toContain(n);
-      await expect(panel).toContainText(n);
-    }
-    await expect(panel).toContainText(research.insight!.text);
-    await expect(page.locator(".bvp-chip").first()).toHaveText("Team research · not Tushar’s fieldwork");
-    await expect(page.locator(".bvp-gaps h3")).toHaveText("What is not measured");
-    for (const gap of outcome.gaps) await expect(page.locator(".bvp-gaps")).toContainText(gap);
+    await expect(panel.locator(".bvp-plist li").first()).toHaveText(research.insight!.text);
+    await expect(page.locator("article.bvp")).not.toContainText(research.intro!);
+    await expect(page.locator("article.bvp")).not.toContainText("fieldwork");
+    await expect(page.locator(".bvp-chip").first()).toHaveText("Team research");
+    await expect(page.locator(".bvp-gaps")).toHaveCount(0);
     // the quote is the record's, labelled as the brief's wording, not a participant
     await expect(page.locator(".bvp-quote blockquote")).toHaveText(`“${sec("problem").quote!.text}”`);
     await expect(page.locator(".bvp-quote figcaption")).toHaveText("From the Case Study 2 brief");

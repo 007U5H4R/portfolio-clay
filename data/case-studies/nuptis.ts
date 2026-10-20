@@ -22,7 +22,7 @@ export const nuptisCase: z.input<typeof CaseStudy> = {
       "Verification status, work orders, payment milestones and backup coverage in one place — so one vendor no-show stops turning a wedding into a scramble.",
     proofs: [
       { value: "168", label: "Figma frames, with an AA audit", kind: "prototype", source: "NUP-DESIGN" },
-      { value: "Day 7", label: "retired in favour of Velora", kind: "structural", source: "CS3-9DAY-SERIES", note: "still live on mock data" },
+      { value: "62", label: "dual-mode design tokens", kind: "prototype", source: "NUP-DESIGN" },
     ],
     media: {
       src: "/media/case-studies/nuptis/dashboard.webp",
@@ -162,11 +162,6 @@ export const nuptisCase: z.input<typeof CaseStudy> = {
       proofs: [
         { value: "283", label: "Figma prototype reactions", kind: "prototype", source: "NUP-DESIGN", note: "and 62 dual-mode design tokens" },
         { value: "9 routes", label: "swept at 414 and 768 px; 1 bug fixed", kind: "measured", source: "NUP-LEDGER" },
-      ],
-      gaps: [
-        "No pilot: all three success metrics, the North Star included, are unmeasured.",
-        "No automated test suite; the README says there is no lint or unit-test script.",
-        "No usage data of any kind.",
       ],
     },
     {

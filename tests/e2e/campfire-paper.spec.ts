@@ -50,6 +50,16 @@ test.describe("campfire paper layout", () => {
     expect(consoleErrors).toEqual([]);
   });
 
+  test("problem: each note sits centred under its folder (TASK-300)", async ({ page }) => {
+    await page.goto("/work/campfire-board", { waitUntil: "load" });
+    await page.locator(".cfp-fan").scrollIntoViewIfNeeded();
+    const centres = (sel: string) => page.locator(sel).evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; }));
+    const folders = await centres(".cfp-fan-folder");
+    const notes = await centres(".cfp-notes li");
+    expect(notes).toHaveLength(folders.length);
+    for (const [i, x] of notes.entries()) expect(Math.abs(x - folders[i]!), `note ${i + 1}`).toBeLessThan(3);
+  });
+
   test("facts come from the record; the caveat is visible and no claim goes beyond the pilot", async ({ page }) => {
     await page.goto("/work/campfire-board", { waitUntil: "load" });
     const values = page.locator(".cfp-metric-value");

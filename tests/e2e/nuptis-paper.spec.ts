@@ -1,7 +1,7 @@
 /**
  * nuptis-paper.spec.ts (TASK-278) — the Nuptis origami paper-craft layout (components/case-study/nuptis):
  *   - hero, seven numbered sections in order, sources and the next band; navigator targets and legacy anchors resolve;
- *   - numbers come from the record (168, Day 7, 283, 9 routes, the three gaps); evidence kinds are labelled;
+ *   - numbers come from the record (168, 62, 283, 9 routes); evidence kinds are labelled; no gaps box (TASK-297);
  *   - the dashboard and the three workflow screenshots are the record's own files, unmodified;
  *   - only Bhakti Vilas is named in the next band; the body names no product except Velora (the record's day-seven follow-on);
  *   - live product, pitch/demo video, GitHub links and the evidence drawer are still there;
@@ -60,8 +60,10 @@ test.describe("nuptis paper layout", () => {
       await expect(tiles.nth(i).locator(".nup-metric-value")).toHaveText(proof.value);
       await expect(tiles.nth(i).locator(".csx-badge")).toContainText(proof.kind === "prototype" ? "Prototype" : "Structural");
     }
-    await expect(tiles.locator(".nup-metric-label")).toHaveText(["Figma frames, with an AA audit", "Retired in favour of Velora"]);
-    await expect(tiles.nth(1).locator(".nup-metric-note")).toHaveText("A project decision, not a product metric");
+    await expect(tiles.locator(".nup-metric-label")).toHaveText(["Figma frames, with an AA audit", "Dual-mode design tokens"]);
+    await expect(tiles.nth(1).locator(".nup-metric-note")).toHaveText("Design evidence");
+    // TASK-297: the retirement date is not a headline proof
+    await expect(tiles).not.toContainText(["Day 7"]);
     const outcome = sec("outcome");
     const stats = page.locator(".nup-stat");
     await expect(stats).toHaveCount(outcome.proofs.length);
@@ -70,8 +72,8 @@ test.describe("nuptis paper layout", () => {
       await expect(stats.nth(i).locator(".csx-badge")).toContainText(proof.kind === "prototype" ? "Prototype" : "Measured");
     }
     await expect(stats.nth(0).locator(".nup-metric-note")).toHaveText("and 62 dual-mode design tokens");
-    await expect(page.locator(".nup-gaps h3")).toHaveText("What isn’t measured");
-    for (const gap of outcome.gaps) await expect(page.locator(".nup-gaps")).toContainText(gap);
+    // TASK-297: no "What isn’t measured" box
+    await expect(page.locator(".nup-gaps")).toHaveCount(0);
     await expect(page.locator(".nup-star-tag")).toHaveText("Intended North Star · not measured");
     await expect(page.locator(".nup-p").first()).toHaveText("15–30+ vendors, 5–7 ceremonies, and fragmented records across spreadsheets and chat threads.");
     await expect(page.locator(".nup-quote p")).toHaveText(`“${sec("research").quotes[0]!.text}”`);

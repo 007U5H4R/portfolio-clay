@@ -63,6 +63,12 @@ test.describe("pratyasa paper layout", () => {
     await expect(tiles.locator(".pra-metric-label")).toHaveText(["Granted patent", "Co-inventors", "Patent owner"]);
     const outcome = sec("outcome");
     for (const gap of outcome.gaps) await expect(page.locator(".pra-gaps")).toContainText(gap);
+    // TASK-299: the stale Soft Matter gap is gone; the Langmuir paper card links its DOI
+    await expect(page.locator(".pra-gaps")).not.toContainText("Soft Matter");
+    const card = page.locator(".pra-gaps .pra-paper");
+    await expect(card.locator(".pra-paper-cite")).toHaveText("Langmuir 2025");
+    await expect(card.locator(".pra-paper-title")).toHaveText("A Point-of-Care Aptasensor for the Real-Time Detection of Sepsis Biomarker");
+    await expect(card.locator("a.pra-paper-doi")).toHaveAttribute("href", "https://doi.org/10.1021/acs.langmuir.5c00784");
     await expect(page.locator("#evidence")).toContainText("These are research results, not product metrics.");
     const text = (await page.locator("article.pra").textContent()) ?? "";
     expect(text).not.toMatch(/~\s?10\s?min|10 minutes|detected|\d+\s?%|sensitivity|specificity|accuracy|pg\/ml|affordable|low-cost|portable|life-?saving|early detection|solo (invent|owner)|we own|our patent/i);
