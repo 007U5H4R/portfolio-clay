@@ -12,7 +12,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = buildMetadata({
   title: `Experience · ${site.name}`,
   description:
-    "Work experience — American Express (via IntraEdge), Shellkode, Quantiphi Analytics, Godrej Infotech — and education at NIT Calicut and Bhilai Institute of Technology.",
+    "Work experience — American Express, Shellkode, Quantiphi Analytics, Godrej Infotech — and education at NIT Calicut and Bhilai Institute of Technology.",
   path: "/work",
 });
 
@@ -104,7 +104,9 @@ const eduEntries: TimelineEntry[] = education.map((entry, i) => {
   const { name, city } = splitInstitution(entry.institution);
   return {
     id: entry.id,
-    when: { start: entry.year, startLabel: entry.year },
+    when: entry.startYear
+      ? { start: entry.startYear, end: entry.year, startLabel: entry.startYear, endLabel: entry.year }
+      : { start: entry.year, startLabel: entry.year },
     name,
     role: entry.degree,
     city,

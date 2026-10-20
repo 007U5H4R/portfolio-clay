@@ -208,7 +208,7 @@ export const knowledge: KnowledgeEntry[] = [
       { term: "experience", weight: 1 },
     ],
     answer:
-      "American Express (via IntraEdge), 2026–present: Senior PM for Accounts Receivable, migrating 35+ capabilities from the legacy Triumph platform to the cloud-native MARS microservices platform and championing Devin GenAI adoption. Quantiphi (2022–26): GCP programs including DynamoDB→Cloud Spanner migrations and HIPAA-compliant healthcare data migration. Godrej Infotech (2016–18): Assistant PM on the Smartnet platform, 12 features in 11 months.",
+      "American Express, 2026–present: Senior PM for Accounts Receivable, migrating 35+ capabilities from the legacy Triumph platform to the cloud-native MARS microservices platform and championing Devin GenAI adoption. Quantiphi (2022–26): GCP programs including DynamoDB→Cloud Spanner migrations and HIPAA-compliant healthcare data migration. Godrej Infotech (2016–18): Assistant PM on the Smartnet platform, 12 features in 11 months.",
     evidence: [
       { label: "Experience", href: "/work#work-experience" },
       // §9 sanctioned edit 2: `?tab=enterprise` → `?filter=enterprise` (E-2).

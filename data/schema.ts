@@ -314,7 +314,7 @@ export const CaseStudy = z.object({
 /* ── about ──────────────────────────────────────────────────── */
 export const Outcome = z.object({ text: z.string().min(8), kind: z.enum(['measured','self-reported']), source: z.string().min(2) });
 export const Experience = z.object({
-  id: Slug, company: z.string().min(2), companyNote: z.string().optional(),  // 'via IntraEdge'
+  id: Slug, company: z.string().min(2), companyNote: z.string().optional(),  // e.g. an employer-of-record note
   location: z.string().min(2).optional(),                                     // city only (CONTENT_INVENTORY §4.5); rendered on /work (TKT-101)
   title: z.string().min(2), dates: z.object({ start: YearMonth, end: YearMonth.optional() }),
   context: z.string().min(20), responsibility: z.string().min(20),
