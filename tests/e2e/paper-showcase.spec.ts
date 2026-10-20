@@ -206,3 +206,27 @@ for (const [vw, vh] of [[1440, 900], [1280, 800]] as const) {
     });
   }
 }
+
+// TASK-291 follow-up: the tray's dash pager sits fully below the cards, the selected card's lift and its marker, with room to spare.
+for (const [vw, vh] of [[1440, 900], [1280, 800], [1920, 1080], [1024, 768]] as const) {
+  test(`TASK-291: the tray's pager clears the cards, the selected card and its marker by 8 px at ${vw}x${vh}`, async ({ page }) => {
+    test.skip(width(page) !== 1440, "desktop sizes are set inside the test; run once");
+    await page.setViewportSize({ width: vw, height: vh });
+    await open(page);
+    await page.evaluate(() => document.fonts.ready);
+    for (let step = 0; step < 2; step += 1) {
+      await page.waitForTimeout(900); // the selected card is centred and settled
+      const m = await page.evaluate(() => {
+        const rect = (el: Element) => el.getBoundingClientRect();
+        const cards = [...document.querySelectorAll(".pf-showcase .pf-track .pf-thumb")].map(rect).filter((r) => r.right > 0 && r.left < innerWidth);
+        const selected = rect(document.querySelector('.pf-showcase .pf-thumb[aria-selected="true"]')!);
+        const dot = rect(document.querySelector(".pf-showcase .pf-pager-dot")!);
+        // the dash is a 6 px bar centred in the dot's 44 px box; the selected marker hangs 11 px (3 px bar) under its card
+        return { cardsBottom: Math.max(...cards.map((r) => r.bottom)), markerBottom: selected.bottom + 12, dashTop: dot.top + (dot.height - 6) / 2 };
+      });
+      expect(m.cardsBottom + 8, "the pager is clear of the cards").toBeLessThanOrEqual(m.dashTop);
+      expect(m.markerBottom + 8, "the pager is clear of the selected card's marker").toBeLessThanOrEqual(m.dashTop);
+      await page.getByRole("button", { name: "Next product" }).first().click();
+    }
+  });
+}

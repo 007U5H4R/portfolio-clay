@@ -19423,7 +19423,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --pf-pad: 10px;
     --pf-sp: 12px;
     --pf-gap: 20px;
-    --pf-tray-h: clamp(196px, 26svh, 250px);
+    --pf-tray-h: clamp(212px, 25.5svh, 250px);
     --pf-rowgap: 18px;
     --pf-card-min: 440px;
     --pf-win: min(calc(100vw - 80px), 1760px);
@@ -19461,10 +19461,33 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .pf-showcase .pf-carousel {
     height: var(--pf-tray-h);
     box-sizing: border-box;
-    padding-inline: 0;
+    padding: 0;
+    grid-template-areas: "prev track next";
+    grid-template-rows: auto;
+    align-content: start;
+  }
+  .pf-showcase .pf-carousel-tag {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    margin-top: 0;
+  }
+  .pf-showcase .pf-track {
+    padding-block: 14px 16px;
   }
   .pf-showcase .pf-carousel::before {
     inset: 0 calc(-1 * var(--pf-pad));
+  }
+  /* the dash pager sits under the cards, their lifted selected card and its marker: its 44 px hit box hangs 6 px below the panel */
+  .pf-showcase .pf-pager {
+    position: absolute;
+    grid-area: auto;
+    inset: auto 0 -6px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-pager-dot {
+    pointer-events: auto;
   }
   .pf-showcase .pf-track {
     --pf-thumb-w: clamp(150px, min(12.2vw, 18.4svh), 176px);
