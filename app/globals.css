@@ -19282,35 +19282,30 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   color: var(--color-navy);
   /* No backdrop-filter: a more opaque surface keeps the text readable on its own. */
   background-color: color-mix(in oklab, var(--color-ivory) 90%, transparent);
-  border: 1px solid color-mix(in oklab, var(--color-navy) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-navy) 12%, transparent);
   border-radius: 20px;
   box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 55%, transparent),
-    0 20px 38px -24px color-mix(in oklab, var(--color-navy) 55%, transparent);
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 38%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--color-navy) 34%, transparent);
 }
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-glass-on .hero-glass {
-    background-color: color-mix(in oklab, var(--color-ivory) 62%, transparent);
-    -webkit-backdrop-filter: blur(10px) saturate(0.88);
-    backdrop-filter: blur(10px) saturate(0.88);
+    background-color: color-mix(in oklab, var(--color-ivory) 48%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(0.95);
+    backdrop-filter: blur(16px) saturate(0.95);
   }
   [data-theme="dark"] .hero-glass-on .hero-glass {
     /* deep navy, a touch bluer and denser than the light cream so the art stays readable but the text stays crisp */
-    background-color: color-mix(in oklab, var(--color-paper) 64%, transparent);
-    -webkit-backdrop-filter: blur(14px) saturate(0.8);
-    backdrop-filter: blur(14px) saturate(0.8);
+    background-color: color-mix(in oklab, var(--color-paper) 50%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(0.9);
+    backdrop-filter: blur(18px) saturate(0.9);
   }
 }
-/* Light: a faint paper grain on the cream (the same dots the page's grain uses). */
-:root:not([data-theme="dark"]) .hero-glass-on .hero-glass {
-  background-image: var(--grain-a), var(--grain-b);
-  background-size: 7px 7px, 11px 11px;
-}
 [data-theme="dark"] .hero-glass-on .hero-glass {
-  border-color: color-mix(in oklab, var(--color-navy) 14%, transparent);
+  border-color: color-mix(in oklab, var(--color-navy) 12%, transparent);
   box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent),
-    0 22px 44px -22px color-mix(in oklab, var(--color-paper) 90%, transparent);
+    inset 0 1px 0 color-mix(in oklab, var(--color-navy) 9%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--color-paper) 70%, transparent);
 }
 .hero-glass-on .hero-glass-eyebrow {
   margin: 0;
@@ -19380,28 +19375,30 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     width: 38cqw;
     max-width: 640px;
     margin: 0;
-    padding: clamp(18px, 1.9cqw, 30px) clamp(20px, 2.2cqw, 34px) clamp(20px, 2.1cqw, 32px);
+    padding: clamp(14px, 1.3cqw, 22px) clamp(18px, 2cqw, 32px) clamp(15px, 1.4cqw, 23px);
     border-radius: clamp(18px, 1.6cqw, 26px);
   }
   .hero-glass-on .hero-glass-eyebrow {
     font-size: clamp(11px, 0.85cqw, 13px);
   }
   .hero-glass-on .hero-glass-h1 {
-    margin-top: clamp(8px, 0.8cqw, 12px);
+    margin-top: clamp(6px, 0.6cqw, 10px);
     font-size: clamp(26px, 2.6cqw, 44px);
+    line-height: 1.07;
   }
   .hero-glass-on .hero-glass-support {
-    margin-top: clamp(8px, 0.85cqw, 14px);
+    margin-top: clamp(6px, 0.65cqw, 10px);
     font-size: clamp(14.5px, 1.12cqw, 18px);
+    line-height: 1.42;
   }
   .hero-glass-on .hero-glass-cta {
     flex-wrap: nowrap;
     gap: clamp(10px, 0.9cqw, 14px);
-    margin-top: clamp(14px, 1.4cqw, 22px);
+    margin-top: clamp(11px, 1cqw, 16px);
   }
   .hero-glass-on .hero-glass-cta .hero-btn {
     flex: 0 1 auto;
-    min-height: clamp(46px, 3.4cqw, 54px);
+    min-height: clamp(44px, 3.1cqw, 50px);
     padding-inline: clamp(18px, 1.7cqw, 28px);
     font-size: clamp(16px, 1.25cqw, 20px);
   }
