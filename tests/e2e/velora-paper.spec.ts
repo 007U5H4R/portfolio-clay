@@ -13,6 +13,7 @@ import { test, expect } from "./fixtures";
 import type { CaseSection } from "@/data/schema";
 import { getCaseStudy } from "@/data/case-studies";
 import { formatAsOf } from "@/lib/format";
+import screens from "../../public/media/case-studies/velora/art/hero-screen.json";
 
 const study = getCaseStudy("velora")!;
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
@@ -295,11 +296,32 @@ test.describe("velora paper layout", () => {
         expect(Math.abs(painted.h - screen.h) <= 2 || Math.abs(painted.w - screen.w) <= 2, "touches the opening on at least one axis").toBe(true);
         // the opening sits where the art's blank screen is: inside the scene, with the art's measured box
         const scene = await page.locator(".vlp-hero-scene").boundingBox();
-        const box = (theme === "light" ? { l: 50.66, t: 5.81, w: 22.56, h: 58.7 } : { l: 51.19, t: 19.62, w: 26.16, h: 52.46 });
+        const sc = screens[theme];
+        const box = { l: sc.left, t: sc.top, w: sc.width, h: sc.height };
         expect(Math.abs(screen.x - (scene!.x + (scene!.width * box.l) / 100))).toBeLessThanOrEqual(1);
         expect(Math.abs(screen.y - (scene!.y + (scene!.height * box.t) / 100))).toBeLessThanOrEqual(1.5);
         expect(Math.abs(screen.w - (scene!.width * box.w) / 100)).toBeLessThanOrEqual(1);
         expect(Math.abs(screen.h - (scene!.height * box.h) / 100)).toBeLessThanOrEqual(1.5);
+        // TASK-296: the opening is slightly trapezoidal; none of the art's blank grey screen may show at the corners
+        const shot = await page.screenshot({ clip: { x: screen.x - 1, y: screen.y - 1, width: screen.w + 2, height: screen.h + 2 } });
+        const corners = await page.evaluate(async ({ b64, w, h }) => {
+          const img = new Image();
+          img.src = `data:image/png;base64,${b64}`;
+          await img.decode();
+          const c = document.createElement("canvas");
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+          const g = c.getContext("2d")!;
+          g.drawImage(img, 0, 0);
+          const k = img.naturalWidth / w;
+          const at = (x: number, y: number) => Array.from(g.getImageData(Math.round(x * k), Math.round(y * k), 1, 1).data.slice(0, 3));
+          const i = 3;
+          return [at(i, i), at(w - i, i), at(i, h - i), at(w - i, h - i)];
+        }, { b64: shot.toString("base64"), w: screen.w + 2, h: screen.h + 2 });
+        for (const [n, [r, g, b]] of corners.entries()) {
+          const blankScreen = (r! + g! + b!) / 3 > 150 && Math.abs(r! - b!) < 12 && Math.abs(r! - g!) < 12;
+          expect(blankScreen, `corner ${n} shows the art's blank screen (${r},${g},${b})`).toBe(false);
+        }
       });
     }
   }
