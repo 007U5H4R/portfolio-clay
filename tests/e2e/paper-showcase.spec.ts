@@ -5,6 +5,7 @@
  */
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
+import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
 import { projects } from "@/data/projects";
 import { isListed } from "@/lib/portfolio";
 import { portfolioEntries } from "@/data/portfolio";
@@ -48,6 +49,7 @@ test.beforeEach(({ page }) => {
 });
 
 test("the window sits above a tray of the same width, the poster left of the info panel", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await open(page);
   const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
   const feature = await box(".pf-feature");
@@ -111,6 +113,7 @@ test("exactly one action is primary, the primary is a real video when there is o
 });
 
 test("the active card is raised above its neighbours and ringed", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await open(page);
   const cards = tabs(page);
   const active = (await cards.nth(0).boundingBox())!;
@@ -129,6 +132,7 @@ test("the active card is raised above its neighbours and ringed", async ({ page 
 });
 
 test("no horizontal overflow and the tray scrolls instead of squeezing the cards", async ({ page, noOverflow }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await open(page, PERSONAL[6]!.slug);
   await noOverflow(page);
   const track = page.locator(".pf-track");
@@ -143,6 +147,7 @@ test("no horizontal overflow and the tray scrolls instead of squeezing the cards
 for (const [vw, vh] of [[1440, 900], [1280, 800]] as const) {
   for (const theme of ["light", "dark"] as const) {
     test(`TASK-291: video, card and tray fit one ${vw}x${vh} screen, ${theme} (equal heights, tray edges, no clipping, 16:9 media)`, async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
       test.skip(width(page) !== 1440, "desktop sizes are set inside the test; run once");
       test.setTimeout(120_000);
       await page.setViewportSize({ width: vw, height: vh });
@@ -210,6 +215,7 @@ for (const [vw, vh] of [[1440, 900], [1280, 800]] as const) {
 // TASK-291 follow-up: the tray's dash pager sits fully below the cards, the selected card's lift and its marker, with room to spare.
 for (const [vw, vh] of [[1440, 900], [1280, 800], [1920, 1080], [1024, 768]] as const) {
   test(`TASK-291: the tray's pager clears the cards, the selected card and its marker by 8 px at ${vw}x${vh}`, async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
     test.skip(width(page) !== 1440, "desktop sizes are set inside the test; run once");
     await page.setViewportSize({ width: vw, height: vh });
     await open(page);

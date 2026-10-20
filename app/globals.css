@@ -19683,3 +19683,277 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   --cs-logo-h: clamp(30px, 3.4vw, 44px);
 }
 /* === end TASK-290 === */
+
+/* === TASK-301 experiment (Tushar 2026-10-20): vertical product carousel, 16:9 video, 5:7 "baseball card" product card ===
+   Every rule is under `.pf-vcar`, a class IndependentProductsShowcase only emits while VERTICAL_CAROUSEL_ENABLED is true, and only
+   from 1024 px: flag false = the TASK-291 layout exactly. One row of three columns that share one height `--pf-vc-h` (and so one top
+   and one bottom edge): the vertical tray, the video frame (exact 16:9) and the card (width = height x 5/7). The height is the
+   viewport room under the header, or - when the width runs out first (it usually does: the three columns must fit the window) - the
+   largest height the window's width allows; the row is then centred in the room. === */
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar {
+    --pf-vc-w: clamp(168px, 14vw, 188px);
+    --pf-win: min(calc(100vw - 56px), 2200px);
+    --pf-vc-gap: 22px;
+    --pf-vc-cg: 14px;
+    --pf-vc-room: calc(100svh - var(--header-h) - 8px - 2 * var(--pf-pad));
+    --pf-vc-wf: calc(var(--pf-win) - var(--pf-vc-w) - var(--pf-vc-gap));
+    --pf-vc-hw: calc((var(--pf-vc-wf) - var(--pf-vc-cg) - 2 * var(--pf-sp) * 7 / 9) * 63 / 157);
+    --pf-vc-h: min(var(--pf-vc-room), var(--pf-vc-hw));
+    --pf-vc-t: clamp(68px, calc(var(--pf-vc-h) * 0.17), 108px);
+  }
+  .pf-showcase.pf-vcar .pf-carousel,
+  .pf-showcase.pf-vcar .pf-feature {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+    height: var(--pf-vc-h);
+    margin-top: 0; /* sit right under the header; any spare height falls below the row */
+    box-sizing: border-box;
+  }
+  /* ---- the tray: a column, counter on top, arrows at both ends, the covers scrolling between ---- */
+  .pf-showcase.pf-vcar .pf-carousel {
+    width: var(--pf-vc-w);
+    margin-left: calc((100% - var(--pf-win)) / 2);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 44px minmax(0, 1fr) 44px;
+    grid-template-areas: "tag" "prev" "track" "next";
+    align-content: stretch;
+    justify-items: center;
+    row-gap: 0;
+    padding: 8px 6px 6px;
+  }
+  .pf-showcase.pf-vcar .pf-carousel::before {
+    inset: calc(-1 * var(--pf-pad));
+  }
+  .pf-showcase.pf-vcar .pf-carousel-tag {
+    position: static;
+    margin: 0;
+    padding: 0;
+    rotate: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    text-align: center;
+  }
+  .pf-showcase.pf-vcar .pf-select {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .pf-showcase.pf-vcar .pf-track {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-self: stretch;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 10px 8px;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb {
+    flex: 0 0 var(--pf-vc-t);
+    width: 100%;
+    height: var(--pf-vc-t);
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    transform: none;
+    scale: 0.96;
+    translate: none;
+    border-radius: 12px;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([data-rel="-2"], [data-rel="-3"], [data-rel="2"], [data-rel="3"]) {
+    scale: 0.92;
+    translate: none;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    scale: 1.03;
+    translate: none;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
+    content: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pf-showcase.pf-vcar .pf-track .pf-thumb:not([aria-selected="true"]):hover {
+      translate: 2px 0;
+    }
+  }
+  .pf-showcase.pf-vcar .pf-thumb-art {
+    flex: none;
+    align-self: stretch;
+    width: clamp(46px, calc(var(--pf-vc-t) * 0.62), 60px);
+    aspect-ratio: auto;
+    border-radius: 8px;
+  }
+  .pf-showcase.pf-vcar .pf-thumb-meta {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+  }
+  .pf-showcase.pf-vcar .pf-thumb-num {
+    display: block;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb .pf-thumb-name,
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font-size: 13.5px;
+    line-height: 1.15;
+    white-space: normal;
+  }
+  .pf-showcase.pf-vcar .pf-thumb-cat {
+    display: none;
+  }
+
+  /* ---- the window: video frame (exact 16:9) + card (5:7), both exactly --pf-vc-h tall ---- */
+  .pf-showcase.pf-vcar .pf-feature {
+    width: var(--pf-vc-wf);
+    margin-left: calc((100% - var(--pf-win)) / 2 + var(--pf-vc-w) + var(--pf-vc-gap));
+    margin-right: 0;
+    display: grid;
+    grid-template-columns: calc((var(--pf-vc-h) - 2 * var(--pf-sp)) * 16 / 9 + 2 * var(--pf-sp)) calc(var(--pf-vc-h) * 5 / 7);
+    grid-template-rows: var(--pf-vc-h);
+    justify-content: center;
+    align-content: start;
+    align-items: stretch;
+    column-gap: var(--pf-vc-cg);
+  }
+  .pf-showcase.pf-vcar .pf-feature .pf-stage.paper-sheet {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: stretch;
+    display: block;
+    width: auto;
+    height: var(--pf-vc-h);
+  }
+  .pf-showcase.pf-vcar .pf-feature .pf-info.pf-info.paper-sheet {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+    width: auto;
+    height: var(--pf-vc-h);
+    box-sizing: border-box;
+    justify-content: flex-start;
+    padding: 4px 14px 38px;
+  }
+  /* the card's content, restacked for a narrow portrait sheet; sizes follow the card's height so every product fits */
+  .pf-showcase.pf-vcar .pf-info-kicker {
+    min-height: 44px;
+    padding-right: 100px;
+    align-content: center;
+    gap: 0 8px;
+    font-size: clamp(12px, calc(var(--pf-vc-h) * 0.02), 14px);
+    letter-spacing: 0.08em;
+  }
+  .pf-showcase.pf-vcar .pf-info-kicker .pf-info-category {
+    padding-left: 8px;
+    white-space: normal;
+  }
+  .pf-showcase.pf-vcar .pf-info-nav {
+    top: 4px;
+    right: 10px;
+  }
+  .pf-showcase.pf-vcar .pf-info-meta {
+    margin-top: 0;
+    font-size: clamp(10px, calc(var(--pf-vc-h) * 0.019), 13px);
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+  .pf-showcase.pf-vcar .pf-info-name {
+    margin-top: 4px;
+  }
+  .pf-showcase.pf-vcar .pf-info-name .pf-logo-img {
+    max-height: clamp(26px, calc(var(--pf-vc-h) * 0.07), 40px);
+  }
+  .pf-showcase.pf-vcar .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
+    max-height: clamp(26px, calc(var(--pf-vc-h) * 0.065), 40px);
+  }
+  .pf-showcase.pf-vcar .pf-info-tagline {
+    margin-top: 0;
+    font-size: clamp(0.8rem, calc(var(--pf-vc-h) * 0.0295), 1.2rem);
+    line-height: 1.2;
+  }
+  .pf-showcase.pf-vcar .pf-info-desc {
+    margin-top: 3px;
+    font-size: clamp(11.5px, calc(var(--pf-vc-h) * 0.027), 17px);
+    line-height: 1.25;
+  }
+  .pf-showcase.pf-vcar .pf-action-set {
+    margin-top: auto;
+    gap: 6px;
+    padding-top: 0;
+  }
+  .pf-showcase.pf-vcar .pf-divider {
+    display: none;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"],
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    min-height: clamp(44px, calc(var(--pf-vc-h) * 0.07), 54px);
+    padding-block: 4px;
+  }
+  .pf-showcase.pf-vcar .pf-star-note.pf-star-note {
+    margin-block: 0;
+    font-size: clamp(12.2px, calc(var(--pf-vc-h) * 0.022), 15px);
+    white-space: normal;
+    line-height: 1.1;
+  }
+  .pf-showcase.pf-vcar .pf-info-pager {
+    inset: auto 0 -6px;
+  }
+  .pf-showcase.pf-vcar .pf-info-dot {
+    flex: none;
+    margin-inline: -10px;
+  }
+  /* the 2 x 2 link grid keeps whole labels in a ~120 px cell, the primary bar too */
+  .pf-showcase.pf-vcar .pf-action-set {
+    gap: 5px;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 4px;
+    padding: 4px 7px;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-arrow {
+    display: none;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+    font-size: clamp(12.5px, calc(var(--pf-vc-h) * 0.024), 15px);
+    letter-spacing: -0.015em;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    grid-template-columns: 20px minmax(0, 1fr) 16px;
+    gap: 8px;
+    padding: 4px 12px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-icon,
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-arrow {
+    width: 16px;
+    height: 16px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-label {
+    font-size: clamp(15px, calc(var(--pf-vc-h) * 0.03), 18px);
+  }
+}
+/* === end TASK-301 === */
