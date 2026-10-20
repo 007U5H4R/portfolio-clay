@@ -96,6 +96,8 @@ test.describe("shravan's round paper layout", () => {
     await expect(page.locator('.srp-btn[data-action="live"]')).toHaveAttribute("href", "https://shravans-round.vercel.app");
     await expect(page.locator('.srp-tile-link[data-action="github"]')).toHaveCount(0);
     await expect(page.locator('.srp-btn[data-action="see-product"]')).toHaveAttribute("href", "#product");
+    // TASK-286: role and portfolio meta both say "team build"; the footnote says it once
+    await expect(page.locator(".srp-sources .srp-meta")).toHaveText("Team build · avatar, brand mark and films · Sep–Oct 2026 · Live");
     await page.getByRole("button", { name: /View all evidence/ }).click();
     await expect(page.locator("#evidence-drawer")).toBeVisible();
     await page.keyboard.press("Escape");

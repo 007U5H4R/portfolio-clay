@@ -349,7 +349,14 @@ export function ShravansRoundView({ project, study, portfolio, next }: ShravansR
                 </li>
               ) : null}
             </ul>
-            <p className="srp-small srp-meta">{[project.role, project.duration, portfolio.meta].join(" · ")}</p>
+            {/* role already says "Team build", so drop meta parts it repeats */}
+            <p className="srp-small srp-meta">
+              {[
+                project.role,
+                project.duration,
+                ...portfolio.meta.split(" · ").filter((part) => !project.role.toLowerCase().includes(part.toLowerCase())),
+              ].join(" · ")}
+            </p>
           </section>
         </Container>
       </article>
