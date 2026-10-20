@@ -20115,3 +20115,97 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
 }
 /* === end TASK-301 === */
+
+/* TASK-301 (Tushar 2026-10-20): sculpted origami icons in the product card's action buttons. The img is taken out of the flow (desktop)
+   or sized to the existing icon cell (phone), so no button changes height; --oi is the rendered size. */
+.pf-origami {
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 1px 1.5px rgb(20 24 38 / 0.3));
+}
+.pf-action-icon[data-origami] {
+  overflow: visible;
+}
+.pf-action-icon[data-origami] .pf-origami {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--oi);
+  height: var(--oi);
+}
+.pf-action[data-tier="primary"] {
+  --oi: 36px;
+}
+.pf-action[data-tier="secondary"] {
+  --oi: 26px;
+}
+@container (max-width: 449px) {
+  .pf-action[data-tier="secondary"] {
+    --oi: 22px;
+  }
+}
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] {
+    --oi: 28px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="secondary"] {
+    --oi: 21px;
+  }
+}
+/* the icon cell grows to the icon (the label shifts right; the row height is the button's own min-height, so it never grows) */
+.pf-showcase .pf-action-set .pf-action.pf-action.pf-action .pf-action-icon[data-origami] {
+  width: var(--oi);
+  height: var(--oi);
+}
+.pf-showcase .pf-action-set .pf-action.pf-action.pf-action[data-tier] {
+  grid-template-columns: var(--oi) minmax(0, 1fr) 16px;
+}
+@container (max-width: 449px) {
+  .pf-showcase .pf-action-set .pf-action.pf-action.pf-action[data-tier="secondary"] {
+    grid-template-columns: var(--oi) minmax(0, 1fr) 12px;
+  }
+}
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action.pf-action[data-tier="secondary"] {
+    grid-template-columns: var(--oi) minmax(0, 1fr);
+  }
+}
+/* phone: the img fills the leading grid cell (22 px, 20 px on narrow phones) and overflows it evenly */
+.pf-m-btn {
+  --pf-m-col: 22px;
+  --oi: 26px;
+}
+.pf-m-primary {
+  --oi: 34px;
+}
+@media (max-width: 379px) {
+  .pf-m-btn {
+    --pf-m-col: 20px;
+    --oi: 24px;
+  }
+  .pf-m-primary {
+    --oi: 32px;
+  }
+}
+.pf-m-btn > .pf-origami {
+  position: relative;
+  width: var(--oi);
+  height: var(--oi);
+  margin-inline: calc((var(--pf-m-col) - var(--oi)) / 2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pf-origami {
+    transition:
+      transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      filter 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pf-action:hover .pf-origami,
+    .pf-m-btn:hover .pf-origami {
+      transform: translateY(-2.5px) rotate(3deg);
+      filter: drop-shadow(0 4px 3.5px rgb(20 24 38 / 0.38));
+    }
+  }
+}
