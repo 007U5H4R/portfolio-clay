@@ -164,7 +164,7 @@ export const bhaktiVilasCase: z.input<typeof CaseStudy> = {
       headline: "Honest framing is part of the design.",
       anchors: ["08-what-i-learned"],
       items: [
-        { title: "Disclose the gaps", body: "Partial translation and unreviewed medical copy belong on the page, not under it.", source: "BV-README" },
+        { title: "Finish the copy before users", body: "Full translation and a medical review of the copy come before any real user, not after.", source: "BV-README" },
         { title: "Never dress devotion as clinic", body: "Devotional-health framing is not clinically vetted, and shouldn’t read as if it were.", source: "BV-README" },
         { title: "Credit the team exactly", body: "Five of eight commits, and a team PRD without names: say both.", source: "BV-AUDIT" },
       ],
