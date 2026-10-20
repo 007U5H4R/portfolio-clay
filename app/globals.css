@@ -19628,29 +19628,83 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Phones: only ~64px of text height clears the footer's torn top (the band's last 72px sit under it), so a single-subject art is a 64px
-   thumbnail at the left and the text column sits to its right: the title on one line, the supporting line cut to one line with an
-   ellipsis (the full sentence stays in the DOM and in the link's accessible name). TeachSpark's landscape bleed art keeps its
-   full-width text over the sky. */
+/* Phones (TASK-290 mobile follow-up, Tushar 2026-10-20). Every height is a share of the band body, so it scales with the 5:2 spacer.
+   Single-subject art: BIG, 70.5% of the body (the spec asks >= 70%), parked at the left, its vertical centre at 38.75% of the body
+   (3.5% top margin + 35.25%, a 70.5% tall art); the text column sits to its right and its LOGO ROW (a fixed 30px flex row) is centred on that same 38.75% line,
+   so art centre = logo centre. The eyebrow above and the one-liner below are fixed-height rows; the one-liner stays on one line.
+   The torn footer covers the band's last 72px, but its torn top is ~40px of transparent paper, so the art's lower edge and the
+   one-liner may sit slightly into that zone (the spec checks the text still clears the footer's visible teeth).
+   TeachSpark's bleed band (the RailCite art, a train on a bridge at the LEFT of the picture): the whole text block moves to the RIGHT,
+   over the empty sky, entirely right of the train and bridge (the spec: its left edge is >= 55% of the band width; the bridge ends at
+   ~52% of the art), with a 24px logo so it fits that column. */
 @media (max-width: 767px) {
+  .next-band-in {
+    padding-block: 0;
+  }
+  .next-band .next-band-h {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: var(--cs-logo-h, 30px);
+    line-height: 1;
+  }
+  /* A percentage width cannot size the logo's column (the link is shrink-to-fit): give it its real width so the text column is
+     only as wide as its content and the art can take the rest. */
+  .next-band .next-band-h > .cs-logo {
+    flex: none;
+  }
+  .next-band .next-band-h > .cs-logo .pf-logo-img {
+    width: min(calc(var(--cs-logo-h) * var(--cs-logo-ar)), 140px);
+  }
+  .next-band .next-band-eyebrow {
+    line-height: 14px;
+  }
+  .next-band .next-band-line {
+    line-height: 17px;
+  }
+  .next-band .next-band-link {
+    gap: 2px;
+    padding-block: 0;
+    min-width: 0;
+  }
   .next-band .next-band-art:not([data-fit="bleed"]) img {
-    top: 2px;
-    left: 8px;
-    height: 64px;
+    top: 3.5%;
+    left: 4px;
+    height: 70.5%;
   }
   .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-link {
-    max-width: calc(100% - 112px);
-    min-width: 0;
+    position: relative;
+    top: calc(38.75% - 31px);
+    max-width: calc(100% - 100px);
+    margin-right: -18px;
   }
   .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-h {
     font-size: 1.35rem;
     white-space: nowrap;
   }
   .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-line {
-    font-size: 13px;
+    font-size: 12px;
   }
   .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-eyebrow {
     font-size: 10.5px;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-link {
+    padding-block: 4px 0;
+    max-width: 44%;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-h {
+    font-size: 1.35rem;
+    height: 24px; /* the 24px logo's own row: keeps the one-liner above the ridge on the right */
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-line {
+    font-size: 13px;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-h > .cs-logo {
+    --cs-logo-h: 24px;
   }
 }
 @media (min-width: 768px) {
