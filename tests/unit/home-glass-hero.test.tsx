@@ -51,7 +51,7 @@ describe("HOME_GLASS_HERO_ENABLED — flag ON", () => {
     );
     const links = [...panel.querySelectorAll("a")].map((a) => [a.textContent, a.getAttribute("href")]);
     expect(links).toEqual([
-      ["Explore my work →", "#selected-work"],
+      ["Explore my work →", "#credentials"],
       ["Let's connect", "/contact"],
     ]);
     expect(HERO_GLASS_COPY.eyebrow).toBe("PRODUCT MANAGER · AI BUILDER");

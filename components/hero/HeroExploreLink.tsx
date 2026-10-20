@@ -2,8 +2,8 @@
 
 /**
  * HeroExploreLink (TASK-289) — the glass hero's primary CTA, "Explore my work →". An in-page smooth scroll
- * to the next existing homepage section that introduces the work (`#selected-work`): same tab, no
- * navigation, and no hash pushed (the URL stays `/`). It stays a real `<a href="#selected-work">`, so
+ * to the Credentials section that directly follows the hero (`#credentials`, the existing section id): same tab, no
+ * navigation, and no hash pushed (the URL stays `/`). It stays a real `<a href="#credentials">`, so
  * with JavaScript off, or before hydration, the browser's own jump still lands there, and a modified
  * click (new tab / window) keeps native behaviour.
  *
@@ -16,7 +16,7 @@
 import type { MouseEvent, ReactNode } from "react";
 import { scrollToTarget } from "@/lib/smooth-scroll";
 
-export const HERO_EXPLORE_TARGET_ID = "selected-work";
+export const HERO_EXPLORE_TARGET_ID = "credentials";
 
 export function HeroExploreLink({ className, children }: { className?: string; children: ReactNode }) {
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {

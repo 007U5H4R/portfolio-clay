@@ -147,7 +147,7 @@ for (const theme of ["light", "dark"] as const) {
   });
 }
 
-test("Explore my work: same tab, URL unchanged, lands on the Selected work heading below the header", async ({ page }) => {
+test("Explore my work: same tab, URL unchanged, lands on the Credentials heading below the header", async ({ page }) => {
   glassOnly(page);
   await settle(page);
   const url = page.url();
@@ -160,11 +160,11 @@ test("Explore my work: same tab, URL unchanged, lands on the Selected work headi
   expect(page.url()).toBe(url);
   expect(page.context().pages().length).toBe(pagesBefore);
   const { top, header } = await page.evaluate(() => ({
-    top: document.getElementById("selected-work-heading")!.getBoundingClientRect().top,
+    top: document.getElementById("credentials-heading")!.getBoundingClientRect().top,
     header: document.querySelector("header[data-site-header]")!.getBoundingClientRect().bottom,
   }));
-  expect(top, "Selected work heading sits below the sticky header").toBeGreaterThanOrEqual(header);
-  await expect(page.locator("#selected-work-heading")).toBeInViewport();
+  expect(top, "Credentials heading sits below the sticky header").toBeGreaterThanOrEqual(header);
+  await expect(page.locator("#credentials-heading")).toBeInViewport();
   // parallax still runs: the hero banner is still driven by the scroll timeline
   expect(await page.evaluate(() => getComputedStyle(document.querySelector(".hero-banner")!).animationName)).toContain("scene-parallax");
 });
@@ -197,7 +197,7 @@ test("Explore my work under prefers-reduced-motion: an instant jump", async ({ b
   await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
   const { y, top, header } = await page.evaluate(() => ({
     y: window.scrollY,
-    top: document.getElementById("selected-work-heading")!.getBoundingClientRect().top,
+    top: document.getElementById("credentials-heading")!.getBoundingClientRect().top,
     header: document.querySelector("header[data-site-header]")!.getBoundingClientRect().bottom,
   }));
   expect(y).toBeGreaterThan(200);
@@ -234,20 +234,131 @@ test("no layout shift from the hero on load", async ({ page }) => {
   expect(cls.hero, `hero layout shift ${cls.hero}`).toBeLessThan(0.01);
 });
 
+// ---- TASK-289 V2: footprint, contrast, art unchanged ----
+/** Panel height at 1440 before V2 (TASK-289 #127, measured on the live page): 300.3 px (1024: 237.6 px). */
+const OLD_PANEL_H_1440 = 300.3;
+
+test("V2 footprint: the panel is at most 88% of its old height at 1440", async ({ page }) => {
+  glassOnly(page);
+  test.skip(width(page) !== 1440, "measured at 1440");
+  await settle(page);
+  const h = (await panel(page).boundingBox())!.height;
+  expect(h, `panel height ${h} vs old ${OLD_PANEL_H_1440}`).toBeLessThanOrEqual(OLD_PANEL_H_1440 * 0.88);
+});
+
+/** Contrast of the text against the panel's composited background, sampled from real pixels with the text hidden. */
+for (const theme of ["light", "dark"] as const) {
+  test(`V2 contrast (${theme}): headline ≥ 3:1, body text ≥ 4.5:1 over the art`, async ({ page }) => {
+    glassOnly(page);
+    await setTheme(page, theme);
+    await settle(page);
+    await page.waitForTimeout(800);
+    const targets = [
+      { sel: ".hero-glass-h1", min: 3 },
+      { sel: ".hero-glass-eyebrow", min: 4.5 },
+      { sel: ".hero-glass-support", min: 4.5 },
+    ];
+    await page.addStyleTag({ content: ".hero-glass-on .hero-glass :is(.hero-glass-h1,.hero-glass-eyebrow,.hero-glass-support){color:transparent!important}" });
+    const out: string[] = [];
+    for (const t of targets) {
+      const r = await page.evaluate(async (sel) => {
+        const el = document.querySelector(sel)!;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const rects = [...range.getClientRects()].map((b) => ({ x: b.x, y: b.y, w: b.width, h: b.height }));
+        return rects;
+      }, t.sel);
+      let worst = Infinity;
+      for (const rc of r) {
+        const buf = await page.screenshot({ clip: { x: rc.x, y: rc.y, width: Math.max(1, rc.w), height: Math.max(1, rc.h) } });
+        const lum = await page.evaluate(async ([b64, sel]) => {
+          const bytes = Uint8Array.from(atob(b64 as string), (c) => c.charCodeAt(0));
+          const bmp = await createImageBitmap(new Blob([bytes]));
+          const cv = new OffscreenCanvas(bmp.width, bmp.height);
+          const ctx = cv.getContext("2d")!;
+          ctx.drawImage(bmp, 0, 0);
+          const d = ctx.getImageData(0, 0, bmp.width, bmp.height).data;
+          const lin = (v: number) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+          const L = (r: number, g: number, b: number) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+          // text colour comes from the stylesheet (the transparent override is !important, so read the token the rule uses)
+          const px = new OffscreenCanvas(1, 1).getContext("2d")!;
+          const probe = document.createElement("span");
+          probe.style.color = (sel as string).includes("support") ? "var(--color-navy-2)" : "var(--color-navy)";
+          document.body.appendChild(probe);
+          px.fillStyle = getComputedStyle(probe).color; // any CSS colour syntax (srgb / oklab) -> canvas resolves it
+          probe.remove();
+          px.fillRect(0, 0, 1, 1);
+          const m = [...px.getImageData(0, 0, 1, 1).data];
+          const lt = L(m[0]!, m[1]!, m[2]!);
+          const ratios: number[] = [];
+          for (let i = 0; i < d.length; i += 4) {
+            const lb = L(d[i]!, d[i + 1]!, d[i + 2]!);
+            const [hi, lo] = lb > lt ? [lb, lt] : [lt, lb];
+            ratios.push((hi + 0.05) / (lo + 0.05));
+          }
+          ratios.sort((a, b) => a - b);
+          return ratios[Math.floor(ratios.length * 0.01)]!; // 1st percentile: the worst 1% of pixels
+        }, [buf.toString("base64"), t.sel] as [string, string]);
+        worst = Math.min(worst, lum);
+      }
+      out.push(`${t.sel}=${worst.toFixed(2)}`);
+      expect(worst, `${theme} ${t.sel} contrast ${worst.toFixed(2)}`).toBeGreaterThanOrEqual(t.min);
+    }
+    console.log(`CONTRAST ${theme} ${width(page)} ${out.join(" ")}`);
+  });
+}
+
+test("V2 art unchanged: the banner's pixels with the glass rules on equal the flag-off look (panel hidden both times)", async ({ page }) => {
+  glassOnly(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await settle(page);
+  await page.waitForTimeout(800);
+  const banner = page.locator(".hero-banner");
+  await page.addStyleTag({ content: "[data-hero-glass]{display:none!important}" });
+  const on = await banner.screenshot();
+  await page.evaluate(() => document.querySelector("section.hero")!.classList.remove("hero-glass-on"));
+  await page.waitForTimeout(300);
+  const off = await banner.screenshot();
+  const stat = await page.evaluate(async ([a, b]) => {
+    const load = async (s: string) => {
+      const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob(s), (c) => c.charCodeAt(0))]));
+      const cv = new OffscreenCanvas(bmp.width, bmp.height);
+      const ctx = cv.getContext("2d")!;
+      ctx.drawImage(bmp, 0, 0);
+      return ctx.getImageData(0, 0, bmp.width, bmp.height);
+    };
+    const [x, y] = [await load(a as string), await load(b as string)];
+    if (x.width !== y.width || x.height !== y.height) return { size: false, bad: 1, max: 255, a: [x.width, x.height], b: [y.width, y.height] };
+    let bad = 0, max = 0, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    const rows = x.height - 44; // the sheet's 44px torn edge overlaps the banner bottom; that strip is the sheet, not the art
+    for (let i = 0; i < rows * x.width * 4; i += 4) {
+      const dm = Math.max(Math.abs(x.data[i]! - y.data[i]!), Math.abs(x.data[i + 1]! - y.data[i + 1]!), Math.abs(x.data[i + 2]! - y.data[i + 2]!));
+      max = Math.max(max, dm);
+      if (dm > 6) { bad++; const q = i / 4; const cx = q % x.width, cy = Math.floor(q / x.width); x0 = Math.min(x0, cx); x1 = Math.max(x1, cx); y0 = Math.min(y0, cy); y1 = Math.max(y1, cy); }
+    }
+    return { size: true, bad: bad / (x.width * rows), max, box: [x0, y0, x1, y1] };
+  }, [on.toString("base64"), off.toString("base64")] as [string, string]);
+  console.log(`ART-DIFF ${width(page)} ${JSON.stringify(stat)}`);
+  expect(stat.size).toBe(true);
+  expect(stat.bad, "fraction of pixels differing by > 6/255").toBeLessThan(0.001);
+});
+
 // ---- review crops (HG_CROPS=<tag>) ----
-const OUT = "/Volumes/E Drive/Dev/.scratch/home-glass/crops";
+const OUT = "/Volumes/E Drive/Dev/.scratch/home-glass/crops-v2";
 for (const theme of ["light", "dark"] as const) {
   test(`crop ${theme}`, async ({ browser }) => {
     test.skip(!process.env.HG_CROPS, "review crops only with HG_CROPS=<tag>");
     test.setTimeout(120_000);
-    for (const [w, h] of [[375, 812], [768, 1024], [1024, 768], [1440, 900]] as const) {
-      const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, isMobile: w < 768, hasTouch: w < 768 });
+    for (const [w, h] of [[1024, 768], [1440, 900]] as const) {
+      const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, });
       const page = await ctx.newPage();
       await setTheme(page, theme);
       await settle(page);
       await page.waitForTimeout(1200);
       await page.screenshot({ path: `${OUT}/${process.env.HG_CROPS}-${w}-${theme}.png` });
-      if (process.env.HG_CROPS === "after" && w === 1440 && theme === "light") {
+      const pb = await panel(page).boundingBox();
+      console.log(`PANEL ${process.env.HG_CROPS} ${w} ${theme} h=${pb?.height.toFixed(1)} w=${pb?.width.toFixed(1)}`);
+      if (process.env.HG_CROPS === "after" && w === 1440) {
         await panel(page).getByRole("link", { name: COPY.primary }).click();
         await page.waitForTimeout(2500);
         await page.screenshot({ path: `${OUT}/after-explore-${w}-${theme}.png` });
