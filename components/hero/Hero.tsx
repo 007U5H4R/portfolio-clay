@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { HeroAskLink } from "@/components/hero/HeroAskLink";
+import { HeroGlass } from "@/components/hero/HeroGlass";
+import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { Postmark } from "@/components/hero/Postmark";
 import { Annotation, Sheet, Sketch, Tape, TornEdge, type TapeSide } from "@/components/paper";
@@ -66,7 +68,7 @@ const POLAROIDS: readonly { id: SceneId; rotate: number; tape: TapeSide }[] = [
  */
 export function Hero() {
   return (
-    <section className="hero" aria-labelledby="hero-h">
+    <section className={HOME_GLASS_HERO_ENABLED ? "hero hero-glass-on" : "hero"} aria-labelledby="hero-h">
       <div className="hero-banner">
         {/* M-011 P1: the banner is the layered Paper World scene (four layers, light + dark twins); < 768 a 16:10 cover crop on the focal point (wide enough that the tall paper and the yellow note both fit with their polaroids). */}
         <PaperParallaxScene id="hero-home" priority focal={{ x: BANNER_FOCAL_X }} narrowAspect="16 / 10" />
@@ -83,96 +85,109 @@ export function Hero() {
         </div>
 
         <Postmark className="hero-stamp" />
+
+        {/* TASK-289 test (HOME_GLASS_HERO_ENABLED): the one glass panel over the art's upper-left. */}
+        {HOME_GLASS_HERO_ENABLED ? <HeroGlass /> : null}
       </div>
 
-      {/* TKT-108: the paper sheet is its own counting unit (nested section, Design.md §3.2 rule 1 / Dev-50). */}
-      <section className="hero-sheet" id="hero-copy">
-        <TornEdge fill="paper" className="hero-torn" />
-
-        {/* TKT-108 marginalia + faint backdrop — ONE counted `collage` object (Design.md §3.1 / Dev-50):
-            its pieces carry no `data-decor`, the whole unit is `aria-hidden` and pointer-events none.
-            Server-rendered and absolutely positioned (no layout shift); pieces are shown by width in
-            app/globals.css. The Caveat notes were removed (TASK-222, TASK-225). */}
-        <div className="hero-margin" data-decor="collage" aria-hidden="true">
-          <span className="hero-margin-patch" data-patch="tl" />
-          <span className="hero-margin-patch" data-patch="h1" />
-          <span className="hero-margin-patch hero-margin-grid" data-patch="br" />
-          <svg className="hero-margin-leaf" viewBox="0 0 200 260" focusable="false">
-            <path d="M100 258 C 96 190, 84 120, 60 20" />
-            <path d="M92 200 C 60 190, 30 160, 22 128 C 52 132, 80 160, 92 200 Z" />
-            <path d="M88 160 C 118 146, 146 116, 150 84 C 120 90, 96 120, 88 160 Z" />
-            <path d="M78 116 C 48 104, 30 76, 30 46 C 56 56, 74 84, 78 116 Z" />
-            <path d="M70 76 C 92 60, 104 36, 102 8 C 80 20, 70 46, 70 76 Z" />
-          </svg>
-          <svg className="hero-margin-loop" viewBox="0 0 160 200" focusable="false">
-            <path d="M8 4 C 30 60, 60 96, 110 92 C 150 88, 150 44, 118 48 C 84 52, 90 110, 130 150 C 142 162, 150 178, 152 196" />
-          </svg>
+      {/* TASK-289: with the glass hero on, the sheet keeps only its torn edge (the paper still slides over the art). */}
+      {HOME_GLASS_HERO_ENABLED ? (
+        <div className="hero-sheet hero-glass-sheet">
+          <TornEdge fill="paper" className="hero-torn" />
         </div>
+      ) : (
+        <>
 
-        <Container className="hero-copy">
-          <p className="hero-eyebrow">{hero.eyebrow.text}</p>
+        {/* TKT-108: the paper sheet is its own counting unit (nested section, Design.md §3.2 rule 1 / Dev-50). */}
+        <section className="hero-sheet" id="hero-copy">
+          <TornEdge fill="paper" className="hero-torn" />
 
-          {/* Tushar 2026-10-05: his intro video, right after the eyebrow line (every width) — a taped
-              print on the sheet. The click-to-load player (TASK-122): nothing loads from YouTube until
-              Play is pressed. */}
-          <div className="hero-intro">
-            <Sheet variant="photo" rotate={-0.6} className="hero-intro-print">
-              <Tape side="c" />
-              <ProductMediaPlayer
-                media={hero.introVideo}
-                className="pf-stage-screen hero-intro-screen"
-                fallbackPoster={<Image src={INTRO_POSTER} alt="" fill sizes="(min-width: 1040px) 960px, 92vw" className="pf-stage-poster hero-intro-poster" />}
-              />
-            </Sheet>
+          {/* TKT-108 marginalia + faint backdrop — ONE counted `collage` object (Design.md §3.1 / Dev-50):
+              its pieces carry no `data-decor`, the whole unit is `aria-hidden` and pointer-events none.
+              Server-rendered and absolutely positioned (no layout shift); pieces are shown by width in
+              app/globals.css. The Caveat notes were removed (TASK-222, TASK-225). */}
+          <div className="hero-margin" data-decor="collage" aria-hidden="true">
+            <span className="hero-margin-patch" data-patch="tl" />
+            <span className="hero-margin-patch" data-patch="h1" />
+            <span className="hero-margin-patch hero-margin-grid" data-patch="br" />
+            <svg className="hero-margin-leaf" viewBox="0 0 200 260" focusable="false">
+              <path d="M100 258 C 96 190, 84 120, 60 20" />
+              <path d="M92 200 C 60 190, 30 160, 22 128 C 52 132, 80 160, 92 200 Z" />
+              <path d="M88 160 C 118 146, 146 116, 150 84 C 120 90, 96 120, 88 160 Z" />
+              <path d="M78 116 C 48 104, 30 76, 30 46 C 56 56, 74 84, 78 116 Z" />
+              <path d="M70 76 C 92 60, 104 36, 102 8 C 80 20, 70 46, 70 76 Z" />
+            </svg>
+            <svg className="hero-margin-loop" viewBox="0 0 160 200" focusable="false">
+              <path d="M8 4 C 30 60, 60 96, 110 92 C 150 88, 150 44, 118 48 C 84 52, 90 110, 130 150 C 142 162, 150 178, 152 196" />
+            </svg>
           </div>
 
-          <h1 id="hero-h" className="hero-h1">
-            <span className="hero-h1-line">{H1_LINES[0]}</span>{" "}
-            <span className="hero-h1-line">{H1_LINES[1]}</span>{" "}
-            <span className="hero-h1-line underline-host">
-              {H1_LINES[2]}
-              <Sketch variant="underline" />
-            </span>
-          </h1>
+          <Container className="hero-copy">
+            <p className="hero-eyebrow">{hero.eyebrow.text}</p>
 
-          {/* The faint stroke under "problems." is part of this one annotation object (CSS on the span). */}
-          <Annotation size="hero" rotate={-1} className="hero-hand-sub">
-            {HAND_HEAD}
-            <span className="hero-hand-mark">{HAND_MARK}</span>
-            {HAND_TAIL}
-          </Annotation>
-
-          <p className="hero-support">{hero.support.text}</p>
-
-          <div className="hero-cta-row">
-            <Link href="/projects" className="hero-btn hero-btn-primary focus-ring">
-              View my work <span className="btn-arrow">→</span>
-            </Link>
-            <div className="hero-ask">
-              {/* TKT-113: opens the Ask Tushky drawer (spec §24); `#ask` stays the no-JS fallback. */}
-              <HeroAskLink className="hero-btn hero-btn-secondary focus-ring" describedBy="hero-ask-cap">
-                <span className="hero-btn-spark" aria-hidden="true">
-                  ✦
-                </span>
-                Ask Tushky
-              </HeroAskLink>
-              <p id="hero-ask-cap" className="hero-ask-cap" data-micro-label="">
-                My AI portfolio assistant
-              </p>
-              {/* Tushky (the banner's golden retriever) + its pointer: one decorative illustration,
-                  not a counted decoration (like the polaroid photos) — Design.md §11 Dev-50. */}
-              <span className="hero-tushky" aria-hidden="true">
-                <Image src="/media/illustrations/tushky-head.webp" alt="" width={64} height={64} className="hero-tushky-img" />
-                <svg className="hero-tushky-arrow" viewBox="0 0 48 32" focusable="false">
-                  <path d="M4 28 C 18 26, 30 18, 38 6" />
-                  <path d="M30 8 L 39 5 L 40 14" />
-                </svg>
-              </span>
+            {/* Tushar 2026-10-05: his intro video, right after the eyebrow line (every width) — a taped
+                print on the sheet. The click-to-load player (TASK-122): nothing loads from YouTube until
+                Play is pressed. */}
+            <div className="hero-intro">
+              <Sheet variant="photo" rotate={-0.6} className="hero-intro-print">
+                <Tape side="c" />
+                <ProductMediaPlayer
+                  media={hero.introVideo}
+                  className="pf-stage-screen hero-intro-screen"
+                  fallbackPoster={<Image src={INTRO_POSTER} alt="" fill sizes="(min-width: 1040px) 960px, 92vw" className="pf-stage-poster hero-intro-poster" />}
+                />
+              </Sheet>
             </div>
-          </div>
 
-        </Container>
-      </section>
+            <h1 id="hero-h" className="hero-h1">
+              <span className="hero-h1-line">{H1_LINES[0]}</span>{" "}
+              <span className="hero-h1-line">{H1_LINES[1]}</span>{" "}
+              <span className="hero-h1-line underline-host">
+                {H1_LINES[2]}
+                <Sketch variant="underline" />
+              </span>
+            </h1>
+
+            {/* The faint stroke under "problems." is part of this one annotation object (CSS on the span). */}
+            <Annotation size="hero" rotate={-1} className="hero-hand-sub">
+              {HAND_HEAD}
+              <span className="hero-hand-mark">{HAND_MARK}</span>
+              {HAND_TAIL}
+            </Annotation>
+
+            <p className="hero-support">{hero.support.text}</p>
+
+            <div className="hero-cta-row">
+              <Link href="/projects" className="hero-btn hero-btn-primary focus-ring">
+                View my work <span className="btn-arrow">→</span>
+              </Link>
+              <div className="hero-ask">
+                {/* TKT-113: opens the Ask Tushky drawer (spec §24); `#ask` stays the no-JS fallback. */}
+                <HeroAskLink className="hero-btn hero-btn-secondary focus-ring" describedBy="hero-ask-cap">
+                  <span className="hero-btn-spark" aria-hidden="true">
+                    ✦
+                  </span>
+                  Ask Tushky
+                </HeroAskLink>
+                <p id="hero-ask-cap" className="hero-ask-cap" data-micro-label="">
+                  My AI portfolio assistant
+                </p>
+                {/* Tushky (the banner's golden retriever) + its pointer: one decorative illustration,
+                    not a counted decoration (like the polaroid photos) — Design.md §11 Dev-50. */}
+                <span className="hero-tushky" aria-hidden="true">
+                  <Image src="/media/illustrations/tushky-head.webp" alt="" width={64} height={64} className="hero-tushky-img" />
+                  <svg className="hero-tushky-arrow" viewBox="0 0 48 32" focusable="false">
+                    <path d="M4 28 C 18 26, 30 18, 38 6" />
+                    <path d="M30 8 L 39 5 L 40 14" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+          </Container>
+        </section>
+        </>
+      )}
     </section>
   );
 }

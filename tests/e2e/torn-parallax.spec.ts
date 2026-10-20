@@ -10,6 +10,7 @@
  * `prefers-reduced-motion: reduce` nothing animates or translates.
  */
 import { test, expect } from "./fixtures";
+import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 import type { Page } from "@playwright/test";
 import { scrollToY } from "./hero-scene";
 
@@ -106,6 +107,7 @@ test("TKT-106 main itself never lags; only its last child does", async ({ page }
 });
 
 test("TKT-106 a keyboard-focused hero CTA is never hidden under the Credentials sheet", async ({ page }) => {
+  test.skip(HOME_GLASS_HERO_ENABLED, "previous-hero assertions: the TASK-289 glass hero replaces this copy (see home-glass-hero.spec.ts); they run when HOME_GLASS_HERO_ENABLED is false");
   test.skip(width(page) !== 1440, "measured at w1440");
   await page.goto("/", { waitUntil: "load" });
   const vh = page.viewportSize()!.height;

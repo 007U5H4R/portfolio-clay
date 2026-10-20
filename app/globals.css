@@ -19256,3 +19256,163 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
 :is(.bvp-next-h, .rcp-next-h, .vlp-next-h) > .cs-logo { --cs-logo-h: clamp(34px, 4vw, 52px); }
 .tsp-next-h > .cs-logo { --cs-logo-h: clamp(30px, 3.4vw, 44px); }
 /* === end TASK-285 === */
+
+/* === TASK-289 test (Tushar 2026-10-20): integrated frosted-glass home hero. ===
+   Every rule is scoped under `.hero-glass-on`, a class `Hero` emits ONLY while HOME_GLASS_HERO_ENABLED
+   (components/hero/home-glass-flag.ts) is true — with the flag false none of this matches and the previous hero
+   renders exactly as before. To remove for good: delete this block, `HeroGlass.tsx`, `HeroExploreLink.tsx`,
+   the flag module and the flag branches in Hero.tsx (or revert the one squash commit).
+   The art, its layers, the parallax and the polaroids are untouched; the panel is one more child of `.hero-banner`
+   (so it rides the banner's scroll parallax). Tokens + color-mix() only (EVAL-020); light/dark come from the role
+   tokens (`--color-ivory`, `--color-paper`, `--color-navy` swap under [data-theme="dark"]).
+   ≥ 1000: absolutely placed in the art's upper-left negative space, in banner-width units (`cqw`, the banner is an
+   inline-size container ≥ 768): left 3cqw → right edge 41cqw, clear of the face (≈ 44–55 % of the width) and the laptop. The panel's box
+   is the only thing that takes pointer events. < 1000: it sits in flow under the art (so it can never cover the character),
+   its bottom margin clearing the next sheet's 44 px torn edge. */
+.hero-glass-on .hero-glass {
+  position: relative;
+  z-index: 5;
+  box-sizing: border-box;
+  width: min(100% - 32px, 560px);
+  margin: -10px auto 60px;
+  padding: 20px 20px 22px;
+  color: var(--color-navy);
+  /* No backdrop-filter: a more opaque surface keeps the text readable on its own. */
+  background-color: color-mix(in oklab, var(--color-ivory) 90%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-navy) 16%, transparent);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 55%, transparent),
+    0 20px 38px -24px color-mix(in oklab, var(--color-navy) 55%, transparent);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .hero-glass-on .hero-glass {
+    background-color: color-mix(in oklab, var(--color-ivory) 62%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(0.88);
+    backdrop-filter: blur(10px) saturate(0.88);
+  }
+  [data-theme="dark"] .hero-glass-on .hero-glass {
+    /* deep navy, a touch bluer and denser than the light cream so the art stays readable but the text stays crisp */
+    background-color: color-mix(in oklab, var(--color-paper) 64%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(0.8);
+    backdrop-filter: blur(14px) saturate(0.8);
+  }
+}
+/* Light: a faint paper grain on the cream (the same dots the page's grain uses). */
+:root:not([data-theme="dark"]) .hero-glass-on .hero-glass {
+  background-image: var(--grain-a), var(--grain-b);
+  background-size: 7px 7px, 11px 11px;
+}
+[data-theme="dark"] .hero-glass-on .hero-glass {
+  border-color: color-mix(in oklab, var(--color-navy) 14%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-navy) 12%, transparent),
+    0 22px 44px -22px color-mix(in oklab, var(--color-paper) 90%, transparent);
+}
+.hero-glass-on .hero-glass-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  color: var(--color-navy);
+}
+.hero-glass-on .hero-glass-h1 {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 7vw, 40px);
+  font-weight: 500;
+  font-variation-settings: "opsz" 72;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  color: var(--color-navy);
+}
+.hero-glass-on .hero-glass-support {
+  margin: 12px 0 0;
+  max-width: 34em;
+  font-size: 15.5px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--color-navy-2);
+}
+.hero-glass-on .hero-glass-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.hero-glass-on .hero-glass-cta .hero-btn {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 36;
+  white-space: nowrap;
+}
+.hero-glass-on .hero-glass-cta .hero-btn-primary {
+  box-shadow: 0 10px 20px -14px color-mix(in oklab, var(--color-rust) 85%, transparent);
+}
+.hero-glass-on .hero-glass-cta .hero-btn-secondary {
+  background: var(--color-ivory);
+  border: 1.5px solid var(--line-strong);
+  box-shadow: none;
+}
+@media (min-width: 768px) and (max-width: 999px) {
+  .hero-glass-on .hero-glass {
+    width: min(100% - 64px, 600px);
+    padding: 26px 28px 28px;
+  }
+  .hero-glass-on .hero-glass-h1 {
+    font-size: 38px;
+  }
+  .hero-glass-on .hero-glass-support {
+    font-size: 17px;
+  }
+  .hero-glass-on .hero-glass-cta .hero-btn {
+    flex: 0 1 auto;
+  }
+}
+@media (min-width: 1000px) {
+  .hero-glass-on .hero-glass {
+    position: absolute;
+    top: 3.2cqw;
+    left: 3cqw;
+    width: 38cqw;
+    max-width: 640px;
+    margin: 0;
+    padding: clamp(18px, 1.9cqw, 30px) clamp(20px, 2.2cqw, 34px) clamp(20px, 2.1cqw, 32px);
+    border-radius: clamp(18px, 1.6cqw, 26px);
+  }
+  .hero-glass-on .hero-glass-eyebrow {
+    font-size: clamp(11px, 0.85cqw, 13px);
+  }
+  .hero-glass-on .hero-glass-h1 {
+    margin-top: clamp(8px, 0.8cqw, 12px);
+    font-size: clamp(26px, 2.6cqw, 44px);
+  }
+  .hero-glass-on .hero-glass-support {
+    margin-top: clamp(8px, 0.85cqw, 14px);
+    font-size: clamp(14.5px, 1.12cqw, 18px);
+  }
+  .hero-glass-on .hero-glass-cta {
+    flex-wrap: nowrap;
+    gap: clamp(10px, 0.9cqw, 14px);
+    margin-top: clamp(14px, 1.4cqw, 22px);
+  }
+  .hero-glass-on .hero-glass-cta .hero-btn {
+    flex: 0 1 auto;
+    min-height: clamp(46px, 3.4cqw, 54px);
+    padding-inline: clamp(18px, 1.7cqw, 28px);
+    font-size: clamp(16px, 1.25cqw, 20px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glass-on .hero-glass-cta .hero-btn {
+    transition: none;
+  }
+}
+/* === end TASK-289 === */

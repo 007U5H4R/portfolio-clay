@@ -12,6 +12,7 @@
  */
 import type { Locator, Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
+import { HOME_GLASS_HERO_ENABLED } from "@/components/hero/home-glass-flag";
 import { TUSHKY_SUGGESTIONS } from "@/components/ai/tushky-questions";
 
 const width = (page: Page) => page.viewportSize()?.width ?? 0;
@@ -118,6 +119,7 @@ test.describe("home ask tushky", () => {
   test("spec §24: the hero \"✦ Ask Tushky\" CTA opens the drawer from the RIGHT; focus returns to it; #ask stays its fallback", async ({
     page,
   }) => {
+    test.skip(HOME_GLASS_HERO_ENABLED, "previous-hero assertions: the TASK-289 glass hero replaces this copy (see home-glass-hero.spec.ts); they run when HOME_GLASS_HERO_ENABLED is false");
     await page.goto("/", { waitUntil: "load" });
     const cta = page.locator(".hero-cta-row").getByRole("link", { name: "Ask Tushky" });
     await expect(cta).toHaveAttribute("href", "#ask"); // no-JS fallback
