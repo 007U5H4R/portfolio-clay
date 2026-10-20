@@ -7,6 +7,7 @@ import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 import { projects } from "@/data/projects";
 import { isListed } from "@/lib/portfolio";
+import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
 
 const PERSONAL = projects.filter(isListed);
 const N = PERSONAL.length;
@@ -30,6 +31,7 @@ const info = (page: Page) => panel(page).locator(".pf-info");
 test.describe("desktop (>= 1024)", () => {
   test.beforeEach(({ page }) => {
     test.skip(w(page) < 1024, "desktop-only controls");
+    test.skip(VERTICAL_CAROUSEL_ENABLED, "TASK-301 experiment: the vertical carousel replaces this tray from 1024 up (vertical-carousel.spec.ts); with the flag off this runs");
   });
 
   test("the index is data-driven (NN / total) and the selected card carries state beyond colour", async ({ page }) => {
@@ -229,6 +231,7 @@ test.describe("desktop (>= 1024)", () => {
 for (const viewport of [{ width: 1024, height: 768 }, { width: 1440, height: 900 }, { width: 1920, height: 1080 }]) {
   test(`@${viewport.width} no horizontal overflow on every product`, async ({ page }) => {
     test.skip(w(page) !== 1440, "viewport is set explicitly below; run once");
+    test.skip(VERTICAL_CAROUSEL_ENABLED, "TASK-301 experiment: covered by vertical-carousel.spec.ts while the flag is on");
     await page.setViewportSize(viewport);
     await open(page);
     for (let i = 0; i < N; i++) {
