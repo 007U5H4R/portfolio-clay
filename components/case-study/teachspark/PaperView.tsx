@@ -450,7 +450,7 @@ export function PaperView({ project, study, portfolio, next }: PaperViewProps) {
 
       {/* ── Next project: a paper landscape band; the whole band is one link (same contract as NextProject) ── */}
       <section className="tsp-next" aria-label="Next project">
-        <div className="tsp-next-art" aria-hidden="true" style={{ aspectRatio: `${ART.footer.w} / ${ART.footer.h}` }}>
+        <div className="tsp-next-art" aria-hidden="true">
           <ThemedArt name="footer" size={ART.footer} />
         </div>
         <Container className="tsp-next-in">

@@ -250,18 +250,33 @@
 
 /* ── Next project band ────────────────────────────────────────────────────────────────────── */
 .tsp-next { position: relative; margin-bottom: -72px; display: flex; flex-direction: column; background: var(--tsp-bg-2); overflow: clip; }
-.tsp-next-in { order: -1; padding-block: clamp(28px, 4vw, 48px) 8px; position: relative; z-index: 1; }
-.tsp-next-art { width: 100%; }
+.tsp-next-in { position: absolute; inset: 0; display: flex; justify-content: flex-end; align-items: flex-start; padding-block: 6px 0; pointer-events: none; z-index: 1; }
+.tsp-next .tsp-next-link { pointer-events: auto; max-width: 440px; }
+/* TASK-288: the band is about half its former height. The art keeps its width-fit scale and is cropped (cover + object-position,
+   never squashed) to the train, the bridge and the hills' crests; the lower hills and river go. The text overlays the art's empty
+   sky, top right, at every width (it used to stack above the art on phones). The global torn-edge lag (TKT-106) is off for this
+   band: it slid the site footer over the band's lower 120-200px, which with a half-height band would hide the art and the text.
+   What still sits under the footer is the designed 72px torn-edge overlap (margin-bottom above). */
+.tsp-next { animation: none; }
+.tsp-next-art { width: 100%; aspect-ratio: 5 / 2; }
+.tsp-next .tsp-next-art > img[data-theme-art] { object-fit: cover; object-position: 12% 50%; }
 @media (min-width: 768px) {
-  .tsp-next-in { position: absolute; inset: 0; display: flex; justify-content: flex-end; align-items: flex-start; padding-block: clamp(28px, 5vw, 64px) 0; pointer-events: none; }
-  .tsp-next-link { pointer-events: auto; max-width: 440px; }
+  .tsp-next-art { aspect-ratio: 1344 / 262; min-height: 190px; }
+  .tsp-next .tsp-next-art > img[data-theme-art] { object-position: 50% 41%; }
+  .tsp-next-in { padding-block: clamp(12px, 2vw, 32px) 0; }
+  .tsp-next .tsp-next-link { padding-block: 8px; }
 }
-.tsp-next-link { display: grid; gap: 4px; text-decoration: none; color: var(--color-navy); padding: 12px 14px; border-radius: 14px; }
+.tsp-next-link { display: grid; gap: 4px; text-decoration: none; color: var(--color-navy); padding: 4px 8px; border-radius: 14px; }
 .tsp-next-link:focus-visible { outline: 2px solid var(--color-kraft); outline-offset: 3px; }
 .tsp-next-eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--tsp-ink-accent); }
 [data-theme="dark"] .tsp-next-eyebrow { color: color-mix(in oklab, var(--color-kraft) 35%, var(--color-navy)); }
-.tsp-next-h { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.02; }
+.tsp-next-h { font-size: clamp(1.75rem, 4vw, 3rem); line-height: 1.02; }
 .tsp-next-line { font-size: 16px; color: var(--color-navy-2); }
+@media (max-width: 767px) {
+  .tsp-next-eyebrow { font-size: 11px; }
+  .tsp-next-line { font-size: 14px; }
+  .tsp-next-h, .tsp-next-line, .tsp-next-eyebrow { text-shadow: 0 0 6px var(--tsp-bg-2), 0 0 2px var(--tsp-bg-2); } /* the line can sit on a hill crest on phones */
+}
 @media (hover: hover) { .tsp-next-link:hover .tsp-next-h { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; } }
 
 /* ── Motion: a restrained fade/rise per panel, only when JS is on and motion is allowed ───── */
