@@ -440,7 +440,7 @@ test("TASK-267: the video frame keeps 16:9 and grows into the side margins, as t
     expect(Math.abs(screen.width / screen.height - 16 / 9), `w${w}: the frame is the video's 16:9 (no letterbox)`).toBeLessThan(0.02);
     expect(await page.evaluate(() => document.documentElement.scrollWidth), `w${w}: no horizontal overflow`).toBeLessThanOrEqual(w);
     const feature = (await page.locator(".pf-showcase .pf-feature").boundingBox())!;
-    expect(feature.x, `w${w}: the window uses the side margins`).toBeLessThanOrEqual(25);
+    expect(feature.x, `w${w}: the window uses the side margins (TASK-291: 40 px, the paper frame bleeds 10 px beyond it)`).toBeLessThanOrEqual(41);
     if (w === 1680) {
       const stage = (await page.locator(".pf-showcase .pf-stage").boundingBox())!;
       const info = (await page.locator(".pf-showcase .pf-info").boundingBox())!;

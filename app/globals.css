@@ -19412,3 +19412,157 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
 }
 /* === end TASK-289 === */
+
+/* === TASK-291 (Tushar 2026-10-20): the window (video + card) and the tray fit one screen on desktop ===
+   >= 1024 px only. The window's height `--pf-fh` follows the viewport (viewport less header, the tray and the gaps); the video frame is
+   that tall and exactly as wide as 16:9 of its screen needs (never letterboxed), the card takes the rest and is the same height.
+   The window's own box is the video-left .. card-right span: the tray has the same box, and both paper panels bleed `--pf-pad`
+   beyond it. Unlayered, after the TASK-217 / 267 / 274 rules it overrides. === */
+@media (min-width: 1024px) {
+  .pf-showcase {
+    --pf-pad: 10px;
+    --pf-sp: 12px;
+    --pf-gap: 20px;
+    --pf-tray-h: clamp(212px, 25.5svh, 250px);
+    --pf-rowgap: 18px;
+    --pf-card-min: 440px;
+    --pf-win: min(calc(100vw - 80px), 1760px);
+    --pf-room: calc(100svh - var(--header-h) - 8px - var(--pf-pad) - var(--pf-rowgap) - var(--pf-tray-h));
+    --pf-fh: clamp(
+      300px,
+      min(var(--pf-room), calc((var(--pf-win) - var(--pf-gap) - var(--pf-card-min) - 2 * var(--pf-sp)) * 9 / 16 + 2 * var(--pf-sp))),
+      720px
+    );
+    row-gap: var(--pf-rowgap);
+  }
+  .pf-showcase .pf-feature,
+  .pf-showcase .pf-carousel {
+    width: var(--pf-win);
+    margin-inline: calc((100% - var(--pf-win)) / 2);
+  }
+  .pf-showcase .pf-feature {
+    padding: 0;
+    gap: var(--pf-gap);
+  }
+  .pf-showcase .pf-feature::before {
+    inset: calc(9px - var(--pf-pad)) calc(-7px - var(--pf-pad)) calc(-11px - var(--pf-pad)) calc(7px - var(--pf-pad));
+  }
+  .pf-showcase .pf-feature::after {
+    inset: calc(-1 * var(--pf-pad));
+  }
+  .pf-showcase .pf-feature .pf-stage.paper-sheet {
+    padding: var(--pf-sp);
+    min-height: 0;
+  }
+  .pf-showcase .pf-feature .pf-stage-screen {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+  .pf-showcase .pf-carousel {
+    height: var(--pf-tray-h);
+    box-sizing: border-box;
+    padding: 0;
+    grid-template-areas: "prev track next";
+    grid-template-rows: auto;
+    align-content: start;
+  }
+  .pf-showcase .pf-carousel-tag {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    margin-top: 0;
+  }
+  .pf-showcase .pf-track {
+    padding-block: 14px 16px;
+  }
+  .pf-showcase .pf-carousel::before {
+    inset: 0 calc(-1 * var(--pf-pad));
+  }
+  /* the dash pager sits under the cards, their lifted selected card and its marker: its 44 px hit box hangs 6 px below the panel */
+  .pf-showcase .pf-pager {
+    position: absolute;
+    grid-area: auto;
+    inset: auto 0 -6px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-pager-dot {
+    pointer-events: auto;
+  }
+  .pf-showcase .pf-track {
+    --pf-thumb-w: clamp(150px, min(12.2vw, 18.4svh), 176px);
+  }
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    scale: 1.08;
+    translate: 0 -3px;
+  }
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-size: 15px;
+  }
+  /* the card is exactly the window's height: its spacing and control heights follow the viewport height so every product's card fits */
+  .pf-showcase .pf-info.pf-info.paper-sheet {
+    padding: clamp(6px, 1.1svh, 22px) clamp(16px, 1.5vw, 24px) 40px;
+  }
+  .pf-showcase .pf-info-name {
+    margin-top: clamp(2px, 0.7svh, 8px);
+  }
+  .pf-showcase .pf-info-name .pf-logo-img {
+    max-height: clamp(30px, 4.4svh, 48px);
+  }
+  .pf-showcase .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
+    max-height: clamp(40px, 6svh, 76px);
+  }
+  .pf-showcase .pf-info-tagline {
+    margin-top: 3px;
+  }
+  .pf-showcase .pf-info-desc {
+    margin-top: clamp(4px, 0.8svh, 10px);
+    font-size: 14.5px;
+    line-height: 1.35;
+    max-width: none;
+  }
+  .pf-showcase .pf-info-meta {
+    margin-top: clamp(5px, 1svh, 12px);
+  }
+  .pf-showcase .pf-action-set {
+    gap: clamp(6px, 1.1svh, 10px);
+    margin-top: clamp(4px, 1svh, 14px);
+  }
+  .pf-divider {
+    height: 12px;
+    margin-block: 0;
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+    min-height: 44px;
+    padding-block: 5px;
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    min-height: clamp(44px, 5.8svh, 62px);
+    padding-block: 6px;
+  }
+  @media (max-height: 880px) {
+    .pf-showcase .pf-divider {
+      display: none;
+    }
+  }
+  .pf-showcase .pf-star-note.pf-star-note {
+    margin-block: -8px -6px;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+}
+/* TASK-291: from 1240 px the window is one height (--pf-fh) for the video frame and the card, the frame as wide as its 16:9 needs.
+   Narrower (1024-1239) a card that tall would not fit beside a 16:9 frame in the 944 px window, so the TASK-267 layout stays: the
+   frame fills its column at 16:9, the card keeps its natural height, and only the tray's alignment and the compaction apply (1024 x 768 overshoots the viewport by about 30 px). */
+@media (min-width: 1240px) {
+  .pf-showcase .pf-feature {
+    align-items: stretch;
+    grid-template-columns: calc((var(--pf-fh) - 2 * var(--pf-sp)) * 16 / 9 + 2 * var(--pf-sp)) minmax(0, 1fr);
+    grid-template-rows: var(--pf-fh);
+  }
+  .pf-showcase .pf-feature .pf-stage.paper-sheet {
+    align-self: stretch;
+    display: block;
+  }
+}
+/* === end TASK-291 === */
