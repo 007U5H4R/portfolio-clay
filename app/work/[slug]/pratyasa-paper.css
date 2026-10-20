@@ -202,6 +202,14 @@
 .pra-gaps ul { display: grid; gap: 9px; margin-top: 10px; }
 .pra-gaps li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.45; color: var(--color-navy); }
 .pra-gaps li::before { content: "–"; position: absolute; left: 4px; color: var(--pra-accent-ink); font-weight: 700; }
+/* TASK-299: the Langmuir paper as a card in place of the stale Soft Matter DOI gap */
+.pra-gaps li.pra-paper { display: grid; gap: 6px; padding: 14px 16px; border-radius: 12px; background: var(--pra-card, color-mix(in oklab, var(--color-navy) 6%, transparent)); box-shadow: 0 0 0 1px color-mix(in oklab, var(--pra-accent) 30%, transparent); }
+.pra-gaps li.pra-paper::before { content: none; }
+.pra-paper-head { display: flex; align-items: center; gap: 10px; }
+.pra-paper-badge { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: color-mix(in oklab, var(--pra-accent) 18%, transparent); color: var(--pra-accent-ink); }
+.pra-paper-cite { font-weight: 700; color: var(--color-navy); }
+.pra-paper-title { font-style: italic; color: var(--color-navy-2); }
+.pra-paper-doi { display: inline-flex; align-items: center; gap: 4px; width: fit-content; min-height: 44px; color: var(--pra-accent-ink); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 
 /* ── Sticky navigator ─────────────────────────────────────────────────────────────────────── */
 .pra-nav {
