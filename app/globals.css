@@ -20209,3 +20209,373 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     }
   }
 }
+
+/* === TASK-303 (Tushar 2026-10-20): the desktop product card as an origami paper card ===
+   Every rule is under `.pf-paper`, a class ProductInfoPanel only emits while PAPER_CARD_ENABLED is true AND the vertical-carousel card
+   renders (>= 1024 px, `poster` passed), and the layout rules sit in a >= 1024 px query: flag false = the TASK-301 card exactly, and
+   the phone card never sees any of it. Tokens live on the two theme selectors; only colours differ between themes. === */
+:root {
+  --pc-terra: #c8432a;
+  --pc-terra-deep: #8e2a16;
+  --pc-terra-lit: #f0a05c;
+  --pc-paper: #f8f0e0;
+  --pc-paper-2: #f1e6d0;
+  --pc-ink: #1c2a45;
+  --pc-ink-soft: #52627e;
+  --pc-edge: rgb(200 67 42 / 0.45);
+  --pc-cta-ink: #fff6e6;
+  --pc-shadow: rgb(110 50 20 / 0.28);
+  --pc-pill-id-bg: #dbe4ee;
+  --pc-pill-id-ink: #25405f;
+  --pc-pill-status-bg: #dbe8d6;
+  --pc-pill-status-ink: #1f5030;
+  --pc-pill-state-bg: #f6dcc8;
+  --pc-pill-state-ink: #8a2e14;
+  --pc-dot: #b9c0cc;
+}
+[data-theme="dark"] {
+  --pc-terra: #d9532f;
+  --pc-terra-deep: #8a2814;
+  --pc-terra-lit: #f2a463;
+  --pc-paper: #1d2538;
+  --pc-paper-2: #273049;
+  --pc-ink: #f4e9d3;
+  --pc-ink-soft: #b3b7c4;
+  --pc-edge: rgb(217 83 47 / 0.6);
+  --pc-cta-ink: #fff3de;
+  --pc-shadow: rgb(4 8 20 / 0.55);
+  --pc-pill-id-bg: #2c3d5c;
+  --pc-pill-id-ink: #cfdcf2;
+  --pc-pill-status-bg: #26433a;
+  --pc-pill-status-ink: #bfe3cc;
+  --pc-pill-state-bg: #4d2a20;
+  --pc-pill-state-ink: #f6c9b0;
+  --pc-dot: #4a5670;
+}
+@media (min-width: 1024px) {
+  /* ---- the sheet: one paper, one thin terracotta outline (the under-sheet and face pseudo-layers are dropped) ---- */
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet {
+    border: 1.5px solid var(--pc-terra);
+    border-radius: 20px;
+    background-color: var(--pc-paper);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      0 1px 0 var(--pc-edge),
+      0 12px 18px -12px var(--pc-shadow);
+    color: var(--pc-ink);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet {
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 220 / 0.07),
+      0 12px 18px -12px var(--pc-shadow);
+  }
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet::before,
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet::after {
+    content: none;
+  }
+  /* the card sizes itself (5:7 grid cell), so it can be a size container: a short card gives up its description and a little poster height */
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet {
+    container: pcard / size;
+  }
+  .pf-paper .pf-info-head {
+    display: contents;
+  }
+  .pf-paper .pf-info-meta,
+  .pf-paper .pf-m-detail-tags,
+  .pf-paper .pf-divider {
+    display: none;
+  }
+  /* order: top row, identity, tagline, poster, pills, description, actions */
+  .pf-paper .pf-info-kicker { order: 1; }
+  .pf-paper .pf-info-name { order: 2; }
+  .pf-paper .pf-info-tagline { order: 3; }
+  .pf-paper .pf-info-poster { order: 4; }
+  .pf-paper .pf-pc-pills { order: 5; }
+  .pf-paper .pf-info-desc { order: 6; }
+  .pf-paper .pf-action-set { order: 7; }
+
+  /* ---- top row: 07 / 10 | CATEGORY ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-kicker {
+    min-height: 30px;
+    flex-wrap: nowrap;
+    gap: 0 6px;
+    padding-right: 90px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(10.5px, calc(var(--pf-vc-h) * 0.0235), 13px);
+    letter-spacing: 0.03em;
+    color: var(--pc-ink-soft);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-count {
+    flex: none;
+    color: var(--pc-terra);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
+    border-left-color: color-mix(in oklab, var(--pc-ink-soft) 45%, transparent);
+    padding-left: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  /* ---- the folded-paper arrows: no surface, a 44 px hit box around a ~28 px paper object ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-nav {
+    top: 4px;
+    right: 6px;
+    gap: 0;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    color: var(--pc-terra);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-arrow:hover,
+  .pf-showcase.pf-vcar .pf-paper .pf-info-arrow:active {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  .pf-paper .pf-info-arrow {
+    --oa-face: var(--pc-terra);
+    --oa-shade: var(--pc-terra-deep);
+    --oa-lit: var(--pc-terra-lit);
+    --oa-shadow: var(--pc-shadow);
+  }
+  .pf-paper .pf-info-arrow:focus-visible {
+    outline: 2px solid var(--pc-terra);
+    outline-offset: -2px;
+  }
+  .pf-paper .pf-info-arrow:disabled,
+  .pf-paper .pf-info-arrow[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) and (pointer: fine) {
+      .pf-paper .pf-info-arrow:hover .oa {
+        transform: translate(1px, -2px) rotate(-4deg);
+        filter: drop-shadow(3px 5px 2px var(--oa-shadow));
+      }
+    }
+    .pf-paper .pf-info-arrow:active .oa {
+      transform: translateY(1px);
+      filter: drop-shadow(1px 1px 1px var(--oa-shadow));
+    }
+  }
+  /* ---- identity ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-name {
+    margin-top: 2px;
+    color: var(--pc-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-name .pf-logo-img {
+    max-width: 100%;
+    max-height: clamp(24px, calc(var(--pf-vc-h) * 0.06), 36px);
+    width: auto;
+    height: auto;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-tagline {
+    margin-top: 1px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    color: var(--pc-terra);
+    font-size: clamp(0.82rem, calc(var(--pf-vc-h) * 0.03), 1.2rem);
+    line-height: 1.15;
+  }
+  /* ---- the poster: its own aspect ratio, never cropped, a thin terracotta border and a short shadow ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+    flex: none;
+    width: 100%;
+    margin-top: 4px;
+    container-type: normal;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+    position: relative;
+    inset: auto;
+    display: block;
+    box-sizing: content-box;
+    /* never wider than the card, never taller than its share of it: a taller poster is narrower (centred), never cropped */
+    width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.37 - 6px) * var(--pc-ar)));
+    margin-inline: auto;
+    aspect-ratio: var(--pc-ar);
+    border: 3px solid var(--pc-terra);
+    border-radius: 12px;
+    background: var(--pc-paper-2);
+    box-shadow: 0 5px 8px -5px var(--pc-shadow);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-poster-img {
+    object-fit: fill;
+    border-radius: 8px;
+  }
+  /* ---- pills: real id / status / state, mono caps ---- */
+  .pf-paper .pf-pc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-paper .pf-pc-pills li {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(9.5px, calc(var(--pf-vc-h) * 0.0205), 11.5px);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: var(--pc-pill-state-bg);
+    color: var(--pc-pill-state-ink);
+  }
+  .pf-paper .pf-pc-pills li[data-pill="id"] {
+    background: var(--pc-pill-id-bg);
+    color: var(--pc-pill-id-ink);
+  }
+  .pf-paper .pf-pc-pills li[data-pill="status"] {
+    background: var(--pc-pill-status-bg);
+    color: var(--pc-pill-status-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+    flex: none;
+    margin-top: 3px;
+    font-family: var(--font-body);
+    color: var(--pc-ink);
+    font-size: clamp(11px, calc(var(--pf-vc-h) * 0.0245), 14px);
+    line-height: 1.3;
+    max-width: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+  }
+  /* one line where the card is short; two where the window has the room (the full text is the title) */
+  @media (min-width: 1800px) and (min-height: 1000px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      -webkit-line-clamp: 2;
+    }
+  }
+  /* ---- actions ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+    margin-top: auto;
+    padding-top: 0;
+    gap: 5px;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action {
+    border: 1px solid color-mix(in oklab, var(--pc-terra) 70%, transparent);
+    border-radius: 12px;
+    background-color: var(--pc-paper-2);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    color: var(--pc-ink);
+    box-shadow: 0 2px 3px -1px var(--pc-shadow);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action {
+    background-color: #2b3550;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"] .pf-action-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--pc-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"]:hover,
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"]:focus-visible {
+    border-color: var(--pc-terra);
+    background-color: var(--pc-paper-2);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"][aria-pressed="true"] {
+    background-color: color-mix(in oklab, var(--pc-terra) 14%, var(--pc-paper-2));
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    border: 0;
+    border-radius: 12px;
+    background-color: var(--pc-terra);
+    background-image: var(--pf-fibers);
+    color: var(--pc-cta-ink);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      inset 0 -2px 0 var(--pc-terra-deep),
+      0 5px 8px -4px var(--pc-shadow);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:hover,
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:focus-visible {
+    background-color: color-mix(in oklab, var(--pc-terra) 88%, #ffb070);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--pc-cta-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-arrow {
+    color: var(--pc-cta-ink);
+  }
+  .pf-paper .pf-action:focus-visible {
+    outline: 2px solid var(--pc-ink);
+    outline-offset: 2px;
+  }
+  .pf-showcase.pf-vcar .pf-info.pf-paper .pf-info-pager {
+    inset: auto 0 -8px;
+  }
+  @container pcard (max-height: 412px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      display: none;
+    }
+    /* four pills (id + a three-part status) must still share one row in the narrow card */
+    .pf-paper .pf-pc-pills {
+      flex-wrap: nowrap;
+      gap: 3px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 2px 5px;
+      font-size: 9px;
+      letter-spacing: 0.02em;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.335 - 6px) * var(--pc-ar)));
+    }
+  }
+  /* ---- pagination: a terracotta active pill, slate inactive pills ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-dot::before {
+    background: var(--pc-dot);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-dot[aria-current="true"]::before {
+    background: var(--pc-terra);
+  }
+}
+/* === end TASK-303 === */
+
+/* OrigamiArrow (TASK-303; reused by TASK-305): purely visual folded-paper arrow, three facets + cast shadow. The caller's button owns the hit area. */
+.oa {
+  --oa-face: #c8432a;
+  --oa-shade: #8e2a16;
+  --oa-lit: #f0a05c;
+  --oa-shadow: rgb(110 50 20 / 0.28);
+  display: block;
+  width: var(--oa-size, 28px);
+  height: var(--oa-size, 28px);
+  filter: drop-shadow(2px 3px 1.5px var(--oa-shadow));
+  pointer-events: none;
+}
+.oa svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.oa[data-dir="left"] svg { transform: scaleX(-1); }
+.oa[data-dir="down"] svg { transform: rotate(90deg); }
+.oa[data-dir="up"] svg { transform: rotate(-90deg); }
+.oa-face { fill: var(--oa-face); }
+.oa-shade { fill: var(--oa-shade); }
+.oa-lit { fill: var(--oa-lit); }
+@media (prefers-reduced-motion: no-preference) {
+  .oa {
+    transition: transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1), filter 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+}
+/* end OrigamiArrow */
