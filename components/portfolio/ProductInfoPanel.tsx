@@ -1,10 +1,11 @@
 "use client";
 
 import { NewTabHint } from "@/components/common/NewTabHint";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Sheet } from "@/components/paper";
-import { stepIndex, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
+import { stepIndex, type CoverArt, type MediaMode, type PortfolioProduct } from "@/lib/portfolio";
 import { ACTION_ICON, type ActionIcon } from "./action-icons";
 import { PhoneActions, PhoneOutcomes, PhoneTags } from "./PhoneDetail";
 import { ProductLogo } from "./ProductLogo";
@@ -28,6 +29,8 @@ export interface ProductInfoPanelProps {
    * put back on it after the card remounts for the next product.
    */
   nav?: { products: readonly PortfolioProduct[]; onNavigate: (id: string, key: string) => void } | undefined;
+  /** TASK-301: the vertical-carousel card shows this product's cover art between the text and the actions. Omitted = not rendered. */
+  poster?: CoverArt | undefined;
 }
 
 type ExternalKind = "product" | "github" | "prd";
@@ -63,7 +66,7 @@ function StripBody({ icon: Icon, label, external }: { icon: ActionIcon | typeof 
  * tab. An action with nothing behind it is not rendered at all (no disabled dead buttons). The case
  * study link ("Explore the build", spec §4) keeps the recruiter hop to `/work/<slug>` (EVAL-002).
  */
-export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch, nav }: ProductInfoPanelProps) {
+export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch, nav, poster }: ProductInfoPanelProps) {
   const externals: { kind: ExternalKind; href: string }[] = [];
   if (product.productUrl) externals.push({ kind: "product", href: product.productUrl });
   if (product.githubUrl) externals.push({ kind: "github", href: product.githubUrl });
@@ -138,6 +141,13 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       <p className="pf-info-tagline">{product.tagline}</p>
       <p className="pf-info-desc">{product.description}</p>
       </div>
+      {poster ? (
+        <span className="pf-info-poster" aria-hidden="true" data-poster={poster.src}>
+          <span className="pf-info-poster-frame">
+            <Image src={poster.src} alt="" fill sizes="(min-width: 1024px) 440px, 0px" decoding="async" loading="lazy" unoptimized={poster.src.endsWith(".svg")} className="pf-info-poster-img" />
+          </span>
+        </span>
+      ) : null}
       <div className="pf-action-set" data-odd={actionCount % 2 === 1 ? "" : undefined}>
       <StarDivider slot="top" />
       <ul className="pf-actions" aria-label={`${product.name} actions`}>
@@ -183,7 +193,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         <ArrowRight className="pf-action-arrow" aria-hidden="true" focusable="false" strokeWidth={1.75} />
       </Link>
       {/* TASK-252 (Tushar 2026-10-18): a subtle star nudge, only where the GitHub strip shows */}
-      {product.githubUrl ? (
+      {product.githubUrl && !poster ? (
         <>
           <StarDivider slot="foot" />
           <StarNote name={product.name} href={product.githubUrl} />

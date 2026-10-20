@@ -19961,7 +19961,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     height: var(--pf-vc-h);
     box-sizing: border-box;
     justify-content: flex-start;
-    padding: 4px 14px 38px;
+    padding: 4px 14px 36px;
   }
   /* the card's content, restacked for a narrow portrait sheet; sizes follow the card's height so every product fits */
   .pf-showcase.pf-vcar .pf-info-kicker {
@@ -19987,7 +19987,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     overflow-wrap: anywhere;
   }
   .pf-showcase.pf-vcar .pf-info-name {
-    margin-top: 4px;
+    margin-top: 2px;
   }
   .pf-showcase.pf-vcar .pf-info-name .pf-logo-img {
     max-height: clamp(26px, calc(var(--pf-vc-h) * 0.07), 40px);
@@ -20001,7 +20001,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     line-height: 1.2;
   }
   .pf-showcase.pf-vcar .pf-info-desc {
-    margin-top: 3px;
+    margin-top: 1px;
     font-size: clamp(11.5px, calc(var(--pf-vc-h) * 0.027), 17px);
     line-height: 1.25;
   }
@@ -20009,6 +20009,35 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     margin-top: auto;
     gap: 6px;
     padding-top: 0;
+  }
+  /* the cover art fills the card's free middle; the text stays on top and the actions stay pinned to the bottom */
+  .pf-showcase.pf-vcar .pf-info-poster {
+    position: relative;
+    display: block;
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+  }
+  .pf-showcase.pf-vcar .pf-info-poster-frame {
+    position: absolute;
+    inset: 6px 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--color-paper-2, #ece4d3);
+    box-shadow:
+      inset 0 0 0 1px var(--ps-edge, rgba(0, 0, 0, 0.12)),
+      0 1px 0 var(--ps-hi, rgba(255, 255, 255, 0.5)),
+      0 6px 10px -6px var(--ps-drop-soft, rgba(60, 40, 20, 0.35));
+  }
+  /* too little room: drop the art rather than squash it */
+  @container (max-height: 56px) {
+    .pf-showcase.pf-vcar .pf-info-poster-frame {
+      display: none;
+    }
+  }
+  .pf-showcase.pf-vcar .pf-info-poster-img {
+    object-fit: cover;
+    object-position: 50% 50%;
   }
   .pf-showcase.pf-vcar .pf-divider {
     display: none;
@@ -20025,7 +20054,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     line-height: 1.1;
   }
   .pf-showcase.pf-vcar .pf-info-pager {
-    inset: auto 0 -6px;
+    inset: auto 0 -8px;
   }
   .pf-showcase.pf-vcar .pf-info-dot {
     flex: none;
@@ -20033,7 +20062,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   /* the 2 x 2 link grid keeps whole labels in a ~120 px cell, the primary bar too */
   .pf-showcase.pf-vcar .pf-action-set {
-    gap: 5px;
+    gap: 4px;
   }
   .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
     grid-template-columns: 16px minmax(0, 1fr);

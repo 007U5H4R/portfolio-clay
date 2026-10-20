@@ -48,6 +48,12 @@ test.beforeEach(({ page }) => {
   test.skip(width(page) < 640, "a phone renders the TASK-210 list / detail, not the showcase");
 });
 
+test("TASK-301: with the vertical carousel off, the GitHub star note stays on the card", async ({ page }) => {
+  test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "the flag-on card drops the star note (vertical-carousel.spec.ts)");
+  await open(page, "teachspark");
+  await expect(panel(page).locator(".pf-action-set .pf-star-note")).toHaveCount(1);
+});
+
 test("the window sits above a tray of the same width, the poster left of the info panel", async ({ page }) => {
   test.skip(VERTICAL_CAROUSEL_ENABLED && width(page) >= 1024, "TASK-301 experiment: from 1024 up the vertical-carousel layout replaces this one (vertical-carousel.spec.ts); with the flag off this runs");
   await open(page);
