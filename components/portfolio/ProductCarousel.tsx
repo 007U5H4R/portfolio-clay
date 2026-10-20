@@ -6,6 +6,8 @@ import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react"
 import { stepIndex, type PortfolioProduct } from "@/lib/portfolio";
 import { useDesktop } from "./use-desktop";
 import { VERTICAL_CAROUSEL_ENABLED } from "./vertical-carousel-flag";
+import { PAPER_SELECTOR_ENABLED } from "./paper-selector-flag";
+import { OrigamiArrow } from "./OrigamiArrow";
 
 export interface ProductCarouselProps {
   products: readonly PortfolioProduct[];
@@ -37,6 +39,8 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
   const desktop = useDesktop();
   // TASK-301: the experiment — a vertical tray at desktop width (same loop, on the y axis)
   const vertical = VERTICAL_CAROUSEL_ENABLED && desktop;
+  // TASK-305: the origami paper selector skin of the vertical tray (desktop only)
+  const paper = vertical && PAPER_SELECTOR_ENABLED;
   const activeIndex = Math.max(
     0,
     products.findIndex((product) => product.id === activeId),
@@ -162,13 +166,13 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
   };
 
   return (
-    <div className="pf-carousel" data-vertical={vertical ? "" : undefined}>
+    <div className="pf-carousel" data-vertical={vertical ? "" : undefined} data-paper-selector={paper ? "" : undefined}>
       <div className="pf-carousel-tag">
         <p id="pf-select" className="pf-select">
           Select a product
         </p>
         <p className="pf-count">
-          {desktop ? String(activeIndex + 1).padStart(2, "0") : activeIndex + 1} / {desktop ? String(products.length).padStart(2, "0") : products.length}
+          {paper ? <span className="ps-cur">{String(activeIndex + 1).padStart(2, "0")}</span> : desktop ? String(activeIndex + 1).padStart(2, "0") : activeIndex + 1} / {desktop ? String(products.length).padStart(2, "0") : products.length}
         </p>
       </div>
       {/* the announced position (TASK-197): "Railcite, 2 of 13" is read out whenever the selection changes */}
@@ -176,7 +180,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         {products[activeIndex]?.name}, {activeIndex + 1} of {products.length}
       </p>
       <button type="button" className="pf-arrow focus-ring" data-dir="prev" aria-label="Previous product" onClick={() => step(-1, "arrow")}>
-        {vertical ? <ChevronUp aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />}
+        {paper ? <OrigamiArrow direction="up" /> : vertical ? <ChevronUp aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronLeft aria-hidden="true" focusable="false" strokeWidth={2} />}
       </button>
       <div
         ref={trackRef}
@@ -233,10 +237,14 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
         })}
       </div>
       <button type="button" className="pf-arrow focus-ring" data-dir="next" aria-label="Next product" onClick={() => step(1, "arrow")}>
-        {vertical ? <ChevronDown aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />}
+        {paper ? <OrigamiArrow direction="down" /> : vertical ? <ChevronDown aria-hidden="true" focusable="false" strokeWidth={2} /> : <ChevronRight aria-hidden="true" focusable="false" strokeWidth={2} />}
       </button>
       {/* TASK-301: a small pointer from the selected (always centred) card toward the video */}
-      {vertical ? <span className="pf-vcar-pointer" aria-hidden="true" /> : null}
+      {vertical ? (
+        <span className="pf-vcar-pointer" aria-hidden="true">
+          {paper ? <OrigamiArrow direction="right" /> : null}
+        </span>
+      ) : null}
       {desktop && !vertical ? (
         <div className="pf-pager" role="group" aria-label="Choose a product">
           {products.map((product, index) => (
