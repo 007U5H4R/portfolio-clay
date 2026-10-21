@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
+import "./styles/home__work-slug.css";
+import "./styles/home.css";
+import "./styles/home__projects.css";
+import "./styles/home__projects__work-slug.css";
+import "./styles/about__home.css";
 import { Hero } from "@/components/hero/Hero";
 import { HomeAskTushky } from "@/components/ai/HomeAskTushky";
 import { AwardsSection, CredentialsSection, SelectedWorkSection } from "@/components/home/HomeSections";

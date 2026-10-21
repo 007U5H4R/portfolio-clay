@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "../styles/work.css";
+import "../styles/about__work.css";
 import { CollageTimeline, type TimelineEntry, type TimelineTone } from "@/components/experience/CollageTimeline";
 import { EDU_DOODLES, WORK_DOODLES } from "@/components/experience/Doodles";
 import { ORG_LOGOS } from "@/components/experience/logos";

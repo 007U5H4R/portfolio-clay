@@ -1,0 +1,13 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: certifications, thinking. */
+
+@media (prefers-reduced-motion: reduce) {
+  :root .essay-entry-title,
+  :root .essay-num,
+  :root .essay-entry-arrow,
+  :root .cert-paper-shade,
+  :root .certm-tile,
+  :root .certm-tile::after {
+    transition: none;
+  }
+}

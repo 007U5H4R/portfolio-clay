@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import "../styles/home__projects.css";
+import "../styles/projects.css";
+import "../styles/home__projects__work-slug.css";
 import { Container } from "@/components/layout/Container";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { EnterpriseClientWork } from "@/components/portfolio/EnterpriseClientWork";

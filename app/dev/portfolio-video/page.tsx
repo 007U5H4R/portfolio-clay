@@ -1,4 +1,7 @@
 import { Container } from "@/components/layout/Container";
+import "../../styles/home__projects.css";
+import "../../styles/projects.css";
+import "../../styles/home__projects__work-slug.css";
 import { devOnly } from "@/lib/dev-only";
 import { IndependentProductsShowcase } from "@/components/portfolio/IndependentProductsShowcase";
 import { portfolioEntries } from "@/data/portfolio";

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "../../styles/thinking__thinking-slug.css";
+import "../../styles/thinking-slug.css";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { SceneOpener } from "@/components/paper/SceneOpener";

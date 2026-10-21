@@ -1,0 +1,43 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: thinking, thinking/[slug]. */
+
+@layer components {
+  .thinking-eyebrow,
+  .essay-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .essay-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+  .essay-meta-rel {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 500;
+    color: var(--color-navy);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 3px;
+  }
+  .essay-meta-rel:hover {
+    color: var(--color-rust);
+    text-decoration-color: currentColor;
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .essay-entry-title a,
+    .essay-pager-title {
+      transition: none;
+    }
+  }
+}

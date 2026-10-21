@@ -1,4 +1,6 @@
 import { devOnly } from "@/lib/dev-only";
+import "../../styles/home__projects.css";
+import "../../styles/home__projects__work-slug.css";
 import { ProductMediaPlayer } from "@/components/portfolio/ProductMediaPlayer";
 import { FIXTURE_PITCH } from "./fixtures";
 

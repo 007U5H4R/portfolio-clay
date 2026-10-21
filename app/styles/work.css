@@ -1,0 +1,1525 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: work. */
+
+@layer components {
+  .about-h2 {
+    margin-top: 10px;
+    font-size: clamp(40px, 4.6vw, 64px);
+    color: var(--color-navy);
+  }
+  .acap {
+    position: relative;
+    z-index: 2;
+    margin-top: -44px;
+    background: linear-gradient(180deg, transparent 44px, var(--color-paper) 44px);
+  }
+  .acap-wrap {
+    padding-block: clamp(56px, 7vw, 100px) clamp(72px, 8vw, 120px);
+  }
+}
+/* end TKT-102 */
+
+/* TKT-101 · /work Experience — Work Experience + Education collage timelines (Tushar direction 2026-09-26,
+   docs/redesign-mockups/m-009/tushar-2026-09-26/work-experience-target.png + education-target.png;
+   Design.md §7.2, §11 Dev-90…45). `components/experience/CollageTimeline.tsx` renders both sections.
+   Same visual vocabulary as TKT-99 (`.hit-*`) / TKT-100 (`.aj-*`): seeded deckled card edges (two
+   clip-path layers), a torn strip under the hand-lettered title, tinted highlighter blobs, taped paper,
+   ONE collage object per section. The Education sheet (paper-2, torn top) slides over the Work section
+   on scroll — the TKT-96 mechanism (CSS scroll-driven, `@supports`, off under reduced motion).
+   Paper tokens / `color-mix` only (EVAL-020). */
+@keyframes xp-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 50vh;
+  }
+}
+
+@layer components {
+  .xp {
+    overflow-x: clip; /* doodles and title sparks bleed past the container; never a horizontal scroll */
+  }
+  .ct {
+    position: relative;
+    --when-w: 250px;
+    --rail-w: 56px;
+    --side-w: 196px;
+    --ct-ink: color-mix(in oklab, var(--color-navy-2) 78%, transparent);
+  }
+  .xp-work {
+    z-index: 0;
+    padding-block: clamp(28px, 4vw, 56px) clamp(96px, 9vw, 140px);
+  }
+  .xp-edu {
+    z-index: 1;
+    padding-block: clamp(20px, 3vw, 40px) clamp(72px, 8vw, 120px);
+    background: var(--color-paper-2);
+  }
+  .xp-edu > .ct-torn {
+    position: absolute;
+    top: -43px;
+    left: 0;
+  }
+
+  /* ---- head: torn yellow title strip (decoration; the real h2 is sr-only) ---- */
+  .ct-head {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    margin-bottom: clamp(24px, 3vw, 44px);
+  }
+  .ct-title {
+    position: relative;
+    isolation: isolate;
+    justify-self: start;
+    max-width: min(560px, 100%);
+    margin: 0;
+    padding: 18px 44px 24px 34px;
+    font-size: clamp(56px, 7.2vw, 104px);
+    font-weight: 600;
+    line-height: 0.86;
+    color: var(--color-navy);
+    rotate: -2deg;
+  }
+  .ct-title-strip {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--color-kraft) 30%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
+      linear-gradient(172deg, color-mix(in oklab, var(--color-note) 86%, var(--color-rust)), color-mix(in oklab, var(--color-note) 80%, var(--color-kraft)));
+    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
+  }
+  .ct-title-text {
+    display: block;
+  }
+  .ct-title-sparks {
+    position: absolute;
+    top: -26px;
+    right: -34px;
+    width: 58px;
+    height: 40px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-navy);
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    scale: -1 1;
+  }
+
+  /* ---- the grid: the list and the collage share rows through subgrid ---- */
+  .ct-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(36px, 4vw, 56px);
+  }
+  .ct-list,
+  .ct-collage {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    display: grid;
+    grid-template-rows: subgrid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ct-list {
+    position: relative;
+    z-index: 1;
+  }
+  .ct-collage {
+    z-index: 0;
+    pointer-events: none;
+  }
+  .ct-row {
+    position: relative;
+  }
+  /* the dashed rail + arrow head (≥ 768) */
+  .ct-list::before,
+  .ct-list::after {
+    content: "";
+    position: absolute;
+    left: calc(var(--when-w) + var(--rail-w) / 2 - 1px);
+    pointer-events: none;
+  }
+  .ct-list::before {
+    top: 8px;
+    bottom: 6px;
+    border-left: 2px dashed var(--ct-ink);
+  }
+  .ct-list::after {
+    bottom: 2px;
+    width: 12px;
+    height: 12px;
+    margin-left: -5px;
+    border-right: 2px solid var(--ct-ink);
+    border-bottom: 2px solid var(--ct-ink);
+    rotate: 45deg;
+  }
+
+  /* ---- one entry ---- */
+  .ct-item {
+    --pin: var(--color-rust);
+    --blob: color-mix(in oklab, var(--color-green-2) 26%, var(--color-ivory));
+    --stroke: color-mix(in oklab, var(--color-steel) 60%, var(--color-ivory));
+    --dot: var(--color-navy-2);
+    display: grid;
+    grid-template-columns: var(--when-w) var(--rail-w) minmax(0, 1fr) var(--side-w);
+    align-items: start;
+  }
+  .ct-item[data-tone="steel"] {
+    --pin: var(--color-steel);
+    --blob: color-mix(in oklab, var(--color-steel) 30%, var(--color-ivory));
+    --stroke: color-mix(in oklab, var(--color-rust) 42%, var(--color-note));
+    --dot: var(--color-rust);
+  }
+  .ct-item[data-tone="green"] {
+    --pin: var(--color-green-2);
+    --blob: color-mix(in oklab, var(--color-green-2) 36%, var(--color-ivory));
+    --stroke: color-mix(in oklab, var(--color-green-2) 55%, var(--color-ivory));
+    --dot: var(--color-green-2);
+  }
+  .ct-item[data-tone="rose"] {
+    --pin: var(--color-rust);
+    --blob: color-mix(in oklab, var(--color-rust) 24%, var(--color-ivory));
+    --stroke: color-mix(in oklab, var(--color-rust) 58%, var(--color-ivory));
+    --dot: var(--color-rust);
+  }
+  .ct-item[data-tone="sage"] {
+    --pin: var(--color-rust);
+    --blob: color-mix(in oklab, var(--color-green-2) 26%, var(--color-ivory));
+    --stroke: color-mix(in oklab, var(--color-green-2) 50%, var(--color-ivory));
+    --dot: var(--color-green-2);
+  }
+  .ct-item[data-tone="blue"] {
+    --pin: var(--color-steel);
+    --blob: color-mix(in oklab, var(--color-steel) 30%, var(--color-ivory));
+    --stroke: color-mix(in oklab, var(--color-rust) 45%, var(--color-ivory));
+    --dot: var(--color-rust);
+  }
+
+  .ct-when {
+    grid-column: 1;
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    padding-right: 12px;
+  }
+  /* the tinted date blob (Fraunces italic — dates are data, never Caveat: §3.4) */
+  .ct-date {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 0 8px;
+    padding: 14px 22px 15px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-navy);
+    background: var(--blob);
+    border-radius: 46% 54% 50% 50% / 58% 48% 52% 42%;
+    rotate: -4deg;
+  }
+  .ct-date-text {
+    max-width: 5.4em; /* "Jun 2026 –" / "Present" on two lines, as the reference */
+  }
+  .ct-date-arrow {
+    position: absolute;
+    top: 6px;
+    right: -52px;
+    width: 46px;
+    height: 26px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-navy);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    rotate: 6deg;
+  }
+  .ct-logo-type {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-align: center;
+    color: var(--color-navy);
+  }
+  .ct-pin {
+    grid-column: 2;
+    justify-self: center;
+    width: 30px;
+    height: 30px;
+    margin-top: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--pin) 0 9px, var(--color-ivory) 10px);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-navy) 22%, transparent),
+      0 2px 4px color-mix(in oklab, var(--shadow-ink) 22%, transparent);
+  }
+  .ct-paper {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
+      drop-shadow(0 10px 12px color-mix(in oklab, var(--shadow-ink) 13%, transparent));
+  }
+  .ct-paper-rim,
+  .ct-paper-face {
+    position: absolute;
+    inset: 0;
+  }
+  /* TASK-201: the hover shadow layer — fades in by opacity only (no transitioned shadow or filter) */
+  .ct-paper-lift {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent))
+      drop-shadow(0 18px 20px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+    transition: opacity var(--dur-l2-out) var(--ease-paper);
+  }
+  .ct-paper-lift > i {
+    position: absolute;
+    inset: 0;
+    background: var(--color-ivory);
+  }
+  .ct-pin {
+    transition: translate 180ms var(--ease-paper);
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .ct-item:hover .ct-paper-lift {
+      opacity: 1;
+      transition-duration: var(--dur-l2);
+    }
+  }
+  .ct-item:focus-within:has(:focus-visible) .ct-paper-lift {
+    opacity: 1;
+    transition-duration: var(--dur-l2);
+  }
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .ct-item:hover .ct-card.paper-sheet {
+      translate: 0 -3px;
+      transition-duration: var(--dur-l2);
+    }
+    .ct-item:hover .ct-pin {
+      translate: 0 1px;
+    }
+    .ct-item:nth-child(odd):hover .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) + 0.6deg);
+    }
+    .ct-item:nth-child(even):hover .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) - 0.6deg);
+    }
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .ct-item:focus-within:has(:focus-visible) .ct-card.paper-sheet {
+      translate: 0 -3px;
+      transition-duration: var(--dur-l2);
+    }
+    .ct-item:focus-within:has(:focus-visible) .ct-pin {
+      translate: 0 1px;
+    }
+    .ct-item:nth-child(odd):focus-within:has(:focus-visible) .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) + 0.6deg);
+    }
+    .ct-item:nth-child(even):focus-within:has(:focus-visible) .ct-logo.paper-sheet {
+      rotate: calc(var(--rot, 0deg) - 0.6deg);
+    }
+  }
+  .ct-paper-rim {
+    background: var(--color-ivory);
+  }
+  .ct-paper-face {
+    background:
+      radial-gradient(circle at 20% 30%, color-mix(in oklab, var(--color-kraft) 12%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
+      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--color-navy) 3%, transparent) 0 1px, transparent 1.5px) 0 0 / 13px 7px,
+      linear-gradient(170deg, color-mix(in oklab, var(--color-ivory) 88%, var(--color-kraft)), color-mix(in oklab, var(--color-ivory) 76%, var(--color-kraft)));
+  }
+  .ct-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+  .ct-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(24px, 2.3vw, 32px);
+    font-weight: 650;
+    line-height: 1.1;
+    color: var(--color-navy);
+  }
+  .ct-name-note {
+    font-size: 0.72em;
+    font-weight: 600;
+  }
+  .ct-city {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 7px 14px 8px 12px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--color-navy);
+    background: color-mix(in oklab, var(--color-note) 70%, var(--color-ivory));
+    box-shadow: 0 2px 4px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
+    rotate: 1.2deg;
+  }
+  .ct-city-pin {
+    width: 11px;
+    height: 15px;
+    fill: var(--color-navy);
+    fill-rule: evenodd;
+  }
+  .ct-role {
+    justify-self: start;
+    margin: 0 0 6px;
+    padding-bottom: 5px;
+    font-family: var(--font-display);
+    font-size: clamp(18px, 1.6vw, 21px);
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--color-navy-2);
+    background: linear-gradient(var(--stroke), var(--stroke)) 0 100% / 100% 5px no-repeat;
+    border-radius: 0 0 4px 2px;
+  }
+  .ct-bullets,
+  .ct-outcomes-list {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ct-bullets li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .ct-bullets li::before {
+    content: "";
+    position: absolute;
+    top: 0.62em;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dot);
+  }
+  .ct-outcomes {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .ct-outcomes-label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .ct-outcomes-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ct-outcomes-list li {
+    padding: 5px 11px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--color-navy);
+    background: color-mix(in oklab, var(--blob) 70%, var(--color-ivory));
+    border-radius: 3px;
+  }
+
+  /* ---- the collage (one aria-hidden object): the building / campus vignette behind each logo card
+     (the logo overlaps its lower-left, as in the reference), doodles + stickies on the right ---- */
+  .ct-vignette {
+    position: absolute;
+    top: 46px;
+    left: 34px;
+    width: calc(var(--when-w) - 30px);
+    height: auto;
+  }
+  .ct-when .ct-logo.paper-sheet {
+    margin-top: clamp(40px, 5vw, 76px);
+  }
+  .ct-ln {
+    fill: none;
+    stroke: var(--ct-ink);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ct-doodles {
+    position: absolute;
+    top: 6px;
+    right: -6px;
+    width: calc(var(--side-w) - 12px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .ct-dd-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .ct-dd-col {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+  .ct-dd {
+    display: block;
+    overflow: visible;
+    height: auto;
+  }
+  .ct-cloud { width: 132px; }
+  .ct-db { width: 44px; }
+  .ct-curve { width: 30px; }
+  .ct-gears { width: 74px; }
+  .ct-flow { width: 58px; }
+  .ct-api { width: 50px; }
+  .ct-bulb { width: 70px; }
+  .ct-atom { width: 84px; }
+  .ct-scope { width: 56px; }
+  .ct-net { width: 70px; }
+  .ct-dd-text {
+    font-family: var(--font-hand);
+    font-size: 22px;
+    font-weight: 600;
+    fill: var(--color-navy);
+  }
+  .ct-dd-small {
+    font-size: 17px;
+  }
+  .ct-bulb path {
+    fill: none;
+    stroke: var(--color-navy-2);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ct-bulb path:first-child {
+    fill: color-mix(in oklab, var(--color-note) 70%, transparent);
+  }
+  .ct-bulb .ct-bulb-rays {
+    stroke: var(--color-rust);
+  }
+  .ct-atom-core {
+    fill: var(--color-rust);
+  }
+  .ct-node {
+    fill: var(--color-ivory);
+    stroke: var(--ct-ink);
+    stroke-width: 1.6;
+  }
+  .ct-rays {
+    width: 34px;
+    height: 34px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+  .ct-rays-tr {
+    position: absolute;
+    top: -14px;
+    right: 2px;
+    scale: -1 1;
+  }
+  .ct-mark {
+    display: block;
+    height: auto;
+  }
+  .ct-mark[data-mark="aws"] { width: 124px; }
+  .ct-mark[data-mark="googleCloud"] { width: 158px; margin-block: 6px; }
+  .ct-mark[data-mark="googleCloud"].pa-dark { width: 100px; } /* TASK-208: the white mark is stacked, not a strip */
+  .ct-sticky {
+    display: grid;
+    justify-items: start;
+    padding: 12px 16px 16px 14px;
+    font-family: var(--font-hand);
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.02;
+    color: var(--color-navy);
+    background: color-mix(in oklab, var(--color-note) 92%, var(--color-ivory));
+    box-shadow: 0 6px 10px -4px color-mix(in oklab, var(--color-navy) 28%, transparent);
+  }
+  .ct-sticky[data-tone="sage"] { background: color-mix(in oklab, var(--color-green-2) 30%, var(--color-ivory)); }
+  .ct-sticky[data-tone="rose"] { background: color-mix(in oklab, var(--color-rust) 26%, var(--color-ivory)); }
+  .ct-sticky[data-tone="blue"] { background: color-mix(in oklab, var(--color-steel) 32%, var(--color-ivory)); }
+  .ct-doodles[data-k="nitc"],
+  .ct-doodles[data-k="bitd"] {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    align-items: center;
+    gap: 10px 6px;
+  }
+  .ct-doodles[data-k="nitc"] .ct-sticky,
+  .ct-doodles[data-k="bitd"] .ct-sticky {
+    font-size: 20px;
+  }
+
+@media (max-width: 1024px) {
+    .ct {
+      --when-w: 200px;
+      --rail-w: 44px;
+    }
+    .ct-item {
+      grid-template-columns: var(--when-w) var(--rail-w) minmax(0, 1fr);
+    }
+    .ct-collage [data-wide] {
+      display: none;
+    }
+  }
+
+@media (max-width: 767px) {
+    .ct-head {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+    .ct-title {
+      padding: 14px 30px 18px 22px;
+      font-size: clamp(48px, 13vw, 64px);
+    }
+    .ct-title-sparks {
+      right: -10px;
+      width: 44px;
+    }
+    .ct-list::before,
+    .ct-list::after,
+    .ct-pin {
+      display: none;
+    }
+    .ct-item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+    .ct-when {
+      grid-template-columns: auto auto;
+      align-items: center;
+      justify-content: start;
+      gap: 12px 44px;
+      padding: 0;
+    }
+    .ct-date {
+      font-size: 19px;
+    }
+    .ct-date-arrow {
+      right: -44px;
+      width: 38px;
+    }
+    .ct-when .ct-logo.paper-sheet {
+      width: 150px;
+      min-height: 104px;
+      margin-top: 0;
+      padding: 14px;
+    }
+    .ct-vignette {
+      display: none;
+    }
+    .ct-logo-type {
+      font-size: 19px;
+    }
+    .ct-bullets li {
+      font-size: 15px;
+    }
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+
+@supports (animation-timeline: view()) and (timeline-scope: --xp-edu) {
+      .xp {
+        timeline-scope: --xp-edu;
+      }
+      .xp-edu {
+        view-timeline: --xp-edu block;
+      }
+      .xp-work > .ct-wrap {
+        animation: xp-drift linear both;
+        animation-timeline: --xp-edu;
+        animation-range: entry 0% entry 100%;
+      }
+    }
+  }
+}
+/* end TKT-112 */
+/* TASK-114 · scene openers on /work and /certifications (Tushar 2026-09-27; Design.md §11 Dev-103/104). The
+   openers themselves need no new rules (SceneOpener + the TKT-96/103/107 blocks). `/work`'s sr-only h1 is the
+   first element after its opener, and `sr-only`'s −1 px margin would lift it 1 px into the banner; zero the
+   margin so the heading sits below the opener like every other tab's h1 (tests/e2e/scene-opener.spec.ts).
+   Unlayered on purpose: `sr-only` is a Tailwind utility, and the utilities layer outranks `components`. */
+.xp > h1.sr-only {
+  margin: 0;
+}
+
+@layer components {
+/* ---- /work: the "Scope & outcomes" disclosure on each role card (the record that left /about) ---- */
+  .ct-details {
+    position: relative;
+    margin-top: 12px;
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .ct-details-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-terracotta);
+    list-style: none;
+  }
+  .ct-details-summary::-webkit-details-marker {
+    display: none;
+  }
+  .ct-details-summary::before {
+    content: "+";
+    content: "+" / "";
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .ct-details[open] > .ct-details-summary::before {
+    content: "−";
+    content: "−" / "";
+  }
+  .ct-details-list {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 6px;
+  }
+  .ct-details-row {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 2px 14px;
+  }
+  .ct-details-row dt {
+    grid-row: span 8;
+    padding-top: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-green-2);
+  }
+  .ct-details-row dd {
+    grid-column: 2;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+
+@media (max-width: 639px) {
+    .ct-details-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .ct-details-row dt,
+    .ct-details-row dd {
+      grid-column: 1;
+      grid-row: auto;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .ct-list.ct-list::before {
+    width: 10px;
+    margin-left: -4px;
+    border-left: 0;
+    border-radius: 2px;
+    background: var(--mat-kraft);
+    box-shadow: var(--depth-side), var(--depth-1);
+  }
+}
+/* === end TASK-181.4 === */
+
+
+/* === TASK-216 === "What I Bring" paper-cut journey (components/experience/WhatIBringJourney.tsx; replaces TASK-187 / TASK-203).
+   One generated landscape (light + dark images swapped on <html data-theme>, so only the visible theme's image is fetched),
+   seven markers in percent of the image, a right-hand stage panel and a seven-stage track. All state keys off aria-selected /
+   aria-pressed / [data-active]. The landscape never animates; below 960 px it is panned to the active stage by one transform
+   transition. Colours are existing tokens only (EVAL-020). ===================================================================== */
+.wib-head {
+  margin-bottom: clamp(24px, 3.5vw, 48px);
+}
+.wib-statement {
+  margin-top: 12px;
+  max-width: 28ch;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.2;
+  color: var(--color-navy);
+}
+.wib-hint {
+  margin-top: 20px;
+  font-size: 15px;
+  color: var(--color-ink-soft);
+}
+.wibj {
+  position: relative;
+}
+.wibj-hint-l {
+  display: none;
+}
+.wibj-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+.wibj-left {
+  display: contents; /* mobile order: frame, track, then the panel */
+}
+.wibj-frame {
+  position: relative;
+  overflow: hidden;
+  --f: 1.8; /* the map is --f frames wide on small screens and is panned to the active stage */
+  aspect-ratio: 1 / 1;
+  border-radius: 4px 18px 4px 16px;
+  background: rgb(228 210 180); /* the landscape's own sky, so the headroom above it is seamless */
+  box-shadow: var(--depth-2);
+}
+.wibj-map {
+  position: relative;
+  width: calc(var(--f) * 100%);
+  margin-top: 46px;
+  transform: translateX(clamp(calc((1 - var(--f)) / var(--f) * 100%), calc((0.5 / var(--f) - var(--ax, 0.1)) * 100%), 0%));
+  transition: transform 320ms var(--ease-paper);
+}
+.wibj-land {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+.wibj-land-dark {
+  display: none;
+}
+
+@media (max-width: 959.98px) {
+  [data-theme="dark"] .wibj-frame {
+    background: rgb(16 38 63);
+  }
+}
+[data-theme="dark"] .wibj-land-light {
+  display: none;
+}
+[data-theme="dark"] .wibj-land-dark {
+  display: block;
+}
+
+/* markers: a numbered badge over a name pill; the pin's tip is the anchor point */
+.wibj-pin {
+  appearance: none;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 7px 7px 9px;
+  border: 0;
+  background: none;
+  color: var(--color-navy);
+  font: inherit;
+  cursor: pointer;
+  transform: translate(-50%, -100%);
+  transition: translate 200ms var(--ease-paper);
+}
+.wibj-pin::after {
+  content: "";
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--color-navy);
+}
+.wibj-pin-num {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--color-paper);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: var(--depth-2);
+}
+.wibj-pin-label {
+  display: none;
+  padding: 3px 10px;
+  border-radius: 3px 9px 3px 7px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.wibj-pin[data-on] {
+  z-index: 2;
+  translate: 0 -4px;
+}
+.wibj-pin[data-on] .wibj-pin-num {
+  background: var(--color-paper);
+  color: var(--color-navy);
+  box-shadow:
+    0 0 0 3px var(--color-terracotta),
+    var(--depth-2);
+}
+.wibj-pin[data-on] .wibj-pin-label {
+  display: block;
+  outline: 2px solid var(--color-terracotta);
+}
+.wibj-pin:focus-visible,
+.wibj-tab:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wibj-pin:hover .wibj-pin-label {
+    display: block;
+  }
+}
+
+/* the seven-stage track */
+.wibj-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.wibj-track::-webkit-scrollbar {
+  display: none;
+}
+.wibj-tab {
+  appearance: none;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+  border-radius: 4px 12px 4px 10px;
+  background: var(--mat-cream);
+  color: var(--color-navy);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  scroll-snap-align: center;
+  transition:
+    background-color 180ms var(--ease-paper),
+    color 180ms var(--ease-paper);
+}
+.wibj-tab-num {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--color-terracotta) 28%, var(--mat-cream));
+  color: var(--color-navy);
+  font-size: 13px;
+  font-weight: 700;
+}
+.wibj-tab[aria-selected="true"] {
+  border-color: var(--color-navy);
+  background: var(--color-navy);
+  color: var(--color-paper);
+  box-shadow: var(--depth-2);
+}
+.wibj-tab[aria-selected="true"] .wibj-tab-num {
+  background: var(--color-paper);
+  color: var(--color-navy);
+}
+
+/* the stage panel */
+.wibj-card {
+  position: relative;
+  padding: 18px 20px 22px;
+  border-radius: 4px 18px 4px 16px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  color: var(--color-navy);
+}
+.wibj-nav {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+.wibj-step {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in oklab, var(--color-navy) 28%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-navy);
+  cursor: pointer;
+}
+.wibj-panels {
+  display: grid;
+}
+.wibj-panel {
+  grid-area: 1 / 1;
+  display: none;
+  flex-direction: column;
+}
+.wibj-panel[data-active] {
+  display: flex;
+}
+.wibj-count {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--color-navy-2);
+}
+.wibj-title {
+  margin-top: 4px;
+  font-size: clamp(30px, 3vw, 38px);
+  line-height: 1.05;
+}
+.wibj-line {
+  margin-top: 8px;
+  font-family: var(--font-hand);
+  font-size: 26px;
+  line-height: 1.15;
+  color: var(--color-terracotta);
+}
+.wibj-text {
+  margin-top: 10px;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--color-navy-2);
+}
+.wib-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-caps li {
+  padding: 5px 13px;
+  border: 1px solid color-mix(in oklab, var(--color-navy) 26%, transparent);
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.wib-tools {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--color-navy-2);
+}
+.wib-tools-label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+}
+.wib-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-chip {
+  position: relative;
+  padding: 4px 12px;
+  border-radius: 3px 10px 3px 8px;
+  background: var(--mat-kraft);
+  color: var(--color-navy);
+  font-size: 14px;
+  cursor: default;
+  transition: translate 180ms var(--ease-paper);
+}
+.wib-chip-note {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 3;
+  padding: 3px 9px;
+  border-radius: 3px 8px 3px 6px;
+  background: var(--mat-cream);
+  box-shadow: var(--depth-2);
+  color: var(--color-terracotta);
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease-paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wib-chip:hover .wib-chip-note {
+    opacity: 1;
+  }
+}
+.wib-chip:focus-visible .wib-chip-note,
+.wib-chip[data-tap] .wib-chip-note {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .wib-chip:hover {
+    translate: 0 -2px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wib-chip:focus-visible {
+    translate: 0 -2px;
+  }
+}
+.wib-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wib-proof b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 600;
+}
+.wib-proof span,
+.wib-proof i {
+  display: block;
+  font-size: 14px;
+  font-style: normal;
+  color: var(--color-navy-2);
+}
+.wibj-art {
+  order: 99;
+  margin-top: 18px;
+  aspect-ratio: 880 / 663;
+  overflow: hidden;
+  border-radius: 3px 14px 3px 12px;
+  background: var(--color-paper-2);
+}
+
+@media (min-width: 600px) and (max-width: 959.98px) {
+  .wibj-frame {
+    --f: 1.25;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (min-width: 960px) {
+  .wibj-left {
+    display: block;
+  }
+  .wibj-frame {
+    overflow: visible;
+    aspect-ratio: 2048 / 1360;
+    margin-top: 40px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .wibj-map {
+    width: 100%;
+    margin-top: 0;
+    transform: none;
+    transition: none;
+  }
+  .wibj-land {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9%, #000 90%, transparent), linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 9%, #000 90%, transparent), linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .wibj-track {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    overflow: visible;
+    margin-top: 14px;
+    padding: 4px 0;
+  }
+  .wibj-pin-label {
+    display: block;
+  }
+  .wibj-tab {
+    flex-direction: row;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 4px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .wibj-tab-num {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+  /* the illustration always keeps its own 880:663 shape (never cropped); stacked panels cap its width */
+  .wibj-art {
+    max-width: 420px;
+  }
+  .wibj-hint-l {
+    display: none;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1279.98px) {
+  .wibj-grid {
+    gap: 28px;
+  }
+  .wibj-tab {
+    flex-direction: column;
+    gap: 3px;
+    font-size: 12.5px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .wibj-grid {
+    grid-template-columns: minmax(0, 17fr) minmax(0, 8fr);
+    gap: 28px;
+    align-items: stretch;
+  }
+  .wibj-left {
+    display: flex;
+    flex-direction: column;
+  }
+  .wibj-hint-l {
+    display: block;
+    margin-top: 6px;
+  }
+  .wibj-hint-r {
+    display: none;
+  }
+  .wibj-right {
+    display: flex;
+    flex-direction: column;
+  }
+  .wibj-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .wibj-panels {
+    flex: 1;
+  }
+  .wibj-art {
+    max-width: none;
+  }
+  /* a slightly tighter card so the longest stages (AI, Execution) end close to the landscape column */
+  .wibj-card {
+    padding: 14px 18px 18px;
+  }
+  .wibj-line {
+    margin-top: 6px;
+    font-size: 24px;
+  }
+  .wibj-text {
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wib-caps {
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .wib-caps li {
+    padding: 4px 11px;
+    font-size: 13.5px;
+  }
+  .wib-tools {
+    margin-top: 10px;
+  }
+  .wibj-art {
+    margin-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wibj-panel[data-active] {
+    animation: wibj-in 240ms var(--ease-paper);
+  }
+  @keyframes wibj-in {
+    from {
+      opacity: 0;
+      translate: 0 6px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wibj-map,
+  .wibj-tab,
+  .wibj-pin,
+  .wibj-panel,
+  .wib-chip {
+    transition: none !important;
+  }
+  .wibj-pin[data-on] {
+    translate: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .ct-title {
+    padding: 10px 24px 14px 18px;
+    font-size: 40px;
+  }
+  .ct-title-sparks {
+    display: none;
+  }
+  .ct-collage {
+    visibility: hidden;
+  }
+  .ct-grid {
+    row-gap: 22px;
+  }
+  .ct-list::before {
+    display: block;
+    left: 21px;
+    top: 30px;
+    bottom: 10px;
+    border-left-width: 1.5px;
+  }
+  .ct-list::after {
+    display: none;
+  }
+  .ct-item {
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-areas:
+      "logo date"
+      ". card";
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: center;
+  }
+  .ct-when {
+    display: contents;
+  }
+  .ct-when .ct-logo .paper-tape {
+    display: none;
+  }
+  .ct-logo-type {
+    font-size: 11px;
+    line-height: 1;
+  }
+  .ct-date {
+    grid-area: date;
+    justify-self: start;
+    margin: 0;
+    padding: 5px 12px 6px;
+    font-size: 15px;
+    border-radius: 999px;
+    rotate: 0deg;
+  }
+  .ct-date-text {
+    max-width: none;
+  }
+  .ct-date-arrow {
+    display: none;
+  }
+  .ct-card.paper-sheet {
+    grid-area: card;
+    padding: 20px 18px 22px;
+  }
+  .ct-bullets li {
+    font-size: 14.5px;
+  }
+}
+
+@media (max-width: 639px) {
+/* ---- the shared swipe row ---- */
+  .xp-car > .ct-list,
+  .xp-car > .wibj-panels {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    margin: -6px -8px 0;
+    padding: 6px 8px 8px;
+    scroll-padding-inline: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+  }
+  .xp-car > .ct-list::-webkit-scrollbar,
+  .xp-car > .wibj-panels::-webkit-scrollbar {
+    display: none;
+  }
+  .xp-car > .ct-list:focus-visible,
+  .xp-car > .wibj-panels:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: -2px;
+    border-radius: 14px;
+  }
+  .xp-car > .ct-list > .ct-item,
+  .xp-car > .wibj-panels > .wibj-panel {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* ---- the Education sheet's scroll-driven "slide over Work" drift (TKT-101) pushed the Work pagination down under the
+     Education sheet at nearly every scroll position, so the dots could not be tapped; phones scroll plainly ---- */
+  .xp-work > .ct-wrap {
+    animation: none;
+  }
+
+  /* ---- Work Experience + Education: the collage and the rail go, the logo gets a real tile ---- */
+  .ct-grid {
+    display: block;
+  }
+  .ct-collage {
+    display: none;
+  }
+  /* the TASK-205 dashed rail has no nodes to connect any more */
+  .xp-car > .ct-list::before,
+  .xp-car > .ct-list::after {
+    display: none;
+  }
+  .xp-car .ct-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .xp-car .ct-when {
+    display: contents;
+  }
+  .xp-car .ct-logo-type {
+    font-size: 16px;
+  }
+  .xp-car .ct-date {
+    order: 1;
+    flex: 0 1 auto;
+    max-width: 100%;
+  }
+  .xp-car .ct-bullets {
+    gap: 7px;
+  }
+
+  /* ---- What I Bring: no map module; the capability panels swipe ---- */
+  .wibj-frame,
+  .wibj-trackwrap,
+  .wibj-hint-l,
+  .wibj-hint-r {
+    display: none;
+  }
+  .wib-head {
+    margin-bottom: 14px;
+  }
+  .wibj-grid {
+    gap: 0;
+  }
+  .wibj-card {
+    padding: 8px 20px 4px;
+  }
+  .xp-car > .wibj-panels {
+    margin: 0 -20px;
+    padding: 0 20px 4px;
+    gap: 40px;
+    scroll-padding-inline: 20px;
+  }
+  .xp-car > .wibj-panels > .wibj-panel {
+    display: flex;
+  }
+  .xp-car .wibj-panel[data-active] {
+    animation: none;
+  }
+  .wibj-art {
+    max-width: 100%;
+  }
+  .wibj-card .hs-dots {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 639px) {
+
+@media (prefers-reduced-motion: no-preference) {
+
+@supports (animation-timeline: view()) {
+      .xp-edu {
+        padding-bottom: 176px;
+      }
+    }
+  }
+  .xp-car > .wibj-panels > .wibj-panel > :nth-last-child(2) {
+    margin-bottom: 18px;
+  }
+  .xp-car .wibj-art {
+    margin-top: auto;
+  }
+}

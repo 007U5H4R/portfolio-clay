@@ -1,0 +1,34 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: lab. */
+
+.paper-lift {
+  position: relative;
+  isolation: isolate;
+  transition: translate var(--dur-l2-out) var(--ease-paper);
+}
+.paper-lift::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--depth-3);
+  opacity: 0;
+  transition: opacity var(--dur-l2-out) var(--ease-paper);
+}
+.paper-lift:focus-within:has(:focus-visible) {
+  translate: 0 -4px;
+  transition-duration: var(--dur-l2);
+}
+.paper-lift:focus-within:has(:focus-visible)::after {
+  opacity: 1;
+  transition-duration: var(--dur-l2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .paper-lift:hover:active {
+    translate: 0 -2px;
+    transition-duration: var(--dur-press);
+  }
+}

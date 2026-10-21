@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../styles/contact.css";
 import { ContactSection } from "@/components/contact/ContactSection";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { ContactQuote } from "@/components/contact/ContactQuote";

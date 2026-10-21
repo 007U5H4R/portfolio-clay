@@ -1,0 +1,168 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: thinking/[slug]. */
+
+@layer components {
+  .essay-eyebrow-dot {
+    margin-inline: 0.2em;
+    color: var(--color-rust);
+  }
+
+  /* --- /thinking/[slug] essay --- */
+  .essay-section .essay-article {
+    display: grid;
+    grid-template-columns: minmax(0, 68ch) minmax(220px, 1fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+    padding-block: clamp(24px, 3vw, 40px) clamp(64px, 7vw, 100px);
+  }
+  .essay-article > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+  .essay-crumb {
+    grid-row: 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 18px;
+    font-size: 22px;
+    color: var(--color-ink-soft);
+  }
+  .essay-crumb:hover {
+    color: var(--color-rust);
+  }
+  .essay-head {
+    grid-row: 2;
+    display: grid;
+    gap: 18px;
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+  .essay-h1 {
+    font-size: clamp(40px, 4.6vw, 62px);
+  }
+  .essay-dek {
+    max-width: 52ch;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+  }
+  .essay-head .essay-meta {
+    margin-top: 0;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+  .essay-margin {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    padding-top: 72px;
+  }
+  .essay-margin-sticky {
+    width: 176px;
+    margin-left: 32px;
+  }
+  .essay-prose {
+    grid-row: 3;
+    display: grid;
+    gap: 26px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--color-navy);
+  }
+  .essay-pull {
+    max-width: 600px;
+    margin: 8px 0 4px;
+    padding: 10px 0 10px 26px;
+    border-left: 3px solid var(--color-rust);
+  }
+  .essay-pull[data-tone="forest"] {
+    border-left-color: var(--color-forest);
+  }
+  .essay-pull blockquote {
+    max-width: 30ch;
+    margin: 0;
+    font-size: clamp(24px, 2.2vw, 30px);
+    line-height: 1.22;
+    color: var(--color-navy);
+    text-wrap: pretty;
+  }
+  .essay-pull .essay-pull-cite {
+    margin-top: 12px;
+    font-size: 14px; /* EVAL-008 content floor (now matches the shared .hand-cite; kept as a guard) */
+  }
+  .essay-framing {
+    max-width: 68ch;
+    color: var(--color-navy-2);
+  }
+  .essay-related {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 24px;
+    color: var(--color-rust);
+  }
+  .essay-related:hover {
+    color: var(--color-terracotta);
+  }
+  .essay-pager {
+    grid-row: 4;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: clamp(48px, 6vw, 72px);
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .essay-pager a {
+    display: grid;
+    gap: 4px;
+    align-content: start;
+  }
+  .essay-pager-lbl {
+    font-size: 20px;
+    color: var(--color-ink-soft);
+  }
+  .essay-pager a:hover .essay-pager-title {
+    color: var(--color-rust);
+  }
+  .essay-pager-next {
+    grid-column: 2;
+    justify-items: end;
+    text-align: right;
+  }
+
+@media (max-width: 899px) {
+    .essay-section .essay-article {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .essay-article > * {
+      grid-row: auto;
+    }
+    .essay-margin {
+      grid-column: 1;
+      grid-row: auto;
+      display: flex;
+      flex-wrap: wrap;
+      padding-top: 0;
+      margin: 0 0 32px;
+    }
+    .essay-margin-sticky {
+      margin-left: 0;
+    }
+  }
+
+@media (max-width: 639px) {
+    .essay-pull {
+      padding-left: 18px;
+    }
+    .essay-pager {
+      grid-template-columns: 1fr;
+    }
+    .essay-pager-next {
+      grid-column: 1;
+      justify-items: start;
+      text-align: left;
+    }
+  }
+}

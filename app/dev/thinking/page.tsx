@@ -1,4 +1,5 @@
 import { devOnly } from "@/lib/dev-only";
+import "../../styles/dev.css";
 import { ShowTheThinking } from "@/components/interactions/ShowTheThinking";
 import { SOURCES, THINKING_CHAIN } from "./fixtures";
 

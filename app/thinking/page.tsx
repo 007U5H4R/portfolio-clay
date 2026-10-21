@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import "../styles/thinking.css";
+import "../styles/thinking__thinking-slug.css";
+import "../styles/certifications__thinking.css";
 import { SceneOpener } from "@/components/paper/SceneOpener";
 import { ThinkingHero } from "@/components/thinking/ThinkingHero";
 import { ThinkingList } from "@/components/thinking/ThinkingList";

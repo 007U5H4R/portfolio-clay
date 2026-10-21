@@ -1,0 +1,439 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: work/[slug]. */
+
+@layer components {
+  .hero-btn-glyph {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+  }
+}
+
+@layer components {
+/* Reading progress (/work/[slug] only): 3 px rust at the header's bottom edge, scaleX(--p) */
+  .reading-progress {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + var(--header-h));
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 41;
+    background: var(--color-rust);
+    transform: scaleX(var(--p, 0));
+    transform-origin: left;
+    pointer-events: none;
+  }
+
+}
+
+@layer components {
+  .cs-torn-fill {
+    position: relative;
+    margin-top: -44px;
+    background-repeat: no-repeat;
+    background-position: 0 44px;
+    background-size: 100% calc(100% - 44px);
+  }
+
+  /* --- next-project band --- */
+  .cs-next {
+    z-index: 5;
+    color: var(--color-ivory);
+    background-image: linear-gradient(var(--color-navy), var(--color-navy));
+  }
+  .cs-next-link {
+    display: grid;
+    gap: 8px;
+    padding-block: clamp(28px, 4vw, 48px) clamp(56px, 6vw, 84px);
+    border-radius: 4px;
+  }
+  .cs-next-link:focus-visible {
+    outline: 2px solid var(--color-kraft);
+    outline-offset: 3px;
+  }
+  .cs-next-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-kraft);
+  }
+  .cs-next-h {
+    font-size: clamp(44px, 6vw, 88px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    color: var(--color-ivory);
+    overflow-wrap: anywhere;
+  }
+  .cs-next-arr {
+    display: inline-block;
+    transition: transform 0.2s var(--ease-hover);
+  }
+  .cs-next-link:hover .cs-next-arr {
+    transform: translateX(8px);
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .cs-next-arr {
+      transition: none;
+    }
+    .cs-next-link:hover .cs-next-arr {
+      transform: none;
+    }
+  }
+}
+
+/*
+  Dark pass (TASK-141.5; Design.md §13.1 rule 2): a surface *filled* with `navy` flips to light ink in dark, and
+  `kraft` is a fill only. The next-project band therefore takes the card tone (`ivory`, the lifted navy) with
+  `navy` (light ink) text, and its kraft text/focus ring becomes `ink-soft` / `rust` — AA in both themes
+  (tokens-check pairs navy/ivory, ink-soft/ivory, rust/ivory). Unlayered: beats the component layer.
+*/
+[data-theme="dark"] .cs-next {
+  color: var(--color-navy);
+  background-image: linear-gradient(var(--color-ivory), var(--color-ivory));
+}
+[data-theme="dark"] .cs-next-h {
+  color: var(--color-navy);
+}
+[data-theme="dark"] .cs-next-link:focus-visible {
+  outline-color: var(--color-rust);
+}
+
+@media (max-width: 639px) {
+/* === TASK-272 (Tushar 2026-10-19): the case-study roots use the real phone header height ===
+     :root keeps 119 px (the 640-767 phablet sheet), so below 640 the sticky chapter navs stuck at 125 px under a 69 px header
+     (a 56 px band of body text between them) and chapter jumps landed ~50 px low. Set on the roots, not :root, for the same
+     reason as above (the About fingerprint reads :root-inherited custom properties). */
+  .rcp,
+  .vlp,
+  .bvp,
+  .nup,
+  .pra,
+  .cfp,
+  .sgp,
+  .urp,
+  .srp,
+  .tsp,
+  .csx {
+    --header-h: 69px;
+  }
+}
+/* === end TASK-265 === */
+
+/* === TASK-275 (Tushar 2026-10-19): Bhakti Vilas artwork in the Nuptis next-project band ===
+   The WebPs are painted on each theme's exact band colour (#0d1734 light, #172646 dark), so there is no
+   cutout; a soft mask feathers the edges into the band. Unlayered: it adds to the layered .cs-next rules. */
+.cs-next-art-dark {
+  display: none;
+}
+[data-theme="dark"] .cs-next-art-light {
+  display: none;
+}
+[data-theme="dark"] .cs-next-art-dark {
+  display: block;
+}
+.cs-next-art-img {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 95%, transparent);
+  mask-composite: intersect;
+}
+/* === end TASK-275 === */
+
+/* === TASK-279 (Tushar 2026-10-19): next-project band, supporting line + cream light tone, dark torn front, torn-top clearance ===
+   `.cs-next-line` is the optional `line` prop (inherits the band's text colour). `[data-tone="cream"]` (the `tone` prop) turns the
+   LIGHT band cream: the surface, its torn front, the ink text and the focus ring use the paper tokens, and a band with a `line` drops
+   the "next up" note (the component does not render it). The cream surface is `--cs-next-cream` (#f7f0e7, one green level under the
+   paper token #f7f1e7): that is the exact flat field the lossy WebP art decodes to, so the art has no visible box edge at any size.
+   Dark is untouched by the cream rules (they are scoped off `[data-theme="dark"]`); a band without data-tone matches none of them.
+   One fix applies to every band (the shared `TornEdge fill="navy"` front is `--color-navy`, which is cream in dark): in dark the torn
+   front takes the band's own surface (ivory = lifted navy), so no cream strip shows above it. (The band's torn top sliding over the
+   section above is the intended TKT-106 slide-over, not an overlap bug: at rest no content sits under it.) Unlayered, after TKT-81. */
+.cs-next-line {
+  max-width: 34ch;
+  font-size: var(--text-body, 1rem);
+  line-height: 1.45;
+  color: inherit;
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] {
+  --cs-next-cream: #f7f0e7;
+  color: var(--color-navy);
+  background-image: linear-gradient(var(--cs-next-cream), var(--cs-next-cream));
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .torn-front {
+  fill: var(--cs-next-cream);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-h {
+  color: var(--color-navy);
+}
+:root:not([data-theme="dark"]) .cs-next[data-tone="cream"] .cs-next-link:focus-visible {
+  outline-color: var(--color-rust);
+}
+[data-theme="dark"] .cs-next .torn-front {
+  fill: var(--color-ivory);
+}
+
+/* === TASK-285 (Tushar 2026-10-19): product logo in place of the name in case-study heroes and next bands ===
+   `CaseName` renders both theme files (the TASK-250 `.pf-logo-img` rules above pick the one for <html data-theme>) inside `.cs-logo`.
+   Width is derived from the height cap (`--cs-logo-h` x the file's aspect `--cs-logo-ar`) and clamped to the column, height stays
+   auto, so a very wide wordmark (Pratyasa) shrinks with its column instead of overflowing and nothing is ever stretched.
+   `[data-on-dark]` and the dark system-template heroes pin the light-ink file (those surfaces are dark in both themes). */
+.cs-logo {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+  max-width: 100%;
+  --cs-logo-h: clamp(44px, 5.2vw, 72px);
+}
+.cs-logo .pf-logo-img {
+  width: min(100%, calc(var(--cs-logo-h) * var(--cs-logo-ar)));
+  max-width: none;
+  max-height: none;
+  height: auto;
+}
+.cs-logo[data-on-dark] .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="urja"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="slag-city"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="shravans-round"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"],
+.csx[data-theme="cinematic-portfolio"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="light"] {
+  display: none;
+}
+.cs-logo[data-on-dark] .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="urja"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="slag-city"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="shravans-round"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"],
+.csx[data-theme="cinematic-portfolio"] .csx-hero .cs-logo .pf-logo-img[data-theme-variant="dark"] {
+  display: block;
+}
+/* Hero h1: the logo is the title block, left-aligned under the eyebrow. */
+h1 > .cs-logo {
+  display: block;
+  margin-block: 4px 6px;
+}
+.csx-h1 > .cs-logo,
+.jx-h1 > .cs-logo { --cs-logo-h: clamp(44px, 5.2vw, 72px); }
+:is(.cfp-h1, .bvp-h1, .pra-h1, .nup-h1, .urp-h1, .srp-h1, .sgp-h1, .rcp-h1, .vlp-h1) > .cs-logo { --cs-logo-h: clamp(48px, 7vw, 84px); }
+.tsp-h1 > .cs-logo { --cs-logo-h: clamp(36px, 4.4vw, 56px); margin-bottom: 12px; }
+.srp-h1:has(> .cs-logo) { max-width: none; }
+/* Next band: the logo sits where the name did, the arrow stays right after it. */
+h2 > .cs-logo { width: min(calc(var(--cs-logo-h) * var(--cs-logo-ar)), calc(100% - 1.4em)); max-width: none; }
+h2 > .cs-logo .pf-logo-img { width: 100%; }
+.cs-next-h > .cs-logo { --cs-logo-h: clamp(40px, 5vw, 72px); }
+:is(.bvp-next-h, .rcp-next-h, .vlp-next-h) > .cs-logo { --cs-logo-h: clamp(34px, 4vw, 52px); }
+.tsp-next-h > .cs-logo { --cs-logo-h: clamp(30px, 3.4vw, 44px); }
+/* === end TASK-291 === */
+/* === TASK-290 (Tushar 2026-10-20): ONE next-project band for every case study ===
+   The TeachSpark band (TASK-288) is the standard and this is its single source: `.next-band` is on NextProject (shared by the system,
+   journal, Nuptis, Campfire, Pratyasa, Slag City, Shravan's Round and Urja pages) and on the TeachSpark / RailCite / Velora / Bhakti Vilas
+   paper bands. Body height (the torn top of a NextProject band, 44px, tears over the section above and is not counted):
+   5:2 on phones (150px at 375); 1344:262 from 768 with a 190px floor (190 @768, ~200 @1024, ~281 @1440).
+   The size comes from a spacer (`::after`); the art and the text overlay are absolute, so neither can change the footprint.
+   Art: `data-fit="bleed"` (TeachSpark's wide landscape) fills the box with object-fit cover and an object-position crop; every other
+   art is a single subject (people, trucks, an arcade) that a 5:1 crop would slice, so its image is the band's body height, natural
+   ratio (still object-fit cover, never distorted), parked at the left; `--na-x0` trims the empty left part some cut-outs carry.
+   Text: top right over the empty part of the art, at every width. Motion: the torn-lag slide under the site footer is off (it hid
+   the lower 120-200px of a band this short); the designed 72px torn-edge overlap (margin-bottom) is all that sits under the footer. */
+.next-band {
+  position: relative;
+  margin-bottom: -72px;
+  overflow: clip;
+  animation: none;
+}
+.next-band::after {
+  content: "";
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 2;
+}
+/* Rest position: the section above a NextProject band is the "content above the tear" of TKT-106 and lagged 120-200px DOWN under the
+   band as it scrolled in, which a half-height band cannot afford (the lag would cover that section's last rows). It stays put: its
+   own bottom padding (which already reserved the 44px torn overlap) is the rest gap. */
+:has(+ .next-band) {
+  animation: none;
+}
+.cs-next.next-band::after {
+  margin-top: 1px; /* the TornEdge's -1px bottom margin: the body (below the 44px tear) is exactly the spacer */
+}
+.next-band-art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cs-next.next-band .next-band-art {
+  top: 44px;
+}
+.next-band .next-band-art img {
+  position: absolute;
+  top: 0;
+  bottom: auto;
+  left: clamp(8px, 7vw, 140px);
+  width: auto;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+  object-position: 50% 50%;
+  translate: calc(var(--na-x0, 0) * -100%) 0;
+}
+.next-band .next-band-art[data-fit="bleed"] img {
+  inset: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  translate: none;
+  object-position: 12% 50%;
+}
+.next-band-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-block: 6px 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.cs-next.next-band .next-band-in {
+  top: 44px;
+}
+.next-band .next-band-link {
+  display: grid;
+  gap: 4px;
+  max-width: 440px;
+  padding: 4px 8px;
+  border-radius: 14px;
+  text-decoration: none;
+  pointer-events: auto;
+}
+.next-band .next-band-link:focus-visible {
+  outline: 2px solid var(--color-kraft);
+  outline-offset: 3px;
+}
+.next-band .next-band-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.next-band .next-band-h {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: normal;
+}
+/* TASK-292: every band carries its product's one-liner (nextLine), italic serif, always on ONE line. */
+.next-band .next-band-line {
+  max-width: none;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 767px) {
+  .next-band-in {
+    padding-block: 0;
+  }
+  .next-band .next-band-h {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: var(--cs-logo-h, 30px);
+    line-height: 1;
+  }
+  /* A percentage width cannot size the logo's column (the link is shrink-to-fit): give it its real width so the text column is
+     only as wide as its content and the art can take the rest. */
+  .next-band .next-band-h > .cs-logo {
+    flex: none;
+  }
+  .next-band .next-band-h > .cs-logo .pf-logo-img {
+    width: min(calc(var(--cs-logo-h) * var(--cs-logo-ar)), 140px);
+  }
+  .next-band .next-band-eyebrow {
+    line-height: 14px;
+  }
+  .next-band .next-band-line {
+    line-height: 17px;
+  }
+  .next-band .next-band-link {
+    gap: 2px;
+    padding-block: 0;
+    min-width: 0;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) img {
+    top: 3.5%;
+    left: 4px;
+    height: 70.5%;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-link {
+    position: relative;
+    top: calc(38.75% - 31px);
+    max-width: calc(100% - 100px);
+    margin-right: -18px;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-h {
+    font-size: 1.35rem;
+    white-space: nowrap;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-line {
+    font-size: 12px;
+  }
+  .next-band .next-band-art:not([data-fit="bleed"]) ~ .next-band-in .next-band-eyebrow {
+    font-size: 10.5px;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-link {
+    padding-block: 4px 0;
+    max-width: 44%;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-h {
+    font-size: 1.35rem;
+    height: 24px; /* the 24px logo's own row: keeps the one-liner above the ridge on the right */
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-line {
+    font-size: 13px;
+  }
+  .next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .next-band-h > .cs-logo {
+    --cs-logo-h: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .next-band::after {
+    aspect-ratio: 1344 / 262;
+    min-height: 190px;
+  }
+  .next-band .next-band-art[data-fit="bleed"] img {
+    object-position: 50% 41%;
+  }
+  .next-band-in {
+    padding-block: clamp(12px, 2vw, 32px) 0;
+  }
+  .next-band .next-band-link {
+    padding-block: 8px;
+  }
+  .next-band .next-band-eyebrow {
+    font-size: 12.5px;
+  }
+  .next-band .next-band-line {
+    font-size: 16px;
+  }
+}
+/* A logo over TeachSpark's bleed art gets a soft halo in the band colour (the art can sit behind it on phones). */
+.next-band .next-band-art[data-fit="bleed"] ~ .next-band-in .pf-logo-img {
+  filter: drop-shadow(0 0 5px var(--tsp-bg-2)) drop-shadow(0 0 2px var(--tsp-bg-2));
+}
+/* The logo (TASK-285) takes the same height in every band, TeachSpark's. */
+.next-band .next-band-h > .cs-logo {
+  --cs-logo-h: clamp(30px, 3.4vw, 44px);
+}
