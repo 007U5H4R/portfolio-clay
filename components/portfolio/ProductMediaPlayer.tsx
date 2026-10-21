@@ -122,8 +122,9 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
 
   // Keyboard/screen-reader users land in the player they just asked for — except when it started because they
   // chose a product (TASK-253): focus stays on the carousel so the arrow keys keep stepping through the products.
+  // Stage 9 CR-015: focus moves once the player has answered — while it loads, the poster covers the iframe.
   useEffect(() => {
-    if (state === "loading" && !(autoStart && autoMute)) frameRef.current?.focus();
+    if (state === "ready" && !(autoStart && autoMute)) frameRef.current?.focus();
   }, [state, autoStart, autoMute]);
 
   const play = (auto = false) => {
@@ -143,6 +144,8 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
   }, [autoStart]);
 
   const showFrame = (state === "loading" || state === "ready") && src;
+  // one poster node for the poster state and the loading state (CR-017)
+  const poster = media.poster ? <Image src={media.poster} alt="" fill sizes="(min-width: 1024px) 60vw, 100vw" className="pf-stage-poster" /> : fallbackPoster;
 
   return (
     <div {...rest} {...(paper ? { "data-paper-player": "" } : {})} data-no-trail="" data-player-state={state} data-provider={media.provider}>
@@ -161,18 +164,20 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
         />
       ) : null}
       {/* Stage 8 DES-016 (TASK-313): the poster stays over the iframe until the player answers, so a pick never flashes a blank frame */}
+      {/* Stage 8 DES-016 (TASK-313) / Stage 9 CR-011: while the player loads, the poster stays — as a direct child, so every
+          skin's own sizing rules still apply (a wrapper left the case-study covers at their intrinsic width) — over the
+          iframe, with a polite status for assistive tech */}
       {showFrame && state === "loading" ? (
-        <div className="pf-loading-poster" data-loading-poster="">
-          {media.poster ? <Image src={media.poster} alt="" fill sizes="(min-width: 1024px) 60vw, 100vw" className="pf-stage-poster" /> : fallbackPoster}
-        </div>
+        <>
+          {poster}
+          <span className="sr-only" role="status" data-loading-status="">
+            Loading video…
+          </span>
+        </>
       ) : null}
       {showFrame ? null : (
         <>
-          {media.poster ? (
-            <Image src={media.poster} alt="" fill sizes="(min-width: 1024px) 60vw, 100vw" className="pf-stage-poster" />
-          ) : (
-            fallbackPoster
-          )}
+          {poster}
           {state === "poster" ? (
             <>
               {paper ? (

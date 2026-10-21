@@ -34,7 +34,9 @@ async function expectSynced(page: Page, index: number, chosen = false) {
   await expect(panel(page)).toHaveAttribute("data-active-product", project.slug);
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText(project.name);
   await expect(panel(page).locator(".pf-info-count")).toHaveText(`${pad2(index + 1)} / ${pad2(PERSONAL.length)}`);
-  await expect(panel(page).locator(".pf-info-category")).toHaveText(project.tags.slice(0, 2).join(" · "));
+  // Stage 8 DES-017 (TASK-314): the paper card's kicker shows one tag; the TASK-301 card showed two
+  const paper = (await panel(page).locator(".pf-info.pf-paper").count()) > 0;
+  await expect(panel(page).locator(".pf-info-category")).toHaveText(project.tags.slice(0, paper ? 1 : 2).join(" · "));
   const video = entry.pitchVideo ?? entry.demoVideo;
   if (chosen && video) await expect(page.locator(".pf-stage iframe")).toHaveAttribute("src", new RegExp(`/embed/${video.videoId}`));
   else await expect(page.locator(".pf-stage .pf-cover-name")).toHaveText(project.name);

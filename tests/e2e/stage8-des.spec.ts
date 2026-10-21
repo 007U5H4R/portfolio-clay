@@ -158,7 +158,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     const screen = page.locator(".pf-stage-screen");
     await expect(screen).toHaveAttribute("data-player-state", "loading");
     await expect(screen.locator("iframe")).toHaveCount(1);
-    await expect(screen.locator("[data-loading-poster]"), "the poster is kept over the iframe").toBeVisible();
+    await expect(screen.locator("img").first(), "the poster is kept over the iframe").toBeVisible();
+    await expect(screen.locator("[data-loading-status]"), "assistive tech hears the loading state").toHaveText(/Loading video/);
     const cue = await screen.evaluate((el) => getComputedStyle(el, "::before").content);
     expect(cue).toContain("Loading video");
     // the existing error path still follows once the player never answers
@@ -173,7 +174,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         await page.locator(`[role="tab"][data-product="${project.slug}"]`).click();
         await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
         await page.waitForTimeout(150);
-        const over = await page.locator(".pf-paper .pf-info-category").evaluate((el) => (el.textContent ? el.scrollWidth - el.clientWidth : 0));
+        // in the narrow-card band (≤ 280 px content) the category is clipped for assistive tech only (sr-only pattern) — not a truncation
+        const over = await page.locator(".pf-paper .pf-info-category").evaluate((el) => (el.textContent && (el as HTMLElement).offsetWidth > 2 ? el.scrollWidth - el.clientWidth : 0));
         expect(over, `${project.name} category fits`).toBeLessThanOrEqual(0);
       }
     });

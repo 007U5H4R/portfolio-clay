@@ -210,11 +210,17 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       setAutoStart(true);
       setAutoMute(false);
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      // Stage 8 DES-015 (TASK-312): land the stage below the fixed header, not under it (a third of the video was hidden at 375)
+      // Stage 8 DES-015 (TASK-312): land the stage below the fixed header, not under it (a third of the video was hidden at 375).
+      // Stage 9 CR-013: Lenis, when mounted (fine pointer), owns the jump via the shared helper; otherwise the native scroll —
+      // measured through the offset chain, because the stage's entrance animation transforms it and a bounding rect read
+      // mid-animation lands wrong.
       const stage = document.getElementById(STAGE_ID);
-      if (!stage) return;
+      if (!stage) {
+        if (process.env.NODE_ENV !== "production") console.warn(`watchVideo: #${STAGE_ID} is not in the DOM; the page was not scrolled`);
+        return;
+      }
+      if (!reduce && scrollToTarget(stage)) return;
       const header = document.querySelector<HTMLElement>("header[data-site-header]")?.getBoundingClientRect().height ?? 0;
-      // layout position via the offset chain: the stage's entrance animation transforms it, so a bounding-rect read mid-animation lands wrong
       let top = 0;
       for (let el: HTMLElement | null = stage; el; el = el.offsetParent as HTMLElement | null) top += el.offsetTop;
       window.scrollTo({ top: Math.max(0, top - header - 8), behavior: reduce ? "auto" : "smooth" });

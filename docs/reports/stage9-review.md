@@ -74,3 +74,96 @@ TC-091 PASS · TC-104 PASS (+ now covers Deep-dive) · TC-105 PASS · TC-106 PAS
 - **Accepted-risks register (carry):** EVAL-005 bundle 191.1 kB (EXE-11), EVAL-004 mobile Lighthouse swiftshader artefact, EXE-2 `extract-zip` highs, `uuid` moderate (dev-only), CSP `'unsafe-inline'`, SF-5 `--json` exit code.
 - **Follow-ups:** first green CI run (draft PR `m-007-quality → main`); regenerate `docs/screenshots/about/*` (predate the DES-004 retier); DES-009 wording harmonisation (deferred again — content-sensitive, fold into the DRAFT sign-off pass); LinkedIn Post Inspector (Tushar).
 - **Do NOT merge to `main` or deploy production before the Stage-10 `QA-report.md` gate.**
+
+---
+
+# Stage 9 · Code Review + Test & Eval Execution — round 2 (Stage 7 + Stage 8 showcase work, Tushky FAQ)
+
+**Reviewed range:** `6eaee1b5..de5a0bcb` on `main` — PRs #147 (TASK-303), #148 (TASK-305), #149 (TASK-307), #150 (TASK-308), #151 (TASK-305), #152 (Stage 8, TASK-309…316), #153 (TASK-317) · 28 files, +1410/−160 · **Date:** 2026-10-21 · **Skill:** `bw-code-review-test-eval` · **Fix branch:** `m025/stage9` (Campfire **TASK-318**; parked gate work **TASK-319**). Tushar AFK — "move to Stage 9, don't wait for my approval" (memory `afk-autonomy-2026-10-21`).
+**Method:** `/code-review` at low effort over the range (10 findings, every one re-verified against file:line or production before triage) + the `silent-failure-hunter` agent on the same diff (6 findings) + the orchestrator's own probes on production de5a0bcb (loading state on the home hero and the Urja / TeachSpark case-study players with YouTube blocked; FAQ lookups through `lookupFaq`). Evals: **NA** — skipped by standing decision (memory `skip-evals-2026-10-14`); no `/evals/results` run was produced this round.
+
+## 9A · Code review — `CR-` findings
+
+| ID | File | Finding | Sev. | Resolution |
+|---|---|---|---|---|
+| CR-010 | `lib/ask/synonyms.ts` | The six TASK-317 synonym rows were inert: the FAQ path (`normaliseQuestion`) never consults `SYNONYMS`, and no `data/knowledge.ts` entry carries those terms, so the rows changed nothing (hyphenated twins were also dead duplicates — the hunter's SF-002). | P2 | **Fixed** — rows removed; the product questions are served by the FAQ aliases alone (10/10 lookups unchanged after removal). Rephrased product questions that miss the FAQ still fall to the generic index answer — pre-existing index behaviour, see SF-001 (parked). |
+| CR-011 | `components/portfolio/ProductMediaPlayer.tsx` | The DES-016 loading poster was wrapped in a new absolute `.pf-loading-poster` div on **every** `ProductMediaPlayer` mount (hero intro, case-study players), where direct-child sizing rules no longer applied — verified on production: the TeachSpark case player's cover measured 158 px wide inside a 528 px screen while loading. | P2 | **Fixed** — the poster is rendered as a direct child again (one `poster` node shared with the poster state), the wrapper rule deleted; the "Loading video…" pill stays scoped to `.pf-stage-screen` (showcase + hero, both checked). |
+| CR-012 | `app/work/[slug]/*-paper.css`, `app/globals.css` | TASK-307 satisfied EVAL-020 ("0 colour literals outside globals.css") by spelling `#000` as `black` in six case-study CSS files and adding ~25 value-named `--lit-*` / `--pp-*` tokens to globals.css. | P3 | **Parked → TASK-319** (extend `LITERAL_RE` to named colours with a deliberate allow-list; map the tokens onto the role / `--mat-*` tiers, EXE-40). Not a runtime defect. |
+| CR-013 | `IndependentProductsShowcase.tsx` `watchVideo` | Re-implemented the header-offset scroll by hand and bypassed Lenis when mounted (fine-pointer visitors in a narrow window), skipping the `lenis.resize()` resync (TKT-90b) and the focus move. | P2 | **Fixed** — `scrollToTarget(stage)` first (Lenis-aware, focuses the target); the offset-chain native scroll remains the fallback for touch / reduced motion. |
+| CR-014 | `tests/e2e/hover-stability.spec.ts` | Sampled `getBoundingClientRect()` right after `scrollIntoViewIfNeeded()`, before the stage's entrance transform and the smooth scroll settled — could fail with perfectly stable hover. | P3 | **Fixed** — settle wait + a stable-rect poll before the baseline sample. |
+| CR-015 | `ProductMediaPlayer.tsx` | Keyboard focus moved into the iframe while the loading poster covered it; the only loading cue was CSS generated content, never a live region. | P2 | **Fixed** — focus moves on `ready`; an `sr-only` `role="status"` "Loading video…" accompanies the poster during loading (spec `stage8-des` TASK-313 asserts it). |
+| CR-016 | `lib/ask/synonyms.ts` | Hyphenated synonyms were dead duplicates of their joined twins. | P3 | **Subsumed by CR-010** (rows removed). |
+| CR-017 | `ProductMediaPlayer.tsx` | Poster markup duplicated verbatim in the loading and poster branches. | P3 | **Fixed** — one `poster` constant. |
+| CR-018 | `components/portfolio/paper-selector-flag.ts` | Kill-switch doc named `.pf-paper` (the card/player class) instead of the emitted `.pf-psel`. | P3 | **Fixed** — comment corrected. |
+| CR-019 | `components/portfolio/ProductCarousel.tsx` | Three-way nested ternary for the counter with the padding rule written twice. | P3 | **Fixed** — one `current` value, the paper skin only adds its span. |
+
+## 9A · Silent-failure hunt — `SF-` findings
+
+| ID | File | Finding | Sev. | Resolution |
+|---|---|---|---|---|
+| SF-001 | `lib/ask/local-provider.ts` + `data/knowledge.ts` | A product question that misses the FAQ falls to the keyword index, where no product term scores, so e.g. "What tech is Slag City built with?" returns the generic *built* answer; "Does he have a game?" returns the easter-egg answer (`game` is a `gummy` synonym). Pre-existing design of the deterministic index, not introduced by this range. | P2 | **Parked** — belongs with the deferred Tushky option 2 / a per-product knowledge-entry pass (memory `tushky-rag-later`); recorded in HANDOFF carry-ins. |
+| SF-002 | `lib/ask/synonyms.ts` | Hyphenated multi-word synonyms unreachable after the normaliser splits hyphens. | P3 | **Moot** — rows removed (CR-010). |
+| SF-003 | `app/globals.css` loading poster | The poster over the iframe swallowed clicks for the whole loading window (up to the 6–15 s grace). | P3 | **Fixed** — `[data-player-state="loading"] > :not(iframe) { pointer-events: none }`. |
+| SF-004 | `IndependentProductsShowcase.tsx` `watchVideo` | Silent early return when the stage element is missing. | P3 | **Fixed** — dev-only `console.warn`. |
+| SF-005 | `ProductInfoPanel.tsx` / `data/schema.ts` | A product without `cardLine` falls back to its full description under the 3-line clamp (campfire-board 108, cubicle 114, token-toli 139 chars). | P3 | **Covered** — `paper-card.spec.ts` (#147) asserts no product's description is clipped at 1440×900, and the Stage 8 probe confirmed 10/10 at 1440/1512/1920; no change. |
+| SF-006 | `app/globals.css` narrow-card block | `display: none` on the kicker category at ≤ 300 px card width removed it from the accessibility tree. | P3 | **Fixed** — clipped (sr-only pattern) instead, so the tag still reaches assistive tech. |
+
+Checked and fine (hunter): CTA label split keeps "Watch demo video" / "Watch demo" as the accessible name; hidden secondary labels use clip, not `display:none`; loading-state error paths still reach the visible error state; carousel ARIA unchanged; `checkFaq()` fails prebuild loudly (exit 1), stale entries never served; TASK-307's re-stamp of 17 answers matches the data (no "IntraEdge").
+
+## 9B · Frontend performance (lab, production de5a0bcb, Lighthouse 12.6.1 from the repo's `@lhci/cli`, 2026-10-21 ~10:40 IST)
+
+Conditions: `--only-categories=performance`, Lighthouse simulated throttling (mobile: Moto G Power profile, 4× CPU, slow-4G; desktop preset: 1× CPU), headless Chrome with a fresh temp profile, 3 runs per cell, cold cache each run, run on the build host **while the unit suite and a build were running on it** (TBT and render timings carry contention; TTFB and transfer sizes do not). **Field data: BLOCKED** — the keyless PageSpeed Insights API quota was exhausted (`Queries per day`), so no CrUX read; the site is new enough that CrUX is unlikely to have a mobile sample yet. Raw JSON: `/Volumes/E Drive/Dev/.scratch/stage9/lh/`.
+
+| Route | Form factor | Runs | LCP ms median (range) | CLS | TBT ms | FCP ms | TTFB ms | Weight kB | Score |
+|---|---|---|---|---|---|---|---|---|---|
+| `/` | desktop | 3 | **1260** (1259–1266) | 0.001 | 7 (6–8) | 555 | 55 | 1756 | 97 |
+| `/` | mobile | 3 | **5449** (5299–7338) | 0.000 | 378 (230–447) | 2745 | 60 | 1520 | 62 (54–71) |
+| `/projects` | desktop | 3 | **1262** (1140–1460) | 0.008 | 312 (268–497) | 579 | 58 | 1835 | 79 (73–83) |
+| `/projects` | mobile | 3 | **6410** (6273–6975) | 0.000 | 445 (364–656) | 2911 | 57 (49–1112) | 1222 | 53 (52–60) |
+
+Budgets (`evaluation-plan.md` EVAL-005): LCP ≤ 2.5 s · CLS < 0.05 · home JS ≤ 180 kB gz (bundle gate, not re-measured here). **Desktop: PASS** on both routes (LCP 1.26 s, CLS ≤ 0.008). **Mobile: FAIL** on both routes — and worse than the 2.7–3.2 s Tushar accepted at EXE-24 (TKT-92, `QA-report.md`).
+
+**Diagnosis (measured, not fixed):** the LCP element is the hero's mobile background `<img>` (`hero-home-bg-mobile.webp` on `/`, `scene-work-bg-mobile.webp` on `/projects`). Its phase split on `/` mobile: TTFB ≈ 640 ms · load delay 320–1590 ms · load time 460–600 ms · **render delay 2600–5770 ms**; on `/projects`: load delay 90–1120 ms · load time 240–1070 ms · **render delay 2900–5440 ms**. The image is on the wire by ~1.5–2.5 s and painted 3–5 s later, so the cost is between download and paint: main-thread work under 4× CPU (TBT 230–660 ms, 81 requests, two woff2 fonts of 119 kB + 73 kB and a 94 kB stylesheet ahead of it) and/or a reveal that waits for hydration. The clean desktop render delay (657 ms) points at CPU-bound work rather than the image path. One `/projects` run also hit a 1.1 s TTFB (cold edge), the others 50–60 ms. **QA-012 → TASK-320 (P1):** reproduce with a DevTools performance trace on an idle host, split hydration vs font blocking vs any JS-gated scene reveal, then decide the least visually destructive fix (the layered hero is a deliberate identity — measure its cost before trimming it). Not a Stage 7/8 regression: the hero and scene openers were not touched in this range; the paper-world hero shipped with M-011.
+
+## 9B · Test execution
+
+**Planned suite and what ran.** The full Playwright suite is 6,404 tests across the four viewport projects and ran at ~10 tests/min at one worker (a ~10 h run), so it was stopped at 277 and replaced by a **scoped run**: projects `w1440` + `w390`, two workers, `eval-0*`, screenshot/capture and voice-audition specs excluded (evals are skipped by standing decision), `ALLOW_DEV_ROUTES=1` so the `/dev/*` fixture routes run. Tablet (`w768`) and the 1024 edge are covered by the Stage 8 ship gates (paper-selector / paper-card / vertical-carousel / hover-stability / paper-player / projects-mobile / projects-carousel, 89 on production) and by Stage 8's reviewer probes. Unit suite: **1676 passed, 2 skipped** (full `tests/unit`). Logs and JSON: `/Volumes/E Drive/Dev/.scratch/stage9/`.
+
+| Run | Tree | Scope | Result |
+|---|---|---|---|
+| scoped e2e, 2 workers | branch before the QA-013 fix | w1440 + w390, 1670 tests | **960 passed · 41 failed · 669 skipped** (36.8 min) |
+| retest, 1 worker | branch + QA-013 fix (280 px) | the 13 failing specs | **212 passed · 31 failed** — portfolio-video (12), vertical-carousel, paper-selector, projects, enterprise-journal all green → the 10 that cleared were the 1440 label regression + host contention |
+| production check, 1 worker | **main de5a0bcb** (before this branch) | the deterministic 6 specs | **124 passed · 31 failed** — the same 31 fail on main: pre-existing |
+| retest 2, 1 worker | branch + spec corrections | stage8-des, paper-showcase, regressions-m009, portfolio-video | **37 passed · 0 failed** |
+
+**Triage of the 41.**
+
+| Group | Count | Classification | Resolution |
+|---|---|---|---|
+| portfolio-video (strips not visible), paper-showcase category "AI" ≠ "AI · WhatsApp", stage8-des TASK-314 | 12 + 2 + 2 | **Branch/Stage 8 regression — QA-013.** The `@container pcard (max-width: 300px)` narrow-card block measured the card's *content* box (299 px at a 1440 viewport), so the icon-only secondary row and the hidden category also applied at 1440 — the approved 1440 card lost its labels in PR #152. | **Fixed** (280 px; labels back at ≥ 1440, icon row kept for 1024–1279 — measured 256 / 299 / 320 px content at 1280 / 1440 / 1512). paper-showcase + stage8-des expectations updated for DES-017 (one kicker tag) and the clipped category (QA-014). |
+| case-study-system: six paper-layout products (nuptis, pratyasa, campfire-board, slag-city, shravans-round, urja) — hero tagline element, learnings h3, reduced-motion visibility, JS-off story | 24 | **Pre-existing, fails on main.** The spec still describes the template case-study layout; the six paper layouts render differently. Not touched in this range (only `black` for `#000` in their CSS). | **Parked → TASK-321 (QA-015).** |
+| regressions-m009 TKT-85 carousel guard (w1440 scrollbar hidden; w390 no tablist) | 2 | **Pre-existing test debt** since TASK-301/305 (vertical paper selector) and TASK-210 (phone list/detail). | **Fixed in the spec** (paper selector may hide its scrollbar — its affordances are the folded arrows and counter; phone tier skipped) — QA-014. |
+| analytics "without a token" | 3 | **Environment:** production carries the Mixpanel token, so the no-token assertions cannot hold there; locally the w390 case timed out opening the Ask panel at 2 workers and passed at 1 worker. | No change; noted as a contention-sensitive case. |
+| about-paper opener computed-style hash (w1440 on main too; w390 on the branch) | 2 | **Stale committed baseline, not a change.** The fingerprint hashes every computed custom property, so any new `:root` token (TASK-307's `--lit-*`, TASK-310's `--pc-*`) flips it. Re-run with the live baseline (`ABOUT_BASELINE_URL=https://tusharpathak.com`): **19 passed, 0 failed** at w1440 + w390 — the branch's About hero and footer are byte-identical to production. | **Parked → TASK-324 (QA-018): recapture the snapshot from main.** |
+| scene-opener `/projects` banner at 390 | 1 | **Pre-existing, stale expectation:** the h1 (y 237) sits below the opener box (69–225) — verified visually on production — while the spec compares against the uncropped image box (310.8). | **Parked → TASK-322 (QA-016, spec chore).** |
+| interaction-p3 contact stamp nudge (0 instead of 3 px) | 1 | **Pre-existing on main.** | **Parked → TASK-323 (QA-017).** |
+| vertical-carousel centring, paper-selector 1512 centring, projects RailCite iframe, enterprise-journal mark, shravans-round scroll reveal | 5 | **Host contention at 2 workers** — all green at 1 worker (and the carousel/selector cases green in four earlier gates). | No change. |
+
+**Test-case results (the cases that touch this range; `test-cases.md`).**
+
+| TC | Area | Result | Evidence |
+|---|---|---|---|
+| TC-004 | MobileMenu dialog | PASS | mobile-menu unit (TASK-307 fix) + Stage 8 phone nav probe |
+| TC-037 | Dead-control crawler (EVAL-011) | NA | eval spec excluded by standing decision |
+| TC-052 / TC-149 | Ask journeys (keyboard, panel states) | PASS | ask-panel / ask-inline / ask-compact / home-ask-tushky 71 on production; Ask unit 70 |
+| TC-056 / TC-083 | How-I-think data, ShowTheThinking | PASS | home-carousels / thinking specs green in the scoped run |
+| TC-091 | Mechanical content rules per project | PASS | `validate-content` 28/28 FAQ fresh; projects schema gate green in build |
+| TC-092 | All case-study pages: gate, axe, anchors | **FAIL (pre-existing)** | the six paper layouts vs case-study-system.spec → TASK-321 |
+| TC-T2.1 / TC-T3-11 / TC-T4-01 | Theme resolution, M-010 tracks | PASS | theme/paper specs green in the scoped run |
+| Stage 8 regressions (TASK-309…316) | showcase | PASS | stage8-des 20/20 at 1 worker on the branch |
+
+**Evals:** NA — `/evals` suites skipped by standing decision (memory `skip-evals-2026-10-14`); no `eval-run-*.json` was generated this round and none is claimed.
+
+## Exit
+
+Code review clean or parked with reasons (CR-010…019, SF-001…006); the scoped suite executed on the branch with every failure classified; the one branch-introduced regression (QA-013) fixed and re-verified; pre-existing failures carried as TASK-321…324; performance scorecard recorded with the mobile LCP miss as QA-012 → TASK-320. **Stage 9 complete once TASK-318 is on production** (recorded in `HANDOFF.md`).

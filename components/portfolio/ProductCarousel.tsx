@@ -165,6 +165,8 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
     focusTab(target.id);
   };
 
+  // Stage 9 CR-019: one padding rule for the counter (the paper selector only adds a span around it)
+  const current = desktop ? String(activeIndex + 1).padStart(2, "0") : activeIndex + 1;
   return (
     <div className="pf-carousel" data-vertical={vertical ? "" : undefined} data-paper-selector={paper ? "" : undefined}>
       <div className="pf-carousel-tag">
@@ -172,7 +174,7 @@ export function ProductCarousel({ products, activeId, onSelect, panelId, tabId }
           Select a product
         </p>
         <p className="pf-count">
-          {paper ? <span className="ps-cur">{String(activeIndex + 1).padStart(2, "0")}</span> : desktop ? String(activeIndex + 1).padStart(2, "0") : activeIndex + 1} / {desktop ? String(products.length).padStart(2, "0") : products.length}
+          {paper ? <span className="ps-cur">{current}</span> : current} / {desktop ? String(products.length).padStart(2, "0") : products.length}
         </p>
       </div>
       {/* the announced position (TASK-197): "Railcite, 2 of 13" is read out whenever the selection changes */}
