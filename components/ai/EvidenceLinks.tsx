@@ -16,11 +16,16 @@ export interface EvidenceLinksProps {
   className?: string | undefined;
 }
 
+/** Stage 10 SEC-003: a source link is rendered only with a scheme we publish — an internal path, https or mailto. The FAQ content
+ *  schema already enforces this at build time; this is the same rule at the point of display, so a future answer path (the RAG
+ *  provider) or a hand-edited answer can never put a `javascript:` or `data:` href into the page. */
+export const isSafeEvidenceHref = (href: string): boolean => /^\/(?!\/)/.test(href) || /^https:\/\//i.test(href) || /^mailto:/i.test(href);
+
 export function EvidenceLinks({ evidence, className }: EvidenceLinksProps) {
   const classes = ["ask-pills", className].filter(Boolean).join(" ");
   return (
     <ul aria-label="Sources" className={classes}>
-      {evidence.map((item) => {
+      {evidence.filter((item) => isSafeEvidenceHref(item.href)).map((item) => {
         const external = !isInternalHref(item.href);
         // TASK-130: case-study links (`/work/<slug>`) open in a new tab too.
         const newTab = external || isCaseStudyHref(item.href);

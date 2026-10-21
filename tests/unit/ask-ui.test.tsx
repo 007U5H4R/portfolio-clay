@@ -119,3 +119,27 @@ describe("AnswerView states", () => {
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 });
+
+// Stage 10 SEC-003: a source link with a scheme we do not publish never reaches the DOM
+describe("EvidenceLinks (SEC-003)", () => {
+  it("drops javascript: and data: hrefs and keeps internal, https and mailto links", async () => {
+    const { EvidenceLinks, isSafeEvidenceHref } = await import("@/components/ai/EvidenceLinks");
+    const { render, screen } = await import("@testing-library/react");
+    render(
+      <EvidenceLinks
+        evidence={[
+          { label: "internal", href: "/work/teachspark" },
+          { label: "secure", href: "https://example.com/x" },
+          { label: "mail", href: "mailto:hi@example.com" },
+          { label: "script", href: "javascript:alert(1)" },
+          { label: "data", href: "data:text/html,hi" },
+          { label: "proto", href: "//evil.test/x" },
+        ]}
+      />,
+    );
+    const hrefs = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
+    expect(hrefs).toEqual(["/work/teachspark", "https://example.com/x", "mailto:hi@example.com"]);
+    expect(isSafeEvidenceHref("JAVASCRIPT:alert(1)")).toBe(false);
+    expect(isSafeEvidenceHref("http://example.com")).toBe(false);
+  });
+});

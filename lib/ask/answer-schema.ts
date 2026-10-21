@@ -10,7 +10,8 @@
 import { z } from "zod";
 import type { Answer } from "./adapter";
 
-const EvidenceSchema = z.object({ label: z.string().min(1), href: z.string().min(1) });
+// Stage 10 SEC-003: the same link rule as the FAQ content schema — an internal path, https or mailto — at the provider boundary
+const EvidenceSchema = z.object({ label: z.string().min(1), href: z.string().min(1).regex(/^(\/(?!\/)[^\s]*|https:\/\/[^\s]+|mailto:[^\s]+)$/i) });
 
 /** Parses an untrusted provider reply. `answer` MUST carry evidence (≥1); `empty` may carry none. */
 export const AnswerSchema: z.ZodType<Answer> = z.discriminatedUnion("kind", [
