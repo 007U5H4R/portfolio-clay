@@ -16568,13 +16568,15 @@ html[data-theme-vt]::view-transition-group(root) {
     color: var(--ps-accent-ink);
   }
   .pf-showcase .pf-thumb-name {
+    /* Stage 8 DES-019 (TASK-316): two lines, never an ellipsis ("The Shravan's Round" was cut at 768) */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 650;
     line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   .pf-showcase .pf-thumb-cat {
     grid-column: 2;
@@ -16584,9 +16586,10 @@ html[data-theme-vt]::view-transition-group(root) {
     font-weight: 600;
     letter-spacing: 0.03em;
     line-height: 1.3;
-    text-overflow: ellipsis;
     text-transform: uppercase;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     color: var(--color-ink-soft);
   }
   /* quiet when idle, raised and ringed when selected (a shape cue as well as colour) */
