@@ -42,6 +42,13 @@ async function open(page: Page, vw: number, vh: number, theme: "light" | "dark",
 
 const measure = (page: Page) =>
   page.evaluate(() => {
+    // TASK-334: with the paper selector the card has no pager; its bottom edge stands in so the same clearance rules hold
+    const pagerBox = () => {
+      const dot = document.querySelector(".pf-showcase .pf-info-dot");
+      if (dot) return dot.getBoundingClientRect();
+      const b = document.querySelector(".pf-showcase .pf-info")!.getBoundingClientRect();
+      return { top: b.bottom - 8, bottom: b.bottom, height: 0 };
+    };
     const r = (sel: string) => document.querySelector(sel)!.getBoundingClientRect();
     const car = r(".pf-showcase .pf-carousel");
     const stage = r(".pf-showcase .pf-stage");
@@ -63,7 +70,7 @@ const measure = (page: Page) =>
       bottom = Math.max(bottom, q.bottom);
       right = Math.max(right, q.right);
     }
-    const pager = document.querySelector(".pf-showcase .pf-info-dot")!.getBoundingClientRect();
+    const pager = pagerBox();
     const track = r(".pf-showcase .pf-track");
     const visible = [...document.querySelectorAll(".pf-showcase .pf-track .pf-thumb")].filter((t) => {
       const q = t.getBoundingClientRect();
@@ -132,7 +139,7 @@ for (const [vw, vh] of SIZES) {
         expect(m.pagerInside, `${tag}: pager inside the card`).toBe(true);
         if (i < PERSONAL.length - 1) {
           await page.getByRole("button", { name: "Next product" }).click();
-          await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+          await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
           await page.waitForTimeout(400); // TASK-304: the card enters over 300 ms (pf-enter); measuring at ~120 ms raced it (1.17 px off, also with the paper player off)
         }
       }
@@ -225,18 +232,25 @@ test("TASK-301: choosing a thumbnail keeps carousel, card and video in sync", as
   await open(page, 1440, 900, "light");
   await page.getByRole("tab", { name: new RegExp(`^${PERSONAL[2]!.name}`) }).first().click();
   await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", PERSONAL[2]!.slug);
-  await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`03 / ${pad2(PERSONAL.length)}`);
+  await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`03 / ${pad2(PERSONAL.length)}`);
   await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`03 / ${pad2(PERSONAL.length)}`);
 });
 
 const posterMeasure = (page: Page) =>
   page.evaluate(async () => {
+    // TASK-334: with the paper selector the card has no pager; its bottom edge stands in so the same clearance rules hold
+    const pagerBox = () => {
+      const dot = document.querySelector(".pf-showcase .pf-info-dot");
+      if (dot) return dot.getBoundingClientRect();
+      const b = document.querySelector(".pf-showcase .pf-info")!.getBoundingClientRect();
+      return { top: b.bottom - 8, bottom: b.bottom, height: 0 };
+    };
     const img = document.querySelector<HTMLImageElement>(".pf-showcase .pf-info .pf-info-poster-img");
     if (!img) return null;
     const hiddenFrame = getComputedStyle(img.parentElement!).display === "none";
     if (hiddenFrame) {
       const cta0 = document.querySelector(".pf-showcase .pf-info .pf-action-set")!.getBoundingClientRect();
-      const pager0 = document.querySelector(".pf-showcase .pf-info-dot")!.getBoundingClientRect();
+      const pager0 = pagerBox();
       return { hidden: true as const, slot: img.closest(".pf-info-poster")!.getBoundingClientRect().height, pagerToCta: pager0.top - cta0.bottom };
     }
     const deadline = Date.now() + 8000;
@@ -247,7 +261,7 @@ const posterMeasure = (page: Page) =>
     const head = [...document.querySelectorAll(".pf-showcase .pf-info .pf-info-head > *")].map((e) => e.getBoundingClientRect()).filter((q) => q.height > 2);
     const metaBottom = Math.max(...head.map((q) => q.bottom));
     const cta = document.querySelector(".pf-showcase .pf-info .pf-action-set")!.getBoundingClientRect();
-    const pager = document.querySelector(".pf-showcase .pf-info-dot")!.getBoundingClientRect();
+    const pager = pagerBox();
     const urlOf = (el: Element | null) => {
       const src = (el as HTMLImageElement | null)?.currentSrc || (el as HTMLImageElement | null)?.src || "";
       return new URL(src, location.href).searchParams.get("url") ?? src;
@@ -288,7 +302,7 @@ for (const [vw, vh] of SIZES) {
         expect(Math.abs(m.pagerToCta), `${tag}: actions sit just above the pager`).toBeLessThanOrEqual(16);
         if (i < PERSONAL.length - 1) {
           await page.getByRole("button", { name: "Next product" }).click();
-          await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+          await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
           await page.waitForTimeout(400); // TASK-304: the card enters over 300 ms (pf-enter); measuring at ~120 ms raced it (1.17 px off, also with the paper player off)
         }
         continue;
@@ -308,7 +322,7 @@ for (const [vw, vh] of SIZES) {
       expect(m.pagerToCta, `${tag}: actions do not overlap the pager`).toBeGreaterThanOrEqual(-2);
       if (i < PERSONAL.length - 1) {
         await page.getByRole("button", { name: "Next product" }).click();
-        await expect(page.locator(".pf-showcase .pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+        await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
         await page.waitForTimeout(400); // TASK-304: the card enters over 300 ms (pf-enter); measuring at ~120 ms raced it (1.17 px off, also with the paper player off)
       }
     }

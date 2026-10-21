@@ -35,6 +35,8 @@ export interface ProductInfoPanelProps {
   nav?: { products: readonly PortfolioProduct[]; onNavigate: (id: string, key: string) => void } | undefined;
   /** TASK-301: the vertical-carousel card shows this product's cover art between the text and the actions. Omitted = not rendered. */
   poster?: CoverArt | undefined;
+  /** TASK-334: the paper selector is the one navigation control, so the paper card renders no index ("01 / 10") of its own. */
+  selectorNav?: boolean | undefined;
 }
 
 type ExternalKind = "product" | "github" | "prd";
@@ -71,7 +73,7 @@ function StripBody({ icon: Icon, label, external, action, tier }: { icon: Action
  * tab. An action with nothing behind it is not rendered at all (no disabled dead buttons). The case
  * study link ("Explore the build", spec §4) keeps the recruiter hop to `/work/<slug>` (EVAL-002).
  */
-export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch, nav, poster }: ProductInfoPanelProps) {
+export function ProductInfoPanel({ product, mode, onModeChange, stageId, headingId, total, onWatch, nav, poster, selectorNav }: ProductInfoPanelProps) {
   const externals: { kind: ExternalKind; href: string }[] = [];
   if (product.productUrl) externals.push({ kind: "product", href: product.productUrl });
   if (product.githubUrl) externals.push({ kind: "github", href: product.githubUrl });
@@ -131,7 +133,7 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   );
 
   return (
-    <Sheet as="div" variant="card" rotate={0.6} className={paper ? "pf-info pf-paper" : "pf-info"}>
+    <Sheet as="div" variant="card" rotate={0.6} className={paper ? (selectorNav ? "pf-info pf-paper pf-nonav" : "pf-info pf-paper") : "pf-info"}>
       {nav && prevProduct && nextProduct ? (
         <div className="pf-info-nav" role="group" aria-label="Browse products">
           <button type="button" className="pf-info-arrow focus-ring" data-nav-key="prev" aria-label={paper ? "Previous project" : `Previous: ${prevProduct.name}`} onClick={() => nav.onNavigate(prevProduct.id, "prev")}>
@@ -145,9 +147,11 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       <div className="pf-info-head">
       <PhoneTags tags={product.tags} />
       <p className="pf-info-kicker">
-        <span className="pf-info-count">
-          {position} / {totalLabel}
-        </span>
+        {paper && selectorNav ? null : (
+          <span className="pf-info-count">
+            {position} / {totalLabel}
+          </span>
+        )}
         {category ? <span className="pf-info-category">{category}</span> : null}
       </p>
       <p className="pf-info-meta">

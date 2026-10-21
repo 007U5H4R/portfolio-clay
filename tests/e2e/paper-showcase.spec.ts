@@ -33,7 +33,9 @@ async function expectSynced(page: Page, index: number, chosen = false) {
   const entry = entryOf(project.slug);
   await expect(panel(page)).toHaveAttribute("data-active-product", project.slug);
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText(project.name);
-  await expect(panel(page).locator(".pf-info-count")).toHaveText(`${pad2(index + 1)} / ${pad2(PERSONAL.length)}`);
+  // TASK-334: from 1024 px the selector's counter is the one index (the card has none); below it the card keeps its own
+  const wide = (page.viewportSize()?.width ?? 0) >= 1024;
+  await expect(wide ? page.locator(".pf-showcase .pf-count") : panel(page).locator(".pf-info-count")).toHaveText(`${pad2(index + 1)} / ${pad2(PERSONAL.length)}`);
   // Stage 8 DES-017 (TASK-314): the paper card's kicker shows one tag; the TASK-301 card showed two
   const paper = (await panel(page).locator(".pf-info.pf-paper").count()) > 0;
   await expect(panel(page).locator(".pf-info-category")).toHaveText(project.tags.slice(0, paper ? 1 : 2).join(" · "));
@@ -212,7 +214,7 @@ for (const [vw, vh] of [[1440, 900], [1280, 800]] as const) {
         for (const gap of [m.media.x, m.media.y, m.media.r, m.media.b]) expect(Math.abs(gap), `${tag}: media fills the frame`).toBeLessThanOrEqual(1);
         if (i < PERSONAL.length - 1) {
           await page.getByRole("button", { name: "Next product" }).first().click();
-          await expect(panel(page).locator(".pf-info-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
+          await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`${pad2(i + 2)} / ${pad2(PERSONAL.length)}`);
           await page.waitForTimeout(150);
         }
       }
