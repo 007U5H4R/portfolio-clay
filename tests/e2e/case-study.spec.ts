@@ -43,7 +43,10 @@ test("case-study · VT off: /projects card navigates to the study with identical
 
   await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", "railcite");
   // TASK-130: the case study opens in a new tab; the new page lands on the same end state.
-  const card = page.locator('a[href="/work/railcite"]').first();
+  // TASK-339: /projects renders the case-study link twice — the desktop info panel (hidden on phones,
+  // so `.first()` was a 0x0 box that never opened a tab at 390) and the phone actions grid (TASK-257).
+  // Take the one the viewport actually shows.
+  const card = page.locator('a[href="/work/railcite"]:visible').first();
   await expect(card).toHaveAttribute("target", "_blank");
   const [study] = await Promise.all([page.waitForEvent("popup"), card.click()]);
   await study.waitForLoadState("load");
