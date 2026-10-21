@@ -4355,7 +4355,7 @@
   }
 
 @container pcard (max-width: 280px) {
-/* the category leaves the visual kicker but stays in the accessibility tree (Stage 9 SF-006) */
+/* the category leaves the visual kicker but stays in the accessibility tree (Stage 9 SF-006). TASK-334 follow-up: not on the
        nav-less card - its kicker has the whole row to itself (no index, no arrow gutter), so the category stays visible there */
     .pf-showcase.pf-vcar .pf-paper:not(.pf-nonav) .pf-info-kicker .pf-info-category {
       position: absolute;
