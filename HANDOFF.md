@@ -1,27 +1,25 @@
-# HANDOFF — Portfolio (tusharpathak.com) · Stage 11 Deployment + Production Monitoring COMPLETE → next: Stage 12 Feedback & Regression Evaluation
+# HANDOFF — Portfolio (tusharpathak.com) · Stage 12 Feedback & Regression Evaluation COMPLETE → next: continuous loop (Stage 12 on each production signal) · backlog TASK-319…325, 329
 
-Updated 2026-10-21 (Tushar: "move to Stage 11", "update campfire as well"). Previous batons (Stages 10, 9, 8, 7 complete, same day) are in git history of this file.
+Updated 2026-10-21 (Tushar: "move to Stage 12"). The 12-stage chain for the 2026-10-21 round is closed; Stage 12 stays open as the post-release loop. Previous batons (Stages 7–11, same day) are in git history of this file.
 
-## 11. Stage 11 — what was done
-- **Release provenance (production, Vercel `portfolio-clay`, team `team_pLaStAJybzggE3tGD5ioih5M`):**
+## 12. Stage 12 — what was done
+- **RCA1 · QA-013** (narrow-card query fired at 1440): permanent case `stage8-des.spec.ts` "RCA1" at 1440/1512/1920 × light/dark — secondary labels + category visible, CTA reads "Watch demo video".
+- **RCA2 · TASK-320 reclassified P1 → P2.** The 5.4 / 6.4 s mobile LCP was Lighthouse's *simulated* throttling on a contended host. Idle host, applied throttling: `/` 2.76 s, `/projects` 2.65 s, **LCP = FCP** (the hero paints in the first frame); Chrome trace at 4× CPU: bg image loaded ≈ 0.9 s, LCP 1.5–1.7 s. Remaining miss ≈ 0.2 s, set by first paint (94 kB render-blocking stylesheet + two woff2 fonts). Guard `tests/e2e/lcp-hero.spec.ts` (20/20 on production, negative control fails as intended). Addendum `evals/reports/eval-report-2026-10-21-stage12-lcp.md`. **Rule from now on:** EVAL-005 numbers name their throttling method; act on a miss only after an applied-throttling idle-host run.
+- **RCA3 · Tushky coverage:** `tests/unit/tushky-product-coverage.test.ts` — every listed product must answer "Tell me about <name>." (10/10).
+- **#147 prod-spec watch item:** no recurrence in any production run today (89, 71, 149, 71 and the Stage 12 runs) — closed.
+- **CI on main:** first non-cancelled runs are 6245ac1d (in progress at writing) and 3c94774b (queued) — record their outcome at the next session start (`gh run list --workflow eval.yml --branch main`).
+- `decisions.md` RCA1–RCA3; `lesson-learnt.md` L-09 (simulated vs applied throttling), L-10 (negative controls for regression cases); `QA-report.md` U2-14 updated.
 
-| PR | Ticket(s) | Commit | Vercel deployment | Production specs |
-|---|---|---|---|---|
-| #152 | TASK-309…316 (Stage 8) | `19e23389` | `dpl_4Xf9SThTur7JNyyYKme2pr9k4DZi` | 89 passed |
-| #153 | TASK-317 (Tushky FAQ) | `de5a0bcb` | `dpl_7wsr4PY36fmAvccaYAJgfB1aZBps` | 71 passed |
-| #154 | TASK-318 (Stage 9) | `b48f7a74` | `dpl_4WFVYQ57bf9tFnRyHjqoiGdz1vM5` | 149 passed |
-| #155 | TASK-326 (Stage 10) | `6245ac1d` | `dpl_DpNrjNhc7UzxZKp28fmjjxfvoGWo` | 71 passed |
-| (this PR) | TASK-327/328 (Stage 11 docs + CI) | see Obsidian Progress | — | — |
-
-- **Rollback ready:** the current production deployment and `b48f7a74` (`dpl_4WFVYQ57bf9tFnRyHjqoiGdz1vM5`) are Vercel rollback candidates; roll back with the Vercel dashboard "Instant Rollback" or `vercel rollback dpl_4WFVYQ57bf9tFnRyHjqoiGdz1vM5`. No migrations, no env changes in this round.
-- **Live verification on production 6245ac1d** (`.scratch/stage11/live.mjs`): `/`, `/projects`, `/work/teachspark`, `/about`, `/contact`, `/certifications` × desktop 1440 + phone 390 × light + dark = **24/24 clean** (HTTP 200, 0 console errors, 0 failed requests, 0 broken images, 0 horizontal overflow); a real Ask question "Tell me about Slag City." answered with the new entry. Vercel runtime errors, last 24 h: **none**. Headers, dev-route 404s and the speech route's 400/405 verified at Stage 10.
-- **Monitoring inventory:** Vercel Web Analytics + **Speed Insights** (field Core Web Vitals — the source for TASK-320's field LCP), Mixpanel (lazy, token-gated), Vercel runtime-error clusters. **Gaps:** nothing *alerts* (TASK-329, needs Tushar's Vercel notification settings); CI never completed a run on main this round because `cancel-in-progress` killed each run on the next push (L-04) — fixed in this PR (TASK-328); the last completed main run failed on the 22 unit tests TASK-307 fixed. **Live OG unfurl** (LinkedIn Post Inspector + opengraph.xyz) still BLOCKED for agents — a 2-minute human check.
-- **`lesson-learnt.md`** created: L-01…L-08 (container-query content box, `-U0` hunk splitting, scoped e2e strategy, CI cancellation, shared-component mount points, settling before geometry, deterministic-assistant coverage, tooling facts) + reusable rules + three candidate global CLAUDE.md lines (not applied).
-
-## 12. Next stage — Stage 12 Feedback & Regression Evaluation
-- Invoke `bw-feedback-regression`. Signals to turn into permanent regression cases: **QA-013** (assert the 1440 paper card shows its secondary labels — portfolio-video covers it; add an explicit stage8-des assertion at 1440); **TASK-320** mobile LCP (pull Speed Insights field LCP for `/` and `/projects`, then a DevTools trace on an idle host; EVAL-005); the **#147 prod-spec watch item**; a coverage test that every listed product has a "Tell me about X" FAQ entry (L-07).
-- Also confirm the CI run on main after this PR **completes** (first green main run of the round), and record it.
-- Read first: global `~/.claude/CLAUDE.md`, `~/.claude/workflow/build-workflow.md`, this file, `lesson-learnt.md`, `QA-report.md` (top section); open Campfire (`campfire` → http://127.0.0.1:6480, project portfolio-clay; board files are uncommitted in the `Portfolio-clay-redesign` worktree).
+## Next — the open backlog (Campfire, project portfolio-clay)
+| Ticket | What | Priority |
+|---|---|---|
+| TASK-320 | mobile first paint ≈ 0.2 s over the 2.5 s budget: render-blocking CSS split / critical CSS, font subsetting or `font-display`; measure with applied throttling | P2 |
+| TASK-325 | `next` 16.3.6 → ≥ 16.3.8, `sharp` ≥ 0.35.5 (advisories; exposure mitigated) | P2 |
+| TASK-329 | production alerting (Tushar's Vercel notification settings) | P2 |
+| TASK-321 | `case-study-system.spec` vs the six paper case-study layouts (24 tests) | P2 |
+| TASK-319 / 322 / 323 / 324 | EVAL-020 named colours · scene-opener phone expectation · contact stamp nudge · About fingerprint snapshot | P3 |
+| — | DES-020, 022–029 design calls; DES-021 focus order; DES-030 Design.md §7.2; live OG unfurl (human); Tushky option 2 (RAG, deferred) | Tushar |
+- Read first next time: global `~/.claude/CLAUDE.md`, this file, `lesson-learnt.md`, `QA-report.md` (top section); open Campfire.
 
 ## 0. Where things are
 - **Production = `main` of 007U5H4R/portfolio-clay, auto-deploys to Vercel → https://tusharpathak.com.** Stage 8 fixes are in **PR #152** (https://github.com/007U5H4R/portfolio-clay/pull/152, branch `m023/stage8-critique`, worktree `/Volumes/E Drive/Dev/Code/Claude/Portfolio-selector-tile`), **squash-merged 2026-10-21 → production `19e23389`**, prod specs 89 passed (stage8-des, paper-selector, paper-card, vertical-carousel, hover-stability, paper-player, projects-mobile, projects-carousel). TASK-309…316 Done. Campfire's Workflow view now follows the HANDOFF title (fork commit 42c8c4c1, pushed). Follow-up content ticket **TASK-317** (Tushky FAQ entries for the products without one) is in progress on `m024/tushky-products`.
