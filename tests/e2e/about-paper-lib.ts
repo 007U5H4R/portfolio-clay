@@ -13,6 +13,7 @@ import type { Page } from "@playwright/test";
  *     PW_BASE_URL=http://127.0.0.1:<port> pnpm test:e2e tests/e2e/about-paper-capture.spec.ts   # run inside an origin/main checkout
  * Origin-free: computed `url(...)` values are absolute (`http://127.0.0.1:<port>/...`), so the page's origin is stripped
  * and a build served on another port fingerprints the same.
+ * Custom properties are not hashed (see the TASK-324 note in the loop): only resolved properties are.
  * Computed-style rows list their properties sorted by name: Chrome enumerates custom properties (`--*`) in an
  * order that changes from one page load to the next, so an unsorted hash differs between two loads of the same build.
  */
@@ -65,6 +66,11 @@ export async function fingerprint(page: Page, origin = ""): Promise<Fingerprint>
         const props = Array.from({ length: cs.length }, (_, i) => cs.item(i)).sort();
         for (const prop of props) {
           // layout-derived values depend on position/viewport content, not on the element's own look
+          // TASK-324: custom properties (`--*`) are inherited, so every token added to :root (TASK-304/307 --pp-* / --lit-*,
+          // TASK-301 --pc-*, ...) lands in every element's computed list and flipped this hash while nothing visible changed (proved
+          // pixel-identical, light and dark, and zero non-custom computed-style differences, against the build before TASK-307).
+          // What a custom property does shows up in the properties that read it, which stay hashed.
+          if (prop.startsWith("--")) continue;
           if (/^(perspective-origin|transform-origin|block-size|inline-size|inset|top|left|right|bottom)/.test(prop)) continue;
           // url(...) values (background-image, ...) come back absolute; the server's origin is not part of the look
           row += `|${prop}:${cs.getPropertyValue(prop).split(location.origin).join("")}`;
