@@ -72,8 +72,8 @@
     padding-block: 4px;
     gap: 4px;
     /* TASK-348: the tiles fade out under the two arrows at every width (a bare 8 % stop is only ~17 px of a short 1024 tray, so the next arrow sat on a nearly opaque tile; 48 px reaches past the arrows' 14 px overhang) */
-    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 max(8%, 48px), #000 min(92%, calc(100% - 48px)), transparent 100%);
-    mask-image: linear-gradient(180deg, transparent 0, #000 max(8%, 48px), #000 min(92%, calc(100% - 48px)), transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, var(--ps2-text) max(8%, 48px), var(--ps2-text) min(92%, calc(100% - 48px)), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, var(--ps2-text) max(8%, 48px), var(--ps2-text) min(92%, calc(100% - 48px)), transparent 100%);
   }
 
   /* ---- header: title over a large serif counter ---- */
