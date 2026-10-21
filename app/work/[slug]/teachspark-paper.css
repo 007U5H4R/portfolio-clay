@@ -90,7 +90,7 @@
   .tsp-btn:hover { transform: translateY(-1px); box-shadow: var(--tsp-shadow-hover); }
   .tsp-btn-ghost:hover { background: color-mix(in oklab, var(--color-navy) 6%, transparent); }
 }
-.tsp-hero-scene img { -webkit-mask-image: linear-gradient(to bottom, black 82%, transparent); mask-image: linear-gradient(to bottom, black 82%, transparent); }
+.tsp-hero-scene img { -webkit-mask-image: linear-gradient(to bottom, var(--mask-opaque) 82%, transparent); mask-image: linear-gradient(to bottom, var(--mask-opaque) 82%, transparent); }
 .tsp-hero-phone {
   position: absolute; right: 1%; bottom: -3%; width: 36%;
   padding: 6px; border-radius: 26px; background: var(--tsp-card);

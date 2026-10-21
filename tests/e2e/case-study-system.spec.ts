@@ -14,9 +14,36 @@ import { test, expect } from "./fixtures";
 import { SYSTEM_STUDIES } from "./case-study-system";
 import { LEARNINGS, SECTION } from "@/components/case-study/velora/copy";
 import { LEARNINGS as BV_LEARNINGS, SECTION as BV_SECTION } from "@/components/case-study/bhakti-vilas/copy";
+import { HERO as NUP_HERO, LEARNINGS as NUP_LEARNINGS, SECTION as NUP_SECTION } from "@/components/case-study/nuptis/copy";
+import { HERO as PRA_HERO, SECTION as PRA_SECTION } from "@/components/case-study/pratyasa/copy";
+import { HERO as CFP_HERO, SECTION as CFP_SECTION } from "@/components/case-study/campfire/copy";
+import { HERO as SGP_HERO, SECTION as SGP_SECTION } from "@/components/case-study/slag-city/copy";
+import { HERO as SRP_HERO, SECTION as SRP_SECTION } from "@/components/case-study/shravans-round/copy";
+import { HERO as URP_HERO, SECTION as URP_SECTION } from "@/components/case-study/urja/copy";
 
 /** TASK-273: Velora's page headings and learnings are the brief's shorter copy (components/case-study/velora/copy.ts); the first product's evidence row is withheld from its drawer. */
-const PAPER = new Set(["paper", "railcite", "velora", "bhakti"]);
+const PAPER = new Set(["paper", "railcite", "velora", "bhakti", "nuptis", "pratyasa", "campfire", "slagcity", "shravans-round", "urja"]);
+/**
+ * TASK-321: the six origami / arcade paper layouts (TASK-278..284) render their own copy, not the generic template's. Each
+ * has a `SECTION` record (id -> eyebrow + headline: one labelled h2 region per entry, which can differ from the data's section
+ * ids) and a `HERO.tagline` shown as `<p class="xxx-tagline">`. Only the evidence legend, the h1 and the `data-cs-reveal`
+ * sections are shared with the template. Layouts absent here (template products) keep the `study.sections` / csx assertions.
+ */
+const PAPER_COPY: Record<string, { section: Record<string, { headline: string }>; tagline: string; learnings?: readonly { title: string }[] }> = {
+  nuptis: { section: NUP_SECTION, tagline: NUP_HERO.tagline, learnings: NUP_LEARNINGS },
+  pratyasa: { section: PRA_SECTION, tagline: PRA_HERO.tagline },
+  campfire: { section: CFP_SECTION, tagline: CFP_HERO.tagline },
+  slagcity: { section: SGP_SECTION, tagline: SGP_HERO.tagline },
+  "shravans-round": { section: SRP_SECTION, tagline: SRP_HERO.tagline },
+  urja: { section: URP_SECTION, tagline: URP_HERO.tagline },
+};
+/** Five of the six paper layouts show their evidence as figures in the Evidence section and render no `BadgeLegend` (Nuptis does). */
+const NO_LEGEND = new Set(["pratyasa", "campfire", "slagcity", "shravans-round", "urja"]);
+/** The labelled h2 regions a page renders: the paper layouts' own SECTION ids, otherwise the study's sections. */
+const renderedSections = (study: { layout: string; sections: readonly { id: string; headline: string }[] }) => {
+  const copy = PAPER_COPY[study.layout];
+  return copy ? Object.entries(copy.section).map(([id, { headline }]) => ({ id, headline })) : null;
+};
 /** TASK-276: Bhakti Vilas folds its research section into the problem section (its own anchor, no region/h2 of its own). */
 const isMerged = (study: { layout: string }, section: { id: string }) => study.layout === "bhakti" && section.id === "research";
 const headlineOf = (study: { layout: string }, section: { id: string; headline: string }) => (study.layout === "velora" ? SECTION[section.id]!.headline : study.layout === "bhakti" ? BV_SECTION[section.id]!.headline : section.headline);
@@ -36,13 +63,20 @@ for (const { study, name } of SYSTEM_STUDIES) {
       if (PAPER.has(study.layout)) {
         // TASK-263/268: the paper layouts' h1 is the product name (visually hidden) + its headline; teachspark-paper.spec.ts covers the rest.
         await expect(page.getByRole("heading", { level: 1 })).toContainText(name);
+        const tagline = PAPER_COPY[study.layout]?.tagline;
+        if (tagline) await expect(page.locator("main [class$='-tagline']").first()).toHaveText(tagline);
       } else {
         await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
         await expect(page.locator(".csx-hero .csx-tagline")).toHaveText(study.hero.tagline);
       }
 
       // Every story section is a labelled landmark whose h2 carries its one message (spec §30).
-      for (const section of study.sections) {
+      const own = renderedSections(study);
+      if (own) {
+        for (const { id, headline } of own) await expect(page.getByRole("region", { name: headline }), `section ${id}`).toHaveAttribute("id", id);
+        for (const section of study.sections) for (const anchor of section.anchors) await expect(page.locator(`[id="${anchor}"]`), `anchor ${anchor}`).toBeAttached();
+      }
+      for (const section of own ? [] : study.sections) {
         if (isMerged(study, section)) {
           await expect(page.locator(`[id="${section.id}"]`)).toBeAttached();
           for (const anchor of section.anchors) await expect(page.locator(`[id="${anchor}"]`)).toBeAttached();
@@ -55,8 +89,12 @@ for (const { study, name } of SYSTEM_STUDIES) {
 
       // The badge legend (spec §19) shows once, with only the kinds the page uses.
       const legend = page.locator(".csx-legend");
-      await expect(legend).toHaveCount(1);
-      await expect(legend).toBeVisible();
+      if (NO_LEGEND.has(study.layout)) {
+        await expect(legend).toHaveCount(0);
+      } else {
+        await expect(legend).toHaveCount(1);
+        await expect(legend).toBeVisible();
+      }
 
       // Spec §31: no development copy anywhere a visitor can read.
       const text = await page.locator("main").innerText();
@@ -112,7 +150,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       test.skip(!learnings, "no learnings recorded for this product");
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
       if (learnings && learnings.kind === "learnings") {
-        const titles = study.layout === "velora" ? LEARNINGS.map((item) => item.title) : study.layout === "bhakti" ? BV_LEARNINGS.map((item) => item.title) : learnings.items.map((item) => item.title);
+        const titles = study.layout === "velora" ? LEARNINGS.map((item) => item.title) : study.layout === "bhakti" ? BV_LEARNINGS.map((item) => item.title) : PAPER_COPY[study.layout]?.learnings ? PAPER_COPY[study.layout]!.learnings!.map((item) => item.title) : learnings.items.map((item) => item.title);
         for (const title of titles) await expect(page.getByRole("heading", { level: 3, name: title, exact: true })).toHaveCount(1);
       }
     });
@@ -121,7 +159,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
       test.skip(width(page) !== 1440, "runs once at desktop width");
       await withReducedMotion(page);
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
-      for (const section of study.sections) {
+      for (const section of renderedSections(study) ?? study.sections) {
         if (isMerged(study, section)) continue;
         const opacity = await page.locator(PAPER.has(study.layout) ? `section#${section.id}` : `section#${section.id} .csx-sec-body`).evaluate((el) => getComputedStyle(el).opacity);
         expect(opacity, section.id).toBe("1");
@@ -131,7 +169,7 @@ for (const { study, name } of SYSTEM_STUDIES) {
     test("scrolling reveals every section once (motion on)", async ({ page }) => {
       test.skip(width(page) !== 1440, "runs once at desktop width");
       await page.goto(`/work/${study.slug}`, { waitUntil: "load" });
-      for (const section of study.sections) {
+      for (const section of renderedSections(study) ?? study.sections) {
         if (isMerged(study, section)) continue;
         const body = page.locator(`section#${section.id}`);
         await body.scrollIntoViewIfNeeded();
@@ -150,9 +188,9 @@ test("case-study system · JS off: the static HTML carries the whole story", { t
       await p.goto(`/work/${study.slug}`, { waitUntil: "domcontentloaded" });
       if (PAPER.has(study.layout)) await expect(p.getByRole("heading", { level: 1 })).toContainText(name);
       else await expect(p.getByRole("heading", { level: 1 })).toHaveText(name);
-      for (const section of study.sections) {
+      for (const section of renderedSections(study) ?? study.sections) {
         if (isMerged(study, section)) continue;
-        await expect(p.getByRole("heading", { level: 2, name: headlineOf(study, section) })).toBeVisible();
+        await expect(p.getByRole("heading", { level: 2, name: PAPER_COPY[study.layout] ? section.headline : headlineOf(study, section) })).toBeVisible();
       }
       await expect(p.getByRole("link", { name: /^Next project:/ })).toBeVisible();
     }
