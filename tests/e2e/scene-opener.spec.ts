@@ -51,7 +51,11 @@ for (const { route, id } of OPENERS) {
     const decor = await first.locator("[data-decor]").evaluateAll((els) => els.map((el) => el.getAttribute("data-decor")));
     expect(decor).toEqual(["torn"]);
 
-    const box = (await root.boundingBox())!;
+    // TASK-322: the opener container clips the scene on phones (the scene image box can extend below it), so the
+    // h1-below-the-banner check measures the opener container, not the uncropped scene image.
+    const rootBox = (await root.boundingBox())!;
+    expect(rootBox.height).toBeGreaterThan(0);
+    const box = (await first.boundingBox())!;
     expect(box.height).toBeGreaterThan(0);
 
     const h1 = (await page.getByRole("heading", { level: 1 }).first().boundingBox())!;
