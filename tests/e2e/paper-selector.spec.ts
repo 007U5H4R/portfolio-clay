@@ -47,7 +47,8 @@ async function scrollToSelector(page: Page) {
 const count = (page: Page) => page.locator(".pf-showcase .pf-count");
 const expectIndex = async (page: Page, n: number, why: string) => {
   await expect(count(page), why).toHaveText(`${pad2(n)} / ${pad2(TOTAL)}`);
-  await expect(page.locator(".pf-showcase .pf-info-count"), `${why}: card agrees`).toHaveText(`${pad2(n)} / ${pad2(TOTAL)}`);
+  // TASK-334: the selector is the one index; the card carries none
+  await expect(page.locator(".pf-showcase .pf-info-count"), `${why}: the card has no index of its own`).toHaveCount(0);
 };
 
 for (const [vw, vh] of SIZES) {

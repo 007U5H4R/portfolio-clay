@@ -58,27 +58,12 @@ for (const theme of ["light", "dark"] as const) {
       expect(["none", "normal"]).toContain(outline.before);
       expect(["none", "normal"]).toContain(outline.after);
 
-      // arrows: labelled, surface-less, >= 44 px, and they change product
-      for (const [key, name] of [["prev", "Previous project"], ["next", "Next project"]] as const) {
-        const arrow = card.locator(`.pf-info-arrow[data-nav-key="${key}"]`);
-        await expect(arrow).toHaveAccessibleName(name);
-        const look = await arrow.evaluate((el) => {
-          const cs = getComputedStyle(el);
-          const r = el.getBoundingClientRect();
-          return { bg: cs.backgroundColor, img: cs.backgroundImage, shadow: cs.boxShadow, w: r.width, h: r.height, facets: el.querySelectorAll("svg polygon").length, ariaHidden: el.querySelector(".oa")?.getAttribute("aria-hidden") };
-        });
-        expect(look.bg).toBe("rgba(0, 0, 0, 0)");
-        expect(look.img).toBe("none");
-        expect(look.shadow).toBe("none");
-        expect(look.w).toBeGreaterThanOrEqual(44);
-        expect(look.h).toBeGreaterThanOrEqual(44);
-        expect(look.facets).toBe(3);
-        expect(look.ariaHidden).toBe("true");
-      }
+      // TASK-334: the selector is the one navigation control - the card has no arrows, index or pager (not merely hidden)
+      await expect(card.locator(".pf-info-nav, .pf-info-pager, .pf-info-arrow, .pf-info-dot, .pf-info-count")).toHaveCount(0);
       const i = PERSONAL.findIndex((p) => p.slug === project.slug);
-      await card.locator('.pf-info-arrow[data-nav-key="next"]').click();
+      await page.locator('.pf-carousel[data-paper-selector] [role="tab"][data-product]').nth((i + 1) % PERSONAL.length).click();
       await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", PERSONAL[(i + 1) % PERSONAL.length]!.slug);
-      await page.locator(".pf-info .pf-info-arrow[data-nav-key='prev']").click();
+      await page.locator('.pf-carousel[data-paper-selector] .pf-arrow[data-dir="prev"]').click();
       await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", project.slug);
 
       // poster: the product's own cover, unchanged aspect ratio

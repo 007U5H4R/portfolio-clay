@@ -292,6 +292,9 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
 
   if (!product) return null;
 
+  // TASK-334 (DES-024): where the paper selector is on screen it is the one navigation control — the card drops its own arrows, "01 / 10" and pager dots
+  const selectorPresent = VERTICAL_CAROUSEL_ENABLED && PAPER_SELECTOR_ENABLED && desktop;
+
   return (
     <div className={VERTICAL_CAROUSEL_ENABLED ? (PAPER_SELECTOR_ENABLED && desktop ? "pf-showcase pf-vcar pf-psel" : "pf-showcase pf-vcar") : "pf-showcase"} data-view={view}>
       {intro}
@@ -318,7 +321,8 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
           headingId={NAME_ID}
           total={products.length}
           onWatch={watchVideo}
-          nav={desktop ? { products, onNavigate: navigateCard } : undefined}
+          nav={desktop && !selectorPresent ? { products, onNavigate: navigateCard } : undefined}
+          selectorNav={selectorPresent}
           poster={VERTICAL_CAROUSEL_ENABLED && desktop ? product.art : undefined}
         />
       </div>

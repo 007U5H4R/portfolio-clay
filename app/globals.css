@@ -20367,6 +20367,19 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     text-overflow: ellipsis;
     min-width: 0;
   }
+  /* TASK-334 (DES-024): the paper selector is the one navigation control, so the card has no arrows, index or pager: the kicker is the
+     category alone (no arrow gutter, no divider) and the pager's 22 px of bottom padding goes back to the content. */
+  .pf-showcase.pf-vcar .pf-info.pf-paper.pf-nonav.paper-sheet {
+    padding-bottom: 14px;
+  }
+  .pf-showcase.pf-vcar .pf-paper.pf-nonav .pf-info-kicker {
+    min-height: 22px;
+    padding-right: 0;
+  }
+  .pf-showcase.pf-vcar .pf-paper.pf-nonav .pf-info-kicker .pf-info-category {
+    border-left: 0;
+    padding-left: 0;
+  }
   /* ---- the folded-paper arrows: no surface, a 44 px hit box around a ~28 px paper object ---- */
   .pf-showcase.pf-vcar .pf-paper .pf-info-nav {
     top: 4px;

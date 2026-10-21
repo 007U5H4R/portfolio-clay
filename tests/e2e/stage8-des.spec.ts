@@ -9,6 +9,8 @@
  *   TASK-314  the paper card's category label never truncates (DES-017)
  *   TASK-315  the stage's "Watch on YouTube" link has a >= 44 px hit area (DES-018)
  *   TASK-316  tablet carousel tile names and categories never truncate (DES-019)
+ * Design wave 2 (DES-020 ... DES-028, 2026-10-21):
+ *   TASK-334  the paper card has no navigation of its own - the selector is the one control (DES-024)
  *
  * Desktop checks run once (w1440 project, sizes set inside); the phone check runs on w390; the tablet check on w768.
  */
@@ -102,7 +104,6 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         return {
           cta: pair('.pf-paper .pf-action[data-tier="primary"] .pf-action-label', '.pf-paper .pf-action[data-tier="primary"]'),
           tagline: pair(".pf-paper .pf-info-tagline"),
-          count: pair(".pf-paper .pf-info-count"),
           tileNum: pair('[data-paper-selector] .pf-thumb[aria-selected="true"] .pf-thumb-num', '[data-paper-selector] .pf-thumb[aria-selected="true"]'),
           counterCur: pair("[data-paper-selector] .pf-count .ps-cur", undefined, panelBg),
         };
@@ -173,6 +174,32 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         expect(m.tailShown, "the CTA reads 'Watch demo video'").toBe(true);
       });
     }
+  }
+
+  for (const [vw, vh] of [[1024, 768], [1440, 900]] as const) {
+    test(`TASK-334: at ${vw}x${vh} the card has no arrows, index or pager and the selector alone drives selection`, async ({ page }) => {
+      await open(page, vw, vh, "light", PERSONAL[2]!.slug);
+      // not rendered at all, so nothing is hidden-but-focusable and nothing is in the accessibility tree
+      await expect(page.locator(".pf-info .pf-info-nav, .pf-info .pf-info-pager, .pf-info .pf-info-arrow, .pf-info .pf-info-dot, .pf-info .pf-info-count")).toHaveCount(0);
+      await expect(page.getByRole("group", { name: "Browse products" })).toHaveCount(0);
+      await expect(page.getByRole("group", { name: "Product position" })).toHaveCount(0);
+      await expect(page.locator(".pf-info .pf-info-category")).toHaveCount(1);
+      const panel = page.getByRole("tabpanel");
+      await page.getByRole("tab", { selected: true }).focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(panel).toHaveAttribute("data-active-product", PERSONAL[3]!.slug);
+      await page.keyboard.press("ArrowUp");
+      await page.keyboard.press("ArrowUp");
+      await expect(panel).toHaveAttribute("data-active-product", PERSONAL[1]!.slug);
+      await page.keyboard.press("End");
+      await expect(panel).toHaveAttribute("data-active-product", PERSONAL.at(-1)!.slug);
+      await page.keyboard.press("Home");
+      await expect(panel).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
+      await expect(page.locator(".pf-showcase .pf-count")).toHaveText(`01 / ${String(PERSONAL.length).padStart(2, "0")}`);
+      // the selector's own up / down buttons still wrap
+      await page.locator('.pf-carousel[data-paper-selector] .pf-arrow[data-dir="prev"]').click();
+      await expect(panel).toHaveAttribute("data-active-product", PERSONAL.at(-1)!.slug);
+    });
   }
 
   test("TASK-313: while the player loads, the poster stays and a loading cue shows (YouTube blocked)", async ({ page }) => {
