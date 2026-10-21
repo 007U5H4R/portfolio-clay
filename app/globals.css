@@ -4581,8 +4581,8 @@ html.lenis body {
   .acx {
     --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
     --ab-fibers: url("/media/portfolio/decor/paper-fibers.svg");
-    --ab-shadow: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent))
-      drop-shadow(0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
+    --ab-shadow: 0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent),
+      0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent);
   }
   /* TASK-209: the cards need width for their reference panels — stacked below 640, two up to 1023. */
 }
@@ -4829,12 +4829,26 @@ html[data-theme-vt]::view-transition-group(root) {
   z-index: -1;
   pointer-events: none;
   overflow-x: clip;
-  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 14%, transparent))
-    drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 10%, transparent));
+  --hdr-shade-1: 14%;
+  --hdr-shade-2: 8%;
+}
+/* TASK-342: the sheet's shadow is a gradient band under its torn foot, not `filter: drop-shadow` — WebKit re-composites a
+   filtered layer on every scroll frame, and this one sits over the whole page (the sheet's tear is only ~5 px deep). */
+.header-paper::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -20px;
+  height: 22px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--shadow-ink) var(--hdr-shade-1), transparent),
+    color-mix(in oklab, var(--shadow-ink) var(--hdr-shade-2), transparent) 30%,
+    transparent
+  );
 }
 .site-header[data-scrolled] .header-paper {
-  filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--shadow-ink) 18%, transparent))
-    drop-shadow(0 8px 10px color-mix(in oklab, var(--shadow-ink) 16%, transparent));
+  --hdr-shade-1: 18%;
+  --hdr-shade-2: 12%;
 }
 .header-paper-sheet {
   position: absolute;
@@ -5591,8 +5605,9 @@ html[data-theme-vt]::view-transition-group(root) {
   --ridge-mid: color-mix(in oklab, var(--color-kraft) 60%, var(--color-ivory));
   overflow: visible;
   pointer-events: none;
-  filter: drop-shadow(0 -1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent))
-    drop-shadow(0 -4px 5px color-mix(in oklab, var(--shadow-ink) 8%, transparent));
+}
+[data-decor="torn"] .torn-shade {
+  fill: var(--shadow-ink);
 }
 [data-decor="torn"] .torn-back {
   fill: var(--ridge-back);
@@ -5622,7 +5637,8 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-decor="torn"] .torn-back {
+    [data-decor="torn"] .torn-back,
+    [data-decor="torn"] .torn-shade {
       animation: ridge-back-drift linear both;
       animation-timeline: view(block);
       animation-range: cover;
@@ -5988,8 +6004,8 @@ html[data-theme-vt]::view-transition-group(root) {
   .tsx {
     --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
     --ab-fibers: url("/media/portfolio/decor/paper-fibers.svg");
-    --ab-shadow: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent))
-      drop-shadow(0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
+    --ab-shadow: 0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent),
+      0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent);
     --pa-lift: 4px;
   }
   /* TASK-254 (Tushar 2026-10-18) · phones: `svg.sketch { display: block }` outranked `.crx-thread { display: none }`, so
