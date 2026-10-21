@@ -8780,10 +8780,9 @@ html.lenis body {
   }
   /* Stage 8 DES-016 (TASK-313): while the player loads, the poster stays (ProductMediaPlayer keeps it above the iframe) under a
      small cue instead of a flat navy frame */
-  .pf-loading-poster {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
+  /* Stage 9 SF-003: while loading, the poster and status sit over the iframe but never swallow a click meant for the player */
+  [data-player-state="loading"] > :not(iframe) {
+    pointer-events: none;
   }
   .pf-stage-screen[data-player-state="loading"]::before {
     content: "Loading video…";
@@ -20593,8 +20592,16 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
      and category label no longer fit (GitHub + Case study fell out of the card). In a narrow card the secondaries become one
      icon row (the label stays for assistive tech), the pills may wrap, the category gives way and the CTA label steps down. */
   @container pcard (max-width: 300px) {
+    /* the category leaves the visual kicker but stays in the accessibility tree (Stage 9 SF-006) */
     .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+      padding: 0;
     }
     .pf-paper .pf-pc-pills {
       flex-wrap: wrap;

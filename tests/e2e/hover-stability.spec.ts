@@ -27,6 +27,10 @@ test("the stage + card pair keeps its own layer and rect while the pointer moves
   await cdp.send("LayerTree.enable");
 
   const rect = () => feature.evaluate((el) => JSON.stringify(el.getBoundingClientRect()));
+  // Stage 9 CR-014: settle first — the stage's entrance transform and the smooth scroll must both have finished, or the
+  // first sample is taken mid-motion and the guard fails without any hover shake
+  await page.waitForTimeout(900);
+  await expect.poll(rect, { intervals: [100, 100, 100], timeout: 3000 }).toBe(await rect());
   const before = await rect();
   const box = (await page.locator(".pf-showcase.pf-vcar .pf-stage").boundingBox())!;
   for (let i = 0; i < 40; i++) {

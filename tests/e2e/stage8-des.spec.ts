@@ -158,7 +158,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     const screen = page.locator(".pf-stage-screen");
     await expect(screen).toHaveAttribute("data-player-state", "loading");
     await expect(screen.locator("iframe")).toHaveCount(1);
-    await expect(screen.locator("[data-loading-poster]"), "the poster is kept over the iframe").toBeVisible();
+    await expect(screen.locator("img").first(), "the poster is kept over the iframe").toBeVisible();
+    await expect(screen.locator("[data-loading-status]"), "assistive tech hears the loading state").toHaveText(/Loading video/);
     const cue = await screen.evaluate((el) => getComputedStyle(el, "::before").content);
     expect(cue).toContain("Loading video");
     // the existing error path still follows once the player never answers
