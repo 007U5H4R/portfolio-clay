@@ -182,19 +182,19 @@
     margin-right: -27px;
   }
 }
-/* DES-027: more of the tile for the art from 1280 px up. A 44 % art (of the tile) needs ~84 px for the name beside it, and the panel gave ~80 px, so the
-   panel widens (names stay at their size and never truncate) instead of shrinking the type. 1700 px and up keep the TASK-305 232 px. */
+/* DES-027: more of the tile for the art from 1280 px up (36 % -> ~40 % at 1280-1699, ~41 % at 1700+). I did NOT widen the panel (--pf-vc-w, EXE-58's open
+   question) to reach the sketch's 45 %: the card is 5:7 of the row height and the row height comes from the width left after the panel, so +14 px of
+   panel took 5.5 px off the card and pushed Bhakti Vilas's actions 5 px into the card's pager row (vertical-carousel.spec TASK-301 fails). Names keep
+   their size and never truncate (stage8-des TASK-309). */
 @media (min-width: 1280px) {
   /* tiles stay near their old height so five fit the tray (the cover art crops, object-fit: cover; its box stays < 1.4:1 because the tile's vertical padding is 6 px) */
   .pf-showcase.pf-vcar.pf-psel {
     --pf-vc-t: clamp(68px, calc(var(--pf-vc-h) * 0.165), 92px);
   }
   .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-thumb-art {
-    width: clamp(58px, 48%, 120px); /* ~44 % of the whole tile (the % is of the padded content box) */
+    width: clamp(58px, 44%, 120px); /* ~40 % of the whole tile at 1280-1699 (the % is of the padded content box) */
   }
-}
-@media (min-width: 1280px) and (max-width: 1699px) {
-  .pf-showcase.pf-vcar.pf-psel {
-    --pf-vc-w: clamp(196px, 14.6vw, 214px);
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb {
+    gap: 5px; /* 2 px more for the name beside the art (was 7) */
   }
 }

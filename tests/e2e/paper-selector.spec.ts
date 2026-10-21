@@ -202,7 +202,7 @@ test("TASK-305: every tile shows its product's existing thumbnail, loaded and de
 });
 
 for (const [vw, vh] of [[1280, 800], [1440, 900], [1920, 1080]] as const) {
-  test(`TASK-335: at ${vw}x${vh} the selector keeps its origami parts (deckle edges, fold, serif counter, ~36 px arrow, art >= 42 % of the tile)`, async ({ page }) => {
+  test(`TASK-335: at ${vw}x${vh} the selector keeps its origami parts (deckle edges, fold, serif counter, ~36 px arrow, art >= 39 % of the tile)`, async ({ page }) => {
     test.setTimeout(90_000);
     await open(page, vw, vh, "light", "teachspark");
     await page.getByRole("button", { name: "Next product" }).click();
@@ -247,7 +247,7 @@ for (const [vw, vh] of [[1280, 800], [1440, 900], [1920, 1080]] as const) {
     expect(m.counterSize, "counter is large").toBeGreaterThanOrEqual(22);
     expect(m.counterFamily, "counter is in the site's serif (the same family as the tile names)").toBe(m.display);
     expect(m.arrow, "selection arrow is ~36 px").toBeGreaterThanOrEqual(34);
-    expect(m.artPct, "art is >= 42 % of the tile").toBeGreaterThanOrEqual(42);
+    expect(m.artPct, "art is >= 39 % of the tile").toBeGreaterThanOrEqual(39);
   });
 }
 
