@@ -38,9 +38,10 @@ async function open(page: Page, vw: number, vh: number, theme: Theme, slug?: str
   await page.waitForTimeout(600);
 }
 
-/** WCAG 2.x contrast of two computed `rgb(…)` / `rgba(…)` colours (alpha ignored — every colour under test is opaque). */
+/** WCAG 2.x contrast of two computed `rgb(…)` / `rgba(…)` colours (alpha ignored — every colour under test is opaque). Any other
+ *  colour syntax (lab(), color(), oklch()) throws, so a wrong surface can never pass by accident. */
 const CONTRAST = `(a, b) => {
-  const ch = (s) => (s.match(/[\\d.]+/g) || []).slice(0, 3).map(Number);
+  const ch = (s) => { if (!/^rgba?\\(/.test(s)) throw new Error("not an rgb colour: " + s); return (s.match(/[\\d.]+/g) || []).slice(0, 3).map(Number); };
   const lum = (s) => { const [r, g, b] = ch(s).map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
   const la = lum(a), lb = lum(b); const hi = Math.max(la, lb), lo = Math.min(la, lb); return (hi + 0.05) / (lo + 0.05);
 }`;
@@ -92,16 +93,18 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
           }
           return "rgb(255, 255, 255)";
         };
-        const pair = (textSel: string, bgSel?: string) => {
+        const pair = (textSel: string, bgSel?: string, bg?: string) => {
           const el = document.querySelector(textSel)!;
-          return contrast(getComputedStyle(el).color, bgSel ? cs(bgSel).backgroundColor : bgOf(el));
+          return contrast(getComputedStyle(el).color, bg ?? (bgSel ? cs(bgSel).backgroundColor : bgOf(el)));
         };
+        // the selector panel's parchment is painted by its ::before, so no ancestor carries a background colour
+        const panelBg = getComputedStyle(document.querySelector(".pf-carousel[data-paper-selector]")!, "::before").backgroundColor;
         return {
           cta: pair('.pf-paper .pf-action[data-tier="primary"] .pf-action-label', '.pf-paper .pf-action[data-tier="primary"]'),
           tagline: pair(".pf-paper .pf-info-tagline"),
           count: pair(".pf-paper .pf-info-count"),
           tileNum: pair('[data-paper-selector] .pf-thumb[aria-selected="true"] .pf-thumb-num', '[data-paper-selector] .pf-thumb[aria-selected="true"]'),
-          counterCur: pair("[data-paper-selector] .pf-count .ps-cur"),
+          counterCur: pair("[data-paper-selector] .pf-count .ps-cur", undefined, panelBg),
         };
       }, CONTRAST);
       for (const [name, ratio] of Object.entries(ratios)) expect(ratio, `${name} ${theme}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
