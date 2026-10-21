@@ -110,6 +110,21 @@ TC-091 PASS · TC-104 PASS (+ now covers Deep-dive) · TC-105 PASS · TC-106 PAS
 
 Checked and fine (hunter): CTA label split keeps "Watch demo video" / "Watch demo" as the accessible name; hidden secondary labels use clip, not `display:none`; loading-state error paths still reach the visible error state; carousel ARIA unchanged; `checkFaq()` fails prebuild loudly (exit 1), stale entries never served; TASK-307's re-stamp of 17 answers matches the data (no "IntraEdge").
 
+## 9B · Frontend performance (lab, production de5a0bcb, Lighthouse 12.6.1 from the repo's `@lhci/cli`, 2026-10-21 ~10:40 IST)
+
+Conditions: `--only-categories=performance`, Lighthouse simulated throttling (mobile: Moto G Power profile, 4× CPU, slow-4G; desktop preset: 1× CPU), headless Chrome with a fresh temp profile, 3 runs per cell, cold cache each run, run on the build host **while the unit suite and a build were running on it** (TBT and render timings carry contention; TTFB and transfer sizes do not). **Field data: BLOCKED** — the keyless PageSpeed Insights API quota was exhausted (`Queries per day`), so no CrUX read; the site is new enough that CrUX is unlikely to have a mobile sample yet. Raw JSON: `/Volumes/E Drive/Dev/.scratch/stage9/lh/`.
+
+| Route | Form factor | Runs | LCP ms median (range) | CLS | TBT ms | FCP ms | TTFB ms | Weight kB | Score |
+|---|---|---|---|---|---|---|---|---|---|
+| `/` | desktop | 3 | **1260** (1259–1266) | 0.001 | 7 (6–8) | 555 | 55 | 1756 | 97 |
+| `/` | mobile | 3 | **5449** (5299–7338) | 0.000 | 378 (230–447) | 2745 | 60 | 1520 | 62 (54–71) |
+| `/projects` | desktop | 3 | **1262** (1140–1460) | 0.008 | 312 (268–497) | 579 | 58 | 1835 | 79 (73–83) |
+| `/projects` | mobile | 3 | **6410** (6273–6975) | 0.000 | 445 (364–656) | 2911 | 57 (49–1112) | 1222 | 53 (52–60) |
+
+Budgets (`evaluation-plan.md` EVAL-005): LCP ≤ 2.5 s · CLS < 0.05 · home JS ≤ 180 kB gz (bundle gate, not re-measured here). **Desktop: PASS** on both routes (LCP 1.26 s, CLS ≤ 0.008). **Mobile: FAIL** on both routes — and worse than the 2.7–3.2 s Tushar accepted at EXE-24 (TKT-92, `QA-report.md`).
+
+**Diagnosis (measured, not fixed):** the LCP element is the hero's mobile background `<img>` (`hero-home-bg-mobile.webp` on `/`, `scene-work-bg-mobile.webp` on `/projects`). Its phase split on `/` mobile: TTFB ≈ 640 ms · load delay 320–1590 ms · load time 460–600 ms · **render delay 2600–5770 ms**; on `/projects`: load delay 90–1120 ms · load time 240–1070 ms · **render delay 2900–5440 ms**. The image is on the wire by ~1.5–2.5 s and painted 3–5 s later, so the cost is between download and paint: main-thread work under 4× CPU (TBT 230–660 ms, 81 requests, two woff2 fonts of 119 kB + 73 kB and a 94 kB stylesheet ahead of it) and/or a reveal that waits for hydration. The clean desktop render delay (657 ms) points at CPU-bound work rather than the image path. One `/projects` run also hit a 1.1 s TTFB (cold edge), the others 50–60 ms. **QA-012 → TASK-320 (P1):** reproduce with a DevTools performance trace on an idle host, split hydration vs font blocking vs any JS-gated scene reveal, then decide the least visually destructive fix (the layered hero is a deliberate identity — measure its cost before trimming it). Not a Stage 7/8 regression: the hero and scene openers were not touched in this range; the paper-world hero shipped with M-011.
+
 ## 9B · Test execution
 
-_(filled in below once the scoped run and the Lighthouse runs finish)_
+_(filled in below once the scoped run finishes)_
