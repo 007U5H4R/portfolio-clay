@@ -1612,17 +1612,18 @@
   }
 }
 
+/* TASK-343: gated on the journal not scrolling (`data-scrolling`, set by the component while the page moves + 150 ms) */
 @media (hover: hover) and (pointer: fine) {
-  .ee-card.paper-sheet:hover {
+  :where(.ee-journal:not([data-scrolling])) .ee-card.paper-sheet:hover {
     translate: 0 -4px;
   }
-  .ee-card.paper-sheet:hover .ee-shade {
+  :where(.ee-journal:not([data-scrolling])) .ee-card.paper-sheet:hover .ee-shade {
     opacity: 1;
   }
-  .ee-card:hover .ee-part[data-hover] {
+  :where(.ee-journal:not([data-scrolling])) .ee-card:hover .ee-part[data-hover] {
     translate: 0 calc(var(--dy) * 0.4);
   }
-  .ee-card:hover .ee-open-arrow {
+  :where(.ee-journal:not([data-scrolling])) .ee-card:hover .ee-open-arrow {
     translate: 3px 0;
   }
 }
