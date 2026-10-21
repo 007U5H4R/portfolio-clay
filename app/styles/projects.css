@@ -4044,6 +4044,7 @@
   .pf-paper .pf-info-kicker { order: 1; }
   .pf-paper .pf-info-name { order: 2; }
   .pf-paper .pf-info-tagline { order: 3; }
+  .pf-paper .pf-info-gap { display: none; }
   .pf-paper .pf-info-poster { order: 4; }
   .pf-paper .pf-pc-pills { order: 5; }
   .pf-paper .pf-info-desc { order: 6; }
@@ -4302,12 +4303,28 @@
      slightly shorter poster; 380-415 px takes 14 px / four lines; 416-500 px (1440-1512) takes 13 px / three lines and a
      slightly shorter poster. */
   @container pcard (min-height: 330px) and (max-height: 500px) {
-    .pf-showcase.pf-vcar .pf-paper .pf-info-poster,
-    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
-      margin-top: auto;
+    /* TASK-347: two spacer elements (`.pf-info-gap`) share the free height instead of auto margins, each at most 24 px - any
+       height beyond that stays below the actions - and the one above the poster keeps at least 4 px from the tagline */
+    .pf-showcase.pf-vcar .pf-paper .pf-info-gap {
+      display: block;
+      flex: 1 1 0;
+      min-height: 0;
+      max-height: 24px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-gap[data-gap="poster"] {
+      order: 4;
+      flex-basis: 4px;
+      min-height: 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-gap[data-gap="desc"] {
+      order: 6;
     }
     .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-top: 0;
       margin-bottom: 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: 0;
     }
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
       font-size: 13px;
