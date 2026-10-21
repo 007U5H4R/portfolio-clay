@@ -257,6 +257,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         expect(m.descGap, `${at}: gap above the description`).toBeLessThanOrEqual(24);
         expect(m.descGap, `${at}: pills clear the description`).toBeGreaterThanOrEqual(-1);
         expect(m.actsBottom, `${at}: actions inside the card`).toBeLessThanOrEqual(m.cardBottom + 1);
+        expect(m.cardBottom - m.actsBottom, `${at}: blank below the actions`).toBeLessThanOrEqual(16);
       }
     });
   }

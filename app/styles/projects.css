@@ -4325,15 +4325,17 @@
     }
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
       margin-top: 0;
+      margin-bottom: 6px;
     }
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
       font-size: 13px;
       line-height: 1.28;
       -webkit-line-clamp: 4;
     }
-    /* the free height goes above the poster and above the description (auto margins), so the CTA keeps a fixed gap under the text */
+    /* TASK-347: the two capped gaps take height first; whatever is left sits between the description and the actions (auto margin),
+       so the action set stays at the card's own bottom padding like production */
     .pf-showcase.pf-vcar .pf-paper .pf-action-set {
-      margin-top: 6px;
+      margin-top: auto;
       padding-top: 8px;
     }
   }
