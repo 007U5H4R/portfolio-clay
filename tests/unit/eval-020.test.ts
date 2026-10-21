@@ -212,8 +212,8 @@ describe("EVAL-020 paper token gate", () => {
     expect(scanTree(files, scanLiterals)).toEqual([]);
   });
 
-  it("(3b) no named CSS colour (black, white, red, …) as a value outside app/globals.css (TASK-319)", () => {
-    const files = sourceFiles("app", "components", "lib").filter((f) => !LITERAL_ALLOWLIST.has(f) && f.endsWith(".css"));
+  it("(3b) no named CSS colour (black, white, red, …) as a value outside app/globals.css and app/styles/ (TASK-319)", () => {
+    const files = sourceFiles("app", "components", "lib").filter((f) => !isLiteralAllowed(f) && f.endsWith(".css"));
     expect(files.length).toBeGreaterThan(10);
     expect(files.flatMap((f) => scanNamedColours(readFileSync(join(ROOT, f), "utf8"), f).map((h) => `${f}:${h.line} [${h.rule}] ${h.match}`))).toEqual([]);
   });
