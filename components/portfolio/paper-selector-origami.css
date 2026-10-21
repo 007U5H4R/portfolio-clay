@@ -57,6 +57,22 @@
     background-size: auto, 160px 160px;
   }
 
+  /* ---- tray: less dead space around the arrows so five tiles show (the 44 px hit areas overhang their 20 px rows) ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] {
+    grid-template-rows: auto 20px minmax(0, 1fr) 20px;
+    padding: 6px 6px 3px; /* the next arrow's hover nudge (2 px down) must stay inside the panel */
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-arrow {
+    align-self: center;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-arrow[data-dir="next"] {
+    align-self: end; /* its 44 px hit box must stay inside the panel: it overhangs upward, over the tray's faded foot */
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track {
+    padding-block: 4px;
+    gap: 4px;
+  }
+
   /* ---- header: title over a large serif counter ---- */
   .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-carousel-tag {
     flex-direction: column;
@@ -83,7 +99,7 @@
     isolation: isolate;
     border: 0;
     border-radius: 0;
-    padding: 9px 7px 9px 8px; /* the 1 px border it replaces is padding now: the content sits exactly where it did */
+    padding: 6px 7px 6px 8px; /* the 1 px border it replaces is padding now (horizontal content sits where it did); 3 px less vertical padding gives the art height */
     box-shadow: none;
     clip-path: var(--ps3-tile-a);
   }
@@ -169,9 +185,9 @@
 /* DES-027: more of the tile for the art from 1280 px up. A 44 % art (of the tile) needs ~84 px for the name beside it, and the panel gave ~80 px, so the
    panel widens (names stay at their size and never truncate) instead of shrinking the type. 1700 px and up keep the TASK-305 232 px. */
 @media (min-width: 1280px) {
-  /* a 44 % art in the old 68-77 px tile would be 1.4:1 or wider; a slightly taller tile keeps the cover art near 4:3 (paper-selector.spec guards < 1.4) */
+  /* tiles stay near their old height so five fit the tray (the cover art crops, object-fit: cover; its box stays < 1.4:1 because the tile's vertical padding is 6 px) */
   .pf-showcase.pf-vcar.pf-psel {
-    --pf-vc-t: clamp(76px, calc(var(--pf-vc-h) * 0.18), 116px);
+    --pf-vc-t: clamp(68px, calc(var(--pf-vc-h) * 0.165), 92px);
   }
   .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-thumb-art {
     width: clamp(58px, 48%, 120px); /* ~44 % of the whole tile (the % is of the padded content box) */

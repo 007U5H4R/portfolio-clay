@@ -205,6 +205,20 @@ for (const [vw, vh] of [[1280, 800], [1440, 900], [1920, 1080]] as const) {
   test(`TASK-335: at ${vw}x${vh} the selector keeps its origami parts (deckle edges, fold, serif counter, ~36 px arrow, art >= 42 % of the tile)`, async ({ page }) => {
     test.setTimeout(90_000);
     await open(page, vw, vh, "light", "teachspark");
+    await page.getByRole("button", { name: "Next product" }).click();
+    await page.waitForTimeout(900); // the strip re-centres
+    const visible = await page.evaluate(() => {
+      const tray = document.querySelector(".pf-carousel[data-paper-selector] .pf-track")!.getBoundingClientRect();
+      const tiles = [...document.querySelectorAll(".pf-carousel[data-paper-selector] .pf-track .pf-thumb")];
+      const frac = tiles.map((t) => {
+        const r = t.getBoundingClientRect();
+        return Math.max(0, Math.min(r.bottom, tray.bottom) - Math.max(r.top, tray.top)) / r.height;
+      });
+      return { full: frac.filter((f) => f >= 0.98).length, mostly: frac.filter((f) => f >= 0.5).length };
+    });
+    // the selected tile stays centred, so the count is odd-ish: 3 whole tiles plus a mostly visible one above and below
+    expect(visible.full, "at least 3 whole tiles").toBeGreaterThanOrEqual(3);
+    expect(visible.mostly, "at least 5 tiles at least half visible (the reference shows 5)").toBeGreaterThanOrEqual(5);
     const m = await page.evaluate(() => {
       const panel = document.querySelector(".pf-carousel[data-paper-selector]")!;
       const tile = document.querySelector<HTMLElement>('.pf-carousel[data-paper-selector] .pf-thumb[aria-selected="true"]')!;
