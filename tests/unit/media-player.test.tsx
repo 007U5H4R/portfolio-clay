@@ -39,7 +39,7 @@ describe("ProductMediaPlayer", () => {
     expect(host()).toHaveAttribute("data-player-state", "poster");
   });
 
-  it("Play mounts exactly one privacy-enhanced iframe with a descriptive title, focused (§1, §11, §15)", () => {
+  it("Play mounts exactly one privacy-enhanced iframe with a descriptive title, focused once the player is ready (§1, §11, §15; Stage 9 CR-015)", () => {
     render(<ProductMediaPlayer media={PITCH} />);
     const frame = pressPlay();
     expect(frames()).toHaveLength(1);
@@ -54,9 +54,14 @@ describe("ProductMediaPlayer", () => {
     expect(frame).toHaveAttribute("loading", "lazy");
     expect(frame).toHaveAttribute("referrerpolicy", "strict-origin-when-cross-origin");
     expect(frame.getAttribute("allow")).toContain("autoplay");
-    expect(document.activeElement).toBe(frame);
     expect(screen.queryByRole("button", { name: /^Play / })).toBeNull();
     expect(host()).toHaveAttribute("data-player-state", "loading");
+    // CR-015: while the poster still covers the iframe, focus stays where it was; it moves into the player once it answers
+    expect(document.activeElement).not.toBe(frame);
+    expect(screen.getByRole("status")).toHaveTextContent("Loading video");
+    fromPlayer(frame, { event: "onReady" });
+    expect(host()).toHaveAttribute("data-player-state", "ready");
+    expect(document.activeElement).toBe(frame);
   });
 
   it("the player's ready message → ready; messages from other origins/windows are ignored", () => {
