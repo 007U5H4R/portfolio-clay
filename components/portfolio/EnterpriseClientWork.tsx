@@ -15,6 +15,8 @@ export interface EnterpriseClientWorkProps {
 const MEDIA = "/media/enterprise-work";
 /** The longest signature (last delay + its 900 ms ride + settle): after this the card is back at rest. */
 const PLAY_MS = 1500;
+/** Quiet time after the last scroll event before the journal counts as settled (TASK-343). */
+const SCROLL_SETTLE_MS = 150;
 
 /** The technical-scope line on a card face: the first three verified tags of the record (`data/enterprise.ts`). */
 export function scopeTags(item: EnterpriseCase): string[] {
@@ -141,10 +143,15 @@ function Card({ item, index, open, onToggle }: CardProps) {
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   /** Plays the signature once per activation; a repeat press restarts it cleanly (attribute off, reflow, on). */
-  const play = useCallback(() => {
+  const play = useCallback(function play() {
     const el = root.current;
     if (!el) return;
     window.clearTimeout(timer.current);
+    // TASK-343: a press mid-scroll waits for the page to settle, so the 557-path wire draw never starts inside a scroll frame.
+    if (el.closest("[data-scrolling]")) {
+      timer.current = window.setTimeout(play, SCROLL_SETTLE_MS);
+      return;
+    }
     el.removeAttribute("data-play");
     void el.offsetWidth;
     el.setAttribute("data-play", "");
@@ -245,8 +252,26 @@ export function EnterpriseClientWork({ cases }: EnterpriseClientWorkProps) {
     (index: number) => setOpenId((current) => (current !== null && cases[index]?.id !== current ? null : current)),
     [cases],
   );
+  // TASK-343: `data-scrolling` on the journal root while the page scrolls (Lenis or native — both move window.scrollY) and for
+  // SCROLL_SETTLE_MS after; the card hover rules are gated on it so a hover starting under a scrolling pointer never lands mid-frame.
+  const rootRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    let timer = 0;
+    const onScroll = () => {
+      if (!root.hasAttribute("data-scrolling")) root.setAttribute("data-scrolling", "");
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => root.removeAttribute("data-scrolling"), SCROLL_SETTLE_MS);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(timer);
+    };
+  }, []);
   return (
-    <section id="enterprise" className="pf-enterprise ee-journal" aria-labelledby="pf-enterprise-h">
+    <section ref={rootRef} id="enterprise" className="pf-enterprise ee-journal" aria-labelledby="pf-enterprise-h">
       <TornEdge fill="paper-2" />
       <Container className="pf-ent-wrap">
         <header className="pf-ent-intro ee-cover">

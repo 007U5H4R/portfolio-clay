@@ -44,12 +44,17 @@ export function TornEdge({ fill = "paper", variant, className }: TornEdgeProps) 
       focusable="false"
       className={classes}
     >
-      {/* TASK-342: the upward shadow is three offset copies of the back ridge (no CSS filter); they ride the back layer's drift */}
-      <path className="torn-shade" d={back} transform="translate(0 -4)" fillOpacity="0.025" />
-      <path className="torn-shade" d={back} transform="translate(0 -2.5)" fillOpacity="0.04" />
-      <path className="torn-shade" d={back} transform="translate(0 -1)" fillOpacity="0.06" />
-      <path className="torn-layer torn-back" d={back} />
-      <path className="torn-layer torn-mid" d={mid} />
+      {/* TASK-344: the scroll-driven drift moves these wrapper groups, never the paths themselves.
+          TASK-342: the upward shadow is three offset copies of the back ridge (no CSS filter), inside the back group so they ride its drift */}
+      <g className="torn-drift torn-drift-back">
+        <path className="torn-shade" d={back} transform="translate(0 -4)" fillOpacity="0.025" />
+        <path className="torn-shade" d={back} transform="translate(0 -2.5)" fillOpacity="0.04" />
+        <path className="torn-shade" d={back} transform="translate(0 -1)" fillOpacity="0.06" />
+        <path className="torn-layer torn-back" d={back} />
+      </g>
+      <g className="torn-drift torn-drift-mid">
+        <path className="torn-layer torn-mid" d={mid} />
+      </g>
       <path className="torn-front" d={front} />
     </svg>
   );

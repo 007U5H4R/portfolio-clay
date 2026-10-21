@@ -5637,15 +5637,20 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-decor="torn"] .torn-back,
-    [data-decor="torn"] .torn-shade {
+    /* TASK-344: the drift runs on the wrapper <g> of each layer (a transform on a group), not on the <path>, so the
+       path's own style and layout are never invalidated per frame. The <svg> is the view-timeline subject (a real
+       box); the groups follow it by name. */
+    [data-decor="torn"] {
+      view-timeline: --torn-view block;
+    }
+    [data-decor="torn"] .torn-drift-back {
       animation: ridge-back-drift linear both;
-      animation-timeline: view(block);
+      animation-timeline: --torn-view;
       animation-range: cover;
     }
-    [data-decor="torn"] .torn-mid {
+    [data-decor="torn"] .torn-drift-mid {
       animation: ridge-mid-drift linear both;
-      animation-timeline: view(block);
+      animation-timeline: --torn-view;
       animation-range: cover;
     }
   }

@@ -61,6 +61,29 @@ test("layout: 3 / 2 / 1 columns, no overflow, 14 px text floor, images load", as
   await expect(page.locator("section#enterprise a")).toHaveCount(0);
 });
 
+test("hover is held off while the page scrolls and answers once scrolling stops (TASK-343)", async ({ page }) => {
+  test.skip(width(page) < 1024, "hover is a fine-pointer behaviour (the 390 project is touch)");
+  await open(page);
+  const root = page.locator("section#enterprise");
+  const card = item(page, enterpriseCases[0]!.id).locator(".ee-card");
+  await card.scrollIntoViewIfNeeded();
+  await card.hover();
+  await settle(page, 700);
+  expect(await translateY(card), "hovered at rest").toBeCloseTo(-4, 0);
+  // scroll events (one every 50 ms for 1 s) flag the journal; the hover lift is withheld while it is set
+  await page.evaluate(() => {
+    const id = window.setInterval(() => window.dispatchEvent(new Event("scroll")), 50);
+    window.setTimeout(() => window.clearInterval(id), 1000);
+  });
+  await expect(root).toHaveAttribute("data-scrolling", "");
+  await settle(page, 450);
+  expect(await translateY(card), "no lift while scrolling").toBeCloseTo(0, 0);
+  // ~150 ms after the last scroll the flag clears and the still-hovered card rises again
+  await expect(root).not.toHaveAttribute("data-scrolling", "", { timeout: 3000 });
+  await settle(page, 450);
+  expect(await translateY(card), "lift returns once settled").toBeCloseTo(-4, 0);
+});
+
 test("hover and focus: the card rises 4 px with the same twin, a detail answers, no shadow or filter transitions", async ({ page }) => {
   test.skip(width(page) < 1024, "hover is a fine-pointer behaviour (the 390 project is touch)");
   await open(page);
