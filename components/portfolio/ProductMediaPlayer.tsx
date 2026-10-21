@@ -162,11 +162,9 @@ export function ProductMediaPlayer({ media, fallbackPoster, readyTimeoutMs = REA
       ) : null}
       {/* Stage 8 DES-016 (TASK-313): the poster stays over the iframe until the player answers, so a pick never flashes a blank frame */}
       {showFrame && state === "loading" ? (
-        media.poster ? (
-          <Image src={media.poster} alt="" fill sizes="(min-width: 1024px) 60vw, 100vw" className="pf-stage-poster" data-loading-poster="" />
-        ) : (
-          fallbackPoster
-        )
+        <div className="pf-loading-poster" data-loading-poster="">
+          {media.poster ? <Image src={media.poster} alt="" fill sizes="(min-width: 1024px) 60vw, 100vw" className="pf-stage-poster" /> : fallbackPoster}
+        </div>
       ) : null}
       {showFrame ? null : (
         <>

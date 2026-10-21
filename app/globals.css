@@ -8780,6 +8780,11 @@ html.lenis body {
   }
   /* Stage 8 DES-016 (TASK-313): while the player loads, the poster stays (ProductMediaPlayer keeps it above the iframe) under a
      small cue instead of a flat navy frame */
+  .pf-loading-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
   .pf-stage-screen[data-player-state="loading"]::before {
     content: "Loading video…";
     position: absolute;

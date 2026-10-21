@@ -86,7 +86,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
           let e: Element | null = el;
           while (e) {
             const bg = getComputedStyle(e).backgroundColor;
-            if (bg && !bg.startsWith("rgba(0, 0, 0, 0)")) return bg;
+            const alpha = bg.startsWith("rgba") ? Number(bg.match(/[\d.]+/g)?.[3] ?? 1) : 1;
+            if (bg && alpha >= 0.99) return bg; // translucent tints (e.g. the counter's row) are not the surface
             e = e.parentElement;
           }
           return "rgb(255, 255, 255)";
@@ -123,7 +124,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
               ? `${el.className} ${Math.round(r.left)},${Math.round(r.right)},${Math.round(r.bottom)} vs card ${Math.round(c.left)},${Math.round(c.right)},${Math.round(c.bottom)}`
               : null;
           };
-          const outside = [...card.querySelectorAll(".pf-action, .pf-pc-pills li, .pf-info-pager")].map(out).filter(Boolean);
+          // (the pager row straddles the card's bottom edge by design, so it is not part of this check)
+          const outside = [...card.querySelectorAll(".pf-action, .pf-pc-pills li")].map(out).filter(Boolean);
           const cut = [...card.querySelectorAll(".pf-action-label, .pf-pc-pills li, .pf-info-kicker")]
             .filter((el) => (el as HTMLElement).offsetWidth > 2) // the sr-only labels of the icon row are 1 px by design
             .map((el) => ({ text: el.textContent?.trim(), over: (el as HTMLElement).scrollWidth - (el as HTMLElement).clientWidth }))
@@ -153,7 +155,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     const screen = page.locator(".pf-stage-screen");
     await expect(screen).toHaveAttribute("data-player-state", "loading");
     await expect(screen.locator("iframe")).toHaveCount(1);
-    await expect(screen.locator(".pf-stage-poster[data-loading-poster]"), "the poster is kept over the iframe").toBeVisible();
+    await expect(screen.locator("[data-loading-poster]"), "the poster is kept over the iframe").toBeVisible();
     const cue = await screen.evaluate((el) => getComputedStyle(el, "::before").content);
     expect(cue).toContain("Loading video");
     // the existing error path still follows once the player never answers

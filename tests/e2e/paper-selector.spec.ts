@@ -136,7 +136,9 @@ for (const [vw, vh] of SIZES) {
       });
       expect(g.hasArt, "pointer holds the arrow art").toBe(true);
       expect(Math.abs(g.ptrMid - g.tileMid), "right arrow centred on the selected tile").toBeLessThan(4);
-      expect(Math.abs(g.ptrCx - g.tileRight), "right arrow centre is on the tile's right border (+-4px)").toBeLessThanOrEqual(4);
+      // Stage 8 DES-012 (TASK-309): only the arrow's base sits on the border; its centre is 2-10 px past it so the point never reaches the name
+      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-10px)").toBeGreaterThanOrEqual(2);
+      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-10px)").toBeLessThanOrEqual(10);
       expect(g.ptrCx, "right arrow centre is inside the tile's span").toBeGreaterThan(g.tileLeft);
       expect(g.ptrRight, "right arrow stays inside the panel").toBeLessThanOrEqual(g.panelRight);
       expect(g.ptrW, "right arrow is drawn").toBeGreaterThan(8);
