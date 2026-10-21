@@ -14139,6 +14139,9 @@ html[data-theme-vt]::view-transition-group(root) {
     translate: 0 -2px;
     rotate: 3.5deg;
   }
+  .cx-btn-primary:focus-visible {
+    --arrow-x: 3px; /* TASK-323: the 3 px arrow nudge; the shared `:is(... .cx-btn ...)` rule that set it was deleted with TASK-211 */
+  }
   .cx-btn-primary:focus-visible .cx-btn-arrow {
     transition-delay: 120ms;
   }
@@ -14146,6 +14149,9 @@ html[data-theme-vt]::view-transition-group(root) {
     .cx-card:has(.cx-btn-primary:hover) .cx-stamp-wrap {
       translate: 0 -2px;
       rotate: 3.5deg;
+    }
+    .cx-btn-primary:hover {
+      --arrow-x: 3px;
     }
     .cx-btn-primary:hover .cx-btn-arrow {
       transition-delay: 120ms;
