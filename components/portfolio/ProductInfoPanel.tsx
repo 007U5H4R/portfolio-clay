@@ -164,8 +164,10 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         {product.logo ? <ProductLogo name={product.name} logo={product.logo} /> : product.name}
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
+      {paper ? <span className="pf-info-gap" data-gap="desc" aria-hidden="true" /> : null}
       <p className="pf-info-desc" title={paper ? product.description : undefined}>{paper ? (product.cardLine ?? product.description) : product.description}</p>
       </div>
+      {paper && poster ? <span className="pf-info-gap" data-gap="poster" aria-hidden="true" /> : null}
       {poster ? (
         <span className="pf-info-poster" aria-hidden="true" data-poster={poster.src}>
           <span className="pf-info-poster-frame" style={paper ? ({ "--pc-ar": poster.width / poster.height } as CSSProperties) : undefined}>
