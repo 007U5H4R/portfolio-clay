@@ -10,7 +10,8 @@
  *   TASK-315  the stage's "Watch on YouTube" link has a >= 44 px hit area (DES-018)
  *   TASK-316  tablet carousel tile names and categories never truncate (DES-019)
  * Design wave 2 (DES-020 ... DES-028, 2026-10-21):
- *   TASK-332  the description shows at 1280x800 (and 1100+) inside the card (DES-022)
+ *   TASK-331  micro-label size floors and no overflow / truncation 1024-1920, light + dark (DES-020)
+ *   TASK-332  the description shows at 1280x800 (and from 1180) inside the card (DES-022)
  *   TASK-333  arrow-key browsing starts one video once the selection settles; reduced motion never auto-starts (DES-023)
  *   TASK-334  the paper card has no navigation of its own - the selector is the one control (DES-024)
  *
@@ -205,7 +206,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     });
   }
 
-  for (const [vw, vh] of [[1100, 800], [1180, 820], [1280, 720], [1280, 800], [1440, 900], [1920, 1080]] as const) {
+  for (const [vw, vh] of [[1180, 820], [1280, 720], [1280, 800], [1440, 900], [1920, 1080]] as const) {
     test(`TASK-332: at ${vw}x${vh} the description shows and nothing leaves the card`, async ({ page }) => {
       await open(page, vw, vh, "light", "teachspark");
       const m = await page.evaluate(() => {
@@ -298,6 +299,54 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     await watch.click();
     await expect(page.locator(".pf-stage iframe")).toHaveCount(1);
   });
+
+  // TASK-331 (DES-020): label floors - tagline 14, action labels 13, kicker 11.5, selector label + counter 11.5, pills 10.5
+  // (10 inside the narrow <= 280 px card block, where they wrap) - and nothing overflows, leaves the card or truncates.
+  for (const [vw, vh] of [[1024, 768], [1100, 800], [1180, 820], [1280, 800], [1366, 768], [1440, 900], [1512, 982], [1920, 1080]] as const) {
+    for (const theme of ["light", "dark"] as const) {
+      test(`TASK-331: at ${vw}x${vh} ${theme} labels meet their size floors and nothing overflows (all products)`, async ({ page }) => {
+        test.setTimeout(150_000);
+        await open(page, vw, vh, theme, PERSONAL[0]!.slug);
+        for (const project of PERSONAL) {
+          await page.locator(`[role="tab"][data-product="${project.slug}"]`).evaluate((el) => (el as HTMLElement).click());
+          await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
+          await page.waitForTimeout(120);
+          const m = await page.evaluate(() => {
+            const card = document.querySelector(".pf-info.pf-paper")!;
+            const c = card.getBoundingClientRect();
+            const sel = document.querySelector(".pf-carousel[data-paper-selector]")!;
+            const size = (root: Element, q: string) => [...root.querySelectorAll(q)].filter((e) => (e as HTMLElement).offsetWidth > 2).map((e) => parseFloat(getComputedStyle(e).fontSize));
+            const cs = getComputedStyle(card);
+            const content = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+            const text = [".pf-info-kicker", ".pf-info-category", ".pf-info-tagline", ".pf-info-desc", ".pf-action-label", ".pf-pc-pills li", ".pf-action", ".pf-info-name"];
+            const bad = [...card.querySelectorAll(text.join(","))]
+              .filter((e) => (e as HTMLElement).offsetWidth > 2)
+              .filter((e) => { const r = e.getBoundingClientRect(); return e.scrollWidth - e.clientWidth > 1 || r.right > c.right + 1 || r.left < c.left - 1 || r.bottom > c.bottom + 1; })
+              .map((e) => `${e.className || e.tagName}: ${e.textContent?.trim().slice(0, 24)}`);
+            const names = [...sel.querySelectorAll(".pf-thumb-name")].filter((e) => (e as HTMLElement).offsetWidth > 0 && e.scrollWidth - e.clientWidth > 0).length;
+            const tag = [...sel.querySelectorAll(".pf-carousel-tag *")].filter((e) => e.scrollWidth > e.clientWidth + 1).length;
+            return {
+              narrow: content <= 280,
+              tagline: size(card, ".pf-info-tagline"), kicker: size(card, ".pf-info-kicker"), cta: size(card, '.pf-action[data-tier="primary"] .pf-action-label'),
+              secondary: size(card, '.pf-action[data-tier="secondary"] .pf-action-label'), pills: size(card, ".pf-pc-pills li"),
+              label: size(sel, ".pf-select"), counter: size(sel, ".pf-count"), bad, names, tag, page: document.documentElement.scrollWidth - window.innerWidth,
+            };
+          });
+          const at = `${project.slug}`;
+          for (const v of m.tagline) expect(v, `${at} tagline`).toBeGreaterThanOrEqual(14);
+          for (const v of m.cta) expect(v, `${at} CTA`).toBeGreaterThanOrEqual(13);
+          for (const v of m.secondary) expect(v, `${at} secondary label`).toBeGreaterThanOrEqual(13);
+          for (const v of m.kicker) expect(v, `${at} kicker`).toBeGreaterThanOrEqual(11.5);
+          for (const v of [...m.label, ...m.counter]) expect(v, `${at} selector label / counter`).toBeGreaterThanOrEqual(11.5);
+          for (const v of m.pills) expect(v, `${at} pill (narrow ${m.narrow})`).toBeGreaterThanOrEqual(m.narrow ? 10 : 10.5);
+          expect(m.bad, `${at} nothing overflows, truncates or leaves the card`).toEqual([]);
+          expect(m.names, `${at} selector names never truncate`).toBe(0);
+          expect(m.tag, `${at} selector header fits`).toBe(0);
+          expect(m.page, "no horizontal page scroll").toBeLessThanOrEqual(0);
+        }
+      });
+    }
+  }
 
   test("TASK-313: while the player loads, the poster stays and a loading cue shows (YouTube blocked)", async ({ page }) => {
     test.skip(!PAPER_PLAYER_ENABLED, "paper player flag is off");

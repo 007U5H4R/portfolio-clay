@@ -20119,7 +20119,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     display: none;
   }
   .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
-    font-size: clamp(12.5px, calc(var(--pf-vc-h) * 0.024), 15px);
+    font-size: clamp(13px, calc(var(--pf-vc-h) * 0.024), 15px); /* TASK-331: action-label floor 13 px */
     letter-spacing: -0.015em;
   }
   .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
@@ -20351,7 +20351,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     gap: 0 6px;
     padding-right: 90px;
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: clamp(10.5px, calc(var(--pf-vc-h) * 0.0235), 13px);
+    font-size: clamp(11.5px, calc(var(--pf-vc-h) * 0.0235), 13px); /* TASK-331: kicker floor 11.5 px */
     letter-spacing: 0.03em;
     color: var(--pc-ink-soft);
   }
@@ -20444,7 +20444,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     font-style: italic;
     font-weight: 600;
     color: var(--pc-accent-ink);
-    font-size: clamp(0.82rem, calc(var(--pf-vc-h) * 0.03), 1.2rem);
+    font-size: clamp(14px, calc(var(--pf-vc-h) * 0.03), 1.2rem); /* TASK-331: tagline floor 14 px */
     line-height: 1.15;
   }
   /* ---- the poster: its own aspect ratio, never cropped, a thin terracotta border and a short shadow ---- */
@@ -20485,7 +20485,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     padding: 2px 8px;
     border-radius: 999px;
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: clamp(9.5px, calc(var(--pf-vc-h) * 0.0205), 11.5px);
+    font-size: clamp(10.5px, calc(var(--pf-vc-h) * 0.0205), 11.5px); /* TASK-331: pill floor 10.5 px */
     font-weight: 700;
     letter-spacing: 0.05em;
     line-height: 1.35;
@@ -20584,21 +20584,20 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     inset: auto 0 -8px;
   }
   /* TASK-332 (DES-022): the card's own nav is gone (TASK-334), which freed ~90 px at 1280x800 - the description (two lines) now
-     fits from 1100 px up (card >= 330 px tall); only the 1024 card (~278 px of content, 21 px spare) still gives it up. */
-  @container pcard (max-height: 290px) {
+     fits from 1180 px up (card >= 362 px tall); the 1024 and 1100 cards (278 / 309 px of content, 21 / 44 px spare before the pills wrap) still give it up. */
+  @container pcard (max-height: 320px) {
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
       display: none;
     }
   }
   @container pcard (max-height: 412px) {
-    /* four pills (id + a three-part status) must still share one row in the narrow card */
+    /* four pills (id + a three-part status) in a short card: tighter, and free to wrap onto a second row now that they are >= 10.5 px (TASK-331) */
     .pf-paper .pf-pc-pills {
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       gap: 3px;
     }
     .pf-paper .pf-pc-pills li {
       padding: 2px 5px;
-      font-size: 9px;
       letter-spacing: 0.02em;
     }
     .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
@@ -20628,11 +20627,12 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     }
     .pf-paper .pf-pc-pills li {
       padding: 2px 3px; /* 1024x768: the three pills missed one row by 3 px */
+      font-size: 10px; /* TASK-331: the one place the pill floor drops below 10.5 px (the 184 px 1024 card) */
       letter-spacing: 0;
     }
     /* a shorter poster keeps the icon row inside the card (and off the pager) at 1024x768 */
     .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
-      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.26 - 6px) * var(--pc-ar)));
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.24 - 6px) * var(--pc-ar)));
     }
     .pf-showcase.pf-vcar .pf-paper .pf-action-set {
       gap: 4px;
@@ -20779,7 +20779,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-select {
     font-family: var(--font-display);
-    font-size: clamp(9.5px, 0.72vw, 12.5px);
+    font-size: clamp(11.5px, 0.72vw, 12.5px); /* TASK-331: selector label floor 11.5 px */
     font-weight: 700;
     letter-spacing: 0.03em;
     line-height: 1.15;
@@ -20787,7 +20787,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count {
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: clamp(9.5px, 0.72vw, 12px);
+    font-size: clamp(11.5px, 0.72vw, 12px); /* TASK-331: selector counter floor 11.5 px */
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
