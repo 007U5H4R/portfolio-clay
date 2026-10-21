@@ -44,8 +44,13 @@ export function TornEdge({ fill = "paper", variant, className }: TornEdgeProps) 
       focusable="false"
       className={classes}
     >
-      <path className="torn-layer torn-back" d={back} />
-      <path className="torn-layer torn-mid" d={mid} />
+      {/* TASK-344: the scroll-driven drift moves these wrapper groups, never the paths themselves */}
+      <g className="torn-drift torn-drift-back">
+        <path className="torn-layer torn-back" d={back} />
+      </g>
+      <g className="torn-drift torn-drift-mid">
+        <path className="torn-layer torn-mid" d={mid} />
+      </g>
       <path className="torn-front" d={front} />
     </svg>
   );

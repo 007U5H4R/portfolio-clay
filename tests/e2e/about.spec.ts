@@ -221,3 +221,24 @@ test("TASK-215: the Testimonials torn edge never covers the last award line, at 
     }
   }
 });
+
+test("torn-edge ridge drift runs on the wrapper groups, never on the paths (TASK-344)", async ({ page }) => {
+  await page.goto("/about", { waitUntil: "load" });
+  const r = await page.evaluate(() => {
+    const anim = (sel: string) => [...document.querySelectorAll(sel)].map((el) => getComputedStyle(el).animationName);
+    return {
+      groups: document.querySelectorAll('[data-decor="torn"] .torn-drift').length,
+      back: anim(".torn-drift-back"),
+      mid: anim(".torn-drift-mid"),
+      pathAnimations: [...document.querySelectorAll(".torn-back, .torn-mid")].map((el) => getComputedStyle(el).animationName),
+    };
+  });
+  expect(r.groups).toBeGreaterThan(0);
+  expect(r.pathAnimations.every((n) => n === "none")).toBe(true);
+  // the drift is on unless the browser has no scroll-driven animations (then it is a still divider, as before)
+  const supported = await page.evaluate(() => CSS.supports("animation-timeline: view()"));
+  if (supported) {
+    expect(r.back.every((n) => n === "ridge-back-drift")).toBe(true);
+    expect(r.mid.every((n) => n === "ridge-mid-drift")).toBe(true);
+  }
+});
