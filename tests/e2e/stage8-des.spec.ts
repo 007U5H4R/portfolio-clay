@@ -223,14 +223,17 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
           const r = desc.getBoundingClientRect();
           const acts = document.querySelector(".pf-info.pf-paper .pf-action-set")!.getBoundingClientRect();
           const pills = document.querySelector(".pf-info.pf-paper .pf-pc-pills")!.getBoundingClientRect();
-          return { shown: getComputedStyle(desc).display !== "none", fs: parseFloat(getComputedStyle(desc).fontSize), h: r.height, top: r.top, bottom: r.bottom, cut: desc.scrollHeight - desc.clientHeight, cardBottom: card.bottom, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom };
+          return { shown: getComputedStyle(desc).display !== "none", fs: parseFloat(getComputedStyle(desc).fontSize), h: r.height, top: r.top, bottom: r.bottom, cut: desc.scrollHeight - desc.clientHeight, cardBottom: card.bottom, cardH: card.height, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom };
         });
         const at = `${project.slug} @${vw}`;
         expect(m.shown, `${at}: the description is shown`).toBe(true);
         expect(m.fs, `${at}: description size`).toBeGreaterThanOrEqual(13);
         expect(m.cut, `${at}: the description is not cut off`).toBeLessThanOrEqual(1);
         expect(m.top, `${at}: below the pills`).toBeGreaterThanOrEqual(m.pillsBottom - 1);
-        expect(m.actsTop - m.bottom, `${at}: gap above the CTA`).toBeLessThanOrEqual(24);
+        // TASK-347: in the 330-500 px card tier the two capped gaps (<= 24 px each, asserted by the TASK-347 test) take height first and the
+        // rest sits above the actions, which stay at the card's bottom padding - so allow that remainder (<= 64 px) there; taller cards keep 24 px
+        const ctaCap = m.cardH <= 500 ? 64 : 24;
+        expect(m.actsTop - m.bottom, `${at}: gap above the CTA`).toBeLessThanOrEqual(ctaCap);
         expect(m.actsTop - m.bottom, `${at}: description clears the CTA`).toBeGreaterThanOrEqual(0);
         expect(m.actsBottom, `${at}: actions inside the card`).toBeLessThanOrEqual(m.cardBottom + 1);
       }
