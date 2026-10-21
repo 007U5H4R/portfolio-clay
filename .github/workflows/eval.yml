@@ -11,7 +11,8 @@ on:
 
 concurrency:
   group: eval-${{ github.ref }}
-  cancel-in-progress: true
+  # Stage 11 L-04 (TASK-328): never cancel a run on main — every release commit needs a completed run. PR refs still cancel.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   eval:
