@@ -20681,7 +20681,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
     gap: 7px;
-    padding: 8px 10px 8px 7px; /* right room so the name never sits under the selection arrow */
+    padding: 8px 6px 8px 7px; /* TASK-309: the arrow no longer reaches the name, so the tile keeps the room for it */
     border: 1px solid var(--ps2-edge);
     border-radius: 12px;
     color: var(--ps2-text);
@@ -20741,6 +20741,17 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     font-weight: 600;
     color: color-mix(in oklab, var(--ps2-text) 82%, var(--ps2-tile));
   }
+  /* Stage 8 DES-012 (TASK-309): the 1024-1279 px tile leaves ~67 px for the name; one size down keeps "TeachSpark" on one line
+     instead of breaking it mid-word */
+  @media (max-width: 1279px) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+      font-size: 11.5px;
+    }
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+      width: clamp(52px, 38%, 100px); /* 6 px more for the text column */
+    }
+  }
 
   /* ---- arrow slots: a real button with a 44 px hit area, no visible disc ---- */
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow {
@@ -20796,7 +20807,9 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --oa-size: 24px;
     width: 24px;
     height: 24px;
-    margin-right: -4px;
+    /* Stage 8 DES-012 (TASK-309): only the arrow's base (~5 px) sits inside the tile; the rest points out into the gap, so it never
+       reaches the name (at -4px two thirds of it sat over the text and TeachSpark truncated at 1280) */
+    margin-right: -14px;
     border: 0;
     /* front layer: above the tiles and the video frame (.pf-feature, z-index 2) */
     position: relative;
