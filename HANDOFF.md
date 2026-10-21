@@ -1,33 +1,40 @@
-# HANDOFF — Portfolio (M-010 · Paper-cut system, dark mode and delight features)
+# HANDOFF — Portfolio (tusharpathak.com) · Stage 8 Design Critique COMPLETE → next: Stage 9 Code Review + Test & Eval Execution
 
-Updated 2026-10-06 ~14:30 IST. Main worktree `/Volumes/E Drive/Dev/Code/Claude/Portfolio-clay-redesign`, branch `m-009-redesign`. **Production FROZEN: preview only — never touch `main`, never deploy production** (S26; Tushar: "Dont touch the Production now"). **Tushar delegated all M-010 decisions, stage sign-offs and style gates to Claude (EXE-26)**: decide, record each call as an `EXE-` decision in `decisions.md` with evidence, keep going. The production release is NOT delegated. **Agents run on Sonnet (builds) / Opus (reviews, gates). Never use Fable.** Tushar's latest asks: "complete all the tickets"; "once everything is done, commit, merge, push and deploy to Preview".
+Updated 2026-10-21 (evening). Previous batons (Stage 7 complete, same day; M-010 2026-10-06) are in git history of this file and in the `Portfolio-clay-redesign` worktree copy.
 
-## 0. Where things are (read first)
-- **Preview is current at `08a9a99`** (code = `9126870`; deploy `dpl_Eu59WjRJjUKSR8eD9uQjKVvPbTTP` READY, verified live: `/card`, `/card/vcard` text/vcard with no TEL/BDAY, T3 scene twins, T4 header paper + footer ocean). Alias `portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app`.
-- **Done (Campfire):** TASK-136…148 except **TASK-143** — T1 hero (140), T2 dark mode + toggle (141), T2b cursor (142), T3 scenes (144; 144.4 closed without case-study scenes, EXE-34), T4 chrome (145), T5 `/card` (146), Stage docs (147), Bhakti screens (148, renumbered from a duplicate 137, EXE-29).
-- **Open: TASK-143 Gummy Lab `/lab`** — on preview (reachable only via 5 rapid clicks on the name/monogram) but **not done**. See §1.
-- **Open, outside M-010: TASK-149** — every page view preloads all tabs' hero scenes via route prefetch (`ecad101`, M-009; likely on production too). Fix after the release.
-- **Last full gate (#2, quiet machine, `9126870`):** typecheck ✓, lint 0 errors, `pnpm tsx scripts/eval-cases.ts --check-specs` 31 OK (nothing deferred), `pnpm tokens:check` 55/55 AA, build ✓ (20 static routes), unit 1051 ✓, **e2e 1643 passed / 26 failed** = 25 × `tests/e2e/eval-030.spec.ts` (w768/w1024/w1440, + 1 w390 touch drag) + 1 × `tests/e2e/lenis.spec.ts:78` (PageDown/Space at w1440, not yet investigated; may share the cause).
-- **Security review** (Opus; `/Volumes/E Drive/Dev/.scratch/m010-security-review.md`): no Critical/High/Medium; 3 Lows fixed (`0afba63` `.env*` ignore, `dda3da9` lab return path rejects tab/CR/LF, `dd1df3a` vCard RFC 6350 escaping) — EXE-37. Before any production release: set `NEXT_PUBLIC_SITE_URL` on Vercel production (else the card QR/vCard point at the preview URL).
+## 0. Where things are
+- **Production = `main` of 007U5H4R/portfolio-clay, auto-deploys to Vercel → https://tusharpathak.com.** Stage 8 fixes ship as one squash-merged PR from `m023/stage8-critique` (worktree `/Volumes/E Drive/Dev/Code/Claude/Portfolio-selector-tile`); the PR number and prod SHA are in §1 once merged.
+- **Standing autonomy:** CI/CD — ship each gated change to prod without asking (memory `cicd-autonomy-2026-10-18`); evals skipped (`skip-evals-2026-10-14`). Ship gate = build → tsc → eslint → **full unit suite** → touched Playwright specs → PR → Vercel pass → squash-merge → prod status success → prod specs.
+- Heavy jobs go through `/Volumes/E Drive/Dev/.scratch/heavy-gate.sh <label> <cmd…>`. Stage 8 ship script: `/Volumes/E Drive/Dev/.scratch/stage8/ship.sh`.
+- **Disk:** the E Drive was at 2.4 GB free when Stage 8 started (98 %); `.scratch` holds ~19 GB, mostly film renders (`urja-films` 4.6 GB, `bhakti-vilas-films`, `about-page`, `threejs-devtools-tmp`, `velora-films`, `nuptis-films*`, `shravan-films`). Not deleted — Tushar decides what goes. A `next build` needs ~2 GB headroom.
 
-- **⚠ Parallel work in this worktree:** another session opened **TASK-150** "Keep the footer sailboat fully visible above the ocean strip" (In Progress, created 2026-10-06 14:25 IST) and has **uncommitted edits to `app/globals.css` `.band-ocean`** (plus `next-env.d.ts` churn) here. Don't overwrite or commit them; coordinate (ask Tushar / check the board) before Bug A's fix touches the same ocean CSS — do Bug A in the `lab-debug` worktree and merge after TASK-150 is committed.
+## 1. Stage 8 — what was done
+- Two Opus reviewers drove **production** 236fb4ef: desktop 1280/1440/1512/1920 light + dark; tablet 768, phone 375/390, the 1024 edge, link-preview tags. Reports + ~130 screenshots: `/Volumes/E Drive/Dev/.scratch/stage8/{desktop,mobile}/REPORT.md`.
+- Findings **DES-012 … DES-030** are recorded in `docs/reports/DES-findings.md` (round-2 section) with evidence; decision **EXE-59** in `decisions.md`.
+- **Fixed, one Campfire ticket + one commit each (all on `m023/stage8-critique`, regression spec `tests/e2e/stage8-des.spec.ts`):**
 
-## 1. TASK-143 (`/lab`): DONE 2026-10-06 ~20:15 IST
-Fixed, gated, pushed and verified on preview. Root cause and evidence in **EXE-55** (`decisions.md`): the band footer's infinite animations ran under the opaque lab and starved its WebGL boot; `HideOnLab` keeps the footer off `/lab`. EVAL-030 test-harness fixes: non-WebGL blocks in `tests/e2e/eval-030-entry.spec.ts`, the leak check counts live rAF loops, the lab-page budget = its step waits. Quiet full gate on `3d4f334`: e2e 1678/3 → test-side fixes → w1440 29/0, lab-page ×2 on all projects 64/0. Pushed `m-009-redesign` `0f2e2ef → 9eb416e` (fast-forward); preview `dpl_89ihL6mqVVLZM3shpUgkGUN9AHXX` READY and checked live with a GPU. TASK-143 and 143.1–.5 Done. Screenshot churn from the gate is stashed in the lab-debug worktree as `task143-screenshot-churn-2026-10-06` (safe to drop).
-Follow-ups for TASK-155 (perf lane): `/lab` intro takes ~12 s over the network; Lenis `autoRaf` runs every frame on every page; a cold home under software GL renders at ~1 fps (test env only).
+| Ticket | DES | Fix |
+|---|---|---|
+| TASK-309 | 012 | selector arrow keeps only its base on the tile border; tile right padding 10→6; <1280 name 11.5 px + art floor 52 px — no name truncates, arrow never touches the name |
+| TASK-310 | 013 | `--pc-accent-ink`, `--pc-cta`, `--pc-cta-hover`, darker `--ps2-accent` — every flagged text ≥ 4.5:1 both themes |
+| TASK-311 | 014 | `@container pcard (max-width: 300px)`: icon-row secondaries (labels sr-only), wrapping pills, no kicker category, CTA " video" tail dropped, poster cap 26 % — nothing leaves the card at 1024–1279 |
+| TASK-312 | 015 | phone "Watch demo" scrolls the stage below the fixed header |
+| TASK-313 | 016 | poster kept over the iframe while loading + "Loading video…" cue |
+| TASK-314 | 017 | paper card kicker shows one tag |
+| TASK-315 | 018 | `.pp-watch` invisible 44 px hit ring |
+| TASK-316 | 019 | tablet tile names/categories wrap to 2 lines |
 
-## 2. After TASK-143
-Write the release summary for Tushar: what shipped per track; style-gate decisions EXE-28/32/34/35; known nits (dark back wave slightly violet, faint olive line on the dark ridge top, intro-video poster + About mini-collage still watercolour); pre-existing "Draft — pending sign-off" labels (DraftTag) need Tushar's sign-off; TASK-149; `NEXT_PUBLIC_SITE_URL`. **Do not deploy production.** Persist to Obsidian (`~/Documents/Documents - Tushar's Macbook/Obsidian Vault/Portfolio-illustration/Progress.md`) + memory.
+- **Parked for Tushar (not fixed, reasons in DES-findings):** DES-020 micro-label sizes below 14 px (pills 9–11.5, counter 9.5–12.5, kicker 10.5–13); DES-022 description hidden at 1280×800 by the height query; DES-023 auto-play on arrow keys / under reduced motion; DES-024 three navigation systems; DES-025 selector origami fidelity vs the reference; DES-026 1920 scale; DES-027 tile art width (EXE-58); DES-028 poster title chip over painted titles at 1024–1180; DES-029 OG small line.
+- **PR #147 prod-spec failure:** not reproducible — the same three specs pass 34/34 on prod today, no artifact survived. Watch item for Stage 9 (capture the spec name before rerunning if it recurs).
+- **Web-deliverables gates:** responsive PASS (no horizontal scroll 375–1920, both themes; phone nav usable; targets ≥ 44 px); screen states PASS after DES-016; link preview PASS on tags + asset (1200×630, 164 kB), **live unfurl BLOCKED** (LinkedIn Post Inspector / opengraph.xyz need a human) — Stage 11 carry.
 
-## 3. Machine rules (scars — keep them)
-- 8 GB RAM. **Every** `next build`, Playwright run, full `pnpm test` and `pnpm typecheck` goes through `/Volumes/E Drive/Dev/.scratch/heavy-gate.sh <label> zsh -c '<cmd>'` (busy-check anchored on `^node`; regression test `heavy-gate.test.sh`). Single-file `pnpm vitest run <file>` is fine outside. A gate run while other heavy work runs is not evidence (EXE-38).
-- Playwright needs `.env.tooling` (browsers on the E Drive): run ad-hoc scripts via `pnpm exec dotenv -e .env.tooling -- node …`; keep probes in the repo's git-ignored `.eval/` and import from `@playwright/test`.
-- e2e runs rewrite tracked `docs/screenshots/**`: `git stash push -- docs/screenshots` before committing (never `git checkout --` them; a hook blocks destructive commands — move/stash instead of rm).
-- Lane agents can hang silently while showing "running": judge by commits and lock activity; give briefs anti-hang rules (≤ 5 min per external wait; commands > 2 min via run_in_background + timeout ≤ 7200000; no long-lived dev servers; commit per subtask). Bash background tasks cap at 2 h. Cloud sessions can't download Higgsfield output (make raster art locally first) and are started via claude.ai/code in Chrome (memory `cloud-session-launch`).
-- Campfire CLI `"/Volumes/E Drive/Dev/Code/Claude/PM Tools/backlog-md-fork/dist/backlog"` from this worktree; board http://127.0.0.1:6480 (project `portfolio-clay`); `backlog doctor` repairs duplicate ids.
+## 2. Next stage — Stage 9 Code Review + Test & Eval Execution
+- Invoke `bw-code-review-test-eval` (Fable 5.1 / Low per the stage table; memory `fable-reserved` says reviews run on Opus — Opus 5.5 is the practical choice). Scope: the squash commit of the Stage 8 PR (TASK-309…316) plus the Stage 7 PRs #147–#151 if not yet reviewed; run `/code-review`, execute the touched specs + full unit suite from real output, record CR-/QA- findings; evals stay skipped unless Tushar reverses `skip-evals-2026-10-14`.
+- Carry-ins: DES-021 (move the selector before `#pf-panel` in the DOM / Enter → tabpanel focus — WCAG 2.4.3), DES-030 (rewrite `Design.md` §7.2 showcase paragraph against the shipped paper selector/card/player), the #147 watch item.
+- Read first: global `~/.claude/CLAUDE.md`, `~/.claude/workflow/build-workflow.md`, this file, `docs/reports/DES-findings.md` (round 2), `decisions.md` EXE-57…59, `tests/e2e/stage8-des.spec.ts`; open Campfire (`campfire` → http://127.0.0.1:6480, project portfolio-clay; board files live uncommitted in the `Portfolio-clay-redesign` worktree — memory `campfire-board-fragile`).
 
-## 4. Key decisions
-S22–S30 (Solution-PRD §13), TP15, EV7–EV11, D13, T2-D1, EXE-26 … EXE-38 in `decisions.md`. Dev ids per track in Design.md §13.5 (T1 136–139, T2 140–149, T2b 150–154, T2c 155–159, T3 160–169, T4 170–184, T5 185–189).
-
-## 5. Worktrees (M-010)
-`Portfolio-m010-{planning,t2-dark,t2b-cursor,t3-scenes,t4-chrome,t4-specs,t5-card,t2c-gummy,t2c-fix,lab-debug}` — all merged except `lab-debug` (scratch). Clean them up after TASK-143 lands (verify each is merged and clean first; `git worktree remove`, never `rm -rf`).
+## 3. Rules / scars to keep
+- Everything on the E Drive; `export TMPDIR="/Volumes/E Drive/Dev/.scratch/tmp" PLAYWRIGHT_BROWSERS_PATH="/Volumes/E Drive/Dev/.cache/ms-playwright"`. Plain `node` scripts that import Playwright must run with `node --input-type=module < script.mjs` from the worktree (ESM resolves from the script's folder, not cwd).
+- Subagents cannot write report files under `.scratch` (hook); they hand the report back and the orchestrator saves it.
+- Never regenerate/recolour/crop product logos or posters; experiments desktop-only (≥1024) behind kill-switch flags; use the ID `task create` prints; `git worktree add` with absolute paths; hooks block `rm`, force-push, `commit --amend`, `checkout --`.
+- Merged worktrees awaiting cleanup (verify merged + clean, then `git worktree remove`): Portfolio-hover-jitter (m021), Portfolio-origami-off (m020), Portfolio-card-back (m019), Portfolio-bv (m017), older m013/m014 ones; `Portfolio-selector-tile` now carries `m023/stage8-critique`.
