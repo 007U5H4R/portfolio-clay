@@ -58,7 +58,6 @@ export function AboutHero() {
             height={hero.height}
             alt={hero.alt}
             loading="eager"
-            fetchPriority="high"
             decoding="async"
             data-about-artwork="about-hero"
           />

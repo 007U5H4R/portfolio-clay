@@ -16,8 +16,8 @@ export interface PaperArt {
 const art = (slug: string, width: number, height: number): PaperArt => ({ src: `/media/about-paper/${slug}.webp`, width, height });
 
 export const PAPER_ART = {
-  "desk-light": art("desk-light", 1200, 869),
-  "desk-dark": art("desk-dark", 1200, 800),
+  "desk-light": art("desk-light", 900, 652),
+  "desk-dark": art("desk-dark", 900, 600),
   "pin-map-light": art("pin-map-light", 1500, 1076),
   "pin-map-dark": art("pin-map-dark", 1500, 1066),
   "notebook-light": art("notebook-light", 1100, 689),
@@ -29,7 +29,7 @@ export const PAPER_ART = {
   "polaroid-cloud": art("polaroid-cloud", 340, 459),
   "polaroid-enterprise": art("polaroid-enterprise", 340, 456),
   "polaroid-ai": art("polaroid-ai", 340, 436),
-  grove: art("grove", 420, 445),
+  grove: art("grove", 280, 297),
 } as const satisfies Record<string, PaperArt>;
 
 export type PaperArtId = keyof typeof PAPER_ART;

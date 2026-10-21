@@ -66,6 +66,8 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
         ok: img.complete && img.naturalWidth > 0,
         ratio: img.naturalWidth / img.naturalHeight,
         attrRatio: Number(img.getAttribute("width")) / Number(img.getAttribute("height")),
+        natW: img.naturalWidth,
+        cssW: img.getBoundingClientRect().width,
       };
     }),
   );
@@ -76,6 +78,8 @@ test("the art is sized, decorative and loads (no layout shift, nothing baked in 
     expect(img.loading, img.id).toBe("lazy");
     if (img.shown) expect(img.ok, `${img.id} loads`).toBe(true);
     if (img.shown) expect(Math.abs(img.ratio - img.attrRatio), `${img.id} width/height match the file`).toBeLessThan(0.01);
+    // TASK-345: decode cost scales with intrinsic pixels — a piece must not ship far above its display size (2x DPR, or 3x on the smallest pieces).
+    if (img.shown && img.cssW > 0) expect(img.natW, `${img.id} intrinsic ${img.natW}px vs ${Math.round(img.cssW)} CSS px`).toBeLessThanOrEqual(img.cssW * 5);
   }
 });
 
