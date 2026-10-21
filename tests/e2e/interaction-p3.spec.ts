@@ -252,3 +252,33 @@ test.describe("@TASK-181.3 tushky", () => {
     expect(out).toEqual([]);
   });
 });
+
+test.describe("@TASK-346 arrow nudge", () => {
+  const cases: [string, string, string][] = [
+    ["/", ".hero-btn-primary", ".btn-arrow"],
+    ["/", ".header-pill", ".header-pill-arrow"],
+    ["/about", ".acx-btn-primary", ".acx-arrow"],
+  ];
+  for (const [path, host, arrow] of cases) {
+    test(`${host} nudges ${arrow} 3 px on a fine pointer, 0 on touch`, async ({ page }) => {
+      await page.goto(path, { waitUntil: "networkidle" });
+      const btn = page.locator(host).first();
+      const glyph = btn.locator(arrow);
+      await btn.scrollIntoViewIfNeeded();
+      const fine = await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches);
+      const rest = await pose(glyph);
+      await btn.hover();
+      await page.waitForTimeout(600);
+      const dx = (await pose(glyph)).x - rest.x;
+      if (fine) expect(dx, "hover nudges +3 px").toBeCloseTo(3, 0);
+      else expect(dx, "touch: no nudge").toBeCloseTo(0, 0);
+      if (fine) {
+        await page.mouse.move(2, 2);
+        await page.waitForTimeout(600);
+        await keyboardFocus(page, btn);
+        await page.waitForTimeout(600);
+        expect((await pose(glyph)).x - rest.x, "focus-visible nudges +3 px").toBeCloseTo(3, 0);
+      }
+    });
+  }
+});

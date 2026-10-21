@@ -5816,6 +5816,19 @@ html[data-theme-vt]::view-transition-group(root) {
 .acx-arrow {
   display: inline-block;
 }
+/* TASK-346: the 3 px nudge for the Home hero, header pill and About CTA arrows (TASK-211 deleted the shared rule, TASK-323 restored only Contact's) */
+.hero-btn-primary:focus-visible,
+.header-pill:focus-visible,
+.acx-btn:focus-visible {
+  --arrow-x: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-btn-primary:hover,
+  .header-pill:hover,
+  .acx-btn:hover {
+    --arrow-x: 3px;
+  }
+}
 /* the Contact secondary glyphs keep their own small nudges (Design.md §14.10: L1 icons) */
 .cx-btn-secondary:focus-visible .cx-btn-down {
   translate: 0 2px;
