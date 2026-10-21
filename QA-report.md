@@ -4,6 +4,76 @@ This file holds two sections. **M-009** (current, below) is evidence only; its S
 
 ---
 
+# Release round 2026-10-21 · M-011 product showcase + Tushky FAQ — Stages 8–10 consolidated gate
+
+**Scope:** `main` `6eaee1b5` → `b48f7a74`: PRs #147–#151 (Stage 7: TASK-303/305/307/308 — paper card, paper selector, unit fixes, Safari hover), #152 (Stage 8: TASK-309…316), #153 (TASK-317 Tushky FAQ entries), #154 (Stage 9: TASK-318). All four PRs are **already on production** (tusharpathak.com) under the standing CI/CD autonomy, each through the ship gate (build · tsc · eslint · full unit suite · touched Playwright specs · Vercel · squash-merge · production status · production specs). This report therefore records the evidence behind releases that happened and the risks that remain, rather than gating a pending deploy. Tushar was AFK for Stages 9–10 ("don't wait for my approval", memory `afk-autonomy-2026-10-21`).
+
+## R2-1. Executive summary
+
+**Overall recommendation: READY WITH ACCEPTED RISKS.** The showcase and FAQ work is on production, verified by 149 + 89 + 71 production Playwright runs, the full unit suite (1676), two independent design reviews, a code review + silent-failure hunt (all fixed or parked with owners), and a security review with nothing above Low. Three risks are accepted and ticketed, none of them introduced by this range: **mobile lab LCP 5.4–6.4 s** on `/` and `/projects` (QA-012 → **TASK-320, P1**), the **Next.js / sharp advisories** (SEC-008 → **TASK-325**, exposure measured as mitigated on Vercel), and **24 pre-existing e2e failures** of `case-study-system.spec` against the six paper case-study layouts (QA-015 → **TASK-321**). One Stage 8 regression was caught by Stage 9 and fixed before this report (QA-013, the 1440 card losing its labels).
+
+## R2-2. Per-stage results
+
+| Stage | Scope | Findings | Fixed | Parked (reason) | Aggregate evidence |
+|---|---|---|---|---|---|
+| 8 · Design Critique | 2 Opus reviewers on production 236fb4ef: desktop 1280/1440/1512/1920, tablet 768, phone 375/390, light + dark, OG tags | 19 DES (012–030) | 8 (TASK-309…316, PR #152) | 9 Tushar's call (020, 022–029) · 2 → Stage 9 (021, 030) | `docs/reports/DES-findings.md` round 2; responsive / screen-state / link-preview gates PASS, live unfurl BLOCKED |
+| 9A · Code Review | `/code-review` low + `silent-failure-hunter`, `6eaee1b5..de5a0bcb` | 10 CR (010–019) + 6 SF | 12 (TASK-318, PR #154) | CR-012 → TASK-319; SF-001 → Tushky option 2 (deferred) | `docs/reports/stage9-review.md` round 2 |
+| 9B · Test execution | scoped e2e w1440 + w390 (eval/screenshot specs excluded) + full unit + targeted reruns at 1 worker + production check on main | QA-013…018 | QA-013 (regression) + QA-014 (specs) | QA-015…018 → TASK-321…324 (pre-existing, fail on main) | scoped 960/41/669 · retest 212/31 · main 124/31 · corrected specs 37/0 · unit 1676 · final gate 196 e2e on four viewports · prod 149 |
+| 9B · Performance | Lighthouse 12.6.1 on production, 3 runs × {/, /projects} × {mobile, desktop} | QA-012 | — | → TASK-320 (P1) | desktop LCP 1.26 s / CLS ≤ 0.008 PASS; mobile LCP 5.4 / 6.4 s FAIL (render delay 2.6–5.8 s); field data BLOCKED (PSI quota) |
+| 9B · Evaluation | `/evals` suites | — | — | NA: skipped by standing decision (`skip-evals-2026-10-14`) | no eval-run produced or claimed (`evals/reports/eval-report-2026-10-21-m011-showcase.md`) |
+| 10 · Security | Opus security review of the diff + live surface probes (`/security-review` could not run: the session cwd is not a git repo) | 6 SEC (003–008) | SEC-003 (TASK-326) | SEC-004 cost (bounded), SEC-005/006/007 accepted pre-existing, SEC-008 → TASK-325 | headers strict (CSP frame-src youtube-nocookie only, HSTS preload, XFO DENY); dev routes 404; speech route 400/405 on misuse; optimizer Vercel-served, remote/private URLs 400; `pnpm audit --prod`: 3 high / 4 moderate / 1 low, all pre-existing (no dependency changed in the range) |
+
+## R2-3. Unified Findings Register (one row per underlying problem; strongest severity; every source)
+
+| # | Canonical problem | Sources | Sev | Status | Resolution / evidence |
+|---|---|---|---|---|---|
+| U2-01 | Selected selector tile name truncated at 1280; arrow over the name | DES-012 | major | **Fixed** #152 | arrow base only on the border, tile padding 10→6, <1280 name 11.5 px; `stage8-des` TASK-309 ×4 widths |
+| U2-02 | Card/selector text under WCAG AA (CTA 3.66 dark, tagline 3.81, tile number 3.27, counter 3.82) | DES-013 | major | **Fixed** #152 | `--pc-accent-ink` / `--pc-cta` / `--ps2-accent`; in-page contrast spec both themes |
+| U2-03 | Paper card actions/pills left the card at 1024–1279 | DES-014 | major | **Fixed** #152 | narrow-card container block; probe + spec at 1024/1100/1180/1280 × 2 themes |
+| U2-04 | Narrow-card block also fired at 1440 (content box ≈ 299 px): labels + category lost on the approved 1440 card | QA-013 (Stage 9 regression of U2-03) | P1 | **Fixed** #154 | threshold 280 px; measured 256/299/320 px content at 1280/1440/1512; portfolio-video 12/12 green again |
+| U2-05 | Phone "Watch demo" scrolled the video under the fixed header | DES-015 | major | **Fixed** #152, refined #154 (CR-013: Lenis-aware helper) | stage top 77 ≥ header 69; spec on w390 |
+| U2-06 | Loading state: blank frame; then (Stage 9) a wrapper broke case-study cover sizing, focus moved into a covered iframe, no live status, clicks swallowed | DES-016, CR-011, CR-015, SF-003 | major | **Fixed** #152 + #154 | poster as direct child + `role=status` + focus on ready + `pointer-events:none`; hero/case-study loading verified on production |
+| U2-07 | Category label truncation (card) / hidden from AT in narrow band | DES-017, SF-006 | minor | **Fixed** #152 + #154 | one tag; clip not display:none |
+| U2-08 | Sub-44 px target (`.pp-watch`) | DES-018 | nit | **Fixed** #152 | 44 px hit ring, spec |
+| U2-09 | Tablet tile text ellipsis (pre-existing) | DES-019 | minor | **Fixed** #152 | 2-line clamp, w768 spec |
+| U2-10 | Tushky had no answer for 7 of 10 products | Tushar 2026-10-21 | — | **Fixed** #153 (TASK-317) | 6 sourced FAQ entries (Nuptis via Velora by design); validate-content 28/28; 71 prod Ask specs |
+| U2-11 | Inert synonym rows; rephrased product questions get the generic index answer | CR-010, CR-016, SF-001, SF-002 | P2 | rows **removed** #154; index behaviour **parked** | → Tushky option 2 (memory `tushky-rag-later`) |
+| U2-12 | EVAL-020 satisfied by `black` keyword + value-named tokens | CR-012 | P3 | **Parked** | TASK-319 |
+| U2-13 | Hover-stability spec sampled mid-animation; spec hygiene (flag doc, ternary, poster duplication) | CR-014, CR-017, CR-018, CR-019 | P3 | **Fixed** #154 | — |
+| U2-14 | Mobile lab LCP 5.4 s (`/`) / 6.4 s (`/projects`) vs 2.5 s budget; worse than EXE-24's accepted 2.7–3.2 s | QA-012 | **P1** | **Open — accepted for this round** | TASK-320: trace on an idle host; not introduced by this range (hero untouched) |
+| U2-15 | `case-study-system.spec` stale for the six paper case-study layouts (24 tests) | QA-015 | P2 | **Parked** (pre-existing on main) | TASK-321 |
+| U2-16 | scene-opener phone expectation, contact stamp nudge 0 px, About fingerprint snapshot stale | QA-016, QA-017, QA-018 | P3 | **Parked** (pre-existing on main) | TASK-322 / 323 / 324; About verified byte-identical to production with the live baseline (19/19) |
+| U2-17 | Answer source links scheme-checked only at build time | SEC-003 | Low | **Fixed** (TASK-326, this round's PR) | `isSafeEvidenceHref` at render + `AnswerSchema` regex; unit test |
+| U2-18 | Spoken FAQ answers are live TTS calls (cost), per-instance rate limit | SEC-004 | Low | **Accepted** | token-bucket + cache + size limits in place; provider spend cap is Tushar's call |
+| U2-19 | `script-src 'unsafe-inline'`, iframe without `sandbox`, production `console.warn` in the player | SEC-005/006/007 | Info | **Accepted, pre-existing** | static-export theme script; sandbox breaks YouTube; warnings carry no visitor data (A12) |
+| U2-20 | `next` 16.3.6 / `sharp` 0.35.4 advisories (SSRF in image optimizer et al.) | SEC-008 | Medium (High upstream) | **Parked → TASK-325** | exposure mitigated: `/_next/image` served by Vercel, no remotePatterns, remote + private-IP URLs → 400 (verified) |
+| U2-21 | Design.md §7.2 still describes the pre-M-011 carousel; DOM/focus order of the selector | DES-030, DES-021 | docs / minor | **Carried** | Stage 11/12 or next design pass |
+
+## R2-4. Open issues & accepted risks
+
+1. **TASK-320 (P1) mobile LCP** — the one release-quality risk; lab only, no field data yet; owner Stage 11 monitoring + a trace.
+2. **TASK-325** dependency advisories — bump through the full gate.
+3. **TASK-321…324, TASK-319** — test and gate debt; none affects visitors.
+4. **DES-020, 022–029** — design-direction calls for Tushar (micro-label sizes, 1280×800 description, auto-play behaviour, three navigation systems, selector origami fidelity, 1920 scale, art width, title-chip overlap, OG small line).
+5. **Live OG unfurl** (LinkedIn Post Inspector / opengraph.xyz) — BLOCKED for agents; a human check for Stage 11.
+6. **Evals skipped** by standing decision; the AI eval suite (EV1) must run before any Tushky RAG work.
+
+## R2-5. Formal QA gate & release gates
+
+| Gate | Verdict | Basis |
+|---|---|---|
+| **Design** | PASS | Stage 8 clean re-run; web-deliverables responsive / screen-state / link-preview gates verified on production (live unfurl BLOCKED) |
+| **Code Quality** | PASS | CR-010…019 + SF-001…006 fixed or parked with owner; tsc 0, eslint 0 errors |
+| **Functional Test** | PASS with accepted risks | unit 1676/0; final gate 196 e2e on four viewports; production 149; the 31 remaining scoped failures all pre-existing on main and ticketed (TASK-321…324) |
+| **Evaluation** | NA (standing decision) | no eval-run claimed; EV1 required before AI work |
+| **Security** | PASS | nothing above Low; SEC-003 fixed; SEC-008 parked with measured mitigation |
+| **Performance** | FAIL on mobile LCP, accepted | desktop PASS; mobile 5.4/6.4 s → TASK-320 P1 |
+| **Overall** | **READY WITH ACCEPTED RISKS** | the range is already live and verified; no unresolved Critical; risks ticketed with owners |
+
+**Release-gate check (eval-framework):** critical functionality fails — none · critical security issue — none · mandatory acceptance criteria fail — the EVAL-005 mobile LCP budget (accepted at EXE-24, now worse — TASK-320) · required suites not executed — evals (standing decision), full four-viewport e2e replaced by the scoped run + four-viewport gate specs (documented).
+
+---
+
 # M-009 · `m-009-redesign` — test evidence to date (Stages 8–10 not yet run)
 
 Updated 2026-09-28 (TASK-86). Branch `m-009-redesign` @ `27d0004`. Preview: https://portfolio-clay-git-m-009-redesign-tushar-49a6.vercel.app. `main` and production are untouched (`origin/main` = `22d6f66`, the M-007 merge).
