@@ -99,7 +99,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     meta: "Live · browser game",
     coverArt: "cover-slag-city",
     lettering: "block",
-    coverGlyph: "Hammer", logo: { width: 351, height: 134 },
+    coverGlyph: "Hammer", logo: { width: 1200, height: 203 },
     pitchVideo: { provider: "youtube", videoId: "1xvj8j79Svs" },
     demoVideo: { provider: "youtube", videoId: "tc4QDVl8NJM" },
   },

@@ -22,9 +22,6 @@ export interface NextProjectArt {
 /** The eyebrow on every next band (NextProject and the four paper bands): one source. */
 export const NEXT_EYEBROW = "Next project";
 
-/** Products whose logo file is an opaque dark plate (Slag City's metal sign), which reads as a small dark box on a band: the band shows the plain name. */
-const PLAIN_NAME_IN_BAND = new Set(["slag-city"]);
-
 /** TASK-292: the one-line description under a product's name on every next band. One source: `nextLine` on its `data/portfolio.ts` entry. */
 export function nextLineFor(slug: string): string | undefined {
   return portfolioEntries.find((e) => e.slug === slug)?.nextLine;
@@ -71,7 +68,7 @@ export function NextProject({ project }: NextProjectProps) {
         >
           <span className="cs-next-eyebrow next-band-eyebrow">{NEXT_EYEBROW}</span>
           <h2 className="cs-next-h next-band-h">
-            {PLAIN_NAME_IN_BAND.has(project.slug) ? project.name : <CaseName slug={project.slug} name={project.name} onDark={tone !== "cream"} />} <span className="cs-next-arr" aria-hidden="true">→</span>
+            <CaseName slug={project.slug} name={project.name} onDark={tone !== "cream"} /> <span className="cs-next-arr" aria-hidden="true">→</span>
           </h2>
           {line ? <p className="cs-next-line next-band-line">{line}</p> : null}
         </ViewTransitionLink>

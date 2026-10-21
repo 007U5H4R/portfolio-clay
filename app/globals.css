@@ -18213,18 +18213,7 @@ html:has(dialog.more-menu[open]) {
     max-width: min(100%, 300px);
   }
 }
-/* Slag City's logo is a riveted marquee plate with its lettering inset, so it needs more height to read at the same size. */
-.pf-info-name .pf-logo-img[src*="logo-slag-city"] {
-  max-height: 64px;
-}
-.pf-m-bar-title .pf-logo-img[src*="logo-slag-city"] {
-  max-height: 40px;
-}
-@media (min-width: 1024px) {
-  .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
-    max-height: 76px;
-  }
-}
+/* TASK-340 (Tushar 2026-10-21): Slag City's logo is now a one-line transparent wordmark (~6:1), width-bound like the other wordmarks, so it follows the generic caps above. The old per-logo height boosts existed for the tall riveted plate and are gone. */
 
 /* ==================================================================================================
    TASK-252 (Tushar 2026-10-18) · the star nudge under the GitHub link: a small handwritten note (Caveat), muted ink, no
@@ -19561,9 +19550,6 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .pf-showcase .pf-info-name .pf-logo-img {
     max-height: clamp(30px, 4.4svh, 48px);
   }
-  .pf-showcase .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
-    max-height: clamp(40px, 6svh, 76px);
-  }
   .pf-showcase .pf-info-tagline {
     margin-top: 3px;
   }
@@ -20038,9 +20024,6 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar .pf-info-name .pf-logo-img {
     max-height: clamp(26px, calc(var(--pf-vc-h) * 0.07), 40px);
-  }
-  .pf-showcase.pf-vcar .pf-info-name .pf-logo-img[src*="logo-slag-city"] {
-    max-height: clamp(26px, calc(var(--pf-vc-h) * 0.065), 40px);
   }
   .pf-showcase.pf-vcar .pf-info-tagline {
     margin-top: 0;
