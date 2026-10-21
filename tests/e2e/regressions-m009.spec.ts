@@ -21,14 +21,19 @@ test("regression · the /projects horizontal row is never a hidden, affordance-f
   // replaced the filter tabs with the Portfolio carousel — an INTENTIONAL horizontal scroller — so the
   // same bug class is guarded here: the track keeps a visible scrollbar, visible ≥ 44 px prev/next
   // buttons and an "n / N" count, every cover is a ≥ 44 px target, and the page itself never overflows.
+  // TASK-210: below 640 px the phone shows the list / detail screens, not the carousel (projects-mobile.spec.ts covers them)
+  test.skip((page.viewportSize()?.width ?? 0) < 640, "no carousel on the phone tier");
   await page.goto("/projects", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
   const track = page.getByRole("tablist", { name: "Select a product" });
   const m = await track.evaluate((row) => ({
     scrollbar: getComputedStyle(row).scrollbarWidth,
+    // TASK-301/305: the desktop vertical paper selector is a looped tray whose affordances are its folded up/down arrows and
+    // the "n / N" counter, so a hidden scrollbar there is by design; the horizontal row (< 1024) must still show one
+    paperSelector: !!row.closest("[data-paper-selector], [data-vertical]"),
     tabs: Array.from(row.querySelectorAll<HTMLElement>('[role="tab"]')).map((tab) => ({ w: tab.offsetWidth, h: tab.offsetHeight })),
   }));
-  expect(m.scrollbar, "the carousel scrollbar is never hidden").not.toBe("none");
+  if (!m.paperSelector) expect(m.scrollbar, "the carousel scrollbar is never hidden").not.toBe("none");
   for (const tab of m.tabs) {
     expect(tab.w).toBeGreaterThanOrEqual(44);
     expect(tab.h).toBeGreaterThanOrEqual(44);

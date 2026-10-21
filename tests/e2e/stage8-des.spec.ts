@@ -174,7 +174,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         await page.locator(`[role="tab"][data-product="${project.slug}"]`).click();
         await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
         await page.waitForTimeout(150);
-        const over = await page.locator(".pf-paper .pf-info-category").evaluate((el) => (el.textContent ? el.scrollWidth - el.clientWidth : 0));
+        // in the narrow-card band (≤ 280 px content) the category is clipped for assistive tech only (sr-only pattern) — not a truncation
+        const over = await page.locator(".pf-paper .pf-info-category").evaluate((el) => (el.textContent && (el as HTMLElement).offsetWidth > 2 ? el.scrollWidth - el.clientWidth : 0));
         expect(over, `${project.name} category fits`).toBeLessThanOrEqual(0);
       }
     });
