@@ -30,6 +30,14 @@ export const SYNONYMS: Record<string, readonly string[]> = {
   railcite: ["railcite", "railway", "circulars", "citation", "citations"],
   teachspark: ["teachspark", "teachers", "teacher", "whatsapp", "worksheets"],
   velora: ["velora", "nuptis", "vendor", "vendors", "onboarding", "apparel", "wedding", "weddings", "sourcing"],
+  // TASK-317 (Tushar 2026-10-21): the products that had no answer of their own. Nuptis stays on the velora row by
+  // design (its answer is the Velora entry, which also tells the Nuptis story).
+  slagcity: ["slag", "slagcity", "slag-city", "brawler", "beat-em-up", "beatemup"],
+  campfire: ["campfire", "campfire-board", "campfireboard", "backlog", "kanban"],
+  shravan: ["shravan", "shravans", "shravans-round", "shravansround", "mock-interview", "mockinterview"],
+  urja: ["urja", "munshi", "fleet", "trucks", "diesel"],
+  pratyasa: ["pratyasa", "sepsis"],
+  bhakti: ["bhakti", "bhakti-vilas", "bhaktivilas", "bhajan", "elder", "elders"],
   // TASK-235: the easter-egg card ("Where is the hidden easter egg?") and how to open Gummy Lab.
   easteregg: ["easter", "egg", "eggs", "hidden", "secret"],
   gummy: ["gummy", "lab", "game", "games"],

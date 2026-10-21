@@ -841,5 +841,206 @@
       "profile"
     ],
     "reviewed": true
+  },
+  {
+    "id": "slag-city",
+    "category": "products",
+    "question": "Tell me about Slag City.",
+    "aliases": [
+      "What is Slag City?",
+      "Explain Slag City",
+      "Slag City",
+      "What is the Slag City game?",
+      "Tell me about the brawler",
+      "Tell me about the beat-'em-up game"
+    ],
+    "answer": "Slag City is an original arcade beat-'em-up that runs in the browser, built the way a coin-op cabinet behaves: attract mode, insert coin, fight, a 10-second continue countdown, and initials on the hi-score table. It is one complete stage — a three-boss gauntlet, with a story told in an eight-slide intro and the boss dialogue — playable on a desktop in a simulated cabinet or on a phone with on-screen controls; coins are free. It started where Dino Arcade stops: that emulator is fine for private play but cannot be published, so the goal was a publishable brawler with wholly original IP. Tushar built it in September 2026 with Phaser 3, TypeScript and Vite, deployed on Vercel; the game logic is a pure TypeScript core with a seeded RNG, so recorded input replays are hashed in tests and a behaviour change fails a golden. It is live.",
+    "sources": [
+      {
+        "label": "Slag City",
+        "href": "/work/slag-city"
+      },
+      {
+        "label": "Play Slag City",
+        "href": "https://slag-city.vercel.app"
+      }
+    ],
+    "followUps": [
+      "Where is the hidden easter egg?",
+      "What products has Tushar built?"
+    ],
+    "updatedAt": "2026-10-21",
+    "profileVersion": "v1-cdb18eaaf634",
+    "dependsOn": [
+      "project:slag-city"
+    ],
+    "reviewed": true
+  },
+  {
+    "id": "campfire-board",
+    "category": "products",
+    "question": "Tell me about Campfire Board.",
+    "aliases": [
+      "What is Campfire Board?",
+      "Explain Campfire Board",
+      "Campfire Board",
+      "Campfire",
+      "What is the Campfire dashboard?",
+      "Tell me about the Campfire board"
+    ],
+    "answer": "Campfire Board is Tushar's personal fork of Backlog.md, reshaped into a local-first, multi-project command centre for his AI build workflow: every project stays a self-contained folder of Markdown files, and one dashboard, launched locally in Chrome, renders them all. It adds a multi-project switcher, a Kanban board with an Execution / Workflow toggle, an hours-axis Execution Gantt with dependency arrows, a statistics view and an in-app artifacts viewer, all served from a single Bun-compiled local binary with the web UI embedded — nothing to deploy. A hosted live demo runs a sample project. Backlog.md is by Alex Gavrilescu and contributors (MIT licence); Campfire inherits its Markdown-native, agent-first philosophy. Built in September 2026; its status is built, with a live demo.",
+    "sources": [
+      {
+        "label": "Campfire Board",
+        "href": "/work/campfire-board"
+      },
+      {
+        "label": "Campfire Board live demo",
+        "href": "https://site-eight-lake-51.vercel.app"
+      }
+    ],
+    "followUps": [
+      "What products has Tushar built?",
+      "What is his product thinking process?"
+    ],
+    "updatedAt": "2026-10-21",
+    "profileVersion": "v1-7378fa5df0df",
+    "dependsOn": [
+      "project:campfire-board"
+    ],
+    "reviewed": true
+  },
+  {
+    "id": "shravans-round",
+    "category": "products",
+    "question": "Tell me about The Shravan's Round.",
+    "aliases": [
+      "What is The Shravan's Round?",
+      "Explain Shravan's Round",
+      "Tell me about Shravan's Round",
+      "Shravan's Round",
+      "What is the mock PM interview?",
+      "Tell me about the mock interview"
+    ],
+    "answer": "The Shravan's Round is a free, 20-minute AI mock PM interview fronted by Shravan's voice: a short setup with no login, a round that cross-questions your answers on real Indian product cases, then a score card with evidence quotes from your transcript, downloadable as a PDF. It is a team build (September–October 2026) on Next.js, Supabase with pgvector retrieval over Shravan's teaching transcripts, and two model providers that cover for each other. Tushar's part was the avatar layer — a scored trial of three photo-driven avatar vendors and its Discovery PRD — plus the animated listening-ring brand mark and the launch and demo films. It is live.",
+    "sources": [
+      {
+        "label": "The Shravan's Round",
+        "href": "/work/shravans-round"
+      },
+      {
+        "label": "Try The Shravan's Round",
+        "href": "https://shravans-round.vercel.app"
+      }
+    ],
+    "followUps": [
+      "What AI experience does he have?",
+      "Tell me about Urja."
+    ],
+    "updatedAt": "2026-10-21",
+    "profileVersion": "v1-c51659c27da1",
+    "dependsOn": [
+      "project:shravans-round"
+    ],
+    "reviewed": true
+  },
+  {
+    "id": "urja",
+    "category": "products",
+    "question": "Tell me about Urja.",
+    "aliases": [
+      "What is Urja?",
+      "Explain Urja",
+      "Urja",
+      "What is the fleet munshi?",
+      "Tell me about the AI munshi"
+    ],
+    "answer": "Urja is an AI munshi for Indian small-fleet owners. An owner asks why a finished trip made almost nothing; Urja reconciles each trip's diesel, tolls and kilometres against the vehicle data and tells the owner each morning, in Hindi or English, which rupees don't add up and how sure it is. It is a solo concept by Tushar (September–October 2026) on a simulated 24-truck fleet: five deterministic rules raise every flag with a confidence level, the morning brief is templated so it never invents a figure, and one Gemini-backed Ask box answers questions with a labelled fallback. Next.js on Vercel, with a three.js reconstruction of the flagged night. It is live on the simulated fleet.",
+    "sources": [
+      {
+        "label": "Urja",
+        "href": "/work/urja"
+      },
+      {
+        "label": "Open Urja",
+        "href": "https://urja-three.vercel.app"
+      }
+    ],
+    "followUps": [
+      "What AI experience does he have?",
+      "How does he evaluate an AI product?"
+    ],
+    "updatedAt": "2026-10-21",
+    "profileVersion": "v1-1e8921d47dbe",
+    "dependsOn": [
+      "project:urja"
+    ],
+    "reviewed": true
+  },
+  {
+    "id": "pratyasa",
+    "category": "products",
+    "question": "Tell me about Pratyasa.",
+    "aliases": [
+      "What is Pratyasa?",
+      "Explain Pratyasa",
+      "Pratyasa",
+      "Tell me about the sepsis biosensor",
+      "What is the patent page?"
+    ],
+    "answer": "Pratyasa is a public, fast, self-contained web page that showcases granted patent IN 429867 — a point-of-care sepsis-biomarker biosensor — as a credible record of work, with the certificate, the paper and footage. Tushar is the second of five co-inventors; he worked across the portable analyser's electronics and firmware, the Android application, sensor preparation, and validation testing in blood and food samples. The page states the rights and safety framing plainly: the patent is owned by NIT–Calicut, and the device is a research prototype, not an approved diagnostic. He built the page solo in August 2026; it is live.",
+    "sources": [
+      {
+        "label": "Pratyasa",
+        "href": "/work/pratyasa"
+      },
+      {
+        "label": "Open Pratyasa",
+        "href": "https://pratyasa.vercel.app"
+      }
+    ],
+    "followUps": [
+      "What is his research background?",
+      "What products has Tushar built?"
+    ],
+    "updatedAt": "2026-10-21",
+    "profileVersion": "v1-bafd6bfccc68",
+    "dependsOn": [
+      "project:pratyasa"
+    ],
+    "reviewed": true
+  },
+  {
+    "id": "bhakti-vilas",
+    "category": "products",
+    "question": "Tell me about Bhakti Vilas.",
+    "aliases": [
+      "What is Bhakti Vilas?",
+      "Explain Bhakti Vilas",
+      "Bhakti Vilas",
+      "Tell me about the bhajan app",
+      "What is the elder wellness prototype?"
+    ],
+    "answer": "Bhakti Vilas is an interactive prototype of an elder-focused wellness platform for India built around bhajan — positioned as devotion-as-behavioural-health rather than a clinical wellness app. It came out of a Cohort 8 buildathon brief on India's elder-care market (26 July – 1 August 2026): five contributors worked the case independently before converging on the same root cause, a missing trust and accountability layer. It is a team build, not a solo one; Tushar's tracked contribution was the tier-wise segmentation, the hypotheses and refined hypotheses, and the persona interview guides. The prototype is live on mock data.",
+    "sources": [
+      {
+        "label": "Bhakti Vilas",
+        "href": "/work/bhakti-vilas"
+      },
+      {
+        "label": "Open Bhakti Vilas",
+        "href": "https://bhakti-vilas.vercel.app/"
+      }
+    ],
+    "followUps": [
+      "What products has Tushar built?",
+      "What is his product thinking process?"
+    ],
+    "updatedAt": "2026-10-21",
+    "profileVersion": "v1-7f659ecd0fe4",
+    "dependsOn": [
+      "project:bhakti-vilas"
+    ],
+    "reviewed": true
   }
 ]
