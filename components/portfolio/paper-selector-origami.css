@@ -1,0 +1,200 @@
+/* TASK-335 (DES-025 + DES-027) - the desktop paper selector closer to its origami reference (.scratch/selector-paper/ref-light.png, ref-dark.png).
+   Layered over the TASK-305 rules in globals.css; desktop only (>= 1024 px) and only where the paper selector renders
+   (`.pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector]` - flag off or a phone = none of this matches).
+   The scope below adds one class to every TASK-305 selector, so these rules win whatever the stylesheet order. No colour literals:
+   every colour comes from the --ps2-* / --oa-* tokens in globals.css. Deckle edges are clip-path polygons whose points are
+   % along the edge and px into the sheet (seeded value-noise, generated once) - no raster art.
+   Layers: each tile is its own sheet (clip-path = chamfered, deckled outline); ::before is the paper layer behind the face (an
+   asymmetric ring: thicker at the bottom, so it reads as a sheet offset down), ::after is the folded bottom-right corner.
+   The panel is the same trick: ::before the parchment face, ::after the torn under-sheet (terracotta in dark). */
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar.pf-psel {
+    --ps3-tile-a: polygon(0px 7px, 7px 0px, 4.76% 0.37px, 9.52% 0.47px, 14.29% 0.91px, 19.05% 0.53px, 23.81% 0.61px, 28.57% 0.63px, 33.33% 0.79px, 38.1% 0.9px, 42.86% 0.7px, 47.62% 0.67px, 52.38% 0.7px, 57.14% 0.41px, 61.9% 0.2px, 66.67% 0.84px, 71.43% 1.14px, 76.19% 0.81px, 80.95% 1.09px, 85.71% 0.98px, 90.48% 1.37px, 95.24% 1.03px, calc(100% - 7px) 0px, 100% 7px, calc(100% - 0.85px) 10%, calc(100% - 1.45px) 20%, calc(100% - 1.11px) 30%, calc(100% - 1.25px) 40%, calc(100% - 1.68px) 50%, calc(100% - 1.12px) 60%, calc(100% - 1.18px) 70%, calc(100% - 1.59px) 80%, calc(100% - 1.46px) 90%, 100% calc(100% - 9px), calc(100% - 9px) 100%, 95.24% calc(100% - 1.55px), 90.48% calc(100% - 1.35px), 85.71% calc(100% - 0.96px), 80.95% calc(100% - 1.44px), 76.19% calc(100% - 0.91px), 71.43% calc(100% - 0.63px), 66.67% calc(100% - 0.88px), 61.9% calc(100% - 0.5px), 57.14% calc(100% - 0.64px), 52.38% calc(100% - 0.52px), 47.62% calc(100% - 1.18px), 42.86% calc(100% - 0.64px), 38.1% calc(100% - 0.68px), 33.33% calc(100% - 0.63px), 28.57% calc(100% - 1.04px), 23.81% calc(100% - 0.91px), 19.05% calc(100% - 0.95px), 14.29% calc(100% - 1.26px), 9.52% calc(100% - 1.08px), 4.76% calc(100% - 0.84px), 0px 100%, 1.08px 90%, 1.12px 80%, 0.27px 70%, 0.48px 60%, 0.76px 50%, 1.29px 40%, 0.99px 30%, 0.88px 20%, 1.25px 10%);
+    --ps3-tile-b: polygon(0px 7px, 7px 0px, 4.76% 0.47px, 9.52% 1.04px, 14.29% 0.58px, 19.05% 0.8px, 23.81% 0.52px, 28.57% 1.12px, 33.33% 0.81px, 38.1% 0.85px, 42.86% 0.85px, 47.62% 1.16px, 52.38% 0.83px, 57.14% 0.66px, 61.9% 0.94px, 66.67% 1.05px, 71.43% 1.38px, 76.19% 1.51px, 80.95% 1.39px, 85.71% 1.2px, 90.48% 1.5px, 95.24% 1.16px, calc(100% - 7px) 0px, 100% 7px, calc(100% - 0.26px) 10%, calc(100% - 0.93px) 20%, calc(100% - 0.62px) 30%, calc(100% - 0.52px) 40%, calc(100% - 1.19px) 50%, calc(100% - 1.67px) 60%, calc(100% - 1.08px) 70%, calc(100% - 1.33px) 80%, calc(100% - 1.13px) 90%, 100% calc(100% - 9px), calc(100% - 9px) 100%, 95.24% calc(100% - 1.5px), 90.48% calc(100% - 0.98px), 85.71% calc(100% - 1.4px), 80.95% calc(100% - 1.37px), 76.19% calc(100% - 1.13px), 71.43% calc(100% - 1.24px), 66.67% calc(100% - 0.78px), 61.9% calc(100% - 0.25px), 57.14% calc(100% - 0.42px), 52.38% calc(100% - 0.24px), 47.62% calc(100% - 0.76px), 42.86% calc(100% - 0.37px), 38.1% calc(100% - 0.3px), 33.33% calc(100% - 1.06px), 28.57% calc(100% - 0.78px), 23.81% calc(100% - 1.31px), 19.05% calc(100% - 0.65px), 14.29% calc(100% - 0.52px), 9.52% calc(100% - 0.79px), 4.76% calc(100% - 0.46px), 0px 100%, 1.51px 90%, 0.69px 80%, 1.24px 70%, 0.83px 60%, 0.85px 50%, 0.93px 40%, 1.39px 30%, 1.45px 20%, 0.89px 10%);
+    --ps3-tile-c: polygon(0px 7px, 7px 0px, 4.76% 0.61px, 9.52% 1.05px, 14.29% 1.11px, 19.05% 0.82px, 23.81% 1.27px, 28.57% 0.61px, 33.33% 0.68px, 38.1% 0.77px, 42.86% 0.46px, 47.62% 0.79px, 52.38% 0.41px, 57.14% 0.39px, 61.9% 0.12px, 66.67% 0.32px, 71.43% 0.2px, 76.19% 0.73px, 80.95% 0.32px, 85.71% 0.57px, 90.48% 0.33px, 95.24% 1.05px, calc(100% - 7px) 0px, 100% 7px, calc(100% - 1.17px) 10%, calc(100% - 1.51px) 20%, calc(100% - 1.38px) 30%, calc(100% - 1.5px) 40%, calc(100% - 0.8px) 50%, calc(100% - 0.95px) 60%, calc(100% - 0.37px) 70%, calc(100% - 0.39px) 80%, calc(100% - 0.96px) 90%, 100% calc(100% - 9px), calc(100% - 9px) 100%, 95.24% calc(100% - 1.22px), 90.48% calc(100% - 1.08px), 85.71% calc(100% - 0.79px), 80.95% calc(100% - 0.79px), 76.19% calc(100% - 1.1px), 71.43% calc(100% - 0.47px), 66.67% calc(100% - 0.53px), 61.9% calc(100% - 0.42px), 57.14% calc(100% - 0.47px), 52.38% calc(100% - 0.49px), 47.62% calc(100% - 1.08px), 42.86% calc(100% - 1px), 38.1% calc(100% - 1.1px), 33.33% calc(100% - 1.33px), 28.57% calc(100% - 1.49px), 23.81% calc(100% - 1.18px), 19.05% calc(100% - 1.27px), 14.29% calc(100% - 1.56px), 9.52% calc(100% - 1.41px), 4.76% calc(100% - 1.03px), 0px 100%, 1.67px 90%, 0.81px 80%, 0.86px 70%, 0.55px 60%, 1.08px 50%, 1.08px 40%, 1.6px 30%, 1.17px 20%, 0.83px 10%);
+    --ps3-tile-sel: polygon(0px 7px, 7px 0px, 4.76% 0.63px, 9.52% 0.68px, 14.29% 0.78px, 19.05% 0.13px, 23.81% 0.4px, 28.57% 0.36px, 33.33% 0.2px, 38.1% 0.29px, 42.86% 0.78px, 47.62% 0.42px, 52.38% 0.71px, 57.14% 1.2px, 61.9% 0.87px, 66.67% 1.06px, 71.43% 1.5px, 76.19% 0.88px, 80.95% 1.02px, 85.71% 1.25px, 90.48% 1.12px, 95.24% 0.58px, calc(100% - 7px) 0px, 100% 7px, calc(100% - 0.61px) 10%, calc(100% - 1.22px) 20%, calc(100% - 1.01px) 30%, calc(100% - 1.53px) 40%, calc(100% - 1.25px) 50%, calc(100% - 0.88px) 60%, calc(100% - 0.61px) 70%, calc(100% - 0.66px) 80%, calc(100% - 0.55px) 90%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 95.24% calc(100% - 0.89px), 90.48% calc(100% - 0.68px), 85.71% calc(100% - 0.82px), 80.95% calc(100% - 0.15px), 76.19% calc(100% - 0.42px), 71.43% calc(100% - 0.55px), 66.67% calc(100% - 0.43px), 61.9% calc(100% - 0.31px), 57.14% calc(100% - 0.65px), 52.38% calc(100% - 0.49px), 47.62% calc(100% - 0.5px), 42.86% calc(100% - 0.25px), 38.1% calc(100% - 0.7px), 33.33% calc(100% - 0.86px), 28.57% calc(100% - 0.74px), 23.81% calc(100% - 1.44px), 19.05% calc(100% - 1.62px), 14.29% calc(100% - 0.91px), 9.52% calc(100% - 0.99px), 4.76% calc(100% - 0.62px), 0px 100%, 0.88px 90%, 1.08px 80%, 1.77px 70%, 1.34px 60%, 1.45px 50%, 0.79px 40%, 1.24px 30%, 1.17px 20%, 1.02px 10%);
+    --ps3-panel-a: polygon(0px 12px, 12px 0px, 4.55% 2.09px, 9.09% 1.34px, 13.64% 1.9px, 18.18% 2.48px, 22.73% 2.37px, 27.27% 1.16px, 31.82% 1.88px, 36.36% 1.42px, 40.91% 1.8px, 45.45% 3.1px, 50% 2.16px, 54.55% 3.46px, 59.09% 2.39px, 63.64% 2.88px, 68.18% 2.61px, 72.73% 2.36px, 77.27% 1.83px, 81.82% 2.36px, 86.36% 1.57px, 90.91% 1.76px, 95.45% 1.47px, calc(100% - 12px) 0px, 100% 12px, calc(100% - 1.12px) 1.41%, calc(100% - 1.9px) 2.82%, calc(100% - 1.79px) 4.23%, calc(100% - 2.9px) 5.63%, calc(100% - 1.89px) 7.04%, calc(100% - 1.41px) 8.45%, calc(100% - 1.37px) 9.86%, calc(100% - 1.55px) 11.27%, calc(100% - 1.24px) 12.68%, calc(100% - 1.81px) 14.08%, calc(100% - 1.19px) 15.49%, calc(100% - 1.49px) 16.9%, calc(100% - 1.76px) 18.31%, calc(100% - 2.98px) 19.72%, calc(100% - 3.72px) 21.13%, calc(100% - 3.43px) 22.54%, calc(100% - 1.47px) 23.94%, calc(100% - 1.46px) 25.35%, calc(100% - 0.84px) 26.76%, calc(100% - 1.7px) 28.17%, calc(100% - 1.76px) 29.58%, calc(100% - 3.03px) 30.99%, calc(100% - 3.24px) 32.39%, calc(100% - 2.71px) 33.8%, calc(100% - 1.43px) 35.21%, calc(100% - 1.54px) 36.62%, calc(100% - 2.14px) 38.03%, calc(100% - 0.99px) 39.44%, calc(100% - 2.09px) 40.85%, calc(100% - 2.47px) 42.25%, calc(100% - 1.1px) 43.66%, calc(100% - 1.73px) 45.07%, calc(100% - 2.22px) 46.48%, calc(100% - 1.24px) 47.89%, calc(100% - 2.63px) 49.3%, calc(100% - 2.12px) 50.7%, calc(100% - 2.4px) 52.11%, calc(100% - 3.53px) 53.52%, calc(100% - 2.09px) 54.93%, calc(100% - 1.64px) 56.34%, calc(100% - 2.37px) 57.75%, calc(100% - 2.15px) 59.15%, calc(100% - 1.96px) 60.56%, calc(100% - 2.2px) 61.97%, calc(100% - 1.22px) 63.38%, calc(100% - 1.2px) 64.79%, calc(100% - 2.49px) 66.2%, calc(100% - 1.99px) 67.61%, calc(100% - 1.92px) 69.01%, calc(100% - 1.58px) 70.42%, calc(100% - 1.55px) 71.83%, calc(100% - 0.69px) 73.24%, calc(100% - 0.45px) 74.65%, calc(100% - 1.12px) 76.06%, calc(100% - 1.24px) 77.46%, calc(100% - 0.68px) 78.87%, calc(100% - 0.56px) 80.28%, calc(100% - 0.74px) 81.69%, calc(100% - 1.21px) 83.1%, calc(100% - 0.82px) 84.51%, calc(100% - 1.08px) 85.92%, calc(100% - 0.63px) 87.32%, calc(100% - 0.63px) 88.73%, calc(100% - 0.8px) 90.14%, calc(100% - 1.3px) 91.55%, calc(100% - 2.83px) 92.96%, calc(100% - 2.08px) 94.37%, calc(100% - 2.68px) 95.77%, calc(100% - 1.93px) 97.18%, calc(100% - 1.31px) 98.59%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 95.45% calc(100% - 1.33px), 90.91% calc(100% - 2.62px), 86.36% calc(100% - 2.48px), 81.82% calc(100% - 2.57px), 77.27% calc(100% - 2.08px), 72.73% calc(100% - 3.02px), 68.18% calc(100% - 2.96px), 63.64% calc(100% - 2.23px), 59.09% calc(100% - 1.54px), 54.55% calc(100% - 1.02px), 50% calc(100% - 0.72px), 45.45% calc(100% - 1.59px), 40.91% calc(100% - 0.52px), 36.36% calc(100% - 1.24px), 31.82% calc(100% - 0.39px), 27.27% calc(100% - 0.32px), 22.73% calc(100% - 1.55px), 18.18% calc(100% - 1.85px), 13.64% calc(100% - 1.57px), 9.09% calc(100% - 0.95px), 4.55% calc(100% - 1.78px), 12px 100%, 0px calc(100% - 12px), 0.27px 98.59%, 1.05px 97.18%, 1.98px 95.77%, 0.56px 94.37%, 1.9px 92.96%, 1.79px 91.55%, 0.65px 90.14%, 1.36px 88.73%, 1.84px 87.32%, 1.2px 85.92%, 1.82px 84.51%, 1.14px 83.1%, 2.32px 81.69%, 2.33px 80.28%, 3.19px 78.87%, 3.29px 77.46%, 2.01px 76.06%, 2.09px 74.65%, 1.58px 73.24%, 1.37px 71.83%, 0.99px 70.42%, 0.24px 69.01%, 1.51px 67.61%, 1.48px 66.2%, 1.51px 64.79%, 0.92px 63.38%, 0.91px 61.97%, 1.48px 60.56%, 2.42px 59.15%, 2.79px 57.75%, 3.16px 56.34%, 2.94px 54.93%, 1.89px 53.52%, 2.33px 52.11%, 2.06px 50.7%, 1.65px 49.3%, 1.25px 47.89%, 1.35px 46.48%, 1.36px 45.07%, 1.61px 43.66%, 0.41px 42.25%, 0.71px 40.85%, 1.25px 39.44%, 2.13px 38.03%, 2.75px 36.62%, 2.66px 35.21%, 1.64px 33.8%, 2.65px 32.39%, 2.29px 30.99%, 2.1px 29.58%, 2.49px 28.17%, 1.81px 26.76%, 2.38px 25.35%, 1.77px 23.94%, 1.86px 22.54%, 2.16px 21.13%, 2.18px 19.72%, 2.43px 18.31%, 1.44px 16.9%, 1.94px 15.49%, 2.51px 14.08%, 2.18px 12.68%, 1.77px 11.27%, 2.62px 9.86%, 3.39px 8.45%, 3.07px 7.04%, 3.21px 5.63%, 2.26px 4.23%, 2.18px 2.82%, 2.8px 1.41%);
+    --ps3-under-a: polygon(0px 16px, 16px 0px, 5.26% 3.36px, 10.53% 2.02px, 15.79% 2.26px, 21.05% 3.12px, 26.32% 2.38px, 31.58% 2.52px, 36.84% 2.79px, 42.11% 1.93px, 47.37% 1.91px, 52.63% 1.53px, 57.89% 0.99px, 63.16% 1.17px, 68.42% 2.11px, 73.68% 2.07px, 78.95% 4.15px, 84.21% 4.39px, 89.47% 3.71px, 94.74% 3.67px, calc(100% - 10px) 0px, 100% 10px, calc(100% - 3.25px) 1.69%, calc(100% - 2.51px) 3.39%, calc(100% - 1.61px) 5.08%, calc(100% - 1.95px) 6.78%, calc(100% - 2.47px) 8.47%, calc(100% - 1.67px) 10.17%, calc(100% - 1.63px) 11.86%, calc(100% - 3.1px) 13.56%, calc(100% - 5.34px) 15.25%, calc(100% - 5.03px) 16.95%, calc(100% - 2.22px) 18.64%, calc(100% - 0.79px) 20.34%, calc(100% - 2.24px) 22.03%, calc(100% - 0.61px) 23.73%, calc(100% - 1.64px) 25.42%, calc(100% - 0.28px) 27.12%, calc(100% - 1.54px) 28.81%, calc(100% - 3.04px) 30.51%, calc(100% - 3.85px) 32.2%, calc(100% - 3.09px) 33.9%, calc(100% - 1.28px) 35.59%, calc(100% - 1.09px) 37.29%, calc(100% - 3.12px) 38.98%, calc(100% - 3.02px) 40.68%, calc(100% - 4.49px) 42.37%, calc(100% - 3.82px) 44.07%, calc(100% - 3.35px) 45.76%, calc(100% - 2.95px) 47.46%, calc(100% - 2.96px) 49.15%, calc(100% - 4.99px) 50.85%, calc(100% - 4.56px) 52.54%, calc(100% - 4.25px) 54.24%, calc(100% - 4.96px) 55.93%, calc(100% - 5.1px) 57.63%, calc(100% - 4.7px) 59.32%, calc(100% - 4.61px) 61.02%, calc(100% - 4.26px) 62.71%, calc(100% - 4.56px) 64.41%, calc(100% - 5.15px) 66.1%, calc(100% - 4.48px) 67.8%, calc(100% - 3.44px) 69.49%, calc(100% - 3.04px) 71.19%, calc(100% - 2.64px) 72.88%, calc(100% - 0.35px) 74.58%, calc(100% - 1.15px) 76.27%, calc(100% - 2.48px) 77.97%, calc(100% - 2.56px) 79.66%, calc(100% - 2.81px) 81.36%, calc(100% - 3.24px) 83.05%, calc(100% - 3.48px) 84.75%, calc(100% - 1.34px) 86.44%, calc(100% - 2.28px) 88.14%, calc(100% - 2.25px) 89.83%, calc(100% - 2.63px) 91.53%, calc(100% - 1.15px) 93.22%, calc(100% - 2.01px) 94.92%, calc(100% - 1.68px) 96.61%, calc(100% - 1.62px) 98.31%, 100% calc(100% - 18px), calc(100% - 18px) 100%, 94.74% calc(100% - 2.96px), 89.47% calc(100% - 3.45px), 84.21% calc(100% - 3.6px), 78.95% calc(100% - 2.97px), 73.68% calc(100% - 3.36px), 68.42% calc(100% - 1.45px), 63.16% calc(100% - 1.27px), 57.89% calc(100% - 1.42px), 52.63% calc(100% - 0.89px), 47.37% calc(100% - 2.45px), 42.11% calc(100% - 2.55px), 36.84% calc(100% - 3.45px), 31.58% calc(100% - 4.97px), 26.32% calc(100% - 4.74px), 21.05% calc(100% - 2.94px), 15.79% calc(100% - 2.19px), 10.53% calc(100% - 2.11px), 5.26% calc(100% - 2.67px), 12px 100%, 0px calc(100% - 12px), 3.61px 98.31%, 1.95px 96.61%, 2.71px 94.92%, 3.89px 93.22%, 1.66px 91.53%, 3.45px 89.83%, 2.47px 88.14%, 4.48px 86.44%, 3.72px 84.75%, 4.86px 83.05%, 2.29px 81.36%, 3.11px 79.66%, 0.93px 77.97%, 2.5px 76.27%, 3.62px 74.58%, 2.43px 72.88%, 4.07px 71.19%, 4.6px 69.49%, 5.32px 67.8%, 2.55px 66.1%, 3.97px 64.41%, 2.44px 62.71%, 3.29px 61.02%, 3.46px 59.32%, 3.39px 57.63%, 3.83px 55.93%, 3.85px 54.24%, 2.95px 52.54%, 4px 50.85%, 4.26px 49.15%, 5.04px 47.46%, 4.53px 45.76%, 3.02px 44.07%, 2.45px 42.37%, 2.26px 40.68%, 1.44px 38.98%, 1.62px 37.29%, 3.08px 35.59%, 2px 33.9%, 2.29px 32.2%, 1.89px 30.51%, 1.46px 28.81%, 1.95px 27.12%, 3.25px 25.42%, 2.2px 23.73%, 4.07px 22.03%, 5.02px 20.34%, 5.1px 18.64%, 2.95px 16.95%, 3.88px 15.25%, 2.53px 13.56%, 1.23px 11.86%, 1.45px 10.17%, 1.39px 8.47%, 1.56px 6.78%, 3.57px 5.08%, 3.17px 3.39%, 3.28px 1.69%);
+    --ps3-ring: color-mix(in oklab, var(--ps2-panel) 70%, var(--oa-lit));
+    --ps3-mat: var(--ps2-tile-on);
+    --ps3-fold-a: color-mix(in oklab, var(--oa-lit) 38%, var(--ps2-tile-on));
+    --ps3-fold-b: color-mix(in oklab, var(--oa-lit) 70%, var(--oa-shade));
+    --ps3-under: color-mix(in oklab, var(--oa-lit) 42%, var(--ps2-panel));
+    --ps3-under-hot: var(--oa-face);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar.pf-psel {
+    --ps3-ring: color-mix(in oklab, var(--ps2-tile) 68%, var(--ps2-text));
+    --ps3-mat: color-mix(in oklab, var(--ps2-text) 86%, var(--ps2-tile));
+    --ps3-fold-a: color-mix(in oklab, var(--oa-lit) 55%, var(--ps2-text));
+    --ps3-fold-b: color-mix(in oklab, var(--oa-lit) 70%, var(--oa-shade));
+    --ps3-under: color-mix(in oklab, var(--oa-face) 70%, var(--ps2-panel));
+    --ps3-under-hot: var(--oa-face);
+  }
+
+  /* ---- the panel: deckled parchment over a torn under-sheet ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector]::before {
+    clip-path: var(--ps3-panel-a);
+    box-shadow: none;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector]::after {
+    content: "";
+    position: absolute;
+    inset: -4px -5px -8px -5px;
+    z-index: -2;
+    pointer-events: none;
+    clip-path: var(--ps3-under-a);
+    background-color: var(--ps3-under);
+    background-image:
+      linear-gradient(158deg, var(--ps3-under-hot) 0, transparent 26%),
+      linear-gradient(338deg, var(--ps3-under-hot) 0, transparent 20%),
+      var(--ps2-grain);
+    background-size: auto, auto, 160px 160px;
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector]::after {
+    background-image:
+      linear-gradient(158deg, var(--ps3-under-hot) 0, var(--ps3-under) 60%),
+      var(--ps2-grain);
+    background-size: auto, 160px 160px;
+  }
+
+  /* ---- tray: less dead space around the arrows so five tiles show (the 44 px hit areas overhang their 20 px rows) ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] {
+    grid-template-rows: auto 20px minmax(0, 1fr) 20px;
+    padding: 6px 6px 3px; /* the next arrow's hover nudge (2 px down) must stay inside the panel */
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-arrow {
+    align-self: center;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-arrow[data-dir="next"] {
+    align-self: end; /* its 44 px hit box must stay inside the panel: it overhangs upward, over the tray's faded foot */
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track {
+    padding-block: 4px;
+    gap: 4px;
+  }
+
+  /* ---- header: title over a large serif counter ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-carousel-tag {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 2px 4px 2px 8px;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-count {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 1.65vw, 28px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: 0;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-count .ps-cur {
+    font-weight: 700;
+  }
+
+  /* ---- tiles: chamfered deckled sheets with a paper layer behind the face and a folded corner ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb {
+    position: relative;
+    isolation: isolate;
+    border: 0;
+    border-radius: 0;
+    padding: 6px 7px 6px 8px; /* the 1 px border it replaces is padding now (horizontal content sits where it did); 3 px less vertical padding gives the art height */
+    box-shadow: none;
+    clip-path: var(--ps3-tile-a);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:nth-child(3n + 2) {
+    clip-path: var(--ps3-tile-b);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:nth-child(3n) {
+    clip-path: var(--ps3-tile-c);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    box-sizing: border-box;
+    border: solid var(--ps3-ring);
+    border-width: 2px 2px 4px 2px;
+    box-shadow: inset 0 0 0 1px var(--ps2-edge);
+    pointer-events: none;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    background: linear-gradient(135deg, var(--ps3-fold-a), var(--ps3-fold-b));
+    pointer-events: none;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    clip-path: var(--ps3-tile-sel);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"])::before {
+    inset: 0; /* the TASK-301 pin (top / left / 18 px / round / steel) is this pseudo-element too: reset it */
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    border-color: var(--oa-face);
+    border-width: 3px 3px 6px 3px;
+    box-shadow: inset 0 0 0 1px var(--oa-shade);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
+    inset: auto 0 0 auto; /* the TASK-301 selection bar (50 % / -11 px / 26 x 3) is this pseudo-element too: reset it */
+    translate: none;
+    border: 0;
+    border-image: none;
+    border-radius: 0;
+    z-index: 0;
+    width: 15px;
+    height: 15px;
+  }
+  /* the tile's outline is clipped, so the focus ring is the paper layer itself: ink-coloured, not only a hue change */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:focus-visible {
+    outline: none;
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:focus-visible::before {
+    border-color: var(--ps2-text);
+    border-width: 3px 3px 6px 3px;
+  }
+
+  /* ---- tile art: a paper mat with cut corners ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-thumb-art {
+    border: 2px solid var(--ps3-mat);
+    border-radius: 0;
+    box-shadow: none;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-thumb-art .pf-thumb-img {
+    border-radius: 0;
+  }
+
+  /* ---- the selection arrow: ~36 px, only its base on the tile's border (TASK-309: it never reaches the name) ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] > .pf-vcar-pointer {
+    --oa-size: 36px;
+    width: 36px;
+    height: 36px;
+    margin-right: -27px;
+  }
+}
+/* DES-027: more of the tile for the art from 1280 px up (36 % -> ~40 % at 1280-1699, ~41 % at 1700+). I did NOT widen the panel (--pf-vc-w, EXE-58's open
+   question) to reach the sketch's 45 %: the card is 5:7 of the row height and the row height comes from the width left after the panel, so +14 px of
+   panel took 5.5 px off the card and pushed Bhakti Vilas's actions 5 px into the card's pager row (vertical-carousel.spec TASK-301 fails). Names keep
+   their size and never truncate (stage8-des TASK-309). */
+@media (min-width: 1280px) {
+  /* tiles stay near their old height so five fit the tray (the cover art crops, object-fit: cover; its box stays < 1.4:1 because the tile's vertical padding is 6 px) */
+  .pf-showcase.pf-vcar.pf-psel {
+    --pf-vc-t: clamp(68px, calc(var(--pf-vc-h) * 0.165), 92px);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-thumb-art {
+    width: clamp(58px, 44%, 120px); /* ~40 % of the whole tile at 1280-1699 (the % is of the padded content box) */
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb {
+    gap: 5px; /* 2 px more for the name beside the art (was 7) */
+  }
+}

@@ -137,12 +137,14 @@ for (const [vw, vh] of SIZES) {
       });
       expect(g.hasArt, "pointer holds the arrow art").toBe(true);
       expect(Math.abs(g.ptrMid - g.tileMid), "right arrow centred on the selected tile").toBeLessThan(4);
-      // Stage 8 DES-012 (TASK-309): only the arrow's base sits on the border; its centre is 2-10 px past it so the point never reaches the name
-      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-10px)").toBeGreaterThanOrEqual(2);
-      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-10px)").toBeLessThanOrEqual(10);
+      // Stage 8 DES-012 (TASK-309): only the arrow's base sits on the border; its centre is 2-16 px past it so the point never reaches the name
+      // (TASK-335: the arrow grew from 24 to 36 px, so its centre sits ~13 px past the border with ~5 px of the base on the tile)
+      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-16px)").toBeGreaterThanOrEqual(2);
+      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-16px)").toBeLessThanOrEqual(16);
       expect(g.ptrCx, "right arrow centre is inside the tile's span").toBeGreaterThan(g.tileLeft);
-      // Stage 8 DES-012 (TASK-309): the arrow's tip may cross the panel edge by up to 10 px (it points into the gap toward the stage, in front of every layer)
-      expect(g.ptrRight, "right arrow tip crosses the panel edge by at most 10 px").toBeLessThanOrEqual(g.panelRight + 10);
+      // Stage 8 DES-012 (TASK-309): the arrow's tip may cross the panel edge (it points into the gap toward the stage, in front of every layer);
+      // TASK-335: 36 px arrow, tip ~21 px past the edge, still short of the 22 px gap to the stage
+      expect(g.ptrRight, "right arrow tip crosses the panel edge by at most 24 px").toBeLessThanOrEqual(g.panelRight + 24);
       expect(g.ptrW, "right arrow is drawn").toBeGreaterThan(8);
       expect(g.topIsArrow, "right arrow is the topmost element at its centre").toBe(true);
       expect(g.ptrLeft, "right arrow does not cover the name text").toBeGreaterThanOrEqual(g.textRight - 0.5);
@@ -198,6 +200,56 @@ test("TASK-305: every tile shows its product's existing thumbnail, loaded and de
   }
   test.info().annotations.push({ type: "thumbnail-mapping", description: mapping.join("; ") });
 });
+
+for (const [vw, vh] of [[1280, 800], [1440, 900], [1920, 1080]] as const) {
+  test(`TASK-335: at ${vw}x${vh} the selector keeps its origami parts (deckle edges, fold, serif counter, ~36 px arrow, art >= 39 % of the tile)`, async ({ page }) => {
+    test.setTimeout(90_000);
+    await open(page, vw, vh, "light", "teachspark");
+    await page.getByRole("button", { name: "Next product" }).click();
+    await page.waitForTimeout(900); // the strip re-centres
+    const visible = await page.evaluate(() => {
+      const tray = document.querySelector(".pf-carousel[data-paper-selector] .pf-track")!.getBoundingClientRect();
+      const tiles = [...document.querySelectorAll(".pf-carousel[data-paper-selector] .pf-track .pf-thumb")];
+      const frac = tiles.map((t) => {
+        const r = t.getBoundingClientRect();
+        return Math.max(0, Math.min(r.bottom, tray.bottom) - Math.max(r.top, tray.top)) / r.height;
+      });
+      return { full: frac.filter((f) => f >= 0.98).length, mostly: frac.filter((f) => f >= 0.5).length };
+    });
+    // the selected tile stays centred, so the count is odd-ish: 3 whole tiles plus a mostly visible one above and below
+    expect(visible.full, "at least 3 whole tiles").toBeGreaterThanOrEqual(3);
+    expect(visible.mostly, "at least 5 tiles at least half visible (the reference shows 5)").toBeGreaterThanOrEqual(5);
+    const m = await page.evaluate(() => {
+      const panel = document.querySelector(".pf-carousel[data-paper-selector]")!;
+      const tile = document.querySelector<HTMLElement>('.pf-carousel[data-paper-selector] .pf-thumb[aria-selected="true"]')!;
+      const art = tile.querySelector(".pf-thumb-art")!.getBoundingClientRect();
+      const tr = tile.getBoundingClientRect();
+      const count = getComputedStyle(document.querySelector(".pf-carousel[data-paper-selector] .pf-count")!);
+      const display = getComputedStyle(tile.querySelector(".pf-thumb-name")!).fontFamily; // the tile names use --font-display
+      return {
+        panelClip: getComputedStyle(panel, "::before").clipPath,
+        underClip: getComputedStyle(panel, "::after").clipPath,
+        tileClip: getComputedStyle(tile).clipPath,
+        foldSize: parseFloat(getComputedStyle(tile, "::after").width),
+        tileShadow: getComputedStyle(tile).boxShadow,
+        counterSize: parseFloat(count.fontSize),
+        counterFamily: count.fontFamily,
+        display,
+        arrow: document.querySelector(".pf-vcar-pointer")!.getBoundingClientRect().width,
+        artPct: (art.width / tr.width) * 100,
+      };
+    });
+    expect(m.panelClip, "panel face has a deckled outline").toMatch(/^polygon\(/);
+    expect(m.underClip, "panel has a torn under-sheet").toMatch(/^polygon\(/);
+    expect(m.tileClip, "tile has a deckled, chamfered outline").toMatch(/^polygon\(/);
+    expect(m.foldSize, "selected tile has a folded corner").toBeGreaterThanOrEqual(14);
+    expect(m.tileShadow, "no box-shadow stands in for the paper layer").toBe("none");
+    expect(m.counterSize, "counter is large").toBeGreaterThanOrEqual(22);
+    expect(m.counterFamily, "counter is in the site's serif (the same family as the tile names)").toBe(m.display);
+    expect(m.arrow, "selection arrow is ~36 px").toBeGreaterThanOrEqual(34);
+    expect(m.artPct, "art is >= 39 % of the tile").toBeGreaterThanOrEqual(39);
+  });
+}
 
 test("TASK-305: at phone width the paper selector is absent", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

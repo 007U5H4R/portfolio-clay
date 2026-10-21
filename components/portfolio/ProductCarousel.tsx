@@ -8,6 +8,7 @@ import { useDesktop } from "./use-desktop";
 import { VERTICAL_CAROUSEL_ENABLED } from "./vertical-carousel-flag";
 import { PAPER_SELECTOR_ENABLED } from "./paper-selector-flag";
 import { OrigamiArrow } from "./OrigamiArrow";
+import "./paper-selector-origami.css";
 
 export interface ProductCarouselProps {
   products: readonly PortfolioProduct[];
