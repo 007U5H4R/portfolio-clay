@@ -13,6 +13,7 @@
  *   TASK-331  micro-label size floors and no overflow / truncation 1024-1920, light + dark (DES-020)
  *   TASK-332  the description shows at 1280x800 (and from 1180) inside the card (DES-022)
  *   TASK-333  arrow-key browsing starts one video once the selection settles; reduced motion never auto-starts (DES-023)
+ *   TASK-336  >= 1800 px scale-up: tile names 15.5 px, card type a step up, no dead space above the CTA; 1440 / 1512 unchanged (DES-026)
  *   TASK-334  the paper card has no navigation of its own - the selector is the one control (DES-024)
  *
  * Desktop checks run once (w1440 project, sizes set inside); the phone check runs on w390; the tablet check on w768.
@@ -346,6 +347,44 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         }
       });
     }
+  }
+
+  test("TASK-336: at 1920x1080 the showcase scales up and the description-to-CTA gap closes (every product)", async ({ page }) => {
+    test.setTimeout(120_000);
+    await open(page, 1920, 1080, "light", PERSONAL[0]!.slug);
+    for (const project of PERSONAL) {
+      await page.locator(`[role="tab"][data-product="${project.slug}"]`).evaluate((el) => (el as HTMLElement).click());
+      await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
+      await page.waitForTimeout(120);
+      const m = await page.evaluate(() => {
+        const card = document.querySelector(".pf-info.pf-paper")!;
+        const px = (q: string, root: ParentNode = card) => parseFloat(getComputedStyle(root.querySelector(q)!).fontSize);
+        const desc = card.querySelector(".pf-info-desc")!.getBoundingClientRect();
+        const cta = card.querySelector(".pf-action-set")!.getBoundingClientRect();
+        const c = card.getBoundingClientRect();
+        return { tile: px(".pf-thumb[aria-selected='true'] .pf-thumb-name", document), tagline: px(".pf-info-tagline"), desc: px(".pf-info-desc"), gap: cta.top - desc.bottom, out: cta.bottom - c.bottom };
+      });
+      expect(m.tile, `${project.slug} tile name`).toBeGreaterThanOrEqual(15);
+      expect(m.tagline, `${project.slug} tagline`).toBeGreaterThanOrEqual(20);
+      expect(m.desc, `${project.slug} description`).toBeGreaterThanOrEqual(16);
+      expect(m.gap, `${project.slug}: no ~80 px dead space above the CTA`).toBeLessThanOrEqual(60);
+      expect(m.out, `${project.slug}: actions inside the card`).toBeLessThanOrEqual(1);
+    }
+  });
+
+  for (const [vw, vh] of [[1440, 900], [1512, 982]] as const) {
+    test(`TASK-336: ${vw}x${vh} keeps the pre-scale-up sizes`, async ({ page }) => {
+      await open(page, vw, vh, "light", "teachspark");
+      const m = await page.evaluate(() => {
+        const px = (q: string) => parseFloat(getComputedStyle(document.querySelector(q)!).fontSize);
+        return { tile: px(".pf-thumb[aria-selected='true'] .pf-thumb-name"), tagline: px(".pf-info-tagline"), desc: px(".pf-info-desc"), clamp: getComputedStyle(document.querySelector(".pf-info-desc")!).webkitLineClamp, cta: px('.pf-action[data-tier="primary"] .pf-action-label') };
+      });
+      expect(m.tile).toBeLessThan(14);
+      expect(m.tagline).toBeLessThan(16);
+      expect(m.desc).toBeLessThan(14);
+      expect(m.clamp).toBe("2");
+      expect(m.cta).toBeLessThanOrEqual(15);
+    });
   }
 
   test("TASK-313: while the player loads, the poster stays and a loading cue shows (YouTube blocked)", async ({ page }) => {

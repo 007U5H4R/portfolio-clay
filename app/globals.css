@@ -20954,6 +20954,97 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
 }
 /* end TASK-305 */
 
+/* TASK-336 (Stage 8 DES-026): from 1800 px the showcase is a step bigger. The selector's tile names go 13.5 -> 15.5 px with
+   proportionate art and padding; the card's type scale moves up one step and its spacing opens (the poster is already as wide
+   as the card allows, so the ~100 px of dead space above the CTA is filled by a larger, up-to-4-line description and looser rhythm).
+   Sizes only - no edges, shadows or shapes. 1440 / 1512 are outside the query. */
+@media (min-width: 1800px) {
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-size: 15.5px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-num {
+    font-size: 12.5px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+    width: clamp(58px, 42%, 104px);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
+    gap: 9px;
+    padding: 10px 8px 10px 9px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-select {
+    font-size: 13.5px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count {
+    font-size: 13.5px;
+  }
+}
+@media (min-width: 1800px) {
+  /* a card 550-599 px tall (1800-1859 px wide) gets a half step: the full step overflowed the longest product (Campfire Board) there */
+  @container pcard (min-height: 550px) and (max-height: 599px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-tagline {
+      font-size: 19.5px;
+    }
+    .pf-paper .pf-pc-pills li {
+      font-size: 12px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: 8px;
+      font-size: 15.5px;
+      line-height: 1.38;
+      -webkit-line-clamp: 3;
+    }
+    .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      font-size: 15.5px;
+    }
+    .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 19px;
+    }
+  }
+  @container pcard (min-height: 600px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-kicker {
+      font-size: 14px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-name .pf-logo-img {
+      max-height: 44px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-tagline {
+      font-size: 21px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-top: 10px;
+    }
+    .pf-paper .pf-pc-pills {
+      margin-top: 10px;
+      gap: 6px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 3px 10px;
+      font-size: 12.5px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: 10px;
+      font-size: 16px;
+      line-height: 1.38;
+      -webkit-line-clamp: 3;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      gap: 7px;
+    }
+    .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      font-size: 16.5px;
+    }
+    .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 20px;
+    }
+    .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"],
+    .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+      min-height: 56px;
+    }
+  }
+}
+
 /* TASK-304 paper player palette (moved from components/portfolio/paper-player.css so colour literals stay in this file; EVAL-020) */
 :root {
   --pp-terra: oklch(0.57 0.15 37);
