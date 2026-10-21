@@ -165,3 +165,12 @@
     transform: none;
   }
 }
+
+/* TASK-337 (Stage 8 DES-028): from 1024 to 1180 px the stage is small enough that the title chip lands on the title painted into the
+   poster art. The chip is hidden there (display: none); the product name stays available to assistive tech through the Play
+   button's name ("Play <title>") and the stage's figcaption. The poster images are untouched. */
+@media (min-width: 1024px) and (max-width: 1180px) {
+  .pf-paper .pp-title {
+    display: none;
+  }
+}

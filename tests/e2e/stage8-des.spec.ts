@@ -14,6 +14,7 @@
  *   TASK-332  the description shows at 1280x800 (and from 1180) inside the card (DES-022)
  *   TASK-333  arrow-key browsing starts one video once the selection settles; reduced motion never auto-starts (DES-023)
  *   TASK-336  >= 1800 px scale-up: tile names 15.5 px, card type a step up, no dead space above the CTA; 1440 / 1512 unchanged (DES-026)
+ *   TASK-337  the stage poster's title chip is hidden at 1024-1180 px, the name stays accessible (DES-028)
  *   TASK-334  the paper card has no navigation of its own - the selector is the one control (DES-024)
  *
  * Desktop checks run once (w1440 project, sizes set inside); the phone check runs on w390; the tablet check on w768.
@@ -384,6 +385,20 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
       expect(m.desc).toBeLessThan(14);
       expect(m.clamp).toBe("2");
       expect(m.cta).toBeLessThanOrEqual(15);
+    });
+  }
+
+  for (const [vw, vh, shown] of [[1024, 768, false], [1100, 800, false], [1180, 820, false], [1280, 800, true], [1440, 900, true]] as const) {
+    test(`TASK-337: at ${vw}x${vh} the poster title chip is ${shown ? "shown" : "hidden"} and the product name stays accessible`, async ({ page }) => {
+      await open(page, vw, vh, "light", "urja");
+      // a deep link lands on the poster (nothing auto-starts), which is where the chip lives
+      const chip = page.locator(".pf-stage .pp-title");
+      await expect(chip).toHaveCount(1);
+      if (shown) await expect(chip).toBeVisible();
+      else await expect(chip).toBeHidden();
+      const play = page.locator(".pf-stage-screen > .pf-play");
+      await expect(play).toHaveAccessibleName(/^Play .+/);
+      await expect(page.locator(".pf-stage figcaption")).not.toHaveText("");
     });
   }
 
