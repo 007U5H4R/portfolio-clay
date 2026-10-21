@@ -214,7 +214,10 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       const stage = document.getElementById(STAGE_ID);
       if (!stage) return;
       const header = document.querySelector<HTMLElement>("header[data-site-header]")?.getBoundingClientRect().height ?? 0;
-      window.scrollTo({ top: Math.max(0, stage.getBoundingClientRect().top + window.scrollY - header - 8), behavior: reduce ? "auto" : "smooth" });
+      // layout position via the offset chain: the stage's entrance animation transforms it, so a bounding-rect read mid-animation lands wrong
+      let top = 0;
+      for (let el: HTMLElement | null = stage; el; el = el.offsetParent as HTMLElement | null) top += el.offsetTop;
+      window.scrollTo({ top: Math.max(0, top - header - 8), behavior: reduce ? "auto" : "smooth" });
     },
     [activeProductId],
   );
