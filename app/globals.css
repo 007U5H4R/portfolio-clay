@@ -20583,10 +20583,14 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .pf-showcase.pf-vcar .pf-info.pf-paper .pf-info-pager {
     inset: auto 0 -8px;
   }
-  @container pcard (max-height: 412px) {
+  /* TASK-332 (DES-022): the card's own nav is gone (TASK-334), which freed ~90 px at 1280x800 - the description (two lines) now
+     fits from 1100 px up (card >= 330 px tall); only the 1024 card (~278 px of content, 21 px spare) still gives it up. */
+  @container pcard (max-height: 290px) {
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
       display: none;
     }
+  }
+  @container pcard (max-height: 412px) {
     /* four pills (id + a three-part status) must still share one row in the narrow card */
     .pf-paper .pf-pc-pills {
       flex-wrap: nowrap;

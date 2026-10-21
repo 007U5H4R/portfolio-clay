@@ -10,6 +10,7 @@
  *   TASK-315  the stage's "Watch on YouTube" link has a >= 44 px hit area (DES-018)
  *   TASK-316  tablet carousel tile names and categories never truncate (DES-019)
  * Design wave 2 (DES-020 ... DES-028, 2026-10-21):
+ *   TASK-332  the description shows at 1280x800 (and 1100+) inside the card (DES-022)
  *   TASK-334  the paper card has no navigation of its own - the selector is the one control (DES-024)
  *
  * Desktop checks run once (w1440 project, sizes set inside); the phone check runs on w390; the tablet check on w768.
@@ -199,6 +200,25 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
       // the selector's own up / down buttons still wrap
       await page.locator('.pf-carousel[data-paper-selector] .pf-arrow[data-dir="prev"]').click();
       await expect(panel).toHaveAttribute("data-active-product", PERSONAL.at(-1)!.slug);
+    });
+  }
+
+  for (const [vw, vh] of [[1100, 800], [1180, 820], [1280, 720], [1280, 800], [1440, 900], [1920, 1080]] as const) {
+    test(`TASK-332: at ${vw}x${vh} the description shows and nothing leaves the card`, async ({ page }) => {
+      await open(page, vw, vh, "light", "teachspark");
+      const m = await page.evaluate(() => {
+        const card = document.querySelector(".pf-info.pf-paper")!.getBoundingClientRect();
+        const desc = document.querySelector(".pf-info.pf-paper .pf-info-desc") as HTMLElement;
+        const r = desc.getBoundingClientRect();
+        const acts = document.querySelector(".pf-info.pf-paper .pf-action-set")!.getBoundingClientRect();
+        const pills = document.querySelector(".pf-info.pf-paper .pf-pc-pills")!.getBoundingClientRect();
+        return { shown: getComputedStyle(desc).display !== "none", h: r.height, top: r.top, bottom: r.bottom, cardBottom: card.bottom, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom, cut: desc.scrollWidth - desc.clientWidth };
+      });
+      expect(m.shown, "the description is shown").toBe(true);
+      expect(m.h, "it has its lines").toBeGreaterThan(20);
+      expect(m.top, "below the pills").toBeGreaterThanOrEqual(m.pillsBottom - 1);
+      expect(m.bottom, "above the actions").toBeLessThanOrEqual(m.actsTop + 1);
+      expect(m.actsBottom, "actions inside the card").toBeLessThanOrEqual(m.cardBottom + 1);
     });
   }
 
