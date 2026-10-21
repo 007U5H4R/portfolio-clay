@@ -1,20 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { OG_COLORS } from "@/lib/og";
 import { OG_PROJECTS_ALT } from "@/lib/og-projects";
 import { site } from "@/lib/site";
 
 // TASK-338 (DES-029): the site-wide og.jpg's small tagline is illegible at a ~400 px thumbnail. /projects gets a
 // type-led card instead: every line is >= 40 px at 1200 wide, so it still reads at a third of the size.
-// Palette = the light tokens in app/globals.css (paper, navy, rust). No product logos or posters.
+// Palette = the light tokens in app/globals.css (paper, navy, rust, kraft) via lib/og.tsx. No product logos or posters.
 export const alt = OG_PROJECTS_ALT;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const PAPER = "#f7f1e7";
-const NAVY = "#0d1735";
-const RUST = "#b64927";
-const KRAFT = "#d7be93";
+const { paper: PAPER, navy: NAVY, rust: RUST, kraft: KRAFT } = OG_COLORS;
 
 export default async function Image() {
   const [fraunces, inter] = await Promise.all([
