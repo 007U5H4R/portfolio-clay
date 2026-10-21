@@ -117,9 +117,10 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={
             tierOf(target) === "primary" ? (
               <>
-                {label}
-                {/* Stage 8 DES-014 (TASK-311): the narrow 1024-1279 px card drops the tail, so the CTA reads "Watch demo" there */}
-                <span className="pf-action-tail"> video</span>
+                {/* Stage 8 DES-014 (TASK-311): the narrow 1024-1279 px card drops the tail, so the CTA reads "Watch demo" there.
+                    The space stays in the label's own text node: inside the span, accessible-name computation trims it away. */}
+                {`${label} `}
+                <span className="pf-action-tail">video</span>
               </>
             ) : (
               label
