@@ -261,9 +261,12 @@ test.describe("@TASK-346 arrow nudge", () => {
   ];
   for (const [path, host, arrow] of cases) {
     test(`${host} nudges ${arrow} 3 px on a fine pointer, 0 on touch`, async ({ page }) => {
+      test.skip(!["w1440", "w390"].includes(test.info().project.name), "checked at 1440 (fine pointer) and 390 (touch)");
+      test.skip(host === ".header-pill" && test.info().project.name === "w390", "the phone header has no Let's connect pill (it lives in the More menu)");
       await page.goto(path, { waitUntil: "networkidle" });
       const btn = page.locator(host).first();
       const glyph = btn.locator(arrow);
+      await page.waitForTimeout(800); // the page settles after hydration (the header re-renders at phone width)
       await btn.scrollIntoViewIfNeeded();
       // smooth scroll must settle before the pointer lands, or the button slides out from under it
       await expect.poll(async () => { const a = await btn.boundingBox(); await page.waitForTimeout(150); const b = await btn.boundingBox(); return a && b && a.y === b.y && a.x === b.x; }).toBe(true);
