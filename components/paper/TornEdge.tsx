@@ -45,9 +45,9 @@ export function TornEdge({ fill = "paper", variant, className }: TornEdgeProps) 
       className={classes}
     >
       {/* TASK-342: the upward shadow is three offset copies of the back ridge (no CSS filter); they ride the back layer's drift */}
-      <path className="torn-layer torn-shade" d={back} transform="translate(0 -4)" fillOpacity="0.025" />
-      <path className="torn-layer torn-shade" d={back} transform="translate(0 -2.5)" fillOpacity="0.04" />
-      <path className="torn-layer torn-shade" d={back} transform="translate(0 -1)" fillOpacity="0.06" />
+      <path className="torn-shade" d={back} transform="translate(0 -4)" fillOpacity="0.025" />
+      <path className="torn-shade" d={back} transform="translate(0 -2.5)" fillOpacity="0.04" />
+      <path className="torn-shade" d={back} transform="translate(0 -1)" fillOpacity="0.06" />
       <path className="torn-layer torn-back" d={back} />
       <path className="torn-layer torn-mid" d={mid} />
       <path className="torn-front" d={front} />

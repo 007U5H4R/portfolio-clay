@@ -90,7 +90,7 @@ test.describe("T4 chrome", () => {
 
   test("TC-T4-05 every torn edge has three ridge layers; reduced motion freezes them", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
-    const edges = await page.evaluate(() => [...document.querySelectorAll('[data-decor="torn"]')].map((e) => e.querySelectorAll("path").length));
+    const edges = await page.evaluate(() => [...document.querySelectorAll('[data-decor="torn"]')].map((e) => e.querySelectorAll("path:not(.torn-shade)").length)); // TASK-342: `.torn-shade` copies are the baked shadow, not ridge layers
     expect(edges.length).toBeGreaterThan(0);
     for (const n of edges) expect(n).toBe(3);
     await page.emulateMedia({ reducedMotion: "reduce" });

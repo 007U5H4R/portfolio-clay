@@ -7,7 +7,7 @@ theme's --shadow-ink at 18 %, on a canvas with a bleed so the blur is not cut. C
 stretches it over the board with the same bleed.
 
   python3 scripts/about-art/bake-map-shadow.py
-Needs Pillow + numpy. Inputs/outputs live in public/media/about-paper/.
+Needs Pillow + numpy. Reads public/media/about-paper/, writes public/media/portfolio/decor/.
 """
 import numpy as np
 from PIL import Image, ImageFilter
@@ -32,5 +32,5 @@ for theme in ("light", "dark"):
     out = np.zeros((*a.shape, 4), dtype=np.uint8)
     out[..., :3] = INK[theme]
     out[..., 3] = a
-    Image.fromarray(out).save(f"public/media/about-paper/pin-map-shadow-{theme}.webp", quality=90, method=6)
+    Image.fromarray(out).save(f"public/media/portfolio/decor/pin-map-shadow-{theme}.webp", quality=90, method=6)
     print(theme, out.shape[:2][::-1], "bleed %", BLEED / w * 100, BLEED / crop_h * 100)

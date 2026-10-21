@@ -1,9 +1,9 @@
 {
   "390": {
     "opener": {
-      "html": "858de35638365",
-      "style": "5e9bdcf88ef33",
-      "elements": 31
+      "html": "ad2584588ba63",
+      "style": "16bf5582000e47",
+      "elements": 34
     },
     "hero": {
       "html": "bd0160cf9cab5",
@@ -11,16 +11,16 @@
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "9ac05f420d286",
-      "elements": 55
+      "html": "16ed1975fa7966",
+      "style": "8f645250127ca",
+      "elements": 58
     }
   },
   "768": {
     "opener": {
-      "html": "858de35638365",
-      "style": "9941c081ab0c4",
-      "elements": 31
+      "html": "ad2584588ba63",
+      "style": "10f13163517369",
+      "elements": 34
     },
     "hero": {
       "html": "bd0160cf9cab5",
@@ -28,16 +28,16 @@
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "325e59ca59e6",
-      "elements": 55
+      "html": "16ed1975fa7966",
+      "style": "edf9af3f4f932",
+      "elements": 58
     }
   },
   "1024": {
     "opener": {
-      "html": "858de35638365",
-      "style": "19d027d5a06d5",
-      "elements": 31
+      "html": "ad2584588ba63",
+      "style": "12a0b76c065a9f",
+      "elements": 34
     },
     "hero": {
       "html": "bd0160cf9cab5",
@@ -45,16 +45,16 @@
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "1f675bdab74d78",
-      "elements": 55
+      "html": "16ed1975fa7966",
+      "style": "18ca95426e7242",
+      "elements": 58
     }
   },
   "1440": {
     "opener": {
-      "html": "858de35638365",
-      "style": "eac58839ea835",
-      "elements": 31
+      "html": "ad2584588ba63",
+      "style": "60ae08d151c25",
+      "elements": 34
     },
     "hero": {
       "html": "bd0160cf9cab5",
@@ -62,10 +62,10 @@
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "192b944ec56665",
-      "elements": 55
+      "html": "16ed1975fa7966",
+      "style": "6d4e25729d7b7",
+      "elements": 58
     }
   },
-  "_capturedFrom": "f98ad78c (custom properties unhashed, TASK-324)"
+  "_capturedFrom": "m039/safari-filters (TASK-342: torn edge markup)"
 }

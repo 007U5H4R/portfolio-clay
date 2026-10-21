@@ -1192,11 +1192,11 @@
       position: absolute;
       inset: -10.145% -4.667%;
       z-index: -1;
-      background: url("/media/about-paper/pin-map-shadow-light.webp") center / 100% 100% no-repeat;
+      background: url("/media/portfolio/decor/pin-map-shadow-light.webp") center / 100% 100% no-repeat;
       pointer-events: none;
     }
     [data-theme="dark"] .crx-map::before {
-      background-image: url("/media/about-paper/pin-map-shadow-dark.webp");
+      background-image: url("/media/portfolio/decor/pin-map-shadow-dark.webp");
     }
     .crx-thread,
     .crx-links {
