@@ -874,7 +874,7 @@
     "dependsOn": [
       "project:slag-city"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "campfire-board",
@@ -908,7 +908,7 @@
     "dependsOn": [
       "project:campfire-board"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "shravans-round",
@@ -942,7 +942,7 @@
     "dependsOn": [
       "project:shravans-round"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "urja",
@@ -975,7 +975,7 @@
     "dependsOn": [
       "project:urja"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "pratyasa",
@@ -1008,7 +1008,7 @@
     "dependsOn": [
       "project:pratyasa"
     ],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "id": "bhakti-vilas",
@@ -1041,6 +1041,6 @@
     "dependsOn": [
       "project:bhakti-vilas"
     ],
-    "reviewed": false
+    "reviewed": true
   }
 ]
