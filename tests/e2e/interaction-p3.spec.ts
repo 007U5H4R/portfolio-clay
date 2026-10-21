@@ -265,6 +265,8 @@ test.describe("@TASK-346 arrow nudge", () => {
       const btn = page.locator(host).first();
       const glyph = btn.locator(arrow);
       await btn.scrollIntoViewIfNeeded();
+      // smooth scroll must settle before the pointer lands, or the button slides out from under it
+      await expect.poll(async () => { const a = await btn.boundingBox(); await page.waitForTimeout(150); const b = await btn.boundingBox(); return a && b && a.y === b.y && a.x === b.x; }).toBe(true);
       const fine = await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches);
       const rest = await pose(glyph);
       await btn.hover();
