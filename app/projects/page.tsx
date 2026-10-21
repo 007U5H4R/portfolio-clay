@@ -9,6 +9,7 @@ import { portfolioEntries } from "@/data/portfolio";
 import { projects } from "@/data/projects";
 import { illustration, type IllustrationId } from "@/lib/illustrations";
 import { buildPortfolioProducts } from "@/lib/portfolio";
+import { OG_PROJECTS_ALT } from "@/lib/og-projects";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -17,6 +18,8 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Products Tushar built, tested and shipped on his own, plus the enterprise cloud, data, healthcare and ML programs he delivered inside larger systems.",
   path: "/projects",
+  // TASK-338 (DES-029): its own legible card, rendered by ./opengraph-image.tsx.
+  image: { path: "/projects/opengraph-image", alt: OG_PROJECTS_ALT },
 });
 
 /**

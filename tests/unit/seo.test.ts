@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { buildMetadata, siteUrl } from "@/lib/seo";
 import { OG_HOME_ALT, OG_IMAGE_PATH } from "@/lib/og-home";
+import { OG_PROJECTS_ALT } from "@/lib/og-projects";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -88,9 +89,9 @@ describe("buildMetadata()", () => {
       const meta = buildMetadata({ title: "t", description: "d", path, type: path.split("/").length > 2 ? "article" : "website" });
       const og = meta.openGraph as { images?: { url: string; width: number; height: number; alt: string }[] };
       expect(og.images, path).toEqual([{ url: `https://example.test${OG_IMAGE_PATH}`, width: 1200, height: 630, alt: OG_HOME_ALT }]);
-      const tw = meta.twitter as { card?: string; images?: string[] };
+      const tw = meta.twitter as { card?: string; images?: { url: string; alt: string }[] };
       expect(tw.card).toBe("summary_large_image");
-      expect(tw.images, path).toEqual([`https://example.test${OG_IMAGE_PATH}`]);
+      expect(tw.images, path).toEqual([{ url: `https://example.test${OG_IMAGE_PATH}`, alt: OG_HOME_ALT }]);
     }
   });
 
@@ -104,10 +105,23 @@ describe("buildMetadata()", () => {
   });
 });
 
+// TASK-338 (DES-029): /projects points og:image + twitter:image (with alt) at its own legible card.
+describe("/projects share card (TASK-338)", () => {
+  it("uses /projects/opengraph-image with alt on both og and twitter", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://example.test";
+    const { metadata } = await import("@/app/projects/page");
+    const og = metadata.openGraph as { images?: { url: string; width: number; height: number; alt: string }[] };
+    const tw = metadata.twitter as { images?: { url: string; alt: string }[] };
+    expect(og.images?.[0]).toMatchObject({ width: 1200, height: 630, alt: OG_PROJECTS_ALT });
+    expect(og.images?.[0]?.url).toMatch(/^https:\/\/.+\/projects\/opengraph-image$/);
+    expect(tw.images?.[0]).toEqual({ url: og.images?.[0]?.url, alt: OG_PROJECTS_ALT });
+  });
+});
+
 // TASK-227: a per-route opengraph-image / twitter-image file would silently override the shared card for that route
-// (file-based metadata wins over buildMetadata). None may exist anywhere under app/.
+// (file-based metadata wins over buildMetadata). TASK-338 is the one sanctioned exception: /projects (DES-029).
 describe("one share card (TASK-227)", () => {
-  it("no opengraph-image or twitter-image file exists under app/", () => {
+  it("no opengraph-image or twitter-image file exists under app/ except the /projects card (TASK-338)", () => {
     const hits: string[] = [];
     const walk = (dir: string) => {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -117,6 +131,6 @@ describe("one share card (TASK-227)", () => {
       }
     };
     walk("app");
-    expect(hits).toEqual([]);
+    expect(hits.map((h) => h.split("\\").join("/"))).toEqual(["app/projects/opengraph-image.tsx"]);
   });
 });

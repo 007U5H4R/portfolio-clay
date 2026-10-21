@@ -40,6 +40,8 @@ export interface BuildMetadataInput {
   type?: "website" | "article";
   /** TASK-249 (Tushar 2026-10-18): unlisted pages stay reachable by link but ask crawlers not to index them (links still followed). */
   noindex?: boolean;
+  /** TASK-338: a route-specific share card (served by that route's `opengraph-image` file). Omitted = the shared og.jpg. */
+  image?: { path: string; alt: string };
 }
 
 /** Title/description/canonical/OG/Twitter builder (technical-plan.md §A8) — every absolute-URL
@@ -51,11 +53,14 @@ export function buildMetadata({
   path,
   type = "website",
   noindex = false,
+  image,
 }: BuildMetadataInput): Metadata {
   const base = siteUrl();
   const url = path === "/" ? base : `${base}${path}`;
   // TASK-227 (Tushar 2026-10-16): one share image for every link: no per-page cards, no override.
-  const imageUrl = `${base}${OG_IMAGE_PATH}`;
+  // TASK-338: only /projects overrides it (DES-029), via `image`.
+  const imageUrl = `${base}${image?.path ?? OG_IMAGE_PATH}`;
+  const imageAlt = image?.alt ?? OG_HOME_ALT;
 
   return {
     title: { absolute: title },
@@ -68,13 +73,13 @@ export function buildMetadata({
       title,
       description,
       siteName: site.name,
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: OG_HOME_ALT }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: imageAlt }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [imageUrl],
+      images: [{ url: imageUrl, alt: imageAlt }],
     },
   };
 }

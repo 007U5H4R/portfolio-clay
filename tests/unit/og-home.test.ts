@@ -24,8 +24,8 @@ describe("home OG image (TASK-195)", () => {
     expect(image?.width).toBe(1200);
     expect(image?.height).toBe(630);
     expect(image?.alt).toBe(OG_HOME_ALT);
-    const tw = metadata.twitter as { card?: string; images?: string[] };
+    const tw = metadata.twitter as { card?: string; images?: { url: string; alt: string }[] };
     expect(tw.card).toBe("summary_large_image");
-    expect(tw.images?.[0]).toBe(image?.url);
+    expect(tw.images?.[0]).toEqual({ url: image?.url, alt: OG_HOME_ALT });
   });
 });
