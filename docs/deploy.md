@@ -145,3 +145,18 @@ inputs, not code. Until they exist:
 - Production deploys will fail closed at `pnpm predeploy` until the videos are committed (≤4 MB
   each, TKT-22–27) and the sanitised resume passes `tests/unit/resume-pii.test.ts` (TKT-08) and
   `site.resumeAvailable` is flipped to `true`. This is the intended gate, not a bug to route around.
+
+## 9. Production alerting (TASK-329)
+
+`.github/workflows/prod-watch.yml` (no secrets, `contents: read`):
+- **Scheduled smoke check** every 30 min (and on manual dispatch): `scripts/prod-watch.sh` requests `/`, `/projects`,
+  `/about` and `/work/teachspark`, asserts HTTP 200 plus the page `<title>`, and retries once after 60 s before failing.
+  A failed scheduled run emails the repo owner (GitHub default for scheduled workflows). If a page title changes
+  deliberately, update the marker in the script.
+- **Failed Production deployment**: on a `deployment_status` of `failure`/`error` for the `Production` environment the
+  job fails with the deployment URL in the run summary.
+- Not probed: `/api/tushky/speech` (POST-only, calls the TTS provider; no cheap health path).
+
+Still needs Tushar (not changed here): Vercel dashboard notification settings for runtime errors / failed
+deployments (Project > Settings > Notifications), and confirming GitHub Actions failure emails are on for the repo.
+Note: GitHub disables scheduled workflows after 60 days without repo activity.

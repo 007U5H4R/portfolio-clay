@@ -1,0 +1,51 @@
+# TASK-329: production alerting without new secrets.
+#  - watch:  every 30 min, smoke-check the live site; a failed scheduled run emails the repo owner (GitHub default).
+#  - deploy: Vercel posts deployment statuses to GitHub; fail loudly when a Production deployment fails.
+# The Ask Tushky endpoint (/api/tushky/speech) is POST-only and calls the TTS provider, so it is deliberately not probed.
+name: prod-watch
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  deployment_status:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never cancel an in-flight run; a queued run just waits.
+  group: prod-watch-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: github.event_name != 'deployment_status'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke-check production
+        run: bash scripts/prod-watch.sh
+
+  deploy-failed:
+    if: >-
+      github.event_name == 'deployment_status' &&
+      (github.event.deployment_status.state == 'failure' || github.event.deployment_status.state == 'error') &&
+      github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Report failed Production deployment
+        env:
+          STATE: ${{ github.event.deployment_status.state }}
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+          SHA: ${{ github.event.deployment.sha }}
+        run: |
+          {
+            echo "## Production deployment ${STATE}"
+            echo "- Commit: \`${SHA}\`"
+            echo "- Deployment: ${TARGET_URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::Production deployment ${STATE}: ${TARGET_URL}"
+          exit 1
