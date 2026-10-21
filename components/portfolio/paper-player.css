@@ -91,6 +91,7 @@
     color: var(--pp-ink);
   }
   .pf-paper .pp-watch {
+    position: relative;
     z-index: 2;
     align-self: end;
     justify-self: end;
@@ -103,6 +104,12 @@
     background: var(--pp-panel);
     text-decoration: none;
     box-shadow: 0 3px 8px -4px var(--pp-shadow);
+  }
+  /* Stage 8 DES-018 (TASK-315): the pill is 30 px tall; an invisible 44 px hit area around it */
+  .pf-paper .pp-watch::before {
+    content: "";
+    position: absolute;
+    inset: -7px -4px;
   }
   .pf-paper .pp-watch:hover {
     background: var(--pp-shell);

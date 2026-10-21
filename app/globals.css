@@ -8778,6 +8778,39 @@ html.lenis body {
     border: 0;
     background: var(--color-navy);
   }
+  /* Stage 8 DES-016 (TASK-313): while the player loads, the poster stays (ProductMediaPlayer keeps it above the iframe) under a
+     small cue instead of a flat navy frame */
+  .pf-loading-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .pf-stage-screen[data-player-state="loading"]::before {
+    content: "Loading video…";
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 3;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-paper);
+    background: color-mix(in oklab, var(--color-navy) 84%, transparent);
+    pointer-events: none;
+    animation: pf-load-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pf-load-pulse {
+    50% {
+      opacity: 0.55;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-stage-screen[data-player-state="loading"]::before {
+      animation: none;
+    }
+  }
   /* the play disc sits in the art's calm right-centre zone (every cover reserves it) */
   .pf-stage-screen > .pf-play {
     --pf-play: clamp(62px, 6.6vw, 92px);
@@ -16540,13 +16573,15 @@ html[data-theme-vt]::view-transition-group(root) {
     color: var(--ps-accent-ink);
   }
   .pf-showcase .pf-thumb-name {
+    /* Stage 8 DES-019 (TASK-316): two lines, never an ellipsis ("The Shravan's Round" was cut at 768) */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 650;
     line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   .pf-showcase .pf-thumb-cat {
     grid-column: 2;
@@ -16556,9 +16591,10 @@ html[data-theme-vt]::view-transition-group(root) {
     font-weight: 600;
     letter-spacing: 0.03em;
     line-height: 1.3;
-    text-overflow: ellipsis;
     text-transform: uppercase;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     color: var(--color-ink-soft);
   }
   /* quiet when idle, raised and ringed when selected (a shape cue as well as colour) */
@@ -20224,6 +20260,10 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   --pc-terra: #c8432a;
   --pc-terra-deep: #8e2a16;
   --pc-terra-lit: #f0a05c;
+  /* Stage 8 DES-013 (TASK-310): text-only terracotta and the CTA fill, each >= 4.5:1 against its surface */
+  --pc-accent-ink: #a8381f;
+  --pc-cta: #c8432a;
+  --pc-cta-hover: #b03a22;
   --pc-paper: #f8f0e0;
   --pc-paper-2: #f1e6d0;
   --pc-ink: #1c2a45;
@@ -20243,6 +20283,9 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   --pc-terra: #d9532f;
   --pc-terra-deep: #8a2814;
   --pc-terra-lit: #f2a463;
+  --pc-accent-ink: #ee8a63;
+  --pc-cta: #b8462a;
+  --pc-cta-hover: #a63d24;
   --pc-paper: #1d2538;
   --pc-paper-2: #273049;
   --pc-ink: #f4e9d3;
@@ -20315,7 +20358,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar .pf-paper .pf-info-count {
     flex: none;
-    color: var(--pc-terra);
+    color: var(--pc-accent-ink);
   }
   .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
     border-left-color: color-mix(in oklab, var(--pc-ink-soft) 45%, transparent);
@@ -20388,7 +20431,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     font-family: var(--font-display);
     font-style: italic;
     font-weight: 600;
-    color: var(--pc-terra);
+    color: var(--pc-accent-ink);
     font-size: clamp(0.82rem, calc(var(--pf-vc-h) * 0.03), 1.2rem);
     line-height: 1.15;
   }
@@ -20501,7 +20544,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"] {
     border: 0;
     border-radius: 12px;
-    background-color: var(--pc-terra);
+    background-color: var(--pc-cta);
     background-image: var(--pf-fibers);
     color: var(--pc-cta-ink);
     box-shadow:
@@ -20511,7 +20554,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:hover,
   .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:focus-visible {
-    background-color: color-mix(in oklab, var(--pc-terra) 88%, #ffb070);
+    background-color: var(--pc-cta-hover); /* TASK-310: a lighter hover dropped the label under 4:1 */
   }
   .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
     font-family: var(--font-display);
@@ -20544,6 +20587,61 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     }
     .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
       width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.335 - 6px) * var(--pc-ar)));
+    }
+  }
+  /* Stage 8 DES-014 (TASK-311): from 1024 to 1279 px the card is ~250 px wide and its two-column secondary strips, four pills
+     and category label no longer fit (GitHub + Case study fell out of the card). In a narrow card the secondaries become one
+     icon row (the label stays for assistive tech), the pills may wrap, the category gives way and the CTA label steps down. */
+  @container pcard (max-width: 300px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
+      display: none;
+    }
+    .pf-paper .pf-pc-pills {
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 2px 3px; /* 1024x768: the three pills missed one row by 3 px */
+      letter-spacing: 0;
+    }
+    /* a shorter poster keeps the icon row inside the card (and off the pager) at 1024x768 */
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.26 - 6px) * var(--pc-ar)));
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      gap: 4px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-actions > li,
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-case-link {
+      grid-column: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-actions > li:has(> [data-tier="primary"]) {
+      grid-column: 1 / -1;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 13.5px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-tail {
+      display: none;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      padding: 10px 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
   }
   /* ---- pagination: a terracotta active pill, slate inactive pills ---- */
@@ -20599,7 +20697,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --ps2-edge: rgb(88 62 34 / 0.2);
     --ps2-text: #1c2142;
     --ps2-soft: #5b607a;
-    --ps2-accent: #c0502f;
+    --ps2-accent: #a5432a; /* TASK-310: 5.5:1 on a tile, 4.9:1 on the panel (was 4.25 / 3.82) */
     --ps2-shadow: rgb(72 48 24 / 0.22);
     --oa-face: #c8553a;
     --oa-shade: #8f3420;
@@ -20614,7 +20712,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --ps2-edge: rgb(255 238 214 / 0.14);
     --ps2-text: #f4ead8;
     --ps2-soft: #a9afc4;
-    --ps2-accent: #e2714d;
+    --ps2-accent: #f4a07e; /* TASK-310: 5.6:1 on a tile, 5.0:1 on the selected tile (was 3.66 / 3.27) */
     --ps2-shadow: rgb(6 8 18 / 0.5);
     --oa-face: #e0674a;
     --oa-shade: #a8402a;
@@ -20681,7 +20779,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
     gap: 7px;
-    padding: 8px 10px 8px 7px; /* right room so the name never sits under the selection arrow */
+    padding: 8px 6px 8px 7px; /* TASK-309: the arrow no longer reaches the name, so the tile keeps the room for it */
     border: 1px solid var(--ps2-edge);
     border-radius: 12px;
     color: var(--ps2-text);
@@ -20741,6 +20839,17 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     font-weight: 600;
     color: color-mix(in oklab, var(--ps2-text) 82%, var(--ps2-tile));
   }
+  /* Stage 8 DES-012 (TASK-309): the 1024-1279 px tile leaves ~67 px for the name; one size down keeps "TeachSpark" on one line
+     instead of breaking it mid-word */
+  @media (max-width: 1279px) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+      font-size: 11.5px;
+    }
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+      width: clamp(52px, 38%, 100px); /* 6 px more for the text column */
+    }
+  }
 
   /* ---- arrow slots: a real button with a 44 px hit area, no visible disc ---- */
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow {
@@ -20796,7 +20905,9 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --oa-size: 24px;
     width: 24px;
     height: 24px;
-    margin-right: -4px;
+    /* Stage 8 DES-012 (TASK-309): only the arrow's base (~5 px) sits inside the tile; the rest points out into the gap, so it never
+       reaches the name (at -4px two thirds of it sat over the text and TeachSpark truncated at 1280) */
+    margin-right: -14px;
     border: 0;
     /* front layer: above the tiles and the video frame (.pf-feature, z-index 2) */
     position: relative;

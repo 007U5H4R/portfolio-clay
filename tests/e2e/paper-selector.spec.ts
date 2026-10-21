@@ -136,9 +136,12 @@ for (const [vw, vh] of SIZES) {
       });
       expect(g.hasArt, "pointer holds the arrow art").toBe(true);
       expect(Math.abs(g.ptrMid - g.tileMid), "right arrow centred on the selected tile").toBeLessThan(4);
-      expect(Math.abs(g.ptrCx - g.tileRight), "right arrow centre is on the tile's right border (+-4px)").toBeLessThanOrEqual(4);
+      // Stage 8 DES-012 (TASK-309): only the arrow's base sits on the border; its centre is 2-10 px past it so the point never reaches the name
+      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-10px)").toBeGreaterThanOrEqual(2);
+      expect(g.ptrCx - g.tileRight, "right arrow centre is just past the tile's right border (2-10px)").toBeLessThanOrEqual(10);
       expect(g.ptrCx, "right arrow centre is inside the tile's span").toBeGreaterThan(g.tileLeft);
-      expect(g.ptrRight, "right arrow stays inside the panel").toBeLessThanOrEqual(g.panelRight);
+      // Stage 8 DES-012 (TASK-309): the arrow's tip may cross the panel edge by up to 10 px (it points into the gap toward the stage, in front of every layer)
+      expect(g.ptrRight, "right arrow tip crosses the panel edge by at most 10 px").toBeLessThanOrEqual(g.panelRight + 10);
       expect(g.ptrW, "right arrow is drawn").toBeGreaterThan(8);
       expect(g.topIsArrow, "right arrow is the topmost element at its centre").toBe(true);
       expect(g.ptrLeft, "right arrow does not cover the name text").toBeGreaterThanOrEqual(g.textRight - 0.5);

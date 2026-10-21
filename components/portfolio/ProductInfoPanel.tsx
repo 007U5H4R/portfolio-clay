@@ -1,7 +1,7 @@
 "use client";
 
 import { NewTabHint } from "@/components/common/NewTabHint";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
@@ -46,7 +46,7 @@ const EXTERNAL: Record<ExternalKind, { label: string; name: (product: string) =>
 };
 
 /** One action's inside: icon · serif label · arrow (↗ external, → internal / in-page; icon + arrow are visual only). */
-function StripBody({ icon: Icon, label, external, action, tier }: { icon: ActionIcon | typeof Play; label: string; external: boolean; action: string; tier: "primary" | "secondary" }) {
+function StripBody({ icon: Icon, label, external, action, tier }: { icon: ActionIcon | typeof Play; label: ReactNode; external: boolean; action: string; tier: "primary" | "secondary" }) {
   const Arrow = external ? ArrowUpRight : ArrowRight;
   const origami = ORIGAMI_FOR_ACTION[action];
   return (
@@ -89,14 +89,15 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   const spanFor = (key: string) => (secondaryKeys.length % 2 === 1 && secondaryKeys.at(-1) === key ? "full" : undefined);
   const totalLabel = String(total).padStart(2, "0");
   const position = String(product.position).padStart(2, "0");
-  const category = (product.tags ?? []).slice(0, 2).join(" · ");
+  // TASK-303: only where the vertical-carousel card renders (that is the only place `poster` is passed)
+  const paper = PAPER_CARD_ENABLED && !!poster;
+  // Stage 8 DES-017 (TASK-314): the paper card's kicker has room for one tag beside "n / N" (two truncated at 1280-1440)
+  const category = (product.tags ?? []).slice(0, paper ? 1 : 2).join(" · ");
   // TASK-274: the same loop as the carousel (stepIndex wraps), so the arrows are never dead
   const navIndex = nav ? nav.products.findIndex((p) => p.id === product.id) : -1;
   const adjacent = (delta: number) => (nav && navIndex >= 0 ? nav.products[stepIndex(navIndex, delta, nav.products.length)] : undefined);
   const prevProduct = adjacent(-1);
   const nextProduct = adjacent(1);
-  // TASK-303: only where the vertical-carousel card renders (that is the only place `poster` is passed)
-  const paper = PAPER_CARD_ENABLED && !!poster;
   // the pills are the card's own data: its code, then each part of its status line
   const pills = paper ? [product.code, ...product.meta.split(" · ")].filter(Boolean) : [];
 
@@ -113,7 +114,18 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         aria-controls={stageId}
         onClick={() => onModeChange(target)}
       >
-        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={tierOf(target) === "primary" ? `${label} video` : label} external={false} action={target} tier={tierOf(target)} />
+        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={
+            tierOf(target) === "primary" ? (
+              <>
+                {/* Stage 8 DES-014 (TASK-311): the narrow 1024-1279 px card drops the tail, so the CTA reads "Watch demo" there.
+                    The space stays in the label's own text node: inside the span, accessible-name computation trims it away. */}
+                {`${label} `}
+                <span className="pf-action-tail">video</span>
+              </>
+            ) : (
+              label
+            )
+          } external={false} action={target} tier={tierOf(target)} />
       </button>
     </li>
   );
