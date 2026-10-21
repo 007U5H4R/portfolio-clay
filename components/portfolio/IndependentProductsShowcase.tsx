@@ -310,39 +310,52 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   // TASK-334 (DES-024): where the paper selector is on screen it is the one navigation control — the card drops its own arrows, "01 / 10" and pager dots
   const selectorPresent = VERTICAL_CAROUSEL_ENABLED && PAPER_SELECTOR_ENABLED && desktop;
 
+  const stage = (
+    <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} autoMute={autoMute} paper={PAPER_PLAYER_ENABLED && VERTICAL_CAROUSEL_ENABLED && desktop} />
+  );
+  const info = (
+    <ProductInfoPanel
+      key={product.id}
+      product={product}
+      mode={mediaMode}
+      onModeChange={changeMode}
+      stageId={STAGE_ID}
+      headingId={NAME_ID}
+      total={products.length}
+      onWatch={watchVideo}
+      nav={desktop && !selectorPresent ? { products, onNavigate: navigateCard } : undefined}
+      selectorNav={selectorPresent}
+      poster={VERTICAL_CAROUSEL_ENABLED && desktop ? product.art : undefined}
+    />
+  );
+  const panel = (
+    <div
+      key="panel"
+      id={PANEL_ID}
+      className="pf-feature"
+      role="tabpanel"
+      aria-labelledby={tabId(product.id)}
+      data-active-product={product.id}
+      data-media-mode={mediaMode}
+      data-enter={enter}
+      tabIndex={desktop ? -1 : undefined}
+      {...cardGestures}
+    >
+      {selectorPresent ? [info, stage] : [stage, info]}
+    </div>
+  );
+  const carousel = <ProductCarousel key="carousel" products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />;
+
   return (
     <div className={VERTICAL_CAROUSEL_ENABLED ? (PAPER_SELECTOR_ENABLED && desktop ? "pf-showcase pf-vcar pf-psel" : "pf-showcase pf-vcar") : "pf-showcase"} data-view={view}>
       {intro}
       {view === "detail" ? <PhoneDetailBar name={product.name} logo={product.logo} onBack={backToList} /> : null}
       <PhoneProjectList visible={view === "list"} products={products} filter={filter} onFilterChange={changeFilter} onOpen={openProduct} lastOpenedId={lastOpened} />
-      <div
-        id={PANEL_ID}
-        className="pf-feature"
-        role="tabpanel"
-        aria-labelledby={tabId(product.id)}
-        data-active-product={product.id}
-        data-media-mode={mediaMode}
-        data-enter={enter}
-        tabIndex={desktop ? -1 : undefined}
-        {...cardGestures}
-      >
-        <MainMediaStage key={`${product.id}:${mediaMode}:${stageNonce}`} product={product} mode={mediaMode} enter={enter} id={STAGE_ID} autoStart={autoStart} autoMute={autoMute} paper={PAPER_PLAYER_ENABLED && VERTICAL_CAROUSEL_ENABLED && desktop} />
-        <ProductInfoPanel
-          key={product.id}
-          product={product}
-          mode={mediaMode}
-          onModeChange={changeMode}
-          stageId={STAGE_ID}
-          headingId={NAME_ID}
-          total={products.length}
-          onWatch={watchVideo}
-          nav={desktop && !selectorPresent ? { products, onNavigate: navigateCard } : undefined}
-          selectorNav={selectorPresent}
-          poster={VERTICAL_CAROUSEL_ENABLED && desktop ? product.art : undefined}
-        />
-      </div>
-      {/* TASK-217: the picker sits beneath the window it drives (DOM order = visual order). The phone hides it (TASK-210). */}
-      <ProductCarousel products={products} activeId={product.id} onSelect={selectProduct} panelId={PANEL_ID} tabId={tabId} />
+      {/* TASK-341 (DES-021, WCAG 2.4.3): where the paper selector is on screen it comes first in the DOM, so Tab runs selector -> card -> player.
+          The grid places every piece explicitly (see `.pf-psel` in globals.css), so the visual layout does not follow this order. Below 1024 px
+          (and while `desktop` is still false) the DOM order is the unchanged one (TASK-217: the tray sits last). The pieces are keyed siblings,
+          so crossing 1024 px moves them rather than remounting them. */}
+      {selectorPresent ? [carousel, panel] : [panel, carousel]}
     </div>
   );
 }
