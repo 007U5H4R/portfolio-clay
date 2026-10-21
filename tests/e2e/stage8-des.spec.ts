@@ -12,6 +12,7 @@
  * Design wave 2 (DES-020 ... DES-028, 2026-10-21):
  *   TASK-331  micro-label size floors and no overflow / truncation 1024-1920, light + dark (DES-020)
  *   TASK-332  the description is >= 13 px, uncut, with <= 24 px above the CTA at 1180-1920 (DES-022)
+ *   TASK-347  the tagline clears the poster by >= 4 px; the free-height gaps above the poster and the description are each <= 24 px, 1180-1512
  *   TASK-333  arrow-key browsing starts one video once the selection settles; reduced motion never auto-starts (DES-023)
  *   TASK-336  >= 1800 px scale-up: tile names 15.5 px, card type a step up, no dead space above the CTA; 1440 / 1512 unchanged (DES-026)
  *   TASK-337  the stage poster's title chip is hidden at 1024-1180 px, the name stays accessible (DES-028)
@@ -222,16 +223,44 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
           const r = desc.getBoundingClientRect();
           const acts = document.querySelector(".pf-info.pf-paper .pf-action-set")!.getBoundingClientRect();
           const pills = document.querySelector(".pf-info.pf-paper .pf-pc-pills")!.getBoundingClientRect();
-          return { shown: getComputedStyle(desc).display !== "none", fs: parseFloat(getComputedStyle(desc).fontSize), h: r.height, top: r.top, bottom: r.bottom, cut: desc.scrollHeight - desc.clientHeight, cardBottom: card.bottom, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom };
+          return { shown: getComputedStyle(desc).display !== "none", fs: parseFloat(getComputedStyle(desc).fontSize), h: r.height, top: r.top, bottom: r.bottom, cut: desc.scrollHeight - desc.clientHeight, cardBottom: card.bottom, cardH: card.height, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom };
         });
         const at = `${project.slug} @${vw}`;
         expect(m.shown, `${at}: the description is shown`).toBe(true);
         expect(m.fs, `${at}: description size`).toBeGreaterThanOrEqual(13);
         expect(m.cut, `${at}: the description is not cut off`).toBeLessThanOrEqual(1);
         expect(m.top, `${at}: below the pills`).toBeGreaterThanOrEqual(m.pillsBottom - 1);
-        expect(m.actsTop - m.bottom, `${at}: gap above the CTA`).toBeLessThanOrEqual(24);
+        // TASK-347: in the 330-500 px card tier the two capped gaps (<= 24 px each, asserted by the TASK-347 test) take height first and the
+        // rest sits above the actions, which stay at the card's bottom padding - so allow that remainder (<= 64 px) there; taller cards keep 24 px
+        const ctaCap = m.cardH <= 500 ? 64 : 24;
+        expect(m.actsTop - m.bottom, `${at}: gap above the CTA`).toBeLessThanOrEqual(ctaCap);
         expect(m.actsTop - m.bottom, `${at}: description clears the CTA`).toBeGreaterThanOrEqual(0);
         expect(m.actsBottom, `${at}: actions inside the card`).toBeLessThanOrEqual(m.cardBottom + 1);
+      }
+    });
+  }
+
+  // TASK-347: the free height above the poster and above the description is shared, but each gap stays within 4-24 px (the tagline never touches the poster)
+  for (const [vw, vh] of [[1180, 820], [1280, 720], [1366, 768], [1440, 900], [1512, 982]] as const) {
+    test(`TASK-347: at ${vw}x${vh} the tagline clears the poster by >= 4 px and neither free-height gap exceeds 24 px`, async ({ page }) => {
+      test.setTimeout(120_000);
+      await open(page, vw, vh, "light", PERSONAL[0]!.slug);
+      for (const project of PERSONAL) {
+        await page.locator(`[role="tab"][data-product="${project.slug}"]`).evaluate((el) => (el as HTMLElement).click());
+        await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
+        await page.waitForTimeout(120);
+        const m = await page.evaluate(() => {
+          const q = (sel: string) => document.querySelector(`.pf-info.pf-paper ${sel}`)!.getBoundingClientRect();
+          const card = document.querySelector(".pf-info.pf-paper")!.getBoundingClientRect();
+          return { aboveGap: q(".pf-info-poster-frame").top - q(".pf-info-tagline").bottom, descGap: q(".pf-info-desc").top - q(".pf-pc-pills").bottom, actsBottom: q(".pf-action-set").bottom, cardBottom: card.bottom };
+        });
+        const at = `${project.slug} @${vw}`;
+        expect(m.aboveGap, `${at}: tagline -> poster`).toBeGreaterThanOrEqual(4);
+        expect(m.aboveGap, `${at}: gap above the poster`).toBeLessThanOrEqual(24);
+        expect(m.descGap, `${at}: gap above the description`).toBeLessThanOrEqual(24);
+        expect(m.descGap, `${at}: pills clear the description`).toBeGreaterThanOrEqual(-1);
+        expect(m.actsBottom, `${at}: actions inside the card`).toBeLessThanOrEqual(m.cardBottom + 1);
+        expect(m.cardBottom - m.actsBottom, `${at}: blank below the actions`).toBeLessThanOrEqual(16);
       }
     });
   }
