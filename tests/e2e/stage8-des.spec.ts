@@ -11,6 +11,7 @@
  *   TASK-316  tablet carousel tile names and categories never truncate (DES-019)
  * Design wave 2 (DES-020 ... DES-028, 2026-10-21):
  *   TASK-332  the description shows at 1280x800 (and 1100+) inside the card (DES-022)
+ *   TASK-333  arrow-key browsing starts one video once the selection settles; reduced motion never auto-starts (DES-023)
  *   TASK-334  the paper card has no navigation of its own - the selector is the one control (DES-024)
  *
  * Desktop checks run once (w1440 project, sizes set inside); the phone check runs on w390; the tablet check on w768.
@@ -22,6 +23,7 @@ import { PAPER_CARD_ENABLED } from "@/components/portfolio/paper-card-flag";
 import { PAPER_PLAYER_ENABLED } from "@/components/portfolio/paper-player-flag";
 import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
 import { projects } from "@/data/projects";
+import { portfolioEntries } from "@/data/portfolio";
 import { isListed } from "@/lib/portfolio";
 
 const PERSONAL = projects.filter(isListed);
@@ -221,6 +223,81 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
       expect(m.actsBottom, "actions inside the card").toBeLessThanOrEqual(m.cardBottom + 1);
     });
   }
+
+  // TASK-333 (DES-023): which videos the stage actually started - every iframe added to the page, recorded by its src
+  const recordStarts = (page: Page) =>
+    page.addInitScript(() => {
+      const w = window as unknown as { __starts: string[] };
+      w.__starts = [];
+      new MutationObserver((records) => {
+        for (const r of records) for (const n of r.addedNodes) for (const f of n instanceof Element ? [n, ...n.querySelectorAll("*")] : []) if (f instanceof HTMLIFrameElement) w.__starts.push(f.src);
+      }).observe(document, { childList: true, subtree: true });
+    });
+  const starts = (page: Page) => page.evaluate(() => (window as unknown as { __starts: string[] }).__starts);
+  const videoOf = (slug: string) => {
+    const e = portfolioEntries.find((x) => x.slug === slug)!;
+    return (e.pitchVideo ?? e.demoVideo)!.videoId;
+  };
+
+  test("TASK-333: rapid ArrowDown x4 starts at most one player - the last product's, after the selection settles", async ({ page }) => {
+    await recordStarts(page);
+    await open(page, 1440, 900, "light", PERSONAL[0]!.slug);
+    expect(await starts(page), "a page load starts nothing").toEqual([]);
+    await page.getByRole("tab", { selected: true }).focus();
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press("ArrowDown");
+      await page.waitForTimeout(120);
+    }
+    await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", PERSONAL[4]!.slug);
+    expect(await starts(page), "no video per step while the keys are still arriving").toEqual([]);
+    await expect(page.locator(".pf-stage iframe")).toHaveCount(1, { timeout: 4000 });
+    const all = await starts(page);
+    expect(all, "exactly one start").toHaveLength(1);
+    expect(all[0]).toContain(`/embed/${videoOf(PERSONAL[4]!.slug)}`);
+  });
+
+  test("TASK-333: Home / End browse the same way (debounced)", async ({ page }) => {
+    await recordStarts(page);
+    await open(page, 1440, 900, "light", PERSONAL[2]!.slug);
+    await page.getByRole("tab", { selected: true }).focus();
+    await page.keyboard.press("End");
+    await page.keyboard.press("Home");
+    await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", PERSONAL[0]!.slug);
+    expect(await starts(page)).toEqual([]);
+    await expect(page.locator(".pf-stage iframe")).toHaveCount(1, { timeout: 4000 });
+    expect(await starts(page)).toHaveLength(1);
+  });
+
+  test("TASK-333: a pointer click on a tile starts its video immediately", async ({ page }) => {
+    await recordStarts(page);
+    await open(page, 1440, 900, "light", PERSONAL[0]!.slug);
+    await page.locator(`[role="tab"][data-product="${PERSONAL[3]!.slug}"]`).click();
+    await expect(page.locator(".pf-stage iframe"), "well inside the 700 ms browse delay").toHaveCount(1, { timeout: 500 });
+    expect((await starts(page))[0]).toContain(`/embed/${videoOf(PERSONAL[3]!.slug)}`);
+  });
+
+  test("TASK-333: Enter on a focused tile starts its video immediately", async ({ page }) => {
+    await open(page, 1440, 900, "light", PERSONAL[0]!.slug);
+    await page.getByRole("tab", { selected: true }).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".pf-stage iframe")).toHaveCount(1, { timeout: 500 });
+  });
+
+  test("TASK-333: under reduced motion nothing auto-starts - the poster and its Watch control stay until it is pressed", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, 1440, 900, "light", PERSONAL[0]!.slug);
+    await page.locator(`[role="tab"][data-product="${PERSONAL[3]!.slug}"]`).click();
+    await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", PERSONAL[3]!.slug);
+    await page.getByRole("tab", { selected: true }).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.waitForTimeout(1500);
+    await expect(page.locator(".pf-stage iframe")).toHaveCount(0);
+    const watch = page.locator(".pf-stage-screen > .pf-play");
+    await expect(watch).toBeVisible();
+    await watch.click();
+    await expect(page.locator(".pf-stage iframe")).toHaveCount(1);
+  });
 
   test("TASK-313: while the player loads, the poster stays and a loading cue shows (YouTube blocked)", async ({ page }) => {
     test.skip(!PAPER_PLAYER_ENABLED, "paper player flag is off");

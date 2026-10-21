@@ -33,6 +33,9 @@ export interface IndependentProductsShowcaseProps {
   intro?: ReactNode;
 }
 
+/** TASK-333 (DES-023): arrow / Home / End browsing starts a video only once the selection has been still this long. */
+const BROWSE_START_MS = 700;
+
 const PANEL_ID = "pf-panel";
 const STAGE_ID = "pf-stage-screen";
 const NAME_ID = "pf-product-name";
@@ -119,6 +122,9 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
   const [revealTick, setRevealTick] = useState(0);
   /** TASK-274: the detail-card control that was used, so focus returns to it when the card remounts for the next product. */
   const navFocus = useRef<string | null>(null);
+  /** TASK-333: the pending "selection has settled" auto-start of keyboard browsing; every other action cancels it. */
+  const browseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(browseTimer.current), []);
 
   useEffect(() => {
     if (readDeepLink.current) return;
@@ -240,13 +246,21 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       // TASK-253: choosing a product (click, keyboard or arrows) starts its pitch (else demo) with no extra Play tap
       setMediaMode(target ? pickMode(target) : "pitch");
       setEnter("product");
-      setAutoStart(target ? hasVideo(target) : false);
+      // TASK-333 (DES-023), desktop tray: a pointer click or Enter / Space (a click event) starts the video at once (TASK-253); arrow /
+      // Home / End browsing starts it only after the selection has been still for BROWSE_START_MS (the next key cancels the wait);
+      // under reduced motion nothing starts by itself - the poster and its Watch control stay.
+      clearTimeout(browseTimer.current);
+      const wants = target ? hasVideo(target) : false;
+      const reduce = desktop && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const browsing = desktop && source === "keyboard";
+      setAutoStart(wants && !reduce && !browsing);
+      if (wants && !reduce && browsing) browseTimer.current = setTimeout(() => setAutoStart(true), BROWSE_START_MS);
       setAutoMute(true);
       const url = `${productHref(id)}${window.location.hash}`;
       window.history.replaceState(window.history.state, "", url);
       if (source === "click") setRevealTick((n) => n + 1);
     },
-    [activeProductId, products],
+    [activeProductId, products, desktop],
   );
 
   const changeMode = useCallback(
@@ -255,6 +269,7 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       track("project_asset_opened", { project_id: activeProductId, asset_type: mode === "pitch" ? "pitch_video" : "demo_video" });
       setMediaMode(mode);
       setEnter("mode");
+      clearTimeout(browseTimer.current);
       setAutoStart(false);
     },
     [mediaMode, activeProductId],
