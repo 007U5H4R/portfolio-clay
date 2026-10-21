@@ -1,0 +1,10 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: about, work. */
+
+@layer components {
+/* ---- theme pairs: the hidden one never downloads (lazy + display:none) ---- */
+  :root:not([data-theme="dark"]) .pa-dark,
+  [data-theme="dark"] .pa-light {
+    display: none;
+  }
+}

@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import "../styles/about.css";
+import "../styles/about__work.css";
+import "../styles/about__home.css";
 import { AboutCta } from "@/components/about/AboutCta";
 import { AboutHero } from "@/components/about/AboutHero";
 import { BuildersDesk } from "@/components/about/BuildersDesk";

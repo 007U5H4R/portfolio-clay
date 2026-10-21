@@ -1,0 +1,687 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: home, work/[slug]. */
+
+@layer components {
+/* The torn edge is the paper sheet's top edge (TKT-96): the sheet overlaps the banner's bottom by the
+     edge's 44 px, so the tear reads over the scene and leads the paper up over it on scroll. */
+  .hero-torn {
+    margin: 0;
+  }
+
+  .hero-polaroids {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    container-type: inline-size;
+    /* M-011 P1: the polaroids are registered to the layered scene's own pixel grid. One scene pixel = `--cpx`:
+       the layers are `object-fit: cover` boxes inset by −`--b` (the scene's shared bleed, set by Hero.tsx) on a
+       frame `--hh` tall, so the art is scaled to (`--hh` + 2b) / 1029 and centred on `--fx` horizontally
+       (Design.md §14.4 Bleed). ≥ 768 the frame is the scene's own ratio; < 768 it is the 16:10 crop. */
+    --hh: calc(100cqw * 1029 / 2400);
+    --fx: 0.49;
+    --cpx: calc((var(--hh) + 2 * var(--b, 0px)) / 1029);
+    --ox: calc(var(--b, 0px) * -1 + (100cqw + 2 * var(--b, 0px) - 2400 * var(--cpx)) * var(--fx));
+    --oy: calc(var(--b, 0px) * -1);
+  }
+  /* Measured on the pilot's hero-home bg (2400 × 1029): tall cream sheet 574–878 × 42–456, yellow note
+     1542–1774 × 46–254, large cream sheet 1784–2066 × 72–360. A polaroid is W wide and W + 9 tall
+     (9 / 9 / 27 padding, square photo), inset inside its paper below the paper's own tape. */
+  .hero-polaroid {
+    position: absolute;
+    top: calc(var(--oy) + var(--y) * var(--cpx));
+    left: calc(var(--ox) + var(--x) * var(--cpx));
+    width: calc(var(--w) * var(--cpx));
+    padding: calc(9 * var(--cpx)) calc(9 * var(--cpx)) calc(27 * var(--cpx));
+  }
+  .hero-polaroid .paper-tape {
+    top: calc(-10 * var(--cpx));
+    width: calc(var(--w) * 0.34 * var(--cpx));
+    height: calc(22 * var(--cpx));
+  }
+  /* tall cream sheet */
+  .hero-polaroid:nth-child(1) {
+    --x: 596;
+    --y: 100;
+    --w: 260;
+  }
+  /* yellow note */
+  .hero-polaroid:nth-child(2) {
+    --x: 1575;
+    --y: 72;
+    --w: 165;
+  }
+  /* large cream sheet */
+  .hero-polaroid:nth-child(3) {
+    --x: 1818;
+    --y: 106;
+    --w: 215;
+  }
+  .hero-polaroid-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 2px;
+  }
+
+@media (max-width: 767px) {
+    .hero-polaroids {
+      --hh: calc(100cqw * 0.625);
+    }
+    .hero-polaroid:nth-child(3) {
+      display: none;
+    }
+    /* The postmark shrinks to 88 px and drops below the yellow note's polaroid, top-right (TKT-111 r3). */
+    .hero-banner .hero-stamp {
+      top: 19vw;
+      right: 8px;
+      width: 88px;
+    }
+  }
+
+  /* Top-right corner, clear of the outpaint's own pinned checklist (the circle sits at the far right,
+     the cancellation waves run left over the empty wall). */
+  .hero-stamp {
+    position: absolute;
+    top: clamp(10px, 1.6vw, 24px);
+    right: clamp(12px, 2.6vw, 40px);
+    z-index: 3;
+    width: clamp(120px, 11vw, 160px);
+    height: auto;
+    overflow: visible;
+    rotate: -7deg;
+    mix-blend-mode: multiply;
+    opacity: 0.88;
+    pointer-events: none;
+  }
+
+  /* --- Copy block, centred under the banner --- */
+  .hero-copy {
+    display: grid;
+    justify-items: center;
+    gap: 20px;
+    padding-block: clamp(52px, 6.5vw, 96px) clamp(64px, 8vw, 112px);
+    text-align: center;
+  }
+  .hero-eyebrow {
+    max-width: 60ch;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .hero-h1 {
+    max-width: 19ch;
+    font-size: clamp(40px, 5vw, 74px);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    text-wrap: balance;
+  }
+  .hero-hand-sub {
+    margin-top: -4px;
+    transform-origin: center;
+  }
+  .hero-support {
+    display: none;
+    max-width: 52ch;
+    font-size: 17px;
+    color: var(--color-navy-2);
+  }
+
+@media (min-width: 768px) {
+    .hero-support {
+      display: block;
+    }
+  }
+
+  /* CTAs (mockup `.btn`, `.btn-primary`, `.btn-secondary`) — ≥ 44 px tall, centred */
+  .hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    line-height: 1;
+    text-decoration: none;
+    /* transitions + hover/press: the paper-button contract (TASK-181 block); the old box-shadow transition is gone */
+  }
+  .hero-btn-primary {
+    background: var(--color-rust);
+    color: var(--color-ivory);
+    font-size: 22px;
+    font-weight: 600;
+    box-shadow: 0 8px 18px -10px color-mix(in oklab, var(--color-rust) 70%, transparent);
+  }
+  .hero-btn-secondary {
+    background: var(--color-ivory);
+    color: var(--color-navy);
+    border: 1.5px solid var(--line);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-btn {
+      transition: none;
+    }
+  }
+}
+
+@layer components {
+/* Full-bleed opaque paper below the torn edge (the edge's own 44 px stay transparent above the tear). */
+  .hero-sheet {
+    position: relative;
+    z-index: 4;
+    margin-top: -44px;
+    background: linear-gradient(to bottom, transparent 43px, var(--color-paper) 43px);
+  }
+}
+
+@layer components {
+  .hero-eyebrow {
+    max-width: 39.58em;
+    font-family: "Inter", "Inter Eyebrow Fallback", "Inter Fallback", system-ui, sans-serif;
+  }
+  .hero-h1 {
+    max-width: 11.43em;
+    font-family: "Fraunces", "Fraunces Hero Fallback", "Fraunces Fallback", "Iowan Old Style", Georgia, serif;
+  }
+}
+
+@layer components {
+  .hero-sheet {
+    isolation: isolate;
+  }
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    gap: 0;
+    padding-block: clamp(36px, 5.4vw, 80px) clamp(72px, 8.4vw, 124px);
+  }
+  .hero-eyebrow {
+    justify-self: stretch;
+    max-width: none;
+    font-size: var(--text-caption);
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    color: var(--color-navy);
+    text-wrap: balance;
+  }
+
+@media (max-width: 639px) {
+    .hero-eyebrow {
+      letter-spacing: 0.16em;
+    }
+  }
+  .hero-h1 {
+    justify-self: stretch;
+    max-width: none;
+    margin-top: clamp(20px, 3vw, 44px);
+    font-size: clamp(34px, 5.6vw, 80px);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+@media (min-width: 768px) {
+    .hero-h1-line {
+      display: block;
+      width: fit-content;
+      margin-inline: auto;
+    }
+  }
+  .hero-hand-sub {
+    margin-top: clamp(22px, 3vw, 44px);
+    text-wrap: balance;
+    color: var(--color-navy);
+    transform-origin: center;
+  }
+  .hero-hand-sub[data-size="hero"] {
+    font-size: clamp(24px, 2.4vw, 34px);
+  }
+  .hero-hand-mark {
+    position: relative;
+    display: inline-block;
+  }
+  .hero-hand-mark::after {
+    content: "";
+    position: absolute;
+    left: -2%;
+    bottom: -0.2em;
+    width: 150%;
+    height: 0.22em;
+    background: color-mix(in oklab, var(--color-navy) 38%, transparent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 50 3, 120 2, 198 5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 50 3, 120 2, 198 5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  }
+  .hero-support {
+    max-width: 40em;
+    margin-top: clamp(18px, 2.4vw, 34px);
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.65;
+    color: var(--color-navy-2);
+  }
+
+  /* CTAs */
+  .hero-cta-row {
+    align-items: flex-start;
+    gap: clamp(14px, 2.4vw, 36px);
+    margin-top: clamp(22px, 2.8vw, 40px);
+  }
+  .hero-copy .hero-btn {
+    justify-content: center;
+    min-height: 52px;
+    padding: 14px 30px;
+    font-family: var(--font-display);
+    font-size: clamp(19px, 1.7vw, 24px);
+    font-weight: 500;
+    font-variation-settings: "opsz" 36;
+  }
+
+@media (min-width: 1024px) {
+    .hero-copy .hero-btn {
+      min-height: 64px;
+      padding: 16px 40px;
+    }
+  }
+  .hero-copy .hero-btn-primary {
+    box-shadow: 0 14px 24px -14px color-mix(in oklab, var(--color-rust) 85%, transparent);
+  }
+  .hero-copy .hero-btn-secondary {
+    background: var(--color-ivory);
+    border: 1.5px solid var(--line-strong);
+    box-shadow: var(--shadow-paper);
+  }
+  .hero-btn-spark {
+    font-size: 0.8em;
+    line-height: 1;
+    /* TKT-92 r4: "✦" (U+2726) is in none of the web fonts' latin subsets, so without a named family
+       Chrome runs a whole-system fallback search for it at first layout, and again after the font
+       swap. That cost ≈ 36 ms of layout per pass locally, ×4 in Lighthouse's mobile CPU model. The
+       --font-display stack is spelled out with the family that already supplies the glyph on macOS/iOS
+       (Zapf Dingbats) second. That skips the search, and the pixels stay identical because Fraunces
+       stays the first available font and so still sets the line metrics. Elsewhere the family is
+       absent and the stack continues exactly as before. Guard: tests/e2e/fallback-glyphs.spec.ts. */
+    font-family: var(--font-fraunces), "Zapf Dingbats", "Iowan Old Style", Georgia, serif;
+  }
+  .hero-ask {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+  .hero-ask-cap {
+    font-size: 13px;
+    line-height: 1.2;
+    color: var(--color-navy-2);
+  }
+  .hero-tushky {
+    display: none;
+    position: absolute;
+    top: -6px;
+    left: calc(100% + 12px);
+    width: 64px;
+    pointer-events: none;
+  }
+  .hero-tushky-img {
+    display: block;
+    width: 64px;
+    height: 64px;
+    rotate: 6deg;
+  }
+  .hero-tushky-arrow {
+    position: absolute;
+    top: 58px;
+    left: -26px;
+    width: 34px;
+    height: 23px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-navy-2);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+@media (min-width: 640px) {
+    .hero-tushky {
+      display: block;
+    }
+  }
+
+  /* --- the one collage: marginalia + faint backdrop --- */
+  .hero-margin {
+    position: absolute;
+    inset: 44px 0 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-margin > * {
+    position: absolute;
+    display: none;
+  }
+  .hero-margin-patch {
+    background: color-mix(in oklab, var(--color-paper-2) 70%, var(--color-paper));
+  }
+  .hero-margin-patch[data-patch="tl"] {
+    top: -10px;
+    left: -30px;
+    width: clamp(180px, 18vw, 290px);
+    height: 190px;
+    rotate: -4deg;
+    clip-path: polygon(0 0, 100% 0, 96% 12%, 99% 28%, 92% 44%, 95% 58%, 84% 72%, 70% 78%, 52% 88%, 34% 86%, 18% 96%, 0 100%);
+  }
+  .hero-margin-patch[data-patch="h1"] {
+    top: clamp(90px, 10vw, 150px);
+    left: calc(50% - clamp(300px, 34vw, 500px));
+    width: clamp(200px, 20vw, 300px);
+    height: clamp(180px, 18vw, 270px);
+    rotate: 3deg;
+    background: color-mix(in oklab, var(--color-paper-2) 45%, var(--color-paper));
+    clip-path: polygon(4% 8%, 22% 0, 40% 6%, 62% 2%, 80% 10%, 100% 6%, 96% 30%, 100% 52%, 92% 74%, 96% 94%, 72% 100%, 50% 94%, 28% 100%, 8% 92%, 0 70%, 6% 48%, 0 26%);
+  }
+  .hero-margin-grid[data-patch="br"] {
+    right: -20px;
+    bottom: -20px;
+    width: clamp(200px, 20vw, 300px);
+    height: clamp(220px, 22vw, 320px);
+    rotate: -6deg;
+    background:
+      linear-gradient(var(--rule-blue-card) 1px, transparent 1px) 0 0 / 16px 16px,
+      linear-gradient(90deg, var(--rule-blue-card) 1px, transparent 1px) 0 0 / 16px 16px,
+      color-mix(in oklab, var(--color-paper-2) 60%, var(--color-paper));
+    clip-path: polygon(10% 4%, 30% 0, 52% 6%, 74% 0, 100% 4%, 100% 100%, 0 100%, 4% 80%, 0 58%, 6% 36%, 2% 18%);
+  }
+  .hero-margin-leaf {
+    left: -24px;
+    bottom: -30px;
+    width: clamp(140px, 15vw, 220px);
+    rotate: 24deg;
+    fill: color-mix(in oklab, var(--color-navy) 5%, transparent);
+    stroke: none;
+  }
+  .hero-margin-leaf path:first-child {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy) 6%, transparent);
+    stroke-width: 4;
+  }
+  .hero-margin-loop {
+    top: -6px;
+    right: clamp(30px, 5vw, 90px);
+    width: clamp(90px, 9vw, 130px);
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-navy) 22%, transparent);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+  }
+
+@media (min-width: 768px) {
+    .hero-margin-patch,
+    .hero-margin-leaf,
+    .hero-margin-loop {
+      display: block;
+    }
+  }
+
+@media (max-width: 639px) {
+    .hero-cta-row {
+      gap: 12px;
+    }
+    .hero-copy .hero-btn {
+      padding-inline: 20px;
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-copy .hero-btn {
+      transition: none;
+    }
+  }
+}
+
+@layer components {
+/* TASK-269 (Tushar 2026-10-19): the intro plays big — up to 960 px, near the hero's full width (was 560 px,
+     Dev-39's keep-the-h1-in-the-first-scroll cap; Tushar chose the bigger video over that). */
+  .hero-intro {
+    justify-self: center;
+    width: min(100%, 960px);
+    margin-top: clamp(22px, 2.4vw, 34px);
+  }
+  .hero-intro-print {
+    display: block;
+    box-shadow: var(--shadow-paper);
+  }
+  /* the 4:3 crop in a 16:9 frame: keep his face and the wave */
+  .hero-intro-poster {
+    object-position: 50% 18%;
+  }
+}
+
+@layer components {
+/* T3 (TASK-144.5): the three polaroids are square crops (1344 of 3168 px) of the paper-cut scenes; each is aimed at
+     its subject, `object-position-x = (focal × 3168 − 672) / (3168 − 1344)`: `scene-about` (the man, ≈ 0.70 → 85 %),
+     `scene-playground` (the man holding the prototype, ≈ 0.60 → 67 %), `scene-work` (the shelves' centre → 50 %). */
+  .hero-polaroid:nth-child(1) .hero-polaroid-img {
+    object-position: 85% 50%;
+  }
+  .hero-polaroid:nth-child(2) .hero-polaroid-img {
+    object-position: 67% 50%;
+  }
+  .hero-polaroid:nth-child(3) .hero-polaroid-img {
+    object-position: 50% 50%;
+  }
+}
+
+@media (min-width: 1280px) {
+/* the taller header gives back what it took from the hero's top padding, so the home fold (scene, then the copy and both CTAs
+     within one scroll, EVAL-001) is where it was with the 72 px header */
+  .hero-copy {
+    padding-top: max(20px, calc(clamp(36px, 5.4vw, 80px) - (var(--header-h) - 72px)));
+  }
+}
+
+/* colour feedback that rides the same states (non-motion: it stays under reduced motion) */
+.hero-btn-secondary:focus-visible {
+  border-color: var(--color-navy-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-btn-secondary:hover {
+    border-color: var(--color-navy-2);
+  }
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+/* ---- hero: "Ask Tushky" straightens the sticker head (6 -> 0 deg, one small physical overshoot) and nudges its pointer ---- */
+  .hero-tushky-img {
+    transition:
+      rotate 500ms cubic-bezier(0.3, 1.4, 0.5, 1),
+      translate 500ms var(--ease-paper);
+  }
+  .hero-tushky-arrow {
+    transition: translate 500ms var(--ease-paper);
+  }
+  .hero-btn-secondary:focus-visible ~ .hero-tushky .hero-tushky-img {
+    rotate: 0deg;
+    translate: 0 -3px;
+  }
+  .hero-btn-secondary:focus-visible ~ .hero-tushky .hero-tushky-arrow {
+    translate: 2px -2px;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .hero-btn-secondary:hover ~ .hero-tushky .hero-tushky-img {
+      rotate: 0deg;
+      translate: 0 -3px;
+    }
+    .hero-btn-secondary:hover ~ .hero-tushky .hero-tushky-arrow {
+      translate: 2px -2px;
+    }
+  }
+}
+/* === end TASK-285 === */
+
+/* === TASK-289 test (Tushar 2026-10-20): integrated frosted-glass home hero. ===
+   Every rule is scoped under `.hero-glass-on`, a class `Hero` emits ONLY while HOME_GLASS_HERO_ENABLED
+   (components/hero/home-glass-flag.ts) is true — with the flag false none of this matches and the previous hero
+   renders exactly as before. To remove for good: delete this block, `HeroGlass.tsx`, `HeroExploreLink.tsx`,
+   the flag module and the flag branches in Hero.tsx (or revert the one squash commit).
+   The art, its layers, the parallax and the polaroids are untouched; the panel is one more child of `.hero-banner`
+   (so it rides the banner's scroll parallax). Tokens + color-mix() only (EVAL-020); light/dark come from the role
+   tokens (`--color-ivory`, `--color-paper`, `--color-navy` swap under [data-theme="dark"]).
+   ≥ 1024 (below it the previous hero shows, unchanged): absolutely placed in the art's upper-left negative space, in banner-width units (`cqw`, the banner is an
+   inline-size container ≥ 768): left 3cqw → right edge 41cqw, clear of the face (≈ 44–55 % of the width) and the laptop. The panel's box
+   is the only thing that takes pointer events. Below 1024 the panel is `display: none` and the previous
+   hero's sheet shows exactly as before (desktop-only test, Tushar 2026-10-20). */
+.hero-glass-on .hero-glass {
+  display: none;
+}
+.hero-glass-on .hero-glass {
+  position: relative;
+  z-index: 5;
+  box-sizing: border-box;
+  width: min(100% - 32px, 560px);
+  margin: -10px auto 60px;
+  padding: 20px 20px 22px;
+  color: var(--color-navy);
+  /* No backdrop-filter: a more opaque surface keeps the text readable on its own. */
+  background-color: color-mix(in oklab, var(--color-ivory) 90%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-navy) 12%, transparent);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ivory) 38%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--color-navy) 34%, transparent);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .hero-glass-on .hero-glass {
+    background-color: color-mix(in oklab, var(--color-ivory) 48%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(0.95);
+    backdrop-filter: blur(16px) saturate(0.95);
+  }
+  [data-theme="dark"] .hero-glass-on .hero-glass {
+    /* deep navy, a touch bluer and denser than the light cream so the art stays readable but the text stays crisp */
+    background-color: color-mix(in oklab, var(--color-paper) 50%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(0.9);
+    backdrop-filter: blur(18px) saturate(0.9);
+  }
+}
+[data-theme="dark"] .hero-glass-on .hero-glass {
+  border-color: color-mix(in oklab, var(--color-navy) 12%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-navy) 9%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--color-paper) 70%, transparent);
+}
+.hero-glass-on .hero-glass-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  color: var(--color-navy);
+}
+.hero-glass-on .hero-glass-h1 {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 7vw, 40px);
+  font-weight: 500;
+  font-variation-settings: "opsz" 72;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  color: var(--color-navy);
+}
+.hero-glass-on .hero-glass-support {
+  margin: 12px 0 0;
+  max-width: 34em;
+  font-size: 15.5px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--color-navy-2);
+}
+.hero-glass-on .hero-glass-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.hero-glass-on .hero-glass-cta .hero-btn {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 36;
+  white-space: nowrap;
+}
+.hero-glass-on .hero-glass-cta .hero-btn-primary {
+  box-shadow: 0 10px 20px -14px color-mix(in oklab, var(--color-rust) 85%, transparent);
+}
+.hero-glass-on .hero-glass-cta .hero-btn-secondary {
+  background: var(--color-ivory);
+  border: 1.5px solid var(--line-strong);
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+/* The previous sheet keeps only its torn edge (the paper still slides over the art); its copy and marginalia are hidden. */
+  .hero-glass-on .hero-sheet .hero-copy,
+  .hero-glass-on .hero-sheet .hero-margin {
+    display: none;
+  }
+  .hero-glass-on .hero-glass {
+    display: block;
+    position: absolute;
+    top: 3.2cqw;
+    left: 3cqw;
+    width: 38cqw;
+    max-width: 640px;
+    margin: 0;
+    padding: clamp(14px, 1.3cqw, 22px) clamp(18px, 2cqw, 32px) clamp(15px, 1.4cqw, 23px);
+    border-radius: clamp(18px, 1.6cqw, 26px);
+  }
+  .hero-glass-on .hero-glass-eyebrow {
+    font-size: clamp(11px, 0.85cqw, 13px);
+  }
+  .hero-glass-on .hero-glass-h1 {
+    margin-top: clamp(6px, 0.6cqw, 10px);
+    font-size: clamp(26px, 2.6cqw, 44px);
+    line-height: 1.07;
+  }
+  .hero-glass-on .hero-glass-support {
+    margin-top: clamp(6px, 0.65cqw, 10px);
+    font-size: clamp(14.5px, 1.12cqw, 18px);
+    line-height: 1.42;
+  }
+  .hero-glass-on .hero-glass-cta {
+    flex-wrap: nowrap;
+    gap: clamp(10px, 0.9cqw, 14px);
+    margin-top: clamp(11px, 1cqw, 16px);
+  }
+  .hero-glass-on .hero-glass-cta .hero-btn {
+    flex: 0 1 auto;
+    min-height: clamp(44px, 3.1cqw, 50px);
+    padding-inline: clamp(18px, 1.7cqw, 28px);
+    font-size: clamp(16px, 1.25cqw, 20px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-glass-on .hero-glass-cta .hero-btn {
+    transition: none;
+  }
+}

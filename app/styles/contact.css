@@ -1,0 +1,628 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: contact. */
+
+@layer components {
+  .cx-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "main"
+      "story";
+    gap: 28px;
+    padding-block: clamp(28px, 4vw, 52px) 72px;
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+
+@supports (animation-timeline: view()) {
+      .cx-grid {
+        padding-bottom: 96px;
+      }
+
+@media (min-width: 768px) {
+        .cx-grid {
+          padding-bottom: calc(216px - clamp(40px, 5vw, 72px));
+        }
+      }
+    }
+  }
+  .cx-head {
+    grid-area: head;
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  .cx-main {
+    grid-area: main;
+    min-width: 0;
+  }
+  .cx-story {
+    grid-area: story;
+    position: relative;
+    min-width: 0;
+  }
+
+@media (min-width: 1024px) {
+    .cx-grid {
+      grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+      grid-template-areas:
+        "story head"
+        "story main";
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(40px, 5vw, 80px);
+      row-gap: 26px;
+    }
+    .cx-story {
+      align-self: center;
+    }
+  }
+
+  /* --- head: eyebrow · h1 · hand subline --- */
+  .contact-eyebrow {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .cx-h1 {
+    font-size: clamp(44px, 4.6vw, 66px);
+    line-height: 1.02;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+  .cx-head .cx-subline {
+    margin-left: 4px;
+    font-size: clamp(22px, 2vw, 28px);
+    color: var(--color-navy-2);
+  }
+  .cx-card-paper,
+  .cx-card-shade,
+  .cx-card-rim,
+  .cx-card-face {
+    position: absolute;
+    inset: 0;
+  }
+  .cx-card-paper {
+    z-index: -1;
+  }
+  .cx-card-shade {
+    translate: 3px 7px;
+    background: color-mix(in oklab, var(--color-navy) 12%, transparent);
+  }
+  .cx-card-rim {
+    background: color-mix(in oklab, var(--color-ivory) 70%, var(--color-kraft));
+  }
+  .cx-card-face {
+    background:
+      radial-gradient(circle at 20% 30%, color-mix(in oklab, var(--color-kraft) 12%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 11px,
+      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--color-navy) 3%, transparent) 0 1px, transparent 1.5px) 0 0 / 13px 7px,
+      linear-gradient(172deg, var(--color-ivory), color-mix(in oklab, var(--color-ivory) 88%, var(--color-kraft)));
+  }
+  .cx-clip {
+    position: absolute;
+    top: -22px;
+    left: clamp(36px, 30%, 180px);
+    width: 20px;
+    height: 56px;
+    rotate: 8deg;
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-steel) 80%, var(--color-navy));
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  /* TASK-111 · Tushar's portrait as the card's postage stamp: a perforated ivory margin (a scalloped
+     mask — edge holes from a tiled radial layer, the interior kept whole by a solid rect layer) around
+     the photo, +5°; the wrapper casts the paper shadow the mask would otherwise cut away. */
+  .cx-stamp-wrap {
+    position: absolute;
+    top: -38px;
+    right: clamp(-12px, -1vw, -4px);
+    z-index: 1;
+    rotate: 5deg;
+    filter: drop-shadow(0 6px 8px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
+  }
+  .cx-stamp {
+    --perf: 3.5px;
+    display: block;
+    width: 90px;
+    padding: 9px;
+    background: var(--color-ivory);
+    -webkit-mask:
+      radial-gradient(var(--perf), transparent 98%, var(--color-navy)) round calc(-1.5 * var(--perf)) calc(-1.5 * var(--perf)) /
+        calc(3 * var(--perf)) calc(3 * var(--perf)),
+      linear-gradient(var(--color-navy) 0 0) no-repeat 50% / calc(100% - 3 * var(--perf)) calc(100% - 3 * var(--perf));
+    mask:
+      radial-gradient(var(--perf), transparent 98%, var(--color-navy)) round calc(-1.5 * var(--perf)) calc(-1.5 * var(--perf)) /
+        calc(3 * var(--perf)) calc(3 * var(--perf)),
+      linear-gradient(var(--color-navy) 0 0) no-repeat 50% / calc(100% - 3 * var(--perf)) calc(100% - 3 * var(--perf));
+  }
+  .cx-stamp-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 6;
+    object-fit: cover;
+    object-position: 50% 20%;
+    outline: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+  }
+
+@media (max-width: 559px) {
+    .cx-stamp-wrap {
+      top: -30px;
+      right: -4px;
+    }
+    .cx-stamp {
+      --perf: 3px;
+      width: 68px;
+      padding: 7px;
+    }
+  }
+
+  /* email block */
+  .cx-email {
+    display: grid;
+    gap: 8px;
+  }
+  .cx-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+  }
+  .cx-email-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+  }
+  .cx-addr {
+    min-width: 0;
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2vw, 28px);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-navy);
+    overflow-wrap: anywhere;
+  }
+  .cx-copy.copy-control {
+    flex: none;
+  }
+
+  /* buttons — ≥ 44 px (primary 54 px); hover 200 ms (spec §19) */
+  .cx-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    text-decoration: none;
+    transition:
+      translate 200ms var(--ease-hover),
+      border-color 200ms var(--ease-hover),
+      background-color 200ms var(--ease-hover);
+  }
+  .cx-btn svg,
+  .cx-btn-arrow {
+    flex: none;
+    transition: translate var(--dur-l1) var(--ease-l1);
+  }
+  .cx-btn-primary {
+    justify-self: start;
+    justify-content: center;
+    min-width: 220px;
+    min-height: 54px;
+    padding: 8px 30px;
+    border-radius: var(--radius-pill);
+    background: var(--color-rust);
+    color: var(--color-ivory);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: 0 10px 20px -12px color-mix(in oklab, var(--color-rust) 75%, transparent);
+  }
+  .cx-btn-arrow {
+    display: inline-block;
+  }
+  .cx-divider {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .cx-secondary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+@media (min-width: 560px) {
+    .cx-secondary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .cx-btn-secondary {
+    min-height: 52px;
+    padding: 10px 18px;
+    border: 1.5px solid var(--line-sketch);
+    border-radius: 14px;
+    background: color-mix(in oklab, var(--color-ivory) 70%, var(--color-paper));
+    color: var(--color-navy);
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
+  }
+  .cx-in {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    background: var(--color-navy-2);
+    color: var(--color-ivory);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    transition: translate 200ms var(--ease-hover);
+  }
+  .cx-btn-text {
+    min-width: 0;
+  }
+  .cx-card .contact-location {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--color-navy-2);
+  }
+
+  /* CopyButton paper skin (TSK-46 behaviour; TASK-113 compact paper pill, hover tint) */
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 18px;
+    border: 1.5px solid var(--line-sketch);
+    border-radius: var(--radius-pill);
+    background: var(--color-ivory);
+    color: var(--color-navy);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+  .copy-btn:hover {
+    border-color: var(--color-navy-2);
+    background: color-mix(in oklab, var(--color-note) 45%, var(--color-ivory));
+  }
+  .copy-btn:active {
+    background: color-mix(in oklab, var(--color-note) 70%, var(--color-ivory));
+  }
+  .copy-control {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+  .copy-btn[data-state="copied"] {
+    border-color: var(--color-forest);
+    color: var(--color-forest);
+  }
+  .copy-btn[data-state="error"] {
+    border-color: var(--color-rust);
+    color: var(--color-rust);
+  }
+  .copy-fallback {
+    flex-basis: 100%;
+    font-size: var(--text-caption);
+    color: var(--color-navy-2);
+  }
+  .copy-fallback-value {
+    font-weight: 500;
+    color: var(--color-navy);
+    border-bottom: 1px solid var(--line);
+    -webkit-user-select: all;
+    user-select: all;
+    overflow-wrap: anywhere;
+  }
+  .copy-fallback-hint {
+    margin-left: 8px;
+    color: var(--color-ink-soft);
+  }
+
+  /* --- visual story: collage (note, paw, desk still life) · sticky · closing line --- */
+  .cx-collage {
+    position: relative;
+    pointer-events: none;
+  }
+  .cx-note {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    font-size: clamp(19px, 1.6vw, 23px);
+    line-height: 1.18;
+    color: var(--color-navy-2);
+    rotate: -2deg;
+  }
+  .cx-paw {
+    position: absolute;
+    right: -38px;
+    bottom: -6px;
+    width: 30px;
+    height: auto;
+    rotate: 16deg;
+    opacity: 0.92;
+  }
+  /* TASK-214 · the desk is generated paper-craft art (public/media/contact/, provenance in
+     docs/reports/TASK-214.md): two groups — envelope + postcard, then coffee + sticky — and one sprig.
+     Percent boxes inside a fixed-ratio container, so the sticky text scales with it (cqw). The cut-outs
+     carry no baked shadow; a drop-shadow off --shadow-ink gives the contact shadow in both themes. */
+  .cx-desk {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    aspect-ratio: 1 / 1.05;
+    margin-top: 22px;
+    container-type: inline-size;
+  }
+  .cx-art {
+    position: absolute;
+    display: block;
+    height: auto;
+    filter: drop-shadow(0 6px 7px color-mix(in oklab, var(--shadow-ink) 24%, transparent))
+      drop-shadow(0 1px 1.5px color-mix(in oklab, var(--shadow-ink) 28%, transparent));
+  }
+  .cx-art-mail {
+    left: 0;
+    top: 0;
+    width: 96%;
+  }
+  .cx-art-cup {
+    left: 20%;
+    top: 57%;
+    width: 48%;
+  }
+  .cx-art-sprig {
+    left: 0;
+    top: 53%;
+    width: 19%;
+    rotate: -6deg;
+  }
+  .cx-sticky.paper-sticky {
+    position: absolute;
+    right: 0;
+    top: 61%;
+    width: 44%;
+    padding: 7cqw 5cqw 4cqw;
+    font-size: clamp(16px, 5.4cqw, 25px);
+    line-height: 1.15;
+  }
+  .cx-sticky::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 30%;
+    width: 44%;
+    height: 20px;
+    background: var(--tape);
+    border: 1px solid var(--tape-border);
+    rotate: 3deg;
+  }
+  .cx-smile {
+    display: block;
+    width: 30px;
+    height: 16px;
+    margin: 6px 0 0 auto;
+    fill: none;
+    stroke: var(--color-navy-2);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+  .cx-closing.paper-annotation {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 30px;
+    padding-bottom: 12px;
+    font-size: clamp(20px, 1.7vw, 24px);
+    color: var(--color-navy-2);
+  }
+  .cx-stroke {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 88%;
+    height: 12px;
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 3;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+@media (max-width: 1023px) {
+    .cx-story {
+      max-width: 620px;
+    }
+    .cx-desk {
+      max-width: 460px;
+    }
+  }
+
+@media (max-width: 559px) {
+    .cx-paw {
+      right: -32px;
+    }
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .cx-grid[data-in] .cx-head,
+    .cx-grid[data-in] .cx-collage,
+    .cx-grid[data-in] .cx-closing {
+      transition:
+        opacity 460ms var(--ease-reveal),
+        translate 460ms var(--ease-reveal),
+        rotate 520ms var(--ease-reveal);
+    }
+    .cx-grid[data-in] .cx-card {
+      transition:
+        opacity 500ms var(--ease-reveal) 120ms,
+        translate 500ms var(--ease-reveal) 120ms;
+    }
+    .cx-grid[data-in] .cx-sticky {
+      transition:
+        opacity 380ms var(--ease-reveal) 320ms,
+        rotate 380ms var(--ease-reveal) 320ms;
+    }
+    .cx-grid[data-in] .cx-closing {
+      transition-delay: 240ms;
+    }
+    .cx-grid[data-armed]:not([data-in]) .cx-head {
+      opacity: 0;
+      translate: 0 10px;
+    }
+    .cx-grid[data-armed]:not([data-in]) .cx-collage {
+      opacity: 0;
+      rotate: -1.5deg;
+    }
+    .cx-grid[data-armed]:not([data-in]) .cx-card {
+      opacity: 0;
+      translate: 20px 0;
+    }
+    .cx-grid[data-armed]:not([data-in]) .cx-sticky {
+      opacity: 0;
+      rotate: calc(var(--rot, 0deg) + 1deg);
+    }
+    .cx-grid[data-armed]:not([data-in]) .cx-closing {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .cx-btn,
+    .cx-btn svg,
+    .cx-btn-arrow,
+    .cx-in,
+    .copy-btn {
+      transition: none;
+    }
+  }
+}
+
+@layer components {
+  .scene-opener-note .opener-quote {
+    position: absolute;
+    left: 21%;
+    top: 26%;
+    width: 32%;
+  }
+  .opener-quote {
+    margin: 0;
+    color: var(--color-navy);
+    font-family: var(--font-hand);
+    /* Rises left → right and leans forward, like a line dashed off at an angle. */
+    transform: rotate(-6deg) skewX(-8deg);
+    transform-origin: left center;
+  }
+  .opener-quote-text {
+    margin: 0;
+    /* 768 → 1.4 rem keeps the quote to two lines in the 32 % box (1.75 rem orphaned "it." on a third). */
+    font-size: clamp(1.4rem, 2.9vw, 3.6rem);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .opener-quote-text p {
+    margin: 0;
+  }
+  .opener-quote-by {
+    margin-top: 0.35em;
+    padding-left: 18%;
+    color: var(--color-rust);
+    font-size: clamp(1.25rem, 1.8vw, 2.2rem);
+    font-weight: 600;
+  }
+
+@media (max-width: 767px) {
+    .scene-opener-note .opener-quote {
+      left: 5%;
+      top: 10%;
+      width: 42%;
+    }
+    .opener-quote-text {
+      font-size: 5.3vw;
+    }
+    .opener-quote-by {
+      font-size: 4vw;
+    }
+  }
+}
+.cx-btn-secondary:focus-visible {
+  border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
+}
+.cx-btn-secondary:focus-visible {
+  background: var(--color-ivory);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cx-btn-secondary:hover {
+    border-color: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy));
+    background: var(--color-ivory);
+  }
+  }
+.cx-btn-secondary[data-link="linkedin"]:focus-visible .cx-in {
+  translate: 0 -1px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cx-btn-secondary[data-link="linkedin"]:hover .cx-in {
+    translate: 0 -1px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+/* ---- Contact: "Email me" in sequence: the button lifts 1 px (contract), the stamp wakes (lifts 2 px, rotates 1.5 deg
+     toward upright), then the arrow nudges 3 px, 120 ms late, so it reads object -> movement -> arrow. ---- */
+  .cx-stamp-wrap {
+    transition:
+      translate 500ms var(--ease-paper),
+      rotate 500ms var(--ease-paper);
+  }
+  .cx-card:has(.cx-btn-primary:focus-visible) .cx-stamp-wrap {
+    translate: 0 -2px;
+    rotate: 3.5deg;
+  }
+  .cx-btn-primary:focus-visible {
+    --arrow-x: 3px; /* TASK-323: the 3 px arrow nudge; the shared `:is(... .cx-btn ...)` rule that set it was deleted with TASK-211 */
+  }
+  .cx-btn-primary:focus-visible .cx-btn-arrow {
+    transition-delay: 120ms;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .cx-card:has(.cx-btn-primary:hover) .cx-stamp-wrap {
+      translate: 0 -2px;
+      rotate: 3.5deg;
+    }
+    .cx-btn-primary:hover {
+      --arrow-x: 3px;
+    }
+    .cx-btn-primary:hover .cx-btn-arrow {
+      transition-delay: 120ms;
+    }
+  }
+}

@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import "../../styles/home__work-slug.css";
+import "../../styles/work-slug.css";
+import "../../styles/home__projects__work-slug.css";
 import { notFound } from "next/navigation";
 import { ProgressBar } from "@/components/interactions/ProgressBar";
 import { getProject, projects } from "@/data/projects";

@@ -1,0 +1,4803 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: dev/portfolio-video, projects. */
+
+@layer components {
+/* --- shared paper materials (both sections) --- */
+  .pf-products,
+  .pf-enterprise {
+    --pf-contact: drop-shadow(0 1px 1px color-mix(in oklab, var(--color-navy) 16%, transparent));
+    --pf-ambient: drop-shadow(0 9px 11px color-mix(in oklab, var(--color-terracotta) 17%, transparent));
+    --pf-ambient-lg: drop-shadow(0 18px 20px color-mix(in oklab, var(--color-terracotta) 21%, transparent));
+    --pf-cream: color-mix(in oklab, var(--color-ivory) 68%, var(--color-note));
+    --pf-manila: color-mix(in oklab, var(--color-kraft) 58%, var(--color-ivory));
+    --pf-fibers: url("/media/portfolio/decor/paper-fibers.svg");
+    --pf-kraft-tex: url("/media/portfolio/decor/kraft.svg");
+    /* baked torn-edge masks (scripts/portfolio-art/decor.ts), each drawn at its layer's typical size */
+    --pf-tear-wide-a: url("/media/portfolio/decor/tear-wide-a.svg");
+    --pf-tear-wide-b: url("/media/portfolio/decor/tear-wide-b.svg");
+    --pf-tear-tall-a: url("/media/portfolio/decor/tear-tall-a.svg");
+    --pf-tear-tall-b: url("/media/portfolio/decor/tear-tall-b.svg");
+    --pf-tear-band-a: url("/media/portfolio/decor/tear-band-a.svg");
+    --pf-tear-band-b: url("/media/portfolio/decor/tear-band-b.svg");
+    --pf-tear-strip-a: url("/media/portfolio/decor/tear-strip-a.svg");
+    --pf-tear-strip-b: url("/media/portfolio/decor/tear-strip-b.svg");
+    --pf-tear-strip-c: url("/media/portfolio/decor/tear-strip-c.svg");
+    --pf-tear-chip: url("/media/portfolio/decor/tear-chip.svg");
+    --pf-tear-tape: url("/media/portfolio/decor/tear-tape.svg");
+    --pf-tear-tag: url("/media/portfolio/decor/tear-tag.svg");
+    --pf-tear-seam: url("/media/portfolio/decor/tear-seam.svg");
+  }
+
+  /* --- Section 1 --- */
+  .pf-products {
+    position: relative;
+    /* the kraft band and paper layers run past the content edges; the page never scrolls sideways */
+    overflow-x: clip;
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+  }
+  .pf-products-wrap {
+    position: relative;
+    padding-block: clamp(26px, 3.2vw, 48px) clamp(112px, 10vw, 176px);
+  }
+  .pf-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-terracotta);
+  }
+  .pf-intro {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  .pf-h1 {
+    font-size: clamp(1.875rem, 1.12rem + 1.9vw, 2.5rem);
+    font-weight: 650;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 96, "SOFT" 40;
+    text-wrap: balance;
+  }
+  .pf-h1-mark {
+    position: relative;
+    display: inline-block;
+  }
+  .pf-h1-mark .sketch {
+    position: absolute;
+    left: -2%;
+    bottom: -0.16em;
+    width: 104%;
+    height: 0.3em;
+  }
+  .pf-sub {
+    font-size: clamp(1rem, 0.94rem + 0.28vw, 1.125rem);
+    color: var(--color-navy-2);
+  }
+  .pf-feature {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: clamp(34px, 4vw, 48px);
+    align-items: start;
+  }
+
+@media (min-width: 1024px) {
+    .pf-intro {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .pf-feature {
+      grid-column: 1 / -1;
+      grid-row: 1 / 3;
+      grid-template-columns: subgrid;
+      grid-template-rows: subgrid;
+      row-gap: normal;
+      column-gap: normal;
+      /* the tabpanel box spans the intro's cell too: let the intro stay selectable */
+      pointer-events: none;
+    }
+    .pf-feature > * {
+      pointer-events: auto;
+    }
+  }
+  .pf-stage-backing,
+  .pf-stage-mat {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .pf-stage-backing {
+    z-index: -2;
+  }
+  .pf-stage-mat {
+    z-index: -1;
+  }
+  .pf-stage-backing::before,
+  .pf-stage-backing::after,
+  .pf-stage-mat::before,
+  .pf-stage-mat::after {
+    content: "";
+    position: absolute;
+  }
+  /* kraft backing: bigger, turned the other way, pushed down-left */
+  .pf-stage-backing::before {
+    inset: 22px -12px -24px -26px;
+    background-color: var(--color-kraft);
+    background-image: var(--pf-kraft-tex);
+    background-size: 360px 360px;
+    rotate: -1.4deg;
+    -webkit-mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+  }
+  /* the dark torn under-layer: shows as an irregular navy rim, top-right and bottom-left */
+  .pf-stage-backing::after {
+    inset: -9px -11px 10px 14px;
+    background-color: var(--color-navy-2);
+    rotate: 0.7deg;
+    -webkit-mask: var(--pf-tear-wide-b) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-wide-b) 0 0 / 100% 100% no-repeat;
+  }
+  /* the lighter fibre rim where the cream mat tore */
+  .pf-stage-mat::before {
+    inset: -3px;
+    background-color: var(--color-ivory);
+    scale: -1 1;
+    -webkit-mask: var(--pf-tear-wide-b) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-wide-b) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-stage-mat::after {
+    inset: 1px;
+    background-color: var(--pf-cream);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    scale: -1 -1;
+    -webkit-mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+  }
+  /* the mode label IS the tape: one translucent kraft strip across the mat's top-left corner */
+  .pf-stage-label {
+    position: absolute;
+    top: -14px;
+    left: clamp(16px, 3.6%, 40px);
+    z-index: 5;
+    isolation: isolate;
+    padding: 8px 24px 9px;
+    font-family: var(--font-hand);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-navy);
+    rotate: -5deg;
+    filter: var(--pf-contact);
+  }
+  .pf-stage-label::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: color-mix(in oklab, var(--color-kraft) 80%, transparent);
+    background-image: var(--pf-kraft-tex);
+    background-size: 360px 360px;
+    -webkit-mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
+  }
+  /* no recording yet: a small torn kraft tag pinned to the poster's lower-right corner, clear of the
+     lettering (never a dead play button) */
+  .pf-stage-tag {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
+    align-self: end;
+    justify-self: end;
+    margin: 0 clamp(10px, 1.6vw, 18px) clamp(10px, 1.6vw, 18px) 0;
+    padding: 7px 16px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-navy);
+    rotate: -2deg;
+    filter: var(--pf-contact) var(--pf-ambient);
+  }
+  .pf-stage-tag::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-kraft);
+    background-image: var(--pf-kraft-tex);
+    background-size: 360px 360px;
+    -webkit-mask: var(--pf-tear-tag) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-tag) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-stage-tag::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 35%, transparent) 0, transparent 42%),
+      var(--color-rust);
+    box-shadow: 0 2px 3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+  }
+
+  /* --- the collectible cover (thumb 5:6 + stage 16:9): one packaging grammar, distinct art --- */
+  .pf-cover {
+    /* lettering colours per product (defaults; `[data-product]` rules below override) */
+    --title: var(--color-ivory);
+    --extrude: var(--color-rust);
+    --shade: color-mix(in oklab, var(--color-navy) 70%, transparent);
+    --focus: 26.5%;
+    /* the name sizes against the cover itself (cqi), so it fits at every carousel/stage width */
+    container-type: inline-size;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: var(--title);
+    background: var(--color-navy);
+    border-radius: 4px;
+  }
+  .pf-cover-art {
+    position: absolute;
+    inset: 0;
+  }
+  .pf-cover-img {
+    object-fit: cover;
+    object-position: var(--focus) 50%;
+  }
+  /* printed-card chrome over the art: a fine screen-space halftone + an ivory keyline + a print sheen */
+  .pf-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background:
+      radial-gradient(color-mix(in oklab, var(--color-navy) 11%, transparent) 0.6px, transparent 0.9px) 0 0 / 4px 4px,
+      linear-gradient(160deg, color-mix(in oklab, var(--color-ivory) 14%, transparent), transparent 34%);
+    box-shadow:
+      inset 0 0 0 4px var(--color-ivory),
+      inset 0 0 0 5px color-mix(in oklab, var(--color-navy) 32%, transparent);
+    border-radius: inherit;
+  }
+  /* code chip (top-left, a printed label) */
+  .pf-cover-code {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    z-index: 4;
+    padding: 2px 6px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.25;
+    color: var(--color-ivory);
+    background: var(--color-navy);
+    border-radius: 2px;
+  }
+  /* title lettering (HTML over the art's calm top band) */
+  .pf-cover-title {
+    position: absolute;
+    inset: 15% 6% auto;
+    z-index: 4;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+  .pf-cover-name {
+    max-width: 100%;
+    font-family: var(--font-display);
+    /* ≈ 7.5 em for a 10-letter word ("TEACHSPARK") must fit the cover's content box: 12cqi keeps it
+       inside down to a 150 px cover; 14 px floor (EVAL-008). */
+    font-size: clamp(14px, 13cqi, 32px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--title);
+    text-shadow: 2px 2px 0 var(--extrude), 3px 3px 0 var(--shade);
+    text-wrap: balance;
+  }
+  .pf-cover[data-lettering="rounded"] .pf-cover-name {
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+  }
+  .pf-cover[data-lettering="slab"] .pf-cover-name {
+    font-size: clamp(14px, 12cqi, 30px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .pf-cover[data-lettering="script"] .pf-cover-name {
+    font-family: var(--font-hand);
+    font-size: clamp(16px, 17cqi, 42px);
+    font-weight: 700;
+    rotate: -4deg;
+  }
+  .pf-cover[data-lettering="block"] .pf-cover-name {
+    font-family: var(--font-body);
+    font-size: clamp(14px, 13cqi, 32px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: var(--color-note);
+    text-shadow: 2px 2px 0 var(--color-rust), 4px 4px 0 var(--shadow-ink);
+  }
+  .pf-cover[data-lettering="serif"] .pf-cover-name {
+    font-style: italic;
+    font-weight: 700;
+  }
+  .pf-cover[data-lettering="mono"] .pf-cover-name {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(14px, 11cqi, 28px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  /* per-product lettering (fill · extrude · shade), picked against each cover's calm top band */
+  .pf-cover[data-product="teachspark"] { --extrude: color-mix(in oklab, var(--color-rust) 72%, var(--color-note)); }
+  .pf-cover[data-product="railcite"] { --extrude: var(--color-rust); }
+  .pf-cover[data-product="velora"] { --extrude: color-mix(in oklab, var(--color-navy-2) 50%, var(--color-rust)); }
+  .pf-cover[data-product="nuptis"] { --extrude: var(--color-terracotta); }
+  .pf-cover[data-product="bhakti-vilas"] {
+    /* the only pale sky in the set: navy lettering on a light scrim */
+    --title: var(--color-navy);
+    --extrude: color-mix(in oklab, var(--color-rust) 55%, var(--color-note));
+    --shade: color-mix(in oklab, var(--color-ivory) 75%, transparent);
+    --scrim: color-mix(in oklab, var(--color-ivory) 45%, transparent);
+  }
+  .pf-cover[data-product="token-toli"] { --extrude: var(--color-green-2); }
+  .pf-cover[data-product="pratyasa"] { --extrude: var(--color-steel); }
+  .pf-cover[data-product="tegaki"] { --extrude: var(--color-rust); }
+  .pf-cover[data-product="dino-arcade-pwa"] { --title: var(--color-note); --extrude: var(--color-rust); }
+  .pf-cover[data-product="cinematic-portfolio"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
+  .pf-cover[data-product="campfire-board"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
+  .pf-cover[data-product="slag-city"] { --title: var(--color-note); --extrude: var(--color-rust); }
+  /* a plain navy night sky above the highway: amber lettering, like campfire-board (TASK-248) */
+  .pf-cover[data-product="urja"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
+  .pf-cover[data-product="shravans-round"] {
+    /* a plain cream wall above the room: navy lettering, like bhakti-vilas */
+    --title: var(--color-navy);
+    --extrude: var(--color-terracotta);
+    --shade: color-mix(in oklab, var(--color-ivory) 75%, transparent);
+    --scrim: color-mix(in oklab, var(--color-ivory) 45%, transparent);
+  }
+  /* stage poster: the same art, full 16:9; lettering centred in the calm top band */
+  .pf-cover[data-size="stage"] {
+    border-radius: 0;
+  }
+  .pf-cover[data-size="stage"]::after {
+    box-shadow: none;
+    background: radial-gradient(color-mix(in oklab, var(--color-navy) 9%, transparent) 0.6px, transparent 0.9px) 0 0 / 4px 4px;
+  }
+  .pf-cover[data-size="stage"] .pf-cover-code {
+    display: none;
+  }
+  .pf-cover[data-size="stage"] .pf-cover-img {
+    object-position: 50% 50%;
+  }
+  .pf-cover[data-size="stage"] .pf-cover-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, var(--scrim, color-mix(in oklab, var(--color-navy) 34%, transparent)) 0%, transparent 34%);
+  }
+  .pf-cover[data-size="stage"] .pf-cover-title {
+    inset: 7% 12% auto;
+    gap: 2px;
+  }
+  .pf-cover[data-size="stage"] .pf-cover-name {
+    font-size: clamp(24px, 7.6cqi, 84px);
+    text-shadow: 3px 3px 0 var(--extrude), 5px 5px 0 var(--shade);
+  }
+  .pf-cover[data-size="stage"][data-lettering="script"] .pf-cover-name {
+    font-size: clamp(28px, 9.4cqi, 104px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="mono"] .pf-cover-name,
+  .pf-cover[data-size="stage"][data-lettering="slab"] .pf-cover-name {
+    font-size: clamp(22px, 6.6cqi, 72px);
+  }
+  .pf-cover-sub {
+    position: relative;
+    padding: 0 4px 6px;
+    font-family: var(--font-hand);
+    font-size: clamp(18px, 2.9cqi, 32px);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--title);
+    text-shadow: 1px 1px 0 var(--shade);
+  }
+  /* a rust marker swipe under the cover line */
+  .pf-cover-sub::after {
+    content: "";
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 0;
+    height: 4px;
+    background: var(--color-rust);
+    border-radius: 3px 1px 4px 2px;
+    rotate: -1.2deg;
+  }
+  .pf-info-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .pf-info-code {
+    color: var(--color-navy-2);
+    font-weight: 700;
+  }
+  .pf-info-name {
+    position: relative;
+    align-self: start;
+    margin-top: 10px;
+    padding-right: 26px;
+    font-size: clamp(2.25rem, 1.5rem + 1.7vw, 3.25rem);
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+  }
+  /* a small rust spark beside the name (the sheet's one doodle) */
+  .pf-info-name::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 0;
+    width: 22px;
+    height: 22px;
+    background: var(--color-rust);
+    clip-path: polygon(50% 0, 60% 38%, 100% 50%, 60% 62%, 50% 100%, 40% 62%, 0 50%, 40% 38%);
+    rotate: 10deg;
+  }
+  .pf-info-tagline {
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1rem + 0.45vw, 1.4rem);
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-terracotta);
+  }
+  .pf-info-desc {
+    max-width: 46ch;
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  .pf-actions {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 20px 0 0;
+    list-style: none;
+  }
+  .pf-actions:empty {
+    padding: 0;
+  }
+  /* a torn paper strip: the tear is a filtered ::before, so text + focus outline stay crisp */
+  .pf-action {
+    --pf-strip: var(--strip-sage);
+    --pf-strip-ink: var(--color-green-2);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 50px;
+    padding: 6px 16px 6px 7px;
+    text-align: left;
+    color: var(--color-navy);
+    text-decoration: none;
+    filter: var(--pf-contact) drop-shadow(0 4px 5px color-mix(in oklab, var(--color-terracotta) 14%, transparent));
+    /* hover/focus/press and the transition: the TASK-181 block; the filter is static (EXE-61) */
+  }
+  .pf-action::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--pf-strip);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: var(--pf-tear-strip-a) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-strip-a) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-actions li:nth-child(3n + 2) .pf-action::before {
+    -webkit-mask: var(--pf-tear-strip-b) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-strip-b) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-actions li:nth-child(3n) .pf-action::before,
+  .pf-case-link.pf-action::before {
+    -webkit-mask: var(--pf-tear-strip-c) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-strip-c) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-actions li:nth-child(odd) .pf-action {
+    rotate: -0.4deg;
+  }
+  .pf-actions li:nth-child(even) .pf-action {
+    rotate: 0.3deg;
+    margin-left: 5px;
+    width: calc(100% - 5px);
+  }
+  .pf-actions li:nth-child(3n) .pf-action {
+    margin-left: 2px;
+    width: calc(100% - 4px);
+  }
+  .pf-action-icon {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 38px;
+    color: var(--color-ivory);
+  }
+  .pf-action-icon::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--pf-strip-ink);
+    -webkit-mask: var(--pf-tear-chip) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-chip) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-action-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-action-label {
+    min-width: 0;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .pf-action-arrow {
+    width: 18px;
+    height: 18px;
+  }
+  .pf-action[data-action="pitch"] { --pf-strip: var(--strip-coral); --pf-strip-ink: var(--color-terracotta); }
+  .pf-action[data-action="demo"] { --pf-strip: var(--strip-blue); --pf-strip-ink: color-mix(in oklab, var(--color-steel) 70%, var(--color-navy)); }
+  .pf-action[data-action="product"] { --pf-strip: var(--strip-sage); --pf-strip-ink: var(--color-green-2); }
+  .pf-action[data-action="github"] { --pf-strip: var(--strip-lavender); --pf-strip-ink: color-mix(in oklab, color-mix(in oklab, var(--color-steel) 60%, var(--color-rust)) 70%, var(--color-navy)); }
+  .pf-action[data-action="prd"] { --pf-strip: var(--strip-yellow); --pf-strip-ink: color-mix(in oklab, var(--color-rust) 60%, var(--color-kraft)); }
+  .pf-action[data-action="case"] { --pf-strip: color-mix(in oklab, var(--color-kraft) 62%, var(--color-ivory)); --pf-strip-ink: var(--color-terracotta); }
+  /* pressed (current media mode): a deeper strip + a hand-underline — never colour alone */
+  .pf-action[aria-pressed="true"]::before {
+    background-color: color-mix(in oklab, var(--pf-strip) 72%, var(--pf-strip-ink));
+  }
+  .pf-action[aria-pressed="true"] .pf-action-label {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  /* the case study: the stack's last strip, in kraft, with its own small gap */
+  .pf-case-link.pf-action {
+    grid-template-columns: auto minmax(0, 1fr);
+    margin-top: 9px;
+    rotate: 0.35deg;
+  }
+  .pf-actions:empty + .pf-case-link.pf-action {
+    margin-top: 11px;
+  }
+  .pf-case-link .pf-action-label {
+    color: var(--color-terracotta);
+  }
+  /* the label: a small torn cream tag on the band */
+  .pf-carousel-tag {
+    grid-area: tag;
+    position: relative;
+    isolation: isolate;
+    justify-self: start;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 14px 7px;
+    rotate: -1.2deg;
+    filter: var(--pf-contact) var(--pf-ambient);
+  }
+  .pf-carousel-tag::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--pf-cream);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: var(--pf-tear-tag) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-tag) 0 0 / 100% 100% no-repeat;
+  }
+
+@media (min-width: 1024px) {
+    .pf-carousel-tag {
+      margin: 0 0 -6px clamp(58px, 5.2vw, 76px);
+      z-index: 2;
+    }
+  }
+  .pf-select {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--color-navy);
+  }
+  .pf-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--color-terracotta);
+  }
+  /* hand-cut paper arrow tabs */
+  .pf-arrow {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    color: var(--color-navy);
+    background: none;
+    border: 0;
+    filter: var(--pf-contact) var(--pf-ambient);
+    /* transition + hover/focus nudge: the TASK-181 block */
+  }
+  .pf-arrow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--pf-cream);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: var(--pf-tear-chip) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-chip) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-arrow[data-dir="prev"] {
+    grid-area: prev;
+    rotate: -2deg;
+  }
+  .pf-arrow[data-dir="next"] {
+    grid-area: next;
+    rotate: 2.5deg;
+  }
+  .pf-arrow svg {
+    width: 24px;
+    height: 24px;
+  }
+
+@media (min-width: 1024px) {
+    .pf-arrow {
+      width: 46px;
+      height: 68px;
+    }
+  }
+  .pf-track {
+    --pf-gap: clamp(14px, 1.4vw, 20px);
+    --pf-thumb-w: 52%;
+    grid-area: track;
+    display: flex;
+    gap: var(--pf-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    padding: 28px 14px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--color-navy-2) 55%, transparent) transparent;
+  }
+
+@media (min-width: 640px) {
+    .pf-track {
+      --pf-thumb-w: 34%;
+    }
+  }
+
+@media (min-width: 768px) {
+    .pf-track {
+      --pf-thumb-w: 27%;
+    }
+  }
+
+@media (min-width: 1024px) {
+    .pf-track {
+      --pf-thumb-w: calc((100% - 4 * var(--pf-gap)) / 5);
+    }
+  }
+
+@media (min-width: 1280px) {
+    .pf-track {
+      --pf-thumb-w: calc((100% - 5 * var(--pf-gap)) / 6);
+    }
+  }
+  /* controlled irregularity: covers sit between −0.8° and +0.8° */
+  .pf-thumb:nth-child(4n + 1) { --pf-tilt: -0.7deg; }
+  .pf-thumb:nth-child(4n + 2) { --pf-tilt: 0.5deg; }
+  .pf-thumb:nth-child(4n + 3) { --pf-tilt: -0.25deg; }
+  .pf-thumb:nth-child(4n + 4) { --pf-tilt: 0.8deg; }
+  .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
+    content: "";
+    position: absolute;
+    inset: -13px;
+    z-index: 5;
+    border: 16px solid transparent;
+    border-image: url("/media/portfolio/decor/select-frame.svg") 32 / 16px / 0 stretch;
+    pointer-events: none;
+  }
+  .pf-thumb:is([aria-selected="true"], [data-current="true"])::before {
+    content: "";
+    position: absolute;
+    top: -13px;
+    left: 18%;
+    z-index: 6;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 35%, transparent) 0, transparent 42%),
+      var(--color-steel);
+    box-shadow: 0 3px 4px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+    pointer-events: none;
+  }
+
+  /* --- Section 2: the enterprise chapter — a layered torn seam onto ruled dossier paper --- */
+  .pf-enterprise {
+    position: relative;
+    overflow-x: clip;
+    background-color: var(--color-paper-2);
+    background-image: var(--pf-fibers), repeating-linear-gradient(0deg, transparent 0 31px, var(--rule-blue) 31px 32px);
+    background-size: 420px 420px, auto;
+  }
+  /* the second, lighter page edge showing above the paper-2 tear (a physical chapter break) */
+  .pf-enterprise::before {
+    content: "";
+    position: absolute;
+    top: -68px;
+    left: -3%;
+    right: -3%;
+    height: 60px;
+    z-index: 0;
+    background-color: color-mix(in oklab, var(--color-kraft) 42%, var(--color-ivory));
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    rotate: -0.5deg;
+    -webkit-mask: var(--pf-tear-seam) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-seam) 0 0 / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+  .pf-enterprise > [data-decor="torn"] {
+    position: absolute;
+    top: -43px;
+    left: 0;
+    z-index: 1;
+  }
+  .pf-ent-wrap {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: clamp(44px, 4.6vw, 64px);
+    padding-block: clamp(60px, 6.4vw, 104px) clamp(88px, 8vw, 132px);
+  }
+  .pf-ent-intro {
+    position: relative;
+    display: grid;
+    gap: 8px;
+  }
+  .pf-ent-intro .pf-eyebrow {
+    color: var(--color-green-2);
+  }
+  .pf-ent-h {
+    font-size: clamp(1.75rem, 1.1rem + 1.8vw, 2.625rem);
+    font-weight: 650;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+    text-wrap: balance;
+  }
+  .pf-ent-sub {
+    max-width: 62ch;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    color: var(--color-navy-2);
+  }
+
+@media (min-width: 1024px) {
+    .pf-ent-intro {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: clamp(24px, 4vw, 64px);
+    }
+    .pf-ent-intro > * {
+      grid-column: 1;
+    }
+  }
+  .pf-cases {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(52px, 4.8vw, 64px) clamp(28px, 3vw, 44px);
+    margin: 0;
+    padding: 24px 0 0;
+    list-style: none;
+  }
+
+@media (min-width: 768px) {
+    .pf-cases {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+@media (min-width: 1024px) {
+    .pf-cases {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .pf-case-streams {
+    /* TASK-132: one sub-project per line (a wrapping row put short items side by side). */
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    margin: 4px 0 0;
+    padding: 8px 0 0;
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--color-navy);
+    border-top: 1px dashed var(--line-sketch);
+  }
+  .pf-case-streams li {
+    position: relative;
+    padding-left: 12px;
+  }
+  .pf-case-streams li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-steel);
+  }
+  .pf-case-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+    gap: 6px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-case-tags li {
+    padding: 2px 9px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--color-navy);
+    background: var(--color-paper-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+  }
+
+@media (max-width: 639px) {
+    .pf-stage-backing::before {
+      inset: 12px -6px -12px -10px;
+      rotate: -0.8deg;
+    }
+    .pf-stage-backing::after {
+      display: none;
+    }
+    .pf-stage-label {
+      font-size: 19px;
+      padding: 7px 18px 8px;
+    }
+    .pf-stage-tag {
+      margin: 0 8px 8px 0;
+      padding: 4px 10px 5px;
+    }
+    .pf-cover[data-size="stage"] .pf-cover-title {
+      inset: 6% 6% auto;
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .pf-track {
+      scroll-behavior: auto;
+    }
+  }
+}
+.pf-arrow {
+  transition: translate var(--dur-l1) var(--ease-l1);
+}
+
+/* ---- .pf-action (a torn strip whose silhouette needs a filter): the filter stays STATIC; the hover shadow is a pseudo-element
+   with the strip's own mask whose opacity crossfades (EXE-61) ---- */
+.pf-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-color: color-mix(in oklab, var(--color-terracotta) 34%, transparent);
+  -webkit-mask: var(--pf-tear-strip-a) 0 0 / 100% 100% no-repeat;
+  mask: var(--pf-tear-strip-a) 0 0 / 100% 100% no-repeat;
+  filter: blur(5px);
+  translate: 2px 5px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-l1-out) var(--ease-l1);
+}
+.pf-actions li:nth-child(3n + 2) .pf-action::after {
+  -webkit-mask: var(--pf-tear-strip-b) 0 0 / 100% 100% no-repeat;
+  mask: var(--pf-tear-strip-b) 0 0 / 100% 100% no-repeat;
+}
+.pf-actions li:nth-child(3n) .pf-action::after,
+.pf-case-link.pf-action::after {
+  -webkit-mask: var(--pf-tear-strip-c) 0 0 / 100% 100% no-repeat;
+  mask: var(--pf-tear-strip-c) 0 0 / 100% 100% no-repeat;
+}
+.pf-action:active::after {
+  opacity: 0.3;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pf-thumb:not([aria-selected="true"]):hover {
+    translate: 0 -4px;
+    transition-duration: var(--dur-l2);
+  }
+  .pf-thumb:hover .pf-cover-name {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .pf-thumb:not([aria-selected="true"]):hover:active {
+    translate: 0 -2px;
+    transition-duration: var(--dur-press);
+  }
+}
+.pf-thumb:not([aria-selected="true"]):focus-visible {
+  translate: 0 -4px;
+  transition-duration: var(--dur-l2);
+}
+.pf-thumb:focus-visible .pf-cover-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .pf-thumb:not([aria-selected="true"]):active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+/* === end TASK-186 / P2 === */
+
+/* ---- /projects carousel + selected-project detail (TASK-197; Tushar's "Carousel V2" spec, 2026-10-12) ----
+   DOM: intro → carousel → panel (stage, sheet). ≥ 1024 places everything by grid row, so the desktop spread is the same;
+   below 1024 the explorer is recomposed into ONE phone screen: counter + carousel (arrows overlaid on the neighbours),
+   details (code · status, name, tagline, 2-line description), the 16:9 pitch video, then the actions as a 2 × 2 grid.
+   `.pf-info` is `display: contents` there so its head, the strips and the case study become the panel grid's items;
+   the head carries its own small torn sheet. Hover stays under (hover: hover) and (pointer: fine) (the block above). */
+.pf-action-set {
+  display: contents;
+}
+.pf-info-head {
+  display: contents;
+}
+/* the active cover is the biggest and sharpest; its neighbours sit slightly back (a static scale ≤ 1, never a hover) */
+.pf-thumb {
+  scale: 0.94;
+  transform-origin: 50% 70%;
+}
+.pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pf-thumb {
+    transition:
+      translate var(--dur-l2-out) var(--ease-paper),
+      scale var(--dur-l2-out) var(--ease-paper);
+  }
+}
+.pf-count {
+  font-size: 15px;
+}
+
+@media (max-width: 1023px) {
+  .pf-carousel-tag {
+    justify-self: stretch;
+    justify-content: space-between;
+    padding: 4px 14px 5px;
+    rotate: -0.6deg;
+  }
+  .pf-arrow {
+    position: absolute;
+    top: calc(50% + 14px);
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    translate: 0 -50%;
+  }
+  .pf-arrow[data-dir="prev"] {
+    left: 2px;
+  }
+  .pf-arrow[data-dir="next"] {
+    right: 2px;
+  }
+  .pf-track {
+    --pf-thumb-w: min(46%, 168px);
+    padding: 18px 14px 10px;
+  }
+
+  /* the panel: details → video → actions */
+  .pf-feature {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pf-info-head {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    position: relative;
+    isolation: isolate;
+    display: block;
+    padding: 14px 18px 16px;
+    filter: var(--pf-contact) var(--pf-ambient);
+  }
+  .pf-info-head::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-ivory);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    -webkit-mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+    mask: var(--pf-tear-wide-a) 0 0 / 100% 100% no-repeat;
+  }
+  .pf-info-meta {
+    letter-spacing: 0.02em;
+  }
+  .pf-info-name {
+    margin-top: 4px;
+    padding-right: 0;
+    font-size: 2rem;
+  }
+  .pf-info-tagline {
+    margin-top: 3px;
+    font-size: 1.1rem;
+  }
+  .pf-info-desc {
+    margin-top: 6px;
+    font-size: 15px;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .pf-stage.paper-sheet {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    width: min(100%, 260px);
+  }
+  .pf-action-set {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .pf-actions {
+    display: contents;
+  }
+  .pf-actions > li {
+    display: contents;
+  }
+  .pf-action-set .pf-action,
+  .pf-action-set .pf-case-link.pf-action {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 48px;
+    margin: 0;
+    width: 100%;
+    padding: 4px 10px 4px 5px;
+    rotate: none;
+  }
+  .pf-action-set .pf-action-label {
+    font-size: 15px;
+  }
+  .pf-action-set .pf-action-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .pf-action-set .pf-case-link {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  /* "Read the case study →" reads "Case study" + the strip's arrow; the full name stays for assistive tech */
+  .pf-case-lead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pf-case-name {
+    display: inline-block;
+  }
+  .pf-case-name::first-letter {
+    text-transform: uppercase;
+  }
+  .pf-action-set[data-odd] .pf-case-link {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 639px) {
+/* the poster is narrower here (≤ 280 px): the lettering scales with it (still ≥ 16 px, inside the cover) */
+  .pf-cover[data-size="stage"] .pf-cover-name {
+    font-size: clamp(16px, 7.6cqi, 84px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="script"] .pf-cover-name {
+    font-size: clamp(18px, 9.4cqi, 104px);
+  }
+  .pf-cover[data-size="stage"][data-lettering="mono"] .pf-cover-name,
+  .pf-cover[data-size="stage"][data-lettering="slab"] .pf-cover-name {
+    font-size: clamp(16px, 6.6cqi, 72px);
+  }
+  .pf-products-wrap {
+    padding-block: 14px 96px;
+  }
+  .pf-intro {
+    gap: 2px;
+  }
+  .pf-h1 {
+    font-size: 1.2rem;
+    line-height: 1.15;
+  }
+  .pf-intro .pf-eyebrow,
+  .pf-sub {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) and (max-height: 720px) {
+  .pf-stage.paper-sheet {
+    width: min(100%, 200px);
+  }
+  .pf-track {
+    --pf-thumb-w: min(38%, 136px);
+    padding-block: 12px 8px;
+  }
+  .pf-info-desc {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .pf-stage.paper-sheet {
+    width: min(100%, 460px);
+  }
+}
+/* === end TASK-181.3 === */
+
+/* === TASK-204 · Enterprise Field Journal (EXE-80) ================================================================
+   Six paper-craft case cards over the dossier paper. Everything is scoped to `.ee-*`. Motion is `translate`, `rotate`,
+   `opacity` and `stroke-dashoffset` only: the hover never transitions `box-shadow` or `filter` (a pre-rendered shade
+   crossfades by opacity), every hover has a focus-visible twin and sits in (hover: hover) and (pointer: fine); touch gets
+   :active; the signature plays once per activation (`data-play` on the item, set and cleared by the component) and under
+   reduced motion nothing moves — the active state (pin, outline, label) stays. */
+.ee-journal {
+  --ee-edge: color-mix(in oklab, var(--color-navy) 22%, transparent);
+  --ee-stage: color-mix(in oklab, var(--color-kraft) 24%, var(--color-paper-2));
+  --ee-grid-line: color-mix(in oklab, var(--color-steel) 16%, transparent);
+}
+[data-theme="dark"] .ee-journal {
+  --ee-stage: color-mix(in oklab, var(--color-paper) 70%, var(--color-ivory));
+}
+
+/* --- the cover: category tab, heading, lede, description, a paper still life on wide screens --- */
+.ee-cover {
+  align-items: start;
+}
+.ee-tab {
+  justify-self: start;
+  padding: 6px 14px 7px;
+  margin-bottom: 6px;
+  background-color: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
+  border-radius: 4px 8px 0 0;
+  color: var(--color-navy);
+  box-shadow: inset 0 -2px 0 var(--color-terracotta);
+}
+.ee-lede {
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  font-weight: 560;
+  line-height: 1.3;
+  color: var(--color-navy);
+}
+.ee-cover-art {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .ee-cover {
+    grid-template-columns: minmax(0, 1fr) clamp(220px, 28vw, 340px);
+    column-gap: clamp(24px, 4vw, 64px);
+  }
+  .pf-enterprise .ee-cover > :not(.ee-cover-art) {
+    grid-column: 1;
+  }
+  .pf-enterprise .ee-cover .ee-cover-art {
+    position: relative;
+    display: block;
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    align-self: center;
+    aspect-ratio: var(--ar);
+    margin-block: -10px -18px;
+  }
+  .ee-cover-art .ee-img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* --- grid: 3 / 2 / 1; an open case file spans the row (a layout change on activation, never animated) --- */
+.ee-grid {
+  gap: clamp(28px, 3vw, 40px) clamp(24px, 2.6vw, 36px);
+  padding-top: 8px;
+}
+.ee-item {
+  display: grid;
+  min-width: 0;
+}
+.ee-item[data-open] {
+  grid-column: 1 / -1;
+}
+
+/* --- the card: a paper artifact (cream sheet, visible thickness, a kraft number tab, a folded corner) --- */
+.ee-card.paper-sheet {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  padding: 0;
+  background-color: var(--color-ivory);
+  background-image: var(--pf-fibers);
+  background-size: 420px 420px;
+  border: 1px solid var(--ee-edge);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--color-kraft) 70%, transparent),
+    0 3px 0 -1px color-mix(in oklab, var(--color-kraft) 45%, var(--color-ivory)),
+    0 8px 14px -8px color-mix(in oklab, var(--shadow-ink) 28%, transparent);
+  transition: translate 240ms var(--ease-paper);
+}
+.ee-card.paper-sheet::after {
+  /* the folded top-right corner: a lighter flap over a notch of the page behind */
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(225deg, var(--color-paper-2) 50%, color-mix(in oklab, var(--color-kraft) 60%, var(--color-ivory)) 50%);
+  border-bottom-left-radius: 4px;
+  pointer-events: none;
+}
+/* the active outline (border colour, not a shadow) */
+.ee-card.paper-sheet::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  border: 2px solid var(--color-terracotta);
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+}
+.ee-item[data-open] .ee-card.paper-sheet::before {
+  opacity: 1;
+}
+.ee-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow:
+    0 2px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
+    0 18px 22px -10px color-mix(in oklab, var(--color-terracotta) 38%, transparent);
+  transition: opacity 240ms var(--ease-paper);
+}
+/* a small paper pin that marks the open case file */
+.ee-pin {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--color-terracotta) 55%, white), var(--color-terracotta) 62%);
+  border-radius: 50%;
+  opacity: 0;
+  scale: 0.8;
+  pointer-events: none;
+  transition:
+    opacity 180ms var(--ease-paper),
+    scale 180ms var(--ease-paper);
+}
+.ee-item[data-open] .ee-pin {
+  opacity: 1;
+  scale: 1;
+}
+
+.ee-face {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+}
+.ee-num {
+  position: absolute;
+  top: 0;
+  left: 14px;
+  z-index: 3;
+  padding: 6px 12px 7px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--color-terracotta);
+  background-color: color-mix(in oklab, var(--color-kraft) 55%, var(--color-ivory));
+  border-radius: 0 0 6px 6px;
+}
+.ee-num-label {
+  color: var(--color-navy-2);
+  font-weight: 600;
+}
+
+/* --- the stage: the miniature on its own paper surface, over a faint blueprint grid --- */
+.ee-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  container-type: size;
+  margin: 8px 8px 0;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--ee-stage);
+  background-image:
+    linear-gradient(var(--ee-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--ee-grid-line) 1px, transparent 1px),
+    radial-gradient(120% 90% at 22% 12%, color-mix(in oklab, var(--color-ivory) 70%, transparent), transparent 62%);
+  background-size: 24px 24px, 24px 24px, auto;
+  box-shadow: inset 0 0 0 1px var(--ee-edge);
+}
+.ee-art {
+  position: relative;
+  width: min(92cqw, 92cqh * var(--ar));
+  aspect-ratio: var(--ar);
+  /* pre-rendered contact shadow under the whole model: static */
+  transform-origin: 50% 100%;
+}
+.ee-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.ee-d {
+  display: none;
+}
+[data-theme="dark"] .ee-l {
+  display: none;
+}
+[data-theme="dark"] .ee-d {
+  display: block;
+}
+.ee-part {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: translate 240ms var(--ease-paper);
+}
+.ee-part .ee-img {
+  position: absolute;
+}
+.ee-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.ee-wires path {
+  fill: none;
+  stroke: var(--color-terracotta);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+.ee-mark {
+  position: absolute;
+  border: 2px solid var(--color-terracotta);
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- the face text --- */
+.ee-body {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 14px 18px 16px;
+}
+.ee-client {
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  font-weight: 620;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+.ee-program {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--color-green-2);
+}
+.ee-scope {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-navy-2);
+}
+.ee-open {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  min-height: 44px;
+  margin: 8px 0 0 -4px;
+  padding: 6px 10px 6px 4px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--color-navy);
+  background: none;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-terracotta) 70%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+/* the whole face is the target: the button's box stretches over art and text (the dossier below is not covered) */
+.ee-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.ee-open-arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-ivory);
+  background: var(--color-navy);
+  border-radius: 50%;
+  line-height: 1;
+  transition: translate 180ms var(--ease-paper);
+}
+.ee-open:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+}
+.ee-item[data-open] .ee-open {
+  text-decoration-color: var(--color-terracotta);
+}
+
+/* --- the open dossier (State E): the record, in plain text, beside the art on wide screens --- */
+.ee-dossier {
+  display: grid;
+  gap: 8px;
+  padding: 6px 18px 20px;
+  border-top: 1px dashed var(--line-sketch);
+  margin: 0 8px;
+  padding-inline: 10px;
+}
+.ee-dossier[hidden] {
+  display: none;
+}
+.ee-role {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-ink-soft);
+  padding-top: 12px;
+}
+.ee-kicker,
+.ee-sub {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+}
+.ee-sub {
+  margin-top: 6px;
+}
+.ee-summary {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-navy-2);
+  max-width: 62ch;
+}
+.ee-streams {
+  border-top: 0;
+  padding-top: 0;
+  gap: 8px;
+}
+.ee-streams li {
+  display: grid;
+  gap: 1px;
+  padding-left: 14px;
+}
+.ee-streams li strong {
+  font-weight: 650;
+}
+.ee-streams li span {
+  color: var(--color-navy-2);
+}
+.ee-tags {
+  margin-top: 0;
+}
+.ee-concept {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-ink-soft);
+}
+
+@media (min-width: 1024px) {
+  .ee-item[data-open] .ee-card.paper-sheet {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+  .ee-item[data-open] .ee-dossier {
+    border-top: 0;
+    border-left: 1px dashed var(--line-sketch);
+    margin: 14px 18px 14px 0;
+    padding: 4px 6px 6px 22px;
+  }
+  .ee-item[data-open] .ee-role {
+    padding-top: 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ee-card.paper-sheet:hover {
+    translate: 0 -4px;
+  }
+  .ee-card.paper-sheet:hover .ee-shade {
+    opacity: 1;
+  }
+  .ee-card:hover .ee-part[data-hover] {
+    translate: 0 calc(var(--dy) * 0.4);
+  }
+  .ee-card:hover .ee-open-arrow {
+    translate: 3px 0;
+  }
+}
+.ee-card.paper-sheet:focus-within:has(:focus-visible) {
+  translate: 0 -4px;
+}
+.ee-card.paper-sheet:focus-within:has(:focus-visible) .ee-shade {
+  opacity: 1;
+}
+.ee-card:focus-within:has(:focus-visible) .ee-part[data-hover] {
+  translate: 0 calc(var(--dy) * 0.4);
+}
+.ee-card:focus-within:has(:focus-visible) .ee-open-arrow {
+  translate: 3px 0;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ee-card.paper-sheet:active {
+    translate: 0 1px;
+    transition-duration: var(--dur-press);
+  }
+}
+
+/* --- the signatures: one 900 ms ride per layer, staggered by `--d`; connectors draw and rest; marks appear and fade --- */
+@keyframes ee-ride {
+  0% {
+    translate: 0 0;
+  }
+  42% {
+    translate: var(--dx) var(--dy);
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes ee-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  55% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes ee-mark {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ee-item[data-play] .ee-part {
+    animation: ee-ride 900ms var(--ease-paper) var(--d) both;
+  }
+  .ee-item[data-play] .ee-wires path {
+    animation: ee-draw 1000ms var(--ease-paper) var(--d) both;
+  }
+  .ee-item[data-play] .ee-mark {
+    animation: ee-mark 900ms ease-out var(--d) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ee-card.paper-sheet,
+  .ee-card.paper-sheet:hover,
+  .ee-card.paper-sheet:focus-within:has(:focus-visible),
+  .ee-card.paper-sheet:active,
+  .ee-part,
+  .ee-open-arrow,
+  .ee-pin,
+  .ee-shade {
+    transition: none;
+  }
+  :root .ee-card.paper-sheet:is(:hover, :active, :focus-within:has(:focus-visible)),
+  :root .ee-card:is(:hover, :focus-within:has(:focus-visible)) .ee-part[data-hover],
+  :root .ee-card:is(:hover, :focus-within:has(:focus-visible)) .ee-open-arrow {
+    translate: none;
+  }
+}
+.m-solid {
+  background: var(--color-ivory);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent);
+}
+/* end TASK-211 */
+
+/* === TASK-210 === */
+/* ==========================================================================================================================
+   TASK-210 · Mobile Portfolio listing + project detail (concept board "Premium Origami Mobile App Showcase", screens 3–4).
+   Phone only (< 640 px): every rule that changes the page is inside the media query below, and every phone-only block is
+   `display: none` here, so >= 640 px is the unchanged desktop/tablet design. The listing and the detail are one page
+   (`/projects`, see IndependentProductsShowcase): `[data-view]` on `.pf-showcase` follows the URL (`?product=` → detail).
+   Surfaces reuse TASK-205's: .m-float (cards), .m-solid (outcomes / empty state). Colours are the flipping tokens only.
+   ========================================================================================================================== */
+.pf-m-list,
+.pf-m-bar,
+.pf-m-detail-tags,
+.pf-m-actions,
+.pf-m-outcomes,
+.pf-m-novideo {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .pf-showcase[data-view="list"] .pf-intro .pf-sub {
+    display: block;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--color-navy-2);
+  }
+  .pf-showcase[data-view="list"] .pf-h1 {
+    font-size: 1.75rem;
+    line-height: 1.1;
+  }
+  .pf-showcase[data-view="list"] .pf-intro {
+    gap: 6px;
+  }
+
+  /* ---- filter chips: one scrolling row; each chip is a 44 px target drawing a 36 px pill ---- */
+  .pf-m-filters {
+    display: flex;
+    gap: 2px;
+    margin-inline: calc(-1 * var(--pf-m-edge));
+    padding-inline: calc(var(--pf-m-edge) - 4px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .pf-m-filters::-webkit-scrollbar {
+    display: none;
+  }
+  .pf-m-chip {
+    position: relative;
+    flex: none;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 0;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-navy);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pf-m-chip::before {
+    content: "";
+    position: absolute;
+    inset: 4px 4px;
+    z-index: -1;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--color-ivory);
+    transition:
+      background-color 160ms var(--ease-l1),
+      border-color 160ms var(--ease-l1);
+  }
+  .pf-m-chip[aria-pressed="true"] {
+    color: var(--pf-m-on-accent);
+  }
+  .pf-m-chip[aria-pressed="true"]::before {
+    border-color: transparent;
+    background: var(--color-rust);
+  }
+  .pf-m-chip:not([aria-pressed="true"]):active::before {
+    background: color-mix(in oklab, var(--color-navy) 8%, var(--color-ivory));
+  }
+  .pf-m-chip-sep {
+    flex: none;
+    align-self: center;
+    width: 1px;
+    height: 20px;
+    margin-inline: 6px;
+    background: var(--line-strong);
+  }
+  .pf-m-count {
+    margin: 4px 0 10px;
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+
+  /* ---- cards ---- */
+  .pf-m-cards {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-m-art {
+    position: relative;
+    display: block;
+    width: 84px;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-navy-2);
+    /* a thin offset sheet under the print (paper layering) */
+    box-shadow:
+      3px 3px 0 -0.5px color-mix(in oklab, var(--color-kraft) 62%, var(--color-ivory)),
+      0 0 0 1px color-mix(in oklab, var(--color-navy) 14%, transparent);
+  }
+  .pf-m-art-img {
+    object-fit: cover;
+    object-position: 26.5% 50%;
+  }
+  .pf-m-body {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .pf-m-name {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 650;
+    line-height: 1.15;
+    font-variation-settings: "opsz" 48, "SOFT" 30;
+    overflow-wrap: anywhere;
+  }
+  .pf-m-line {
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--color-navy-2);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .pf-m-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 3px;
+  }
+  .pf-m-tag,
+  .pf-m-detail-tags li {
+    padding: 2px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-navy) 5%, var(--color-ivory));
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-navy-2);
+    white-space: nowrap;
+  }
+  .pf-m-chev {
+    width: 22px;
+    height: 22px;
+    color: var(--color-ink-soft);
+  }
+  .pf-m-empty {
+    padding: 22px 18px;
+    text-align: center;
+  }
+  .pf-m-empty-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 650;
+  }
+  .pf-m-empty-hint {
+    margin: 6px 0 14px;
+    font-size: 15px;
+    color: var(--color-navy-2);
+  }
+  .pf-m-clear {
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--color-ivory);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-navy);
+    cursor: pointer;
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .pf-m-cards,
+    .pf-m-empty {
+      animation: pf-m-in 200ms var(--ease-l1) both;
+    }
+  }
+  .pf-showcase[data-view="detail"] .pf-m-bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 4px;
+    min-height: 52px;
+    margin-top: -4px;
+  }
+  .pf-m-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-left: -8px;
+    padding: 0 12px 0 6px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-navy);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pf-m-back:active {
+    background: color-mix(in oklab, var(--color-navy) 8%, transparent);
+  }
+  .pf-m-bar-title {
+    margin: 0;
+    padding-right: 44px;
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 650;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pf-showcase[data-view="detail"] .pf-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  /* the hero: the painted cover / video poster, full-bleed, 16:9 (the video's own ratio); the desktop paper stack is dropped */
+  .pf-showcase[data-view="detail"] .pf-feature .pf-stage.paper-sheet {
+    order: 1;
+    width: auto;
+    margin-inline: calc(-1 * var(--pf-m-edge));
+    padding: 0;
+    rotate: none;
+    filter: none;
+    align-self: stretch;
+    scroll-margin-top: 116px;
+  }
+  /* the cover's own lettering repeats the title right below; on a phone the hero is the art alone */
+  .pf-showcase[data-view="detail"] .pf-stage .pf-cover-title,
+  .pf-showcase[data-view="detail"] .pf-stage .pf-cover-art::after {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-novideo {
+    display: block;
+    align-self: end;
+    justify-self: start;
+    z-index: 2;
+    margin: 0 0 14px 14px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-ivory) 90%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+
+@supports (backdrop-filter: blur(1px)) {
+    .pf-showcase[data-view="detail"] .pf-m-novideo {
+      background: color-mix(in oklab, var(--color-ivory) 74%, transparent);
+      backdrop-filter: blur(10px) saturate(1.1);
+    }
+  }
+
+  /* summary: tags → name → cover line → description → status */
+  .pf-showcase[data-view="detail"] .pf-info-head {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0 0;
+    filter: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-head::before {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-detail-tags {
+    order: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-name {
+    order: 2;
+    margin: 0;
+    font-size: 2.125rem;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-name::after {
+    display: none;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-tagline {
+    order: 3;
+    margin: 6px 0 0;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--color-rust);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-desc {
+    order: 4;
+    margin: 8px 0 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-navy-2);
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-meta {
+    order: 5;
+    margin: 10px 0 0;
+    font-size: 14px;
+    letter-spacing: 0;
+    color: var(--color-ink-soft);
+  }
+
+  /* actions: one primary, then 44 px+ secondaries in two columns */
+  .pf-showcase[data-view="detail"] .pf-m-actions {
+    order: 3;
+    display: grid;
+    gap: 10px;
+    padding-top: 18px;
+  }
+  .pf-m-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--color-ivory);
+    white-space: nowrap;
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--color-navy);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      translate 150ms var(--ease-l1),
+      box-shadow 150ms var(--ease-l1);
+  }
+  .pf-m-btn:active {
+    translate: 0 1px;
+    box-shadow: none;
+  }
+  .pf-m-btn .pf-m-ext {
+    width: 16px;
+    height: 16px;
+    opacity: 0.65;
+  }
+  .pf-m-primary {
+    min-height: 54px;
+    width: 100%;
+    border-color: transparent;
+    background: var(--color-rust);
+    color: var(--pf-m-on-accent);
+    font-size: 17px;
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-ink) 18%, transparent),
+      0 10px 18px -10px color-mix(in oklab, var(--color-rust) 70%, transparent);
+  }
+  .pf-m-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .pf-m-secondary[data-odd] > :last-child {
+    grid-column: 1 / -1;
+  }
+
+@media (max-width: 359px) {
+    .pf-m-btn > svg:first-child:not(.pf-m-ext) {
+      display: none;
+    }
+  }
+
+  /* outcomes: the project record's own metrics, else role / built / status */
+  .pf-showcase[data-view="detail"] .pf-m-outcomes {
+    order: 4;
+    display: block;
+    margin-top: 22px;
+    padding: 16px 16px 6px;
+  }
+  .pf-m-h3 {
+    margin: 0 0 4px;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 650;
+  }
+  .pf-m-metrics {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-m-metrics > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 10px;
+    align-items: baseline;
+    padding: 10px 0 12px;
+    border-top: 1px solid var(--line);
+  }
+  .pf-m-metric-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 650;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .pf-m-metric-label {
+    grid-column: 1 / -1;
+    margin-top: 2px;
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--color-navy-2);
+  }
+  .pf-m-metric-kind {
+    grid-row: 1;
+    grid-column: 2;
+    padding: 1px 9px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+  }
+  .pf-m-facts {
+    display: grid;
+    margin: 0;
+  }
+  .pf-m-facts > div {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .pf-m-facts dt {
+    font-size: 14px;
+    color: var(--color-ink-soft);
+  }
+  .pf-m-facts dd {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .pf-showcase[data-view="detail"] .pf-feature {
+      animation: pf-m-in 240ms var(--ease-l1) both;
+    }
+  }
+  .pf-products-wrap {
+    padding-block: 12px 72px;
+  }
+}
+@keyframes pf-m-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+@media (min-width: 640px) {
+/* the heading keeps its place; the window moves below it, full width */
+  .pf-showcase .pf-intro {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .pf-showcase .pf-feature::before,
+  .pf-showcase .pf-feature::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-feature::before {
+    inset: 9px -7px -11px 7px;
+    z-index: -2;
+    border-radius: 26px 30px 25px 29px / 28px 25px 30px 26px;
+    background-color: var(--ps-slate);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 1px 0 var(--ps-edge),
+      0 14px 22px -12px var(--ps-drop);
+  }
+  .pf-showcase .pf-feature::after {
+    inset: 0;
+    z-index: -1;
+    border-radius: 24px 28px 23px 27px / 26px 23px 28px 24px;
+    background-color: var(--ps-frame);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      inset 0 -1px 0 var(--ps-edge),
+      0 1px 0 var(--ps-edge),
+      0 3px 0 -1px var(--ps-under),
+      0 4px 0 -1px var(--ps-edge),
+      0 12px 18px -10px var(--ps-drop-soft);
+  }
+  .pf-showcase .pf-stage-backing {
+    inset: 7px -6px -8px 6px;
+    z-index: -1;
+    border-radius: 17px 19px 16px 18px;
+    background-color: var(--ps-slate);
+    box-shadow: 0 1px 0 var(--ps-edge);
+  }
+  .pf-showcase .pf-stage-backing::before,
+  .pf-showcase .pf-stage-backing::after,
+  .pf-showcase .pf-stage-mat {
+    content: none;
+    display: none;
+  }
+  /* the mode name: a small embossed paper tab on the mat's top edge */
+  .pf-showcase .pf-stage-label {
+    top: -10px;
+    left: clamp(18px, 3%, 34px);
+    padding: 4px 11px 5px;
+    font-family: var(--font-body, inherit);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-navy-2);
+    rotate: none;
+    filter: none;
+    border-radius: 7px;
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 1px 0 var(--ps-edge),
+      0 3px 6px -3px var(--ps-drop);
+  }
+  .pf-showcase .pf-stage-label::before {
+    content: none;
+  }
+  /* no recording: the poster says so itself, so the mode tab would only mislead */
+  .pf-showcase .pf-stage:has(.pf-stage-tag) .pf-stage-label {
+    display: none;
+  }
+  .pf-showcase .pf-stage-tag {
+    rotate: none;
+    filter: none;
+    padding: 5px 12px 6px;
+    font-size: 14px;
+    border-radius: 8px;
+    background-color: var(--ps-sheet);
+    box-shadow:
+      0 1px 0 var(--ps-edge),
+      0 4px 8px -4px var(--ps-drop);
+  }
+  .pf-showcase .pf-stage-tag::before,
+  .pf-showcase .pf-stage-tag::after {
+    content: none;
+  }
+  .pf-showcase .pf-info-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    filter: none;
+  }
+  .pf-showcase .pf-info-head::before {
+    content: none;
+  }
+  .pf-showcase .pf-m-detail-tags {
+    display: none;
+  }
+  .pf-showcase .pf-info-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .pf-showcase .pf-info-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-info-category {
+    padding-left: 12px;
+    border-left: 1px solid var(--ps-edge);
+  }
+  .pf-showcase .pf-info-name {
+    margin-top: 8px;
+    padding-right: 0;
+    font-size: clamp(2rem, 1.3rem + 1.7vw, 2.75rem);
+  }
+  .pf-showcase .pf-info-name::after {
+    content: none;
+  }
+  .pf-showcase .pf-info-tagline {
+    margin-top: 6px;
+    font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.25rem);
+  }
+  .pf-showcase .pf-info-desc {
+    margin-top: 10px;
+    font-size: 15.5px;
+    line-height: 1.5;
+    max-width: 52ch;
+  }
+  .pf-showcase .pf-info-meta {
+    order: 9;
+    margin: 12px 0 0;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+  .pf-showcase .pf-info-kicker { order: 1; }
+  .pf-showcase .pf-info-name { order: 2; }
+  .pf-showcase .pf-info-tagline { order: 3; }
+  .pf-showcase .pf-info-desc { order: 4; }
+  .pf-showcase .pf-action-set {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 12px;
+    margin-top: clamp(10px, 1.2vw, 16px);
+  }
+  .pf-showcase .pf-actions,
+  .pf-showcase .pf-actions > li {
+    display: contents;
+  }
+  .pf-divider {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 18px;
+    margin-block: 6px;
+    pointer-events: none;
+  }
+  .pf-divider::before,
+  .pf-divider::after {
+    content: "";
+    flex: 1 1 0;
+    height: 1px;
+    background: var(--card-divider);
+  }
+  .pf-divider[data-slot="top"] { order: 0; }
+  .pf-divider[data-slot="foot"] { order: 8; }
+  .pf-showcase .pf-action::before,
+  .pf-showcase .pf-action::after,
+  .pf-showcase .pf-action-icon::before {
+    content: none;
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action {
+    order: 2;
+    grid-template-columns: 24px minmax(0, 1fr) 16px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 52px;
+    margin: 0;
+    padding: 8px 10px 8px 12px;
+    box-sizing: border-box;
+    rotate: none;
+    filter: none;
+    border: 1.5px solid var(--card-accent);
+    border-radius: var(--card-radius);
+    background: transparent;
+    color: var(--color-navy);
+    font-family: var(--font-display);
+    box-shadow: none;
+  }
+  .pf-showcase .pf-action-set .pf-action[data-span="full"] {
+    grid-column: 1 / -1;
+  }
+  .pf-showcase .pf-action-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--card-accent);
+  }
+  .pf-showcase .pf-action-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  .pf-showcase .pf-action-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.15;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .pf-showcase .pf-action-arrow {
+    width: 16px;
+    height: 16px;
+    color: var(--color-navy);
+  }
+  /* TASK-262: half width, the case study reads "Case study" ("Read the" stays for screen readers, as the tablet strip rule does) */
+  .pf-showcase .pf-case-lead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pf-showcase .pf-case-name {
+    display: inline-block;
+  }
+  .pf-showcase .pf-case-name::first-letter {
+    text-transform: uppercase;
+  }
+  .pf-showcase .pf-action-set[data-odd] .pf-case-link {
+    grid-column: auto;
+  }
+  .pf-showcase .pf-action-set .pf-case-link[data-span="full"] {
+    grid-column: 1 / -1;
+  }
+  .pf-showcase .pf-action-set .pf-case-link .pf-action-label {
+    color: inherit;
+  }
+  /* primary: a filled coral bar, dark navy glyphs and type, a soft lip */
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    grid-column: 1 / -1;
+    order: 1;
+    grid-template-columns: 28px minmax(0, 1fr) 22px;
+    gap: 14px;
+    min-height: 62px;
+    padding: 10px 18px;
+    border-color: transparent;
+    background: var(--card-cta);
+    color: var(--card-cta-ink);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white 34%, transparent),
+      0 10px 18px -12px color-mix(in oklab, var(--card-cta) 70%, black);
+  }
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-icon,
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-arrow {
+    color: var(--card-cta-ink);
+  }
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-icon,
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-arrow {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-showcase .pf-action[data-tier="primary"] .pf-action-label {
+    font-size: clamp(1.05rem, 4.6cqi, 1.4rem);
+    font-weight: 700;
+  }
+  /* pressed (the video mode now playing) — a state beyond colour: the primary sinks, a secondary tints */
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"][aria-pressed="true"] {
+    box-shadow: inset 0 2px 5px color-mix(in oklab, black 28%, transparent);
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"][aria-pressed="true"] {
+    background: color-mix(in oklab, var(--card-accent) 16%, transparent);
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"]:focus-visible {
+    border-color: color-mix(in oklab, var(--card-accent) 70%, var(--color-navy));
+    background: color-mix(in oklab, var(--card-accent) 10%, transparent);
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"]:focus-visible {
+    background: var(--card-cta-hover);
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"]:hover {
+      border-color: color-mix(in oklab, var(--card-accent) 70%, var(--color-navy));
+      background: color-mix(in oklab, var(--card-accent) 10%, transparent);
+    }
+    .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"]:hover {
+      background: var(--card-cta-hover);
+    }
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .pf-showcase .pf-action-set .pf-action.pf-action {
+      transition:
+        translate var(--dur-l1-out) var(--ease-l1),
+        background-color var(--dur-l1-out) var(--ease-l1),
+        border-color var(--dur-l1-out) var(--ease-l1);
+    }
+    .pf-showcase .pf-action-set .pf-action.pf-action:focus-visible {
+      translate: 0 -1px;
+      --arrow-x: 3px;
+      transition-duration: var(--dur-l1);
+    }
+
+@media (hover: hover) and (pointer: fine) {
+      .pf-showcase .pf-action-set .pf-action.pf-action:hover {
+        translate: 0 -1px;
+        --arrow-x: 3px;
+        transition-duration: var(--dur-l1);
+      }
+    }
+  }
+
+@container (max-width: 449px) {
+    .pf-showcase .pf-action-set {
+      gap: 10px;
+    }
+    .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+      grid-template-columns: 18px minmax(0, 1fr) 12px;
+      gap: 5px;
+      padding: 8px 7px 8px 8px;
+    }
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-arrow {
+      width: 12px;
+      height: 12px;
+    }
+    .pf-showcase .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      font-size: 13.5px;
+      letter-spacing: -0.01em;
+    }
+  }
+
+@container (min-width: 450px) {
+    .pf-showcase .pf-star-note {
+      white-space: nowrap;
+      font-size: 1.15rem;
+    }
+  }
+  .pf-showcase .pf-carousel-tag {
+    grid-area: tag;
+    justify-self: start;
+    margin: 0 0 0 clamp(46px, 5vw, 62px);
+    padding: 2px 0 0;
+    rotate: none;
+    filter: none;
+    gap: 8px;
+  }
+  .pf-showcase .pf-carousel-tag::before {
+    content: none;
+  }
+  .pf-showcase .pf-select {
+    font-family: inherit;
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .pf-showcase .pf-count {
+    font-size: 14px;
+  }
+  .pf-showcase .pf-arrow {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 44px;
+    height: 44px;
+    rotate: none;
+    translate: none;
+    filter: none;
+    border-radius: 50%;
+    color: var(--color-navy);
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 0 0 1px var(--ps-edge),
+      0 2px 0 var(--ps-under),
+      0 6px 10px -5px var(--ps-drop);
+  }
+  .pf-showcase .pf-arrow::before {
+    content: none;
+  }
+  .pf-showcase .pf-arrow svg {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-showcase .pf-track {
+    --pf-gap: clamp(10px, 1.1vw, 14px);
+    gap: var(--pf-gap);
+    padding: 14px 8px 18px;
+    scroll-padding-inline: 8px;
+  }
+  .pf-showcase .pf-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    aspect-ratio: auto;
+    height: auto;
+    padding: 7px 7px 9px;
+    scale: none;
+    rotate: none;
+    text-align: left;
+    color: var(--color-navy);
+    border: 1px solid var(--ps-edge);
+    border-radius: 14px;
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 2px 0 var(--ps-under),
+      0 5px 8px -5px var(--ps-drop-soft);
+  }
+  .pf-showcase .pf-thumb::before,
+  .pf-showcase .pf-thumb::after {
+    content: none;
+  }
+  .pf-showcase .pf-thumb-art {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 9px;
+    background: var(--color-navy-2);
+    box-shadow: inset 0 0 0 1px var(--ps-edge);
+  }
+  .pf-showcase .pf-thumb-img {
+    object-fit: cover;
+    object-position: 38% 50%;
+  }
+  .pf-showcase .pf-thumb-meta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: baseline;
+    padding: 8px 3px 0;
+  }
+  .pf-showcase .pf-thumb-num {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-thumb-name {
+    /* Stage 8 DES-019 (TASK-316): two lines, never an ellipsis ("The Shravan's Round" was cut at 768) */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+  .pf-showcase .pf-thumb-cat {
+    grid-column: 2;
+    overflow: hidden;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--color-ink-soft);
+  }
+  /* quiet when idle, raised and ringed when selected (a shape cue as well as colour) */
+  .pf-showcase .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    translate: 0 -6px;
+    border-color: var(--ps-accent-ink);
+    box-shadow:
+      0 0 0 1.5px var(--ps-accent-ink),
+      inset 0 1px 0 var(--ps-hi),
+      0 2px 0 var(--ps-under),
+      0 14px 16px -8px var(--ps-drop);
+  }
+  .pf-showcase .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -12px;
+    width: 26px;
+    height: 3px;
+    inset: auto auto -11px 50%;
+    translate: -50% 0;
+    border: 0;
+    border-image: none;
+    border-radius: 2px;
+    background: var(--ps-accent);
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .pf-showcase .pf-thumb:not([aria-selected="true"]):hover {
+      translate: 0 -3px;
+      box-shadow:
+        inset 0 1px 0 var(--ps-hi),
+        0 2px 0 var(--ps-under),
+        0 10px 12px -7px var(--ps-drop);
+    }
+  }
+  .pf-showcase .pf-thumb:not([aria-selected="true"]):focus-visible {
+    translate: 0 -3px;
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .pf-showcase .pf-thumb {
+      transition:
+        translate var(--dur-l2-out) var(--ease-paper),
+        box-shadow var(--dur-l2-out) var(--ease-paper);
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .pf-showcase .pf-thumb,
+    .pf-showcase .pf-thumb:hover {
+      transition: none;
+    }
+  }
+}
+
+@media (max-width: 639px) {
+/* ---- 1 · enterprise carousel ---- */
+  .ee-journal .pf-ent-wrap {
+    gap: 18px;
+    /* the pagination (44 px) and the dock (about 76 px + safe area) both clear the last card */
+    padding-block: 44px 132px;
+  }
+  .ee-journal .hs-carousel {
+    display: block;
+    min-width: 0;
+  }
+  .ee-journal .hs-carousel > .ee-grid {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin: 0 -8px;
+    /* top room for the pin, side/bottom room for the paper shadow inside the scroller's clip box */
+    padding: 16px 8px 18px;
+    scroll-padding-inline: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .ee-journal .hs-carousel > .ee-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .ee-journal .hs-carousel > .ee-grid:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: -2px;
+    border-radius: 6px;
+  }
+  .ee-journal .hs-carousel > .ee-grid > .ee-item {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .ee-journal .hs-dots {
+    margin-top: 2px;
+  }
+  /* the print stays crisp and opaque: it is its own layer, never inside the blur */
+  .pf-m-art {
+    border-radius: 14px;
+  }
+  .pf-m-tag {
+    border-color: color-mix(in oklab, var(--color-navy) 12%, transparent);
+    background: var(--pf-tag-a);
+  }
+  .pf-m-tag:nth-child(2) {
+    background: var(--pf-tag-b);
+  }
+  /* the → affordance: a small circular glass button (decorative; the whole card is the link) */
+  .pf-m-chev {
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
+    border-radius: 50%;
+    background: var(--pf-glass-chev);
+    color: var(--color-navy);
+  }
+  /* "13 projects": a quiet chip */
+  .pf-m-count {
+    display: inline-block;
+    padding: 3px 12px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 12%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-ivory) 60%, transparent);
+  }
+}
+.pf-m-bar-title[data-logo] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pf-m-bar-title .pf-logo-img {
+  max-height: 28px;
+}
+.pf-info-name[data-logo] {
+  line-height: 0;
+}
+
+@media (min-width: 1024px) {
+  .pf-info-name .pf-logo-img {
+    max-height: 48px;
+  }
+}
+/* TASK-254 (Tushar 2026-10-18): a width cap too, so a wide wordmark (Pratyasa) no longer fills the column. */
+.pf-info-name .pf-logo-img {
+  max-width: min(100%, 230px);
+}
+.pf-m-bar-title .pf-logo-img {
+  max-width: min(100%, 170px);
+}
+
+@media (min-width: 1024px) {
+  .pf-info-name .pf-logo-img {
+    max-width: min(100%, 300px);
+  }
+}
+/* TASK-340 (Tushar 2026-10-21): Slag City's logo is now a one-line transparent wordmark (~6:1), width-bound like the other wordmarks, so it follows the generic caps above. The old per-logo height boosts existed for the tall riveted plate and are gone. */
+
+/* ==================================================================================================
+   TASK-252 (Tushar 2026-10-18) · the star nudge under the GitHub link: a small handwritten note (Caveat), muted ink, no
+   button chrome. --color-ink-soft on the sheet is ≥ 4.5:1 in both themes (the panel's secondary text colour). The star
+   fills on hover / focus; with reduced motion it still fills, just without the transition.
+   ================================================================================================== */
+.pf-star-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* a real tap target (EVAL-008 ≥ 44 px), even as a quiet text link */
+  gap: 6px;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  order: 9;
+  margin-top: 2px;
+  /* TASK-254 (Tushar 2026-10-18): bold and golden, with a filled golden star. Two golds, one per theme, each ≥ 4.5:1. */
+  --star-gold: #8a6410;
+  color: var(--star-gold);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-decoration: none;
+}
+[data-theme="dark"] .pf-star-note {
+  --star-gold: #e8c15a;
+}
+.pf-m-actions .pf-star-note {
+  margin-top: 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 10px;
+  padding-block: 8px;
+  text-align: left;
+}
+.pf-m-actions .pf-star-note .pf-star-icon {
+  margin-top: 0.2em;
+  width: 1.15em;
+  height: 1.15em;
+}
+.pf-star-icon {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  align-self: center;
+  fill: var(--star-gold);
+  stroke: var(--star-gold);
+}
+.pf-star-note:hover,
+.pf-star-note:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pf-star-icon {
+    transition: fill 0.25s ease, stroke 0.25s ease;
+  }
+}
+
+
+/* === TASK-257 · phone product page on the Pratyasa paper-cut night mockup (< 640 px only; every block below is inside the phone query or is display:none above it) === */
+/* the shared StarDivider (TASK-256) on the phone detail: line · four-point star · line */
+.pf-m-actions > .pf-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: auto;
+  margin-block: 0;
+  pointer-events: none;
+}
+.pf-m-actions > .pf-divider::before,
+.pf-m-actions > .pf-divider::after {
+  content: "";
+  flex: 1 1 0;
+  height: 1px;
+  background: var(--pf-m-rule, color-mix(in oklab, var(--color-navy) 22%, transparent));
+}
+.pf-m-actions > .pf-divider svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: var(--pf-m-star, var(--color-rust));
+}
+.pf-m-land {
+  display: none;
+}
+
+@media (max-width: 639px) {
+/* the bar sits flush under the site header (TASK-266: the folded-paper ridge strip that used to follow it is gone) */
+  .pf-showcase[data-view="detail"] .pf-m-bar {
+    row-gap: 0;
+    min-height: 0;
+  }
+
+  /* metadata row: coral index · muted category, mono */
+  .pf-showcase[data-view="detail"] .pf-info-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+    margin: 0 0 8px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pf-m-muted);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-count {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--pf-m-coral);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-category::before {
+    content: "·";
+    margin-right: 10px;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-head {
+    padding: 4px var(--pf-m-pad) 0;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-detail-tags {
+    order: 1;
+    margin: 0 0 12px;
+  }
+  :root[data-theme="dark"] .pf-showcase[data-view="detail"] .pf-m-detail-tags li {
+    border-color: #344866;
+    background: color-mix(in oklab, #2b4a7a 38%, #0b1c38);
+    color: #c5cdd8;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-name {
+    margin: 2px 0 0;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-name .pf-logo-img {
+    max-width: min(100%, 300px);
+    max-height: 56px;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-tagline {
+    margin: 10px 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--pf-m-coral);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-desc {
+    margin: 10px 0 0;
+    line-height: 1.55;
+    color: var(--color-navy);
+    text-wrap: pretty;
+  }
+  :root[data-theme="dark"] .pf-showcase[data-view="detail"] .pf-info-desc {
+    color: #f5f0e6;
+  }
+  .pf-showcase[data-view="detail"] .pf-info-meta {
+    display: block;
+    margin: 14px 0 0;
+    line-height: 1.5;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pf-m-muted);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-code {
+    font-weight: 700;
+    color: var(--color-navy);
+  }
+  .pf-showcase[data-view="detail"] .pf-info-meta > span[aria-hidden] {
+    margin-inline: 0.5ch;
+  }
+
+  /* actions: divider, one coral primary, a 2 x 2 outlined grid, divider, the star note */
+  .pf-showcase[data-view="detail"] .pf-m-actions {
+    gap: 12px;
+    padding: 16px var(--pf-m-pad) 0;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-actions > .pf-divider:first-child {
+    margin-bottom: 6px;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-actions > .pf-divider:not(:first-child) {
+    margin-top: 8px;
+  }
+  .pf-m-btn {
+    gap: 6px;
+    padding: 0 12px;
+    border-color: color-mix(in oklab, var(--pf-m-coral) 85%, transparent);
+    border-width: 1.5px;
+    border-radius: 14px;
+    background: color-mix(in oklab, var(--pf-m-coral) 6%, transparent);
+    box-shadow: none;
+    font-size: 15px;
+    color: var(--color-navy);
+    transition:
+      translate 120ms var(--ease-l1),
+      background-color 150ms var(--ease-l1),
+      box-shadow 150ms var(--ease-l1);
+  }
+  :root[data-theme="dark"] .pf-m-btn {
+    background: color-mix(in oklab, #172b4b 70%, transparent);
+  }
+  .pf-m-btn > svg:first-child {
+    color: var(--pf-m-coral);
+  }
+  .pf-m-btn:active {
+    background: color-mix(in oklab, var(--pf-m-coral) 16%, transparent);
+  }
+
+@media (hover: hover) {
+    .pf-m-btn:hover {
+      background: color-mix(in oklab, var(--pf-m-coral) 12%, transparent);
+    }
+  }
+  /* label centred between the leading icon and the direction arrow */
+  .pf-m-btn {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) 16px;
+    justify-items: center;
+  }
+  .pf-m-btn > span:not(.sr-only) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pf-m-btn .pf-m-dir {
+    width: 16px;
+    height: 16px;
+    opacity: 1;
+    color: var(--color-navy);
+  }
+  .pf-m-primary {
+    min-height: 56px;
+    gap: 12px;
+    grid-template-columns: 24px minmax(0, 1fr) 22px;
+    border-color: transparent;
+    border-radius: 16px;
+    background: var(--pf-m-coral);
+    background-image: linear-gradient(to bottom, color-mix(in oklab, white 10%, transparent), transparent 60%);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--pf-m-on-accent);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, white 25%, transparent) inset,
+      0 8px 22px -8px color-mix(in oklab, var(--pf-m-coral) 75%, transparent);
+  }
+  :root[data-theme="dark"] .pf-m-primary {
+    background-color: #f4774f;
+    color: #0b1c38;
+  }
+  .pf-m-primary:active {
+    background-color: color-mix(in oklab, var(--pf-m-coral) 88%, black);
+    box-shadow: none;
+  }
+
+@media (hover: hover) {
+    .pf-m-primary:hover {
+      background-color: color-mix(in oklab, var(--pf-m-coral) 92%, white);
+    }
+  }
+  .pf-m-primary > svg:first-child,
+  .pf-m-primary .pf-m-dir {
+    color: var(--pf-m-on-accent);
+  }
+  :root[data-theme="dark"] .pf-m-primary > svg:first-child,
+  :root[data-theme="dark"] .pf-m-primary .pf-m-dir {
+    color: #0b1c38;
+  }
+  .pf-m-primary > svg:first-child {
+    width: 24px;
+    height: 24px;
+  }
+  .pf-m-primary .pf-m-dir {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-m-secondary {
+    gap: 10px;
+  }
+
+@media (max-width: 359px) {
+    .pf-m-secondary {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .pf-m-btn > svg:first-child:not(.pf-m-ext) {
+      display: block;
+    }
+  }
+
+@media (max-width: 379px) {
+    .pf-m-btn {
+      grid-template-columns: 20px minmax(0, 1fr) 16px;
+      gap: 6px;
+      padding: 0 10px;
+      font-size: 15px;
+    }
+  }
+  .pf-showcase[data-view="detail"] .pf-star-note {
+    padding-inline: 2px;
+  }
+
+  /* lower landscape + "At a glance" card */
+  .pf-showcase[data-view="detail"] .pf-m-land {
+    order: 4;
+    display: block;
+    position: relative;
+    margin: 18px calc(-1 * var(--pf-m-edge)) -34px;
+    pointer-events: none;
+    aspect-ratio: 900 / 234;
+  }
+  .pf-m-land img {
+    display: none;
+    width: 100%;
+    height: 100%;
+  }
+  .pf-m-land img[data-theme-variant="light"] {
+    display: block;
+  }
+  :root[data-theme="dark"] .pf-m-land img[data-theme-variant="light"] {
+    display: none;
+  }
+  :root[data-theme="dark"] .pf-m-land img[data-theme-variant="dark"] {
+    display: block;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-outcomes {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    padding: 16px 18px 8px;
+    border-radius: 22px 22px 18px 18px;
+  }
+  :root[data-theme="dark"] .pf-showcase[data-view="detail"] .pf-m-outcomes {
+    border-color: #344866;
+    background: color-mix(in oklab, #172b4b 82%, #0b1c38);
+    box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.6);
+  }
+  .pf-showcase[data-view="detail"] .pf-m-h3 {
+    margin: 0 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--pf-m-rule);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .pf-m-facts > div {
+    grid-template-columns: minmax(96px, 36%) minmax(0, 1fr);
+    align-items: center;
+    padding: 12px 0;
+    border-top: 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--pf-m-rule) 55%, transparent);
+  }
+  .pf-m-facts > div:last-child {
+    border-bottom: 0;
+  }
+  .pf-m-facts dt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    color: var(--pf-m-muted);
+  }
+  .pf-m-facts dt svg {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    color: var(--color-navy);
+  }
+  .pf-m-facts dd {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+  .pf-showcase[data-view="detail"] .pf-m-metrics > li:first-child {
+    border-top-color: transparent;
+  }
+  .pf-products-wrap {
+    padding-bottom: 112px; /* the floating dock never covers the card */
+  }
+}
+
+@media (max-width: 639px) {
+/* ---- dock clearance: the real nav height (--md-h, 64 px) + its 8 px bottom offset + a gap + the home-indicator inset ---- */
+  .pf-products-wrap {
+    padding-bottom: calc(var(--md-h, 64px) + 8px + 24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---- filter row: the last pill ("Has video") ends clear of the edge fade; fade cues "more to swipe" ---- */
+  .pf-m-filters {
+    padding-inline-end: calc(var(--pf-m-edge) + 20px);
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+    scroll-padding-inline: var(--pf-m-edge);
+  }
+}
+
+@media (min-width: 1024px) {
+  .pf-showcase .pf-carousel-tag {
+    margin-left: clamp(54px, 5.4vw, 70px);
+    align-items: baseline;
+  }
+  .pf-showcase .pf-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-track {
+    --pf-gap: clamp(12px, 1.4vw, 22px);
+    --pf-thumb-w: clamp(150px, 12.2vw, 176px);
+    padding: 34px calc(50% - var(--pf-thumb-w) / 2) 30px;
+    scroll-snap-type: none;
+    scroll-padding-inline: 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10%, #000 90%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 10%, #000 90%, transparent 100%);
+  }
+  .pf-showcase .pf-track .pf-thumb {
+    --pf-ry: 0deg;
+    scale: 0.94;
+    translate: none;
+    transform: perspective(1100px) rotateY(var(--pf-ry));
+    transform-origin: 50% 60%;
+    z-index: 0;
+  }
+  .pf-showcase .pf-track .pf-thumb[data-rel="-1"] { --pf-ry: 5deg; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="1"] { --pf-ry: -5deg; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="-2"] { --pf-ry: 7deg; scale: 0.89; translate: 0 8px; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="2"] { --pf-ry: -7deg; scale: 0.89; translate: 0 8px; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="-3"] { --pf-ry: 8deg; scale: 0.84; translate: 0 12px; }
+  .pf-showcase .pf-track .pf-thumb[data-rel="3"] { --pf-ry: -8deg; scale: 0.84; translate: 0 12px; }
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    --pf-ry: 0deg;
+    scale: 1.13;
+    translate: 0 -10px;
+    z-index: 2;
+    box-shadow:
+      0 0 0 1.5px var(--ps-accent-ink),
+      inset 0 1px 0 var(--ps-hi),
+      0 3px 0 var(--ps-under),
+      0 20px 22px -10px var(--ps-drop);
+  }
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .pf-showcase .pf-track .pf-thumb:not([aria-selected="true"]):hover {
+      translate: 0 -2px;
+    }
+  }
+
+  /* pagination: one short dash per product (a 44 px tall hit area around each), the selected one longer and terracotta */
+  .pf-showcase .pf-pager {
+    grid-area: dots;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+  }
+  .pf-showcase .pf-pager-dot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    margin-inline: -6px; /* 44 px hit box, 32 px pitch: the row stays short */
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .pf-showcase .pf-pager-dot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 6px;
+    translate: -50% -50%;
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--color-steel) 55%, transparent);
+    transition: width 220ms var(--ease-paper), background-color 220ms var(--ease-paper);
+  }
+  .pf-showcase .pf-pager-dot:hover::before {
+    background: color-mix(in oklab, var(--color-steel) 85%, transparent);
+  }
+  .pf-showcase .pf-pager-dot[aria-current="true"]::before {
+    width: 30px;
+    background: var(--ps-accent-ink);
+  }
+  .pf-showcase .pf-feature:focus {
+    outline: none;
+  }
+  .pf-showcase .pf-info-nav {
+    position: absolute;
+    top: clamp(10px, 1.1vw, 16px);
+    right: clamp(12px, 1.2vw, 18px);
+    z-index: 2;
+    display: flex;
+    gap: 6px;
+  }
+  .pf-showcase .pf-info-arrow {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    cursor: pointer;
+    border: 0;
+    border-radius: 50%;
+    color: var(--color-navy);
+    background-color: var(--ps-sheet);
+    background-image: var(--ps-grain);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 0 0 1px var(--ps-edge),
+      0 2px 0 var(--ps-under),
+      0 5px 8px -5px var(--ps-drop);
+    transition: translate 180ms var(--ease-paper), box-shadow 180ms var(--ease-paper);
+  }
+  .pf-showcase .pf-info-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-showcase .pf-info-arrow:hover {
+    box-shadow:
+      inset 0 1px 0 var(--ps-hi),
+      0 0 0 1.5px var(--ps-accent-ink),
+      0 2px 0 var(--ps-under),
+      0 5px 8px -5px var(--ps-drop);
+  }
+  .pf-showcase .pf-info-arrow:active {
+    translate: 0 1px;
+  }
+  .pf-showcase .pf-info-kicker {
+    padding-right: 98px;
+    gap: 4px 8px;
+  }
+  .pf-showcase .pf-info-kicker .pf-info-category {
+    padding-left: 8px;
+    white-space: nowrap;
+  }
+  .pf-showcase .pf-info-pager {
+    position: absolute;
+    inset: auto 0 2px;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-info-dot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    margin-inline: -5px; /* 44 px hit box, 34 px pitch */
+    pointer-events: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .pf-showcase .pf-info-dot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 5px;
+    translate: -50% -50%;
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--color-steel) 55%, transparent);
+    transition: width 220ms var(--ease-paper), background-color 220ms var(--ease-paper);
+  }
+  .pf-showcase .pf-info-dot[aria-current="true"]::before {
+    width: 22px;
+    background: var(--ps-accent-ink);
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .pf-showcase .pf-track .pf-thumb,
+    .pf-showcase .pf-pager-dot::before,
+    .pf-showcase .pf-info-arrow,
+    .pf-showcase .pf-info-dot::before {
+      transition: none;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .pf-showcase .pf-track {
+    scrollbar-width: none;
+  }
+  .pf-showcase .pf-track::-webkit-scrollbar {
+    display: none;
+  }
+  .pf-showcase .pf-track[data-snap] .pf-thumb {
+    transition: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pf-showcase .pf-feature {
+    padding: 0;
+    gap: var(--pf-gap);
+  }
+  .pf-showcase .pf-feature::before {
+    inset: calc(9px - var(--pf-pad)) calc(-7px - var(--pf-pad)) calc(-11px - var(--pf-pad)) calc(7px - var(--pf-pad));
+  }
+  .pf-showcase .pf-feature::after {
+    inset: calc(-1 * var(--pf-pad));
+  }
+  .pf-showcase .pf-feature .pf-stage-screen {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+  .pf-showcase .pf-carousel-tag {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    margin-top: 0;
+  }
+  .pf-showcase .pf-track {
+    padding-block: 14px 16px;
+  }
+  /* the dash pager sits under the cards, their lifted selected card and its marker: its 44 px hit box hangs 6 px below the panel */
+  .pf-showcase .pf-pager {
+    position: absolute;
+    grid-area: auto;
+    inset: auto 0 -6px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .pf-showcase .pf-pager-dot {
+    pointer-events: auto;
+  }
+  .pf-showcase .pf-track {
+    --pf-thumb-w: clamp(150px, min(12.2vw, 18.4svh), 176px);
+  }
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    scale: 1.08;
+    translate: 0 -3px;
+  }
+  .pf-showcase .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-size: 15px;
+  }
+  .pf-showcase .pf-info-name {
+    margin-top: clamp(2px, 0.7svh, 8px);
+  }
+  .pf-showcase .pf-info-name .pf-logo-img {
+    max-height: clamp(30px, 4.4svh, 48px);
+  }
+  .pf-showcase .pf-info-tagline {
+    margin-top: 3px;
+  }
+  .pf-showcase .pf-info-desc {
+    margin-top: clamp(4px, 0.8svh, 10px);
+    font-size: 14.5px;
+    line-height: 1.35;
+    max-width: none;
+  }
+  .pf-showcase .pf-info-meta {
+    margin-top: clamp(5px, 1svh, 12px);
+  }
+  .pf-showcase .pf-action-set {
+    gap: clamp(6px, 1.1svh, 10px);
+    margin-top: clamp(4px, 1svh, 14px);
+  }
+  .pf-divider {
+    height: 12px;
+    margin-block: 0;
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+    min-height: 44px;
+    padding-block: 5px;
+  }
+  .pf-showcase .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    min-height: clamp(44px, 5.8svh, 62px);
+    padding-block: 6px;
+  }
+
+@media (max-height: 880px) {
+    .pf-showcase .pf-divider {
+      display: none;
+    }
+  }
+  .pf-showcase .pf-star-note.pf-star-note {
+    margin-block: -8px -6px;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 1240px) {
+  .pf-showcase .pf-feature {
+    align-items: stretch;
+    grid-template-columns: calc((var(--pf-fh) - 2 * var(--pf-sp)) * 16 / 9 + 2 * var(--pf-sp)) minmax(0, 1fr);
+    grid-template-rows: var(--pf-fh);
+  }
+  .pf-showcase .pf-feature .pf-stage.paper-sheet {
+    align-self: stretch;
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar {
+    --pf-vc-w: clamp(168px, 14vw, 188px);
+    --pf-win: min(calc(100vw - 56px), 2200px);
+    --pf-vc-gap: 22px;
+    --pf-vc-cg: 14px;
+    --pf-vc-room: calc(100svh - var(--header-h) - 8px - 2 * var(--pf-pad));
+    --pf-vc-wf: calc(var(--pf-win) - var(--pf-vc-w) - var(--pf-vc-gap));
+    --pf-vc-hw: calc((var(--pf-vc-wf) - var(--pf-vc-cg) - 2 * var(--pf-sp) * 7 / 9) * 63 / 157);
+    --pf-vc-h: min(var(--pf-vc-room), var(--pf-vc-hw));
+    --pf-vc-t: clamp(68px, calc(var(--pf-vc-h) * 0.17), 108px);
+  }
+  .pf-showcase.pf-vcar .pf-carousel,
+  .pf-showcase.pf-vcar .pf-feature {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+    height: var(--pf-vc-h);
+    margin-top: 0; /* sit right under the header; any spare height falls below the row */
+    box-sizing: border-box;
+  }
+  /* ---- the tray: a column, counter on top, arrows at both ends, the covers scrolling between ---- */
+  .pf-showcase.pf-vcar .pf-carousel {
+    width: var(--pf-vc-w);
+    margin-left: calc((100% - var(--pf-win)) / 2);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 44px minmax(0, 1fr) 44px;
+    grid-template-areas: "tag" "prev" "track" "next";
+    align-content: stretch;
+    justify-items: center;
+    row-gap: 0;
+    padding: 8px 6px 6px;
+  }
+  .pf-showcase.pf-vcar .pf-carousel::before {
+    inset: calc(-1 * var(--pf-pad));
+  }
+  .pf-showcase.pf-vcar .pf-carousel-tag {
+    position: static;
+    margin: 0;
+    padding: 0;
+    rotate: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    text-align: center;
+  }
+  .pf-showcase.pf-vcar .pf-select {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .pf-showcase.pf-vcar .pf-track {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-self: stretch;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 10px 8px;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb {
+    flex: 0 0 var(--pf-vc-t);
+    width: 100%;
+    height: var(--pf-vc-t);
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    transform: none;
+    scale: 0.96;
+    translate: none;
+    border-radius: 12px;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([data-rel="-2"], [data-rel="-3"], [data-rel="2"], [data-rel="3"]) {
+    scale: 0.92;
+    translate: none;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    scale: 1.03;
+    translate: none;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"])::after {
+    content: none;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .pf-showcase.pf-vcar .pf-track .pf-thumb:not([aria-selected="true"]):hover {
+      translate: 2px 0;
+    }
+  }
+  .pf-showcase.pf-vcar .pf-thumb-art {
+    flex: none;
+    align-self: stretch;
+    width: clamp(46px, calc(var(--pf-vc-t) * 0.62), 60px);
+    aspect-ratio: auto;
+    border-radius: 8px;
+  }
+  .pf-showcase.pf-vcar .pf-thumb-meta {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+  }
+  .pf-showcase.pf-vcar .pf-thumb-num {
+    display: block;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .pf-showcase.pf-vcar .pf-track .pf-thumb .pf-thumb-name,
+  .pf-showcase.pf-vcar .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font-size: 13.5px;
+    line-height: 1.15;
+    white-space: normal;
+  }
+  .pf-showcase.pf-vcar .pf-thumb-cat {
+    display: none;
+  }
+
+  /* ---- the window: video frame (exact 16:9) + card (5:7), both exactly --pf-vc-h tall ---- */
+  .pf-showcase.pf-vcar .pf-feature {
+    width: var(--pf-vc-wf);
+    margin-left: calc((100% - var(--pf-win)) / 2 + var(--pf-vc-w) + var(--pf-vc-gap));
+    margin-right: 0;
+    display: grid;
+    grid-template-columns: calc((var(--pf-vc-h) - 2 * var(--pf-sp)) * 16 / 9 + 2 * var(--pf-sp)) calc(var(--pf-vc-h) * 5 / 7);
+    grid-template-rows: var(--pf-vc-h);
+    justify-content: center;
+    align-content: start;
+    align-items: stretch;
+    column-gap: var(--pf-vc-cg);
+  }
+  /* TASK-308: hovering the video / card made the pair shake 1 px (Safari, 60 fps recording). The paper-world scene above
+     (hero, scrolled under this sheet) rewrites fractional layer translates on every pointermove; the feature has no layer
+     of its own, so the engine re-squashes/re-snaps it against those moving layers. An own, stable layer pins its raster. */
+  .pf-showcase.pf-vcar .pf-feature {
+    will-change: transform;
+  }
+  .pf-showcase.pf-vcar .pf-feature .pf-stage.paper-sheet {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: stretch;
+    display: block;
+    width: auto;
+    height: var(--pf-vc-h);
+  }
+  .pf-showcase.pf-vcar .pf-feature .pf-info.pf-info.paper-sheet {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+    width: auto;
+    height: var(--pf-vc-h);
+    box-sizing: border-box;
+    justify-content: flex-start;
+    padding: 4px 14px 36px;
+  }
+  /* the card's content, restacked for a narrow portrait sheet; sizes follow the card's height so every product fits */
+  .pf-showcase.pf-vcar .pf-info-kicker {
+    min-height: 44px;
+    padding-right: 100px;
+    align-content: center;
+    gap: 0 8px;
+    font-size: clamp(12px, calc(var(--pf-vc-h) * 0.02), 14px);
+    letter-spacing: 0.08em;
+  }
+  .pf-showcase.pf-vcar .pf-info-kicker .pf-info-category {
+    padding-left: 8px;
+    white-space: normal;
+  }
+  .pf-showcase.pf-vcar .pf-info-nav {
+    top: 4px;
+    right: 10px;
+  }
+  .pf-showcase.pf-vcar .pf-info-meta {
+    margin-top: 0;
+    font-size: clamp(10px, calc(var(--pf-vc-h) * 0.019), 13px);
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+  .pf-showcase.pf-vcar .pf-info-name {
+    margin-top: 2px;
+  }
+  .pf-showcase.pf-vcar .pf-info-name .pf-logo-img {
+    max-height: clamp(26px, calc(var(--pf-vc-h) * 0.07), 40px);
+  }
+  .pf-showcase.pf-vcar .pf-info-tagline {
+    margin-top: 0;
+    font-size: clamp(0.8rem, calc(var(--pf-vc-h) * 0.0295), 1.2rem);
+    line-height: 1.2;
+  }
+  .pf-showcase.pf-vcar .pf-info-desc {
+    margin-top: 1px;
+    font-size: clamp(11.5px, calc(var(--pf-vc-h) * 0.027), 17px);
+    line-height: 1.25;
+  }
+  .pf-showcase.pf-vcar .pf-action-set {
+    margin-top: auto;
+    gap: 6px;
+    padding-top: 0;
+  }
+  /* the cover art fills the card's free middle; the text stays on top and the actions stay pinned to the bottom */
+  .pf-showcase.pf-vcar .pf-info-poster {
+    position: relative;
+    display: block;
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+  }
+  .pf-showcase.pf-vcar .pf-info-poster-frame {
+    position: absolute;
+    inset: 6px 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--color-paper-2, #ece4d3);
+    box-shadow:
+      inset 0 0 0 1px var(--ps-edge, rgba(0, 0, 0, 0.12)),
+      0 1px 0 var(--ps-hi, rgba(255, 255, 255, 0.5)),
+      0 6px 10px -6px var(--ps-drop-soft, rgba(60, 40, 20, 0.35));
+  }
+
+@container (max-height: 56px) {
+    .pf-showcase.pf-vcar .pf-info-poster-frame {
+      display: none;
+    }
+  }
+  .pf-showcase.pf-vcar .pf-info-poster-img {
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+  .pf-showcase.pf-vcar .pf-divider {
+    display: none;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"],
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    min-height: clamp(44px, calc(var(--pf-vc-h) * 0.07), 54px);
+    padding-block: 4px;
+  }
+  .pf-showcase.pf-vcar .pf-star-note.pf-star-note {
+    margin-block: 0;
+    font-size: clamp(12.2px, calc(var(--pf-vc-h) * 0.022), 15px);
+    white-space: normal;
+    line-height: 1.1;
+  }
+  .pf-showcase.pf-vcar .pf-info-pager {
+    inset: auto 0 -8px;
+  }
+  .pf-showcase.pf-vcar .pf-info-dot {
+    flex: none;
+    margin-inline: -10px;
+  }
+  /* the 2 x 2 link grid keeps whole labels in a ~120 px cell, the primary bar too */
+  .pf-showcase.pf-vcar .pf-action-set {
+    gap: 4px;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 4px;
+    padding: 4px 7px;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-arrow {
+    display: none;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+    font-size: clamp(13px, calc(var(--pf-vc-h) * 0.024), 15px); /* TASK-331: action-label floor 13 px */
+    letter-spacing: -0.015em;
+  }
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    grid-template-columns: 20px minmax(0, 1fr) 16px;
+    gap: 8px;
+    padding: 4px 12px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-icon,
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-arrow {
+    width: 16px;
+    height: 16px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-label {
+    font-size: clamp(15px, calc(var(--pf-vc-h) * 0.03), 18px);
+  }
+}
+
+@media (min-width: 1024px) {
+/* the pointer shares the track's grid cell, so its centre is the selected card's centre; it pokes out into the gap */
+  .pf-showcase.pf-vcar .pf-vcar-pointer {
+    grid-area: track;
+    justify-self: end;
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-right: calc(-1 * (6px + var(--pf-vc-gap) * 0.55));
+    border-block: 9px solid transparent;
+    border-left: 12px solid var(--color-terracotta);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+/* === end TASK-301 === */
+
+/* TASK-301 (Tushar 2026-10-20): sculpted origami icons in the product card's action buttons. The img is taken out of the flow (desktop)
+   or sized to the existing icon cell (phone), so no button changes height; --oi is the rendered size. */
+.pf-origami {
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 1px 1.5px rgb(20 24 38 / 0.3));
+}
+.pf-action-icon[data-origami] {
+  overflow: visible;
+}
+.pf-action-icon[data-origami] .pf-origami {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--oi);
+  height: var(--oi);
+}
+.pf-action[data-tier="primary"] {
+  --oi: 36px;
+}
+.pf-action[data-tier="secondary"] {
+  --oi: 26px;
+}
+
+@container (max-width: 449px) {
+  .pf-action[data-tier="secondary"] {
+    --oi: 22px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar .pf-action[data-tier="primary"] {
+    --oi: 28px;
+  }
+  .pf-showcase.pf-vcar .pf-action[data-tier="secondary"] {
+    --oi: 21px;
+  }
+}
+/* the icon cell grows to the icon (the label shifts right; the row height is the button's own min-height, so it never grows) */
+.pf-showcase .pf-action-set .pf-action.pf-action.pf-action .pf-action-icon[data-origami] {
+  width: var(--oi);
+  height: var(--oi);
+}
+.pf-showcase .pf-action-set .pf-action.pf-action.pf-action[data-tier] {
+  grid-template-columns: var(--oi) minmax(0, 1fr) 16px;
+}
+
+@container (max-width: 449px) {
+  .pf-showcase .pf-action-set .pf-action.pf-action.pf-action[data-tier="secondary"] {
+    grid-template-columns: var(--oi) minmax(0, 1fr) 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action.pf-action[data-tier="secondary"] {
+    grid-template-columns: var(--oi) minmax(0, 1fr);
+  }
+}
+/* phone: the img fills the leading grid cell (22 px, 20 px on narrow phones) and overflows it evenly */
+.pf-m-btn {
+  --pf-m-col: 22px;
+  --oi: 26px;
+}
+.pf-m-primary {
+  --oi: 34px;
+}
+
+@media (max-width: 379px) {
+  .pf-m-btn {
+    --pf-m-col: 20px;
+    --oi: 24px;
+  }
+  .pf-m-primary {
+    --oi: 32px;
+  }
+}
+.pf-m-btn > .pf-origami {
+  position: relative;
+  width: var(--oi);
+  height: var(--oi);
+  margin-inline: calc((var(--pf-m-col) - var(--oi)) / 2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pf-origami {
+    transition:
+      transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      filter 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .pf-action:hover .pf-origami,
+    .pf-m-btn:hover .pf-origami {
+      transform: translateY(-2.5px) rotate(3deg);
+      filter: drop-shadow(0 4px 3.5px rgb(20 24 38 / 0.38));
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+/* ---- the sheet: one paper, one thin terracotta outline (the under-sheet and face pseudo-layers are dropped) ---- */
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet {
+    border: 1.5px solid var(--pc-terra);
+    border-radius: 20px;
+    background-color: var(--pc-paper);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      0 1px 0 var(--pc-edge),
+      0 12px 18px -12px var(--pc-shadow);
+    color: var(--pc-ink);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet {
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 220 / 0.07),
+      0 12px 18px -12px var(--pc-shadow);
+  }
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet::before,
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet::after {
+    content: none;
+  }
+  /* the card sizes itself (5:7 grid cell), so it can be a size container: a short card gives up its description and a little poster height */
+  .pf-showcase.pf-vcar .pf-info.pf-paper.paper-sheet {
+    container: pcard / size;
+  }
+  .pf-paper .pf-info-head {
+    display: contents;
+  }
+  .pf-paper .pf-info-meta,
+  .pf-paper .pf-m-detail-tags,
+  .pf-paper .pf-divider {
+    display: none;
+  }
+  /* order: top row, identity, tagline, poster, pills, description, actions */
+  .pf-paper .pf-info-kicker { order: 1; }
+  .pf-paper .pf-info-name { order: 2; }
+  .pf-paper .pf-info-tagline { order: 3; }
+  .pf-paper .pf-info-poster { order: 4; }
+  .pf-paper .pf-pc-pills { order: 5; }
+  .pf-paper .pf-info-desc { order: 6; }
+  .pf-paper .pf-action-set { order: 7; }
+
+  /* ---- top row: 07 / 10 | CATEGORY ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-kicker {
+    min-height: 30px;
+    flex-wrap: nowrap;
+    gap: 0 6px;
+    padding-right: 90px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(11.5px, calc(var(--pf-vc-h) * 0.0235), 13px); /* TASK-331: kicker floor 11.5 px */
+    letter-spacing: 0.03em;
+    color: var(--pc-ink-soft);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-count {
+    flex: none;
+    color: var(--pc-accent-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
+    border-left-color: color-mix(in oklab, var(--pc-ink-soft) 45%, transparent);
+    padding-left: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  /* TASK-334 (DES-024): the paper selector is the one navigation control, so the card has no arrows, index or pager: the kicker is the
+     category alone (no arrow gutter, no divider) and the pager's 22 px of bottom padding goes back to the content. */
+  .pf-showcase.pf-vcar .pf-info.pf-paper.pf-nonav.paper-sheet {
+    padding-bottom: 14px;
+  }
+  .pf-showcase.pf-vcar .pf-paper.pf-nonav .pf-info-kicker {
+    min-height: 22px;
+    padding-right: 0;
+  }
+  .pf-showcase.pf-vcar .pf-paper.pf-nonav .pf-info-kicker .pf-info-category {
+    border-left: 0;
+    padding-left: 0;
+  }
+  /* ---- the folded-paper arrows: no surface, a 44 px hit box around a ~28 px paper object ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-nav {
+    top: 4px;
+    right: 6px;
+    gap: 0;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    color: var(--pc-terra);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-arrow:hover,
+  .pf-showcase.pf-vcar .pf-paper .pf-info-arrow:active {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  .pf-paper .pf-info-arrow {
+    --oa-face: var(--pc-terra);
+    --oa-shade: var(--pc-terra-deep);
+    --oa-lit: var(--pc-terra-lit);
+    --oa-shadow: var(--pc-shadow);
+  }
+  .pf-paper .pf-info-arrow:focus-visible {
+    outline: 2px solid var(--pc-terra);
+    outline-offset: -2px;
+  }
+  .pf-paper .pf-info-arrow:disabled,
+  .pf-paper .pf-info-arrow[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+
+@media (hover: hover) and (pointer: fine) {
+      .pf-paper .pf-info-arrow:hover .oa {
+        transform: translate(1px, -2px) rotate(-4deg);
+        filter: drop-shadow(3px 5px 2px var(--oa-shadow));
+      }
+    }
+    .pf-paper .pf-info-arrow:active .oa {
+      transform: translateY(1px);
+      filter: drop-shadow(1px 1px 1px var(--oa-shadow));
+    }
+  }
+  /* ---- identity ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-name {
+    margin-top: 2px;
+    color: var(--pc-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-name .pf-logo-img {
+    max-width: 100%;
+    max-height: clamp(24px, calc(var(--pf-vc-h) * 0.06), 36px);
+    width: auto;
+    height: auto;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-tagline {
+    margin-top: 1px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    color: var(--pc-accent-ink);
+    font-size: clamp(14px, calc(var(--pf-vc-h) * 0.03), 1.2rem); /* TASK-331: tagline floor 14 px */
+    line-height: 1.15;
+  }
+  /* ---- the poster: its own aspect ratio, never cropped, a thin terracotta border and a short shadow ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+    flex: none;
+    width: 100%;
+    margin-top: 4px;
+    container-type: normal;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+    position: relative;
+    inset: auto;
+    display: block;
+    box-sizing: content-box;
+    /* never wider than the card, never taller than its share of it: a taller poster is narrower (centred), never cropped */
+    width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.345 - 6px) * var(--pc-ar)));
+    margin-inline: auto;
+    aspect-ratio: var(--pc-ar);
+    border: 3px solid var(--pc-terra);
+    border-radius: 12px;
+    background: var(--pc-paper-2);
+    box-shadow: 0 5px 8px -5px var(--pc-shadow);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-poster-img {
+    object-fit: fill;
+    border-radius: 8px;
+  }
+  /* ---- pills: real id / status / state, mono caps ---- */
+  .pf-paper .pf-pc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf-paper .pf-pc-pills li {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(10.5px, calc(var(--pf-vc-h) * 0.0205), 11.5px); /* TASK-331: pill floor 10.5 px */
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: var(--pc-pill-state-bg);
+    color: var(--pc-pill-state-ink);
+  }
+  .pf-paper .pf-pc-pills li[data-pill="id"] {
+    background: var(--pc-pill-id-bg);
+    color: var(--pc-pill-id-ink);
+  }
+  .pf-paper .pf-pc-pills li[data-pill="status"] {
+    background: var(--pc-pill-status-bg);
+    color: var(--pc-pill-status-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+    flex: none;
+    margin-top: 3px;
+    font-family: var(--font-body);
+    color: var(--pc-ink);
+    font-size: clamp(11px, calc(var(--pf-vc-h) * 0.0245), 14px);
+    line-height: 1.3;
+    max-width: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+@media (min-width: 1800px) and (min-height: 1000px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      -webkit-line-clamp: 3;
+    }
+  }
+  /* ---- actions ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+    margin-top: auto;
+    padding-top: 0;
+    gap: 5px;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action {
+    border: 1px solid color-mix(in oklab, var(--pc-terra) 70%, transparent);
+    border-radius: 12px;
+    background-color: var(--pc-paper-2);
+    background-image: var(--pf-fibers);
+    background-size: 420px 420px;
+    color: var(--pc-ink);
+    box-shadow: 0 2px 3px -1px var(--pc-shadow);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action {
+    background-color: #2b3550;
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"] .pf-action-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--pc-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"]:hover,
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"]:focus-visible {
+    border-color: var(--pc-terra);
+    background-color: var(--pc-paper-2);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"][aria-pressed="true"] {
+    background-color: color-mix(in oklab, var(--pc-terra) 14%, var(--pc-paper-2));
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+    border: 0;
+    border-radius: 12px;
+    background-color: var(--pc-cta);
+    background-image: var(--pf-fibers);
+    color: var(--pc-cta-ink);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      inset 0 -2px 0 var(--pc-terra-deep),
+      0 5px 8px -4px var(--pc-shadow);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:hover,
+  .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:focus-visible {
+    background-color: var(--pc-cta-hover); /* TASK-310: a lighter hover dropped the label under 4:1 */
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--pc-cta-ink);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-arrow {
+    color: var(--pc-cta-ink);
+  }
+  .pf-paper .pf-action:focus-visible {
+    outline: 2px solid var(--pc-ink);
+    outline-offset: 2px;
+  }
+  .pf-showcase.pf-vcar .pf-info.pf-paper .pf-info-pager {
+    inset: auto 0 -8px;
+  }
+
+@container pcard (max-height: 320px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      display: none;
+    }
+  }
+
+/* TASK-332 follow-up (review F2): in a 330-500 px card the description was 11 px, clamped to two lines, with 40-90 px empty above
+     the CTA. It steps up to 13-14 px and three or four lines, and the free height is shared between the poster, the description
+     and the actions as two even gaps (above the poster and above the description) instead of one hole above the CTA. Short cards (330-379 px) take 13 px / four lines and a
+     slightly shorter poster; 380-415 px takes 14 px / four lines; 416-500 px (1440-1512) takes 13 px / three lines and a
+     slightly shorter poster. */
+  @container pcard (min-height: 330px) and (max-height: 500px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster,
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-bottom: 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      font-size: 13px;
+      line-height: 1.28;
+      -webkit-line-clamp: 4;
+    }
+    /* the free height goes above the poster and above the description (auto margins), so the CTA keeps a fixed gap under the text */
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      margin-top: 6px;
+      padding-top: 8px;
+    }
+  }
+  @container pcard (min-height: 330px) and (max-height: 379px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.29 - 6px) * var(--pc-ar)));
+    }
+  }
+  @container pcard (min-height: 380px) and (max-height: 415px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      font-size: 14px;
+    }
+  }
+  @container pcard (min-height: 416px) and (max-height: 500px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      -webkit-line-clamp: 3;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.3 - 6px) * var(--pc-ar)));
+    }
+  }
+
+@container pcard (max-height: 412px) {
+/* four pills (id + a three-part status) in a short card: tighter, and free to wrap onto a second row now that they are >= 10.5 px (TASK-331) */
+    .pf-paper .pf-pc-pills {
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 2px 5px;
+      letter-spacing: 0.02em;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.335 - 6px) * var(--pc-ar)));
+    }
+  }
+
+@container pcard (max-width: 280px) {
+/* the category leaves the visual kicker but stays in the accessibility tree (Stage 9 SF-006). TASK-334 follow-up: not on the
+       nav-less card - its kicker has the whole row to itself (no index, no arrow gutter), so the category stays visible there */
+    .pf-showcase.pf-vcar .pf-paper:not(.pf-nonav) .pf-info-kicker .pf-info-category {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+      padding: 0;
+    }
+    .pf-paper .pf-pc-pills {
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 2px 3px; /* 1024x768: the three pills missed one row by 3 px */
+      font-size: 10px; /* TASK-331: the one place the pill floor drops below 10.5 px (the 184 px 1024 card) */
+      letter-spacing: 0;
+    }
+    /* a shorter poster keeps the icon row inside the card (and off the pager) at 1024x768 */
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.24 - 6px) * var(--pc-ar)));
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      gap: 4px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-actions > li,
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-case-link {
+      grid-column: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-actions > li:has(> [data-tier="primary"]) {
+      grid-column: 1 / -1;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 13.5px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-tail {
+      display: none;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      padding: 10px 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+  }
+  /* ---- pagination: a terracotta active pill, slate inactive pills ---- */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-dot::before {
+    background: var(--pc-dot);
+  }
+  .pf-showcase.pf-vcar .pf-paper .pf-info-dot[aria-current="true"]::before {
+    background: var(--pc-terra);
+  }
+}
+/* === end TASK-303 === */
+
+/* OrigamiArrow (TASK-303; reused by TASK-305): purely visual folded-paper arrow, three facets + cast shadow. The caller's button owns the hit area. */
+.oa {
+  --oa-face: #c8432a;
+  --oa-shade: #8e2a16;
+  --oa-lit: #f0a05c;
+  --oa-shadow: rgb(110 50 20 / 0.28);
+  display: block;
+  width: var(--oa-size, 28px);
+  height: var(--oa-size, 28px);
+  filter: drop-shadow(2px 3px 1.5px var(--oa-shadow));
+  pointer-events: none;
+}
+.oa svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.oa[data-dir="left"] svg { transform: scaleX(-1); }
+.oa[data-dir="down"] svg { transform: rotate(90deg); }
+.oa[data-dir="up"] svg { transform: rotate(-90deg); }
+.oa-face { fill: var(--oa-face); }
+.oa-shade { fill: var(--oa-shade); }
+.oa-lit { fill: var(--oa-lit); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .oa {
+    transition: transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1), filter 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+}
+
+@media (min-width: 1024px) {
+/* the panel keeps the TASK-301 width (the card is sized from the room left over; TASK-303's description needs it), wider only on big screens */
+  .pf-showcase.pf-vcar.pf-psel {
+    --ps2-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    --ps2-panel: #efe6d3;
+    --ps2-tile: #f8f2e4;
+    --ps2-tile-on: #fbf7ec;
+    --ps2-edge: rgb(88 62 34 / 0.2);
+    --ps2-text: #1c2142;
+    --ps2-soft: #5b607a;
+    --ps2-accent: #a5432a; /* TASK-310: 5.5:1 on a tile, 4.9:1 on the panel (was 4.25 / 3.82) */
+    --ps2-shadow: rgb(72 48 24 / 0.22);
+    --oa-face: #c8553a;
+    --oa-shade: #8f3420;
+    --oa-lit: #e98a5b;
+    --oa-shadow: rgb(60 30 16 / 0.35);
+  }
+  [data-theme="dark"] .pf-showcase.pf-vcar.pf-psel {
+    --ps2-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .9 0 0 0 0 .85 0 0 0 0 .8 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    --ps2-panel: #262d3e;
+    --ps2-tile: #313950;
+    --ps2-tile-on: #38405a;
+    --ps2-edge: rgb(255 238 214 / 0.14);
+    --ps2-text: #f4ead8;
+    --ps2-soft: #a9afc4;
+    --ps2-accent: #f4a07e; /* TASK-310: 5.6:1 on a tile, 5.0:1 on the selected tile (was 3.66 / 3.27) */
+    --ps2-shadow: rgb(6 8 18 / 0.5);
+    --oa-face: #e0674a;
+    --oa-shade: #a8402a;
+    --oa-lit: #f09a68;
+    --oa-shadow: rgb(0 0 0 / 0.5);
+  }
+
+  /* ---- the panel ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] {
+    padding: 14px 6px 4px;
+    row-gap: 0;
+    color: var(--ps2-text);
+  }
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector]::before {
+    inset: 0;
+    border-radius: 18px;
+    background-color: var(--ps2-panel);
+    background-image: var(--ps2-grain);
+    background-size: 160px 160px;
+    box-shadow:
+      inset 0 0 0 1px var(--ps2-edge),
+      inset 0 1px 0 rgb(255 255 255 / 0.18),
+      0 2px 0 -1px var(--ps2-edge),
+      0 14px 24px -14px var(--ps2-shadow);
+  }
+  /* ---- header: serif title left, mono index right ---- */
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-carousel-tag {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    align-self: stretch;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0 2px 4px;
+    gap: 1px 4px;
+    flex-wrap: wrap; /* TASK-331 follow-up: at the 11.5 px floor the counter no longer fits beside the title in the 168-188 px panel, so it wraps under it instead of crossing the panel edge */
+    text-align: left;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-select {
+    font-family: var(--font-display);
+    font-size: clamp(11.5px, 0.72vw, 12.5px); /* TASK-331: selector label floor 11.5 px */
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.15;
+    color: var(--ps2-text);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: clamp(11.5px, 0.72vw, 12px); /* TASK-331: selector counter floor 11.5 px */
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--ps2-soft);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count .ps-cur {
+    color: var(--ps2-accent);
+    font-weight: 700;
+  }
+
+  /* ---- tiles ---- */
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track {
+    padding: 12px 5px; /* TASK-305 follow-up: 4px more tile width each side for the larger art + text */
+    gap: 10px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
+    gap: 7px;
+    padding: 8px 6px 8px 7px; /* TASK-309: the arrow no longer reaches the name, so the tile keeps the room for it */
+    border: 1px solid var(--ps2-edge);
+    border-radius: 12px;
+    color: var(--ps2-text);
+    background-color: var(--ps2-tile);
+    background-image: var(--ps2-grain);
+    background-size: 160px 160px;
+    transform: none;
+    rotate: none;
+    scale: 0.97;
+    translate: none;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      0 2px 0 -1px var(--ps2-edge),
+      0 5px 8px -6px var(--ps2-shadow);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([data-rel="-2"], [data-rel="-3"], [data-rel="2"], [data-rel="3"]) {
+    scale: 0.94;
+    translate: none;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) {
+    scale: 1.04;
+    z-index: 2;
+    background-color: var(--ps2-tile-on);
+    border-color: var(--ps2-accent);
+    /* a thin terracotta outline, a small offset paper layer behind, a soft lift */
+    box-shadow:
+      0 0 0 1px var(--ps2-accent),
+      3px 4px 0 0 color-mix(in oklab, var(--ps2-accent) 38%, var(--ps2-panel)),
+      0 12px 14px -8px var(--ps2-shadow);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+    /* TASK-305 follow-up: the art fills the tile's height at ~40% of the tile's width; the text column sits to its right */
+    width: clamp(58px, 40%, 100px);
+    align-self: stretch;
+    aspect-ratio: auto;
+    height: auto;
+    border-radius: 6px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-num {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ps2-accent);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-family: var(--font-display);
+    font-size: clamp(12.5px, 0.88vw, 13.5px);
+    -webkit-line-clamp: 3; /* the narrower text column may wrap "The Shravan's Round" to three lines */
+    line-clamp: 3;
+    font-weight: 650;
+    line-height: 1.12;
+    color: var(--ps2-text);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:not([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-weight: 600;
+    color: color-mix(in oklab, var(--ps2-text) 82%, var(--ps2-tile));
+  }
+
+@media (max-width: 1279px) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+      font-size: 11.5px;
+    }
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+      width: clamp(52px, 38%, 100px); /* 6 px more for the text column */
+    }
+  }
+
+  /* ---- arrow slots: a real button with a 44 px hit area, no visible disc ---- */
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--oa-face);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow:focus-visible {
+    outline: 2px solid var(--ps2-accent);
+    outline-offset: 0;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow {
+      transition:
+        translate 160ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        filter 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="prev"]:focus-visible {
+    translate: 0 -2px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="next"]:focus-visible {
+    translate: 0 2px;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="prev"]:hover {
+      translate: 0 -2px;
+    }
+    .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir="next"]:hover {
+      translate: 0 2px;
+    }
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow[data-dir]:active {
+    translate: 0 0;
+  }
+
+  /* ---- the selection arrow: decorative, on top of the selected tile, straddling its right border, inside the panel ---- */
+  .pf-showcase.pf-vcar.pf-psel .pf-vcar-pointer {
+    display: grid;
+    place-items: center;
+    --oa-size: 24px;
+    width: 24px;
+    height: 24px;
+    /* Stage 8 DES-012 (TASK-309): only the arrow's base (~5 px) sits inside the tile; the rest points out into the gap, so it never
+       reaches the name (at -4px two thirds of it sat over the text and TeachSpark truncated at 1280) */
+    margin-right: -14px;
+    border: 0;
+    /* front layer: above the tiles and the video frame (.pf-feature, z-index 2) */
+    position: relative;
+    z-index: 10;
+  }
+  /* lift the panel above the video frame so nothing covers the arrow */
+  .pf-showcase.pf-vcar.pf-psel .pf-carousel {
+    z-index: 3;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-arrow .oa {
+    --oa-size: 26px;
+  }
+}
+
+@media (min-width: 1700px) {
+  .pf-showcase.pf-vcar.pf-psel {
+    --pf-vc-w: 232px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb .pf-thumb-name,
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb:is([aria-selected="true"], [data-current="true"]) .pf-thumb-name {
+    font-size: 15.5px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-num {
+    font-size: 12.5px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-thumb-art {
+    width: clamp(58px, 42%, 104px);
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-track .pf-thumb {
+    gap: 9px;
+    padding: 8px 8px 8px 9px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-select {
+    font-size: 13.5px;
+  }
+  .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-count {
+    font-size: 13.5px;
+  }
+}
+
+@media (min-width: 1800px) {
+
+@container pcard (min-height: 550px) and (max-height: 599px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-tagline {
+      font-size: 19.5px;
+    }
+    .pf-paper .pf-pc-pills li {
+      font-size: 12px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: 8px;
+      font-size: 15.5px;
+      line-height: 1.38;
+      -webkit-line-clamp: 4; /* review F4: 60 px was still empty above the CTA at 1800x900 with three */
+    }
+    .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      font-size: 15.5px;
+    }
+    .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 19px;
+    }
+  }
+
+@container pcard (min-height: 600px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-kicker {
+      font-size: 14px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-name .pf-logo-img {
+      max-height: 44px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-tagline {
+      font-size: 21px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-top: 10px;
+    }
+    .pf-paper .pf-pc-pills {
+      margin-top: 10px;
+      gap: 6px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 3px 10px;
+      font-size: 12.5px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: 10px;
+      font-size: 16px;
+      line-height: 1.38;
+      -webkit-line-clamp: 3;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      gap: 7px;
+    }
+    .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      font-size: 16.5px;
+    }
+    .pf-showcase.pf-vcar .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 20px;
+    }
+    .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"],
+    .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
+      min-height: 56px;
+    }
+  }
+  /* review F4: the free height is shared above the poster and above the description (the CTA keeps a fixed gap), as in the 330-500 px tier */
+  @container pcard (min-height: 550px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster,
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-bottom: 6px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      margin-top: 8px;
+    }
+  }
+}

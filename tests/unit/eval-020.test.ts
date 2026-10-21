@@ -59,6 +59,8 @@ const RETIRED_NAMES = [
 
 /** Files allowed to hold colour literals: the token source and the OG image module (D11). */
 const LITERAL_ALLOWLIST = new Set(["app/globals.css", "lib/og.tsx"]);
+/** TASK-320: route CSS split out of globals.css lives in app/styles/ and holds the same kind of literals. */
+const isLiteralAllowed = (f: string) => LITERAL_ALLOWLIST.has(f) || f.startsWith("app/styles/");
 
 const SCAN_EXTENSIONS = [".ts", ".tsx", ".css"];
 
@@ -204,14 +206,14 @@ describe("EVAL-020 paper token gate", () => {
     for (const name of PAPER_NAMES) expect(defined.filter((d) => d === name), `--color-${name}`).toHaveLength(2);
   });
 
-  it("(3) no colour literal outside app/globals.css + lib/og.tsx (TC-123 steps 2 and 4)", () => {
-    const files = sourceFiles("app", "components", "lib").filter((f) => !LITERAL_ALLOWLIST.has(f));
+  it("(3) no colour literal outside app/globals.css, app/styles/ + lib/og.tsx (TC-123 steps 2 and 4)", () => {
+    const files = sourceFiles("app", "components", "lib").filter((f) => !isLiteralAllowed(f));
     expect(files.length).toBeGreaterThan(50);
     expect(scanTree(files, scanLiterals)).toEqual([]);
   });
 
-  it("(3b) no named CSS colour (black, white, red, …) as a value outside app/globals.css (TASK-319)", () => {
-    const files = sourceFiles("app", "components", "lib").filter((f) => !LITERAL_ALLOWLIST.has(f) && f.endsWith(".css"));
+  it("(3b) no named CSS colour (black, white, red, …) as a value outside app/globals.css and app/styles/ (TASK-319)", () => {
+    const files = sourceFiles("app", "components", "lib").filter((f) => !isLiteralAllowed(f) && f.endsWith(".css"));
     expect(files.length).toBeGreaterThan(10);
     expect(files.flatMap((f) => scanNamedColours(readFileSync(join(ROOT, f), "utf8"), f).map((h) => `${f}:${h.line} [${h.rule}] ${h.match}`))).toEqual([]);
   });

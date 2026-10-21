@@ -1,4 +1,5 @@
 import { devOnly } from "@/lib/dev-only";
+import "../../styles/dev.css";
 import { ArtifactRenderer } from "@/components/case-study/artifacts/ArtifactRenderer";
 import { ArtifactGrid } from "@/components/case-study/artifacts/ArtifactGrid";
 import { ARTIFACTS, SOURCES } from "./fixtures";

@@ -1,0 +1,81 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: dev/media-player, dev/portfolio-video, home, projects, work/[slug]. */
+
+@layer components {
+  .pf-stage-poster {
+    object-fit: cover;
+  }
+  .pf-player {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--color-navy);
+  }
+  .pf-play {
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: var(--pf-play, 80px);
+    height: var(--pf-play, 80px);
+    border: 3px solid var(--color-ivory);
+    border-radius: 50%;
+    color: var(--color-ivory);
+    background: color-mix(in oklab, var(--color-navy) 62%, transparent);
+    box-shadow:
+      0 0 0 6px color-mix(in oklab, var(--color-ivory) 18%, transparent),
+      0 12px 26px color-mix(in oklab, var(--shadow-ink) 38%, transparent);
+    /* transition + hover/press: the TASK-181 block */
+  }
+  .pf-stage-error {
+    z-index: 2;
+    place-self: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 90%;
+    padding: 10px 14px;
+    font-size: 15px;
+    color: var(--color-navy);
+    background: color-mix(in oklab, var(--color-rust) 14%, var(--color-ivory));
+    border-radius: var(--radius-paper);
+    box-shadow: var(--shadow-paper);
+  }
+  .pf-stage-error a {
+    color: var(--color-terracotta);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+.pf-play:focus-visible {
+  background: color-mix(in oklab, var(--color-navy) 78%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pf-play:hover {
+    background: color-mix(in oklab, var(--color-navy) 78%, transparent);
+  }
+  }
+/* === end TASK-230 follow-up === */
+
+/* ==================================================================================================
+   TASK-250 (Tushar 2026-10-18) · a product's own logo replaces its name text on the panel heading (desktop + phone) and
+   the phone's top bar. Both theme files are in the DOM; the one for the active theme shows (`[data-theme]` on <html>:
+   "-dark" is the light-ink file for the dark theme). Heights are caps — the image keeps its aspect and never overflows.
+   ================================================================================================== */
+.pf-logo-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 40px;
+  object-fit: contain;
+}
+.pf-logo-img[data-theme-variant="dark"],
+[data-theme="dark"] .pf-logo-img[data-theme-variant="light"] {
+  display: none;
+}
+[data-theme="dark"] .pf-logo-img[data-theme-variant="dark"] {
+  display: block;
+}

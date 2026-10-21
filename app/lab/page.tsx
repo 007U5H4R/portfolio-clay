@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../styles/lab.css";
 import { LabLoader } from "@/components/lab/LabLoader";
 
 /**

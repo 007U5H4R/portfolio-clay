@@ -1,0 +1,258 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: thinking. */
+
+@layer components {
+/* --- /thinking opener copy --- */
+  .thinking-opener-copy {
+    display: grid;
+    gap: 22px;
+    padding-block: clamp(28px, 4vw, 56px) clamp(40px, 5vw, 72px);
+  }
+  .thinking-h1 {
+    font-size: clamp(56px, 7vw, 108px);
+    font-variation-settings: "opsz" 144, "SOFT" 40;
+  }
+  .thinking-ul,
+  .essays-ul {
+    position: relative;
+    white-space: nowrap;
+  }
+  .thinking-ul .sketch,
+  .essays-ul .sketch {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    bottom: -0.1em;
+    width: 104%;
+    height: 0.3em;
+  }
+  .essays-ul .sketch {
+    bottom: -0.14em;
+    height: 0.28em;
+  }
+  .thinking-hand-sub {
+    max-width: 14ch;
+    margin-left: 6px;
+  }
+
+  /* --- /thinking essays section (paper-2, torn top) --- */
+  .thinking-essays-body {
+    background: var(--color-paper-2);
+    padding-block: 16px clamp(72px, 8vw, 120px);
+  }
+  .essays-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px 40px;
+    align-items: end;
+    margin-bottom: clamp(28px, 4vw, 48px);
+  }
+  .essays-h2 {
+    font-size: clamp(36px, 4vw, 56px);
+  }
+  .essays-empty {
+    font-size: 14px;
+    color: var(--color-navy-2);
+  }
+  .essays-sheet-wrap {
+    position: relative;
+    max-width: 1040px;
+  }
+  .essays-start {
+    position: absolute;
+    top: 58px;
+    right: -12px;
+    z-index: 3;
+    width: 150px;
+  }
+  .essays-margin {
+    position: absolute;
+    top: 60%;
+    right: -176px;
+    width: 150px;
+    color: var(--color-ink-soft);
+  }
+  .essays-margin .annotation-arrow {
+    width: 110px;
+    height: 34px;
+    margin-left: -6px;
+  }
+  .essays-sheet {
+    padding: 8px 40px 40px 72px;
+  }
+  .essays-sheet::before {
+    left: 52px;
+  }
+  .essays-sheet .paper-holes {
+    left: 18px;
+  }
+  .essays-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .essay-entry {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 0 18px;
+    align-items: start;
+    padding-block: 28px 30px;
+    border-bottom: 1.5px dashed var(--line);
+  }
+  .essay-entry:last-child {
+    border-bottom: 0;
+  }
+  .essay-num {
+    padding-top: 12px;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--color-ink-soft);
+  }
+  .essay-entry-body {
+    display: grid;
+    gap: 10px;
+  }
+  .essay-entry-title {
+    max-width: 24ch;
+    font-size: clamp(24px, 2.4vw, 34px);
+    line-height: 1.08;
+  }
+  .essay-entry-title a {
+    transition: color 0.18s ease;
+  }
+  /* hover/focus: the TASK-181.4 block (essay row) */
+  .essay-entry-dek {
+    max-width: 58ch;
+    font-size: 16px;
+    color: var(--color-navy-2);
+  }
+  .essay-entry[data-variant="lead"] {
+    padding-block: 26px 38px;
+  }
+  .essay-entry[data-variant="lead"] .essay-num {
+    padding-top: 16px;
+    font-size: 32px;
+    color: var(--color-rust);
+  }
+  .essay-entry[data-variant="lead"] .essay-entry-title {
+    max-width: 20ch;
+    font-size: clamp(32px, 3.6vw, 50px);
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+  }
+  .essay-entry[data-variant="lead"] .essay-entry-dek {
+    font-size: 17px;
+  }
+  .essay-entry[data-variant="quiet"] {
+    padding-block: 22px 24px;
+  }
+  .essay-entry[data-variant="quiet"] .essay-entry-title {
+    font-size: clamp(22px, 2vw, 28px);
+  }
+
+@media (min-width: 640px) {
+    .essay-entry[data-variant="shift"] .essay-entry-body {
+      padding-left: clamp(0px, 4vw, 48px);
+    }
+  }
+
+@media (max-width: 899px) {
+    .essays-head {
+      grid-template-columns: 1fr;
+    }
+    .essays-start {
+      position: static;
+      display: inline-block;
+      width: auto;
+      margin: 0 0 14px 20px;
+      rotate: -2deg;
+    }
+  }
+
+@media (max-width: 639px) {
+    .essays-sheet {
+      padding: 4px 18px 28px 46px;
+    }
+    .essays-sheet::before {
+      left: 34px;
+    }
+    .essays-sheet .paper-holes {
+      left: 10px;
+    }
+    .essay-entry {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .essay-num,
+    .essay-entry[data-variant="lead"] .essay-num {
+      padding-top: 0;
+    }
+    .essays-start {
+      margin-left: 0;
+    }
+  }
+}
+/* end TASK-196 */
+/* === TASK-181.4 === */
+/* M-012 P4 (Design.md §14.10 rows "Thinking rows" and "pg-ex" (the pg-ex bench cards were removed with /playground, TASK-249); decisions EXE-61, EXE-62, EXE-63).
+   Thinking essay row (L1), certification cards (L2 shadow crossfade).
+   Hover only on a fine pointer, with a focus-visible twin; no box-shadow / filter transition; no scale; reduced motion = no movement. */
+
+/* ---- Thinking: the essay row ---- */
+.essay-entry-title,
+.essay-num {
+  transition: translate 250ms var(--ease-l1);
+}
+.essay-entry-arrow {
+  display: inline-block;
+  margin-left: 0.3em;
+  color: var(--color-ink-soft);
+  opacity: 0.55;
+  white-space: nowrap;
+  transition:
+    translate 250ms var(--ease-l1),
+    color 250ms var(--ease-l1),
+    opacity 250ms var(--ease-l1);
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-title {
+  translate: 3px 0;
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-title a {
+  color: var(--color-rust);
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-entry-arrow {
+  translate: 4px 0;
+  color: var(--color-rust);
+  opacity: 1;
+}
+.essay-entry:focus-within:has(:focus-visible) .essay-num {
+  translate: 0 -1px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .essay-entry:hover .essay-entry-title {
+    translate: 3px 0;
+  }
+  .essay-entry:hover .essay-entry-title a {
+    color: var(--color-rust);
+  }
+  .essay-entry:hover .essay-entry-arrow {
+    translate: 4px 0;
+    color: var(--color-rust);
+    opacity: 1;
+  }
+  .essay-entry:hover .essay-num {
+    translate: 0 -1px;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .essay-entry-title a:active {
+    color: var(--color-rust);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .essay-entry:is(:hover, :focus-within) :is(.essay-entry-title, .essay-entry-arrow, .essay-num) {
+    translate: none;
+  }
+}

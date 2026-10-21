@@ -1,0 +1,911 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: dev/artifacts, dev/ask, dev/thinking, dev/video. */
+
+/*
+  Ask inline answer reveal (TKT-49 perf lever / Design.md §3–§4). This was an `m.div`
+  (initial opacity:0,y:8 → animate opacity:1,y:0, spring `askExpand`) inside a `LazyMotionRoot`.
+  A one-shot mount entrance needs no JS spring — this CSS keyframe reproduces the fade-up while
+  dropping AskPortfolio as a consumer of the `domAnimation` feature bundle (kept off `/` first-load,
+  EVAL-005). The element is remounted via React `key={status}`, so the animation replays on every
+  idle→loading→answer transition, exactly as the keyed `m.div` did. The global reduced-motion rule
+  below forces animation-duration to ~1ms, so no separate opt-out is needed (matches the previous
+  `transition:{duration:0}` reduced-motion branch).
+*/
+@keyframes ask-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ask-reveal {
+  animation: ask-reveal 300ms var(--ease-panel);
+}
+
+/*
+  Show-the-thinking node reveal (TKT-21 / Design.md §4 "Show-the-thinking node reveal" row;
+  tickets.md TKT-21). `.thinking-nodes` (the `<ol>`) is added by `ShowTheThinking` only AFTER
+  mount — same "never a JS-off content-hider" rule `.reveal` follows above: with JavaScript
+  disabled the class never lands in server-rendered HTML, so every node renders fully visible.
+  Once mounted, `visibility:hidden` collapses the list (removed from the accessibility tree and
+  tab order, matching `.reveal`'s technique) until the toggle sets `[data-open]`. Each
+  `.thinking-node` then fades in opacity-only with a 120ms/node stagger via `--i` (the node's
+  index, set inline by `ThinkingNode`); its connector `::before` draws in with a `clip-path` wipe
+  on the same stagger — `clip-path` is the one extra property Design.md §4's hardware-
+  acceleration note permits beyond transform/opacity for this interaction specifically.
+*/
+.thinking-nodes {
+  visibility: hidden;
+}
+.thinking-nodes[data-open] {
+  visibility: visible;
+}
+
+.thinking-node {
+  --i: 0;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-reveal);
+  transition-delay: calc(var(--i) * 120ms);
+}
+.thinking-nodes[data-open] .thinking-node {
+  opacity: 1;
+}
+
+/* Connector line to the next node — centred under the 40px stage dot (left: 19px = 20px minus
+   the 1px half-width of the 2px line). Absent after the last node (nothing to connect to). */
+.thinking-node:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-ink-soft);
+  opacity: 0.3;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 220ms var(--ease-reveal);
+  transition-delay: calc(var(--i) * 120ms);
+}
+.thinking-nodes[data-open] .thinking-node:not(:last-child)::before {
+  clip-path: inset(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+/* Show-the-thinking (TKT-21, Design.md §4 reduced-motion mapping: "all 8 appear at once,
+     opacity only"): every node's transition-delay drops to 0ms (no stagger — genuinely all at
+     once) and only `opacity` is left in its transition list. The connector's `clip-path` wipe is
+     removed entirely rather than left instant-but-still-listed, so it jumps straight to its
+     final state with no animated property at all (EVAL-010: 0 transform/clip-path animations
+     observed under reduced motion). */
+  .thinking-node {
+    transition-property: opacity;
+    transition-delay: 0ms;
+  }
+  .thinking-node:not(:last-child)::before {
+    transition: none;
+  }
+}
+
+@layer components {
+  .ask-h2 {
+    margin-top: 10px;
+    font-size: clamp(38px, 4.2vw, 58px);
+    color: var(--color-navy);
+  }
+
+  /* notebook: grows in place when a state opens (Design.md §8 "Ask inline expand") */
+  .ask-notebook-wrap {
+    min-width: 0;
+  }
+  .ask-notebook {
+    transition: min-height 280ms var(--ease-panel);
+  }
+  .ask-notebook-wrap[data-expanded] .ask-notebook {
+    min-height: 240px;
+  }
+  .ask-prompt {
+    color: var(--color-navy-2);
+  }
+  .ask-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .ask-input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 2px;
+    border: 0;
+    border-bottom: 1.5px solid var(--color-navy-2);
+    border-radius: 0;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: var(--color-navy);
+  }
+  .ask-input::placeholder {
+    color: var(--color-ink-soft);
+  }
+  .ask-submit {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 6px 18px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-navy);
+    color: var(--color-ivory);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 180ms ease;
+  }
+  .ask-submit:hover {
+    background: var(--color-navy-2);
+  }
+  .ask-body {
+    margin-top: 18px;
+  }
+
+  /* the five states on the ruled paper */
+  .ask-state {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .ask-microcopy {
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
+    color: var(--color-ink-soft);
+  }
+  .ask-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ask-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--color-ivory);
+    font-family: var(--font-body);
+    font-size: 14px; /* EVAL-008 floor (integration-abc, Dev-27) */
+    line-height: 1.25;
+    color: var(--color-navy-2);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 180ms ease;
+  }
+  .ask-pill:hover {
+    border-color: var(--color-navy-2);
+  }
+  .ask-pill-link {
+    color: var(--color-navy);
+  }
+  .ask-pill-arrow {
+    color: var(--color-rust);
+  }
+  .ask-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-block: 8px;
+  }
+  .ask-shimmer {
+    display: block;
+    width: 100%;
+    height: 14px;
+    border-radius: var(--radius-paper);
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-navy) 8%, transparent) 0%,
+      color-mix(in oklab, var(--color-navy) 16%, transparent) 50%,
+      color-mix(in oklab, var(--color-navy) 8%, transparent) 100%
+    );
+    background-size: 200% 100%;
+    animation: ask-shimmer 1.4s linear infinite;
+  }
+  .ask-shimmer-short {
+    width: 72%;
+  }
+  .ask-answer-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .ask-answer-heading {
+    border-radius: var(--radius-paper);
+    font-size: clamp(24px, 2vw, 28px);
+    color: var(--color-navy);
+    outline: none;
+  }
+  .ask-answer-text {
+    max-width: 65ch;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-navy-2);
+  }
+  .ask-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--color-rust);
+    border-radius: var(--radius-paper);
+    background: var(--color-ivory);
+    font-size: 15px;
+    color: var(--color-navy);
+  }
+  .ask-error-glyph {
+    flex-shrink: 0;
+    color: var(--color-rust);
+  }
+  .ask-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-navy);
+    cursor: pointer;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+  .ask-btn-secondary {
+    border: 1.5px solid var(--line);
+    background: var(--color-ivory);
+  }
+  .ask-btn-ghost {
+    border: 1.5px solid transparent;
+    background: transparent;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .ask-notebook {
+      transition: none !important;
+    }
+    .ask-reveal {
+      animation: none !important;
+      transition: opacity 150ms linear !important;
+    }
+    .ask-shimmer {
+      animation: none !important;
+    }
+    .ask-submit,
+    .ask-pill,
+    .ask-btn {
+      transition: none;
+    }
+  }
+}
+@keyframes ask-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@layer components {
+  .work-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 28px;
+  }
+
+@media (max-width: 1024px) {
+    .work-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+@media (max-width: 640px) {
+    .work-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+.art:has(.artifact-insight) {
+  flex-basis: 320px;
+  max-width: 520px;
+}
+.art:has(.artifact-hyp) {
+  flex-basis: 280px;
+  max-width: 360px;
+}
+.art:has(.artifact-metric) {
+  flex-basis: 250px;
+  max-width: 320px;
+}
+.art:has(.artifact-dec) {
+  flex-basis: 300px;
+  max-width: 420px;
+}
+.art:has(.artifact-eval),
+.art:has(.artifact-exp) {
+  flex-basis: 300px;
+  max-width: 440px;
+}
+.art:has(.artifact-doc) {
+  flex-basis: 260px;
+  max-width: 360px;
+}
+.art:has(.artifact-proto) {
+  flex-basis: 320px;
+  max-width: 480px;
+}
+.artifact-eyebrow {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+}
+.artifact-src {
+  margin-top: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.artifact-caption {
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+}
+
+/* insight — a bare hand pull-quote (no sheet fill) with the big Fraunces “ glyph, cite + Source. */
+.artifact-insight {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 10px 0 0 26px;
+  margin: 0;
+}
+.artifact-insight::before {
+  content: "“";
+  position: absolute;
+  left: -14px;
+  top: -28px;
+  font-family: var(--font-display);
+  font-size: 72px;
+  line-height: 1;
+  color: var(--color-rust);
+  opacity: 0.55;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+}
+.artifact-insight blockquote {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--color-navy);
+}
+/* A sourced quote longer than the §3.4 240-character Caveat limit stays verbatim (D7) and renders in
+   Fraunces instead of the hand — never truncated, never Caveat. */
+.artifact-insight blockquote.artifact-quote-long {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.3;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+}
+.artifact-insight figcaption {
+  display: grid;
+  gap: 2px;
+}
+.artifact-insight cite {
+  display: block;
+  font-style: normal;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  margin-top: 8px;
+}
+
+/* hypothesis — note-coloured card: Caveat labels, Inter 15 px text, status pill (icon + Inter text). */
+.artifact-hyp {
+  background: var(--color-note);
+  border-radius: var(--radius-paper);
+  box-shadow: 0 10px 18px -10px color-mix(in oklab, var(--color-navy) 40%, transparent);
+  padding: 18px 20px 16px;
+}
+.artifact-lbl {
+  display: block;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-terracotta);
+  margin-top: 8px;
+}
+.artifact-hyp .artifact-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-navy);
+  margin-top: 3px;
+}
+.artifact-rule {
+  border-top: 1px dashed color-mix(in oklab, var(--color-navy) 30%, transparent);
+  margin: 12px 0 10px;
+}
+.artifact-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-ivory) 55%, transparent);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+.artifact-status[data-status="validated"] svg {
+  color: var(--color-forest);
+}
+.artifact-status[data-status="partially-validated"] svg {
+  color: var(--color-navy-2);
+}
+.artifact-status[data-status="invalidated"] svg {
+  color: var(--color-terracotta);
+}
+.artifact-status[data-status="unmeasured"] svg {
+  color: var(--color-ink-soft);
+}
+
+/* metric — pinned ruled index card (`Sheet index` + `Pin`): Fraunces value, Inter label / context /
+   kind badge (Dev-04) / as-of / Source. */
+.artifact-metric {
+  padding: 30px 20px 14px;
+}
+.metric-val {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "opsz" 96, "SOFT" 20;
+  color: var(--color-navy);
+}
+.metric-lbl {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+  margin-top: 2px;
+}
+.metric-ctx {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+}
+.metric-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink-soft);
+}
+.metric-foot .artifact-src {
+  margin-top: 0;
+}
+.metric-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-forest);
+}
+.metric-kind[data-kind="self-reported"] {
+  color: var(--color-terracotta);
+}
+.metric-kind[data-kind="structural"] {
+  color: var(--color-navy-2);
+}
+
+/* decision — ivory card: Fraunces h3, Chosen (forest ✓) / Rejected (rust, struck) hand labels, Why:. */
+.artifact-dec {
+  display: grid;
+  gap: 10px;
+  padding: 22px 22px 18px;
+}
+.artifact-dec > h3 {
+  font-size: 24px;
+  font-variation-settings: "opsz" 72, "SOFT" 20;
+}
+.dec-col {
+  display: grid;
+  gap: 4px;
+}
+.artifact-dec .dec-col-lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-forest);
+}
+.artifact-dec .dec-rej .dec-col-lbl {
+  color: var(--color-rust);
+}
+.artifact-dec p,
+.artifact-dec li {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+}
+.artifact-dec li {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--color-rust) 75%, transparent);
+  text-decoration-thickness: 1.5px;
+  color: var(--color-ink-soft);
+}
+.dec-why {
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+.dec-why-lbl {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-navy-2);
+  margin-right: 6px;
+}
+
+/* evaluation — paper-2 bordered card; `dl` with hand `dt` labels (forest, see the header note). */
+.artifact-eval {
+  background: var(--color-paper-2);
+  border: 1.5px solid color-mix(in oklab, var(--color-navy) 20%, transparent);
+  border-radius: 6px;
+  box-shadow: none;
+  padding: 18px 20px 14px;
+}
+.artifact-eval dl {
+  margin: 10px 0 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 14px;
+  font-size: 14px;
+}
+.artifact-eval dt {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-forest);
+  padding-block: 8px;
+  border-top: 1px dashed color-mix(in oklab, var(--color-navy) 18%, transparent);
+}
+.artifact-eval dd {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-navy-2);
+  line-height: 1.5;
+  padding-block: 8px;
+  border-top: 1px dashed color-mix(in oklab, var(--color-navy) 18%, transparent);
+}
+.artifact-eval dt:first-of-type,
+.artifact-eval dd:first-of-type {
+  border-top: 0;
+}
+
+/* experiment — ivory card: Setup ↓ Result ↓ Learning, hand step labels (last in rust). */
+.artifact-exp {
+  padding: 18px 20px 14px;
+}
+.artifact-exp li {
+  position: relative;
+  padding-left: 92px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+}
+.exp-lbl {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-forest);
+}
+.artifact-exp li:last-child .exp-lbl {
+  color: var(--color-rust);
+}
+/* The ↓ between steps is decorative — `/ ""` keeps it out of the accessibility tree. */
+.artifact-exp li + li::before {
+  content: "↓" / "";
+  position: absolute;
+  left: 26px;
+  top: -19px;
+  font-family: var(--font-hand);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-ink-soft);
+}
+
+/* prototype — taped photo frame (`Sheet photo` + 2 `Tape`) around a 16:9 image / video / alt caption. */
+.artifact-proto {
+  padding: 14px 14px 12px;
+}
+.proto-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-paper-2);
+}
+.proto-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-ink-soft);
+}
+.artifact-proto figcaption {
+  display: grid;
+  gap: 2px;
+  margin-top: 10px;
+}
+
+/* generic — kraft doc tag (`Sheet tag`, its uppercase 12 px tag typography reset for a titled card). */
+.artifact-doc {
+  border-radius: 3px 14px 14px 3px;
+  padding: 16px 18px 14px 32px;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.artifact-doc::before {
+  left: 11px;
+  top: 26px;
+  width: 10px;
+  height: 10px;
+  translate: 0 0;
+}
+.artifact-doc .artifact-eyebrow,
+.artifact-doc .artifact-src,
+.artifact-doc .artifact-src * {
+  color: var(--color-navy);
+}
+.artifact-doc h3 {
+  font-size: 20px;
+  font-variation-settings: "opsz" 48, "SOFT" 20;
+  margin-top: 4px;
+}
+.artifact-doc h3 a {
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-navy) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.artifact-doc h3 a:hover {
+  text-decoration-color: var(--color-navy);
+}
+.artifact-doc .artifact-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-navy-2);
+  margin-top: 8px;
+}
+.thinking-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.think-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--color-ivory);
+  color: var(--color-navy);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 180ms ease;
+}
+.thinking > .thinking-head > .paper-annotation {
+  font-size: 21px;
+  color: var(--color-ink-soft);
+}
+.node-med {
+  position: absolute;
+  left: -68px;
+  top: -4px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-ivory);
+  border: 1.8px solid var(--color-navy-2);
+  box-shadow: var(--shadow-paper);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+.node-lab {
+  position: relative;
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--color-paper-2);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy-2);
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
+    0 6px 12px -8px color-mix(in oklab, var(--color-navy) 25%, transparent);
+  rotate: -1.2deg;
+}
+.node:nth-child(even) .node-lab {
+  rotate: 0.9deg;
+}
+/* The label's pin is chrome on the tag (a pseudo-element, not a `Pin` fastener): rust, every third
+   forest, every fourth steel — as the mockup. */
+.node-lab::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+    var(--color-rust);
+  box-shadow: 0 2px 3px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+}
+.node:nth-child(3n) .node-lab::before {
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+    var(--color-forest);
+}
+.node:nth-child(4n) .node-lab::before {
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--color-ivory) 30%, transparent) 0, transparent 40%),
+    var(--color-steel);
+}
+.node-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-navy-2);
+  max-width: 60ch;
+}
+/* Rust, as the mockup: rendered rust (#b64927) on paper is 4.71:1 at 13 px / 600 once the node's fade
+   has settled (axe-verified at 390 + 1440). */
+.node-src {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-rust);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-rust) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.node-src:hover {
+  text-decoration-color: var(--color-rust);
+}
+.node-src-plain {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink-soft);
+}
+/* The chain sketch is the connector now — drop TKT-21's per-node line. */
+.thinking .thinking-node:not(:last-child)::before {
+  content: none;
+}
+
+@media (max-width: 640px) {
+  .artifact-insight {
+    padding-left: 22px;
+  }
+  .node-med {
+    left: -56px;
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .think-btn {
+    transition: none;
+  }
+}
+/* end TKT-96 */
+/* TKT-90d · a11y + /work bundle follow-ups (docs/a11y-pass.md A11Y-2/3/4, INTEGRATION-ABC bundle) */
+/* A11Y-3 (A11Y-2's `/about` kind-badge dot retired with its section in TASK-136): the insight's big
+   opening-quote glyph is decorative CSS generated content — give them empty alt text (`content: <glyph> / ""`) so they are not read
+   aloud ("black circle", "left double quotation mark"). The first declaration is the fallback for
+   engines without the alt-text syntax; the visual is unchanged. */
+.artifact-insight::before {
+  content: "“";
+  content: "“" / "";
+}
+/* A11Y-4: DecisionCard now renders a real space after "Why:"; trim the label margin so the gap
+   stays ≈ the old 6 px. */
+.dec-why-lbl {
+  margin-right: 2px;
+}
+/* ask-btn / think-btn colour hovers (EXE-62): fine-pointer hover, focus twin, and a touch :active so a tap never leaves it stuck */
+.ask-btn-secondary:focus-visible,
+.ask-btn-secondary:active,
+.think-btn:focus-visible,
+.think-btn:active {
+  border-color: var(--color-navy-2);
+}
+.ask-btn-ghost:focus-visible,
+.ask-btn-ghost:active {
+  border-color: var(--line);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ask-btn-secondary:hover,
+  .think-btn:hover {
+    border-color: var(--color-navy-2);
+  }
+  .ask-btn-ghost:hover {
+    border-color: var(--line);
+  }
+  }

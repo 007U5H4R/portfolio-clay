@@ -1,0 +1,898 @@
+/* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
+   Imported by: dev/ask, home. */
+
+@layer components {
+  .hero-stamp .postmark-ring {
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 2.6;
+  }
+  .hero-stamp .postmark-ring-inner {
+    stroke-width: 1.6;
+  }
+  /* The lettering ring as dashes — a postmark's ring words would be micro text (EVAL-008 14 px floor). */
+  .hero-stamp .postmark-ring-dashed {
+    stroke-width: 4;
+    stroke-dasharray: 3 4.5;
+    stroke-linecap: butt;
+  }
+  .hero-stamp .postmark-mono {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 600;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    fill: var(--color-rust);
+  }
+  .hero-stamp .postmark-wave {
+    fill: none;
+    stroke: var(--color-rust);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+  /* The underline sketch hangs under the last three words (mockup `.hero h1 .ul`). */
+  .hero-h1 .underline-host {
+    position: relative;
+    white-space: nowrap;
+  }
+  .hero-h1 .underline-host .sketch {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    bottom: -0.12em;
+    width: 104%;
+    height: 0.32em;
+  }
+}
+
+@layer components {
+/* section: the 72/96/128 top rhythm stays on the section (transparent, above the tear); the
+     paper-2 body starts at the torn edge, like the band footer. */
+  .ask-section {
+    position: relative;
+    z-index: 1;
+    padding-top: var(--section-gap-mobile);
+  }
+  .ask-section-body {
+    background: var(--color-paper-2);
+  }
+  .ask-eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-navy-2);
+  }
+
+@media (min-width: 768px) {
+    .ask-section {
+      padding-top: var(--section-gap-tablet);
+    }
+  }
+
+@media (min-width: 1024px) {
+    .ask-section {
+      padding-top: var(--section-gap-desktop);
+    }
+  }
+}
+
+@layer components {
+/* The rust underline runs a touch past the last line (reference); the two accent strokes up to its
+     right are CSS on the same host — part of the one h1 underline sketch object (§3.2). */
+  .hero-h1 .underline-host .sketch {
+    left: -1%;
+    right: auto;
+    bottom: -0.16em;
+    width: 102%;
+    height: 0.3em;
+  }
+  .hero-h1 .underline-host::after {
+    content: none;
+    position: absolute;
+    top: -0.4em;
+    right: -1.25em;
+    width: 0.62em;
+    height: 0.62em;
+    background: var(--color-rust);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cg fill='none' stroke='black' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M24 4 C 20 14, 14 24, 6 32'/%3E%3Cpath d='M46 22 C 38 28, 30 34, 18 42'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cg fill='none' stroke='black' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M24 4 C 20 14, 14 24, 6 32'/%3E%3Cpath d='M46 22 C 38 28, 30 34, 18 42'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+@media (min-width: 768px) {
+    .hero-h1 .underline-host::after {
+      content: "";
+    }
+  }
+}
+
+@layer components {
+  .hero-intro-screen.pf-stage-screen > .pf-play {
+    --pf-play: clamp(56px, 6vw, 80px);
+    position: absolute;
+    left: calc(50% - var(--pf-play) / 2);
+    top: calc(50% - var(--pf-play) / 2);
+  }
+}
+
+@layer components {
+  .ask-section {
+    z-index: 3;
+  }
+}
+
+@layer components {
+  .hat-body {
+    position: relative;
+    overflow: clip;
+    padding-block: clamp(36px, 5vw, 64px) clamp(56px, 6vw, 84px);
+  }
+  .hat-body > .mx-auto {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* --- layout --- */
+  .hat-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .hat-left {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "intro intro"
+      "dog note";
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 20px;
+  }
+  .hat-intro {
+    grid-area: intro;
+  }
+  .hat-mascot {
+    grid-area: dog;
+  }
+  .hat-sticky {
+    grid-area: note;
+  }
+
+@media (min-width: 1024px) {
+    .hat-grid {
+      grid-template-columns: minmax(0, 43fr) minmax(0, 57fr);
+      gap: clamp(24px, 3vw, 48px);
+      align-items: stretch;
+    }
+    .hat-left {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-rows: auto auto auto 1fr;
+      grid-template-areas:
+        "eyebrow eyebrow"
+        "title title"
+        "sub sub"
+        "lead dog"
+        "note dog";
+      align-items: start;
+      column-gap: 8px;
+      row-gap: 0;
+    }
+    .hat-intro {
+      display: contents;
+    }
+    .hat-eyebrow {
+      grid-area: eyebrow;
+    }
+    .hat-title {
+      grid-area: title;
+    }
+    .hat-subtitle {
+      grid-area: sub;
+    }
+    .hat-lead {
+      grid-area: lead;
+    }
+    .hat-mascot {
+      align-self: end;
+    }
+    .hat-sticky {
+      align-self: start;
+    }
+  }
+
+  /* --- left: identity (spec §3, §4, §18) --- */
+  .hat-eyebrow {
+    font-size: 14px;
+  }
+  .hat-title {
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: clamp(40px, 4vw, 58px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    color: var(--color-navy);
+  }
+  .hat-title-accent {
+    color: var(--color-terracotta);
+    background: linear-gradient(
+      transparent 70%,
+      color-mix(in oklab, var(--color-note) 90%, transparent) 70% 90%,
+      transparent 90%
+    );
+  }
+  .hat-title-paw {
+    flex-shrink: 0;
+    width: 0.62em;
+    height: 0.62em;
+    color: var(--color-rust);
+    transform: rotate(14deg);
+  }
+  .hat-subtitle {
+    justify-self: start;
+    margin-top: 6px;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-navy-2);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    text-decoration-color: color-mix(in oklab, var(--color-navy-2) 70%, transparent);
+  }
+  .hat-lead {
+    margin-top: 14px;
+    max-width: 36ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-navy-2);
+  }
+
+@media (min-width: 1024px) {
+    .hat-lead {
+      margin-top: 18px;
+      font-size: 18px;
+    }
+  }
+
+  /* --- Tushky (spec §5, §6) --- */
+  .hat-mascot {
+    position: relative;
+    justify-self: center;
+    padding-top: 52px;
+  }
+  .hat-dog {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: auto;
+    height: 150px;
+    filter: drop-shadow(0 10px 14px color-mix(in oklab, var(--shadow-ink) 18%, transparent));
+  }
+  /* the page edge the paws rest on */
+  .hat-mascot::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    left: -14%;
+    right: -14%;
+    bottom: -6px;
+    height: 14px;
+    background: var(--color-ivory);
+    box-shadow: 0 3px 6px -2px color-mix(in oklab, var(--color-navy) 22%, transparent);
+    clip-path: polygon(0 30%, 8% 10%, 19% 26%, 31% 4%, 44% 22%, 57% 6%, 70% 24%, 83% 8%, 94% 22%, 100% 12%, 100% 100%, 0 100%);
+  }
+  .hat-callout {
+    position: absolute;
+    top: 0;
+    right: -8px;
+    z-index: 3;
+    white-space: nowrap;
+  }
+  .hat-callout .annotation-arrow {
+    margin-left: 30px;
+    height: 34px;
+    width: auto;
+  }
+  .hat-callout-paw,
+  .hat-sticky-paw {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    vertical-align: -0.05em;
+    color: var(--color-navy);
+  }
+
+@media (min-width: 768px) {
+    .hat-dog {
+      height: 220px;
+    }
+  }
+
+@media (min-width: 1024px) {
+    .hat-mascot {
+      padding-top: 64px;
+      margin-top: -64px;
+    }
+    .hat-dog {
+      height: clamp(240px, 20vw, 290px);
+    }
+  }
+
+  /* --- sticky (spec §7): pale yellow, slight rotation, one strip of tape (a pseudo, not a counted object) --- */
+  .paper-sticky.hat-sticky {
+    position: relative;
+    justify-self: start;
+    width: min(100%, 230px);
+    padding: 20px 18px 16px;
+    font-size: 20px;
+    line-height: 1.25;
+  }
+  .hat-sticky::before {
+    content: "";
+    position: absolute;
+    top: -11px;
+    left: calc(50% - 36px);
+    width: 72px;
+    height: 22px;
+    background: color-mix(in oklab, var(--color-terracotta) 38%, transparent);
+    rotate: -4deg;
+  }
+
+@media (min-width: 1024px) {
+    .paper-sticky.hat-sticky {
+      margin-top: 26px;
+    }
+  }
+
+  /* --- right: the notebook (spec §8, §9) --- */
+  .hat-panel {
+    min-width: 0;
+    filter: drop-shadow(0 14px 22px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
+  }
+  .paper-sheet[data-paper="notebook"].hat-notebook {
+    height: 100%;
+    padding: 26px 16px 22px 44px;
+    box-shadow: none;
+    background-color: var(--color-ivory);
+    /* a slight torn right edge; the polygon starts above the sheet so the tape is not clipped */
+    clip-path: polygon(0 -40px, 100% -40px, 100% 6%, calc(100% - 3px) 14%, 100% 23%, calc(100% - 4px) 35%, calc(100% - 1px) 47%, calc(100% - 4px) 58%, 100% 69%, calc(100% - 3px) 81%, 100% 92%, calc(100% - 2px) 100%, 0 100%);
+  }
+  .hat-notebook::before {
+    left: 30px;
+  }
+  .hat-notebook .paper-holes {
+    left: 9px;
+    top: 28px;
+    bottom: 28px;
+  }
+  .hat-notebook .paper-holes i:nth-child(n + 5) {
+    display: none;
+  }
+  .hat-notebook-title {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-navy);
+  }
+
+@media (min-width: 1024px) {
+    .paper-sheet[data-paper="notebook"].hat-notebook {
+      padding: 34px 26px 30px 62px;
+    }
+    .hat-notebook::before {
+      left: 44px;
+    }
+    .hat-notebook .paper-holes {
+      left: 16px;
+    }
+  }
+
+  /* --- composer (spec §10) --- */
+  .hat-composer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 60px;
+    margin-top: 16px;
+    padding: 6px 6px 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid color-mix(in oklab, var(--color-navy) 24%, transparent);
+    background: var(--color-ivory);
+    box-shadow: 0 3px 10px color-mix(in oklab, var(--shadow-ink) 9%, transparent);
+  }
+  .hat-composer:focus-within {
+    border-color: var(--color-navy);
+  }
+  .hat-composer:has(.hat-input:focus-visible) {
+    outline: 3px solid var(--color-rust);
+    outline-offset: 3px;
+  }
+  .hat-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--color-navy);
+    outline: none;
+  }
+  .hat-input::placeholder {
+    color: var(--color-ink-soft);
+    opacity: 1;
+  }
+  .hat-send {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: var(--color-navy);
+    color: var(--color-ivory);
+    transition: background-color 180ms var(--ease-hover);
+  }
+
+@media (hover: hover) {
+    .hat-send:hover {
+      background: var(--color-navy-2);
+    }
+  }
+
+  /* --- suggestion cards (spec §12–§14) --- */
+  .hat-try {
+    display: block;
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-navy-2);
+  }
+  .hat-cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+@media (min-width: 640px) and (max-width: 1023px), (min-width: 1200px) {
+    .hat-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .hat-cards {
+      gap: 10px;
+    }
+  }
+  .hat-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    min-height: 72px;
+    padding: 10px 10px 10px 12px;
+    border-radius: 18px;
+    border: 1px solid color-mix(in oklab, var(--color-navy) 10%, transparent);
+    background: var(--color-ivory);
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--shadow-ink) 8%, transparent);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--color-navy);
+    text-align: left;
+    /* TASK-181.3 (EXE-61): the shadow swaps with the state, only the paper moves */
+    transition:
+      transform 180ms var(--ease-hover),
+      border-color 180ms var(--ease-hover);
+  }
+  .hat-card-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: var(--tk-bg);
+    color: var(--tk-ink);
+  }
+  .hat-card-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .hat-card-arrow {
+    flex-shrink: 0;
+    color: var(--color-navy);
+    transition: transform 180ms var(--ease-hover);
+  }
+  /* TASK-181.3 (EXE-62): fine-pointer hover, the same state on :focus-visible, and a touch press */
+  .hat-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+    box-shadow: 0 8px 16px -4px color-mix(in oklab, var(--color-navy) 16%, transparent);
+  }
+  .hat-card:focus-visible .hat-card-arrow {
+    transform: translateX(3px);
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .hat-card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+      box-shadow: 0 8px 16px -4px color-mix(in oklab, var(--color-navy) 16%, transparent);
+    }
+    .hat-card:hover .hat-card-arrow {
+      transform: translateX(3px);
+    }
+  }
+
+@media (hover: none), (pointer: coarse) {
+    .hat-card:active {
+      transform: translateY(1px);
+      border-color: color-mix(in oklab, var(--tk-ink) 45%, transparent);
+    }
+  }
+
+@media (min-width: 1024px) {
+    .hat-card {
+      min-height: 76px;
+    }
+  }
+
+  /* --- background accents (spec §16): one `collage` object --- */
+  .hat-collage {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hat-scrap {
+    position: absolute;
+    display: block;
+    height: auto;
+  }
+  .hat-scrap-blue {
+    left: -24px;
+    bottom: -18px;
+    width: 150px;
+    height: 104px;
+    background: color-mix(in oklab, var(--color-steel) 55%, var(--color-paper-2));
+    clip-path: polygon(0 8%, 22% 0, 48% 10%, 71% 2%, 100% 14%, 94% 46%, 100% 78%, 82% 100%, 0 100%);
+    rotate: -5deg;
+  }
+  .hat-scrap-grid {
+    left: 96px;
+    bottom: -70px;
+    width: 130px;
+    opacity: 0.75;
+    rotate: 7deg;
+  }
+  .hat-scrap-rust {
+    right: 26%;
+    bottom: -96px;
+    width: 150px;
+    opacity: 0.8;
+    rotate: -9deg;
+  }
+  .hat-leaf {
+    left: -26px;
+    top: 38%;
+    width: 58px;
+    rotate: 18deg;
+  }
+
+@media (max-width: 1023px) {
+    .hat-scrap-grid,
+    .hat-leaf {
+      display: none;
+    }
+  }
+
+@media (prefers-reduced-motion: no-preference) {
+/* transitions only once revealed, so arming (hide) is instant and never fades out on screen */
+    .hat-grid[data-in] .hat-intro > *,
+    .hat-grid[data-in] .hat-in-note {
+      transition:
+        opacity 480ms var(--ease-reveal),
+        translate 480ms var(--ease-reveal);
+    }
+    .hat-grid[data-in] .hat-in-note {
+      transition-delay: 200ms;
+    }
+    .hat-grid[data-in] .hat-in-dog {
+      transition:
+        opacity 520ms var(--ease-reveal) 80ms,
+        scale 520ms var(--ease-reveal) 80ms;
+    }
+    .hat-grid[data-in] .hat-in-panel {
+      transition:
+        opacity 520ms var(--ease-reveal) 120ms,
+        translate 520ms var(--ease-reveal) 120ms;
+    }
+    .hat-grid[data-in] .hat-in-card {
+      transition:
+        opacity 260ms var(--ease-reveal) calc(300ms + var(--hat-i, 0) * 80ms),
+        translate 260ms var(--ease-reveal) calc(300ms + var(--hat-i, 0) * 80ms);
+    }
+    .hat-grid[data-armed]:not([data-in]) .hat-intro > *,
+    .hat-grid[data-armed]:not([data-in]) .hat-in-note {
+      opacity: 0;
+      translate: 0 12px;
+    }
+    .hat-grid[data-armed]:not([data-in]) .hat-in-dog {
+      opacity: 0;
+      scale: 0.97;
+    }
+    .hat-grid[data-armed]:not([data-in]) .hat-in-panel {
+      opacity: 0;
+      translate: 20px 0;
+    }
+    .hat-grid[data-armed]:not([data-in]) .hat-in-card {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .hat-card,
+    .hat-card-arrow {
+      transition: none;
+    }
+    .hat-card:is(:hover, :focus-visible, :active),
+    .hat-card:is(:hover, :focus-visible) .hat-card-arrow {
+      transform: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+/* ---- Tushky (Home launcher): finite breathing, three 2.4 s breaths once the section has revealed, then still (EXE-64).
+     The whole image grows 1.2 % from the paws; the delay lets the 520 ms entrance finish first. ---- */
+  .hat-grid[data-in] .hat-dog {
+    transform-origin: 50% 100%;
+    animation: tk-breathe 2400ms ease-in-out 900ms 3;
+  }
+  @keyframes tk-breathe {
+    50% {
+      scale: 1 1.012;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hat-dog {
+    transform-origin: 50% 100%;
+    rotate: calc(var(--hx, 0) * 2deg + var(--tk-lean));
+    translate: 0 var(--tk-lift, 0px);
+    transition:
+      translate 400ms var(--ease-paper),
+      --tk-lean 500ms var(--ease-paper);
+  }
+  .hat-mascot[data-pm-active] .hat-dog {
+    will-change: rotate;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+    .hat-mascot:hover .hat-dog {
+      --tk-lift: -3px;
+    }
+  }
+  .hat-grid:has(.hat-card:active) .hat-dog,
+  .hat-grid:has(.hat-composer:focus-within) .hat-dog {
+    --tk-lift: -4px;
+    --tk-lean: 2deg;
+  }
+}
+
+/* ==================================================================================================
+   TASK-229 · compact Ask Tushky on phones (< 640 px, the site's existing phone tier, same as the dock).
+   Goal: eyebrow, title + subtitle, the concise intro, a small Tushky with his sticky note, the composer with its send
+   button and "Try asking…" with three prompts all sit in one screen above the dock. Everything is inside the phone media
+   query, so tablet and desktop (and the right-side drawer, which shares none of these classes) render exactly as before.
+   Space priority (the brief): the sticky note goes first on shorter phones, then gaps and the mascot shrink, and only then
+   type; the title, intro, composer and send button never leave the screen. The three extra prompts stay in the data and are
+   reached through the "More questions" button (`.hat-more`, hidden at >= 640 px). Unlayered and last, like TASK-224.
+   ================================================================================================== */
+.hat-more {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .hat-try-row {
+    display: contents;
+  }
+}
+
+@media (max-width: 639px) {
+  .ask-section {
+    padding-top: 12px;
+  }
+  .hat-body {
+    padding-block: 8px 22px;
+  }
+  .hat-grid {
+    gap: 10px;
+  }
+
+  /* --- identity: eyebrow / title / subtitle full width, then intro beside a small Tushky, note under the intro --- */
+  .hat-left {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "eyebrow eyebrow"
+      "title title"
+      "sub sub"
+      "lead dog"
+      "note dog";
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 0;
+  }
+  .hat-intro {
+    display: contents;
+  }
+  .hat-eyebrow {
+    grid-area: eyebrow;
+    font-size: 13px;
+  }
+  .hat-title {
+    grid-area: title;
+    margin-top: 2px;
+    font-size: clamp(34px, 10.4vw, 42px);
+  }
+  .hat-subtitle {
+    grid-area: sub;
+    margin-top: 2px;
+    font-size: 20px;
+    text-underline-offset: 4px;
+  }
+  .hat-lead {
+    grid-area: lead;
+    margin-top: 10px;
+    max-width: none;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+  .hat-mascot {
+    grid-area: dog;
+    align-self: end;
+    justify-self: end;
+    margin-top: 6px;
+    padding-top: 0;
+  }
+  .hat-dog {
+    height: 104px;
+  }
+  .hat-callout {
+    display: none;
+  }
+  .paper-sticky.hat-sticky {
+    grid-area: note;
+    align-self: start;
+    width: min(100%, 190px);
+    margin-top: 14px;
+    padding: 12px 12px 9px;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+  .hat-sticky::before {
+    top: -8px;
+    width: 52px;
+    height: 16px;
+    left: calc(50% - 26px);
+  }
+  .hat-notebook::before {
+    left: 17px;
+  }
+  .hat-notebook .paper-holes {
+    left: 4px;
+  }
+  .hat-notebook-title {
+    display: none;
+  }
+  .hat-composer {
+    min-height: 52px;
+    margin-top: 6px;
+    padding: 4px 4px 4px 14px;
+    border-radius: 18px;
+  }
+  .hat-send {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* --- prompts: three compact cards in one row; the rest behind "More questions" --- */
+  .hat-try-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .hat-try {
+    margin-top: 0;
+    font-size: 20px;
+  }
+  .hat-more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-navy-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .hat-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 0;
+  }
+  .hat-cards:not([data-more]) > li[data-extra] {
+    display: none;
+  }
+  .hat-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-height: 88px;
+    padding: 8px 7px 8px;
+    border-radius: 14px;
+    font-size: 12.5px;
+    line-height: 1.28;
+  }
+  .hat-card-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .hat-card-arrow {
+    display: none;
+  }
+  .hat-card-text {
+    flex: 0 1 auto;
+    overflow-wrap: anywhere;
+  }
+
+@media (max-height: 780px) {
+    .paper-sticky.hat-sticky {
+      display: none;
+    }
+  }
+
+@media (max-height: 640px) {
+    .ask-section {
+      padding-top: 0;
+    }
+    .hat-body {
+      padding-block: 4px 14px;
+    }
+    .hat-card-icon {
+      display: none;
+    }
+    .hat-dog {
+      height: 72px;
+    }
+    .hat-lead {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.38;
+    }
+    .hat-title {
+      font-size: clamp(30px, 9.4vw, 36px);
+    }
+    .hat-subtitle {
+      font-size: 18px;
+    }
+    .hat-card {
+      min-height: 64px;
+    }
+  }
+}

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "../styles/certifications.css";
+import "../styles/certifications__thinking.css";
 import { CertificationTimeline } from "@/components/certifications/CertificationTimeline";
 import { MoreCredentials } from "@/components/certifications/MoreCredentials";
 import { SceneOpener } from "@/components/paper/SceneOpener";

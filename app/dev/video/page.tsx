@@ -1,4 +1,5 @@
 import { devOnly } from "@/lib/dev-only";
+import "../../styles/dev.css";
 import { VideoDevBoard } from "./VideoDevBoard";
 
 /**

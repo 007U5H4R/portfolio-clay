@@ -1,4 +1,6 @@
 import { devOnly } from "@/lib/dev-only";
+import "../../styles/dev.css";
+import "../../styles/home.css";
 import { AskDevBoard } from "./AskDevBoard";
 
 /**

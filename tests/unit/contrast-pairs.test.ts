@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { converter, formatHex, parse, wcagContrast, type Rgb } from "culori";
 
@@ -14,7 +14,14 @@ import { converter, formatHex, parse, wcagContrast, type Rgb } from "culori";
  */
 const ROOT = process.cwd();
 const TOKENS_SRC = readFileSync(join(ROOT, "scripts/tokens-check.ts"), "utf8");
-const CSS = readFileSync(join(ROOT, "app/globals.css"), "utf8");
+// globals.css plus the route CSS split out of it (TASK-320, app/styles/): the rules below may live in either.
+const CSS = [
+  readFileSync(join(ROOT, "app/globals.css"), "utf8"),
+  ...readdirSync(join(ROOT, "app/styles"))
+    .filter((f) => f.endsWith(".css"))
+    .sort()
+    .map((f) => readFileSync(join(ROOT, "app/styles", f), "utf8")),
+].join("\n");
 
 function authoritative(token: string): string {
   const m = new RegExp(`"--color-${token}":\\s*"(#[0-9A-Fa-f]{6})"`).exec(TOKENS_SRC);
@@ -122,8 +129,8 @@ const CSS_NAME: Record<Tok, string> = {
 function ruleBody(selector: string): string {
   const css = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
   const esc = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
-  const m = new RegExp(`(?:^|[}\\s;])${esc}\\s*\\{([^{}]*)\\}`, "m").exec(css);
-  if (!m?.[1]) throw new Error(`rule "${selector}" not found in app/globals.css`);
+  const m = new RegExp(`(?<=(?:^|[};{])\\s*)${esc}\\s*\\{([^{}]*)\\}`, "m").exec(css);
+  if (!m?.[1]) throw new Error(`rule "${selector}" not found in app/globals.css or app/styles/`);
   return m[1];
 }
 

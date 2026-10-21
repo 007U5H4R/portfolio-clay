@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { fireEvent, render } from "@testing-library/react";
 import type { SourceRef, ThinkingChain } from "@/data/schema";
@@ -16,7 +16,14 @@ import { ShowTheThinking } from "@/components/interactions/ShowTheThinking";
  * the toggle's `aria-expanded`, exactly TWO counted decorations (annotation + chain sketch), eight
  * nodes in the DOM before open, medallion numerals and Inter label tags, click-only reveal.
  */
-const CSS = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+// globals.css plus the route CSS split out of it (TASK-320, app/styles/).
+const CSS = [
+  readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8"),
+  ...readdirSync(resolve(process.cwd(), "app/styles"))
+    .filter((f) => f.endsWith(".css"))
+    .sort()
+    .map((f) => readFileSync(resolve(process.cwd(), "app/styles", f), "utf8")),
+].join("\n");
 
 const ALLOWED = new Set(["opacity", "clip-path", "transform"]);
 
