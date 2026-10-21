@@ -101,9 +101,9 @@
 [data-theme="dark"] .nup-hero-art { aspect-ratio: var(--ar-d); }
 .nup-hero-art [data-theme-art] {
   width: 100%; height: auto;
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent), linear-gradient(180deg, transparent, black 7%, black 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent), linear-gradient(180deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent), linear-gradient(180deg, transparent, black 7%, black 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent), linear-gradient(180deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent);
   mask-composite: intersect;
 }
 @media (max-width: 767px) { .nup-hero-art { width: min(100%, 320px); margin-block: -8px; } }

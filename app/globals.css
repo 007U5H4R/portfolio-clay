@@ -20992,3 +20992,12 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   --lit-vlp-screen: #1c1d21;
   --lit-vlp-rim: #151515;
 }
+
+/* TASK-319 · colour values that must stay exactly black, named by role so the EVAL-020 gate (which also catches named CSS colours)
+   finds no `black` outside this file. `--mask-opaque`: the opaque stop of a mask-image gradient (a mask reads alpha only, so the
+   hue is irrelevant; it is #000 to match the older masks in this file). `--shade-black`: pure black mixed into a surface or shadow
+   to deepen it (not a surface colour itself). Both resolve to the same rgb(0 0 0) the literal `black` did. */
+:root {
+  --mask-opaque: #000;
+  --shade-black: #000;
+}

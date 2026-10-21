@@ -14,6 +14,8 @@ import { join, relative, sep } from "node:path";
  *   (3) No colour literal (hex / rgb(a) / hsl(a) / oklch / oklab) in `app/**`, `components/**` or `lib/**`
  *       outside the two allow-listed files (`app/globals.css`, `lib/og.tsx`). Covering `lib/**`
  *       is TC-123 step 4: `lib/og.tsx` is the only file under `lib/` allowed a literal.
+ *       TASK-319: the same gate also rejects NAMED CSS colours (`black`, `white`, `red`, …) used as a value in a stylesheet
+ *       outside `app/globals.css`, so `black` cannot stand in for `#000` (TASK-307 did exactly that in six case-study files).
  *   (4) Zero retired clay names — Tailwind utility form and `--color-<name>` form — in
  *       `app/**`, `components/**`, `lib/**`.
  *   (5) Positive control: the same scanner functions over `tests/fixtures/retired-tokens.fixture.txt`
@@ -64,7 +66,7 @@ const SCAN_EXTENSIONS = [".ts", ".tsx", ".css"];
 // Scanners — the real-tree tests and the fixture control call these same functions.
 // ---------------------------------------------------------------------------------------------
 
-type Hit = { rule: "literal" | "retired-utility" | "retired-var"; line: number; match: string };
+type Hit = { rule: "literal" | "named-colour" | "retired-utility" | "retired-var"; line: number; match: string };
 
 /**
  * Blank out `// line` and `/* block *\/` comments, keeping string literals intact and every
@@ -88,6 +90,20 @@ function stripComments(source: string): string {
 
 // The S69.07 regex plus the alpha spellings: `\b(rgb|hsl)\(` alone would let `rgba(` / `hsla(` through.
 const LITERAL_RE = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(/gi;
+
+/**
+ * TASK-319: the CSS named colours (CSS Color 4). `transparent`, `currentColor`, `inherit`, `initial`, `unset` and `none` are
+ * deliberately NOT in this list: they carry no colour value of their own. A spot that genuinely must keep a named colour goes in
+ * NAMED_COLOUR_ALLOWLIST below with a reason; today there is none (the black masks/shades became `--mask-opaque` / `--shade-black`).
+ */
+const NAMED_COLOURS =
+  "aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen".split(" ");
+
+/** `file` -> named colours it may keep, each with the reason. Empty on purpose; add `"path.css": { black: "why" }` only for a real need. */
+const NAMED_COLOUR_ALLOWLIST: Record<string, Record<string, string>> = {};
+
+// A named colour as a whole word: not part of a class/identifier/custom-property name (`.white`, `--white`, `white-space`, `#white`).
+const NAMED_COLOUR_RE = new RegExp(`(?<![\\w.#-])(?:${NAMED_COLOURS.join("|")})(?![\\w-])`, "gi");
 
 const RETIRED_ALT = [...RETIRED_NAMES].sort((a, b) => b.length - a.length).join("|");
 
@@ -122,6 +138,25 @@ function collect(text: string, re: RegExp, rule: Hit["rule"]): Hit[] {
 /** Colour literals, after comment stripping. */
 function scanLiterals(source: string): Hit[] {
   return collect(stripComments(source), LITERAL_RE, "literal");
+}
+
+/**
+ * TASK-319: named CSS colours used as a declaration VALUE in a stylesheet (`.css`; scripts and markup never spell a colour
+ * this way — a TS string such as a token-name prop `fill="navy"` is not a colour). Comments are blanked first; only text after
+ * a `property:` up to `;`/`{`/`}` is searched, so selectors, `white-space: nowrap` and prose never match.
+ */
+function scanNamedColours(source: string, file = ""): Hit[] {
+  if (!file.endsWith(".css") && file !== "") return [];
+  const allowed = NAMED_COLOUR_ALLOWLIST[file] ?? {};
+  const text = stripComments(source);
+  const hits: Hit[] = [];
+  for (const decl of text.matchAll(/([a-z-]+)\s*:\s*([^;{}]+)/gi)) {
+    for (const m of decl[2]!.matchAll(NAMED_COLOUR_RE)) {
+      if (allowed[m[0].toLowerCase()]) continue;
+      hits.push({ rule: "named-colour", line: lineOf(text, decl.index + decl[0].indexOf(decl[2]!) + m.index), match: m[0] });
+    }
+  }
+  return hits;
 }
 
 /**
@@ -173,6 +208,23 @@ describe("EVAL-020 paper token gate", () => {
     const files = sourceFiles("app", "components", "lib").filter((f) => !LITERAL_ALLOWLIST.has(f));
     expect(files.length).toBeGreaterThan(50);
     expect(scanTree(files, scanLiterals)).toEqual([]);
+  });
+
+  it("(3b) no named CSS colour (black, white, red, …) as a value outside app/globals.css (TASK-319)", () => {
+    const files = sourceFiles("app", "components", "lib").filter((f) => !LITERAL_ALLOWLIST.has(f) && f.endsWith(".css"));
+    expect(files.length).toBeGreaterThan(10);
+    expect(files.flatMap((f) => scanNamedColours(readFileSync(join(ROOT, f), "utf8"), f).map((h) => `${f}:${h.line} [${h.rule}] ${h.match}`))).toEqual([]);
+  });
+
+  it("(3c) positive control for the named-colour scan: values are caught, names/props/keywords are not", () => {
+    const css = [
+      ".a { background: black; }", // hit
+      ".b { mask-image: linear-gradient(90deg, transparent, White 7%); }", // hit (case-insensitive)
+      ".c { box-shadow: 0 0 0 1px color-mix(in oklab, red 20%, transparent); }", // hit
+      ".white { white-space: nowrap; color: currentColor; border-color: inherit; fill: transparent; }", // selector, property, keywords: none
+      "/* black on white */ .d { --black-hole: 1; }", // comment and custom-property name: none
+    ].join("\n");
+    expect(scanNamedColours(css, "x.css").map((h) => h.match.toLowerCase())).toEqual(["black", "white", "red"]);
   });
 
   it("(4) zero retired clay token names in app/, components/, lib/ (TC-123 step 1)", () => {

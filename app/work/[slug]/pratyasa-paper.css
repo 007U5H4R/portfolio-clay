@@ -100,9 +100,9 @@
 [data-theme="dark"] .pra-stage { aspect-ratio: var(--ar-d); }
 .pra-stage [data-theme-art] {
   width: 100%; height: auto;
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent), linear-gradient(180deg, transparent, black 7%, black 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent), linear-gradient(180deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent), linear-gradient(180deg, transparent, black 7%, black 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent), linear-gradient(180deg, transparent, var(--mask-opaque) 7%, var(--mask-opaque) 93%, transparent);
   mask-composite: intersect;
 }
 .pra-stage-fig { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: center; min-width: 0; }

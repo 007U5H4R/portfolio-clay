@@ -30,7 +30,7 @@
   --edge-2: color-mix(in oklab, var(--color-ivory) 66%, var(--color-kraft));
   --edge-3: color-mix(in oklab, var(--color-ivory) 50%, var(--color-kraft));
   --ground: var(--color-paper-2);
-  --pill-bg: color-mix(in oklab, var(--color-navy) 94%, black);
+  --pill-bg: color-mix(in oklab, var(--color-navy) 94%, var(--shade-black));
   --pill-ink: var(--color-ivory);
   --pill-line: transparent;
   --bracket: color-mix(in oklab, var(--color-navy) 88%, transparent);
@@ -46,11 +46,11 @@
 :global([data-theme="dark"]) .scene {
   /* dark is its own art direction, not an inversion: near-black charcoal cardstock (paper token pulled to black),
      a lifted graphite/slate panther with ivory-silver edge light, navy and cream-tan folds, ivory type. */
-  --c-card: color-mix(in oklab, var(--color-paper) 42%, black);
+  --c-card: color-mix(in oklab, var(--color-paper) 42%, var(--shade-black));
   --f-navy: color-mix(in oklab, var(--color-steel) 38%, var(--color-paper));
   --f-kraft: color-mix(in oklab, color-mix(in oklab, var(--color-rust) 38%, var(--color-kraft)) 72%, var(--color-navy));
   --f-ivory: color-mix(in oklab, var(--color-navy) 70%, var(--color-steel));
-  --shade: black;
+  --shade: var(--shade-black);
   --shade-a: 0.7;
   --lit: color-mix(in oklab, var(--color-navy) 22%, transparent);
   --tex: url("/card/paper-dark.webp");
@@ -63,7 +63,7 @@
   --edge-2: color-mix(in oklab, var(--c-card) 62%, var(--color-steel));
   --edge-3: color-mix(in oklab, var(--c-card) 48%, var(--color-steel));
   --ground: var(--color-paper-2);
-  --pill-bg: color-mix(in oklab, var(--c-card) 80%, black);
+  --pill-bg: color-mix(in oklab, var(--c-card) 80%, var(--shade-black));
   --pill-ink: var(--color-navy);
   --pill-line: color-mix(in oklab, var(--color-navy) 55%, transparent);
   --bracket: var(--f-kraft);
@@ -289,7 +289,7 @@
   /* facet light: upper-left brighter, lower-right darker, over the sheet colour and the grain */
   background-color: var(--f-navy);
   background-image:
-    linear-gradient(150deg, color-mix(in oklab, var(--color-ivory) 26%, transparent), transparent 48%, color-mix(in oklab, black 26%, transparent)),
+    linear-gradient(150deg, color-mix(in oklab, var(--color-ivory) 26%, transparent), transparent 48%, color-mix(in oklab, var(--shade-black) 26%, transparent)),
     var(--tex);
   background-size: 100% 100%, 300px 300px;
   background-blend-mode: normal, var(--tex-blend);
@@ -313,7 +313,7 @@
   /* printed / embossed: a hairline of light under the ink */
   text-shadow: 0 0.35cqw 0 color-mix(in oklab, var(--color-ivory) 60%, transparent);
 }
-:global([data-theme="dark"]) .mono { text-shadow: 0 -0.3cqw 0 color-mix(in oklab, black 50%, transparent); }
+:global([data-theme="dark"]) .mono { text-shadow: 0 -0.3cqw 0 color-mix(in oklab, var(--shade-black) 50%, transparent); }
 .type {
   position: absolute;
   left: 8.6cqw;
