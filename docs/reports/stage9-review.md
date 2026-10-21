@@ -127,4 +127,43 @@ Budgets (`evaluation-plan.md` EVAL-005): LCP ≤ 2.5 s · CLS < 0.05 · home JS 
 
 ## 9B · Test execution
 
-_(filled in below once the scoped run finishes)_
+**Planned suite and what ran.** The full Playwright suite is 6,404 tests across the four viewport projects and ran at ~10 tests/min at one worker (a ~10 h run), so it was stopped at 277 and replaced by a **scoped run**: projects `w1440` + `w390`, two workers, `eval-0*`, screenshot/capture and voice-audition specs excluded (evals are skipped by standing decision), `ALLOW_DEV_ROUTES=1` so the `/dev/*` fixture routes run. Tablet (`w768`) and the 1024 edge are covered by the Stage 8 ship gates (paper-selector / paper-card / vertical-carousel / hover-stability / paper-player / projects-mobile / projects-carousel, 89 on production) and by Stage 8's reviewer probes. Unit suite: **1676 passed, 2 skipped** (full `tests/unit`). Logs and JSON: `/Volumes/E Drive/Dev/.scratch/stage9/`.
+
+| Run | Tree | Scope | Result |
+|---|---|---|---|
+| scoped e2e, 2 workers | branch before the QA-013 fix | w1440 + w390, 1670 tests | **960 passed · 41 failed · 669 skipped** (36.8 min) |
+| retest, 1 worker | branch + QA-013 fix (280 px) | the 13 failing specs | **212 passed · 31 failed** — portfolio-video (12), vertical-carousel, paper-selector, projects, enterprise-journal all green → the 10 that cleared were the 1440 label regression + host contention |
+| production check, 1 worker | **main de5a0bcb** (before this branch) | the deterministic 6 specs | **124 passed · 31 failed** — the same 31 fail on main: pre-existing |
+| retest 2, 1 worker | branch + spec corrections | stage8-des, paper-showcase, regressions-m009, portfolio-video | **37 passed · 0 failed** |
+
+**Triage of the 41.**
+
+| Group | Count | Classification | Resolution |
+|---|---|---|---|
+| portfolio-video (strips not visible), paper-showcase category "AI" ≠ "AI · WhatsApp", stage8-des TASK-314 | 12 + 2 + 2 | **Branch/Stage 8 regression — QA-013.** The `@container pcard (max-width: 300px)` narrow-card block measured the card's *content* box (299 px at a 1440 viewport), so the icon-only secondary row and the hidden category also applied at 1440 — the approved 1440 card lost its labels in PR #152. | **Fixed** (280 px; labels back at ≥ 1440, icon row kept for 1024–1279 — measured 256 / 299 / 320 px content at 1280 / 1440 / 1512). paper-showcase + stage8-des expectations updated for DES-017 (one kicker tag) and the clipped category (QA-014). |
+| case-study-system: six paper-layout products (nuptis, pratyasa, campfire-board, slag-city, shravans-round, urja) — hero tagline element, learnings h3, reduced-motion visibility, JS-off story | 24 | **Pre-existing, fails on main.** The spec still describes the template case-study layout; the six paper layouts render differently. Not touched in this range (only `black` for `#000` in their CSS). | **Parked → TASK-321 (QA-015).** |
+| regressions-m009 TKT-85 carousel guard (w1440 scrollbar hidden; w390 no tablist) | 2 | **Pre-existing test debt** since TASK-301/305 (vertical paper selector) and TASK-210 (phone list/detail). | **Fixed in the spec** (paper selector may hide its scrollbar — its affordances are the folded arrows and counter; phone tier skipped) — QA-014. |
+| analytics "without a token" | 3 | **Environment:** production carries the Mixpanel token, so the no-token assertions cannot hold there; locally the w390 case timed out opening the Ask panel at 2 workers and passed at 1 worker. | No change; noted as a contention-sensitive case. |
+| about-paper opener computed-style hash (w1440 on main too; w390 on the branch) | 2 | **Pre-existing on main at 1440** (baseline predates the TASK-307 token move); the w390 result on the branch is being re-checked solo. | **Parked → TASK-324 (QA-018).** |
+| scene-opener `/projects` banner at 390 | 1 | **Pre-existing, stale expectation:** the h1 (y 237) sits below the opener box (69–225) — verified visually on production — while the spec compares against the uncropped image box (310.8). | **Parked → TASK-322 (QA-016, spec chore).** |
+| interaction-p3 contact stamp nudge (0 instead of 3 px) | 1 | **Pre-existing on main.** | **Parked → TASK-323 (QA-017).** |
+| vertical-carousel centring, paper-selector 1512 centring, projects RailCite iframe, enterprise-journal mark, shravans-round scroll reveal | 5 | **Host contention at 2 workers** — all green at 1 worker (and the carousel/selector cases green in four earlier gates). | No change. |
+
+**Test-case results (the cases that touch this range; `test-cases.md`).**
+
+| TC | Area | Result | Evidence |
+|---|---|---|---|
+| TC-004 | MobileMenu dialog | PASS | mobile-menu unit (TASK-307 fix) + Stage 8 phone nav probe |
+| TC-037 | Dead-control crawler (EVAL-011) | NA | eval spec excluded by standing decision |
+| TC-052 / TC-149 | Ask journeys (keyboard, panel states) | PASS | ask-panel / ask-inline / ask-compact / home-ask-tushky 71 on production; Ask unit 70 |
+| TC-056 / TC-083 | How-I-think data, ShowTheThinking | PASS | home-carousels / thinking specs green in the scoped run |
+| TC-091 | Mechanical content rules per project | PASS | `validate-content` 28/28 FAQ fresh; projects schema gate green in build |
+| TC-092 | All case-study pages: gate, axe, anchors | **FAIL (pre-existing)** | the six paper layouts vs case-study-system.spec → TASK-321 |
+| TC-T2.1 / TC-T3-11 / TC-T4-01 | Theme resolution, M-010 tracks | PASS | theme/paper specs green in the scoped run |
+| Stage 8 regressions (TASK-309…316) | showcase | PASS | stage8-des 20/20 at 1 worker on the branch |
+
+**Evals:** NA — `/evals` suites skipped by standing decision (memory `skip-evals-2026-10-14`); no `eval-run-*.json` was generated this round and none is claimed.
+
+## Exit
+
+Code review clean or parked with reasons (CR-010…019, SF-001…006); the scoped suite executed on the branch with every failure classified; the one branch-introduced regression (QA-013) fixed and re-verified; pre-existing failures carried as TASK-321…324; performance scorecard recorded with the mobile LCP miss as QA-012 → TASK-320. **Stage 9 complete once TASK-318 is on production** (recorded in `HANDOFF.md`).
