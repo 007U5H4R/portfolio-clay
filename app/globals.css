@@ -20590,6 +20590,48 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
       display: none;
     }
   }
+  /* TASK-332 follow-up (review F2): in a 330-500 px card the description was 11 px, clamped to two lines, with 40-90 px empty above
+     the CTA. It steps up to 13-14 px and three or four lines, and the free height is shared between the poster, the description
+     and the actions as two even gaps (above the poster and above the description) instead of one hole above the CTA. Short cards (330-379 px) take 13 px / four lines and a
+     slightly shorter poster; 380-415 px takes 14 px / four lines; 416-500 px (1440-1512) takes 13 px / three lines and a
+     slightly shorter poster. */
+  @container pcard (min-height: 330px) and (max-height: 500px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster,
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-bottom: 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      font-size: 13px;
+      line-height: 1.28;
+      -webkit-line-clamp: 4;
+    }
+    /* the free height goes above the poster and above the description (auto margins), so the CTA keeps a fixed gap under the text */
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      margin-top: 6px;
+      padding-top: 8px;
+    }
+  }
+  @container pcard (min-height: 330px) and (max-height: 379px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.29 - 6px) * var(--pc-ar)));
+    }
+  }
+  @container pcard (min-height: 380px) and (max-height: 415px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      font-size: 14px;
+    }
+  }
+  @container pcard (min-height: 416px) and (max-height: 500px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      -webkit-line-clamp: 3;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.3 - 6px) * var(--pc-ar)));
+    }
+  }
   @container pcard (max-height: 412px) {
     /* four pills (id + a three-part status) in a short card: tighter, and free to wrap onto a second row now that they are >= 10.5 px (TASK-331) */
     .pf-paper .pf-pc-pills {
@@ -20610,8 +20652,9 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
      Stage 9 QA-013: the query measures the card's CONTENT box (~300 px at a 1440 viewport), so the first cut at 300px also
      stripped the labels at 1440; 280px keeps the icon row to the 1024-1279 band (content ≈ 230-256 px). */
   @container pcard (max-width: 280px) {
-    /* the category leaves the visual kicker but stays in the accessibility tree (Stage 9 SF-006) */
-    .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
+    /* the category leaves the visual kicker but stays in the accessibility tree (Stage 9 SF-006). TASK-334 follow-up: not on the
+       nav-less card - its kicker has the whole row to itself (no index, no arrow gutter), so the category stays visible there */
+    .pf-showcase.pf-vcar .pf-paper:not(.pf-nonav) .pf-info-kicker .pf-info-category {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -20774,7 +20817,8 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     width: 100%;
     min-width: 0;
     padding: 0 2px 4px;
-    gap: 4px;
+    gap: 1px 4px;
+    flex-wrap: wrap; /* TASK-331 follow-up: at the 11.5 px floor the counter no longer fits beside the title in the 168-188 px panel, so it wraps under it instead of crossing the panel edge */
     text-align: left;
   }
   .pf-showcase.pf-vcar.pf-psel [data-paper-selector] .pf-select {
@@ -20993,7 +21037,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
       margin-top: 8px;
       font-size: 15.5px;
       line-height: 1.38;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 4; /* review F4: 60 px was still empty above the CTA at 1800x900 with three */
     }
     .pf-showcase.pf-vcar .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
       font-size: 15.5px;
@@ -21041,6 +21085,19 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="secondary"],
     .pf-showcase.pf-vcar .pf-action-set .pf-action.pf-action[data-tier="primary"] {
       min-height: 56px;
+    }
+  }
+  /* review F4: the free height is shared above the poster and above the description (the CTA keeps a fixed gap), as in the 330-500 px tier */
+  @container pcard (min-height: 550px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster,
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc {
+      margin-top: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster {
+      margin-bottom: 6px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      margin-top: 8px;
     }
   }
 }

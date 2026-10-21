@@ -11,7 +11,7 @@
  *   TASK-316  tablet carousel tile names and categories never truncate (DES-019)
  * Design wave 2 (DES-020 ... DES-028, 2026-10-21):
  *   TASK-331  micro-label size floors and no overflow / truncation 1024-1920, light + dark (DES-020)
- *   TASK-332  the description shows at 1280x800 (and from 1180) inside the card (DES-022)
+ *   TASK-332  the description is >= 13 px, uncut, with <= 24 px above the CTA at 1180-1920 (DES-022)
  *   TASK-333  arrow-key browsing starts one video once the selection settles; reduced motion never auto-starts (DES-023)
  *   TASK-336  >= 1800 px scale-up: tile names 15.5 px, card type a step up, no dead space above the CTA; 1440 / 1512 unchanged (DES-026)
  *   TASK-337  the stage poster's title chip is hidden at 1024-1180 px, the name stays accessible (DES-028)
@@ -208,22 +208,31 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     });
   }
 
-  for (const [vw, vh] of [[1180, 820], [1280, 720], [1280, 800], [1440, 900], [1920, 1080]] as const) {
-    test(`TASK-332: at ${vw}x${vh} the description shows and nothing leaves the card`, async ({ page }) => {
-      await open(page, vw, vh, "light", "teachspark");
-      const m = await page.evaluate(() => {
-        const card = document.querySelector(".pf-info.pf-paper")!.getBoundingClientRect();
-        const desc = document.querySelector(".pf-info.pf-paper .pf-info-desc") as HTMLElement;
-        const r = desc.getBoundingClientRect();
-        const acts = document.querySelector(".pf-info.pf-paper .pf-action-set")!.getBoundingClientRect();
-        const pills = document.querySelector(".pf-info.pf-paper .pf-pc-pills")!.getBoundingClientRect();
-        return { shown: getComputedStyle(desc).display !== "none", h: r.height, top: r.top, bottom: r.bottom, cardBottom: card.bottom, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom, cut: desc.scrollWidth - desc.clientWidth };
-      });
-      expect(m.shown, "the description is shown").toBe(true);
-      expect(m.h, "it has its lines").toBeGreaterThan(20);
-      expect(m.top, "below the pills").toBeGreaterThanOrEqual(m.pillsBottom - 1);
-      expect(m.bottom, "above the actions").toBeLessThanOrEqual(m.actsTop + 1);
-      expect(m.actsBottom, "actions inside the card").toBeLessThanOrEqual(m.cardBottom + 1);
+  for (const [vw, vh] of [[1180, 820], [1280, 720], [1280, 800], [1366, 768], [1440, 900], [1800, 900], [1920, 1080]] as const) {
+    test(`TASK-332: at ${vw}x${vh} every description is >= 13 px, uncut, with <= 24 px above the CTA`, async ({ page }) => {
+      test.setTimeout(120_000);
+      await open(page, vw, vh, "light", PERSONAL[0]!.slug);
+      for (const project of PERSONAL) {
+        await page.locator(`[role="tab"][data-product="${project.slug}"]`).evaluate((el) => (el as HTMLElement).click());
+        await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
+        await page.waitForTimeout(120);
+        const m = await page.evaluate(() => {
+          const card = document.querySelector(".pf-info.pf-paper")!.getBoundingClientRect();
+          const desc = document.querySelector(".pf-info.pf-paper .pf-info-desc") as HTMLElement;
+          const r = desc.getBoundingClientRect();
+          const acts = document.querySelector(".pf-info.pf-paper .pf-action-set")!.getBoundingClientRect();
+          const pills = document.querySelector(".pf-info.pf-paper .pf-pc-pills")!.getBoundingClientRect();
+          return { shown: getComputedStyle(desc).display !== "none", fs: parseFloat(getComputedStyle(desc).fontSize), h: r.height, top: r.top, bottom: r.bottom, cut: desc.scrollHeight - desc.clientHeight, cardBottom: card.bottom, actsTop: acts.top, actsBottom: acts.bottom, pillsBottom: pills.bottom };
+        });
+        const at = `${project.slug} @${vw}`;
+        expect(m.shown, `${at}: the description is shown`).toBe(true);
+        expect(m.fs, `${at}: description size`).toBeGreaterThanOrEqual(13);
+        expect(m.cut, `${at}: the description is not cut off`).toBeLessThanOrEqual(1);
+        expect(m.top, `${at}: below the pills`).toBeGreaterThanOrEqual(m.pillsBottom - 1);
+        expect(m.actsTop - m.bottom, `${at}: gap above the CTA`).toBeLessThanOrEqual(24);
+        expect(m.actsTop - m.bottom, `${at}: description clears the CTA`).toBeGreaterThanOrEqual(0);
+        expect(m.actsBottom, `${at}: actions inside the card`).toBeLessThanOrEqual(m.cardBottom + 1);
+      }
     });
   }
 
@@ -256,6 +265,22 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     await expect(page.locator(".pf-stage iframe")).toHaveCount(1, { timeout: 4000 });
     const all = await starts(page);
     expect(all, "exactly one start").toHaveLength(1);
+    expect(all[0]).toContain(`/embed/${videoOf(PERSONAL[4]!.slug)}`);
+  });
+
+  test("TASK-333: clicking the selector's up / down buttons is browsing - 4 clicks 350 ms apart start one video, after the last", async ({ page }) => {
+    await recordStarts(page);
+    await open(page, 1440, 900, "light", PERSONAL[0]!.slug);
+    const down = page.locator('.pf-carousel[data-paper-selector] .pf-arrow[data-dir="next"]');
+    for (let i = 0; i < 4; i++) {
+      await down.evaluate((el) => (el as HTMLElement).click()); // a direct click event: Playwright's own actionability waits would stretch the spacing under load
+      await page.waitForTimeout(350);
+    }
+    await expect(page.getByRole("tabpanel")).toHaveAttribute("data-active-product", PERSONAL[4]!.slug);
+    expect(await starts(page), "no video starts while the clicks are still arriving").toEqual([]);
+    await expect(page.locator(".pf-stage iframe")).toHaveCount(1, { timeout: 4000 });
+    const all = await starts(page);
+    expect(all).toHaveLength(1);
     expect(all[0]).toContain(`/embed/${videoOf(PERSONAL[4]!.slug)}`);
   });
 
@@ -327,11 +352,17 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
               .map((e) => `${e.className || e.tagName}: ${e.textContent?.trim().slice(0, 24)}`);
             const names = [...sel.querySelectorAll(".pf-thumb-name")].filter((e) => (e as HTMLElement).offsetWidth > 0 && e.scrollWidth - e.clientWidth > 0).length;
             const tag = [...sel.querySelectorAll(".pf-carousel-tag *")].filter((e) => e.scrollWidth > e.clientWidth + 1).length;
+            // review F1: the whole header (title + counter) stays inside the selector panel's box
+            const panel = sel.getBoundingClientRect();
+            const header = [...sel.querySelectorAll(".pf-carousel-tag > *")].map((e) => e.getBoundingClientRect());
+            const headerOut = Math.max(...header.map((r) => r.right - panel.right), ...header.map((r) => panel.left - r.left));
+            // review F3: the nav-less card's kicker is not a blank band - its category shows
+            const cat = card.querySelector(".pf-info-category") as HTMLElement | null;
             return {
               narrow: content <= 280,
               tagline: size(card, ".pf-info-tagline"), kicker: size(card, ".pf-info-kicker"), cta: size(card, '.pf-action[data-tier="primary"] .pf-action-label'),
               secondary: size(card, '.pf-action[data-tier="secondary"] .pf-action-label'), pills: size(card, ".pf-pc-pills li"),
-              label: size(sel, ".pf-select"), counter: size(sel, ".pf-count"), bad, names, tag, page: document.documentElement.scrollWidth - window.innerWidth,
+              label: size(sel, ".pf-select"), counter: size(sel, ".pf-count"), bad, names, tag, headerOut, catShown: !!cat && cat.offsetWidth > 5, page: document.documentElement.scrollWidth - window.innerWidth,
             };
           });
           const at = `${project.slug}`;
@@ -344,6 +375,8 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
           expect(m.bad, `${at} nothing overflows, truncates or leaves the card`).toEqual([]);
           expect(m.names, `${at} selector names never truncate`).toBe(0);
           expect(m.tag, `${at} selector header fits`).toBe(0);
+          expect(m.headerOut, `${at} selector header (title + counter) stays inside the panel (${m.headerOut}px past it)`).toBeLessThanOrEqual(-1);
+          expect(m.catShown, `${at} the kicker shows the category (no blank band)`).toBe(true);
           expect(m.page, "no horizontal page scroll").toBeLessThanOrEqual(0);
         }
       });
@@ -383,7 +416,6 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
       expect(m.tile).toBeLessThan(14);
       expect(m.tagline).toBeLessThan(16);
       expect(m.desc).toBeLessThan(14);
-      expect(m.clamp).toBe("2");
       expect(m.cta).toBeLessThanOrEqual(15);
     });
   }

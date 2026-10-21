@@ -246,13 +246,13 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       // TASK-253: choosing a product (click, keyboard or arrows) starts its pitch (else demo) with no extra Play tap
       setMediaMode(target ? pickMode(target) : "pitch");
       setEnter("product");
-      // TASK-333 (DES-023), desktop tray: a pointer click or Enter / Space (a click event) starts the video at once (TASK-253); arrow /
-      // Home / End browsing starts it only after the selection has been still for BROWSE_START_MS (the next key cancels the wait);
+      // TASK-333 (DES-023), desktop tray: a pointer click on a tile or Enter / Space (a click event) starts the video at once (TASK-253); arrow keys,
+      // Home / End and the selector's up / down buttons are browsing and start it only after the selection has been still for BROWSE_START_MS (the next key cancels the wait);
       // under reduced motion nothing starts by itself - the poster and its Watch control stay.
       clearTimeout(browseTimer.current);
       const wants = target ? hasVideo(target) : false;
       const reduce = desktop && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const browsing = desktop && source === "keyboard";
+      const browsing = desktop && (source === "keyboard" || source === "arrow");
       setAutoStart(wants && !reduce && !browsing);
       if (wants && !reduce && browsing) browseTimer.current = setTimeout(() => setAutoStart(true), BROWSE_START_MS);
       setAutoMute(true);
