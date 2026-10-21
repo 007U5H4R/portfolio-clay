@@ -20224,6 +20224,10 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   --pc-terra: #c8432a;
   --pc-terra-deep: #8e2a16;
   --pc-terra-lit: #f0a05c;
+  /* Stage 8 DES-013 (TASK-310): text-only terracotta and the CTA fill, each >= 4.5:1 against its surface */
+  --pc-accent-ink: #a8381f;
+  --pc-cta: #c8432a;
+  --pc-cta-hover: #b03a22;
   --pc-paper: #f8f0e0;
   --pc-paper-2: #f1e6d0;
   --pc-ink: #1c2a45;
@@ -20243,6 +20247,9 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   --pc-terra: #d9532f;
   --pc-terra-deep: #8a2814;
   --pc-terra-lit: #f2a463;
+  --pc-accent-ink: #ee8a63;
+  --pc-cta: #b8462a;
+  --pc-cta-hover: #a63d24;
   --pc-paper: #1d2538;
   --pc-paper-2: #273049;
   --pc-ink: #f4e9d3;
@@ -20315,7 +20322,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar .pf-paper .pf-info-count {
     flex: none;
-    color: var(--pc-terra);
+    color: var(--pc-accent-ink);
   }
   .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
     border-left-color: color-mix(in oklab, var(--pc-ink-soft) 45%, transparent);
@@ -20388,7 +20395,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     font-family: var(--font-display);
     font-style: italic;
     font-weight: 600;
-    color: var(--pc-terra);
+    color: var(--pc-accent-ink);
     font-size: clamp(0.82rem, calc(var(--pf-vc-h) * 0.03), 1.2rem);
     line-height: 1.15;
   }
@@ -20501,7 +20508,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"] {
     border: 0;
     border-radius: 12px;
-    background-color: var(--pc-terra);
+    background-color: var(--pc-cta);
     background-image: var(--pf-fibers);
     color: var(--pc-cta-ink);
     box-shadow:
@@ -20511,7 +20518,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
   }
   .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:hover,
   .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="primary"]:focus-visible {
-    background-color: color-mix(in oklab, var(--pc-terra) 88%, #ffb070);
+    background-color: var(--pc-cta-hover); /* TASK-310: a lighter hover dropped the label under 4:1 */
   }
   .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
     font-family: var(--font-display);
@@ -20599,7 +20606,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --ps2-edge: rgb(88 62 34 / 0.2);
     --ps2-text: #1c2142;
     --ps2-soft: #5b607a;
-    --ps2-accent: #c0502f;
+    --ps2-accent: #a5432a; /* TASK-310: 5.5:1 on a tile, 4.9:1 on the panel (was 4.25 / 3.82) */
     --ps2-shadow: rgb(72 48 24 / 0.22);
     --oa-face: #c8553a;
     --oa-shade: #8f3420;
@@ -20614,7 +20621,7 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
     --ps2-edge: rgb(255 238 214 / 0.14);
     --ps2-text: #f4ead8;
     --ps2-soft: #a9afc4;
-    --ps2-accent: #e2714d;
+    --ps2-accent: #f4a07e; /* TASK-310: 5.6:1 on a tile, 5.0:1 on the selected tile (was 3.66 / 3.27) */
     --ps2-shadow: rgb(6 8 18 / 0.5);
     --oa-face: #e0674a;
     --oa-shade: #a8402a;
