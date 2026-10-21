@@ -157,9 +157,10 @@
     width: 15px;
     height: 15px;
   }
-  /* the tile's outline is clipped, so the focus ring is the paper layer itself: ink-coloured, not only a hue change */
+  /* the tile's outline is clipped, so the visible focus ring is the paper layer itself: ink-coloured, not only a hue change.
+     TASK-349: the outline stays a real solid 2 px (transparent, so forced-colors mode still draws it and the focus-ring contract reads it) */
   .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:focus-visible {
-    outline: none;
+    outline: 2px solid transparent;
   }
   .pf-showcase.pf-vcar.pf-psel .pf-carousel[data-paper-selector] .pf-track .pf-thumb:focus-visible::before {
     border-color: var(--ps2-text);
