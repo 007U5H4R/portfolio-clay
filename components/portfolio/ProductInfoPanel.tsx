@@ -89,14 +89,15 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
   const spanFor = (key: string) => (secondaryKeys.length % 2 === 1 && secondaryKeys.at(-1) === key ? "full" : undefined);
   const totalLabel = String(total).padStart(2, "0");
   const position = String(product.position).padStart(2, "0");
-  const category = (product.tags ?? []).slice(0, 2).join(" · ");
+  // TASK-303: only where the vertical-carousel card renders (that is the only place `poster` is passed)
+  const paper = PAPER_CARD_ENABLED && !!poster;
+  // Stage 8 DES-017 (TASK-314): the paper card's kicker has room for one tag beside "n / N" (two truncated at 1280-1440)
+  const category = (product.tags ?? []).slice(0, paper ? 1 : 2).join(" · ");
   // TASK-274: the same loop as the carousel (stepIndex wraps), so the arrows are never dead
   const navIndex = nav ? nav.products.findIndex((p) => p.id === product.id) : -1;
   const adjacent = (delta: number) => (nav && navIndex >= 0 ? nav.products[stepIndex(navIndex, delta, nav.products.length)] : undefined);
   const prevProduct = adjacent(-1);
   const nextProduct = adjacent(1);
-  // TASK-303: only where the vertical-carousel card renders (that is the only place `poster` is passed)
-  const paper = PAPER_CARD_ENABLED && !!poster;
   // the pills are the card's own data: its code, then each part of its status line
   const pills = paper ? [product.code, ...product.meta.split(" · ")].filter(Boolean) : [];
 
