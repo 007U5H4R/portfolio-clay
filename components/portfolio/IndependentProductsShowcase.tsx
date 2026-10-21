@@ -210,7 +210,11 @@ export function IndependentProductsShowcase({ products, intro }: IndependentProd
       setAutoStart(true);
       setAutoMute(false);
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      document.getElementById(STAGE_ID)?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+      // Stage 8 DES-015 (TASK-312): land the stage below the fixed header, not under it (a third of the video was hidden at 375)
+      const stage = document.getElementById(STAGE_ID);
+      if (!stage) return;
+      const header = document.querySelector<HTMLElement>("header[data-site-header]")?.getBoundingClientRect().height ?? 0;
+      window.scrollTo({ top: Math.max(0, stage.getBoundingClientRect().top + window.scrollY - header - 8), behavior: reduce ? "auto" : "smooth" });
     },
     [activeProductId],
   );
