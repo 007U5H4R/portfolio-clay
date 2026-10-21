@@ -150,6 +150,31 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
     }
   }
 
+  // Stage 12 RCA1 (QA-013): the narrow-card container query once fired at 1440 (it measures the card's CONTENT box, ~299 px there),
+  // stripping the approved 1440 card of its action labels and category. Above the narrow band the card must stay complete.
+  for (const [vw, vh] of [[1440, 900], [1512, 982], [1920, 1080]] as const) {
+    for (const theme of ["light", "dark"] as const) {
+      test(`RCA1: at ${vw}x${vh} ${theme} the paper card keeps its secondary labels and category (QA-013)`, async ({ page }) => {
+        await open(page, vw, vh, theme, "teachspark");
+        const m = await page.evaluate(() => {
+          const card = document.querySelector(".pf-info.pf-paper")!;
+          const labels = [...card.querySelectorAll('.pf-action[data-tier="secondary"] .pf-action-label')].map((el) => ({ text: el.textContent?.trim(), w: (el as HTMLElement).offsetWidth, pos: getComputedStyle(el).position }));
+          const cat = card.querySelector(".pf-info-category") as HTMLElement | null;
+          const tail = card.querySelector('.pf-action[data-tier="primary"] .pf-action-tail') as HTMLElement | null;
+          return { labels, catW: cat?.offsetWidth ?? 0, catPos: cat ? getComputedStyle(cat).position : "", tailShown: tail ? getComputedStyle(tail).display !== "none" : null };
+        });
+        expect(m.labels.length, "the card has secondary actions").toBeGreaterThan(0);
+        for (const l of m.labels) {
+          expect(l.pos, `${l.text} label is laid out, not clipped`).not.toBe("absolute");
+          expect(l.w, `${l.text} label is visible`).toBeGreaterThan(20);
+        }
+        expect(m.catPos, "the category is laid out, not clipped").not.toBe("absolute");
+        expect(m.catW, "the category is visible").toBeGreaterThan(10);
+        expect(m.tailShown, "the CTA reads 'Watch demo video'").toBe(true);
+      });
+    }
+  }
+
   test("TASK-313: while the player loads, the poster stays and a loading cue shows (YouTube blocked)", async ({ page }) => {
     test.skip(!PAPER_PLAYER_ENABLED, "paper player flag is off");
     await page.route(/youtube(-nocookie)?\.com/, (route) => route.abort());

@@ -40,7 +40,7 @@ This file holds two sections. **M-009** (current, below) is evidence only; its S
 | U2-11 | Inert synonym rows; rephrased product questions get the generic index answer | CR-010, CR-016, SF-001, SF-002 | P2 | rows **removed** #154; index behaviour **parked** | → Tushky option 2 (memory `tushky-rag-later`) |
 | U2-12 | EVAL-020 satisfied by `black` keyword + value-named tokens | CR-012 | P3 | **Parked** | TASK-319 |
 | U2-13 | Hover-stability spec sampled mid-animation; spec hygiene (flag doc, ternary, poster duplication) | CR-014, CR-017, CR-018, CR-019 | P3 | **Fixed** #154 | — |
-| U2-14 | Mobile lab LCP 5.4 s (`/`) / 6.4 s (`/projects`) vs 2.5 s budget; worse than EXE-24's accepted 2.7–3.2 s | QA-012 | **P1** | **Open — accepted for this round** | TASK-320: trace on an idle host; not introduced by this range (hero untouched) |
+| U2-14 | Mobile lab LCP reported 5.4 s (`/`) / 6.4 s (`/projects`) vs 2.5 s budget | QA-012 | ~~P1~~ → **P2** | **Root-caused at Stage 12 (RCA2)** | an artefact of Lighthouse's *simulated* throttling: applied throttling on an idle host measures 2.76 s / 2.65 s with LCP = FCP (hero paints in the first frame), i.e. ≈ 0.2 s over budget, set by first paint — TASK-320 retitled as a first-paint optimization; guard `lcp-hero.spec.ts` |
 | U2-15 | `case-study-system.spec` stale for the six paper case-study layouts (24 tests) | QA-015 | P2 | **Parked** (pre-existing on main) | TASK-321 |
 | U2-16 | scene-opener phone expectation, contact stamp nudge 0 px, About fingerprint snapshot stale | QA-016, QA-017, QA-018 | P3 | **Parked** (pre-existing on main) | TASK-322 / 323 / 324; About verified byte-identical to production with the live baseline (19/19) |
 | U2-17 | Answer source links scheme-checked only at build time | SEC-003 | Low | **Fixed** (TASK-326, this round's PR) | `isSafeEvidenceHref` at render + `AnswerSchema` regex; unit test |
@@ -51,7 +51,7 @@ This file holds two sections. **M-009** (current, below) is evidence only; its S
 
 ## R2-4. Open issues & accepted risks
 
-1. **TASK-320 (P1) mobile LCP** — the one release-quality risk; lab only, no field data yet; owner Stage 11 monitoring + a trace.
+1. **TASK-320 (P2 after RCA2) mobile first paint** — measured with applied throttling at 2.65–2.76 s (LCP = FCP), ≈ 0.2 s over the 2.5 s budget; lever = render-blocking CSS + fonts. The 5–7 s figure was a simulated-throttling artefact (Stage 12).
 2. **TASK-325** dependency advisories — bump through the full gate.
 3. **TASK-321…324, TASK-319** — test and gate debt; none affects visitors.
 4. **DES-020, 022–029** — design-direction calls for Tushar (micro-label sizes, 1280×800 description, auto-play behaviour, three navigation systems, selector origami fidelity, 1920 scale, art width, title-chip overlap, OG small line).

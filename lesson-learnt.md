@@ -57,6 +57,18 @@ Stages 7–11 ran in one day, Stages 9–11 with Tushar AFK under an explicit st
 - The keyless PageSpeed Insights API hits its daily quota quickly; use Vercel Speed Insights for field data.
 - zsh passes `$VAR` holding several paths as one word — inline spec lists or use arrays.
 
+### L-09 · Lighthouse's simulated throttling can report a page 2–3× slower than it is
+- **Situation.** Stage 9 recorded mobile LCP 5.4 s / 6.4 s (Lighthouse default `simulate`, contended host) and filed it as a P1.
+- **Decision (Stage 12).** Re-measure on an idle host with applied throttling and a real Chrome trace before touching the hero.
+- **Outcome.** 2.65–2.76 s with LCP = FCP; the hero paints in the first frame (RCA2). The P1 became a P2 first-paint optimization; no visual identity was sacrificed for a modelled number.
+- **Lesson.** The simulated model schedules a heavy render-blocking stylesheet and style work ahead of the paint; on CSS-heavy pages it is pessimistic, and on a busy host it is noise on top of that.
+- **Future rule.** Report Lighthouse numbers with their throttling method; act on a budget miss only after an applied-throttling run on an idle host (3+ runs) and a trace that names the phase (TTFB / load delay / load / render delay).
+
+### L-10 · A regression guard must fail when the bug is put back
+- **Situation.** The first negative control for the LCP guard injected the "gate" at DOMContentLoaded — after the image had already painted — and the guard passed.
+- **Outcome.** Re-injected into the served HTML, the gated hero painted 2.6 s after FCP and the guard failed as intended.
+- **Future rule.** Every new regression case gets a negative control that reintroduces the defect at the layer it lives in (HTML/CSS before first paint, not a late script), and the control must fail before the case is trusted.
+
 ---
 
 ## Reusable Rules for Future Projects
@@ -68,6 +80,8 @@ Stages 7–11 ran in one day, Stages 9–11 with Tushar AFK under an explicit st
 5. **CI on the release branch:** never cancel in-progress main runs; a release commit without a completed CI run is a failed gate (L-04).
 6. **Geometry in tests:** settle before measuring (L-06).
 7. **Content-backed assistants:** coverage test from the source-of-truth list (L-07).
+8. **Performance numbers:** name the throttling method; confirm a miss with applied throttling on an idle host and a phase trace before fixing (L-09).
+9. **Regression cases:** prove each one with a negative control that reintroduces the defect where it lives (L-10).
 
 ## Candidate Global CLAUDE.md Improvements
 
