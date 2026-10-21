@@ -20553,6 +20553,61 @@ h2 > .cs-logo .pf-logo-img { width: 100%; }
       width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.335 - 6px) * var(--pc-ar)));
     }
   }
+  /* Stage 8 DES-014 (TASK-311): from 1024 to 1279 px the card is ~250 px wide and its two-column secondary strips, four pills
+     and category label no longer fit (GitHub + Case study fell out of the card). In a narrow card the secondaries become one
+     icon row (the label stays for assistive tech), the pills may wrap, the category gives way and the CTA label steps down. */
+  @container pcard (max-width: 300px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-kicker .pf-info-category {
+      display: none;
+    }
+    .pf-paper .pf-pc-pills {
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+    .pf-paper .pf-pc-pills li {
+      padding: 2px 3px; /* 1024x768: the three pills missed one row by 3 px */
+      letter-spacing: 0;
+    }
+    /* a shorter poster keeps the icon row inside the card (and off the pager) at 1024x768 */
+    .pf-showcase.pf-vcar .pf-paper .pf-info-poster-frame {
+      width: min(calc(100% - 6px), calc((var(--pf-vc-h) * 0.26 - 6px) * var(--pc-ar)));
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set {
+      gap: 4px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-actions > li,
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-case-link {
+      grid-column: auto;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-actions > li:has(> [data-tier="primary"]) {
+      grid-column: 1 / -1;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-label {
+      font-size: 13.5px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action[data-tier="primary"] .pf-action-tail {
+      display: none;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action.pf-action[data-tier="secondary"] {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      padding: 10px 4px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon,
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+    .pf-showcase.pf-vcar .pf-paper .pf-action-set .pf-action[data-tier="secondary"] .pf-action-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+  }
   /* ---- pagination: a terracotta active pill, slate inactive pills ---- */
   .pf-showcase.pf-vcar .pf-paper .pf-info-dot::before {
     background: var(--pc-dot);

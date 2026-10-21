@@ -1,7 +1,7 @@
 "use client";
 
 import { NewTabHint } from "@/components/common/NewTabHint";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
@@ -46,7 +46,7 @@ const EXTERNAL: Record<ExternalKind, { label: string; name: (product: string) =>
 };
 
 /** One action's inside: icon · serif label · arrow (↗ external, → internal / in-page; icon + arrow are visual only). */
-function StripBody({ icon: Icon, label, external, action, tier }: { icon: ActionIcon | typeof Play; label: string; external: boolean; action: string; tier: "primary" | "secondary" }) {
+function StripBody({ icon: Icon, label, external, action, tier }: { icon: ActionIcon | typeof Play; label: ReactNode; external: boolean; action: string; tier: "primary" | "secondary" }) {
   const Arrow = external ? ArrowUpRight : ArrowRight;
   const origami = ORIGAMI_FOR_ACTION[action];
   return (
@@ -113,7 +113,17 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
         aria-controls={stageId}
         onClick={() => onModeChange(target)}
       >
-        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={tierOf(target) === "primary" ? `${label} video` : label} external={false} action={target} tier={tierOf(target)} />
+        <StripBody icon={tierOf(target) === "primary" ? Play : Icon} label={
+            tierOf(target) === "primary" ? (
+              <>
+                {label}
+                {/* Stage 8 DES-014 (TASK-311): the narrow 1024-1279 px card drops the tail, so the CTA reads "Watch demo" there */}
+                <span className="pf-action-tail"> video</span>
+              </>
+            ) : (
+              label
+            )
+          } external={false} action={target} tier={tierOf(target)} />
       </button>
     </li>
   );
