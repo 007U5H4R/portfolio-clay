@@ -206,7 +206,7 @@ test.describe("Slag City real videos on /projects (TASK-129)", () => {
 
     // The live game and the public repo: one action each, and a click opens a new tab (not this one).
     for (const [action, href] of [
-      ["product", "https://slag-city.vercel.app"],
+      ["product", "https://slag-city.tusharpathak.com"],
       ["github", "https://github.com/007U5H4R/slag-city"],
     ] as const) {
       const link = actions(page).locator(`[data-action="${action}"]`);

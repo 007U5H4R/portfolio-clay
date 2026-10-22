@@ -17,7 +17,7 @@ export const pratyasaCase: z.input<typeof CaseStudy> = {
   },
   story: "A true record of real work",
   extraSources: [
-    { id: "PT-SITE", label: "Pratyasa page and its fact checker", ref: "PT/pratyasa-site (verify-facts.py REQUIRED tokens L267; zero third-party requests)", inventory: "§8.8", url: "https://pratyasa.vercel.app" },
+    { id: "PT-SITE", label: "Pratyasa page and its fact checker", ref: "PT/pratyasa-site (verify-facts.py REQUIRED tokens L267; zero third-party requests)", inventory: "§8.8", url: "https://pratyasa.tusharpathak.com" },
   ],
   hero: {
     tagline: "A patent, on the record.",

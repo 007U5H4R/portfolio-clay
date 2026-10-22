@@ -104,7 +104,7 @@ test.describe("pratyasa paper layout", () => {
   test("links: live product, pitch and demo videos, GitHub and the evidence drawer are present", async ({ page }) => {
     await page.goto("/work/pratyasa", { waitUntil: "load" });
     for (const action of ["live", "pitch", "demo", "github"]) await expect(page.locator(`.pra-tile-link[data-action="${action}"]`)).toHaveAttribute("href", /^https:\/\//);
-    await expect(page.locator('.pra-tile-link[data-action="live"]')).toHaveAttribute("href", "https://pratyasa.vercel.app");
+    await expect(page.locator('.pra-tile-link[data-action="live"]')).toHaveAttribute("href", "https://pratyasa.tusharpathak.com");
     await expect(page.locator('.pra-tile-link[data-action="pitch"]')).toHaveAttribute("href", /xqevuhTxKAQ/);
     await expect(page.locator('.pra-tile-link[data-action="demo"]')).toHaveAttribute("href", /Rl6MQiSBqh8/);
     await expect(page.locator('.pra-tile-link[data-action="github"]')).toHaveAttribute("href", "https://github.com/007U5H4R/pratyasa");

@@ -320,7 +320,7 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const campfire = products.find((p) => p.id === "campfire-board");
     expect(campfire?.pitchVideo).toEqual({ provider: "youtube", videoId: "K_-510L6e7g", title: "Campfire Board pitch video", poster: undefined });
     expect(campfire?.demoVideo).toEqual({ provider: "youtube", videoId: "DkxDQji3dz8", title: "Campfire Board product demonstration", poster: undefined });
-    expect(campfire?.productUrl).toBe("https://site-eight-lake-51.vercel.app"); // hosted live demo (TASK-188)
+    expect(campfire?.productUrl).toBe("https://campfire.tusharpathak.com"); // hosted live demo (TASK-188)
     expect(campfire?.githubUrl).toBe("https://github.com/007U5H4R/pm-dashboard"); // TASK-188 hid it; TASK-251 shows GitHub on every public repo
     // TASK-251: the verified-public repos link out; the two private teenytinybot repos never do.
     for (const slug of ["teachspark", "railcite", "velora", "nuptis", "pratyasa", "slag-city", "urja"]) {
@@ -331,7 +331,7 @@ describe("Portfolio data model (spec §5, §21)", () => {
     const slag = products.find((p) => p.id === "slag-city");
     expect(slag?.pitchVideo).toEqual({ provider: "youtube", videoId: "1xvj8j79Svs", title: "Slag City pitch video", poster: undefined });
     expect(slag?.demoVideo).toEqual({ provider: "youtube", videoId: "tc4QDVl8NJM", title: "Slag City product demonstration", poster: undefined });
-    expect(slag?.productUrl).toBe("https://slag-city.vercel.app");
+    expect(slag?.productUrl).toBe("https://slag-city.tusharpathak.com");
     expect(slag?.githubUrl).toBe("https://github.com/007U5H4R/slag-city"); // public repo (2026-09-29)
     // TASK-170: TeachSpark carries its launch pitch + demo (Tushar 2026-10-07).
     const teachspark = products.find((p) => p.id === "teachspark");

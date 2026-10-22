@@ -554,7 +554,7 @@ export const railcite: Project = {
   dates: { start: "2026-08", end: "2026-09" },
   duration: "Aug–Sep 2026",
   links: {
-    live: "https://railcite.vercel.app",
+    live: "https://railcite.tusharpathak.com",
     github: "https://github.com/007U5H4R/railcite",
     repoPublic: true,
   },
@@ -965,7 +965,7 @@ export const railcite: Project = {
       label: "RailCite live /api/stats",
       ref: "https://railcite.vercel.app/api/stats (2026-09-15)",
       inventory: "§8.2",
-      url: "https://railcite.vercel.app",
+      url: "https://railcite.tusharpathak.com",
     },
     {
       id: "RC-CRON-SPEC",
@@ -1021,7 +1021,7 @@ export const velora: Project = {
   dates: { start: "2026-08" },
   duration: "Aug 2026",
   links: {
-    live: "https://velora-nu-eight.vercel.app/",
+    live: "https://velora.tusharpathak.com/",
     github: "https://github.com/007U5H4R/velora",
     repoPublic: true,
   },
@@ -1352,7 +1352,7 @@ export const velora: Project = {
       label: "Velora live app",
       ref: "https://velora-nu-eight.vercel.app/ (HTTP 200, 2026-09-15)",
       inventory: "§8.5",
-      url: "https://velora-nu-eight.vercel.app/",
+      url: "https://velora.tusharpathak.com/",
     },
   ],
 };
@@ -1397,7 +1397,7 @@ export const nuptis: Project = {
   dates: { start: "2026-08", end: "2026-09" },
   duration: "Aug 2026",
   links: {
-    live: "https://nuptis.vercel.app/",
+    live: "https://nuptis.tusharpathak.com/",
     github: "https://github.com/007U5H4R/nuptis",
     repoPublic: true,
   },
@@ -1760,7 +1760,7 @@ export const nuptis: Project = {
       label: "Nuptis live app",
       ref: "https://nuptis.vercel.app/ (HTTP 200, 2026-09-15)",
       inventory: "§8.4",
-      url: "https://nuptis.vercel.app/",
+      url: "https://nuptis.tusharpathak.com/",
     },
   ],
 };
@@ -2232,7 +2232,7 @@ export const pratyasa: Project = {
   dates: { start: "2026-08", end: "2026-09" },
   duration: "Aug 2026",
   links: {
-    live: "https://pratyasa.vercel.app",
+    live: "https://pratyasa.tusharpathak.com",
     github: "https://github.com/007U5H4R/pratyasa",
     repoPublic: true,
   },
@@ -2380,7 +2380,7 @@ export const campfireBoard: Project = {
   dates: { start: "2026-09" },
   duration: "Sep 2026",
   links: {
-    live: "https://site-eight-lake-51.vercel.app",
+    live: "https://campfire.tusharpathak.com",
     github: "https://github.com/007U5H4R/pm-dashboard", // the fork's remote (TASK-251)
     repoPublic: true,
   },
@@ -2429,7 +2429,7 @@ export const slagCity: Project = {
   dates: { start: "2026-09" },
   duration: "Sep 2026",
   links: {
-    live: "https://slag-city.vercel.app",
+    live: "https://slag-city.tusharpathak.com",
     github: "https://github.com/007U5H4R/slag-city",
     repoPublic: true,
   },
@@ -2638,7 +2638,7 @@ export const urja: Project = {
   dates: { start: "2026-09", end: "2026-10" },
   duration: "Sep–Oct 2026",
   links: {
-    live: "https://urja-three.vercel.app",
+    live: "https://urja.tusharpathak.com",
     github: "https://github.com/007U5H4R/urja",
     repoPublic: true,
   },

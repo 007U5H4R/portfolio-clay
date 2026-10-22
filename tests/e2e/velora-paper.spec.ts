@@ -131,7 +131,7 @@ test.describe("velora paper layout", () => {
 
   test("links: live product, pitch and demo videos, GitHub and the evidence drawer are present", async ({ page }) => {
     await page.goto("/work/velora", { waitUntil: "load" });
-    await expect(page.locator('.vlp-tile-link[data-action="live"]')).toHaveAttribute("href", "https://velora-nu-eight.vercel.app/");
+    await expect(page.locator('.vlp-tile-link[data-action="live"]')).toHaveAttribute("href", "https://velora.tusharpathak.com/");
     await expect(page.locator('.vlp-tile-link[data-action="github"]')).toHaveAttribute("href", "https://github.com/007U5H4R/velora");
     await expect(page.locator('.vlp-tile-link[data-action="pitch"]')).toHaveAttribute("href", /youtube\.com\/watch\?v=rz1C0hTz1mE|youtu\.be\/rz1C0hTz1mE/);
     await expect(page.locator('.vlp-tile-link[data-action="demo"]')).toHaveAttribute("href", /1BRXGdMqPEs/);
