@@ -15,7 +15,7 @@ export const site = {
   github: "https://github.com/007U5H4R",
   priorSite: "https://tushar-pathak.vercel.app/",
   /** Tushar's resume on Google Drive (TASK-175) - the one place the URL lives. Must stay https on drive.google.com. */
-  resumeUrl: "https://drive.google.com/file/d/1hqDF4-YlcdaoIRLBzKwI4D8pUWQ7ELJ_/view?usp=sharing",
+  resumeUrl: "https://drive.google.com/file/d/1uq6eHacLtZcvDRDJc9jMIKDMyUs24qcg/view?usp=share_link",
   /**
    * Whether the band footer's © bar shows "Bengaluru, India" (Design.md §4.2, TKT-72). Default
    * `false`: flip to true once Tushar confirms — HANDOFF §6. One edit; `BandFooter` reads it.

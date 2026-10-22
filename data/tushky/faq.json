@@ -31,7 +31,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-1c9f4b72c9f3",
+    "profileVersion": "v1-b56c0126424c",
     "dependsOn": [
       "profile",
       "experience",
@@ -439,8 +439,8 @@
       "What impact has he created?",
       "What enterprise programs has he worked on?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-331765aac8d5",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-1b2ed6d701ea",
     "dependsOn": [
       "experience",
       "profile"
@@ -474,8 +474,8 @@
       "What enterprise programs has he worked on?",
       "What is his educational background?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-ad236acecc9c",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-b4c91883f10e",
     "dependsOn": [
       "experience",
       "profile",
@@ -802,15 +802,15 @@
       },
       {
         "label": "Résumé",
-        "href": "https://drive.google.com/file/d/1hqDF4-YlcdaoIRLBzKwI4D8pUWQ7ELJ_/view?usp=sharing"
+        "href": "https://drive.google.com/file/d/1uq6eHacLtZcvDRDJc9jMIKDMyUs24qcg/view?usp=share_link"
       }
     ],
     "followUps": [
       "Who is Tushar?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-6b0a9a245b89",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-20863e2e65be",
     "dependsOn": [
       "profile"
     ],
@@ -835,8 +835,8 @@
       "What products has Tushar built?",
       "Who is Tushar?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-6b0a9a245b89",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-20863e2e65be",
     "dependsOn": [
       "profile"
     ],
