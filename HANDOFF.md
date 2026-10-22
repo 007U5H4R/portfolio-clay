@@ -1,6 +1,25 @@
-# HANDOFF — Portfolio (tusharpathak.com) · Stage 12 continuous loop · backlog wave 2026-10-21/22 SHIPPED → next: TASK-350 + optional CSS pass 2
+# HANDOFF — Portfolio (tusharpathak.com) · Stage 12 continuous loop · wave 3 (2026-10-22) SHIPPED
 
-Updated 2026-10-22 06:45. Production = main `bcf6d757`. Previous baton (Stage 12, 2026-10-21) follows below.
+Updated 2026-10-22. Production = main `92d08750`. Previous batons follow below.
+
+## Wave 3 — 2026-10-22 — shipped (all squash-merged, prod verified)
+| PR | Tickets | What |
+|---|---|---|
+| #173 | TASK-350 | Home EVAL-018 header-decoration count now waits for MediaGate hydration before counting (fixed the flake) |
+| #174 | TASK-353/354 | Velora product description rewritten to say what it does; every product card switches 2-line ↔ 3-line description by available space (`@container pcard`, 445 px breakpoint) |
+| #175 | TASK-351 | CSS pass 2: removed 128 unused rules + 1 keyframe, moved 58 more route-only rules out of `globals.css` into `app/styles/*.css`; 0 visual diff across 10 routes × 3 widths × 2 themes |
+
+Each gated on its merged head (build, tsc, eslint, full vitest 1691 passed/2 skipped, touched Playwright specs) before merging, not trusted from a pre-merge report. #174's new Velora copy staled 5 Tushky FAQ answers (who-is-tushar, products-built, product-thinking, velora, assumption-failed) — verified against the new wording and re-stamped, not dismissed as pre-existing. #175 was authored before #174 merged and both touched `app/styles/projects.css`; merged `origin/main` into the PR branch and re-ran the full gate on the merged head before merging.
+
+**TASK-206 closed as obsolete** (no PR): the EVAL-033 real-site tilt test's suspected 0-px flake at w390 doesn't reproduce — it passed cleanly at both widths in the last completed main CI run (2026-10-21). TASK-173's poll-for-end-state fix already covers it. The drafted (never-committed) fix is saved at `/Volumes/E Drive/Dev/.scratch/task-206-eval033-uncommitted.patch` if the race resurfaces.
+
+**Worktree cleanup:** removed 15 merged lane worktrees + branches (casestudy, deps, design, logo, ogalert, paint, selector, taborder, tests, flake, velora, css2, selector-tile, campfire, tilt-test) plus the old non-git `portfolio/` folder. E Drive 98% → 77% full (27 GB free). **Only `Portfolio-clay` (main) and `Portfolio-clay-redesign` (Campfire board) remain as worktrees** — the stale cleanup list below (§3) is superseded.
+
+**New lesson:** `git merge-base --is-ancestor <branch> origin/main` reports "not merged" for a squash-merged branch — it checks real ancestry, which squash merges deliberately break. Confirm merge status with `gh pr view <n> --json state,mergedAt` instead.
+
+## Open (carried into next session)
+- CI signal is currently unreliable: the eval workflow's last *completed* run on main (2026-10-21) had 184 failures, mostly at the 390 px width across unrelated specs; every run since has been cancelled by a newer push. Evals are already skipped as a ship gate, but a 184-failure baseline means CI itself isn't a usable safety net right now — worth its own investigation ticket.
+- Human items (LinkedIn unfurl, Vercel error-notification settings) and most of the design-call backlog (DES-020…029 etc.) were already resolved per the previous baton below; TASK-350/351 (listed as open in the previous baton) are now shipped via #173/#175 above.
 
 ## Wave 2026-10-21/22 — shipped (all squash-merged, prod verified 200 on / /projects /about /work/teachspark)
 | PR | Tickets | What |
@@ -12,11 +31,11 @@ Updated 2026-10-22 06:45. Production = main `bcf6d757`. Previous baton (Stage 12
 | #169 | 346–349 | arrow nudges, card gaps (actions anchored 15 px from bottom), selector fade, focus ring |
 | #170 | 342 | WebKit filters → box-shadows / `.torn-shade` copies (inside `torn-drift-back`) / baked map shadow; WebKit scroll p50 38–130 → 33–35 ms. /about card shadows now follow a rectangle (0.3–0.5 % px) |
 
-## Open
-- TASK-350 (P3): home EVAL-018 header count races MediaGate hydration (2/15 in mixed runs).
-- CSS pass 2 (not ticketed): ~153 rules (~19 kB) with no source usage; ~110 kB shared primitives left in globals.css.
-- Human: LinkedIn unfurl of /projects; Vercel error-notification settings.
-- Lane worktrees `Portfolio-lane-{csssplit,safari,chromescroll,aboutimg,polish}` are merged — remove after checking clean. Scroll-test traces (148 MB) in `.scratch/scroll-test-1021/` can go.
+## Open (superseded — kept for history; see "Open (carried into next session)" above for the current list)
+- ~~TASK-350 (P3): home EVAL-018 header count races MediaGate hydration (2/15 in mixed runs).~~ Shipped via #173.
+- ~~CSS pass 2 (not ticketed): ~153 rules (~19 kB) with no source usage; ~110 kB shared primitives left in globals.css.~~ Shipped via #175 (TASK-351).
+- ~~Human: LinkedIn unfurl of /projects; Vercel error-notification settings.~~ Done 2026-10-22 per memory.
+- ~~Lane worktrees `Portfolio-lane-{csssplit,safari,chromescroll,aboutimg,polish}` are merged — remove after checking clean.~~ Removed, along with every other lane worktree — see wave 3 above.
 - Lessons: Playwright wipes `test-results/` (keep evidence elsewhere); lanes that share a component (TornEdge) must merge in sequence and re-verify the combination.
 
 ## 12. Stage 12 — what was done
@@ -42,7 +61,7 @@ Updated 2026-10-22 06:45. Production = main `bcf6d757`. Previous baton (Stage 12
 - **Production = `main` of 007U5H4R/portfolio-clay, auto-deploys to Vercel → https://tusharpathak.com.** Stage 8 fixes are in **PR #152** (https://github.com/007U5H4R/portfolio-clay/pull/152, branch `m023/stage8-critique`, worktree `/Volumes/E Drive/Dev/Code/Claude/Portfolio-selector-tile`), **squash-merged 2026-10-21 → production `19e23389`**, prod specs 89 passed (stage8-des, paper-selector, paper-card, vertical-carousel, hover-stability, paper-player, projects-mobile, projects-carousel). TASK-309…316 Done. Campfire's Workflow view now follows the HANDOFF title (fork commit 42c8c4c1, pushed). Follow-up content ticket **TASK-317** (Tushky FAQ entries for the products without one) is in progress on `m024/tushky-products`.
 - **Standing autonomy:** CI/CD — ship each gated change to prod without asking (memory `cicd-autonomy-2026-10-18`); evals skipped (`skip-evals-2026-10-14`). Ship gate = build → tsc → eslint → **full unit suite** → touched Playwright specs → PR → Vercel pass → squash-merge → prod status success → prod specs.
 - Heavy jobs go through `/Volumes/E Drive/Dev/.scratch/heavy-gate.sh <label> <cmd…>`. Stage 8 ship script: `/Volumes/E Drive/Dev/.scratch/stage8/ship.sh`.
-- **Disk:** the E Drive was at 2.4 GB free when Stage 8 started (98 %); `.scratch` holds ~19 GB, mostly film renders (`urja-films` 4.6 GB, `bhakti-vilas-films`, `about-page`, `threejs-devtools-tmp`, `velora-films`, `nuptis-films*`, `shravan-films`). Not deleted — Tushar decides what goes. A `next build` needs ~2 GB headroom.
+- **Disk:** the E Drive was at 2.4 GB free when Stage 8 started (98 %); as of wave 3 (2026-10-22), after removing 15 merged worktrees + the old `portfolio/` folder, it's at **27 GB free (77 % used)**. `.scratch` film renders (`urja-films`, `bhakti-vilas-films`, etc.) weren't touched — Tushar decides what goes there.
 
 ## 8. Stage 8 — what was done (previous stage)
 - Two Opus reviewers drove **production** 236fb4ef: desktop 1280/1440/1512/1920 light + dark; tablet 768, phone 375/390, the 1024 edge, link-preview tags. Reports + ~130 screenshots: `/Volumes/E Drive/Dev/.scratch/stage8/{desktop,mobile}/REPORT.md`.
@@ -73,4 +92,4 @@ Updated 2026-10-22 06:45. Production = main `bcf6d757`. Previous baton (Stage 12
 - Everything on the E Drive; `export TMPDIR="/Volumes/E Drive/Dev/.scratch/tmp" PLAYWRIGHT_BROWSERS_PATH="/Volumes/E Drive/Dev/.cache/ms-playwright"`. Plain `node` scripts that import Playwright must run with `node --input-type=module < script.mjs` from the worktree (ESM resolves from the script's folder, not cwd).
 - Subagents cannot write report files under `.scratch` (hook); they hand the report back and the orchestrator saves it.
 - Never regenerate/recolour/crop product logos or posters; experiments desktop-only (≥1024) behind kill-switch flags; use the ID `task create` prints; `git worktree add` with absolute paths; hooks block `rm`, force-push, `commit --amend`, `checkout --`.
-- Merged worktrees awaiting cleanup (verify merged + clean, then `git worktree remove`): Portfolio-hover-jitter (m021), Portfolio-origami-off (m020), Portfolio-card-back (m019), Portfolio-bv (m017), older m013/m014 ones; `Portfolio-selector-tile` now carries `m023/stage8-critique`.
+- ~~Merged worktrees awaiting cleanup...~~ Superseded 2026-10-22: all of those plus every later lane worktree (casestudy, deps, design, logo, ogalert, paint, selector, taborder, tests, flake, velora, css2, selector-tile, campfire, tilt-test) were removed in wave 3. Only `Portfolio-clay` (main) and `Portfolio-clay-redesign` (Campfire board worktree) remain.
