@@ -221,6 +221,10 @@ test("@EVAL-018 home per-section decoration counts match the design of record", 
   test.skip(![390, 1440].includes(width(page)), "EVAL-018 is measured at w390 and w1440");
   await page.goto("/", { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
+  // The header subline is mounted by `MediaGate` in a post-hydration effect (it renders nothing in the
+  // SSR HTML), and `load` can fire before React hydrates under CPU contention. Wait for that mount at
+  // widths ≥ 640 so the collector never counts the pre-hydration header (TASK-350).
+  if (width(page) >= 640) await expect(page.locator("header .header-subline")).toBeAttached();
   const result = await page.evaluate(collectDecorations, RULE_LIMITS);
   const counts = Object.fromEntries(result.units.map((r) => [r.unit, r.count]));
   // At 390 the header subline annotation is removed from the DOM by design
