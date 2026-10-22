@@ -131,6 +131,8 @@ export const PortfolioEntry = z.object({
   /* TASK-303 r2 (Tushar 2026-10-20): a shorter wording of the project's own tagline for the desktop paper card, where the
      full tagline would be cut off; condensed from the tagline, no new claim. The phone card and case study keep the tagline. */
   cardLine: z.string().min(20).max(100).optional(),
+  /* TASK-354 (Tushar 2026-10-22): the longer wording for the desktop paper card where it has room for three lines; worded from the tagline / thirty-second overview, no new claim. */
+  cardLineLong: z.string().min(20).max(140).optional(),
   accent: PortfolioAccent,
   /* TASK-121 (rectify spec §5.4): the tiny status metadata on the info sheet — a shortening of the
      project's own `statusLabel` (the full sentence stays on the case study), never a new claim. */

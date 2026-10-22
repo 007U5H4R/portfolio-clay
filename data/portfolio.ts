@@ -44,32 +44,32 @@ import type { PortfolioEntry } from "./schema";
  * documents, so it is not listed (never invent a product).
  */
 export const portfolioEntries: PortfolioEntry[] = [
-  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", nextLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText", logo: { width: 853, height: 134 },
+  { slug: "teachspark", code: "TS-01", coverLine: "AI worksheets for teachers", cardLineLong: "A WhatsApp bot that helps a time-poor Indian K–12 teacher use AI for real classroom work — a differentiated worksheet in about two minutes.", nextLine: "AI worksheets for teachers", accent: "steel", meta: "Live pilot · Twilio sandbox", coverArt: "cover-teachspark", lettering: "rounded", coverGlyph: "MessageSquareText", logo: { width: 853, height: 134 },
     // Tushar 2026-10-07 (TASK-170): "TeachSpark Launch" https://youtu.be/ub7yB4LwMBM, "TeachSpark Demo" https://youtu.be/vWYbkGFjKyQ (both public).
     pitchVideo: { provider: "youtube", videoId: "ub7yB4LwMBM" },
     demoVideo: { provider: "youtube", videoId: "vWYbkGFjKyQ" } },
-  { slug: "railcite", code: "RC-01", coverLine: "Research on track", cardLine: "A trust-first assistant that cites the right railway rule or circular — and never invents one.", nextLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront", logo: { width: 580, height: 112 },
+  { slug: "railcite", code: "RC-01", coverLine: "Research on track", cardLine: "A trust-first assistant that cites the right railway rule or circular — and never invents one.", cardLineLong: "A trust-first assistant that helps a Chief Commercial Inspector cite the right railway rule or circular — and never invents a citation.", nextLine: "Research on track", accent: "rust", meta: "Live", coverArt: "cover-railcite", lettering: "slab", coverGlyph: "TrainFront", logo: { width: 580, height: 112 },
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
     demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
-  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", nextLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt", logo: { width: 419, height: 149 },
+  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", cardLine: "A B2B apparel sourcing marketplace — brands and garment makers swipe to match, then bid.", cardLineLong: "A B2B apparel sourcing marketplace — fashion brands and garment manufacturers swipe to connect, and matches turn into bids.", nextLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt", logo: { width: 419, height: 149 },
     // Tushar 2026-10-18 (TASK-246): "Velora Launch v2" (pitch) https://youtu.be/rz1C0hTz1mE,
     // "Velora Demo v2" (demo) https://youtu.be/1BRXGdMqPEs (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "rz1C0hTz1mE" },
     demoVideo: { provider: "youtube", videoId: "1BRXGdMqPEs" } },
   { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", nextLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
-  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", cardLine: "Vendor ops for wedding agencies — verification, work orders, payments and backup in one place.", nextLine: "Wedding vendor operations", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2", logo: { width: 696, height: 174 },
+  { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", cardLine: "Vendor ops for wedding agencies — verification, work orders, payments and backup in one place.", cardLineLong: "Vendor ops for wedding-planning agencies — verification status, work orders, payment milestones and backup coverage in one place.", nextLine: "Wedding vendor operations", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2", logo: { width: 696, height: 174 },
     // Tushar 2026-10-18 (TASK-245): "Nuptis Pitch" (pitch) https://youtu.be/sldcfNeQj94,
     // "Nuptis Demo" (demo) https://youtu.be/1F3UfV_cgW4 (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "sldcfNeQj94" },
     demoVideo: { provider: "youtube", videoId: "1F3UfV_cgW4" } },
-  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", cardLine: "An elder wellness prototype built around bhajan — devotion as behavioural health.", nextLine: "Devotion-led wellbeing", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music", logo: { width: 587, height: 123 },
+  { slug: "bhakti-vilas", code: "BV-01", coverLine: "Devotion as wellness", cardLine: "An elder wellness prototype built around bhajan — devotion as behavioural health.", cardLineLong: "An elder-focused wellness prototype built around bhajan — devotion as behavioural health rather than a clinical wellness app.", nextLine: "Devotion-led wellbeing", accent: "note", meta: "Live prototype · mock data · team", coverArt: "cover-bhakti-vilas", lettering: "serif", coverGlyph: "Music", logo: { width: 587, height: 123 },
     // Tushar 2026-10-17 (TASK-242): "Bhakti Vilas Launch music" (pitch) https://youtu.be/6-o7uUh-ewY,
     // "Bhakti Vilas Demo music" (demo) https://youtu.be/ytD0nxWMRWU (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "6-o7uUh-ewY" },
     demoVideo: { provider: "youtube", videoId: "ytD0nxWMRWU" } },
   { slug: "token-toli", code: "TT-01", coverLine: "Care for parents, from afar", nextLine: "Care for parents, from afar", accent: "green-2", meta: "Discovery only · team PRD", coverArt: "cover-token-toli", lettering: "rounded", coverGlyph: "HeartHandshake" },
-  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", cardLine: "The record of granted patent IN 429867, a point-of-care sepsis biosensor.", nextLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope", logo: { width: 1200, height: 103 },
+  { slug: "pratyasa", code: "PR-01", coverLine: "A patent, on the record", cardLine: "The record of granted patent IN 429867, a point-of-care sepsis biosensor.", cardLineLong: "A static record of granted patent IN 429867 — a point-of-care sepsis-biomarker biosensor — with certificate, paper and footage.", nextLine: "A patent, on the record", accent: "kraft", meta: "Live · patent record", coverArt: "cover-pratyasa", lettering: "mono", coverGlyph: "Microscope", logo: { width: 1200, height: 103 },
     // Tushar 2026-10-07 (TASK-179): "pratyasa launch" (a YouTube Short) https://youtube.com/shorts/xqevuhTxKAQ,
     // "pratyasa demo" https://youtu.be/Rl6MQiSBqh8 (both public).
     pitchVideo: { provider: "youtube", videoId: "xqevuhTxKAQ" },
@@ -80,7 +80,7 @@ export const portfolioEntries: PortfolioEntry[] = [
   {
     slug: "campfire-board",
     code: "CF-01",
-    coverLine: "One dashboard, every project", nextLine: "A board for AI agents",
+    coverLine: "One dashboard, every project", cardLineLong: "A local-first, multi-project management dashboard for the AI build workflow — a personal fork of Backlog.md, run as one local binary.", nextLine: "A board for AI agents",
     accent: "terracotta",
     meta: "Built · live demo",
     coverArt: "cover-campfire-board",
@@ -94,7 +94,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     // channel The Purposeful PM, public + embeddable (oEmbed). Live product + public repo come from data/projects.ts.
     slug: "slag-city",
     code: "SC-01",
-    coverLine: "Coin-op brawler, in the browser", cardLine: "An original arcade beat-'em-up in your browser — one full stage, on desktop or phone.", nextLine: "A 90’s arcade game",
+    coverLine: "Coin-op brawler, in the browser", cardLine: "An original arcade beat-'em-up in your browser — one full stage, on desktop or phone.", cardLineLong: "An original arcade beat-'em-up that runs in your browser — one complete stage, on a desktop cabinet or a phone.", nextLine: "A 90’s arcade game",
     accent: "rust",
     meta: "Live · browser game",
     coverArt: "cover-slag-city",
@@ -108,7 +108,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     // "Shravans Round Demo" https://youtu.be/lwXHhCh1NEE, channel The Purposeful PM, public + embeddable.
     slug: "shravans-round",
     code: "SR-01",
-    coverLine: "Rehearse the round first", cardLine: "A 20-minute AI mock PM interview in Shravan's voice — real Indian cases, free score card.", nextLine: "Rehearse the round first",
+    coverLine: "Rehearse the round first", cardLine: "A 20-minute AI mock PM interview in Shravan's voice — real Indian cases, free score card.", cardLineLong: "A 20-minute AI mock PM interview fronted by Shravan's voice — real Indian product cases, then a free score card.", nextLine: "Rehearse the round first",
     accent: "terracotta",
     meta: "Live · team build",
     coverArt: "cover-shravans-round",
@@ -121,7 +121,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     // TASK-248 (Tushar 2026-10-18): Urja; the launch and demo films follow (Tushar: "I will share the launch and demo video links tomorrow").
     slug: "urja",
     code: "UR-01",
-    coverLine: "Every rupee, accounted for", cardLine: "An AI munshi for Indian fleets — every trip reconciled, a morning brief in Hindi or English.", nextLine: "Truck fleet dashboard",
+    coverLine: "Every rupee, accounted for", cardLine: "An AI munshi for Indian fleets — every trip reconciled, a morning brief in Hindi or English.", cardLineLong: "An AI munshi for Indian fleet owners — every trip's diesel, tolls and kilometres reconciled, and a morning brief in Hindi or English.", nextLine: "Truck fleet dashboard",
     accent: "terracotta",
     meta: "Live · simulated fleet",
     coverArt: "cover-urja",

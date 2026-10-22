@@ -165,7 +165,15 @@ export function ProductInfoPanel({ product, mode, onModeChange, stageId, heading
       </h2>
       <p className="pf-info-tagline">{product.tagline}</p>
       {paper ? <span className="pf-info-gap" data-gap="desc" aria-hidden="true" /> : null}
-      <p className="pf-info-desc" title={paper ? product.description : undefined}>{paper ? (product.cardLine ?? product.description) : product.description}</p>
+      {/* TASK-354: the paper card carries a two-line and a three-line wording; CSS (@container pcard height tiers) shows one and display:none hides the other, so only the visible text reaches assistive tech */}
+      {paper ? (
+        <>
+          <p className="pf-info-desc" data-variant="short" title={product.description}>{product.cardLine ?? product.description}</p>
+          <p className="pf-info-desc" data-variant="long" title={product.description}>{product.cardLineLong ?? product.cardLine ?? product.description}</p>
+        </>
+      ) : (
+        <p className="pf-info-desc">{product.description}</p>
+      )}
       </div>
       {paper && poster ? <span className="pf-info-gap" data-gap="poster" aria-hidden="true" /> : null}
       {poster ? (

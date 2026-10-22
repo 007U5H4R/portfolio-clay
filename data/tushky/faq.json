@@ -30,8 +30,8 @@
       "What is his current role?",
       "What are his strongest skills?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-eecbc0ee8eb2",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-42da77c06b87",
     "dependsOn": [
       "profile",
       "experience",
@@ -85,8 +85,8 @@
       "Tell me about RailCite.",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-10-18",
-    "profileVersion": "v1-c1cc6d880515",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-71b70ef3a43c",
     "dependsOn": [
       "projects"
     ],
@@ -251,8 +251,8 @@
       "How does he evaluate an AI product?",
       "Walk me through a specific project."
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-efb66734a0cb",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-1ef7a4b7aa9d",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -402,8 +402,8 @@
       "What did he learn when an assumption failed?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-4b1d7299c5bc",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-6ace68361745",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -696,8 +696,8 @@
       "What is his product thinking process?",
       "Tell me about Velora."
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-4f2bd59e8afe",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-9c3cddf8c2e4",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
