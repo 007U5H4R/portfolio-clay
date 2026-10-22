@@ -1,71 +1,71 @@
 {
   "390": {
     "opener": {
-      "html": "ad2584588ba63",
-      "style": "16bf5582000e47",
-      "elements": 34
+      "html": "6750cabd8b032",
+      "style": "3f1d8a59bf023",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "19094a17d10d6b",
+      "html": "1115b3c3c5ef1f",
+      "style": "19f35cce8b70ef",
       "elements": 17
     },
     "footer": {
-      "html": "16ed1975fa7966",
-      "style": "8f645250127ca",
-      "elements": 58
+      "html": "9853541e78fd0",
+      "style": "14dc43656d81ed",
+      "elements": 60
     }
   },
   "768": {
     "opener": {
-      "html": "ad2584588ba63",
-      "style": "10f13163517369",
-      "elements": 34
+      "html": "6750cabd8b032",
+      "style": "1c19c69bc30c7d",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "1ccf9a2c2c1d8b",
+      "html": "1115b3c3c5ef1f",
+      "style": "6040a4acbf852",
       "elements": 17
     },
     "footer": {
-      "html": "16ed1975fa7966",
-      "style": "edf9af3f4f932",
-      "elements": 58
+      "html": "9853541e78fd0",
+      "style": "6a059ec93da3e",
+      "elements": 60
     }
   },
   "1024": {
     "opener": {
-      "html": "ad2584588ba63",
-      "style": "12a0b76c065a9f",
-      "elements": 34
+      "html": "6750cabd8b032",
+      "style": "135f9909bf8a92",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "ca1213bff89d3",
+      "html": "1115b3c3c5ef1f",
+      "style": "85f5077e391dc",
       "elements": 17
     },
     "footer": {
-      "html": "16ed1975fa7966",
-      "style": "18ca95426e7242",
-      "elements": 58
+      "html": "9853541e78fd0",
+      "style": "34a77bd66080b",
+      "elements": 60
     }
   },
   "1440": {
     "opener": {
-      "html": "ad2584588ba63",
-      "style": "60ae08d151c25",
-      "elements": 34
+      "html": "6750cabd8b032",
+      "style": "28a5feef667e3",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "192c53c09a1da1",
+      "html": "1115b3c3c5ef1f",
+      "style": "1e90fb5334eb28",
       "elements": 17
     },
     "footer": {
-      "html": "16ed1975fa7966",
-      "style": "6d4e25729d7b7",
-      "elements": 58
+      "html": "9853541e78fd0",
+      "style": "743643a357c",
+      "elements": 60
     }
   },
-  "_capturedFrom": "m039/safari-filters (TASK-342: torn edge markup)"
+  "_capturedFrom": "m039/safari-filters merged with main 3c3f73de (TASK-342)"
 }
