@@ -4625,6 +4625,23 @@
     -webkit-line-clamp: 2;
     overflow: hidden;
   }
+  /* TASK-354: the long wording is three lines wherever no height tier below sets its own count (4 lines in the 330-415 and 550-599 px tiers) */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-desc:where([data-variant="long"]) {
+    -webkit-line-clamp: 3;
+  }
+
+  /* TASK-354 (Tushar 2026-10-22): the paper card carries two wordings of its description - a two-line `cardLine` and a three-line
+     `cardLineLong`. The long one takes over in every height tier with room for the third line (the CTA and poster keep their
+     place); elsewhere the short one stays, and the other is display:none so only the visible text reaches assistive tech. */
+  .pf-showcase.pf-vcar .pf-paper .pf-info-desc[data-variant="long"] {
+    display: none;
+  }
+  /* Room for the third line (measured: the CTA stays put and the poster keeps its height from a 445 px content height; the
+     330-415 px tiers already give the short line three or four lines and keep it, and 416-444 px has no spare height). */
+  @container pcard (min-height: 445px) {
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc[data-variant="short"] { display: none; }
+    .pf-showcase.pf-vcar .pf-paper .pf-info-desc[data-variant="long"] { display: -webkit-box; }
+  }
 
 @media (min-width: 1800px) and (min-height: 1000px) {
     .pf-showcase.pf-vcar .pf-paper .pf-info-desc {

@@ -219,7 +219,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         await page.waitForTimeout(120);
         const m = await page.evaluate(() => {
           const card = document.querySelector(".pf-info.pf-paper")!.getBoundingClientRect();
-          const desc = document.querySelector(".pf-info.pf-paper .pf-info-desc") as HTMLElement;
+          const desc = [...document.querySelectorAll(".pf-info.pf-paper .pf-info-desc")].find((e) => getComputedStyle(e).display !== "none") as HTMLElement;
           const r = desc.getBoundingClientRect();
           const acts = document.querySelector(".pf-info.pf-paper .pf-action-set")!.getBoundingClientRect();
           const pills = document.querySelector(".pf-info.pf-paper .pf-pc-pills")!.getBoundingClientRect();
@@ -250,7 +250,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
         await expect(page.locator(`[role="tab"][data-product="${project.slug}"]`)).toHaveAttribute("aria-selected", "true");
         await page.waitForTimeout(120);
         const m = await page.evaluate(() => {
-          const q = (sel: string) => document.querySelector(`.pf-info.pf-paper ${sel}`)!.getBoundingClientRect();
+          const q = (sel: string) => [...document.querySelectorAll(`.pf-info.pf-paper ${sel}`)].find((e) => getComputedStyle(e).display !== "none")!.getBoundingClientRect();
           const card = document.querySelector(".pf-info.pf-paper")!.getBoundingClientRect();
           return { aboveGap: q(".pf-info-poster-frame").top - q(".pf-info-tagline").bottom, descGap: q(".pf-info-desc").top - q(".pf-pc-pills").bottom, actsBottom: q(".pf-action-set").bottom, cardBottom: card.bottom };
         });
@@ -422,7 +422,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
       const m = await page.evaluate(() => {
         const card = document.querySelector(".pf-info.pf-paper")!;
         const px = (q: string, root: ParentNode = card) => parseFloat(getComputedStyle(root.querySelector(q)!).fontSize);
-        const desc = card.querySelector(".pf-info-desc")!.getBoundingClientRect();
+        const desc = [...card.querySelectorAll(".pf-info-desc")].find((e) => e.getClientRects().length > 0)!.getBoundingClientRect();
         const cta = card.querySelector(".pf-action-set")!.getBoundingClientRect();
         const c = card.getBoundingClientRect();
         return { tile: px(".pf-thumb[aria-selected='true'] .pf-thumb-name", document), tagline: px(".pf-info-tagline"), desc: px(".pf-info-desc"), gap: cta.top - desc.bottom, out: cta.bottom - c.bottom };

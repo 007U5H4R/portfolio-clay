@@ -4,7 +4,7 @@
  * own poster at its own aspect ratio, pills and description straight from the data. The phone card is untouched (TASK-303 is desktop only).
  * Image checks wait for `complete && naturalWidth > 0`, then `decode()`.
  */
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { PAPER_CARD_ENABLED } from "@/components/portfolio/paper-card-flag";
 import { VERTICAL_CAROUSEL_ENABLED } from "@/components/portfolio/vertical-carousel-flag";
@@ -85,17 +85,12 @@ for (const theme of ["light", "dark"] as const) {
       // pills + description are the project's own data
       const pills = await card.locator(".pf-pc-pills li").allTextContents();
       expect(pills).toEqual([entry.code, ...entry.meta.split(" · ")]);
-      await expect(card.locator(".pf-info-desc")).toHaveText(entry.cardLine ?? project.tagline);
-      await expect(card.locator(".pf-info-desc")).toHaveAttribute("title", project.tagline);
-      await expect(card.locator(".pf-info-desc")).toBeVisible(); // 1440x900 has the room (a short card gives it up)
+      // TASK-354: 1440x900 is a tight card - the two-line wording shows and the three-line one is display:none
+      await expect(card.locator(".pf-info-desc:visible")).toHaveCount(1);
+      await expect(card.locator(".pf-info-desc:visible")).toHaveText(entry.cardLine ?? project.tagline);
+      await expect(card.locator(".pf-info-desc:visible")).toHaveAttribute("title", project.tagline);
       // TASK-303 r2: the description uses two lines above the CTA, and the actions stay inside the card
-      const fit = await card.evaluate((el) => {
-        const desc = el.querySelector(".pf-info-desc")!.getBoundingClientRect();
-        const lh = parseFloat(getComputedStyle(el.querySelector(".pf-info-desc")!).lineHeight);
-        const cta = el.querySelector(".pf-action-set")!.getBoundingClientRect();
-        const d = el.querySelector(".pf-info-desc")!;
-        return { lines: Math.round(desc.height / lh), clipped: d.scrollHeight - d.clientHeight, descBottom: desc.bottom, ctaTop: cta.top, ctaBottom: cta.bottom, cardBottom: el.getBoundingClientRect().bottom };
-      });
+      const fit = await descFit(card);
       if ((entry.cardLine ?? project.tagline).length > 70) expect(fit.lines).toBe(2);
       expect(fit.clipped, "the description shows in full — shorten its cardLine if this fails").toBeLessThanOrEqual(1);
       expect(fit.descBottom).toBeLessThanOrEqual(fit.ctaTop);
@@ -107,19 +102,73 @@ for (const theme of ["light", "dark"] as const) {
   }
 }
 
-// TASK-303 r2 (Tushar 2026-10-20): every product's description shows in full at 1440x900 — none ends in an ellipsis.
-test("TASK-303: no product's card description is cut off at 1440x900", async ({ page }) => {
+/** The visible description's line count, clipping and position against the CTA and the card's bottom. */
+async function descFit(card: Locator) {
+  return card.evaluate((el) => {
+    const d = [...el.querySelectorAll<HTMLElement>(".pf-info-desc")].find((e) => getComputedStyle(e).display !== "none")!;
+    const r = d.getBoundingClientRect();
+    const lh = parseFloat(getComputedStyle(d).lineHeight);
+    const cta = el.querySelector(".pf-action-set")!.getBoundingClientRect();
+    return { variant: d.dataset.variant, lines: Math.round(r.height / lh), clipped: d.scrollHeight - d.clientHeight, descBottom: r.bottom, ctaTop: cta.top, ctaBottom: cta.bottom, cardBottom: el.getBoundingClientRect().bottom };
+  });
+}
+
+// TASK-303 r2 (Tushar 2026-10-20): every product's description shows in full at 1440x900 - none ends in an ellipsis.
+// TASK-354 (Tushar 2026-10-22): the card picks two or three lines by the space it has. A tight card (1280x800, 1440x900) keeps the
+// short wording; a roomy one (1536x864, 1920x1080) shows the long wording on three lines. Nothing is cut off at either.
+// nuptis and campfire-board wrap their short wording onto a third line at 1440x900, inside that tier's three-line clamp (as before).
+const THREE_LINES_AT_1440 = ["nuptis", "campfire-board"];
+const TIGHT: Array<[number, number]> = [[1280, 800], [1440, 900]];
+const ROOMY: Array<[number, number]> = [[1536, 864], [1920, 1080]];
+
+test("TASK-354: tight cards show the short wording, roomy cards the long wording on three lines; nothing is cut off", async ({ page }) => {
   test.skip(!PAPER_CARD_ENABLED || !VERTICAL_CAROUSEL_ENABLED, "paper card flag is off");
-  test.setTimeout(180_000);
-  const clipped: string[] = [];
-  for (const project of PERSONAL) {
-    await open(page, 1440, 900, project.slug, "light");
-    const desc = page.locator(".pf-info.pf-paper .pf-info-desc");
-    if (!(await desc.isVisible())) continue;
-    const over = await desc.evaluate((d) => d.scrollHeight - d.clientHeight);
-    if (over > 1) clipped.push(`${project.slug} (+${over}px)`);
+  test.setTimeout(360_000);
+  const problems: string[] = [];
+  for (const [vw, vh] of [...TIGHT, ...ROOMY]) {
+    const roomy = ROOMY.some(([w]) => w === vw);
+    for (const project of PERSONAL) {
+      const entry = portfolioEntries.find((e) => e.slug === project.slug)!;
+      await open(page, vw, vh, project.slug, "light");
+      const card = page.locator(".pf-info.pf-paper");
+      const at = `${project.slug} @${vw}x${vh}`;
+      const fit = await descFit(card);
+      const shortText = entry.cardLine ?? project.tagline;
+      const longText = entry.cardLineLong ?? entry.cardLine ?? project.tagline;
+      if (fit.clipped > 1) problems.push(`${at}: cut off (+${fit.clipped}px)`);
+      if (fit.descBottom > fit.ctaTop) problems.push(`${at}: description runs into the CTA`);
+      if (fit.ctaBottom > fit.cardBottom) problems.push(`${at}: CTA leaves the card`);
+      if (roomy) {
+        if (fit.variant !== "long") problems.push(`${at}: expected the long wording`);
+        if (fit.lines !== 3) problems.push(`${at}: long wording on ${fit.lines} lines, expected 3`);
+        await expect(card.locator(".pf-info-desc:visible")).toHaveText(longText);
+        // the third line costs nothing: the CTA and the poster sit exactly where the short wording leaves them
+        const moved = await card.evaluate((el) => {
+          const ds = [...el.querySelectorAll<HTMLElement>(".pf-info-desc")];
+          const shown = ds.map((d) => d.style.display);
+          const probe = () => ({ cta: el.querySelector(".pf-action-set")!.getBoundingClientRect().top, poster: el.querySelector(".pf-info-poster")!.getBoundingClientRect().height });
+          const long = probe();
+          ds.forEach((d) => (d.style.display = d.dataset.variant === "short" ? "-webkit-box" : "none"));
+          const short = probe();
+          ds.forEach((d, i) => (d.style.display = shown[i]!));
+          return { cta: Math.abs(long.cta - short.cta), poster: Math.abs(long.poster - short.poster) };
+        });
+        if (moved.cta > 0.5) problems.push(`${at}: CTA moves ${moved.cta.toFixed(1)}px with the long wording`);
+        if (moved.poster > 0.5) problems.push(`${at}: poster resizes with the long wording`);
+      } else {
+        if (fit.variant !== "short") problems.push(`${at}: expected the short wording`);
+        const want = vw === 1440 && THREE_LINES_AT_1440.includes(project.slug) ? 3 : vw === 1440 && shortText.length > 70 ? 2 : null;
+        if (want !== null && fit.lines !== want) problems.push(`${at}: short wording on ${fit.lines} lines, expected ${want}`);
+        await expect(card.locator(".pf-info-desc:visible")).toHaveText(shortText);
+      }
+      // exactly one description reaches assistive technology: the hidden wording is display:none, not just invisible
+      const aria = await card.ariaSnapshot();
+      const [shown, hidden] = fit.variant === "long" ? [longText, shortText] : [shortText, longText];
+      if (!aria.includes(shown)) problems.push(`${at}: the visible wording is missing from the accessibility tree`);
+      if (hidden !== shown && aria.includes(hidden)) problems.push(`${at}: the hidden wording is exposed to assistive technology`);
+    }
   }
-  expect(clipped, "shorten these products' `cardLine` in data/portfolio.ts").toEqual([]);
+  expect(problems, "see TASK-354 in app/styles/projects.css (pcard height tiers) and cardLine / cardLineLong in data/portfolio.ts").toEqual([]);
 });
 
 test("TASK-303: the phone card is unchanged (desktop-only redesign)", async ({ page }) => {

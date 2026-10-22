@@ -48,6 +48,8 @@ export interface PortfolioProduct {
   description: string;
   /** TASK-303 r2: the desktop paper card's shorter wording of `description`, when the full one would be cut off. */
   cardLine?: string | undefined;
+  /** TASK-354: the three-line wording of `description`, shown instead of `cardLine` where the card has room for a third line. */
+  cardLineLong?: string | undefined;
   statusLabel: string;
   /** Tiny status metadata for the info sheet (TASK-121 §5.4) — a shortening of `statusLabel`. */
   meta: string;
@@ -131,6 +133,7 @@ export function buildPortfolioProducts(
         tagline: entry.coverLine,
         description: project.tagline,
         cardLine: entry.cardLine,
+        cardLineLong: entry.cardLineLong,
         statusLabel: project.statusLabel,
         meta: entry.meta,
         logo: entry.logo ? { dark: productLogoSrc(project.slug, "dark"), light: productLogoSrc(project.slug, "light"), ...entry.logo } : undefined,
