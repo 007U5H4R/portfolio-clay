@@ -14,7 +14,7 @@ describe("resumeAction()", () => {
   it("is the Drive link: 'Resume ↗', not a download", () => {
     expect(resumeAction()).toEqual({
       label: "Resume ↗",
-      href: "https://drive.google.com/file/d/1hqDF4-YlcdaoIRLBzKwI4D8pUWQ7ELJ_/view?usp=sharing",
+      href: "https://drive.google.com/file/d/1uq6eHacLtZcvDRDJc9jMIKDMyUs24qcg/view?usp=share_link",
       download: false,
     });
   });

@@ -170,12 +170,12 @@ describe("analytics runtime (TASK-194)", () => {
       track.publishRoute("/");
       await runtime.start();
       sink.track.mockClear();
-      document.body.innerHTML = `<main><footer><a id="r" href="https://drive.google.com/file/d/1hqDF4-YlcdaoIRLBzKwI4D8pUWQ7ELJ_/view?usp=sharing" target="_blank">Resume</a></footer></main>`;
+      document.body.innerHTML = `<main><footer><a id="r" href="https://drive.google.com/file/d/1uq6eHacLtZcvDRDJc9jMIKDMyUs24qcg/view?usp=share_link" target="_blank">Resume</a></footer></main>`;
       const event = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
       document.getElementById("r")!.dispatchEvent(event);
       expect(event.defaultPrevented).toBe(false);
       expect(sentNames()).toEqual(["outbound_link_clicked", "resume_opened", "professional_cta_clicked"]);
-      expect(JSON.stringify(sent())).not.toContain("1hqDF4");
+      expect(JSON.stringify(sent())).not.toContain("1uq6eH");
     });
 
     it("the theme switch is tracked as a user change; hydration and system flips are not", async () => {

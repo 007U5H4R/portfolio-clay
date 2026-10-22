@@ -312,7 +312,7 @@ test.describe("analytics with a stub token (TASK-194)", () => {
     expect(outbound).toEqual(["linkedin@linkedin.com", "resume@drive.google.com"]);
     // No address, file id or profile path anywhere.
     const everything = JSON.stringify(cap.events);
-    expect(everything).not.toMatch(/@outlook|1hqDF4|pathaktushar|mailto/i);
+    expect(everything).not.toMatch(/@outlook|1uq6eH|pathaktushar|mailto/i);
   });
 
   test("footer résumé and LinkedIn on the home page are placed in the footer", async ({ page }) => {
