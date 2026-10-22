@@ -1,6 +1,24 @@
 /* Route CSS split out of app/globals.css (TASK-320). Pure move: rule bodies, source order within this file and layer/media wrappers are unchanged.
    Imported by: work/[slug]. */
 
+[data-theme="dark"] .cs-next-eyebrow,
+[data-theme="dark"] .cs-next .cs-next-note {
+  color: var(--color-ink-soft);
+}
+
+@media (max-width: 639px) {
+  .reading-progress {
+    --header-h: 108px;
+  }
+}
+
+@media (max-width: 639px) {
+  /* ---- header: kebab · brand lockup · theme, over the torn-paper terrain strip ---- */
+  .reading-progress {
+    --header-h: 69px; /* the compact header's height: 8 + 44 + 16 padding + 1 border (was 108 with the tab strip) */
+  }
+}
+
 @layer components {
   .hero-btn-glyph {
     width: 16px;

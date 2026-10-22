@@ -1609,10 +1609,6 @@ html.lenis body {
    The page scene is TKT-95's `SceneOpener` above both pages (EXE-18), so no photo frames here.
    Colours are paper tokens / derived vars only (EVAL-020). */
 @layer components {
-  .essay-pull-cite b {
-    font-weight: 600;
-    color: var(--color-navy-2);
-  }
   .essay-pager-title {
     font-family: var(--font-display);
     font-size: clamp(20px, 1.8vw, 26px);
@@ -1782,8 +1778,6 @@ html.lenis body {
    product journey, impact) retired with those sections in TASK-136. The torn section overlaps the
    previous one by its edge height (transparent strip above its own fill), the TKT-76 pattern. Paper
    tokens / derived vars only (EVAL-020). */
-@layer components {
-}
 /* end TKT-86 → TASK-136 */
 
 
@@ -3159,21 +3153,6 @@ html.lenis body {
     padding: 18px;
     border-radius: 0;
   }
-  .ct-logo-img {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 132px;
-  }
-  [data-theme="dark"] .ct-logo-img {
-    /* Dark cards would bury dark marks (Quantiphi, Shellkode, NIT Calicut): each logo gets its own light
-       paper label. `navy` is the light ink value in dark (D13), the same move as .cert-badge-paper (TASK-153). */
-    padding: 8px 10px;
-    border-radius: 4px;
-    background: var(--color-navy);
-    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
-  }
 
   /* the deckled card: transparent Sheet over two torn layers (rim + cream face) */
   .ct-card.paper-sheet {
@@ -3202,9 +3181,6 @@ html.lenis body {
   }
   /* ---- < 768: one column — date → logo → card; no rail ---- */
   @media (max-width: 767px) {
-    .ct-logo-img {
-      max-height: 84px;
-    }
     .ct-card.paper-sheet {
       grid-column: 1;
       padding: 28px 22px 30px;
@@ -3657,15 +3633,6 @@ html.lenis body {
   [data-accent="navy-2"] { --pf-accent: var(--color-navy-2); }
   [data-accent="kraft"] { --pf-accent: var(--color-terracotta); }
   [data-accent="note"] { --pf-accent: var(--color-rust); }
-
-  /* the spread: one grid at ≥ 1024 — intro (col 1, row 1), stage (col 1, row 2), sheet (col 2, rows
-     1–2), carousel (both columns, row 3). The tabpanel is a subgrid, so the stage and sheet sit in
-     the page grid while staying inside the tabpanel. */
-  .pf-showcase {
-    position: relative;
-    display: grid;
-    gap: clamp(22px, 3vw, 36px);
-  }
   @media (min-width: 1024px) {
     .pf-showcase {
       grid-template-columns: minmax(0, 62fr) minmax(0, 38fr);
@@ -3840,9 +3807,6 @@ html.lenis body {
     .pf-info.paper-sheet {
       rotate: none;
     }
-    .pf-info-name::after {
-      display: none;
-    }
     .pf-info.paper-sheet::before {
       inset: 10px 6px -9px -7px;
       rotate: -0.8deg;
@@ -3951,19 +3915,6 @@ html.lenis body {
    tokens + `color-mix()` only here (EVAL-020). Motion: the shared one-shot `Reveal` (chapters 90 ms apart,
    the thread draws left → right, artifacts settle, recognition fades); a 2 px card lift on hover; all of
    it off under `prefers-reduced-motion: reduce`. */
-@layer components {
-  .abh,
-  .chx,
-  .crx,
-  .rvx,
-  .acx {
-    --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
-    --ab-fibers: url("/media/portfolio/decor/paper-fibers.webp");
-    --ab-shadow: 0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent),
-      0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent);
-  }
-  /* TASK-209: the cards need width for their reference panels — stacked below 640, two up to 1023. */
-}
 /* end TASK-136 */
 
 /*
@@ -4140,10 +4091,6 @@ html[data-theme-vt]::view-transition-group(root) {
   transition-duration: 240ms !important;
   transition-timing-function: ease !important;
   transition-delay: 0s !important;
-}
-[data-theme="dark"] .cs-next-eyebrow,
-[data-theme="dark"] .cs-next .cs-next-note {
-  color: var(--color-ink-soft);
 }
 
 /* ==================================================================================================
@@ -5452,26 +5399,9 @@ html[data-theme-vt]::view-transition-group(root) {
     transition: none;
   }
 }
-.pf-case-lead {
-  display: inline;
-}
 
 @media (max-width: 1023px) {
-  .pf-showcase {
-    gap: 12px;
-  }
-  .pf-feature {
-    gap: 14px;
-  }
   /* carousel: a slim counter row, the arrows float over the track's two ends (as in the mock) */
-  .pf-carousel {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "tag"
-      "track";
-    gap: 4px;
-    padding-top: 0;
-  }
   .pf-info.paper-sheet {
     display: contents;
   }
@@ -5480,12 +5410,6 @@ html[data-theme-vt]::view-transition-group(root) {
   }
 }
 /* the shortest phones (375 × 667): a deliberate compact fallback — smaller video and covers, a one-line description */
-@media (max-width: 639px) and (max-height: 720px) {
-  .pf-feature,
-  .pf-showcase {
-    gap: 8px;
-  }
-}
 /* === end TASK-197 === */
 
 
@@ -5521,35 +5445,12 @@ html[data-theme-vt]::view-transition-group(root) {
 .header-more {
   display: none;
 }
-.m-solid,
-.m-float {
-  --m-radius: 14px;
-  border-radius: var(--m-radius);
-  border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
-}
-.m-float {
-  background: var(--color-ivory);
-  box-shadow:
-    0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-    0 10px 20px -12px color-mix(in oklab, var(--shadow-ink) 34%, transparent);
-  transition:
-    translate var(--dur-l1) var(--ease-l1),
-    box-shadow var(--dur-l1) var(--ease-l1),
-    border-color var(--dur-l1) var(--ease-l1);
-}
-.m-float:active {
-  translate: 0 1px;
-  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent);
-}
 
 @media (max-width: 639px) {
   /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ----
      The 108 px height is set on the two things that clear the header (the case-study reading bar and the /work deep-link
      margin), not on :root: a :root custom property is inherited by every element, so overriding it there would change the
      computed style of every page region (the About hero/footer fingerprint in about-paper.spec reads custom properties). */
-  .reading-progress {
-    --header-h: 108px;
-  }
   .site-header {
     --nt-h: 44px;
     --nt-pad: 16px;
@@ -5608,12 +5509,6 @@ html[data-theme-vt]::view-transition-group(root) {
       0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
       0 6px 12px -8px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
   }
-  .ct-logo-img {
-    max-height: 32px;
-  }
-  [data-theme="dark"] .ct-logo-img {
-    padding: 3px 4px;
-  }
 }
 
 /* end TASK-205 */
@@ -5634,24 +5529,12 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 @media (max-width: 639px) {
-  .pf-showcase {
-    --pf-m-on-accent: var(--color-ivory);
-    --pf-m-edge: var(--gutter-mobile, 16px);
-  }
   :root[data-theme="dark"] .pf-showcase {
     --pf-m-on-accent: var(--color-paper);
   }
   /* the listing: the carousel and the desktop panel give way to it */
-  .pf-showcase[data-view="list"] .pf-feature,
-  .pf-carousel {
-    display: none;
-  }
   .pf-showcase[data-view="list"] .pf-m-list {
     display: block;
-  }
-  .pf-showcase {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
   }
   /* the scene opener is a slim crop of its shelf here, so the first cards sit high on the screen (the full scene is unchanged ≥ 640) */
   .scene-opener[data-opener="scene-work"] {
@@ -5660,23 +5543,6 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   .scene-opener[data-opener="scene-work"] > :first-child {
     margin-top: -13vw;
-  }
-  .pf-m-card {
-    display: grid;
-    grid-template-columns: 84px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 14px;
-    min-height: 108px;
-    padding: 12px 10px 12px 12px;
-    color: var(--color-navy);
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .pf-m-card[aria-current="true"] {
-    border-color: color-mix(in oklab, var(--color-rust) 55%, transparent);
-    box-shadow:
-      0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-      0 12px 22px -12px color-mix(in oklab, var(--color-rust) 42%, transparent);
   }
 
   /* ---- detail: the page is just the back bar + the project ---- */
@@ -5693,9 +5559,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-showcase[data-view="detail"] .pf-info.paper-sheet::before,
   .pf-showcase[data-view="detail"] .pf-info.paper-sheet::after,
   .pf-showcase[data-view="detail"] .pf-action-set {
-    display: none;
-  }
-  .pf-showcase[data-view="detail"] :is(.pf-stage-backing, .pf-stage-mat, .pf-stage-label, .pf-stage .pf-doodle, .pf-stage .pf-stage-pin, .pf-stage-tag) {
     display: none;
   }
   .pf-m-btn svg {
@@ -5719,52 +5582,13 @@ html[data-theme-vt]::view-transition-group(root) {
    Colours are the flipping theme tokens only, so dark mode follows (charcoal-slate paper, copper accents).
    ==================================================================================================================== */
 @media (min-width: 640px) {
-  .pf-showcase {
-    --ps-sheet: var(--color-ivory);
-    --ps-frame: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-ivory));
-    --ps-under: color-mix(in oklab, var(--color-paper-2) 88%, var(--color-kraft));
-    --ps-slate: color-mix(in oklab, var(--color-steel) 50%, var(--color-paper-2));
-    --ps-accent: var(--color-rust);
-    --ps-accent-ink: var(--color-terracotta);
-    --ps-edge: color-mix(in oklab, var(--color-navy) 15%, transparent);
-    --ps-hi: color-mix(in oklab, var(--color-ivory) 70%, transparent);
-    --ps-drop: color-mix(in oklab, var(--shadow-ink) 26%, transparent);
-    --ps-drop-soft: color-mix(in oklab, var(--shadow-ink) 14%, transparent);
-    --ps-grain: var(--pf-fibers);
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: clamp(22px, 2.4vw, 30px);
-  }
   :root[data-theme="dark"] .pf-showcase {
     --ps-edge: color-mix(in oklab, var(--color-navy) 12%, transparent);
     --ps-hi: color-mix(in oklab, var(--color-navy) 9%, transparent);
     --ps-drop: color-mix(in oklab, var(--color-paper) 70%, black);
     --ps-drop-soft: color-mix(in oklab, var(--color-paper) 55%, black);
   }
-
-  /* ---- the window: rear slate plate (::before) + parchment frame (::after) behind poster and sheet ---- */
-  .pf-showcase .pf-feature {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-    align-items: stretch;
-    gap: clamp(14px, 2vw, 24px);
-    isolation: isolate;
-    padding: clamp(14px, 2vw, 26px);
-    pointer-events: auto;
-  }
-  @media (min-width: 900px) {
-    .pf-showcase .pf-feature {
-      grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
-      align-items: center;
-    }
-  }
   /* TASK-256 (Tushar 2026-10-18): from 1280 the sheet gets 46% so the two-column action grid fits whole labels */
-  @media (min-width: 1280px) {
-    .pf-showcase .pf-feature {
-      grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
-    }
-  }
 
   /* ---- poster: a mat on two thin layers, the art in a rounded viewport (16:9 art, never cropped) ---- */
   .pf-showcase .pf-stage.paper-sheet {
@@ -5832,15 +5656,6 @@ html[data-theme-vt]::view-transition-group(root) {
 
   /* ---- actions (TASK-256, Tushar 2026-10-18): one filled primary, then a two-column grid of outlined secondaries; a divider-with-star
      above the primary and (only with a GitHub link) above the star note. Shared by every product; colours are the tokens below. ---- */
-  .pf-showcase .pf-info {
-    --card-accent: var(--color-rust);
-    --card-cta: oklch(0.745 0.15 47);
-    --card-cta-hover: oklch(0.795 0.14 50);
-    --card-cta-ink: oklch(0.2 0.06 267);
-    --card-divider: color-mix(in oklab, var(--color-steel) 48%, transparent);
-    --card-divider-star: color-mix(in oklab, var(--color-steel) 78%, transparent);
-    --card-radius: 14px;
-  }
   :root[data-theme="dark"] .pf-showcase .pf-info {
     --card-accent: var(--color-terracotta);
     --card-divider: color-mix(in oklab, var(--color-steel) 60%, transparent);
@@ -5856,39 +5671,6 @@ html[data-theme-vt]::view-transition-group(root) {
   /* TASK-262 (Tushar 2026-10-18): always two per row; a narrower panel (the 900-1300 columns) tightens the buttons so the
      short labels stay whole instead of stacking */
   /* the star note: one line when the panel is wide enough, wrapping below that */
-
-  /* ---- the project tray: a paper strip directly beneath the window, same width ---- */
-  .pf-showcase .pf-carousel {
-    position: relative;
-    z-index: 1;
-    grid-column: 1 / -1;
-    grid-row: auto;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "tag tag tag"
-      "prev track next";
-    align-items: center;
-    column-gap: clamp(4px, 0.8vw, 10px);
-    row-gap: 0;
-    padding: 10px clamp(10px, 1.4vw, 16px) 6px;
-  }
-  .pf-showcase .pf-carousel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: 22px 26px 22px 25px / 24px 22px 26px 23px;
-    background-color: var(--ps-frame);
-    background-image: var(--ps-grain);
-    background-size: 420px 420px;
-    box-shadow:
-      inset 0 1px 0 var(--ps-hi),
-      inset 0 -1px 0 var(--ps-edge),
-      0 1px 0 var(--ps-edge),
-      0 3px 0 -1px var(--ps-under),
-      0 10px 16px -10px var(--ps-drop-soft);
-    pointer-events: none;
-  }
 }
 /* === end TASK-217 === */
 
@@ -5904,10 +5686,6 @@ html[data-theme-vt]::view-transition-group(root) {
   display: none;
 }
 @media (max-width: 639px) {
-  /* ---- header: kebab · brand lockup · theme, over the torn-paper terrain strip ---- */
-  .reading-progress {
-    --header-h: 69px; /* the compact header's height: 8 + 44 + 16 padding + 1 border (was 108 with the tab strip) */
-  }
   /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav; TASK-276 adds .bvp: Bhakti Vilas; TASK-278 adds .nup; TASK-280 adds .pra; TASK-281 adds .cfp; TASK-282 adds .sgp; TASK-283 adds .srp) === */
   .site-header {
     --ht-edge-w: 92px;
@@ -6283,68 +6061,6 @@ html[data-theme-vt]::view-transition-group(root) {
    glass card per spec §13: see-through fill (alpha 0.6, NOT the 0.78 that read solid on the dock), restrained blur, a
    fine rim with a brighter top edge, soft shadow; opaque fallbacks for no backdrop-filter / reduced transparency.
    ================================================================================================== */
-@media (max-width: 639px) {
-
-  /* ---- 2 · frosted-glass project list ---- */
-  .pf-m-card.m-float {
-    --pf-glass: rgba(255, 250, 240, 0.6);
-    --pf-glass-rim: rgba(255, 255, 255, 0.7);
-    --pf-glass-rim-top: rgba(255, 255, 255, 0.95);
-    --pf-glass-shadow: rgba(60, 44, 24, 0.14);
-    --pf-glass-line: rgba(255, 255, 255, 0.75);
-    --pf-glass-chev: rgba(255, 255, 255, 0.55);
-    --pf-tag-a: color-mix(in oklab, #8b7bd8 16%, transparent);
-    --pf-tag-b: color-mix(in oklab, var(--color-terracotta) 15%, transparent);
-    min-height: 112px;
-    padding: 12px 12px 12px 12px;
-    border-radius: 22px;
-    border: 1px solid var(--pf-glass-rim);
-    border-top-color: var(--pf-glass-rim-top);
-    background: var(--pf-glass);
-    -webkit-backdrop-filter: blur(14px) saturate(112%);
-    backdrop-filter: blur(14px) saturate(112%);
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      0 1px 2px rgba(60, 44, 24, 0.06),
-      0 12px 28px -10px var(--pf-glass-shadow);
-  }
-  [data-theme="dark"] .pf-m-card.m-float {
-    --pf-glass: rgba(20, 29, 49, 0.6);
-    --pf-glass-rim: rgba(220, 230, 245, 0.16);
-    --pf-glass-rim-top: rgba(220, 230, 245, 0.3);
-    --pf-glass-shadow: rgba(0, 0, 0, 0.4);
-    --pf-glass-line: rgba(255, 255, 255, 0.08);
-    --pf-glass-chev: rgba(220, 230, 245, 0.1);
-    --pf-tag-a: color-mix(in oklab, #9fb0ea 18%, transparent);
-    --pf-tag-b: color-mix(in oklab, #e8b768 17%, transparent);
-  }
-  .pf-m-card.m-float:active {
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      0 6px 16px -10px var(--pf-glass-shadow);
-  }
-  .pf-m-card.m-float[aria-current="true"] {
-    border-color: color-mix(in oklab, var(--color-rust) 55%, transparent);
-  }
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(255, 250, 241, 0.97);
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(20, 29, 49, 0.97);
-    }
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(255, 250, 241, 0.97);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(20, 29, 49, 0.97);
-    }
-  }
-}
 /* === end TASK-233 === */
 
 /* === TASK-258 (Tushar 2026-10-18) · phone certification tiles in the My Projects list's frosted glass ==========
@@ -6425,17 +6141,6 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   /* explicit sizes (a lazy, not-yet-loaded image has no intrinsic size): square-ish marks are 72 px tall, wide wordmarks
      (Shellkode, Quantiphi, Godrej: ratio > 2, `data-wide`) are 150 px wide */
-  .xp-car .ct-logo-img {
-    width: auto;
-    height: 72px;
-    max-width: 100%;
-    max-height: 72px;
-    object-fit: contain;
-  }
-  .xp-car .ct-logo-img[data-wide] {
-    width: 150px;
-    height: auto;
-  }
   .xp-car .ct-card.paper-sheet {
     order: 2;
     flex: 1 0 100%;
@@ -6836,21 +6541,12 @@ html:has(dialog.more-menu[open]) {
    every card (same position on every slide) and the spare height falls between the tools and the art.
    ================================================================================================== */
 @media (max-width: 639px) {
-  .pf-showcase[data-view="detail"] {
-    --pf-m-rule: color-mix(in oklab, var(--color-navy) 24%, transparent);
-    --pf-m-star: var(--color-rust);
-    --pf-m-pad: 4px;
-  }
   :root[data-theme="dark"] .pf-showcase[data-view="detail"] {
     --pf-m-rule: #52647f;
     --pf-m-star: #f5d15b;
     --pf-m-gold: #f5d15b;
     --pf-m-coral: #f4774f;
     --pf-m-muted: #96a5c0;
-  }
-  .pf-showcase[data-view="detail"] {
-    --pf-m-coral: var(--color-rust);
-    --pf-m-muted: var(--color-ink-soft);
   }
 }
 /* === end TASK-257 === */
@@ -7121,75 +6817,12 @@ html:has(dialog.more-menu[open]) {
    Same selectors as TASK-233 and later in the file, so these win by order (no !important); the fallbacks are repeated
    below because they must come after the tuned fills. backdrop-filter stays on the card surfaces only. Remove the
    block to return to the TASK-233 look. */
-@media (max-width: 639px) {
-
-  /* ---- glass ---- */
-  .pf-m-card.m-float {
-    --pf-glass: rgba(252, 246, 234, 0.46);
-    --pf-glass-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.05) 42%, rgba(255, 255, 255, 0) 70%);
-    --pf-glass-rim: rgba(130, 104, 70, 0.16);
-    --pf-glass-rim-top: rgba(255, 255, 255, 0.8);
-    --pf-glass-line: rgba(255, 255, 255, 0.7);
-    --pf-glass-shadow: rgba(70, 50, 28, 0.2);
-    --pf-glass-chev: rgba(255, 255, 255, 0.45);
-    background-color: var(--pf-glass);
-    background-image: var(--pf-glass-sheen);
-    -webkit-backdrop-filter: blur(11px) saturate(112%);
-    backdrop-filter: blur(11px) saturate(112%);
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-      0 1px 2px rgba(70, 50, 28, 0.06),
-      0 12px 26px -12px var(--pf-glass-shadow);
-  }
-  [data-theme="dark"] .pf-m-card.m-float {
-    --pf-glass: rgba(17, 27, 52, 0.5);
-    --pf-glass-sheen: linear-gradient(150deg, rgba(150, 178, 232, 0.14), rgba(150, 178, 232, 0.03) 42%, rgba(150, 178, 232, 0) 70%);
-    --pf-glass-rim: rgba(150, 172, 210, 0.2);
-    --pf-glass-rim-top: rgba(196, 211, 240, 0.34);
-    --pf-glass-line: rgba(220, 232, 255, 0.1);
-    --pf-glass-shadow: rgba(0, 0, 0, 0.45);
-    --pf-glass-chev: rgba(190, 206, 238, 0.1);
-  }
-  .pf-m-card.m-float:active {
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      0 6px 16px -10px var(--pf-glass-shadow);
-  }
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(252, 247, 237, 0.97);
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(17, 27, 52, 0.97);
-    }
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(252, 247, 237, 0.97);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(17, 27, 52, 0.97);
-    }
-  }
-}
 /* === end TASK-261 === */
 
 /* === TASK-267 (Tushar 2026-10-19): the video frame keeps the video's own 16:9 (no letterbox bars) and grows into
    the page's side margins instead, so it stands about as tall as the product card. From 1024 px the window breaks out
    of the content column to the viewport less a 24 px gutter (capped); the sheet keeps a fixed-ish width and the stage
    takes the rest. Unlayered, like the showcase stage rules it overrides. === */
-@media (min-width: 1024px) {
-  .pf-showcase .pf-feature {
-    --pf-window: min(calc(100vw - 48px), 1760px);
-    width: var(--pf-window);
-    margin-inline: calc((100% - var(--pf-window)) / 2);
-    grid-template-columns: minmax(0, 1fr) clamp(400px, 27vw, 540px);
-    align-items: center;
-  }
-}
 /* === end TASK-267 === */
 
 /* === TASK-265 (Tushar 2026-10-19) · the phone origami background on every dock tab ===
@@ -7212,14 +6845,6 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
    frame only (the poster is never filtered or separately transformed). Transform / opacity only, no loop. Unlayered, after the
    TASK-217 rules it overrides. === */
 @media (min-width: 1024px) {
-  .pf-showcase .pf-carousel {
-    grid-template-areas:
-      "tag tag tag"
-      "prev track next"
-      ". dots .";
-    row-gap: 2px;
-    padding-bottom: 12px;
-  }
 
   /* the product card: previous / next top right, a pager under the actions; ←/→ and a sideways drag step products */
   .pf-showcase .pf-info.paper-sheet {
@@ -7247,41 +6872,9 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
    The window's own box is the video-left .. card-right span: the tray has the same box, and both paper panels bleed `--pf-pad`
    beyond it. Unlayered, after the TASK-217 / 267 / 274 rules it overrides. === */
 @media (min-width: 1024px) {
-  .pf-showcase {
-    --pf-pad: 10px;
-    --pf-sp: 12px;
-    --pf-gap: 20px;
-    --pf-tray-h: clamp(212px, 25.5svh, 250px);
-    --pf-rowgap: 18px;
-    --pf-card-min: 440px;
-    --pf-win: min(calc(100vw - 80px), 1760px);
-    --pf-room: calc(100svh - var(--header-h) - 8px - var(--pf-pad) - var(--pf-rowgap) - var(--pf-tray-h));
-    --pf-fh: clamp(
-      300px,
-      min(var(--pf-room), calc((var(--pf-win) - var(--pf-gap) - var(--pf-card-min) - 2 * var(--pf-sp)) * 9 / 16 + 2 * var(--pf-sp))),
-      720px
-    );
-    row-gap: var(--pf-rowgap);
-  }
-  .pf-showcase .pf-feature,
-  .pf-showcase .pf-carousel {
-    width: var(--pf-win);
-    margin-inline: calc((100% - var(--pf-win)) / 2);
-  }
   .pf-showcase .pf-feature .pf-stage.paper-sheet {
     padding: var(--pf-sp);
     min-height: 0;
-  }
-  .pf-showcase .pf-carousel {
-    height: var(--pf-tray-h);
-    box-sizing: border-box;
-    padding: 0;
-    grid-template-areas: "prev track next";
-    grid-template-rows: auto;
-    align-content: start;
-  }
-  .pf-showcase .pf-carousel::before {
-    inset: 0 calc(-1 * var(--pf-pad));
   }
   /* the card is exactly the window's height: its spacing and control heights follow the viewport height so every product's card fits */
   .pf-showcase .pf-info.pf-info.paper-sheet {
