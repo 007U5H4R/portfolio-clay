@@ -1,6 +1,7 @@
 /**
  * TASK-249 (Tushar 2026-10-18): five personal projects are unlisted (kept with their case studies, off every
- * product list, noindex) and `/playground` is retired into `/projects`.
+ * product list, noindex) and `/playground` is retired into `/projects`. TASK-355 removed two of them (cubicle,
+ * dino-arcade-pwa) from the site entirely, so three remain unlisted.
  */
 import { describe, expect, it } from "vitest";
 import sitemap from "@/app/sitemap";
@@ -11,12 +12,12 @@ import { buildPortfolioProducts, isListed, nextListedProject, parseProductParam 
 import { buildMetadata } from "@/lib/seo";
 import nextConfig from "@/next.config";
 
-const UNLISTED = ["cubicle", "token-toli", "tegaki", "dino-arcade-pwa", "cinematic-portfolio"];
+const UNLISTED = ["token-toli", "tegaki", "cinematic-portfolio"];
 const personal = projects.filter((p) => p.category === "personal");
 const art = () => ({ src: "/x.webp", width: 10, height: 10, alt: "x" }) as never;
 
 describe("unlisted builds (TASK-249)", () => {
-  it("exactly the five slugs are unlisted; their records and portfolio entries still exist", () => {
+  it("exactly the three slugs are unlisted; their records and portfolio entries still exist", () => {
     expect(personal.filter((p) => !isListed(p)).map((p) => p.slug).sort()).toEqual([...UNLISTED].sort());
     for (const slug of UNLISTED) expect(portfolioEntries.some((e) => e.slug === slug), slug).toBe(true);
   });

@@ -2,13 +2,11 @@ import { CaseStudy, type CaseStudy as CaseStudyT } from "../schema";
 import { railciteCase } from "./railcite";
 import { teachsparkCase } from "./teachspark";
 import { veloraCase } from "./velora";
-import { cubicleCase } from "./cubicle";
 import { tegakiCase } from "./tegaki";
 import { nuptisCase } from "./nuptis";
 import { bhaktiVilasCase } from "./bhakti-vilas";
 import { tokenToliCase } from "./token-toli";
 import { pratyasaCase } from "./pratyasa";
-import { dinoArcadeCase } from "./dino-arcade-pwa";
 import { cinematicCase } from "./cinematic-portfolio";
 import { campfireCase } from "./campfire-board";
 import { slagCityCase } from "./slag-city";
@@ -20,7 +18,7 @@ import { urjaCase } from "./urja";
  * defaults apply. A record's `source` ids are cross-checked against its project's `sources[]` by
  * `validateAll()` (data/index.ts). Server-only: never import this from a client component.
  */
-export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, cubicleCase, tegakiCase, nuptisCase, bhaktiVilasCase, tokenToliCase, pratyasaCase, dinoArcadeCase, cinematicCase, campfireCase, slagCityCase, shravansRoundCase, urjaCase];
+export const caseStudyInputs = [teachsparkCase, railciteCase, veloraCase, tegakiCase, nuptisCase, bhaktiVilasCase, tokenToliCase, pratyasaCase, cinematicCase, campfireCase, slagCityCase, shravansRoundCase, urjaCase];
 
 export const caseStudies: CaseStudyT[] = caseStudyInputs.map((input) => CaseStudy.parse(input));
 

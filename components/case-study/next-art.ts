@@ -35,8 +35,8 @@ const NUPTIS_NEXT_ART: NextProjectArt = {
 
 /**
  * TASK-290 (Tushar 2026-10-20): ONE band per product, whichever case study it follows. The NextProject band reads the NEXT product's
- * artwork (and the light-mode tone it was painted for) from here, so Campfire Board's band, say, looks the same on Cubicle, Dino
- * Arcade, Cinematic and Pratyasa. A product with no entry gets a band without art (none today: see the spec).
+ * artwork (and the light-mode tone it was painted for) from here, so Campfire Board's band, say, looks the same on
+ * Cinematic and Pratyasa. A product with no entry gets a band without art (none today: see the spec).
  */
 export const NEXT_BAND_ART: Record<string, { art: NextProjectArt; tone?: NextProjectTone }> = {
   "bhakti-vilas": { art: BHAKTI_NEXT_ART, tone: "cream" },

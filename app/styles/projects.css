@@ -755,7 +755,6 @@
   .pf-cover[data-product="token-toli"] { --extrude: var(--color-green-2); }
   .pf-cover[data-product="pratyasa"] { --extrude: var(--color-steel); }
   .pf-cover[data-product="tegaki"] { --extrude: var(--color-rust); }
-  .pf-cover[data-product="dino-arcade-pwa"] { --title: var(--color-note); --extrude: var(--color-rust); }
   .pf-cover[data-product="cinematic-portfolio"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="campfire-board"] { --title: var(--color-note); --extrude: var(--color-terracotta); }
   .pf-cover[data-product="slag-city"] { --title: var(--color-note); --extrude: var(--color-rust); }

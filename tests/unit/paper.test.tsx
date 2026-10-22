@@ -510,12 +510,14 @@ describe("S70.06 Illustration + lib/illustrations", () => {
     const dev67 = /\| Dev-67 \| New manifest entry `tushky-paws`[^|]*?with alt "([^"]+)"/.exec(md);
     if (!dev67) throw new Error("Design.md §11 Dev-67 must fix the `tushky-paws` alt (TKT-113)");
     alts.set("tushky-paws", dev67[1]!);
+    // TASK-355: Cubicle and Dino Arcade were removed from the site; Design.md (a frozen record) still lists their covers.
+    for (const id of ["cover-cubicle", "cover-dino-arcade-pwa"]) alts.delete(id);
     return alts;
   };
 
-  it("the manifest has the thirty-three design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + the twelve TASK-127 product covers + TASK-129 `cover-slag-city` + TASK-243 `cover-shravans-round` + TASK-248 `cover-urja` + the three TASK-133 `featured-<slug>` collages, all in §6.3) with the exact Design.md alt strings", () => {
+  it("the manifest has the thirty-one design ids (§6.3 eleven — incl. TASK-114 `scene-experience` / `scene-certifications`, Dev-103/104 — + Dev-23 `hero-banner` + Dev-48/62 `tushky` + Dev-62 `tushky-avatar` + Dev-67 `tushky-paws` + TASK-117 `polaroid-sunrise` + the ten remaining TASK-127 product covers (TASK-355 removed two) + TASK-129 `cover-slag-city` + TASK-243 `cover-shravans-round` + TASK-248 `cover-urja` + the three TASK-133 `featured-<slug>` collages, all in §6.3) with the exact Design.md alt strings", () => {
     const alts = designAlts();
-    expect(alts.size).toBe(33);
+    expect(alts.size).toBe(31);
     for (const id of ["scene-experience", "scene-certifications", "polaroid-sunrise", "cover-teachspark", "cover-railcite", "cover-campfire-board", "cover-slag-city", "featured-railcite", "featured-slag-city", "featured-campfire-board"]) expect(alts.has(id), `Design.md §6.3 must fix the ${id} alt`).toBe(true);
     expect([...ILLUSTRATION_IDS].sort()).toEqual([...alts.keys()].sort());
     for (const entry of ILLUSTRATIONS) expect(entry.alt).toBe(alts.get(entry.id));

@@ -21,8 +21,8 @@ mkdirSync(featured, { recursive: true });
 const COVERS = {
   teachspark: "cover-teachspark", velora: "cover-velora", "token-toli": "cover-token-toli", "campfire-board": "cover-campfire-board",
   railcite: "r2-cover-railcite", "slag-city": "r2-cover-slag-city", "bhakti-vilas": "r2-cover-bhakti-vilas",
-  cubicle: "cover-cubicle", nuptis: "cover-nuptis", pratyasa: "cover-pratyasa", tegaki: "cover-tegaki",
-  "dino-arcade-pwa": "cover-dino-arcade-pwa", "cinematic-portfolio": "cover-cinematic-portfolio",
+  nuptis: "cover-nuptis", pratyasa: "cover-pratyasa", tegaki: "cover-tegaki",
+  "cinematic-portfolio": "cover-cinematic-portfolio",
   "shravans-round": "cover-shravans-round",
   urja: "cover-urja",
 };

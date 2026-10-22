@@ -44,7 +44,6 @@ export const knowledge: KnowledgeEntry[] = [
       { id: "TS-README-3", label: "TeachSpark README", ref: "TS/README.md:3", inventory: "§9" },
       { id: "CS5-DISCOVERY-PRD", label: "RailCite Discovery PRD", ref: "CS5/Discovery-PRD.md L3-5", inventory: "§9" },
       { id: "CS3-LINKEDIN-DAY9", label: "Nine-day build series", ref: "CS3/Case-Study-3-LinkedIn-9-Day-Series.docx Day 9", inventory: "§9" },
-      { id: "CS6-QA-13", label: "Cubicle QA report", ref: "CS6/QA-report.md:13", inventory: "§9" },
     ],
     draft: false,
     surface: ["home"],

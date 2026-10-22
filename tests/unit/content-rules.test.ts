@@ -7,20 +7,17 @@ import metricAllowlist from "@/tests/fixtures/metric-allowlist.json";
  * TC-091 (M-007 carry-forward CF-2, EVAL-013 companion) — mechanical content-rule guards over
  * `data/projects.ts`. Every `it()` here is a STRING assertion against today's manually-verified
  * content; none of them may be satisfied by editing a content value — a failure here means either
- * a real content regression, or (see the two documented interpretive notes below) a genuine
+ * a real content regression, or (see the documented interpretive note below) a genuine
  * disagreement between the literal test-cases.md wording and the current, correct content.
  *
- * Two sub-rules could not be implemented as a literal blanket substring ban without failing
+ * One sub-rule could not be implemented as a literal blanket substring ban without failing
  * against content that is honest and correct on inspection — flagged in the docs/reports write-up
  * rather than silently narrowed:
  *   - teachspark "no '625'": the record legitimately quotes the pitch's debunked "625 tests" claim
  *     twice, specifically to disclose it was never reproduced/used (same pattern as railcite's
  *     conditional "5,687 only with 7 Sep context" rule). Implemented as "625 never appears without
  *     an adjoining disclaimer", not "625 never appears".
- *   - cubicle "role text ... not 'solo'": "solo" appears three times, describing the TARGET
- *     PERSONA ("a solo founder") or explicitly denying it ("role: 'Team build,' never solo") —
- *     never claiming Tushar built Cubicle solo. Implemented as "no undisclaimed authorship claim
- *     of 'solo'", not "the substring never appears".
+ * (A second note, for cubicle's "solo" rule, went with the Cubicle record in TASK-355.)
  */
 
 const stringify = (v: unknown): string => JSON.stringify(v);
@@ -122,32 +119,6 @@ describe("TC-091 · nuptis", () => {
   });
 });
 
-describe("TC-091 · cubicle", () => {
-  const p = getProject("cubicle")!;
-  const text = projectText(p);
-
-  it('contains "team of 6" (the buildathon brief, quoted verbatim)', () => {
-    expect(text).toMatch(/team of 6/i);
-  });
-
-  it('never claims Tushar built it solo ("solo" appears only as the target persona or an explicit denial)', () => {
-    const hits = text.match(/.{0,20}solo.{0,20}/gi) ?? [];
-    expect(hits.length).toBeGreaterThan(0);
-    const claims = hits.filter((h) => !/solo founder|solo builders|never solo/i.test(h));
-    expect(claims, JSON.stringify(hits)).toEqual([]);
-  });
-
-  it("metrics carry only build-quality kinds — no cost or latency MetricCard", () => {
-    for (const m of p.metrics) {
-      expect(m.label.toLowerCase()).not.toMatch(/cost|latency/);
-    }
-  });
-
-  it('status is "Built, not launched"', () => {
-    expect(p.statusLabel).toBe("Built, not launched");
-  });
-});
-
 describe("TC-091 · bhakti-vilas", () => {
   const p = getProject("bhakti-vilas")!;
   const text = projectText(p);
@@ -239,28 +210,6 @@ describe("TC-091 · tegaki", () => {
   it.skip("Master Prompt is described only as internal — SKIP: tegaki has no chapters yet (thin record); fact lives only in CONTENT_INVENTORY §8.9", () => {});
 });
 
-describe("TC-091 · dino-arcade-pwa", () => {
-  const p = getProject("dino-arcade-pwa")!;
-  const text = projectText(p);
-
-  it('contains "BYO-ROM"', () => {
-    expect(text).toContain("BYO-ROM");
-  });
-
-  it('never mentions "Game/" (the private planning folder) or "neogeo"', () => {
-    expect(text).not.toContain("Game/");
-    expect(text.toLowerCase()).not.toContain("neogeo");
-  });
-
-  it("asserts no test-result numbers (results are MISSING, not invented)", () => {
-    expect(text).not.toMatch(/\d+\s*(passed|failed|tests?)\b/i);
-  });
-
-  it("repo is public", () => {
-    expect(p.links.repoPublic).toBe(true);
-  });
-});
-
 describe("TC-091 · cinematic-portfolio", () => {
   const p = getProject("cinematic-portfolio")!;
   const text = projectText(p);
@@ -291,7 +240,8 @@ describe("TC-091 · cinematic-portfolio", () => {
 
 describe("TC-091 · thin five — no unsourced MetricCard", () => {
   const allowlist = metricAllowlist as unknown as Record<string, string[]>;
-  const thinFive = ["token-toli", "pratyasa", "tegaki", "dino-arcade-pwa", "cinematic-portfolio"];
+  // TASK-355: dino-arcade-pwa was removed from the site, leaving four of the original five.
+  const thinFive = ["token-toli", "pratyasa", "tegaki", "cinematic-portfolio"];
 
   it("every thin-five slug has an allowlist entry", () => {
     for (const slug of thinFive) expect(allowlist[slug], slug).toBeDefined();
@@ -319,12 +269,10 @@ describe("TC-091 · sanity", () => {
         "railcite",
         "velora",
         "nuptis",
-        "cubicle",
         "bhakti-vilas",
         "token-toli",
         "pratyasa",
         "tegaki",
-        "dino-arcade-pwa",
         "cinematic-portfolio",
         "campfire-board",
         "slag-city",
