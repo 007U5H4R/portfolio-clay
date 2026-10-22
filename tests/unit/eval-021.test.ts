@@ -24,13 +24,11 @@ const PRODUCT_COVER_IDS = [
   "cover-teachspark",
   "cover-railcite",
   "cover-velora",
-  "cover-cubicle",
   "cover-nuptis",
   "cover-bhakti-vilas",
   "cover-token-toli",
   "cover-pratyasa",
   "cover-tegaki",
-  "cover-dino-arcade-pwa",
   "cover-cinematic-portfolio",
   "cover-campfire-board",
   "cover-slag-city", // TASK-129
@@ -165,7 +163,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
     expect(findings).toEqual([]);
   });
 
-  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the eleven other product covers, TASK-127 + `cover-slag-city`, TASK-129 + the three `featured-<slug>` collages, TASK-133)", () => {
+  it("every manifest id matches the twelve ids (§6.1 nine + `hero-banner`, Dev-23 / TKT-93 + `tushky`, Dev-48 / TKT-104 + `tushky-avatar`, Dev-62 / TKT-104 r2 + `tushky-paws`, Dev-67 + `scene-experience` / `scene-certifications`, Dev-103/104 / TASK-114 + `polaroid-sunrise`, TASK-117 + `cover-teachspark`, TASK-121 + the nine other product covers, TASK-127 (two removed by TASK-355) + `cover-slag-city`, TASK-129 + the three `featured-<slug>` collages, TASK-133)", () => {
     expect(ILLUSTRATIONS.map((e) => e.id).sort()).toEqual(
       [
         "character-sheet-b",
@@ -187,7 +185,7 @@ describe("EVAL-021 — illustration provenance (both ways)", () => {
         "tushky-paws",
       ].sort(),
     );
-    expect(ILLUSTRATIONS.length).toBe(33); // + TASK-243 `cover-shravans-round`, TASK-248 `cover-urja`
+    expect(ILLUSTRATIONS.length).toBe(31); // + TASK-243 `cover-shravans-round`, TASK-248 `cover-urja`; TASK-355 removed `cover-cubicle` / `cover-dino-arcade-pwa`
   });
 
   it("tushky v2 is the 231×280 bandana mascot, ≤ 30 kB, with the Dev-62 alt (TKT-104 r2)", () => {

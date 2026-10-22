@@ -7,8 +7,6 @@ import { accentVars, caseActions, evidenceRows, legendKinds } from "@/components
 import { JournalHero } from "./JournalHero";
 import { CaseStudyEvidenceDrawer } from "./CaseStudyEvidenceDrawer";
 import { JournalCta } from "./JournalCta";
-import { CubicleHeroArt, renderCubicleSection } from "./cubicle/Cubicle";
-import { DinoHeroArt, renderDinoSection } from "./dino/Dino";
 import { VeloraHeroArt, veloraSectionRenderer } from "./velora/Velora";
 
 interface JournalProduct {
@@ -20,8 +18,6 @@ interface JournalProduct {
 
 /* Each product owns its composition (brief §62: distinct identities first, shared frame second). */
 const PRODUCTS: Record<string, JournalProduct> = {
-  cubicle: { art: (study) => <CubicleHeroArt study={study} />, section: renderCubicleSection },
-  "dino-arcade-pwa": { art: (study) => <DinoHeroArt study={study} />, section: renderDinoSection, compactEvidence: true },
   velora: { art: (study) => <VeloraHeroArt study={study} />, section: (section, study) => veloraSectionRenderer(study)(section) },
 };
 

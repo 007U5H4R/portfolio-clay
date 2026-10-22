@@ -19,7 +19,7 @@ const PRODUCTS: Record<string, string> = {
   "shravans-round": "The Shravan's Round",
   urja: "Urja",
 };
-const NO_LOGO = ["tegaki", "token-toli", "dino-arcade-pwa", "cinematic-portfolio", "cubicle"];
+const NO_LOGO = ["tegaki", "token-toli", "cinematic-portfolio"];
 const WIDTHS = [375, 768, 1440];
 const setTheme = (page: Page, theme: "light" | "dark") => page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
 const band = (page: Page) => page.locator('section[aria-label="Next project"]');

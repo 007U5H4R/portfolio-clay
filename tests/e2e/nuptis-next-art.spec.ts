@@ -122,7 +122,7 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
   });
 
   // TASK-282: slag-city now carries The Shravan's Round line (still a navy band); tested in slag-city-paper.spec.ts
-  for (const slug of ["cubicle", "token-toli"]) {
+  for (const slug of ["cinematic-portfolio", "token-toli"]) {
     test(`${slug}: band is the next product's own band (TASK-290: its art and cream tone from NEXT_BAND_ART; TASK-292: its one-liner)`, async ({ page }) => {
       await page.goto(`/work/${slug}`, { waitUntil: "load" });
       await band(page).scrollIntoViewIfNeeded();
@@ -140,7 +140,7 @@ test.describe("TASK-279 · nuptis band line + tone", () => {
     });
   }
 
-  for (const slug of ["cubicle", "nuptis", "tegaki"]) {
+  for (const slug of ["cinematic-portfolio", "nuptis", "tegaki"]) {
     test(`${slug}: dark band has no light strip above it`, async ({ page }) => {
       await page.goto(`/work/${slug}`, { waitUntil: "load" });
       await setTheme(page, "dark");

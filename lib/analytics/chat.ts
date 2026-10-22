@@ -10,7 +10,7 @@ const RULES: ReadonlyArray<readonly [ChatbotCategory, RegExp]> = [
   ["cloud_architecture", /\b(cloud|aws|azure|gcp|architecture|infrastructure|devops|serverless|kubernetes|docker|cdn|latency|scal(e|ing|able))\b/i],
   ["ai_product_management", /\b(ai|a\.i\.|llm|gpt|rag|prompt|model|evals?|evaluation|machine learning|ml|agent|hallucinat\w*|copilot|generative)\b/i],
   ["experience", /\b(experience|career|background|work(ed|ing)? (at|for)|role|job|employer|company|companies|years|education|degree|skills?|strengths?|certifications?|awards?|journey)\b/i],
-  ["projects", /\b(projects?|built|build|portfolio|case stud(y|ies)|teachspark|railcite|velora|nuptis|tegaki|pratyasa|cubicle|dino|slag|campfire|bhakti|product(s)?|shipped|launch(ed)?)\b/i],
+  ["projects", /\b(projects?|built|build|portfolio|case stud(y|ies)|teachspark|railcite|velora|nuptis|tegaki|pratyasa|slag|campfire|bhakti|product(s)?|shipped|launch(ed)?)\b/i],
 ];
 
 /** The category of free text, derived locally. Order matters: a specific intent beats the broad ones. */

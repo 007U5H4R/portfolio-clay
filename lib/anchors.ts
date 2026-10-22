@@ -47,14 +47,12 @@ export const STATIC_ROUTES = ['/', '/work', '/projects', '/about', '/thinking', 
 export const ALL_PROJECT_SLUGS = [
   'teachspark',
   'railcite',
-  'cubicle',
   'nuptis',
   'velora',
   'bhakti-vilas',
   'token-toli',
   'pratyasa',
   'tegaki',
-  'dino-arcade-pwa',
   'cinematic-portfolio',
   'campfire-board', // TASK-124
   'slag-city', // TASK-129

@@ -28,7 +28,7 @@
 
 export type IllustrationKind = "scene" | "poster" | "clip" | "reference" | "mascot"; // "clip": no entry ships since S24 retired clip A, kept for the alt-prefix table
 export interface Illustration {
-  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-cubicle" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-dino-arcade-pwa" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "cover-shravans-round" | "cover-urja" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
+  id: "hero-desk" | "hero-banner" | "scene-work" | "scene-casestudy" | "scene-about" | "scene-thinking" | "scene-playground" | "scene-contact" | "scene-experience" | "scene-certifications" | "character-sheet-b" | "tushky" | "tushky-avatar" | "tushky-paws" | "polaroid-sunrise" | "cover-teachspark" | "cover-railcite" | "cover-velora" | "cover-nuptis" | "cover-bhakti-vilas" | "cover-token-toli" | "cover-pratyasa" | "cover-tegaki" | "cover-cinematic-portfolio" | "cover-campfire-board" | "cover-slag-city" | "cover-shravans-round" | "cover-urja" | "featured-railcite" | "featured-slag-city" | "featured-campfire-board";
   kind: IllustrationKind;
   file: string;          // relative to content/media/illustrations/ (source rendition; the LIGHT rendition when `darkFile` is set)
   darkFile?: string;     // TASK-140 (S23, EV9, EVAL-025): the paired dark-theme rendition — same entry, same alt, identical pixel size
@@ -263,17 +263,6 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
   },
   {
     // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
-    id: "cover-cubicle",
-    kind: "scene",
-    file: "",
-    publicSrc: "/media/illustrations/covers/cover-cubicle.webp",
-    width: 1344,
-    height: 756,
-    alt: "Illustration of a beige 1990s computer monitor in a navy office cubicle at golden hour, its screen split into four coloured teammate panes with four matching speech bubbles rising above it, pinned index cards joined by string, a wall clock, a plant and four printouts on the desk.",
-    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own office scene with the real UI
-  },
-  {
-    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
     id: "cover-nuptis",
     kind: "scene",
     file: "",
@@ -326,17 +315,6 @@ export const ILLUSTRATIONS: readonly Illustration[] = [
     height: 756,
     alt: "Illustration of a writing desk at dusk: a page of handwritten loops under a brass magnifying glass, a fountain pen, an ink bottle and washi tape, a folded letter with a vermilion seal, a teacup, a paper lantern and a plum-blossom sprig, before an indigo sky with a vermilion sun over a band of wave pattern.",
     usedOn: ["/projects"],
-  },
-  {
-    // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.
-    id: "cover-dino-arcade-pwa",
-    kind: "scene",
-    file: "",
-    publicSrc: "/media/illustrations/covers/cover-dino-arcade-pwa.webp",
-    width: 1344,
-    height: 756,
-    alt: "Illustration of a teal smartphone dressed as a little arcade cabinet, a lit striped marquee on top and a pixel dinosaur on its screen, standing on a shelf before a big striped sunset over red desert mesas and pixel cacti, two coins beside it and a blank memory card sliding towards it.",
-    usedOn: ["/projects"], // TASK-130 redesign: the journal hero is its own postcard scene with the real UI
   },
   {
     // TASK-127: cover art, replaced by the TASK-202 3D paper-cut WebP — carousel cover + stage poster.

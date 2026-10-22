@@ -13,9 +13,7 @@ import { railciteAssets } from "./assets/railcite";
 import { teachsparkAssets } from "./assets/teachspark";
 import { tegakiAssets } from "./assets/tegaki";
 import { nuptisAssets } from "./assets/nuptis";
-import { cubicleJournalAssets } from "./journal/cubicle";
 import { journalSharedAssets } from "./journal/shared";
-import { dinoJournalAssets } from "./journal/dino";
 import { veloraJournalAssets } from "./journal/velora";
 import { buildMedia } from "./media";
 
@@ -25,9 +23,7 @@ const ART: Record<string, Asset[]> = {
   velora: veloraJournalAssets,
   tegaki: tegakiAssets,
   nuptis: nuptisAssets,
-  cubicle: cubicleJournalAssets,
   journal: journalSharedAssets,
-  "dino-arcade-pwa": dinoJournalAssets,
 };
 
 async function main() {

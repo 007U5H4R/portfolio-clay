@@ -57,7 +57,6 @@ export const portfolioEntries: PortfolioEntry[] = [
     // "Velora Demo v2" (demo) https://youtu.be/1BRXGdMqPEs (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "rz1C0hTz1mE" },
     demoVideo: { provider: "youtube", videoId: "1BRXGdMqPEs" } },
-  { slug: "cubicle", code: "CB-01", coverLine: "Make work less work", nextLine: "Make work less work", accent: "navy-2", meta: "Built · not launched", coverArt: "cover-cubicle", lettering: "block", coverGlyph: "Monitor" },
   { slug: "nuptis", code: "NP-01", coverLine: "Wedding vendor ops", cardLine: "Vendor ops for wedding agencies — verification, work orders, payments and backup in one place.", cardLineLong: "Vendor ops for wedding-planning agencies — verification status, work orders, payment milestones and backup coverage in one place.", nextLine: "Wedding vendor operations", accent: "terracotta", meta: "Live · mock data", coverArt: "cover-nuptis", lettering: "serif", coverGlyph: "Flower2", logo: { width: 696, height: 174 },
     // Tushar 2026-10-18 (TASK-245): "Nuptis Pitch" (pitch) https://youtu.be/sldcfNeQj94,
     // "Nuptis Demo" (demo) https://youtu.be/1F3UfV_cgW4 (both public + embeddable).
@@ -75,7 +74,6 @@ export const portfolioEntries: PortfolioEntry[] = [
     pitchVideo: { provider: "youtube", videoId: "xqevuhTxKAQ" },
     demoVideo: { provider: "youtube", videoId: "Rl6MQiSBqh8" } },
   { slug: "tegaki", code: "TG-01", coverLine: "Handwriting, read by hand", nextLine: "Handwriting, read by hand", accent: "rust", meta: "Live pilot", coverArt: "cover-tegaki", lettering: "script", coverGlyph: "Brush" },
-  { slug: "dino-arcade-pwa", code: "DA-01", coverLine: "Your phone, an arcade", nextLine: "Your phone, an arcade", accent: "steel", meta: "Live · BYO-ROM", coverArt: "cover-dino-arcade-pwa", lettering: "mono", coverGlyph: "Gamepad2" },
   { slug: "cinematic-portfolio", code: "CP-01", coverLine: "A portfolio, on film", nextLine: "A portfolio, on film", accent: "forest", meta: "Live", coverArt: "cover-cinematic-portfolio", lettering: "slab", coverGlyph: "Clapperboard" },
   {
     slug: "campfire-board",
