@@ -351,8 +351,19 @@
 
   /* --- right: the notebook (spec §8, §9) --- */
   .hat-panel {
+    position: relative;
+    isolation: isolate;
     min-width: 0;
-    filter: drop-shadow(0 14px 22px color-mix(in oklab, var(--shadow-ink) 14%, transparent));
+  }
+  /* TASK-342: the notebook is a near-rectangle, so its shadow is a box-shadow on an underlay (the sheet's clip-path would
+     cut its own); `filter: drop-shadow(0 14px 22px)` on the whole panel was re-composited every scroll frame in WebKit. */
+  .hat-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    box-shadow: 0 14px 22px color-mix(in oklab, var(--shadow-ink) 14%, transparent);
+    pointer-events: none;
   }
   .paper-sheet[data-paper="notebook"].hat-notebook {
     height: 100%;

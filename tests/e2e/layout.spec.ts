@@ -48,7 +48,8 @@ test("header keeps one height across scroll; data-scrolled only deepens the pape
   const header = page.locator("header[data-site-header]");
   await expect(header).toBeVisible();
   const paper = header.locator(".header-paper");
-  const shadow = () => paper.evaluate((el) => getComputedStyle(el).filter);
+  // TASK-342: the sheet's shadow is the gradient on `.header-paper::before` (no CSS filter); its resolved colours deepen when scrolled
+  const shadow = () => paper.evaluate((el) => getComputedStyle(el, "::before").backgroundImage);
 
   const restBox = await header.boundingBox();
   await expect(header).not.toHaveAttribute("data-scrolled");

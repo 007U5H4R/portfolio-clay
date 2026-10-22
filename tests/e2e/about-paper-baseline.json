@@ -1,71 +1,71 @@
 {
   "390": {
     "opener": {
-      "html": "858de35638365",
-      "style": "5e9bdcf88ef33",
-      "elements": 31
+      "html": "6750cabd8b032",
+      "style": "3f1d8a59bf023",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "19094a17d10d6b",
+      "html": "1115b3c3c5ef1f",
+      "style": "19f35cce8b70ef",
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "9ac05f420d286",
-      "elements": 55
+      "html": "9853541e78fd0",
+      "style": "14dc43656d81ed",
+      "elements": 60
     }
   },
   "768": {
     "opener": {
-      "html": "858de35638365",
-      "style": "9941c081ab0c4",
-      "elements": 31
+      "html": "6750cabd8b032",
+      "style": "1c19c69bc30c7d",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "1ccf9a2c2c1d8b",
+      "html": "1115b3c3c5ef1f",
+      "style": "6040a4acbf852",
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "325e59ca59e6",
-      "elements": 55
+      "html": "9853541e78fd0",
+      "style": "6a059ec93da3e",
+      "elements": 60
     }
   },
   "1024": {
     "opener": {
-      "html": "858de35638365",
-      "style": "19d027d5a06d5",
-      "elements": 31
+      "html": "6750cabd8b032",
+      "style": "135f9909bf8a92",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "ca1213bff89d3",
+      "html": "1115b3c3c5ef1f",
+      "style": "85f5077e391dc",
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "1f675bdab74d78",
-      "elements": 55
+      "html": "9853541e78fd0",
+      "style": "34a77bd66080b",
+      "elements": 60
     }
   },
   "1440": {
     "opener": {
-      "html": "858de35638365",
-      "style": "eac58839ea835",
-      "elements": 31
+      "html": "6750cabd8b032",
+      "style": "28a5feef667e3",
+      "elements": 36
     },
     "hero": {
-      "html": "bd0160cf9cab5",
-      "style": "192c53c09a1da1",
+      "html": "1115b3c3c5ef1f",
+      "style": "1e90fb5334eb28",
       "elements": 17
     },
     "footer": {
-      "html": "194e14dcecec1b",
-      "style": "192b944ec56665",
-      "elements": 55
+      "html": "9853541e78fd0",
+      "style": "743643a357c",
+      "elements": 60
     }
   },
-  "_capturedFrom": "f98ad78c (custom properties unhashed, TASK-324)"
+  "_capturedFrom": "m039/safari-filters merged with main 3c3f73de (TASK-342)"
 }

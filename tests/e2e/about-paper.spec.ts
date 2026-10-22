@@ -183,7 +183,8 @@ test("P1 hover contract: a 4 px lift on a fine pointer with a crossfading shadow
   await expect.poll(() => card.evaluate((el) => getComputedStyle(el).translate)).toBe("0px -4px");
   await expect.poll(() => card.evaluate((el) => getComputedStyle(el, "::before").opacity)).toBe("1");
   const shadow = await card.evaluate((el) => getComputedStyle(el, "::before").transitionProperty);
-  expect(shadow).toBe("opacity");
+  // TASK-342: `visibility` joins the fade (flips at its ends) so the blurred layer is not composited at rest
+  expect(shadow).toBe("opacity, visibility");
   // never a box-shadow or filter transition on hover
   const props = await page.locator(".crx-card, .rvx-plist li").evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionProperty));
   for (const p of props) expect(p).not.toMatch(/box-shadow|filter|all/);
