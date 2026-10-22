@@ -31,7 +31,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-b56c0126424c",
+    "profileVersion": "v1-c7795c596c13",
     "dependsOn": [
       "profile",
       "experience",
@@ -86,7 +86,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-9dacbdf32f9f",
+    "profileVersion": "v1-65a6126c36bd",
     "dependsOn": [
       "projects"
     ],
@@ -126,7 +126,7 @@
       "What certifications does he have?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-319cf1ed8f3b",
+    "profileVersion": "v1-ea7eb8947e4f",
     "dependsOn": [
       "project:teachspark",
       "project:railcite",
@@ -168,8 +168,8 @@
       "Tell me about TeachSpark.",
       "What is his product thinking process?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-04480c6efd2f",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-42428fb89a58",
     "dependsOn": [
       "impact",
       "experience",
@@ -211,7 +211,7 @@
       "What cloud experience does he have?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-e425a4aa79c2",
+    "profileVersion": "v1-29caf0227694",
     "dependsOn": [
       "skills",
       "experience",
@@ -252,7 +252,7 @@
       "Walk me through a specific project."
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-1a584278b4b9",
+    "profileVersion": "v1-84be9ee02835",
     "dependsOn": [
       "thinking",
       "knowledge",
@@ -291,8 +291,8 @@
       "Tell me about TeachSpark.",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-18",
-    "profileVersion": "v1-4f024a427a09",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-b8aee373bc73",
     "dependsOn": [
       "project:railcite"
     ],
@@ -355,8 +355,8 @@
         "href": "/work/railcite#05-what-i-built"
       },
       {
-        "label": "railcite.vercel.app",
-        "href": "https://railcite.vercel.app"
+        "label": "railcite.tusharpathak.com",
+        "href": "https://railcite.tusharpathak.com"
       }
     ],
     "followUps": [
@@ -364,8 +364,8 @@
       "Tell me about TeachSpark.",
       "How does he evaluate an AI product?"
     ],
-    "updatedAt": "2026-10-18",
-    "profileVersion": "v1-4f024a427a09",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-b8aee373bc73",
     "dependsOn": [
       "project:railcite"
     ],
@@ -403,7 +403,7 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-0f798782f1a8",
+    "profileVersion": "v1-a1a7f8246369",
     "dependsOn": [
       "project:velora",
       "project:nuptis",
@@ -475,7 +475,7 @@
       "What is his educational background?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-b4c91883f10e",
+    "profileVersion": "v1-37c8dc9aa441",
     "dependsOn": [
       "experience",
       "profile",
@@ -548,8 +548,8 @@
       "What enterprise programs has he worked on?",
       "What AI experience does he have?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-c3c8220ccbd5",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-f4a09723bd2f",
     "dependsOn": [
       "experience",
       "enterprise",
@@ -620,7 +620,7 @@
       "What products has Tushar built?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-0b1fcf645e36",
+    "profileVersion": "v1-bf340d4f3402",
     "dependsOn": [
       "credentials",
       "knowledge"
@@ -658,7 +658,7 @@
       "What are his strongest skills?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-b7eb6c02e242",
+    "profileVersion": "v1-cdf0473fffaa",
     "dependsOn": [
       "knowledge",
       "experience"
@@ -697,7 +697,7 @@
       "Tell me about Velora."
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-f173af0387db",
+    "profileVersion": "v1-7f4fd87b0e12",
     "dependsOn": [
       "knowledge",
       "project:teachspark",
@@ -738,7 +738,7 @@
       "What AI experience does he have?"
     ],
     "updatedAt": "2026-10-22",
-    "profileVersion": "v1-8e73f26358c8",
+    "profileVersion": "v1-acf542d81606",
     "dependsOn": [
       "knowledge",
       "project:railcite",
@@ -772,8 +772,8 @@
       "What is his work experience?",
       "What certifications does he have?"
     ],
-    "updatedAt": "2026-10-20",
-    "profileVersion": "v1-0cc34c30696c",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-a5d77862b12f",
     "dependsOn": [
       "credentials"
     ],
@@ -862,15 +862,15 @@
       },
       {
         "label": "Play Slag City",
-        "href": "https://slag-city.vercel.app"
+        "href": "https://slag-city.tusharpathak.com"
       }
     ],
     "followUps": [
       "Where is the hidden easter egg?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-21",
-    "profileVersion": "v1-cdb18eaaf634",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-73ce580cc105",
     "dependsOn": [
       "project:slag-city"
     ],
@@ -896,15 +896,15 @@
       },
       {
         "label": "Campfire Board live demo",
-        "href": "https://site-eight-lake-51.vercel.app"
+        "href": "https://campfire.tusharpathak.com"
       }
     ],
     "followUps": [
       "What products has Tushar built?",
       "What is his product thinking process?"
     ],
-    "updatedAt": "2026-10-21",
-    "profileVersion": "v1-7378fa5df0df",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-ea2ce637c473",
     "dependsOn": [
       "project:campfire-board"
     ],
@@ -963,15 +963,15 @@
       },
       {
         "label": "Open Urja",
-        "href": "https://urja-three.vercel.app"
+        "href": "https://urja.tusharpathak.com"
       }
     ],
     "followUps": [
       "What AI experience does he have?",
       "How does he evaluate an AI product?"
     ],
-    "updatedAt": "2026-10-21",
-    "profileVersion": "v1-1e8921d47dbe",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-ad7923a9724e",
     "dependsOn": [
       "project:urja"
     ],
@@ -996,15 +996,15 @@
       },
       {
         "label": "Open Pratyasa",
-        "href": "https://pratyasa.vercel.app"
+        "href": "https://pratyasa.tusharpathak.com"
       }
     ],
     "followUps": [
       "What is his research background?",
       "What products has Tushar built?"
     ],
-    "updatedAt": "2026-10-21",
-    "profileVersion": "v1-bafd6bfccc68",
+    "updatedAt": "2026-10-22",
+    "profileVersion": "v1-bf888384bd98",
     "dependsOn": [
       "project:pratyasa"
     ],

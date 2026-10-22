@@ -156,7 +156,7 @@ test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
     // TASK-188: the hosted live demo is the product link; TASK-251: the GitHub link is back (the fork's public remote).
     const product = actions(page).locator('[data-action="product"]');
     await expect(product).toHaveCount(1);
-    await expect(product).toHaveAttribute("href", "https://site-eight-lake-51.vercel.app");
+    await expect(product).toHaveAttribute("href", "https://campfire.tusharpathak.com");
     await expect(actions(page).locator('[data-action="github"]')).toHaveAttribute("href", "https://github.com/007U5H4R/pm-dashboard");
     await expect(frames(page)).toHaveCount(0);
 
