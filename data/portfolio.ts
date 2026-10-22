@@ -52,7 +52,7 @@ export const portfolioEntries: PortfolioEntry[] = [
     // TASK-125 (Tushar 2026-09-28): YouTube "Railcite" (launch pitch) and "Railcite Demo", channel The Purposeful PM.
     pitchVideo: { provider: "youtube", videoId: "nI3EqDXd5Io" },
     demoVideo: { provider: "youtube", videoId: "B3x-I1J8JW8" } },
-  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", nextLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt", logo: { width: 419, height: 149 },
+  { slug: "velora", code: "VL-01", coverLine: "Vendor onboarding, take two", cardLine: "A B2B apparel sourcing marketplace — brands and garment makers swipe to match, then bid.", nextLine: "Vendor onboarding, take two", accent: "forest", meta: "Live · mock data", coverArt: "cover-velora", lettering: "script", coverGlyph: "Shirt", logo: { width: 419, height: 149 },
     // Tushar 2026-10-18 (TASK-246): "Velora Launch v2" (pitch) https://youtu.be/rz1C0hTz1mE,
     // "Velora Demo v2" (demo) https://youtu.be/1BRXGdMqPEs (both public + embeddable).
     pitchVideo: { provider: "youtube", videoId: "rz1C0hTz1mE" },

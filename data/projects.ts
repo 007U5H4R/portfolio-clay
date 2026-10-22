@@ -1007,7 +1007,8 @@ export const railcite: Project = {
 export const velora: Project = {
   slug: "velora",
   name: "Velora",
-  tagline: "Two vendor-onboarding products in nine days — and the decision to kill the first.",
+  tagline:
+    "A B2B apparel sourcing marketplace — fashion brands and garment manufacturers swipe to connect, and matches turn into bids.",
   category: "personal",
   tags: ["B2B", "Marketplace", "PM craft"],
   filters: ["enterprise", "experiments"],
