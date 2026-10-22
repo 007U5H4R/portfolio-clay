@@ -2,6 +2,55 @@
    Imported by: work. */
 
 @layer components {
+  .ct-logo-img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 132px;
+  }
+  [data-theme="dark"] .ct-logo-img {
+    /* Dark cards would bury dark marks (Quantiphi, Shellkode, NIT Calicut): each logo gets its own light
+       paper label. `navy` is the light ink value in dark (D13), the same move as .cert-badge-paper (TASK-153). */
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: var(--color-navy);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
+  }
+}
+
+@layer components {
+  @media (max-width: 767px) {
+    .ct-logo-img {
+      max-height: 84px;
+    }
+  }
+}
+
+@media (max-width: 639px) {
+  .ct-logo-img {
+    max-height: 32px;
+  }
+  [data-theme="dark"] .ct-logo-img {
+    padding: 3px 4px;
+  }
+}
+
+@media (max-width: 639px) {
+  .xp-car .ct-logo-img {
+    width: auto;
+    height: 72px;
+    max-width: 100%;
+    max-height: 72px;
+    object-fit: contain;
+  }
+  .xp-car .ct-logo-img[data-wide] {
+    width: 150px;
+    height: auto;
+  }
+}
+
+@layer components {
   .about-h2 {
     margin-top: 10px;
     font-size: clamp(40px, 4.6vw, 64px);

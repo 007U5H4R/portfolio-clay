@@ -314,25 +314,6 @@ body::before {
   pointer-events: auto;
 }
 
-/*
-  OverviewToggle crossfade (TKT-19 / Design.md §3–§4 "OverviewToggle … crossfades (200ms)"). The
-  active panel (keyed by view in components/case-study/OverviewToggle.tsx) fades in on each switch;
-  only the active panel is in the DOM, so height tracks the content (no stacked empty space). The
-  global reduced-motion rule below forces animation-duration to ~1ms, making the swap instant for
-  reduced-motion users (AC 4), with no separate override needed.
-*/
-@keyframes overview-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.overview-panel {
-  animation: overview-fade 200ms var(--ease-reveal);
-}
-
 /* View Transitions default timing (A5 / Design.md §4) */
 ::view-transition-group(*) {
   animation-duration: 450ms;
@@ -1385,9 +1366,6 @@ html.lenis body {
     font-size: 16px;
     color: var(--color-navy-2);
   }
-  .work-card-sketch {
-    margin-top: 4px;
-  }
   .work-metrics {
     display: grid;
     gap: 6px;
@@ -1430,13 +1408,6 @@ html.lenis body {
     font-size: 21px;
     color: var(--color-rust);
   }
-  .work-card-sticky {
-    position: absolute;
-    left: -28px;
-    bottom: -22px;
-    width: 156px;
-    pointer-events: none;
-  }
 
   @media (max-width: 1024px) {
     .work-card-large {
@@ -1457,10 +1428,6 @@ html.lenis body {
     }
     .work-card-large .work-card-link {
       padding: 28px 22px 84px;
-    }
-    .work-card-sticky {
-      left: 8px;
-      bottom: -18px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1490,56 +1457,8 @@ html.lenis body {
    the EVAL-008 14 px floor (mockup 12–13 px labels → 14 px; kraft tags stay 12 px as
    `data-micro-label`). Tokens / derived vars only (EVAL-020). */
 @layer components {
-  .cs-article {
-    display: block;
-  }
 
   /* --- header --- */
-  .cs-head {
-    position: relative;
-    z-index: 1;
-    padding-block: clamp(24px, 4vw, 48px) clamp(84px, 9vw, 130px);
-  }
-  .cs-head-grid {
-    display: grid;
-    gap: clamp(28px, 5vw, 72px);
-    align-items: center;
-  }
-  @media (min-width: 900px) {
-    .cs-head[data-has-media] .cs-head-grid {
-      grid-template-columns: minmax(0, 56fr) minmax(0, 44fr);
-    }
-  }
-  .cs-copy {
-    display: grid;
-    gap: 20px;
-    max-width: 760px;
-  }
-  .cs-crumb {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-size: var(--text-caption);
-    color: var(--color-navy-2);
-  }
-  .cs-crumb a {
-    border-bottom: 1px solid var(--line);
-  }
-  .cs-crumb a:hover {
-    color: var(--color-rust);
-    border-color: var(--color-rust);
-  }
-  .cs-h1 {
-    font-size: clamp(52px, 6.4vw, 92px);
-    font-variation-settings: "opsz" 144, "SOFT" 30;
-    overflow-wrap: anywhere;
-  }
-  .cs-lead {
-    max-width: 44ch;
-    font-size: 19px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
   .cs-meta {
     display: flex;
     flex-wrap: wrap;
@@ -1552,69 +1471,8 @@ html.lenis body {
     font-weight: 600;
     color: var(--color-navy);
   }
-  .cs-media-tag {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 12px;
-  }
-  .cs-media-tag .paper-annotation {
-    color: var(--color-navy-2);
-  }
-  .cs-photo {
-    justify-self: end;
-    width: min(100%, 560px);
-  }
-  .cs-photo-media {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border-radius: 2px;
-  }
 
   /* --- metric strip --- */
-  .cs-strip {
-    z-index: 2;
-    background-image: linear-gradient(var(--color-paper-2), var(--color-paper-2));
-  }
-  .cs-strip-wrap {
-    position: relative;
-    padding-block: 32px clamp(60px, 7vw, 96px);
-  }
-  @media (min-width: 900px) {
-    .cs-strip-wrap {
-      padding-top: 72px;
-    }
-  }
-  .cs-strip-note {
-    margin-bottom: 18px;
-    pointer-events: none;
-  }
-  @media (min-width: 900px) {
-    .cs-strip-note {
-      position: absolute;
-      top: 4px;
-      left: 36%;
-      width: 260px;
-      margin: 0;
-    }
-  }
-  .cs-strip-grid {
-    display: grid;
-    gap: 30px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  @media (min-width: 900px) {
-    .cs-strip-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  .cs-metric {
-    height: 100%;
-    padding: 24px 22px 16px;
-  }
   .cs-metric-value {
     font-family: var(--font-display);
     font-size: clamp(40px, 4vw, 56px);
@@ -1633,113 +1491,8 @@ html.lenis body {
     text-transform: uppercase;
     color: var(--color-navy-2);
   }
-  .cs-metric-context {
-    font-size: var(--text-caption);
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
-  .cs-metric-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-    margin-top: 8px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--line);
-    font-size: var(--text-caption);
-    color: var(--color-navy-2);
-  }
-  .cs-kind {
-    display: inline-block;
-    padding: 1px 10px 2px;
-    border: 1.5px solid currentColor;
-    border-radius: 999px;
-    font-family: var(--font-body);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    line-height: 1.4;
-  }
 
   /* --- overview: folder tabs + 30-sec notebook --- */
-  .cs-overview {
-    z-index: 3;
-    background-image: linear-gradient(var(--color-paper), var(--color-paper));
-  }
-  .cs-overview-grid {
-    display: grid;
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
-    /* bottom ≥ 44 px + air: the next torn section pulls up 44 px over this one */
-    padding-block: clamp(28px, 4vw, 56px) clamp(76px, 8vw, 104px);
-  }
-  @media (min-width: 900px) {
-    .cs-overview-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-    }
-  }
-  .cs-depth {
-    display: grid;
-    gap: 16px;
-  }
-  .cs-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .cs-overview-note {
-    max-width: 16ch;
-  }
-  .cs-tabs {
-    display: inline-flex;
-    gap: 6px;
-    align-items: flex-end;
-    justify-self: start;
-    border-bottom: 1.5px solid var(--line-sketch);
-  }
-  .cs-tab {
-    position: relative;
-    top: 1.5px;
-    min-height: 44px;
-    padding: 8px 18px;
-    font-family: var(--font-display);
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--color-navy-2);
-    background: var(--color-paper-2);
-    border: 1.5px solid var(--line);
-    border-bottom: 0;
-    border-radius: 7px 7px 0 0;
-    cursor: pointer;
-  }
-  .cs-tab[aria-checked="true"] {
-    color: var(--color-navy);
-    background: var(--color-ivory);
-    border-color: var(--line-sketch);
-  }
-  .cs-tab[aria-checked="true"]::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: -1.5px;
-    left: 0;
-    height: 1.5px;
-    background: var(--color-ivory);
-  }
-  .cs-help {
-    max-width: 32ch;
-    font-size: var(--text-caption);
-    color: var(--color-navy-2);
-  }
-  .cs-notebook-col {
-    display: grid;
-    gap: 22px;
-    justify-items: start;
-    min-width: 0;
-  }
   .cs-notebook {
     width: 100%;
   }
@@ -1762,29 +1515,8 @@ html.lenis body {
   .cs-notebook .cs-notebook-label + p {
     margin-top: 0;
   }
-  .cs-coming {
-    display: grid;
-    gap: 4px;
-    max-width: 52ch;
-    padding: 12px 16px 12px 28px;
-  }
-  .cs-coming-body {
-    font-size: var(--text-caption);
-    font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-  .cs-coming-body b {
-    font-weight: 600;
-  }
 
   /* --- deep dive shell (TKT-83 owns the inside) --- */
-  .cs-deep {
-    position: relative;
-    z-index: 3;
-    padding-block: clamp(24px, 3vw, 40px) clamp(72px, 8vw, 120px);
-  }
   .cs-next .cs-next-note {
     color: var(--color-kraft);
   }
@@ -1802,24 +1534,8 @@ html.lenis body {
     position: relative;
     margin-top: clamp(48px, 6vw, 88px);
   }
-  .learned-body,
   .sources {
     background-color: var(--color-paper-2);
-  }
-  .learned-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
-    padding-block: clamp(28px, 4vw, 56px) clamp(56px, 6vw, 80px);
-  }
-  .learned-eyebrow,
-  .sources-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
   }
   .learned-h {
     margin-top: 8px;
@@ -1833,9 +1549,6 @@ html.lenis body {
     max-width: 34ch;
     font-size: 15px;
     color: var(--color-ink-soft);
-  }
-  .learned-notebook {
-    padding-top: 58px;
   }
   .learned-list {
     display: grid;
@@ -1852,25 +1565,6 @@ html.lenis body {
   }
   .learned-list li + li {
     margin-top: 32px;
-  }
-  .learned-num {
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--color-rust);
-  }
-  .sources-wrap {
-    padding-bottom: clamp(64px, 8vw, 110px);
-  }
-  .sources-inner {
-    display: grid;
-    grid-template-columns: 200px minmax(0, 1fr);
-    gap: 24px clamp(32px, 4vw, 64px);
-    align-items: start;
-    padding-top: 26px;
-    border-top: 1px dashed var(--line-sketch);
   }
   .sources-h {
     margin-top: 6px;
@@ -1897,16 +1591,6 @@ html.lenis body {
     color: var(--color-ink-soft);
     font-variant-numeric: tabular-nums;
   }
-  @media (max-width: 1024px) {
-    .sources-inner {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-  @media (max-width: 900px) {
-    .learned-wrap {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
   @media (max-width: 640px) {
     .sources-list {
       columns: 1;
@@ -1925,10 +1609,6 @@ html.lenis body {
    The page scene is TKT-95's `SceneOpener` above both pages (EXE-18), so no photo frames here.
    Colours are paper tokens / derived vars only (EVAL-020). */
 @layer components {
-  .essay-pull-cite b {
-    font-weight: 600;
-    color: var(--color-navy-2);
-  }
   .essay-pager-title {
     font-family: var(--font-display);
     font-size: clamp(20px, 1.8vw, 26px);
@@ -1948,64 +1628,6 @@ html.lenis body {
    fail contrast are corrected: steel eval labels → forest (steel/paper-2 is 3.6:1), terracotta text on
    the kraft doc tag → navy (4.2:1 → 9.8:1, the §2.1 correction). */
 
-/* ChapterNav — Fraunces 16, Caveat numerals, ink underline on the current chapter (≥ 1024 only; the
-   component is inside `MediaGate min={1024}`, TP14). Rows are 44 px tall so every link is a full target
-   (EVAL-008) — the mockup's 9 px gap becomes row height. */
-.chapnav {
-  font-family: var(--font-display);
-  font-size: 16px;
-  position: sticky;
-  top: 7rem;
-  align-self: start;
-}
-.chapnav-eyebrow {
-  margin-bottom: 6px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-navy-2);
-}
-.chapnav ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-}
-.chapnav a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding-block: 2px;
-  color: var(--color-navy-2);
-  text-decoration: none;
-}
-.chapnav a:hover,
-.chapnav a[aria-current] {
-  color: var(--color-navy);
-}
-.chapnav-num {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-  margin-right: 8px;
-}
-/* The hand-drawn ink underline (mockup: an inline SVG stroke) — a `::after` bar with a slight wobble via
-   a rotated, rounded rule; no colour literal. */
-.chapnav a[aria-current]::after {
-  content: "";
-  position: absolute;
-  left: 26px;
-  right: -2px;
-  bottom: 6px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--color-navy);
-  rotate: -0.6deg;
-}
-
 /* Chapters — nested sections; the h2 numeral is a `Hand label` in rust; the body `Prose` is `data-flat`. */
 .chapters {
   display: grid;
@@ -2021,14 +1643,6 @@ html.lenis body {
 .chapter > h2 {
   font-size: clamp(34px, 3.6vw, 48px);
   font-variation-settings: "opsz" 120, "SOFT" 30;
-}
-.chapter-num {
-  font-size: 0.56em;
-  font-weight: 600;
-  color: var(--color-rust);
-  margin-right: 12px;
-  vertical-align: 0.22em;
-  letter-spacing: 0;
 }
 .chapter [data-flat] {
   display: grid;
@@ -2164,38 +1778,6 @@ html.lenis body {
    product journey, impact) retired with those sections in TASK-136. The torn section overlaps the
    previous one by its edge height (transparent strip above its own fill), the TKT-76 pattern. Paper
    tokens / derived vars only (EVAL-020). */
-@layer components {
-  .about-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 16px 32px;
-    align-items: end;
-    margin-bottom: clamp(36px, 5vw, 64px);
-  }
-  .about-eyebrow {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .about-lead {
-    justify-self: end;
-    max-width: 48ch;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--color-navy-2);
-  }
-
-  @media (max-width: 900px) {
-    .about-head {
-      grid-template-columns: 1fr;
-    }
-    .about-lead {
-      justify-self: start;
-    }
-  }
-}
 /* end TKT-86 → TASK-136 */
 
 
@@ -3571,21 +3153,6 @@ html.lenis body {
     padding: 18px;
     border-radius: 0;
   }
-  .ct-logo-img {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 132px;
-  }
-  [data-theme="dark"] .ct-logo-img {
-    /* Dark cards would bury dark marks (Quantiphi, Shellkode, NIT Calicut): each logo gets its own light
-       paper label. `navy` is the light ink value in dark (D13), the same move as .cert-badge-paper (TASK-153). */
-    padding: 8px 10px;
-    border-radius: 4px;
-    background: var(--color-navy);
-    box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
-  }
 
   /* the deckled card: transparent Sheet over two torn layers (rim + cream face) */
   .ct-card.paper-sheet {
@@ -3605,16 +3172,6 @@ html.lenis body {
   .ct-logo.paper-sheet {
     transition: rotate var(--dur-l2-out) var(--ease-paper);
   }
-  /* hover (fine pointer) and its keyboard twin: the card lifts 3 px, the shadow fades in, the pin presses 1 px,
-     the logo turns 0.6° toward upright (rest -2° / 1.6° alternate by row) */
-  .ct-thin {
-    stroke-width: 1;
-  }
-  .ct-tree {
-    fill: color-mix(in oklab, var(--color-green-2) 35%, transparent);
-    stroke: color-mix(in oklab, var(--color-forest) 60%, transparent);
-    stroke-width: 1;
-  }
 
   /* ---- ≤ 1024: no side column; the wide collage pieces go (the object stays, count unchanged) ---- */
   @media (max-width: 1024px) {
@@ -3624,9 +3181,6 @@ html.lenis body {
   }
   /* ---- < 768: one column — date → logo → card; no rail ---- */
   @media (max-width: 767px) {
-    .ct-logo-img {
-      max-height: 84px;
-    }
     .ct-card.paper-sheet {
       grid-column: 1;
       padding: 28px 22px 30px;
@@ -4034,10 +3588,6 @@ html.lenis body {
     font-size: 18px;
     scroll-snap-align: start;
   }
-  /* The /work `#experience-<id>` deep links used a 96 px clearance sized for the 72 px header. */
-  .xp-role {
-    scroll-margin-top: calc(var(--header-h) + 24px);
-  }
 }
 /* 1024–1439: the strip fits, so it centres under the header like the ≥ 1440 nav (auto margins
    collapse to 0 if it ever overflows, so no tab becomes unreachable). */
@@ -4083,15 +3633,6 @@ html.lenis body {
   [data-accent="navy-2"] { --pf-accent: var(--color-navy-2); }
   [data-accent="kraft"] { --pf-accent: var(--color-terracotta); }
   [data-accent="note"] { --pf-accent: var(--color-rust); }
-
-  /* the spread: one grid at ≥ 1024 — intro (col 1, row 1), stage (col 1, row 2), sheet (col 2, rows
-     1–2), carousel (both columns, row 3). The tabpanel is a subgrid, so the stage and sheet sit in
-     the page grid while staying inside the tabpanel. */
-  .pf-showcase {
-    position: relative;
-    display: grid;
-    gap: clamp(22px, 3vw, 36px);
-  }
   @media (min-width: 1024px) {
     .pf-showcase {
       grid-template-columns: minmax(0, 62fr) minmax(0, 38fr);
@@ -4115,21 +3656,6 @@ html.lenis body {
     }
   }
 
-  /* shared hand-drawn doodle: a three-stroke burst (CSS strokes, aria-hidden, the host's material) */
-  .pf-doodle {
-    position: absolute;
-    pointer-events: none;
-  }
-  .pf-doodle-burst {
-    width: 34px;
-    height: 30px;
-    background:
-      linear-gradient(var(--color-navy), var(--color-navy)) 50% 0 / 2px 11px no-repeat,
-      linear-gradient(var(--color-navy), var(--color-navy)) 6px 9px / 2px 10px no-repeat,
-      linear-gradient(var(--color-navy), var(--color-navy)) 27px 9px / 2px 10px no-repeat;
-    opacity: 0.7;
-  }
-
   /* --- the stage: kraft backing → dark under-layer → fibre rim → cream mat → poster --- */
   .pf-stage.paper-sheet {
     position: relative;
@@ -4142,20 +3668,6 @@ html.lenis body {
     rotate: -0.4deg;
     /* one warm shadow for the whole stack, following its torn silhouette */
     filter: var(--pf-contact) var(--pf-ambient-lg);
-  }
-  .pf-stage .pf-stage-pin {
-    left: auto;
-    right: 8%;
-    top: -9px;
-    z-index: 5;
-    translate: none;
-    width: 20px;
-    height: 20px;
-  }
-  .pf-stage .pf-doodle-burst {
-    top: -36px;
-    right: calc(8% + 26px);
-    rotate: 16deg;
   }
   /* Stage 8 DES-016 (TASK-313): while the player loads, the poster stays (ProductMediaPlayer keeps it above the iframe) under a
      small cue instead of a flat navy frame */
@@ -4217,37 +3729,6 @@ html.lenis body {
     -webkit-mask: var(--pf-tear-tall-a) 0 0 / 100% 100% no-repeat;
     mask: var(--pf-tear-tall-a) 0 0 / 100% 100% no-repeat;
   }
-  .pf-info .pf-info-pin {
-    top: -8px;
-    left: 11%;
-    z-index: 3;
-    width: 20px;
-    height: 20px;
-  }
-  /* translucent tape over the top-right corner, torn at both ends */
-  .pf-info .pf-info-tape.paper-fastener {
-    top: -12px;
-    right: -18px;
-    z-index: 3;
-    width: 104px;
-    height: 30px;
-    background-color: color-mix(in oklab, var(--color-kraft) 55%, transparent);
-    border: 0;
-    -webkit-mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
-  }
-  /* a narrow sheet (tablet-wide desktop columns, phones) drops the helper hint, never the label */
-  @container (max-width: 350px) {
-    .pf-action-hint {
-      display: none;
-    }
-  }
-  .pf-action-hint {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-navy-2);
-    white-space: nowrap;
-  }
 
   /* --- the carousel: covers sitting on one torn kraft band --- */
   .pf-carousel {
@@ -4265,34 +3746,6 @@ html.lenis body {
   }
   /* the band: its own static layer (so its warm shadow never re-renders while the track scrolls) —
      a lighter fibre rim under the kraft, both torn; it runs up under the stage and sheet */
-  .pf-band {
-    position: absolute;
-    inset: -20px calc(50% - 50vw) -18px;
-    z-index: -1;
-    pointer-events: none;
-    rotate: -0.35deg;
-    filter: var(--pf-contact) drop-shadow(0 10px 12px color-mix(in oklab, var(--color-terracotta) 16%, transparent));
-  }
-  .pf-band::before,
-  .pf-band::after {
-    content: "";
-    position: absolute;
-  }
-  .pf-band::before {
-    inset: -4px;
-    background-color: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory));
-    -webkit-mask: var(--pf-tear-band-b) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-band-b) 0 0 / 100% 100% no-repeat;
-  }
-  .pf-band::after {
-    inset: 0;
-    background-color: color-mix(in oklab, var(--color-kraft) 88%, var(--color-terracotta));
-    background-image: var(--pf-kraft-tex),
-      linear-gradient(180deg, color-mix(in oklab, var(--color-terracotta) 12%, transparent), transparent 28%, transparent 72%, color-mix(in oklab, var(--color-terracotta) 14%, transparent));
-    background-size: 360px 360px, 100% 100%;
-    -webkit-mask: var(--pf-tear-band-a) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-band-a) 0 0 / 100% 100% no-repeat;
-  }
   @media (min-width: 1024px) {
     .pf-carousel {
       grid-template-columns: auto minmax(0, 1fr) auto;
@@ -4302,10 +3755,6 @@ html.lenis body {
       column-gap: clamp(6px, 0.8vw, 12px);
       row-gap: 0;
       padding-top: 0;
-    }
-    /* visible torn ends, ~5 vw past the content edges; the top edge tucks under the stage + sheet */
-    .pf-band {
-      inset: -80px calc(-1 * clamp(16px, 4.7vw, 72px)) -22px;
     }
   }
   .pf-thumb {
@@ -4336,57 +3785,6 @@ html.lenis body {
       0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
       0 22px 24px -10px color-mix(in oklab, var(--color-terracotta) 44%, transparent);
   }
-  .pf-case-item {
-    display: grid;
-  }
-  .pf-case-item:nth-child(3n + 1) .pf-case { rotate: -0.3deg; }
-  .pf-case-item:nth-child(3n + 2) .pf-case { rotate: 0.25deg; }
-  .pf-case-item:nth-child(3n + 3) .pf-case { rotate: -0.12deg; }
-  /* a case file: an ivory sheet clipped into a manila folder (the folder, its tab, the sheet's paper
-     and the paperclip are the card's own material; the paper is a layer so the folder sits behind it) */
-  .pf-case.paper-sheet {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    height: 100%;
-    padding: 30px 26px 20px;
-    background: none;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: none;
-    transition: translate var(--dur-l2-out) var(--ease-paper);
-  }
-  .pf-case.paper-sheet::before,
-  .pf-case.paper-sheet::after {
-    content: "";
-    position: absolute;
-    pointer-events: none;
-  }
-  /* the manila folder behind the sheet: its back shows above-left, its tab carries the stamp */
-  .pf-case.paper-sheet::before {
-    inset: -12px 14px 10px -10px;
-    z-index: -2;
-    background-color: var(--pf-manila);
-    background-image: var(--pf-fibers);
-    background-size: 420px 420px;
-    border-radius: 3px 6px 3px 3px;
-    box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
-    rotate: -1.1deg;
-  }
-  /* the sheet's paper */
-  .pf-case.paper-sheet::after {
-    inset: 0;
-    z-index: -1;
-    background-color: var(--color-ivory);
-    background-image: var(--pf-fibers);
-    background-size: 420px 420px;
-    border-radius: 2px;
-    box-shadow:
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-      0 8px 14px -8px color-mix(in oklab, var(--color-terracotta) 22%, transparent);
-  }
   /* the paperclip, over the top edge */
   .pf-case-clip {
     position: absolute;
@@ -4402,52 +3800,6 @@ html.lenis body {
     pointer-events: none;
   }
   /* (hover / focus lift and the shadow crossfade: `.pf-case-shade`, the TASK-186 / P2 block at the end of this file) */
-  /* the folder tab: a neutral "Case file 0N" stamp — says nothing factual */
-  .pf-case-stamp {
-    position: absolute;
-    top: -38px;
-    left: -10px;
-    z-index: -1;
-    padding: 5px 14px 12px;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-terracotta);
-    background-color: var(--pf-manila);
-    border-radius: 6px 8px 0 0;
-    rotate: -1.1deg;
-  }
-  .pf-case-client {
-    font-size: clamp(1.375rem, 1.2rem + 0.5vw, 1.625rem);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-  .pf-case-program {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-green-2);
-  }
-  .pf-case-summary {
-    font-size: 15px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
-  .pf-case-foot {
-    display: grid;
-    gap: 2px;
-    margin-top: auto;
-    padding-top: 8px;
-    border-top: 1px solid var(--line);
-  }
-  .pf-case-role {
-    font-size: 14px;
-    line-height: 1.4;
-    color: var(--color-ink-soft);
-  }
 
   /* --- small screens: fewer decorative layers, same system (spec §29) --- */
   @media (max-width: 639px) {
@@ -4455,16 +3807,9 @@ html.lenis body {
     .pf-info.paper-sheet {
       rotate: none;
     }
-    .pf-stage .pf-doodle-burst,
-    .pf-info-name::after {
-      display: none;
-    }
     .pf-info.paper-sheet::before {
       inset: 10px 6px -9px -7px;
       rotate: -0.8deg;
-    }
-    .pf-case.paper-sheet::before {
-      rotate: -0.6deg;
     }
   }
 
@@ -4483,10 +3828,7 @@ html.lenis body {
     .pf-arrow[data-dir="prev"]:hover,
     .pf-arrow[data-dir="next"]:hover,
     .pf-play,
-    .pf-play:hover,
-    .pf-case.paper-sheet,
-    .pf-case.paper-sheet:hover,
-    .pf-case.paper-sheet::after {
+    .pf-play:hover {
       translate: none;
       transition: none;
     }
@@ -4573,19 +3915,6 @@ html.lenis body {
    tokens + `color-mix()` only here (EVAL-020). Motion: the shared one-shot `Reveal` (chapters 90 ms apart,
    the thread draws left → right, artifacts settle, recognition fades); a 2 px card lift on hover; all of
    it off under `prefers-reduced-motion: reduce`. */
-@layer components {
-  .abh,
-  .chx,
-  .crx,
-  .rvx,
-  .acx {
-    --ab-cream: color-mix(in oklab, var(--color-ivory) 72%, var(--color-note));
-    --ab-fibers: url("/media/portfolio/decor/paper-fibers.webp");
-    --ab-shadow: 0 1px 1px color-mix(in oklab, var(--color-navy) 14%, transparent),
-      0 12px 16px color-mix(in oklab, var(--color-terracotta) 14%, transparent);
-  }
-  /* TASK-209: the cards need width for their reference panels — stacked below 640, two up to 1023. */
-}
 /* end TASK-136 */
 
 /*
@@ -4762,10 +4091,6 @@ html[data-theme-vt]::view-transition-group(root) {
   transition-duration: 240ms !important;
   transition-timing-function: ease !important;
   transition-delay: 0s !important;
-}
-[data-theme="dark"] .cs-next-eyebrow,
-[data-theme="dark"] .cs-next .cs-next-note {
-  color: var(--color-ink-soft);
 }
 
 /* ==================================================================================================
@@ -5929,22 +5254,6 @@ html[data-theme-vt]::view-transition-group(root) {
   --hx: 0;
   --hy: 0;
 }
-.pm-layer {
-  --pm-r: 0px;
-  translate: calc(var(--hx, 0) * var(--pm-r)) calc(var(--hy, 0) * var(--pm-r));
-}
-.pm-layer[data-pm-depth="bg"] {
-  --pm-r: var(--pm-r-bg, 2px);
-}
-.pm-layer[data-pm-depth="art"] {
-  --pm-r: var(--pm-r-art, 4px);
-}
-.pm-layer[data-pm-depth="fg"] {
-  --pm-r: var(--pm-r-fg, 6px);
-}
-[data-pm-obj][data-pm-active] .pm-layer {
-  will-change: translate;
-}
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   [data-pm-tilt] {
     transform: perspective(1200px) rotateX(calc(var(--hy, 0) * -1.5deg)) rotateY(calc(var(--hx, 0) * 2deg));
@@ -5983,7 +5292,6 @@ html[data-theme-vt]::view-transition-group(root) {
   :root .cx-btn-secondary[data-link="linkedin"]:is(:hover, :focus-visible) .cx-in {
     translate: none;
   }
-  :root .pm-layer,
   :root .paper-lift:is(:hover, :focus-within:has(:focus-visible), :active) {
     translate: none;
   }
@@ -6054,9 +5362,6 @@ html[data-theme-vt]::view-transition-group(root) {
    crossfades by opacity (a masked, statically blurred shape — no box-shadow / filter transition); nothing scales, nothing
    loops; reduced motion moves nothing. (Generated parts: the awake rules are one list, emitted once for :hover and once
    for the :focus-visible twin.) ---- */
-.pm-layer[data-pm-depth="top"] {
-  --pm-r: var(--pm-r-top, 8px);
-}
 [data-pm-obj][data-pm-active] [data-pm-tilt] {
   will-change: transform;
 }
@@ -6075,65 +5380,10 @@ html[data-theme-vt]::view-transition-group(root) {
 
 
 /* reduced motion: nothing moves; the shadow still comes up, the slips show as plain content, the tilt is off */
-
-/* ---- /projects covers and case files (TASK-181.2 §4.4): L2-lite — the lift is `translate`, the deeper shadow is a
-   pre-rendered box-shadow on a child whose opacity crossfades; the cover art shifts 2 px under the keyline ---- */
-.pf-thumb-shade,
-.pf-case-shade {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-l2-out) var(--ease-paper);
-}
-.pf-thumb-shade {
-  border-radius: 4px;
-  box-shadow:
-    0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
-    0 16px 20px -8px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
-}
-.pf-case-shade {
-  border-radius: 2px;
-  box-shadow:
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-    0 14px 20px -10px color-mix(in oklab, var(--color-terracotta) 28%, transparent);
-}
-@media (hover: hover) and (pointer: fine) {
-  .pf-thumb:hover .pf-thumb-shade {
-    opacity: 1;
-    transition-duration: var(--dur-l2);
-  }
-  .pf-case.paper-sheet:hover {
-    translate: 0 -2px;
-    transition-duration: var(--dur-l2);
-  }
-  .pf-case.paper-sheet:hover .pf-case-shade {
-    opacity: 1;
-    transition-duration: var(--dur-l2);
-  }
-}
-.pf-thumb:focus-visible .pf-thumb-shade {
-  opacity: 1;
-  transition-duration: var(--dur-l2);
-}
-.pf-case.paper-sheet:has(:focus-visible) {
-  translate: 0 -2px;
-  transition-duration: var(--dur-l2);
-}
-.pf-case.paper-sheet:has(:focus-visible) .pf-case-shade {
-  opacity: 1;
-  transition-duration: var(--dur-l2);
-}
 /* touch: a press, not a sticky hover */
 @media (prefers-reduced-motion: reduce) {
-  :root .pf-thumb:is(:hover, :focus-visible, :active),
-  :root .pf-case.paper-sheet:is(:hover, :has(:focus-visible)) {
+  :root .pf-thumb:is(:hover, :focus-visible, :active) {
     translate: none;
-    transition: none;
-  }
-  :root .pf-thumb-shade,
-  :root .pf-case-shade {
     transition: none;
   }
 }
@@ -6149,49 +5399,17 @@ html[data-theme-vt]::view-transition-group(root) {
     transition: none;
   }
 }
-.pf-case-lead,
-.pf-case-arrow {
-  display: inline;
-}
 
 @media (max-width: 1023px) {
-  .pf-showcase {
-    gap: 12px;
-  }
-  .pf-feature {
-    gap: 14px;
-  }
   /* carousel: a slim counter row, the arrows float over the track's two ends (as in the mock) */
-  .pf-carousel {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "tag"
-      "track";
-    gap: 4px;
-    padding-top: 0;
-  }
-  .pf-band {
-    inset: -14px calc(50% - 50vw) -12px;
-  }
   .pf-info.paper-sheet {
     display: contents;
   }
-  .pf-info > .paper-fastener,
-  .pf-info > .pf-info-pin,
-  .pf-info > .pf-info-tape {
-    display: none;
-  }
-  .pf-action-set .pf-action-hint {
+  .pf-info > .paper-fastener {
     display: none;
   }
 }
 /* the shortest phones (375 × 667): a deliberate compact fallback — smaller video and covers, a one-line description */
-@media (max-width: 639px) and (max-height: 720px) {
-  .pf-feature,
-  .pf-showcase {
-    gap: 8px;
-  }
-}
 /* === end TASK-197 === */
 
 
@@ -6227,50 +5445,12 @@ html[data-theme-vt]::view-transition-group(root) {
 .header-more {
   display: none;
 }
-.m-solid,
-.m-float,
-.m-glass {
-  --m-radius: 14px;
-  border-radius: var(--m-radius);
-  border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
-}
-.m-float {
-  background: var(--color-ivory);
-  box-shadow:
-    0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-    0 10px 20px -12px color-mix(in oklab, var(--shadow-ink) 34%, transparent);
-  transition:
-    translate var(--dur-l1) var(--ease-l1),
-    box-shadow var(--dur-l1) var(--ease-l1),
-    border-color var(--dur-l1) var(--ease-l1);
-}
-.m-float:active {
-  translate: 0 1px;
-  box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent);
-}
-.m-glass {
-  background: color-mix(in oklab, var(--color-ivory) 90%, transparent);
-  border-color: color-mix(in oklab, var(--color-ivory) 55%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
-    0 8px 18px -12px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
-}
-@supports (backdrop-filter: blur(1px)) {
-  .m-glass {
-    background: color-mix(in oklab, var(--color-ivory) 72%, transparent);
-    backdrop-filter: blur(12px) saturate(1.1);
-  }
-}
 
 @media (max-width: 639px) {
   /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ----
      The 108 px height is set on the two things that clear the header (the case-study reading bar and the /work deep-link
      margin), not on :root: a :root custom property is inherited by every element, so overriding it there would change the
      computed style of every page region (the About hero/footer fingerprint in about-paper.spec reads custom properties). */
-  .reading-progress,
-  .xp-role {
-    --header-h: 108px;
-  }
   .site-header {
     --nt-h: 44px;
     --nt-pad: 16px;
@@ -6329,12 +5509,6 @@ html[data-theme-vt]::view-transition-group(root) {
       0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent),
       0 6px 12px -8px color-mix(in oklab, var(--shadow-ink) 40%, transparent);
   }
-  .ct-logo-img {
-    max-height: 32px;
-  }
-  [data-theme="dark"] .ct-logo-img {
-    padding: 3px 4px;
-  }
 }
 
 /* end TASK-205 */
@@ -6355,24 +5529,12 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 
 @media (max-width: 639px) {
-  .pf-showcase {
-    --pf-m-on-accent: var(--color-ivory);
-    --pf-m-edge: var(--gutter-mobile, 16px);
-  }
   :root[data-theme="dark"] .pf-showcase {
     --pf-m-on-accent: var(--color-paper);
   }
   /* the listing: the carousel and the desktop panel give way to it */
-  .pf-showcase[data-view="list"] .pf-feature,
-  .pf-carousel {
-    display: none;
-  }
   .pf-showcase[data-view="list"] .pf-m-list {
     display: block;
-  }
-  .pf-showcase {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
   }
   /* the scene opener is a slim crop of its shelf here, so the first cards sit high on the screen (the full scene is unchanged ≥ 640) */
   .scene-opener[data-opener="scene-work"] {
@@ -6381,23 +5543,6 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   .scene-opener[data-opener="scene-work"] > :first-child {
     margin-top: -13vw;
-  }
-  .pf-m-card {
-    display: grid;
-    grid-template-columns: 84px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 14px;
-    min-height: 108px;
-    padding: 12px 10px 12px 12px;
-    color: var(--color-navy);
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .pf-m-card[aria-current="true"] {
-    border-color: color-mix(in oklab, var(--color-rust) 55%, transparent);
-    box-shadow:
-      0 1px 2px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-      0 12px 22px -12px color-mix(in oklab, var(--color-rust) 42%, transparent);
   }
 
   /* ---- detail: the page is just the back bar + the project ---- */
@@ -6414,9 +5559,6 @@ html[data-theme-vt]::view-transition-group(root) {
   .pf-showcase[data-view="detail"] .pf-info.paper-sheet::before,
   .pf-showcase[data-view="detail"] .pf-info.paper-sheet::after,
   .pf-showcase[data-view="detail"] .pf-action-set {
-    display: none;
-  }
-  .pf-showcase[data-view="detail"] :is(.pf-stage-backing, .pf-stage-mat, .pf-stage-label, .pf-stage .pf-doodle, .pf-stage .pf-stage-pin, .pf-stage-tag) {
     display: none;
   }
   .pf-m-btn svg {
@@ -6440,52 +5582,13 @@ html[data-theme-vt]::view-transition-group(root) {
    Colours are the flipping theme tokens only, so dark mode follows (charcoal-slate paper, copper accents).
    ==================================================================================================================== */
 @media (min-width: 640px) {
-  .pf-showcase {
-    --ps-sheet: var(--color-ivory);
-    --ps-frame: color-mix(in oklab, var(--color-paper-2) 78%, var(--color-ivory));
-    --ps-under: color-mix(in oklab, var(--color-paper-2) 88%, var(--color-kraft));
-    --ps-slate: color-mix(in oklab, var(--color-steel) 50%, var(--color-paper-2));
-    --ps-accent: var(--color-rust);
-    --ps-accent-ink: var(--color-terracotta);
-    --ps-edge: color-mix(in oklab, var(--color-navy) 15%, transparent);
-    --ps-hi: color-mix(in oklab, var(--color-ivory) 70%, transparent);
-    --ps-drop: color-mix(in oklab, var(--shadow-ink) 26%, transparent);
-    --ps-drop-soft: color-mix(in oklab, var(--shadow-ink) 14%, transparent);
-    --ps-grain: var(--pf-fibers);
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: clamp(22px, 2.4vw, 30px);
-  }
   :root[data-theme="dark"] .pf-showcase {
     --ps-edge: color-mix(in oklab, var(--color-navy) 12%, transparent);
     --ps-hi: color-mix(in oklab, var(--color-navy) 9%, transparent);
     --ps-drop: color-mix(in oklab, var(--color-paper) 70%, black);
     --ps-drop-soft: color-mix(in oklab, var(--color-paper) 55%, black);
   }
-
-  /* ---- the window: rear slate plate (::before) + parchment frame (::after) behind poster and sheet ---- */
-  .pf-showcase .pf-feature {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-    align-items: stretch;
-    gap: clamp(14px, 2vw, 24px);
-    isolation: isolate;
-    padding: clamp(14px, 2vw, 26px);
-    pointer-events: auto;
-  }
-  @media (min-width: 900px) {
-    .pf-showcase .pf-feature {
-      grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
-      align-items: center;
-    }
-  }
   /* TASK-256 (Tushar 2026-10-18): from 1280 the sheet gets 46% so the two-column action grid fits whole labels */
-  @media (min-width: 1280px) {
-    .pf-showcase .pf-feature {
-      grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
-    }
-  }
 
   /* ---- poster: a mat on two thin layers, the art in a rounded viewport (16:9 art, never cropped) ---- */
   .pf-showcase .pf-stage.paper-sheet {
@@ -6553,15 +5656,6 @@ html[data-theme-vt]::view-transition-group(root) {
 
   /* ---- actions (TASK-256, Tushar 2026-10-18): one filled primary, then a two-column grid of outlined secondaries; a divider-with-star
      above the primary and (only with a GitHub link) above the star note. Shared by every product; colours are the tokens below. ---- */
-  .pf-showcase .pf-info {
-    --card-accent: var(--color-rust);
-    --card-cta: oklch(0.745 0.15 47);
-    --card-cta-hover: oklch(0.795 0.14 50);
-    --card-cta-ink: oklch(0.2 0.06 267);
-    --card-divider: color-mix(in oklab, var(--color-steel) 48%, transparent);
-    --card-divider-star: color-mix(in oklab, var(--color-steel) 78%, transparent);
-    --card-radius: 14px;
-  }
   :root[data-theme="dark"] .pf-showcase .pf-info {
     --card-accent: var(--color-terracotta);
     --card-divider: color-mix(in oklab, var(--color-steel) 60%, transparent);
@@ -6577,42 +5671,6 @@ html[data-theme-vt]::view-transition-group(root) {
   /* TASK-262 (Tushar 2026-10-18): always two per row; a narrower panel (the 900-1300 columns) tightens the buttons so the
      short labels stay whole instead of stacking */
   /* the star note: one line when the panel is wide enough, wrapping below that */
-
-  /* ---- the project tray: a paper strip directly beneath the window, same width ---- */
-  .pf-showcase .pf-carousel {
-    position: relative;
-    z-index: 1;
-    grid-column: 1 / -1;
-    grid-row: auto;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "tag tag tag"
-      "prev track next";
-    align-items: center;
-    column-gap: clamp(4px, 0.8vw, 10px);
-    row-gap: 0;
-    padding: 10px clamp(10px, 1.4vw, 16px) 6px;
-  }
-  .pf-showcase .pf-carousel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: 22px 26px 22px 25px / 24px 22px 26px 23px;
-    background-color: var(--ps-frame);
-    background-image: var(--ps-grain);
-    background-size: 420px 420px;
-    box-shadow:
-      inset 0 1px 0 var(--ps-hi),
-      inset 0 -1px 0 var(--ps-edge),
-      0 1px 0 var(--ps-edge),
-      0 3px 0 -1px var(--ps-under),
-      0 10px 16px -10px var(--ps-drop-soft);
-    pointer-events: none;
-  }
-  .pf-showcase .pf-band {
-    display: none;
-  }
 }
 /* === end TASK-217 === */
 
@@ -6628,11 +5686,6 @@ html[data-theme-vt]::view-transition-group(root) {
   display: none;
 }
 @media (max-width: 639px) {
-  /* ---- header: kebab · brand lockup · theme, over the torn-paper terrain strip ---- */
-  .reading-progress,
-  .xp-role {
-    --header-h: 69px; /* the compact header's height: 8 + 44 + 16 padding + 1 border (was 108 with the tab strip) */
-  }
   /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav; TASK-276 adds .bvp: Bhakti Vilas; TASK-278 adds .nup; TASK-280 adds .pra; TASK-281 adds .cfp; TASK-282 adds .sgp; TASK-283 adds .srp) === */
   .site-header {
     --ht-edge-w: 92px;
@@ -7008,68 +6061,6 @@ html[data-theme-vt]::view-transition-group(root) {
    glass card per spec §13: see-through fill (alpha 0.6, NOT the 0.78 that read solid on the dock), restrained blur, a
    fine rim with a brighter top edge, soft shadow; opaque fallbacks for no backdrop-filter / reduced transparency.
    ================================================================================================== */
-@media (max-width: 639px) {
-
-  /* ---- 2 · frosted-glass project list ---- */
-  .pf-m-card.m-float {
-    --pf-glass: rgba(255, 250, 240, 0.6);
-    --pf-glass-rim: rgba(255, 255, 255, 0.7);
-    --pf-glass-rim-top: rgba(255, 255, 255, 0.95);
-    --pf-glass-shadow: rgba(60, 44, 24, 0.14);
-    --pf-glass-line: rgba(255, 255, 255, 0.75);
-    --pf-glass-chev: rgba(255, 255, 255, 0.55);
-    --pf-tag-a: color-mix(in oklab, #8b7bd8 16%, transparent);
-    --pf-tag-b: color-mix(in oklab, var(--color-terracotta) 15%, transparent);
-    min-height: 112px;
-    padding: 12px 12px 12px 12px;
-    border-radius: 22px;
-    border: 1px solid var(--pf-glass-rim);
-    border-top-color: var(--pf-glass-rim-top);
-    background: var(--pf-glass);
-    -webkit-backdrop-filter: blur(14px) saturate(112%);
-    backdrop-filter: blur(14px) saturate(112%);
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      0 1px 2px rgba(60, 44, 24, 0.06),
-      0 12px 28px -10px var(--pf-glass-shadow);
-  }
-  [data-theme="dark"] .pf-m-card.m-float {
-    --pf-glass: rgba(20, 29, 49, 0.6);
-    --pf-glass-rim: rgba(220, 230, 245, 0.16);
-    --pf-glass-rim-top: rgba(220, 230, 245, 0.3);
-    --pf-glass-shadow: rgba(0, 0, 0, 0.4);
-    --pf-glass-line: rgba(255, 255, 255, 0.08);
-    --pf-glass-chev: rgba(220, 230, 245, 0.1);
-    --pf-tag-a: color-mix(in oklab, #9fb0ea 18%, transparent);
-    --pf-tag-b: color-mix(in oklab, #e8b768 17%, transparent);
-  }
-  .pf-m-card.m-float:active {
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      0 6px 16px -10px var(--pf-glass-shadow);
-  }
-  .pf-m-card.m-float[aria-current="true"] {
-    border-color: color-mix(in oklab, var(--color-rust) 55%, transparent);
-  }
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(255, 250, 241, 0.97);
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(20, 29, 49, 0.97);
-    }
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(255, 250, 241, 0.97);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(20, 29, 49, 0.97);
-    }
-  }
-}
 /* === end TASK-233 === */
 
 /* === TASK-258 (Tushar 2026-10-18) · phone certification tiles in the My Projects list's frosted glass ==========
@@ -7150,17 +6141,6 @@ html[data-theme-vt]::view-transition-group(root) {
   }
   /* explicit sizes (a lazy, not-yet-loaded image has no intrinsic size): square-ish marks are 72 px tall, wide wordmarks
      (Shellkode, Quantiphi, Godrej: ratio > 2, `data-wide`) are 150 px wide */
-  .xp-car .ct-logo-img {
-    width: auto;
-    height: 72px;
-    max-width: 100%;
-    max-height: 72px;
-    object-fit: contain;
-  }
-  .xp-car .ct-logo-img[data-wide] {
-    width: 150px;
-    height: auto;
-  }
   .xp-car .ct-card.paper-sheet {
     order: 2;
     flex: 1 0 100%;
@@ -7561,21 +6541,12 @@ html:has(dialog.more-menu[open]) {
    every card (same position on every slide) and the spare height falls between the tools and the art.
    ================================================================================================== */
 @media (max-width: 639px) {
-  .pf-showcase[data-view="detail"] {
-    --pf-m-rule: color-mix(in oklab, var(--color-navy) 24%, transparent);
-    --pf-m-star: var(--color-rust);
-    --pf-m-pad: 4px;
-  }
   :root[data-theme="dark"] .pf-showcase[data-view="detail"] {
     --pf-m-rule: #52647f;
     --pf-m-star: #f5d15b;
     --pf-m-gold: #f5d15b;
     --pf-m-coral: #f4774f;
     --pf-m-muted: #96a5c0;
-  }
-  .pf-showcase[data-view="detail"] {
-    --pf-m-coral: var(--color-rust);
-    --pf-m-muted: var(--color-ink-soft);
   }
 }
 /* === end TASK-257 === */
@@ -7846,75 +6817,12 @@ html:has(dialog.more-menu[open]) {
    Same selectors as TASK-233 and later in the file, so these win by order (no !important); the fallbacks are repeated
    below because they must come after the tuned fills. backdrop-filter stays on the card surfaces only. Remove the
    block to return to the TASK-233 look. */
-@media (max-width: 639px) {
-
-  /* ---- glass ---- */
-  .pf-m-card.m-float {
-    --pf-glass: rgba(252, 246, 234, 0.46);
-    --pf-glass-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.05) 42%, rgba(255, 255, 255, 0) 70%);
-    --pf-glass-rim: rgba(130, 104, 70, 0.16);
-    --pf-glass-rim-top: rgba(255, 255, 255, 0.8);
-    --pf-glass-line: rgba(255, 255, 255, 0.7);
-    --pf-glass-shadow: rgba(70, 50, 28, 0.2);
-    --pf-glass-chev: rgba(255, 255, 255, 0.45);
-    background-color: var(--pf-glass);
-    background-image: var(--pf-glass-sheen);
-    -webkit-backdrop-filter: blur(11px) saturate(112%);
-    backdrop-filter: blur(11px) saturate(112%);
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-      0 1px 2px rgba(70, 50, 28, 0.06),
-      0 12px 26px -12px var(--pf-glass-shadow);
-  }
-  [data-theme="dark"] .pf-m-card.m-float {
-    --pf-glass: rgba(17, 27, 52, 0.5);
-    --pf-glass-sheen: linear-gradient(150deg, rgba(150, 178, 232, 0.14), rgba(150, 178, 232, 0.03) 42%, rgba(150, 178, 232, 0) 70%);
-    --pf-glass-rim: rgba(150, 172, 210, 0.2);
-    --pf-glass-rim-top: rgba(196, 211, 240, 0.34);
-    --pf-glass-line: rgba(220, 232, 255, 0.1);
-    --pf-glass-shadow: rgba(0, 0, 0, 0.45);
-    --pf-glass-chev: rgba(190, 206, 238, 0.1);
-  }
-  .pf-m-card.m-float:active {
-    box-shadow:
-      inset 0 1px 0 var(--pf-glass-line),
-      0 6px 16px -10px var(--pf-glass-shadow);
-  }
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(252, 247, 237, 0.97);
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(17, 27, 52, 0.97);
-    }
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .pf-m-card.m-float {
-      --pf-glass: rgba(252, 247, 237, 0.97);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-    }
-    [data-theme="dark"] .pf-m-card.m-float {
-      --pf-glass: rgba(17, 27, 52, 0.97);
-    }
-  }
-}
 /* === end TASK-261 === */
 
 /* === TASK-267 (Tushar 2026-10-19): the video frame keeps the video's own 16:9 (no letterbox bars) and grows into
    the page's side margins instead, so it stands about as tall as the product card. From 1024 px the window breaks out
    of the content column to the viewport less a 24 px gutter (capped); the sheet keeps a fixed-ish width and the stage
    takes the rest. Unlayered, like the showcase stage rules it overrides. === */
-@media (min-width: 1024px) {
-  .pf-showcase .pf-feature {
-    --pf-window: min(calc(100vw - 48px), 1760px);
-    width: var(--pf-window);
-    margin-inline: calc((100% - var(--pf-window)) / 2);
-    grid-template-columns: minmax(0, 1fr) clamp(400px, 27vw, 540px);
-    align-items: center;
-  }
-}
 /* === end TASK-267 === */
 
 /* === TASK-265 (Tushar 2026-10-19) · the phone origami background on every dock tab ===
@@ -7937,14 +6845,6 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
    frame only (the poster is never filtered or separately transformed). Transform / opacity only, no loop. Unlayered, after the
    TASK-217 rules it overrides. === */
 @media (min-width: 1024px) {
-  .pf-showcase .pf-carousel {
-    grid-template-areas:
-      "tag tag tag"
-      "prev track next"
-      ". dots .";
-    row-gap: 2px;
-    padding-bottom: 12px;
-  }
 
   /* the product card: previous / next top right, a pager under the actions; ←/→ and a sideways drag step products */
   .pf-showcase .pf-info.paper-sheet {
@@ -7972,41 +6872,9 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
    The window's own box is the video-left .. card-right span: the tray has the same box, and both paper panels bleed `--pf-pad`
    beyond it. Unlayered, after the TASK-217 / 267 / 274 rules it overrides. === */
 @media (min-width: 1024px) {
-  .pf-showcase {
-    --pf-pad: 10px;
-    --pf-sp: 12px;
-    --pf-gap: 20px;
-    --pf-tray-h: clamp(212px, 25.5svh, 250px);
-    --pf-rowgap: 18px;
-    --pf-card-min: 440px;
-    --pf-win: min(calc(100vw - 80px), 1760px);
-    --pf-room: calc(100svh - var(--header-h) - 8px - var(--pf-pad) - var(--pf-rowgap) - var(--pf-tray-h));
-    --pf-fh: clamp(
-      300px,
-      min(var(--pf-room), calc((var(--pf-win) - var(--pf-gap) - var(--pf-card-min) - 2 * var(--pf-sp)) * 9 / 16 + 2 * var(--pf-sp))),
-      720px
-    );
-    row-gap: var(--pf-rowgap);
-  }
-  .pf-showcase .pf-feature,
-  .pf-showcase .pf-carousel {
-    width: var(--pf-win);
-    margin-inline: calc((100% - var(--pf-win)) / 2);
-  }
   .pf-showcase .pf-feature .pf-stage.paper-sheet {
     padding: var(--pf-sp);
     min-height: 0;
-  }
-  .pf-showcase .pf-carousel {
-    height: var(--pf-tray-h);
-    box-sizing: border-box;
-    padding: 0;
-    grid-template-areas: "prev track next";
-    grid-template-rows: auto;
-    align-content: start;
-  }
-  .pf-showcase .pf-carousel::before {
-    inset: 0 calc(-1 * var(--pf-pad));
   }
   /* the card is exactly the window's height: its spacing and control heights follow the viewport height so every product's card fits */
   .pf-showcase .pf-info.pf-info.paper-sheet {

@@ -2,6 +2,13 @@
    Imported by: thinking/[slug]. */
 
 @layer components {
+  .essay-pull-cite b {
+    font-weight: 600;
+    color: var(--color-navy-2);
+  }
+}
+
+@layer components {
   .essay-eyebrow-dot {
     margin-inline: 0.2em;
     color: var(--color-rust);
