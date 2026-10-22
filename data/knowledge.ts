@@ -118,7 +118,7 @@ export const knowledge: KnowledgeEntry[] = [
       "RailCite: a Next.js + Supabase/pgvector RAG pipeline that ingests and OCRs thousands of scanned railway circulars nightly, classifies query domain with Haiku, retrieves k=8 above a calibrated 0.32 threshold, and forces Claude into an `answered|refused` tool schema whose citations are validated before display. It runs live with 5,760 documents and 14,406 chunks (as of 15 Sep 2026) and 345 passing tests.",
     evidence: [
       { label: "RailCite", href: "/work/railcite" },
-      { label: "railcite.vercel.app", href: "https://railcite.vercel.app" },
+      { label: "railcite.tusharpathak.com", href: "https://railcite.tusharpathak.com" },
       { label: "RailCite — Evaluation", href: "/work/railcite#06-evaluation" },
     ],
     sources: [

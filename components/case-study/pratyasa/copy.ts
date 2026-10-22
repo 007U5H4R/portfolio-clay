@@ -63,7 +63,7 @@ export const SYSTEM = {
     { label: "Required facts", note: "Claims that must appear." },
     { label: "Fact checker", note: "Runs over the page." },
     { label: "Static page", note: "No third-party requests." },
-    { label: "Live page", note: "pratyasa.vercel.app" },
+    { label: "Live page", note: "pratyasa.tusharpathak.com" },
   ],
   lede: "A fact-locked brief and required-facts check keep the published page aligned with the evidence.",
   rules: "Build constraints",

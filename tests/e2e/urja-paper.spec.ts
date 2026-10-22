@@ -98,7 +98,7 @@ test.describe("urja paper layout", () => {
   test("links: live product, pitch and demo videos, GitHub, the hero player and the evidence drawer are present", async ({ page }) => {
     await page.goto("/work/urja", { waitUntil: "load" });
     for (const action of ["live", "pitch", "demo", "github"]) await expect(page.locator(`.urp-tile-link[data-action="${action}"]`)).toHaveAttribute("href", /^https:\/\//);
-    await expect(page.locator('.urp-tile-link[data-action="live"]')).toHaveAttribute("href", "https://urja-three.vercel.app");
+    await expect(page.locator('.urp-tile-link[data-action="live"]')).toHaveAttribute("href", "https://urja.tusharpathak.com");
     await expect(page.locator('.urp-tile-link[data-action="pitch"]')).toHaveAttribute("href", /bZbUP3BhXKs/);
     await expect(page.locator('.urp-tile-link[data-action="demo"]')).toHaveAttribute("href", /cDWf1t08lkQ/);
     await expect(page.locator('.urp-tile-link[data-action="github"]')).toHaveAttribute("href", "https://github.com/007U5H4R/urja");

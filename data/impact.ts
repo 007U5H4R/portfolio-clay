@@ -49,7 +49,7 @@ export const impactSources: SourceRef[] = [
     label: "RailCite live /api/stats",
     ref: "https://railcite.vercel.app/api/stats (2026-09-15)",
     inventory: "§4.4",
-    url: "https://railcite.vercel.app",
+    url: "https://railcite.tusharpathak.com",
   },
   {
     id: "RC-FINAL-PRD",

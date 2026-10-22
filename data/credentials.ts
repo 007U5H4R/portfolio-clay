@@ -72,7 +72,7 @@ export const patent: Patent = {
   granted: "24 Apr 2023",
   patentee: "NIT–Calicut",
   inventors: ["Dr. N. Sandhyarani", "Tushar Pathak", "Haritha K", "Dr. Arun R", "Dr. M. K. Ravi Varma"],
-  href: "https://pratyasa.vercel.app",
+  href: "https://pratyasa.tusharpathak.com",
   source: "PT/discoveryPRD.md §4 FACT-LOCK; RESUME (prints SL No. as patent no. — certificate wins)",
 };
 

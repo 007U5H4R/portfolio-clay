@@ -156,7 +156,7 @@ test.describe("Campfire Board real videos on /projects (TASK-124)", () => {
     // TASK-188: the hosted live demo is the product link; TASK-251: the GitHub link is back (the fork's public remote).
     const product = actions(page).locator('[data-action="product"]');
     await expect(product).toHaveCount(1);
-    await expect(product).toHaveAttribute("href", "https://site-eight-lake-51.vercel.app");
+    await expect(product).toHaveAttribute("href", "https://campfire.tusharpathak.com");
     await expect(actions(page).locator('[data-action="github"]')).toHaveAttribute("href", "https://github.com/007U5H4R/pm-dashboard");
     await expect(frames(page)).toHaveCount(0);
 
@@ -206,7 +206,7 @@ test.describe("Slag City real videos on /projects (TASK-129)", () => {
 
     // The live game and the public repo: one action each, and a click opens a new tab (not this one).
     for (const [action, href] of [
-      ["product", "https://slag-city.vercel.app"],
+      ["product", "https://slag-city.tusharpathak.com"],
       ["github", "https://github.com/007U5H4R/slag-city"],
     ] as const) {
       const link = actions(page).locator(`[data-action="${action}"]`);

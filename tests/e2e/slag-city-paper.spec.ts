@@ -83,11 +83,11 @@ test.describe("slag city paper layout", () => {
   test("links: live product, pitch and demo videos, GitHub and the evidence drawer are present", async ({ page }) => {
     await page.goto("/work/slag-city", { waitUntil: "load" });
     for (const action of ["live", "pitch", "demo", "github"]) await expect(page.locator(`.sgp-tile-link[data-action="${action}"]`)).toHaveAttribute("href", /^https:\/\//);
-    await expect(page.locator('.sgp-tile-link[data-action="live"]')).toHaveAttribute("href", "https://slag-city.vercel.app");
+    await expect(page.locator('.sgp-tile-link[data-action="live"]')).toHaveAttribute("href", "https://slag-city.tusharpathak.com");
     await expect(page.locator('.sgp-tile-link[data-action="github"]')).toHaveAttribute("href", "https://github.com/007U5H4R/slag-city");
     await expect(page.locator('.sgp-tile-link[data-action="pitch"]')).toHaveAttribute("href", /1xvj8j79Svs/);
     await expect(page.locator('.sgp-tile-link[data-action="demo"]')).toHaveAttribute("href", /tc4QDVl8NJM/);
-    await expect(page.locator('.sgp-btn[data-action="live"]')).toHaveAttribute("href", "https://slag-city.vercel.app");
+    await expect(page.locator('.sgp-btn[data-action="live"]')).toHaveAttribute("href", "https://slag-city.tusharpathak.com");
     await expect(page.locator('.sgp-btn[data-action="github"]')).toBeVisible();
     await page.getByRole("button", { name: /View all evidence/ }).click();
     await expect(page.locator("#evidence-drawer")).toBeVisible();
