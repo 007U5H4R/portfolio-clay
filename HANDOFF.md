@@ -1,6 +1,23 @@
-# HANDOFF — Portfolio (tusharpathak.com) · Stage 12 Feedback & Regression Evaluation COMPLETE → next: continuous loop (Stage 12 on each production signal) · backlog TASK-319…325, 329
+# HANDOFF — Portfolio (tusharpathak.com) · Stage 12 continuous loop · backlog wave 2026-10-21/22 SHIPPED → next: TASK-350 + optional CSS pass 2
 
-Updated 2026-10-21 (Tushar: "move to Stage 12"). The 12-stage chain for the 2026-10-21 round is closed; Stage 12 stays open as the post-release loop. Previous batons (Stages 7–11, same day) are in git history of this file.
+Updated 2026-10-22 06:45. Production = main `bcf6d757`. Previous baton (Stage 12, 2026-10-21) follows below.
+
+## Wave 2026-10-21/22 — shipped (all squash-merged, prod verified 200 on / /projects /about /work/teachspark)
+| PR | Tickets | What |
+|---|---|---|
+| #158–#166 | 319, 321–325, 329, 331–341 | test debt, next 16.3.8/sharp, /projects OG + prod-watch, design wave (DES-020…029), Slag City one-line logo, tab order, origami selector |
+| #167 | 320 | route CSS split (`app/styles/*.css` imported per page); home CSS 92→56 kB gz. Production LH 13.5.0 mobile devtools-throttling, 3 runs: `/` LCP 2382 [2368–2636] ms, TBT 227; `/projects` 2429 [2352–2440] ms, TBT 660 — under 2.5 s median |
+| #168 | 345 | About decor right-sized, paper-fibers rastered; raster time ~½ |
+| #171 | 343, 344 | enterprise card hover held while scrolling; ridge drift on `<g class="torn-drift">` wrappers |
+| #169 | 346–349 | arrow nudges, card gaps (actions anchored 15 px from bottom), selector fade, focus ring |
+| #170 | 342 | WebKit filters → box-shadows / `.torn-shade` copies (inside `torn-drift-back`) / baked map shadow; WebKit scroll p50 38–130 → 33–35 ms. /about card shadows now follow a rectangle (0.3–0.5 % px) |
+
+## Open
+- TASK-350 (P3): home EVAL-018 header count races MediaGate hydration (2/15 in mixed runs).
+- CSS pass 2 (not ticketed): ~153 rules (~19 kB) with no source usage; ~110 kB shared primitives left in globals.css.
+- Human: LinkedIn unfurl of /projects; Vercel error-notification settings.
+- Lane worktrees `Portfolio-lane-{csssplit,safari,chromescroll,aboutimg,polish}` are merged — remove after checking clean. Scroll-test traces (148 MB) in `.scratch/scroll-test-1021/` can go.
+- Lessons: Playwright wipes `test-results/` (keep evidence elsewhere); lanes that share a component (TornEdge) must merge in sequence and re-verify the combination.
 
 ## 12. Stage 12 — what was done
 - **RCA1 · QA-013** (narrow-card query fired at 1440): permanent case `stage8-des.spec.ts` "RCA1" at 1440/1512/1920 × light/dark — secondary labels + category visible, CTA reads "Watch demo video".
