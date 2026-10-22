@@ -314,25 +314,6 @@ body::before {
   pointer-events: auto;
 }
 
-/*
-  OverviewToggle crossfade (TKT-19 / Design.md §3–§4 "OverviewToggle … crossfades (200ms)"). The
-  active panel (keyed by view in components/case-study/OverviewToggle.tsx) fades in on each switch;
-  only the active panel is in the DOM, so height tracks the content (no stacked empty space). The
-  global reduced-motion rule below forces animation-duration to ~1ms, making the swap instant for
-  reduced-motion users (AC 4), with no separate override needed.
-*/
-@keyframes overview-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.overview-panel {
-  animation: overview-fade 200ms var(--ease-reveal);
-}
-
 /* View Transitions default timing (A5 / Design.md §4) */
 ::view-transition-group(*) {
   animation-duration: 450ms;
@@ -1385,9 +1366,6 @@ html.lenis body {
     font-size: 16px;
     color: var(--color-navy-2);
   }
-  .work-card-sketch {
-    margin-top: 4px;
-  }
   .work-metrics {
     display: grid;
     gap: 6px;
@@ -1430,13 +1408,6 @@ html.lenis body {
     font-size: 21px;
     color: var(--color-rust);
   }
-  .work-card-sticky {
-    position: absolute;
-    left: -28px;
-    bottom: -22px;
-    width: 156px;
-    pointer-events: none;
-  }
 
   @media (max-width: 1024px) {
     .work-card-large {
@@ -1457,10 +1428,6 @@ html.lenis body {
     }
     .work-card-large .work-card-link {
       padding: 28px 22px 84px;
-    }
-    .work-card-sticky {
-      left: 8px;
-      bottom: -18px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1490,56 +1457,8 @@ html.lenis body {
    the EVAL-008 14 px floor (mockup 12–13 px labels → 14 px; kraft tags stay 12 px as
    `data-micro-label`). Tokens / derived vars only (EVAL-020). */
 @layer components {
-  .cs-article {
-    display: block;
-  }
 
   /* --- header --- */
-  .cs-head {
-    position: relative;
-    z-index: 1;
-    padding-block: clamp(24px, 4vw, 48px) clamp(84px, 9vw, 130px);
-  }
-  .cs-head-grid {
-    display: grid;
-    gap: clamp(28px, 5vw, 72px);
-    align-items: center;
-  }
-  @media (min-width: 900px) {
-    .cs-head[data-has-media] .cs-head-grid {
-      grid-template-columns: minmax(0, 56fr) minmax(0, 44fr);
-    }
-  }
-  .cs-copy {
-    display: grid;
-    gap: 20px;
-    max-width: 760px;
-  }
-  .cs-crumb {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-size: var(--text-caption);
-    color: var(--color-navy-2);
-  }
-  .cs-crumb a {
-    border-bottom: 1px solid var(--line);
-  }
-  .cs-crumb a:hover {
-    color: var(--color-rust);
-    border-color: var(--color-rust);
-  }
-  .cs-h1 {
-    font-size: clamp(52px, 6.4vw, 92px);
-    font-variation-settings: "opsz" 144, "SOFT" 30;
-    overflow-wrap: anywhere;
-  }
-  .cs-lead {
-    max-width: 44ch;
-    font-size: 19px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
   .cs-meta {
     display: flex;
     flex-wrap: wrap;
@@ -1552,69 +1471,8 @@ html.lenis body {
     font-weight: 600;
     color: var(--color-navy);
   }
-  .cs-media-tag {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 12px;
-  }
-  .cs-media-tag .paper-annotation {
-    color: var(--color-navy-2);
-  }
-  .cs-photo {
-    justify-self: end;
-    width: min(100%, 560px);
-  }
-  .cs-photo-media {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border-radius: 2px;
-  }
 
   /* --- metric strip --- */
-  .cs-strip {
-    z-index: 2;
-    background-image: linear-gradient(var(--color-paper-2), var(--color-paper-2));
-  }
-  .cs-strip-wrap {
-    position: relative;
-    padding-block: 32px clamp(60px, 7vw, 96px);
-  }
-  @media (min-width: 900px) {
-    .cs-strip-wrap {
-      padding-top: 72px;
-    }
-  }
-  .cs-strip-note {
-    margin-bottom: 18px;
-    pointer-events: none;
-  }
-  @media (min-width: 900px) {
-    .cs-strip-note {
-      position: absolute;
-      top: 4px;
-      left: 36%;
-      width: 260px;
-      margin: 0;
-    }
-  }
-  .cs-strip-grid {
-    display: grid;
-    gap: 30px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  @media (min-width: 900px) {
-    .cs-strip-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  .cs-metric {
-    height: 100%;
-    padding: 24px 22px 16px;
-  }
   .cs-metric-value {
     font-family: var(--font-display);
     font-size: clamp(40px, 4vw, 56px);
@@ -1633,113 +1491,8 @@ html.lenis body {
     text-transform: uppercase;
     color: var(--color-navy-2);
   }
-  .cs-metric-context {
-    font-size: var(--text-caption);
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
-  .cs-metric-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-    margin-top: 8px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--line);
-    font-size: var(--text-caption);
-    color: var(--color-navy-2);
-  }
-  .cs-kind {
-    display: inline-block;
-    padding: 1px 10px 2px;
-    border: 1.5px solid currentColor;
-    border-radius: 999px;
-    font-family: var(--font-body);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    line-height: 1.4;
-  }
 
   /* --- overview: folder tabs + 30-sec notebook --- */
-  .cs-overview {
-    z-index: 3;
-    background-image: linear-gradient(var(--color-paper), var(--color-paper));
-  }
-  .cs-overview-grid {
-    display: grid;
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
-    /* bottom ≥ 44 px + air: the next torn section pulls up 44 px over this one */
-    padding-block: clamp(28px, 4vw, 56px) clamp(76px, 8vw, 104px);
-  }
-  @media (min-width: 900px) {
-    .cs-overview-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-    }
-  }
-  .cs-depth {
-    display: grid;
-    gap: 16px;
-  }
-  .cs-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .cs-overview-note {
-    max-width: 16ch;
-  }
-  .cs-tabs {
-    display: inline-flex;
-    gap: 6px;
-    align-items: flex-end;
-    justify-self: start;
-    border-bottom: 1.5px solid var(--line-sketch);
-  }
-  .cs-tab {
-    position: relative;
-    top: 1.5px;
-    min-height: 44px;
-    padding: 8px 18px;
-    font-family: var(--font-display);
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--color-navy-2);
-    background: var(--color-paper-2);
-    border: 1.5px solid var(--line);
-    border-bottom: 0;
-    border-radius: 7px 7px 0 0;
-    cursor: pointer;
-  }
-  .cs-tab[aria-checked="true"] {
-    color: var(--color-navy);
-    background: var(--color-ivory);
-    border-color: var(--line-sketch);
-  }
-  .cs-tab[aria-checked="true"]::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: -1.5px;
-    left: 0;
-    height: 1.5px;
-    background: var(--color-ivory);
-  }
-  .cs-help {
-    max-width: 32ch;
-    font-size: var(--text-caption);
-    color: var(--color-navy-2);
-  }
-  .cs-notebook-col {
-    display: grid;
-    gap: 22px;
-    justify-items: start;
-    min-width: 0;
-  }
   .cs-notebook {
     width: 100%;
   }
@@ -1762,29 +1515,8 @@ html.lenis body {
   .cs-notebook .cs-notebook-label + p {
     margin-top: 0;
   }
-  .cs-coming {
-    display: grid;
-    gap: 4px;
-    max-width: 52ch;
-    padding: 12px 16px 12px 28px;
-  }
-  .cs-coming-body {
-    font-size: var(--text-caption);
-    font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-  .cs-coming-body b {
-    font-weight: 600;
-  }
 
   /* --- deep dive shell (TKT-83 owns the inside) --- */
-  .cs-deep {
-    position: relative;
-    z-index: 3;
-    padding-block: clamp(24px, 3vw, 40px) clamp(72px, 8vw, 120px);
-  }
   .cs-next .cs-next-note {
     color: var(--color-kraft);
   }
@@ -1802,24 +1534,8 @@ html.lenis body {
     position: relative;
     margin-top: clamp(48px, 6vw, 88px);
   }
-  .learned-body,
   .sources {
     background-color: var(--color-paper-2);
-  }
-  .learned-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
-    padding-block: clamp(28px, 4vw, 56px) clamp(56px, 6vw, 80px);
-  }
-  .learned-eyebrow,
-  .sources-eyebrow {
-    font-size: var(--text-caption);
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
   }
   .learned-h {
     margin-top: 8px;
@@ -1833,9 +1549,6 @@ html.lenis body {
     max-width: 34ch;
     font-size: 15px;
     color: var(--color-ink-soft);
-  }
-  .learned-notebook {
-    padding-top: 58px;
   }
   .learned-list {
     display: grid;
@@ -1852,25 +1565,6 @@ html.lenis body {
   }
   .learned-list li + li {
     margin-top: 32px;
-  }
-  .learned-num {
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--color-rust);
-  }
-  .sources-wrap {
-    padding-bottom: clamp(64px, 8vw, 110px);
-  }
-  .sources-inner {
-    display: grid;
-    grid-template-columns: 200px minmax(0, 1fr);
-    gap: 24px clamp(32px, 4vw, 64px);
-    align-items: start;
-    padding-top: 26px;
-    border-top: 1px dashed var(--line-sketch);
   }
   .sources-h {
     margin-top: 6px;
@@ -1896,16 +1590,6 @@ html.lenis body {
   .sources-list li::marker {
     color: var(--color-ink-soft);
     font-variant-numeric: tabular-nums;
-  }
-  @media (max-width: 1024px) {
-    .sources-inner {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-  @media (max-width: 900px) {
-    .learned-wrap {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
   @media (max-width: 640px) {
     .sources-list {
@@ -1948,64 +1632,6 @@ html.lenis body {
    fail contrast are corrected: steel eval labels → forest (steel/paper-2 is 3.6:1), terracotta text on
    the kraft doc tag → navy (4.2:1 → 9.8:1, the §2.1 correction). */
 
-/* ChapterNav — Fraunces 16, Caveat numerals, ink underline on the current chapter (≥ 1024 only; the
-   component is inside `MediaGate min={1024}`, TP14). Rows are 44 px tall so every link is a full target
-   (EVAL-008) — the mockup's 9 px gap becomes row height. */
-.chapnav {
-  font-family: var(--font-display);
-  font-size: 16px;
-  position: sticky;
-  top: 7rem;
-  align-self: start;
-}
-.chapnav-eyebrow {
-  margin-bottom: 6px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-navy-2);
-}
-.chapnav ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-}
-.chapnav a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding-block: 2px;
-  color: var(--color-navy-2);
-  text-decoration: none;
-}
-.chapnav a:hover,
-.chapnav a[aria-current] {
-  color: var(--color-navy);
-}
-.chapnav-num {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-  margin-right: 8px;
-}
-/* The hand-drawn ink underline (mockup: an inline SVG stroke) — a `::after` bar with a slight wobble via
-   a rotated, rounded rule; no colour literal. */
-.chapnav a[aria-current]::after {
-  content: "";
-  position: absolute;
-  left: 26px;
-  right: -2px;
-  bottom: 6px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--color-navy);
-  rotate: -0.6deg;
-}
-
 /* Chapters — nested sections; the h2 numeral is a `Hand label` in rust; the body `Prose` is `data-flat`. */
 .chapters {
   display: grid;
@@ -2021,14 +1647,6 @@ html.lenis body {
 .chapter > h2 {
   font-size: clamp(34px, 3.6vw, 48px);
   font-variation-settings: "opsz" 120, "SOFT" 30;
-}
-.chapter-num {
-  font-size: 0.56em;
-  font-weight: 600;
-  color: var(--color-rust);
-  margin-right: 12px;
-  vertical-align: 0.22em;
-  letter-spacing: 0;
 }
 .chapter [data-flat] {
   display: grid;
@@ -2165,36 +1783,6 @@ html.lenis body {
    previous one by its edge height (transparent strip above its own fill), the TKT-76 pattern. Paper
    tokens / derived vars only (EVAL-020). */
 @layer components {
-  .about-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 16px 32px;
-    align-items: end;
-    margin-bottom: clamp(36px, 5vw, 64px);
-  }
-  .about-eyebrow {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-navy-2);
-  }
-  .about-lead {
-    justify-self: end;
-    max-width: 48ch;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--color-navy-2);
-  }
-
-  @media (max-width: 900px) {
-    .about-head {
-      grid-template-columns: 1fr;
-    }
-    .about-lead {
-      justify-self: start;
-    }
-  }
 }
 /* end TKT-86 → TASK-136 */
 
@@ -3605,16 +3193,6 @@ html.lenis body {
   .ct-logo.paper-sheet {
     transition: rotate var(--dur-l2-out) var(--ease-paper);
   }
-  /* hover (fine pointer) and its keyboard twin: the card lifts 3 px, the shadow fades in, the pin presses 1 px,
-     the logo turns 0.6° toward upright (rest -2° / 1.6° alternate by row) */
-  .ct-thin {
-    stroke-width: 1;
-  }
-  .ct-tree {
-    fill: color-mix(in oklab, var(--color-green-2) 35%, transparent);
-    stroke: color-mix(in oklab, var(--color-forest) 60%, transparent);
-    stroke-width: 1;
-  }
 
   /* ---- ≤ 1024: no side column; the wide collage pieces go (the object stays, count unchanged) ---- */
   @media (max-width: 1024px) {
@@ -4034,10 +3612,6 @@ html.lenis body {
     font-size: 18px;
     scroll-snap-align: start;
   }
-  /* The /work `#experience-<id>` deep links used a 96 px clearance sized for the 72 px header. */
-  .xp-role {
-    scroll-margin-top: calc(var(--header-h) + 24px);
-  }
 }
 /* 1024–1439: the strip fits, so it centres under the header like the ≥ 1440 nav (auto margins
    collapse to 0 if it ever overflows, so no tab becomes unreachable). */
@@ -4115,21 +3689,6 @@ html.lenis body {
     }
   }
 
-  /* shared hand-drawn doodle: a three-stroke burst (CSS strokes, aria-hidden, the host's material) */
-  .pf-doodle {
-    position: absolute;
-    pointer-events: none;
-  }
-  .pf-doodle-burst {
-    width: 34px;
-    height: 30px;
-    background:
-      linear-gradient(var(--color-navy), var(--color-navy)) 50% 0 / 2px 11px no-repeat,
-      linear-gradient(var(--color-navy), var(--color-navy)) 6px 9px / 2px 10px no-repeat,
-      linear-gradient(var(--color-navy), var(--color-navy)) 27px 9px / 2px 10px no-repeat;
-    opacity: 0.7;
-  }
-
   /* --- the stage: kraft backing → dark under-layer → fibre rim → cream mat → poster --- */
   .pf-stage.paper-sheet {
     position: relative;
@@ -4142,20 +3701,6 @@ html.lenis body {
     rotate: -0.4deg;
     /* one warm shadow for the whole stack, following its torn silhouette */
     filter: var(--pf-contact) var(--pf-ambient-lg);
-  }
-  .pf-stage .pf-stage-pin {
-    left: auto;
-    right: 8%;
-    top: -9px;
-    z-index: 5;
-    translate: none;
-    width: 20px;
-    height: 20px;
-  }
-  .pf-stage .pf-doodle-burst {
-    top: -36px;
-    right: calc(8% + 26px);
-    rotate: 16deg;
   }
   /* Stage 8 DES-016 (TASK-313): while the player loads, the poster stays (ProductMediaPlayer keeps it above the iframe) under a
      small cue instead of a flat navy frame */
@@ -4217,37 +3762,6 @@ html.lenis body {
     -webkit-mask: var(--pf-tear-tall-a) 0 0 / 100% 100% no-repeat;
     mask: var(--pf-tear-tall-a) 0 0 / 100% 100% no-repeat;
   }
-  .pf-info .pf-info-pin {
-    top: -8px;
-    left: 11%;
-    z-index: 3;
-    width: 20px;
-    height: 20px;
-  }
-  /* translucent tape over the top-right corner, torn at both ends */
-  .pf-info .pf-info-tape.paper-fastener {
-    top: -12px;
-    right: -18px;
-    z-index: 3;
-    width: 104px;
-    height: 30px;
-    background-color: color-mix(in oklab, var(--color-kraft) 55%, transparent);
-    border: 0;
-    -webkit-mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-tape) 0 0 / 100% 100% no-repeat;
-  }
-  /* a narrow sheet (tablet-wide desktop columns, phones) drops the helper hint, never the label */
-  @container (max-width: 350px) {
-    .pf-action-hint {
-      display: none;
-    }
-  }
-  .pf-action-hint {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-navy-2);
-    white-space: nowrap;
-  }
 
   /* --- the carousel: covers sitting on one torn kraft band --- */
   .pf-carousel {
@@ -4265,34 +3779,6 @@ html.lenis body {
   }
   /* the band: its own static layer (so its warm shadow never re-renders while the track scrolls) —
      a lighter fibre rim under the kraft, both torn; it runs up under the stage and sheet */
-  .pf-band {
-    position: absolute;
-    inset: -20px calc(50% - 50vw) -18px;
-    z-index: -1;
-    pointer-events: none;
-    rotate: -0.35deg;
-    filter: var(--pf-contact) drop-shadow(0 10px 12px color-mix(in oklab, var(--color-terracotta) 16%, transparent));
-  }
-  .pf-band::before,
-  .pf-band::after {
-    content: "";
-    position: absolute;
-  }
-  .pf-band::before {
-    inset: -4px;
-    background-color: color-mix(in oklab, var(--color-kraft) 30%, var(--color-ivory));
-    -webkit-mask: var(--pf-tear-band-b) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-band-b) 0 0 / 100% 100% no-repeat;
-  }
-  .pf-band::after {
-    inset: 0;
-    background-color: color-mix(in oklab, var(--color-kraft) 88%, var(--color-terracotta));
-    background-image: var(--pf-kraft-tex),
-      linear-gradient(180deg, color-mix(in oklab, var(--color-terracotta) 12%, transparent), transparent 28%, transparent 72%, color-mix(in oklab, var(--color-terracotta) 14%, transparent));
-    background-size: 360px 360px, 100% 100%;
-    -webkit-mask: var(--pf-tear-band-a) 0 0 / 100% 100% no-repeat;
-    mask: var(--pf-tear-band-a) 0 0 / 100% 100% no-repeat;
-  }
   @media (min-width: 1024px) {
     .pf-carousel {
       grid-template-columns: auto minmax(0, 1fr) auto;
@@ -4302,10 +3788,6 @@ html.lenis body {
       column-gap: clamp(6px, 0.8vw, 12px);
       row-gap: 0;
       padding-top: 0;
-    }
-    /* visible torn ends, ~5 vw past the content edges; the top edge tucks under the stage + sheet */
-    .pf-band {
-      inset: -80px calc(-1 * clamp(16px, 4.7vw, 72px)) -22px;
     }
   }
   .pf-thumb {
@@ -4336,57 +3818,6 @@ html.lenis body {
       0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
       0 22px 24px -10px color-mix(in oklab, var(--color-terracotta) 44%, transparent);
   }
-  .pf-case-item {
-    display: grid;
-  }
-  .pf-case-item:nth-child(3n + 1) .pf-case { rotate: -0.3deg; }
-  .pf-case-item:nth-child(3n + 2) .pf-case { rotate: 0.25deg; }
-  .pf-case-item:nth-child(3n + 3) .pf-case { rotate: -0.12deg; }
-  /* a case file: an ivory sheet clipped into a manila folder (the folder, its tab, the sheet's paper
-     and the paperclip are the card's own material; the paper is a layer so the folder sits behind it) */
-  .pf-case.paper-sheet {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    height: 100%;
-    padding: 30px 26px 20px;
-    background: none;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: none;
-    transition: translate var(--dur-l2-out) var(--ease-paper);
-  }
-  .pf-case.paper-sheet::before,
-  .pf-case.paper-sheet::after {
-    content: "";
-    position: absolute;
-    pointer-events: none;
-  }
-  /* the manila folder behind the sheet: its back shows above-left, its tab carries the stamp */
-  .pf-case.paper-sheet::before {
-    inset: -12px 14px 10px -10px;
-    z-index: -2;
-    background-color: var(--pf-manila);
-    background-image: var(--pf-fibers);
-    background-size: 420px 420px;
-    border-radius: 3px 6px 3px 3px;
-    box-shadow: 0 1px 1px color-mix(in oklab, var(--shadow-ink) 12%, transparent);
-    rotate: -1.1deg;
-  }
-  /* the sheet's paper */
-  .pf-case.paper-sheet::after {
-    inset: 0;
-    z-index: -1;
-    background-color: var(--color-ivory);
-    background-image: var(--pf-fibers);
-    background-size: 420px 420px;
-    border-radius: 2px;
-    box-shadow:
-      0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-      0 8px 14px -8px color-mix(in oklab, var(--color-terracotta) 22%, transparent);
-  }
   /* the paperclip, over the top edge */
   .pf-case-clip {
     position: absolute;
@@ -4402,52 +3833,6 @@ html.lenis body {
     pointer-events: none;
   }
   /* (hover / focus lift and the shadow crossfade: `.pf-case-shade`, the TASK-186 / P2 block at the end of this file) */
-  /* the folder tab: a neutral "Case file 0N" stamp — says nothing factual */
-  .pf-case-stamp {
-    position: absolute;
-    top: -38px;
-    left: -10px;
-    z-index: -1;
-    padding: 5px 14px 12px;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-terracotta);
-    background-color: var(--pf-manila);
-    border-radius: 6px 8px 0 0;
-    rotate: -1.1deg;
-  }
-  .pf-case-client {
-    font-size: clamp(1.375rem, 1.2rem + 0.5vw, 1.625rem);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-  .pf-case-program {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-green-2);
-  }
-  .pf-case-summary {
-    font-size: 15px;
-    line-height: 1.5;
-    color: var(--color-navy-2);
-  }
-  .pf-case-foot {
-    display: grid;
-    gap: 2px;
-    margin-top: auto;
-    padding-top: 8px;
-    border-top: 1px solid var(--line);
-  }
-  .pf-case-role {
-    font-size: 14px;
-    line-height: 1.4;
-    color: var(--color-ink-soft);
-  }
 
   /* --- small screens: fewer decorative layers, same system (spec §29) --- */
   @media (max-width: 639px) {
@@ -4455,16 +3840,12 @@ html.lenis body {
     .pf-info.paper-sheet {
       rotate: none;
     }
-    .pf-stage .pf-doodle-burst,
     .pf-info-name::after {
       display: none;
     }
     .pf-info.paper-sheet::before {
       inset: 10px 6px -9px -7px;
       rotate: -0.8deg;
-    }
-    .pf-case.paper-sheet::before {
-      rotate: -0.6deg;
     }
   }
 
@@ -4483,10 +3864,7 @@ html.lenis body {
     .pf-arrow[data-dir="prev"]:hover,
     .pf-arrow[data-dir="next"]:hover,
     .pf-play,
-    .pf-play:hover,
-    .pf-case.paper-sheet,
-    .pf-case.paper-sheet:hover,
-    .pf-case.paper-sheet::after {
+    .pf-play:hover {
       translate: none;
       transition: none;
     }
@@ -5929,22 +5307,6 @@ html[data-theme-vt]::view-transition-group(root) {
   --hx: 0;
   --hy: 0;
 }
-.pm-layer {
-  --pm-r: 0px;
-  translate: calc(var(--hx, 0) * var(--pm-r)) calc(var(--hy, 0) * var(--pm-r));
-}
-.pm-layer[data-pm-depth="bg"] {
-  --pm-r: var(--pm-r-bg, 2px);
-}
-.pm-layer[data-pm-depth="art"] {
-  --pm-r: var(--pm-r-art, 4px);
-}
-.pm-layer[data-pm-depth="fg"] {
-  --pm-r: var(--pm-r-fg, 6px);
-}
-[data-pm-obj][data-pm-active] .pm-layer {
-  will-change: translate;
-}
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   [data-pm-tilt] {
     transform: perspective(1200px) rotateX(calc(var(--hy, 0) * -1.5deg)) rotateY(calc(var(--hx, 0) * 2deg));
@@ -5983,7 +5345,6 @@ html[data-theme-vt]::view-transition-group(root) {
   :root .cx-btn-secondary[data-link="linkedin"]:is(:hover, :focus-visible) .cx-in {
     translate: none;
   }
-  :root .pm-layer,
   :root .paper-lift:is(:hover, :focus-within:has(:focus-visible), :active) {
     translate: none;
   }
@@ -6054,9 +5415,6 @@ html[data-theme-vt]::view-transition-group(root) {
    crossfades by opacity (a masked, statically blurred shape — no box-shadow / filter transition); nothing scales, nothing
    loops; reduced motion moves nothing. (Generated parts: the awake rules are one list, emitted once for :hover and once
    for the :focus-visible twin.) ---- */
-.pm-layer[data-pm-depth="top"] {
-  --pm-r: var(--pm-r-top, 8px);
-}
 [data-pm-obj][data-pm-active] [data-pm-tilt] {
   will-change: transform;
 }
@@ -6075,65 +5433,10 @@ html[data-theme-vt]::view-transition-group(root) {
 
 
 /* reduced motion: nothing moves; the shadow still comes up, the slips show as plain content, the tilt is off */
-
-/* ---- /projects covers and case files (TASK-181.2 §4.4): L2-lite — the lift is `translate`, the deeper shadow is a
-   pre-rendered box-shadow on a child whose opacity crossfades; the cover art shifts 2 px under the keyline ---- */
-.pf-thumb-shade,
-.pf-case-shade {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-l2-out) var(--ease-paper);
-}
-.pf-thumb-shade {
-  border-radius: 4px;
-  box-shadow:
-    0 2px 2px color-mix(in oklab, var(--shadow-ink) 16%, transparent),
-    0 16px 20px -8px color-mix(in oklab, var(--color-terracotta) 40%, transparent);
-}
-.pf-case-shade {
-  border-radius: 2px;
-  box-shadow:
-    0 1px 1px color-mix(in oklab, var(--shadow-ink) 10%, transparent),
-    0 14px 20px -10px color-mix(in oklab, var(--color-terracotta) 28%, transparent);
-}
-@media (hover: hover) and (pointer: fine) {
-  .pf-thumb:hover .pf-thumb-shade {
-    opacity: 1;
-    transition-duration: var(--dur-l2);
-  }
-  .pf-case.paper-sheet:hover {
-    translate: 0 -2px;
-    transition-duration: var(--dur-l2);
-  }
-  .pf-case.paper-sheet:hover .pf-case-shade {
-    opacity: 1;
-    transition-duration: var(--dur-l2);
-  }
-}
-.pf-thumb:focus-visible .pf-thumb-shade {
-  opacity: 1;
-  transition-duration: var(--dur-l2);
-}
-.pf-case.paper-sheet:has(:focus-visible) {
-  translate: 0 -2px;
-  transition-duration: var(--dur-l2);
-}
-.pf-case.paper-sheet:has(:focus-visible) .pf-case-shade {
-  opacity: 1;
-  transition-duration: var(--dur-l2);
-}
 /* touch: a press, not a sticky hover */
 @media (prefers-reduced-motion: reduce) {
-  :root .pf-thumb:is(:hover, :focus-visible, :active),
-  :root .pf-case.paper-sheet:is(:hover, :has(:focus-visible)) {
+  :root .pf-thumb:is(:hover, :focus-visible, :active) {
     translate: none;
-    transition: none;
-  }
-  :root .pf-thumb-shade,
-  :root .pf-case-shade {
     transition: none;
   }
 }
@@ -6149,8 +5452,7 @@ html[data-theme-vt]::view-transition-group(root) {
     transition: none;
   }
 }
-.pf-case-lead,
-.pf-case-arrow {
+.pf-case-lead {
   display: inline;
 }
 
@@ -6170,18 +5472,10 @@ html[data-theme-vt]::view-transition-group(root) {
     gap: 4px;
     padding-top: 0;
   }
-  .pf-band {
-    inset: -14px calc(50% - 50vw) -12px;
-  }
   .pf-info.paper-sheet {
     display: contents;
   }
-  .pf-info > .paper-fastener,
-  .pf-info > .pf-info-pin,
-  .pf-info > .pf-info-tape {
-    display: none;
-  }
-  .pf-action-set .pf-action-hint {
+  .pf-info > .paper-fastener {
     display: none;
   }
 }
@@ -6228,8 +5522,7 @@ html[data-theme-vt]::view-transition-group(root) {
   display: none;
 }
 .m-solid,
-.m-float,
-.m-glass {
+.m-float {
   --m-radius: 14px;
   border-radius: var(--m-radius);
   border: 1px solid color-mix(in oklab, var(--color-navy) 14%, transparent);
@@ -6248,27 +5541,13 @@ html[data-theme-vt]::view-transition-group(root) {
   translate: 0 1px;
   box-shadow: 0 1px 2px color-mix(in oklab, var(--shadow-ink) 14%, transparent);
 }
-.m-glass {
-  background: color-mix(in oklab, var(--color-ivory) 90%, transparent);
-  border-color: color-mix(in oklab, var(--color-ivory) 55%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
-    0 8px 18px -12px color-mix(in oklab, var(--shadow-ink) 35%, transparent);
-}
-@supports (backdrop-filter: blur(1px)) {
-  .m-glass {
-    background: color-mix(in oklab, var(--color-ivory) 72%, transparent);
-    backdrop-filter: blur(12px) saturate(1.1);
-  }
-}
 
 @media (max-width: 639px) {
   /* ---- compact header: brand + Ask + theme + More over a 44 px tab strip (board "01 Home" top bar) ----
      The 108 px height is set on the two things that clear the header (the case-study reading bar and the /work deep-link
      margin), not on :root: a :root custom property is inherited by every element, so overriding it there would change the
      computed style of every page region (the About hero/footer fingerprint in about-paper.spec reads custom properties). */
-  .reading-progress,
-  .xp-role {
+  .reading-progress {
     --header-h: 108px;
   }
   .site-header {
@@ -6610,9 +5889,6 @@ html[data-theme-vt]::view-transition-group(root) {
       0 10px 16px -10px var(--ps-drop-soft);
     pointer-events: none;
   }
-  .pf-showcase .pf-band {
-    display: none;
-  }
 }
 /* === end TASK-217 === */
 
@@ -6629,8 +5905,7 @@ html[data-theme-vt]::view-transition-group(root) {
 }
 @media (max-width: 639px) {
   /* ---- header: kebab · brand lockup · theme, over the torn-paper terrain strip ---- */
-  .reading-progress,
-  .xp-role {
+  .reading-progress {
     --header-h: 69px; /* the compact header's height: 8 + 44 + 16 padding + 1 border (was 108 with the tab strip) */
   }
   /* === end TASK-272 (TASK-273 adds .vlp: the Velora paper layout's chapter nav; TASK-276 adds .bvp: Bhakti Vilas; TASK-278 adds .nup; TASK-280 adds .pra; TASK-281 adds .cfp; TASK-282 adds .sgp; TASK-283 adds .srp) === */
