@@ -422,7 +422,7 @@ test.describe("Stage 8 desktop (paper selector + card)", () => {
       const m = await page.evaluate(() => {
         const card = document.querySelector(".pf-info.pf-paper")!;
         const px = (q: string, root: ParentNode = card) => parseFloat(getComputedStyle(root.querySelector(q)!).fontSize);
-        const desc = card.querySelector(".pf-info-desc")!.getBoundingClientRect();
+        const desc = [...card.querySelectorAll(".pf-info-desc")].find((e) => e.getClientRects().length > 0)!.getBoundingClientRect();
         const cta = card.querySelector(".pf-action-set")!.getBoundingClientRect();
         const c = card.getBoundingClientRect();
         return { tile: px(".pf-thumb[aria-selected='true'] .pf-thumb-name", document), tagline: px(".pf-info-tagline"), desc: px(".pf-info-desc"), gap: cta.top - desc.bottom, out: cta.bottom - c.bottom };
