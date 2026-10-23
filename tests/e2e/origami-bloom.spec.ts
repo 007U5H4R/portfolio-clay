@@ -1,11 +1,11 @@
 /**
- * origami-bloom.spec.ts (TASK-360) — the phone welcome splash. Automated browsers never see it unless the
+ * origami-bloom.spec.ts (TASK-360; TASK-362 Origami Beach Flight) — the phone welcome splash. Automated browsers never see it unless the
  * test sets `window.__hsOrigamiIntro = true` before load (lib/origami-bloom.ts), so every other spec
  * stays splash-free; this spec opts in. Drives its own viewports (runs once, from w390):
  *   - plays on a first phone visit and ends on its own, leaving the homepage usable;
  *   - Skip and Escape end it early;
  *   - once per session: no replay on reload or on client navigation back to /;
- *   - the CTA lands on #selected-work;
+ *   - the storyboard sequence: plane flies, logo → name/tagline → loader, then the handoff;
  *   - reduced motion: static frame, no animation, then gone;
  *   - desktop, and automation without the opt-in: never shown;
  *   - no horizontal overflow at 320; no console errors;
@@ -51,7 +51,7 @@ async function open(page: Page, w = 390, h = 844) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 }
 
-test.describe("Origami Bloom phone splash (TASK-360)", () => {
+test.describe("Origami Beach Flight phone splash (TASK-362)", () => {
   test.beforeEach(async ({ page }) => {
     test.skip(width(page) !== 390, "drives its own viewports; runs once");
   });
@@ -63,7 +63,7 @@ test.describe("Origami Bloom phone splash (TASK-360)", () => {
     await expect(splash(page)).toHaveAttribute("data-mode", "play");
     await expect(page.getByRole("region", { name: /Welcome to Tushar Pathak/ })).toBeVisible();
     expect(await pageInert(page)).toBe(true);
-    await expect(splash(page)).toHaveCount(0, { timeout: 6_000 });
+    await expect(splash(page)).toHaveCount(0, { timeout: 8_000 });
     expect(await pageInert(page)).toBe(false);
     expect(await introAttr(page)).toBeNull();
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe("hidden");
@@ -103,23 +103,23 @@ test.describe("Origami Bloom phone splash (TASK-360)", () => {
     await expect(splash(page)).toHaveCount(0);
   });
 
-  test("the CTA unfolds at the invite beat and takes the visitor to Selected Work", async ({ page }) => {
+  test("plays the storyboard: plane, logo, name and tagline, loader, then the homepage", async ({ page }) => {
     await open(page);
-    // play mode: hidden until the 2.6 s invite beat, then shown (the 3.1 s handoff follows right after)
-    await expect(page.locator(".ob .ob-cta")).toBeHidden();
-    await expect(page.locator(".ob .ob-cta")).toBeVisible({ timeout: 4_000 });
+    const plane = page.locator(".ob .ob-plane");
+    await expect(plane).toBeVisible();
+    // the wingspan stays ~118vw for the whole flight: no shrinking
+    const w0 = await plane.evaluate((el) => el.getBoundingClientRect().width);
+    expect(w0 / 390).toBeGreaterThan(1.1);
+    expect(w0 / 390).toBeLessThan(1.25);
+    const opacity = (sel: string) => page.locator(sel).evaluate((el) => Number(getComputedStyle(el).opacity));
+    await expect.poll(() => opacity(".ob .ob-name"), { timeout: 3_000 }).toBeGreaterThan(0.95);
+    await expect(page.locator(".ob .ob-tagline")).toContainText("AI, Products and People");
+    await expect.poll(() => opacity(".ob .ob-loader"), { timeout: 4_000 }).toBeGreaterThan(0.95);
+    await expect(page.locator(".ob .ob-icon")).toHaveCount(4);
+    // by the loader beat the tail has left the top of the screen
+    expect(await plane.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(1);
+    expect(Math.abs((await plane.evaluate((el) => el.getBoundingClientRect().width)) - w0)).toBeLessThan(1);
     await expect(splash(page)).toHaveCount(0, { timeout: 4_000 });
-
-    // the tap itself, on the reduced-motion frame that holds still for 1.5 s (deterministic)
-    await page.evaluate(() => sessionStorage.clear());
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.reload({ waitUntil: "domcontentloaded" });
-    await page.locator(".ob").getByRole("link", { name: /explore my work/i }).click();
-    await expect(splash(page)).toHaveCount(0, { timeout: 1_000 });
-    await expect
-      .poll(() => page.locator("#selected-work").evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 4_000 })
-      .toBeLessThan(200);
-    await expect(page.locator("#selected-work")).toBeFocused();
   });
 
   test("reduced motion shows the static frame without animation, then clears", async ({ page }) => {
@@ -131,6 +131,8 @@ test.describe("Origami Bloom phone splash (TASK-360)", () => {
       document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.target instanceof Element && ((a.effect as KeyframeEffect).target as Element).closest(".ob")).length,
     );
     expect(animated).toBe(0);
+    // the finished composition: logo, name, tagline and loader all visible at once
+    for (const sel of [".ob-logo", ".ob-name", ".ob-tagline", ".ob-loader"]) await expect(page.locator(`.ob ${sel}`)).toBeVisible();
     await expect(splash(page)).toHaveCount(0, { timeout: 3_000 });
   });
 
@@ -154,7 +156,7 @@ test.describe("Origami Bloom phone splash (TASK-360)", () => {
     await expect(splash(page)).toBeVisible();
     await page.waitForTimeout(2_000);
     await noOverflow(page);
-    // the world push scales art past the edges on purpose; the overlay clips it
+    // the plane is wider than the viewport on purpose; the overlay clips it
     expect(await splash(page).evaluate((el) => getComputedStyle(el).overflowX)).toMatch(/hidden|clip/);
   });
 

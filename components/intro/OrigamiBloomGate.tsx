@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * OrigamiBloomGate (TASK-360) — the only intro code on the homepage bundle. On mount it reads the
+ * OrigamiBloomGate (TASK-360; splash swapped to OrigamiBeach in TASK-362) — the only intro code on the homepage bundle. On mount it reads the
  * `<html data-intro>` the pre-paint script set (lib/origami-bloom.ts); without it (desktop, tablet,
  * repeat visit, automation) it renders nothing and loads nothing. With it, it claims the intro from the
  * head script's failsafe (`data-intro-claimed`), lazy-loads the splash chunk and portals it into body;
  * the cover stays up until the splash itself mounts (`data-intro-live`). If the chunk fails or is late,
  * or the gate unmounts before it arrives (client navigation away), the intro ends and the page shows.
  */
-import { useEffect, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useState, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import { INTRO_CHUNK_BUDGET_MS, INTRO_DONE_EVENT, type IntroMode } from "@/lib/origami-bloom";
 
@@ -42,11 +42,11 @@ export function OrigamiBloomGate() {
         cancelled = true;
         endIntroAttributes();
       }, INTRO_CHUNK_BUDGET_MS);
-      import("./OrigamiBloom")
+      import("./OrigamiBeach")
         .then((m) => {
           if (cancelled) return;
           window.clearTimeout(budget);
-          setSplash({ C: m.OrigamiBloom, mode });
+          setSplash({ C: m.OrigamiBeach, mode });
         })
         .catch(() => {
           window.clearTimeout(budget);
@@ -67,7 +67,10 @@ export function OrigamiBloomGate() {
     };
   }, []);
 
+  // Stable, so the splash's asset deadline is not restarted by a re-render.
+  const onDone = useCallback(() => setSplash(null), []);
+
   if (!splash) return null;
   const { C, mode } = splash;
-  return createPortal(<C mode={mode} onDone={() => setSplash(null)} />, document.body);
+  return createPortal(<C mode={mode} onDone={onDone} />, document.body);
 }
