@@ -1,4 +1,4 @@
-import { awards } from "@/data/credentials";
+import { awards, patent } from "@/data/credentials";
 import { experience } from "@/data/experience";
 import { getProject } from "@/data/projects";
 import { productHref } from "@/lib/portfolio";
@@ -143,7 +143,8 @@ export interface AwardTile {
   name: string;
   /** Issuer (and year when recorded), as one line. */
   detail: string;
-  art: Art & { slug: string };
+  /** The sculpture's alt text — what the artwork shows, never the award's name (the h3 carries that). */
+  art: Art & { slug: string; alt: string };
 }
 
 /** "Google Cloud Partner All-Star: Delivery Excellence" → the name and the qualifier after the colon. */
@@ -154,39 +155,53 @@ function award(id: string) {
 }
 
 /**
- * Named by Tushar's TASK-211 brief but NOT in `data/credentials.ts` (the About page shows three awards;
- * TASK-136 left it out because the data did not record it). No year or issuer detail is recorded, so none is
- * shown beyond what the brief names. Move it into `data/credentials.ts` once confirmed and delete this constant.
+ * Named by Tushar's TASK-211 brief but NOT in `data/credentials.ts` (TASK-136 left it out because the data did
+ * not record it). The year is from Tushar's TASK-359 spec (2026-10-23), which fixes the subtitle verbatim as
+ * "ReThink System Buildathon 2026". Move it into `data/credentials.ts` and delete this constant when convenient.
  */
-export const BUILDATHON_AWARD = { name: "Best AI Operator", detail: "ReThink System Buildathon" } as const;
+export const BUILDATHON_AWARD = { name: "Best AI Operator", detail: "ReThink System Buildathon 2026" } as const;
 
 const [allStarName, allStarQualifier] = award("gcp-partner-all-star").title.split(": ") as [string, string];
 const [hero, heroOrg] = award("quantiphi-unsung-hero").title.split(", ") as [string, string];
 const [cup, cupOrg] = award("godrej-12-in-11").title.split(", ") as [string, string];
 
+/** TASK-359: the granted patent leads the collection. Number and year come from `patent` (the certificate);
+ *  the wording matches /about's Research line (`IN 429867 · co-inventor · granted 2023`). */
 export const AWARD_TILES: AwardTile[] = [
+  {
+    id: "granted-patent",
+    name: "Granted Patent",
+    detail: `${patent.number} · co-inventor · granted ${patent.granted.slice(-4)}`,
+    art: {
+      slug: "patent",
+      src: "/media/home/trophy-patent.webp",
+      width: 210,
+      height: 440,
+      alt: "Gold origami patent certificate with a folded seal, on a navy and ivory paper pedestal",
+    },
+  },
   {
     id: "gcp-partner-all-star",
     name: allStarName,
     detail: `${allStarQualifier} · ${award("gcp-partner-all-star").year}`,
-    art: { slug: "star", src: "/media/home/trophy-star.webp", width: 284, height: 440 },
+    art: { slug: "star", src: "/media/home/trophy-star.webp", width: 284, height: 440, alt: "Gold origami five-point star trophy on a navy and ivory paper pedestal" },
   },
   {
     id: "quantiphi-unsung-hero",
     name: hero,
     detail: `${heroOrg} · ${award("quantiphi-unsung-hero").year}`,
-    art: { slug: "medallion", src: "/media/home/trophy-medallion.webp", width: 218, height: 440 },
+    art: { slug: "medallion", src: "/media/home/trophy-medallion.webp", width: 218, height: 440, alt: "Gold origami medal rosette with ribbon tails on a navy and ivory paper pedestal" },
   },
   {
     id: "godrej-12-in-11",
     name: cup,
     detail: `${cupOrg} · ${award("godrej-12-in-11").year}`,
-    art: { slug: "cup", src: "/media/home/trophy-cup.webp", width: 366, height: 440 },
+    art: { slug: "cup", src: "/media/home/trophy-cup.webp", width: 366, height: 440, alt: "Gold origami two-handled cup on a navy and ivory paper pedestal" },
   },
   {
     id: "best-ai-operator",
     name: BUILDATHON_AWARD.name,
     detail: BUILDATHON_AWARD.detail,
-    art: { slug: "geometric", src: "/media/home/trophy-geometric.webp", width: 213, height: 440 },
+    art: { slug: "geometric", src: "/media/home/trophy-geometric.webp", width: 213, height: 440, alt: "Gold origami angular star on a twisted stem, on an ivory and navy paper pedestal" },
   },
 ];
