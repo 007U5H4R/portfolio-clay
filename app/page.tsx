@@ -4,8 +4,10 @@ import "./styles/home.css";
 import "./styles/home__projects.css";
 import "./styles/home__projects__work-slug.css";
 import "./styles/about__home.css";
+import "./styles/origami-bloom-cover.css";
 import { Hero } from "@/components/hero/Hero";
 import { HomeAskTushky } from "@/components/ai/HomeAskTushky";
+import { OrigamiBloomGate } from "@/components/intro/OrigamiBloomGate";
 import { AwardsSection, CredentialsSection, SelectedWorkSection } from "@/components/home/HomeSections";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -21,6 +23,8 @@ export default function Home() {
     <>
       {/* Order (TASK-211): hero → Credentials → Selected work → Awards → Ask → band. The two sections these
           replaced (Featured Work, How I think) are gone from Home; Hero and Ask are unchanged. */}
+      {/* The Origami Bloom (TASK-360): phone-only welcome splash; renders nothing unless the head script chose it. */}
+      <OrigamiBloomGate />
       <Hero />
       <CredentialsSection />
       <SelectedWorkSection />

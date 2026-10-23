@@ -1,0 +1,26 @@
+/* Origami Bloom pre-paint cover (TASK-360, lib/origami-bloom.ts). The inline head script sets
+   <html data-intro> on an eligible phone visit before first paint; this cover holds the screen on the
+   splash's opening frame (the torn signature card) until the splash component mounts
+   (data-intro-live) or the intro ends (head-script failsafe, chunk budget, gate unmount). Nothing here applies without the attribute, so desktop,
+   tablet and every automated run are untouched. */
+html[data-intro] {
+  --ob-bg: #f7e7d0;
+  --ob-card: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M22 26 L58 22 L64 27 L104 20 L140 25 L146 21 L178 24 L176 60 L181 66 L177 108 L180 146 L175 178 L138 175 L132 180 L96 176 L60 180 L54 175 L20 177 L24 140 L19 134 L23 96 L18 58 Z' fill='%23D9BF9C' transform='translate(3 5)'/%3E%3Cpath d='M22 26 L58 22 L64 27 L104 20 L140 25 L146 21 L178 24 L176 60 L181 66 L177 108 L180 146 L175 178 L138 175 L132 180 L96 176 L60 180 L54 175 L20 177 L24 140 L19 134 L23 96 L18 58 Z' fill='%23FBF3E6'/%3E%3C/svg%3E");
+  overflow: hidden;
+}
+html[data-intro][data-theme="dark"] {
+  --ob-bg: #08111d;
+  --ob-card: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M22 26 L58 22 L64 27 L104 20 L140 25 L146 21 L178 24 L176 60 L181 66 L177 108 L180 146 L175 178 L138 175 L132 180 L96 176 L60 180 L54 175 L20 177 L24 140 L19 134 L23 96 L18 58 Z' fill='%2303070D' transform='translate(3 5)'/%3E%3Cpath d='M22 26 L58 22 L64 27 L104 20 L140 25 L146 21 L178 24 L176 60 L181 66 L177 108 L180 146 L175 178 L138 175 L132 180 L96 176 L60 180 L54 175 L20 177 L24 140 L19 134 L23 96 L18 58 Z' fill='%2313243A'/%3E%3C/svg%3E");
+}
+html[data-intro]:not([data-intro-live]) body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--ob-card) center / 168px 168px no-repeat, var(--ob-bg);
+  touch-action: none;
+}
+/* Frame 10: the real header comes up over the scene while the splash fades out beneath it. */
+html[data-intro-phase="transition"] .site-header {
+  z-index: 1001;
+}
