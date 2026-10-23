@@ -1,0 +1,256 @@
+/* Origami Beach Flight phone splash (TASK-362; components/intro/OrigamiBeach.tsx). Timeline, keyed to
+   INTRO_FRAMES in lib/origami-bloom.ts:
+     0–2.7 s    the plane crosses bottom → top at a constant ~118vw wingspan (centre at ~1.35 s, tail
+                fully off-screen by 2.7 s)
+     1.15–1.75 s the TP monogram is uncovered from the bottom up, trailing the plane's tail (which
+                clears it at ~1.75 s)
+     1.5–2.1 s  name, then tagline, fade in with a small rise
+     2.7–4.2 s  the four-object loader: one lift-and-settle wave (2.75–4.05 s), done before the wipe
+     4.2 s      the splash wipes upward to the homepage
+   Nothing animates until data-ready (plane + beach decoded); static mode is the finished composition. */
+.ob {
+  --ob-cobalt: #1e4b8c;
+  --ob-ink: #102b4f;
+  --ob-gold: #f6c369;
+  --ob-paper: #fbf3e6;
+  --ob-chip: #fbf3e6;
+  --ob-text: var(--ob-ink);
+  --ob-haze: radial-gradient(closest-side, rgb(251 243 230 / 0.92), rgb(251 243 230 / 0.55) 60%, rgb(251 243 230 / 0));
+  --ob-glow: 0 1px 10px rgb(251 243 230 / 0.85);
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: contain;
+  background: var(--ob-bg);
+  transition: opacity 250ms ease;
+}
+.ob[data-theme-variant="dark"] {
+  --ob-text: var(--ob-paper);
+  --ob-chip: #102b4f;
+  --ob-haze: radial-gradient(closest-side, rgb(16 43 79 / 0.88), rgb(16 43 79 / 0.5) 60%, rgb(16 43 79 / 0));
+  --ob-glow: 0 1px 12px rgb(16 43 79 / 0.9);
+}
+.ob[data-exiting] {
+  opacity: 0;
+}
+html[data-intro-phase="transition"] .ob {
+  pointer-events: none;
+  animation: ob-out 250ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+/* The wipe lifts away like a paper sheet: the bottom edge rises until the scene is gone. */
+@keyframes ob-out {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* Paused until the plane and beach are decoded, so the plane never flies an empty sky. */
+.ob:not([data-ready]) * {
+  animation-play-state: paused !important;
+}
+
+/* ── The beach: sun, clouds, clear sky centre, palm, boat, wave bands, sand ─────────────────────── */
+.ob-beach {
+  position: absolute;
+  inset: 0;
+  background: url("/origami-beach/beach.webp") center / cover no-repeat;
+}
+.ob[data-theme-variant="dark"] .ob-beach {
+  filter: brightness(0.62) saturate(0.85);
+}
+
+/* ── The plane ─────────────────────────────────────────────────────────────────────────────────── */
+.ob-world {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+}
+.ob[data-ready] .ob-world {
+  opacity: 1;
+}
+.ob-plane {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 118vw;
+  max-width: none;
+  height: auto;
+  margin-left: -59vw;
+  transform: translate3d(0, 100vh, 0);
+  transform: translate3d(0, 100dvh, 0);
+  animation: ob-fly 2700ms cubic-bezier(0.42, 0, 0.58, 1) both;
+  will-change: transform;
+  filter: drop-shadow(0 18px 22px rgb(16 43 79 / 0.28));
+}
+.ob[data-theme-variant="dark"] .ob-plane {
+  filter: brightness(0.86) drop-shadow(0 18px 22px rgb(0 0 0 / 0.35));
+}
+@keyframes ob-fly {
+  from {
+    transform: translate3d(0, 100vh, 0);
+    transform: translate3d(0, 100dvh, 0);
+  }
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+/* ── Centre stack: logo, name, tagline, loader — held inside the clear sky band ────────────────── */
+.ob-stack {
+  position: absolute;
+  z-index: 1;
+  top: calc(26% + env(safe-area-inset-top, 0px));
+  bottom: calc(24% + env(safe-area-inset-bottom, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3.2vh, 26px);
+  color: var(--ob-text);
+  text-align: center;
+}
+.ob-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.ob-logo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(72px, 22vw, 92px);
+  aspect-ratio: 1;
+  animation: ob-unmask 600ms cubic-bezier(0.33, 0, 0.2, 1) 1150ms both;
+}
+.ob-haze {
+  position: absolute;
+  inset: -45%;
+  background: var(--ob-haze);
+}
+.ob-mark {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--ob-text);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Uncovered bottom → top, as the tail passes over it. */
+@keyframes ob-unmask {
+  from {
+    clip-path: inset(150% -50% -50% -50%); /* 150%: the haze overhangs the box, so 100% leaves a sliver */
+  }
+  to {
+    clip-path: inset(-50% -50% -50% -50%);
+  }
+}
+.ob-name {
+  margin: 4px 0 0;
+  font: 600 clamp(28px, 8.4vw, 36px) / 1.1 var(--font-display);
+  letter-spacing: -0.01em;
+  text-shadow: var(--ob-glow);
+  animation: ob-rise 450ms cubic-bezier(0.2, 0, 0, 1) 1500ms both;
+}
+.ob-tagline {
+  margin: 0;
+  max-width: 30ch;
+  font: 500 clamp(14px, 3.9vw, 16px) / 1.45 var(--font-body);
+  text-shadow: var(--ob-glow);
+  animation: ob-rise 450ms cubic-bezier(0.2, 0, 0, 1) 1650ms both;
+}
+@keyframes ob-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Loader: boat, star, palm, plane — one continuous lift-and-settle wave ───────────────────── */
+.ob-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: ob-fade 300ms ease 2700ms both;
+}
+.ob-icons {
+  display: flex;
+  gap: clamp(12px, 4vw, 18px);
+}
+.ob-icon {
+  width: clamp(34px, 10vw, 42px);
+  height: clamp(34px, 10vw, 42px);
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px rgb(16 43 79 / 0.22));
+  animation: ob-hop 550ms cubic-bezier(0.45, 0, 0.55, 1) calc(2750ms + var(--i) * 250ms) both;
+}
+@keyframes ob-hop {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(-5px) scale(1.25);
+  }
+}
+.ob-loading {
+  font: 500 13px / 1.3 var(--font-body);
+  letter-spacing: 0.02em;
+  text-shadow: var(--ob-glow);
+}
+@keyframes ob-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Skip ───────────────────────────────────────────────────────────────────────────────────────── */
+.ob-skip {
+  position: absolute;
+  z-index: 5;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: calc(10px + env(safe-area-inset-right, 0px));
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--ob-text) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ob-chip) 72%, transparent);
+  color: var(--ob-text);
+  font: 600 14px / 1 var(--font-body);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.ob-skip:focus-visible {
+  outline: 3px solid var(--ob-gold);
+  outline-offset: 3px;
+}
+
+/* Reduced motion / static: the finished composition, no plane, nothing moving. */
+.ob[data-mode="static"],
+.ob[data-mode="static"] * {
+  animation: none !important;
+  transition: none !important;
+}

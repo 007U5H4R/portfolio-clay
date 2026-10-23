@@ -1,17 +1,17 @@
 /**
- * origami-bloom.test.ts (TASK-360) — eligibility, storyboard timing and the inline pre-paint script of
+ * origami-bloom.test.ts (TASK-360, TASK-362 beach flight) — eligibility, storyboard timing and the inline pre-paint script of
  * the phone welcome splash, all against the one module the head script and the client share.
  */
 import { describe, it, expect } from "vitest";
 import {
+  INTRO_ASSETS_AT,
+  INTRO_FLIGHT_ASSETS,
   INTRO_DONE_EVENT,
   INTRO_FAILSAFE_MS,
   INTRO_FRAMES,
   INTRO_SESSION_KEY,
   INTRO_TOTAL_MS,
   INTRO_TRANSITION_AT,
-  INTRO_WORLD_AT,
-  INTRO_WORLD_FETCH_AT,
   frameAt,
   introInitScript,
   introMode,
@@ -55,29 +55,18 @@ describe("storyboard timing", () => {
     for (let i = 1; i < INTRO_FRAMES.length; i++) expect(INTRO_FRAMES[i]!.at).toBeGreaterThan(INTRO_FRAMES[i - 1]!.at);
     expect(INTRO_FRAMES.at(-1)!.at).toBeLessThan(INTRO_TOTAL_MS);
   });
-  it("matches the spec's ten beats and the ~3.1 s budget", () => {
-    expect(INTRO_FRAMES.map((f) => f.id)).toEqual([
-      "signature",
-      "folds",
-      "bud",
-      "bloom",
-      "identity",
-      "world",
-      "unfold",
-      "name",
-      "invite",
-      "transition",
-    ]);
-    expect(INTRO_TOTAL_MS).toBe(3100);
+  it("matches the beach-flight storyboard and the ~4.4 s budget", () => {
+    expect(INTRO_FRAMES.map((f) => f.id)).toEqual(["enter", "ascend", "logo", "name", "exit", "loader", "transition"]);
+    expect(INTRO_TOTAL_MS).toBe(4450);
     expect(INTRO_TRANSITION_AT).toBe(INTRO_FRAMES.find((f) => f.id === "transition")!.at);
-    expect(INTRO_WORLD_AT).toBe(INTRO_FRAMES.find((f) => f.id === "world")!.at);
-    expect(INTRO_WORLD_FETCH_AT).toBeLessThan(INTRO_WORLD_AT);
+    expect(INTRO_ASSETS_AT).toBeLessThan(INTRO_FRAMES.find((f) => f.id === "logo")!.at);
   });
   it("frameAt maps a time to the beat that is playing", () => {
-    expect(frameAt(0)).toBe("signature");
-    expect(frameAt(299)).toBe("signature");
-    expect(frameAt(300)).toBe("folds");
-    expect(frameAt(1600)).toBe("world");
+    expect(frameAt(0)).toBe("enter");
+    expect(frameAt(499)).toBe("enter");
+    expect(frameAt(500)).toBe("ascend");
+    expect(frameAt(1500)).toBe("name");
+    expect(frameAt(3000)).toBe("loader");
     expect(frameAt(5000)).toBe("transition");
   });
 });
@@ -112,6 +101,7 @@ describe("introInitScript (the inline pre-paint script)", () => {
     const dataset: Record<string, string> = {};
     const timers: Array<{ fn: () => void; ms: number }> = [];
     const events: string[] = [];
+    const fetched: string[] = [];
     const store = new Map<string, string>(o.seen ? [[INTRO_SESSION_KEY, "1"]] : []);
     const win = {
       __hsOrigamiIntro: o.optIn ? true : undefined,
@@ -125,6 +115,11 @@ describe("introInitScript (the inline pre-paint script)", () => {
         },
       },
       dispatchEvent: (e: { type: string }) => events.push(e.type),
+      Image: class {
+        set src(u: string) {
+          fetched.push(u);
+        }
+      },
     };
     const doc = { documentElement: { dataset } };
     class FakeEvent {
@@ -138,7 +133,7 @@ describe("introInitScript (the inline pre-paint script)", () => {
       (fn: () => void, ms: number) => timers.push({ fn, ms }),
       FakeEvent,
     );
-    return { dataset, timers, events, store };
+    return { dataset, timers, events, store, fetched };
   }
 
   it("marks an eligible visit play, or static under reduced motion", () => {
@@ -151,6 +146,11 @@ describe("introInitScript (the inline pre-paint script)", () => {
       expect(r.dataset.intro).toBeUndefined();
       expect(r.timers).toHaveLength(0);
     }
+  });
+  it("starts fetching the flight's plane and beach on a play visit only", () => {
+    expect(run().fetched).toEqual([...INTRO_FLIGHT_ASSETS]);
+    expect(run({ reduced: true }).fetched).toEqual([]);
+    expect(run({ seen: true }).fetched).toEqual([]);
   });
   it("honours the automation opt-in", () => {
     expect(run({ webdriver: true, optIn: true }).dataset.intro).toBe("play");

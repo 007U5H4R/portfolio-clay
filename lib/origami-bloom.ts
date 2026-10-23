@@ -1,6 +1,6 @@
 /**
- * Origami Bloom contract (TASK-360) — the ONE module behind the phone welcome splash's pre-paint
- * script, its client lifecycle and its tests. The splash is a ~3.1 s overlay on `/` for phones only
+ * Phone welcome splash contract (TASK-360, rebuilt as Origami Beach Flight in TASK-362) — the ONE module
+ * behind the splash's pre-paint script, its client lifecycle and its tests. The splash is a ~4.4 s overlay on `/` for phones only
  * (<640 px); the server-rendered homepage stays underneath and is the LCP element.
  *
  * Eligibility (all must hold): path is `/`, viewport is a phone, the visitor has not seen it this
@@ -12,12 +12,12 @@
  *     (the splash's opening frame) and locks page scroll.
  *   - `data-intro-claimed`: set by OrigamiBloomGate on hydration. It stands the head script's failsafe
  *     down; the gate then gives the splash chunk INTRO_CHUNK_BUDGET_MS to arrive.
- *   - `data-intro-live`: set by OrigamiBloom when it mounts. Only then does the cover drop, so the
+ *   - `data-intro-live`: set by OrigamiBeach when it mounts. Only then does the cover drop, so the
  *     homepage never flashes between the cover and the splash.
  * Hard cap on the cover with no splash: the client must claim within INTRO_FAILSAFE_MS of the head
  * script, then the chunk must arrive within INTRO_CHUNK_BUDGET_MS, so at most ~2.1 s.
  *
- * Ending (played, skipped, CTA, failed or late chunk, the gate unmounting mid-load, the failsafe)
+ * Ending (played, skipped, failed or late chunk, the gate unmounting mid-load, the failsafe)
  * always removes every attribute. `hs:intro-done` is dispatched on window when an intro that was
  * marked actually ends; it never fires on visits that had no intro. A consumer that waits for it
  * must first check `document.documentElement.dataset.intro`: if that is absent, there is nothing to
@@ -54,29 +54,28 @@ export function introMode(env: IntroEnv): IntroMode | null {
   return env.reducedMotion ? "static" : "play";
 }
 
-/** Storyboard frames (spec §Storyboard), start times in ms. */
+/** Storyboard frames (TASK-362 Origami Beach Flight), start times in ms. */
 export const INTRO_FRAMES = [
-  { id: "signature", at: 0 },
-  { id: "folds", at: 300 },
-  { id: "bud", at: 650 },
-  { id: "bloom", at: 950 },
-  { id: "identity", at: 1300 },
-  { id: "world", at: 1550 },
-  { id: "unfold", at: 1900 },
-  { id: "name", at: 2250 },
-  { id: "invite", at: 2600 },
-  { id: "transition", at: 2850 },
+  { id: "enter", at: 0 },
+  { id: "ascend", at: 500 },
+  { id: "logo", at: 1150 },
+  { id: "name", at: 1500 },
+  { id: "exit", at: 2000 },
+  { id: "loader", at: 2700 },
+  { id: "transition", at: 4200 },
 ] as const;
 
 export type IntroFrame = (typeof INTRO_FRAMES)[number]["id"];
 
-/** When the landscape must be decoded; if it is not, the splash skips the world and ends. */
-export const INTRO_WORLD_AT = 1550;
-/** When the landscape fetch starts (after the bloom has started on the main thread). */
-export const INTRO_WORLD_FETCH_AT = 300;
-export const INTRO_TRANSITION_AT = 2850;
-export const INTRO_TOTAL_MS = 3100;
-/** Short fade used when the world is skipped or the visitor skips. */
+/** The plane and the beach must be decoded by now; if they are not, the splash ends early (quick exit). */
+export const INTRO_ASSETS_AT = 600;
+
+/** The flight's two must-have images. The pre-paint script starts fetching them on an eligible play
+ * visit, so they are usually decoded by the time the splash chunk mounts. */
+export const INTRO_FLIGHT_ASSETS = ["/origami-beach/plane.webp", "/origami-beach/beach.webp"] as const;
+export const INTRO_TRANSITION_AT = 4200;
+export const INTRO_TOTAL_MS = 4450;
+/** Short fade used when the assets are late or the visitor skips. */
 export const INTRO_QUICK_EXIT_MS = 250;
 
 export function frameAt(ms: number): IntroFrame {
@@ -103,5 +102,6 @@ export const introInitScript =
   `if(location.pathname==="/"&&w.matchMedia("${INTRO_PHONE_QUERY}").matches&&(!navigator.webdriver||w.__hsOrigamiIntro===true)){` +
   `var s="1";try{s=w.sessionStorage.getItem("${INTRO_SESSION_KEY}")}catch(e){}` +
   `if(s===null){d.dataset.intro=w.matchMedia("(prefers-reduced-motion: reduce)").matches?"static":"play";` +
+  `if(d.dataset.intro==="play"&&w.Image)${JSON.stringify(INTRO_FLIGHT_ASSETS)}.forEach(function(u){new w.Image().src=u});` +
   `setTimeout(function(){if(d.dataset.intro&&!d.dataset.introClaimed){delete d.dataset.intro;` +
   `w.dispatchEvent(new Event("${INTRO_DONE_EVENT}"))}},${INTRO_FAILSAFE_MS})}}}catch(e){}`;
