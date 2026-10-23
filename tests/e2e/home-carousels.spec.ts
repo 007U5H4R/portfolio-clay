@@ -160,7 +160,8 @@ test.describe("home carousels (TASK-228)", () => {
         expect(m.snap).toBe("none");
         expect(m.dots).toBe(true);
         expect(m.scrolls).toBe(false);
-        expect(m.cols, `${id} columns at ${w}`).toBe(id === "selected-work" ? 3 : 4);
+        // TASK-359: awards is one row of five (patent first) on desktop.
+        expect(m.cols, `${id} columns at ${w}`).toBe(id === "selected-work" ? 3 : id === "awards" ? 5 : 4);
       }
     });
   }

@@ -149,15 +149,36 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
+  /* TASK-359: five pieces, the granted patent first. Phones keep the one-award swipe carousel (TASK-228); this
+     2-column base only shows if the carousel wrapper is ever absent. */
   .hs-grid-awards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 28px;
   }
 
-@media (min-width: 900px) {
+@media (min-width: 640px) {
+    /* tablet: three across on a 6-track grid (each piece spans 2) so the last row of two sits centred */
     .hs-grid-awards {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 36px 0;
+    }
+    .hs-grid-awards > .hs-li {
+      grid-column: span 2;
+    }
+    .hs-grid-awards > .hs-li:nth-child(4) {
+      grid-column: 2 / span 2;
+    }
+  }
+
+@media (min-width: 1024px) {
+    /* desktop: one row of five */
+    .hs-grid-awards {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 0;
+    }
+    .hs-grid-awards > .hs-li,
+    .hs-grid-awards > .hs-li:nth-child(4) {
+      grid-column: auto;
     }
   }
 
@@ -338,12 +359,25 @@
     text-align: center;
   }
 
-@media (min-width: 900px) {
-    .hs-li + .hs-li > .hs-slot > .hs-award {
+  /* hairline dividers between neighbours in a row only (never at a row start), so none crosses text */
+@media (min-width: 640px) {
+    .hs-grid-awards > .hs-li:nth-child(3n + 2) > .hs-slot > .hs-award,
+    .hs-grid-awards > .hs-li:nth-child(3n + 3) > .hs-slot > .hs-award,
+    .hs-grid-awards > .hs-li:nth-child(5) > .hs-slot > .hs-award {
       border-left: 1px solid var(--line);
     }
   }
+
+@media (min-width: 1024px) {
+    .hs-grid-awards > .hs-li + .hs-li > .hs-slot > .hs-award {
+      border-left: 1px solid var(--line);
+    }
+    .hs-grid-awards .hs-award {
+      padding-inline: clamp(8px, 1vw, 18px);
+    }
+  }
   .hs-trophy {
+    position: relative;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -357,7 +391,33 @@
     height: 100%;
     max-width: 100%;
     object-fit: contain;
+    object-position: 50% 100%;
     filter: drop-shadow(0 8px 8px color-mix(in oklab, var(--shadow-ink) 22%, transparent));
+  }
+  /* hover (pointer devices, motion allowed): the piece lifts 4 px and a soft floor shadow fades in beneath it —
+     transform + opacity only; the img gets its own compositor layer (Safari 1 px snap jitter, TASK-308) */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .hs-trophy::after {
+      content: "";
+      position: absolute;
+      inset: auto 18% -6px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(closest-side, color-mix(in oklab, var(--shadow-ink) 18%, transparent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .hs-trophy img {
+      will-change: transform;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .hs-award:hover .hs-trophy img {
+      transform: translateY(-4px);
+    }
+    .hs-award:hover .hs-trophy::after {
+      opacity: 1;
+    }
   }
   .hs-award-name {
     font-size: clamp(18px, 1.35vw, 21px);
@@ -371,6 +431,10 @@
     font-size: 14.5px;
     line-height: 1.4;
     color: var(--color-navy-2);
+    text-wrap: balance;
+  }
+  .hs-award-sep {
+    white-space: nowrap;
   }
   /* /about only (TASK-215): the Testimonials sheet slides up to --torn-lag (120 px phones / 200 px) over this
      section's foot (TKT-106). Home's #awards keeps its own padding; here the foot clears lag + a gutter so the

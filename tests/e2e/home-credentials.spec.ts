@@ -4,9 +4,9 @@
  * (home.spec.ts DOM order + fills + EVAL-018 counts, home-ask-tushky.spec.ts, hero-*.spec.ts); this file pins:
  *   - the three sections sit in order between the hero and Ask, and the old two are gone;
  *   - every Credentials / Selected Work card has exactly ONE link, to a route that exists;
- *   - the four awards show their exact names (and issuer · year) — literals here on purpose, so a data edit that
- *     changes an award has to change this test too;
- *   - every image loads, has its intrinsic size reserved, and decorative art has an empty alt;
+ *   - the five awards show their exact names (and issuer · year) in order, the granted patent first (TASK-359) —
+ *     literals here on purpose, so a data edit that changes an award has to change this test too;
+ *   - every image loads, has its intrinsic size reserved; scene art has an empty alt, logos and trophies are named;
  *   - no horizontal overflow at 320 / 390 (and the projects' own widths).
  */
 import { test, expect } from "./fixtures";
@@ -28,10 +28,11 @@ const WORK = [
 ] as const;
 
 const AWARDS = [
+  { name: "Granted Patent", detail: "IN 429867 · co-inventor · granted 2023" },
   { name: "Google Cloud Partner All-Star", detail: "Delivery Excellence · 2024" },
   { name: "Annual Unsung Hero Award", detail: "Quantiphi Analytics Solutions · 2024" },
   { name: "12 in 11 Award", detail: "Godrej Infotech · 2018" },
-  { name: "Best AI Operator", detail: "ReThink System Buildathon" },
+  { name: "Best AI Operator", detail: "ReThink System Buildathon 2026" },
 ] as const;
 
 test("@EVAL-017 Credentials, Selected Work and Awards sit between the hero and Ask; Featured Work and How I think are gone", async ({ page }) => {
@@ -87,10 +88,10 @@ test("Selected Work: three cards, one link each to a real route, and View all wo
   await expect(page.locator("section#enterprise")).toHaveCount(1);
 });
 
-test("Awards: all four exact names with issuer and year, one trophy each, and no links", async ({ page }) => {
+test("Awards: all five exact names in order with issuer and year, one trophy each, and no links", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   const tiles = page.locator("#awards .hs-award");
-  await expect(tiles).toHaveCount(4);
+  await expect(tiles).toHaveCount(5);
   for (const [i, want] of AWARDS.entries()) {
     const tile = tiles.nth(i);
     await expect(tile.getByRole("heading", { level: 3 })).toHaveText(want.name);
@@ -100,7 +101,7 @@ test("Awards: all four exact names with issuer and year, one trophy each, and no
   await expect(page.locator("#awards a[href]")).toHaveCount(0);
 });
 
-test("every image in the three sections loads, reserves its size, and is lazy; art is decorative (alt empty), logos are named", async ({ page }) => {
+test("every image in the three sections loads, reserves its size, and is lazy; scene art is decorative (alt empty), logos and trophies are named", async ({ page }) => {
   await page.goto("/", { waitUntil: "load" });
   for (const id of ["credentials", "selected-work", "awards"]) {
     await page.locator(`#${id}`).scrollIntoViewIfNeeded();
@@ -114,16 +115,16 @@ test("every image in the three sections loads, reserves its size, and is lazy; a
       w: i.getAttribute("width"),
       h: i.getAttribute("height"),
       lazy: i.loading,
-      logo: Boolean(i.closest(".hs-plaque")),
+      named: Boolean(i.closest(".hs-plaque, .hs-trophy")),
     })),
   );
-  // 4 + 3 scene arts, 3 logos (Independent Builder shows its name in type, no logo), 4 trophies
-  expect(imgs).toHaveLength(14);
+  // 4 + 3 scene arts, 3 logos (Independent Builder shows its name in type, no logo), 5 trophies
+  expect(imgs).toHaveLength(15);
   for (const img of imgs) {
     expect(img.ok, `${img.src} loads`).toBe(true);
     expect(img.w && img.h, `${img.src} has width/height attributes`).toBeTruthy();
     expect(img.lazy, `${img.src} is lazy`).toBe("lazy");
-    if (img.logo) expect(img.alt, `${img.src} logo has alt text`).toMatch(/\S/);
+    if (img.named) expect(img.alt, `${img.src} has alt text`).toMatch(/\S/);
     else expect(img.alt, `${img.src} is decorative`).toBe("");
   }
 });

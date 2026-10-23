@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { Fragment, type CSSProperties } from "react";
 import { ArrowRight } from "lucide-react";
 import { MobileCarousel } from "./MobileCarousel";
 import { Reveal } from "@/components/interactions/Reveal";
@@ -197,10 +197,23 @@ function AwardItem({ tile, index }: { tile: AwardTile; index: number }) {
     <Reveal index={index + 1} className="hs-slot">
       <div className="hs-award" data-award={tile.id}>
         <div className="hs-trophy">
-          <ArtImg art={tile.art} />
+          <ArtImg art={tile.art} alt={tile.art.alt} />
         </div>
         <h3 className="hs-award-name">{tile.name}</h3>
-        <p className="hs-award-detail">{tile.detail}</p>
+        <p className="hs-award-detail">
+          {/* the word before each " ·" is glued to its dot (a nowrap span), so a wrapped line never starts with the
+              dot; everything else wraps normally and the text content is still exactly `tile.detail` */}
+          {tile.detail.split(" · ").map((part, i, parts) => {
+            if (i === parts.length - 1) return <Fragment key={i}>{part}</Fragment>;
+            const cut = part.lastIndexOf(" ") + 1;
+            return (
+              <Fragment key={i}>
+                {part.slice(0, cut)}
+                <span className="hs-award-sep">{part.slice(cut)} ·</span>{" "}
+              </Fragment>
+            );
+          })}
+        </p>
       </div>
     </Reveal>
   );
