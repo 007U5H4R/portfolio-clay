@@ -34,6 +34,8 @@ export const DESTINATION_TYPES = ["case_study", "project", "page", "external", "
 
 const VIDEO_TYPES = ["pitch", "demo"] as const;
 const THEMES = ["light", "dark"] as const;
+/** TASK-170: the guided tour's stops, in order (the one list: lib/tour.ts types its `TOUR_STEPS` from it, a unit test pins the order). */
+export const TOUR_STEP_IDS = ["hero", "work", "ask", "credentials", "theme", "brand"] as const;
 
 export type EventGroup = "website" | "projects" | "conversion" | "chatbot" | "game";
 
@@ -99,6 +101,31 @@ export const EVENTS = {
     trigger: "The visitor presses the theme switch. Never the initial theme, never a system-preference flip.",
     where: "lib/analytics/click-delegation.ts (on [data-theme-toggle])",
     props: define({ theme_from: oneOf(...THEMES), theme_to: oneOf(...THEMES) }),
+  },
+  // TASK-170: the guided tour (components/tour/GuidedTour.tsx, docs/analytics.md section F).
+  tour_started: {
+    group: "website",
+    trigger: "The guided tour opens: from the one-time invite or from the header / More-menu \"Take a tour\" entry.",
+    where: "components/tour/GuidedTour.tsx",
+    props: define({ source: oneOf("invite", "menu") }),
+  },
+  tour_step_viewed: {
+    group: "website",
+    trigger: "A tour stop is shown (including the first one, and again when the visitor goes back to it).",
+    where: "components/tour/GuidedTour.tsx",
+    props: define({ step_id: oneOf(...TOUR_STEP_IDS), step_index: int(0, 10) }),
+  },
+  tour_completed: {
+    group: "website",
+    trigger: "The visitor presses Done (or the right arrow) on the last tour stop.",
+    where: "components/tour/GuidedTour.tsx",
+    props: define({ step_count: int(1, 10) }),
+  },
+  tour_skipped: {
+    group: "website",
+    trigger: "The tour is closed before the end: Skip, Escape, or leaving the home page mid-tour.",
+    where: "components/tour/GuidedTour.tsx",
+    props: define({ step_id: oneOf(...TOUR_STEP_IDS), step_index: int(0, 10) }),
   },
 
   // ---- Group B: project explorer ------------------------------------------------------------------

@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 describe("mobile menu (TASK-232)", () => {
   it("has exactly the Portfolio and Connect groups in the briefed order", () => {
     expect(menuGroups.map((g) => g.label)).toEqual(["Portfolio", "Connect"]);
-    expect(menuGroups[0]!.items.map((i) => i.label)).toEqual(["Home", "Experience", "Portfolio", "Ask Tushky", "About", "Certifications"]);
+    expect(menuGroups[0]!.items.map((i) => i.label)).toEqual(["Home", "Experience", "Portfolio", "Ask Tushky", "About", "Certifications", "Take a tour"]);
     expect(menuGroups[1]!.items.map((i) => i.label)).toEqual(["Let's connect", "LinkedIn", "GitHub", "Resume"]);
   });
 

@@ -117,7 +117,9 @@ export function MobileCarousel({
             schedule();
           }, { threshold: [0, 0.25, 0.5, 0.75, 1] })
         : null;
-    const playing = () => !stopped && inView && !!phone?.matches && !reduced.current && !document.hidden;
+    // TASK-170: autoplay also holds while the guided tour is open (`<html data-tour-open>`, re-checked on `tour:change`).
+    const playing = () =>
+      !stopped && inView && !!phone?.matches && !reduced.current && !document.hidden && !document.documentElement.hasAttribute("data-tour-open");
     const advance = () => {
       const s = slides();
       const stride = s.length > 1 ? s[1]!.offsetLeft - s[0]!.offsetLeft : 0;
@@ -144,6 +146,7 @@ export function MobileCarousel({
       io.observe(list);
       for (const t of interactions) root.addEventListener(t, stop, { passive: true });
       document.addEventListener("visibilitychange", schedule);
+      document.addEventListener("tour:change", schedule);
       mq?.addEventListener("change", schedule);
       phone?.addEventListener("change", schedule);
     }
@@ -153,6 +156,7 @@ export function MobileCarousel({
         io.disconnect();
         for (const t of interactions) root.removeEventListener(t, stop);
         document.removeEventListener("visibilitychange", schedule);
+        document.removeEventListener("tour:change", schedule);
         mq?.removeEventListener("change", schedule);
         phone?.removeEventListener("change", schedule);
         root.removeAttribute("data-autoplay");

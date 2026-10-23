@@ -60,6 +60,19 @@ function headerHeight(): number {
 }
 
 /**
+ * Smooth-scroll to a document offset (TASK-170 guided tour). Wakes the sleeping rAF loop, which a bare
+ * `lenis.scrollTo` does not, so the jump would never run. Returns `false` when Lenis is not mounted.
+ */
+export function scrollToOffset(y: number, { immediate = false } = {}): boolean {
+  const lenis = instance;
+  if (!lenis) return false;
+  lenis.resize();
+  lenis.scrollTo(y, { immediate, force: true });
+  wake?.();
+  return true;
+}
+
+/**
  * Smooth-scroll to an in-page target, clear of the sticky header, then move focus to it. Lenis already
  * subtracts a target's own `scroll-margin-top` (e.g. case-study chapters' `scroll-mt-[7rem]`, which
  * already includes the header), so the header offset is applied only when the target sets none.
