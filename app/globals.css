@@ -7111,6 +7111,9 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   outline: 2px dashed var(--color-rust);
   outline-offset: 0;
   box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-rust) 14%, transparent);
+}
+/* Glide only between steps (GuidedTour sets data-glide for one move); scroll-following stays instant. */
+.tour-ring[data-glide] {
   transition:
     top 280ms var(--ease-paper),
     left 280ms var(--ease-paper),
@@ -7124,10 +7127,12 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   width: min(320px, calc(100vw - 32px));
   padding: 22px 18px 14px;
   outline: none;
+  animation: tour-fade 220ms ease both;
+}
+.tour-note[data-glide] {
   transition:
     top 280ms var(--ease-paper),
     left 280ms var(--ease-paper);
-  animation: tour-fade 220ms ease both;
 }
 /* the folded corner */
 .tour-note::after {

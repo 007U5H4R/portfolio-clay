@@ -100,20 +100,27 @@ export function GuidedTour() {
   const noteRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
+  /** True once the ring/note have a position this run, so later steps glide from it (the first never flies in from 0,0). */
+  const placed = useRef(false);
   const titleId = useId();
   const bodyId = useId();
 
-  const start = useCallback((source: TourSource, opener?: HTMLElement | null) => {
-    const available = TOUR_STEPS.filter((s) => resolveTarget(s));
-    if (available.length === 0) return;
-    writeInvite("accepted");
-    setInvite(false);
-    returnTo.current = opener ?? null;
-    setSteps(available);
-    setIndex(0);
-    setOpen(true);
-    track("tour_started", { source });
-  }, []);
+  const start = useCallback(
+    (source: TourSource, opener?: HTMLElement | null) => {
+      if (open) return;
+      const available = TOUR_STEPS.filter((s) => resolveTarget(s));
+      if (available.length === 0) return;
+      writeInvite("accepted");
+      setInvite(false);
+      returnTo.current = opener ?? null;
+      placed.current = false;
+      setSteps(available);
+      setIndex(0);
+      setOpen(true);
+      track("tour_started", { source });
+    },
+    [open],
+  );
 
   const close = useCallback(
     (how: "completed" | "skipped") => {
@@ -223,6 +230,12 @@ export function GuidedTour() {
     let raf = 0;
     let target: HTMLElement | null = null;
     let last = "";
+    let glideTimer = 0;
+    let glided: HTMLElement[] = [];
+    const unglide = () => {
+      for (const el of glided) delete el.dataset.glide;
+      glided = [];
+    };
     const frame = () => {
       raf = requestAnimationFrame(frame);
       if (!target || !target.isConnected) target = resolveTarget(step);
@@ -239,6 +252,14 @@ export function GuidedTour() {
       const phone = isPhone();
       const key = `${r.top}|${r.left}|${r.width}|${r.height}|${vw}|${vh}|${note.offsetHeight}`;
       if (key === last) return;
+      // First move of a step after an earlier one: glide there; every later move (scroll, resize) is instant.
+      if (!last && placed.current && !reducedMotion()) {
+        ring.dataset.glide = "";
+        note.dataset.glide = "";
+        glided = [ring, note];
+        glideTimer = window.setTimeout(unglide, 320);
+      }
+      placed.current = true;
       last = key;
       const pad = 6;
       ring.hidden = false;
@@ -264,7 +285,11 @@ export function GuidedTour() {
       note.style.setProperty("--tour-arrow", `${p.arrow}px`);
     };
     raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(glideTimer);
+      unglide();
+    };
   }, [step]);
 
   // Arrow keys and Escape, anywhere on the page while open (never while typing).
