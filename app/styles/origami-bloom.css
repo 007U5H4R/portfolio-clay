@@ -1,0 +1,690 @@
+/*
+ * The Origami Bloom (TASK-360) — styles for the lazily loaded phone welcome splash. Every beat is a
+ * CSS keyframe whose delay is its storyboard frame (lib/origami-bloom.ts INTRO_FRAMES); only transform,
+ * opacity, clip-path and stroke-dashoffset animate. The pre-hydration cover lives in
+ * app/styles/origami-bloom-cover.css and paints the same torn card this splash opens on.
+ */
+
+.ob {
+  --ob-bg: #f7e7d0;
+  --ob-bg-edge: #ebd5b6;
+  --ob-glow: #fbf3e6;
+  --ob-paper: #fbf3e6;
+  --ob-paper-shade: #e6d0b3;
+  --ob-cobalt: #1e4b8c;
+  --ob-deep: #102b4f;
+  --ob-gold: #f6c369;
+  --ob-ink: #102b4f;
+  --ob-core-ink: #f7e7d0;
+  --ob-pill: #fbf3e6;
+  --ob-pill-ink: #102b4f;
+  --ob-pill-edge: #d9bf9c;
+  --ob-sprite-filter: none;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: contain;
+  background: radial-gradient(ellipse 80% 60% at 50% 46%, var(--ob-glow), var(--ob-bg) 62%, var(--ob-bg-edge));
+  color: var(--ob-ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 250ms ease-out;
+}
+
+.ob[data-theme-variant="dark"] {
+  --ob-bg: #08111d;
+  --ob-bg-edge: #050b14;
+  --ob-glow: #0f1d2f;
+  --ob-paper: #19385a;
+  --ob-paper-shade: #101e30;
+  --ob-cobalt: #245a9c;
+  --ob-deep: #163b66;
+  --ob-ink: #f2dfc1;
+  --ob-core-ink: #f2dfc1;
+  --ob-pill: #f2dfc1;
+  --ob-pill-ink: #08111d;
+  --ob-pill-edge: #b9a27e;
+  --ob-sprite-filter: brightness(0.62) saturate(0.75) hue-rotate(-8deg);
+}
+
+.ob[data-exiting] {
+  opacity: 0;
+}
+
+/* Frame 10 — the header rises above the overlay (cover CSS) and the overlay lets go of the page. */
+html[data-intro-phase="transition"] .ob {
+  pointer-events: none;
+  animation: ob-out 250ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes ob-out {
+  to {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+}
+
+/* ------------------------------------------------------------------ Skip */
+.ob-skip {
+  position: absolute;
+  z-index: 5;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: calc(10px + env(safe-area-inset-right, 0px));
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--ob-ink) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ob-bg) 72%, transparent);
+  color: var(--ob-ink);
+  font: 600 14px/1 var(--font-sans, system-ui, sans-serif);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.ob-skip:focus-visible,
+.ob-cta:focus-visible {
+  outline: 3px solid var(--ob-gold);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------- Frame 1 — Signature */
+.ob-sig {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 168px;
+  height: 168px;
+  margin: -84px 0 0 -84px;
+  background: var(--ob-card) center / 168px 168px no-repeat;
+  animation: ob-sig-tear 260ms cubic-bezier(0.5, 0, 0.75, 0) 300ms both;
+}
+
+.ob-sig-ink {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--ob-cobalt);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ob-sig-ink path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ob-draw 110ms ease-out both;
+}
+
+.ob-sig-ink g path:nth-child(1) { animation-delay: 0ms; }
+.ob-sig-ink g path:nth-child(2) { animation-delay: 60ms; }
+.ob-sig-ink g path:nth-child(3) { animation-delay: 110ms; }
+.ob-sig-ink g path:nth-child(4) { animation-delay: 150ms; }
+.ob-sig-ink .ob-sig-line {
+  stroke: var(--ob-gold);
+  animation-duration: 120ms;
+  animation-delay: 190ms;
+}
+
+@keyframes ob-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ob-sig-tear {
+  to {
+    opacity: 0;
+    transform: scale(0.55) rotate(-9deg);
+  }
+}
+
+/* ------------------------------------------- Frames 2–6 — Folds, Bud, Bloom */
+.ob-stage {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: min(72vw, 300px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  perspective: 900px;
+  pointer-events: none;
+}
+
+.ob[data-mode="play"] .ob-stage {
+  animation: ob-push 380ms cubic-bezier(0.55, 0, 0.8, 0.4) 1550ms both;
+}
+
+/* Frame 6 — the camera pushes through the core into the world. */
+@keyframes ob-push {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+
+.ob-flower {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(48deg);
+}
+
+.ob[data-mode="play"] .ob-flower {
+  animation: ob-bud 1000ms cubic-bezier(0.3, 0.7, 0.3, 1) 300ms both;
+}
+
+/* Frame 3 — the bud gathers with a slow twist. */
+@keyframes ob-bud {
+  from {
+    transform: rotateX(48deg) rotateZ(-28deg) scale(0.84);
+  }
+  to {
+    transform: rotateX(48deg) rotateZ(0) scale(1);
+  }
+}
+
+/* A hinge sits on the flower's centre, base edge on the centre point; it turns to its angle, then folds. */
+.ob-hinge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30%;
+  height: 46%;
+  margin: -46% 0 0 -15%;
+  transform-origin: 50% 100%;
+  transform: rotateZ(var(--a)) rotateX(var(--open));
+  --open: -14deg;
+}
+
+.ob-inner {
+  width: 22%;
+  height: 32%;
+  margin: -32% 0 0 -11%;
+  --open: -40deg;
+}
+
+.ob[data-mode="play"] .ob-hinge {
+  transform: rotateZ(var(--a)) rotateX(-80deg);
+  animation:
+    ob-petal-in 340ms cubic-bezier(0.2, 0.8, 0.3, 1) calc(300ms + var(--i) * 16ms) both,
+    ob-petal-open 360ms cubic-bezier(0.25, 1.4, 0.45, 1) calc(950ms + var(--i) * 14ms) forwards;
+}
+
+.ob[data-mode="play"] .ob-inner {
+  animation:
+    ob-petal-in 340ms cubic-bezier(0.2, 0.8, 0.3, 1) calc(360ms + var(--i) * 16ms) both,
+    ob-petal-open 340ms cubic-bezier(0.25, 1.3, 0.45, 1) calc(1010ms + var(--i) * 14ms) forwards;
+}
+
+/* Frame 2 — loose shards fly in from the torn card and stand up into the bud. */
+@keyframes ob-petal-in {
+  from {
+    opacity: 0;
+    transform: rotateZ(calc(var(--a) - 70deg)) translateY(-150%) rotateX(-20deg) scale(0.5);
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: rotateZ(var(--a)) rotateX(-80deg);
+  }
+}
+
+/* Frame 4 — the bloom opens. */
+@keyframes ob-petal-open {
+  from {
+    transform: rotateZ(var(--a)) rotateX(-80deg);
+  }
+  to {
+    transform: rotateZ(var(--a)) rotateX(var(--open));
+  }
+}
+
+.ob-petal {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0, 100% 46%, 50% 100%, 0 46%);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.18), transparent 55%),
+    linear-gradient(90deg, var(--ob-paper) 0 50%, var(--ob-paper-shade) 50% 100%);
+}
+
+.ob-inner .ob-petal {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.14), transparent 60%),
+    linear-gradient(90deg, var(--ob-cobalt) 0 50%, var(--ob-deep) 50% 100%);
+}
+
+/* Cobalt slivers that dart in alongside the shards. */
+.ob-sliver {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7%;
+  height: 22%;
+  margin: -11% 0 0 -3.5%;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: linear-gradient(90deg, var(--ob-cobalt) 0 50%, var(--ob-deep) 50% 100%);
+  opacity: 0;
+  animation: ob-sliver 340ms cubic-bezier(0.3, 0.6, 0.4, 1) calc(300ms + var(--i) * 40ms) both;
+}
+
+.ob-sliver:nth-child(1) { --sx: -150%; --sy: -170%; --sr: -40deg; }
+.ob-sliver:nth-child(2) { --sx: 160%; --sy: -150%; --sr: 35deg; }
+.ob-sliver:nth-child(3) { --sx: 170%; --sy: 160%; --sr: -30deg; }
+.ob-sliver:nth-child(4) { --sx: -160%; --sy: 150%; --sr: 45deg; }
+
+@keyframes ob-sliver {
+  0% {
+    opacity: 0;
+    transform: translate(calc(var(--sx) * 4), calc(var(--sy) * 1.3)) rotate(var(--sr));
+  }
+  30% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0) scale(0.4);
+  }
+}
+
+/* Frame 5 — Identity: a cobalt diamond core carrying the ivory TP. */
+.ob-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: linear-gradient(135deg, var(--ob-cobalt) 0 50%, var(--ob-deep) 50% 100%);
+}
+
+.ob[data-mode="play"] .ob-core {
+  animation: ob-core-in 260ms cubic-bezier(0.3, 1.5, 0.5, 1) 1300ms both;
+}
+
+@keyframes ob-core-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2) rotate(-45deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.ob-core-mark {
+  width: 56%;
+  height: 56%;
+  fill: none;
+  stroke: var(--ob-core-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ob[data-mode="play"] .ob-core-mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ob-draw 120ms ease-out both;
+}
+
+.ob-core-mark path:nth-child(1) { animation-delay: 1340ms; }
+.ob-core-mark path:nth-child(2) { animation-delay: 1380ms; }
+.ob-core-mark path:nth-child(3) { animation-delay: 1420ms; }
+.ob-core-mark path:nth-child(4) { animation-delay: 1450ms; }
+
+.ob-sweep {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(105deg, transparent 38%, rgb(255 246 226 / 0.55) 50%, transparent 62%);
+  transform: translateX(-120%);
+}
+
+.ob[data-mode="play"] .ob-sweep {
+  animation: ob-sweep 300ms ease-in-out 1420ms both;
+}
+
+.ob[data-mode="static"] .ob-sweep {
+  display: none;
+}
+
+@keyframes ob-sweep {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* ------------------------------------------- Frames 6–7 — World emerges, unfolds */
+.ob-world {
+  position: absolute;
+  inset: 0;
+  clip-path: ellipse(0 0 at 50% 46%);
+  animation: ob-window 700ms cubic-bezier(0.55, 0, 0.3, 1) 1550ms both;
+}
+
+.ob[data-world="loading"] .ob-world {
+  visibility: hidden;
+}
+
+@keyframes ob-window {
+  0% {
+    visibility: hidden;
+    clip-path: ellipse(9% 6% at 50% 46%);
+  }
+  1% {
+    visibility: visible;
+  }
+  50% {
+    clip-path: ellipse(52% 34% at 50% 46%);
+  }
+  100% {
+    clip-path: ellipse(120% 90% at 50% 46%);
+  }
+}
+
+.ob-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ob-plate {
+  animation: ob-plate 700ms cubic-bezier(0.2, 0.7, 0.3, 1) 1550ms both;
+}
+
+@keyframes ob-plate {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.ob-fg {
+  filter: var(--ob-sprite-filter);
+  animation: ob-rise 380ms cubic-bezier(0.2, 0.8, 0.3, 1) 1900ms both;
+}
+
+@keyframes ob-rise {
+  from {
+    transform: translateY(22%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.ob-sprite {
+  position: absolute;
+  display: block;
+  filter: var(--ob-sprite-filter);
+}
+
+.ob-cloud-a {
+  top: 15%;
+  left: -8%;
+  width: 46vw;
+  aspect-ratio: 380 / 268;
+  animation: ob-drift-a 1550ms linear 1550ms both;
+}
+
+.ob-cloud-b {
+  top: 34%;
+  right: -6%;
+  width: 36vw;
+  aspect-ratio: 320 / 244;
+  animation: ob-drift-b 1550ms linear 1550ms both;
+}
+
+@keyframes ob-drift-a {
+  from {
+    transform: translateX(-8%);
+  }
+  to {
+    transform: translateX(10%);
+  }
+}
+
+@keyframes ob-drift-b {
+  from {
+    transform: translateX(10%);
+  }
+  to {
+    transform: translateX(-8%);
+  }
+}
+
+/* The plane follows the trail's curve (sampled at quarters) towards the sun, top right. */
+.ob-plane {
+  top: 0;
+  left: 0;
+  width: 15vw;
+  aspect-ratio: 200 / 120;
+  opacity: 0;
+  animation: ob-fly 760ms cubic-bezier(0.4, 0.1, 0.5, 1) 1900ms both;
+}
+
+@keyframes ob-fly {
+  0% {
+    opacity: 0;
+    transform: translate(calc(9.6vw - 50%), calc(50vh - 50%)) rotate(-4deg) scale(0.8);
+  }
+  12% {
+    opacity: 1;
+  }
+  25% {
+    transform: translate(calc(33.6vw - 50%), calc(48.3vh - 50%)) rotate(-8deg) scale(0.88);
+  }
+  50% {
+    transform: translate(calc(54vw - 50%), calc(42.5vh - 50%)) rotate(-16deg) scale(0.95);
+  }
+  75% {
+    transform: translate(calc(71.5vw - 50%), calc(31.5vh - 50%)) rotate(-26deg) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(calc(86.4vw - 50%), calc(14vh - 50%)) rotate(-30deg) scale(0.92);
+  }
+}
+
+.ob-trail {
+  position: absolute;
+  top: 12%;
+  left: 8%;
+  width: 80%;
+  height: 40%;
+  overflow: visible;
+  fill: none;
+}
+
+.ob-trail path {
+  stroke: color-mix(in srgb, var(--ob-paper) 85%, transparent);
+  stroke-width: 1.6;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+  animation: ob-draw 760ms cubic-bezier(0.4, 0.1, 0.5, 1) 1900ms both;
+}
+
+.ob[data-theme-variant="dark"] .ob-trail path {
+  stroke: color-mix(in srgb, var(--ob-ink) 55%, transparent);
+}
+
+/* Tushky waits on the ledge, bottom left. */
+.ob-dog {
+  bottom: 15.5%;
+  left: 5vw;
+  width: 25vw;
+  max-width: 120px;
+  aspect-ratio: 320 / 368;
+  transform-origin: 50% 100%;
+  animation: ob-hop 360ms cubic-bezier(0.3, 1.5, 0.5, 1) 2050ms both;
+}
+
+@keyframes ob-hop {
+  from {
+    opacity: 0;
+    transform: translateY(30%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ------------------------------------------------- Frame 8 — Name */
+.ob-copy {
+  position: absolute;
+  z-index: 2;
+  top: 20%;
+  left: 0;
+  right: 0;
+  padding: 0 24px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ob-name {
+  margin: 0;
+  font-family: var(--font-hand, "Caveat", cursive);
+  font-size: clamp(38px, 11.2vw, 48px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ob-ink);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ob-bg) 70%, transparent), 0 0 18px color-mix(in srgb, var(--ob-bg) 80%, transparent);
+}
+
+.ob-tagline {
+  max-width: 30ch;
+  margin: 10px auto 0;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ob-ink);
+  text-wrap: balance;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--ob-bg) 90%, transparent);
+}
+
+.ob[data-mode="play"] .ob-name {
+  animation: ob-lift 320ms cubic-bezier(0.2, 0.8, 0.3, 1) 2250ms both;
+}
+
+.ob[data-mode="play"] .ob-tagline {
+  animation: ob-lift 320ms cubic-bezier(0.2, 0.8, 0.3, 1) 2370ms both;
+}
+
+@keyframes ob-lift {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------- Frame 9 — Invitation */
+.ob-cta {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  translate: -50% 0;
+  background: var(--ob-pill);
+  color: var(--ob-pill-ink);
+  font: 600 16px/1 var(--font-sans, system-ui, sans-serif);
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 3px 0 var(--ob-pill-edge),
+    0 10px 24px rgb(16 43 79 / 0.22);
+  transition:
+    transform 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+.ob-cta:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 var(--ob-pill-edge),
+    0 4px 10px rgb(16 43 79 / 0.2);
+}
+
+.ob-cta-fold {
+  display: inline-block;
+  color: var(--ob-cobalt);
+}
+
+.ob[data-theme-variant="dark"] .ob-cta-fold {
+  color: var(--ob-pill-ink);
+}
+
+.ob[data-mode="play"] .ob-cta {
+  animation: ob-unfold 260ms cubic-bezier(0.25, 1.3, 0.45, 1) 2600ms both;
+}
+
+@keyframes ob-unfold {
+  from {
+    visibility: hidden;
+    opacity: 0;
+    transform: perspective(400px) rotateX(-70deg) translateY(10px);
+  }
+  1% {
+    visibility: visible;
+  }
+  to {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------- Reduced motion — one still frame */
+.ob[data-mode="static"] .ob-stage {
+  top: 58%;
+  width: min(62vw, 250px);
+}
+
+.ob[data-mode="static"] *,
+.ob[data-mode="static"] {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (min-height: 760px) {
+  .ob-copy {
+    top: 21%;
+  }
+}
