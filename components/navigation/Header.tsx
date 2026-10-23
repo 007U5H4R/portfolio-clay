@@ -10,6 +10,7 @@ import { HeaderScroll } from "./HeaderScroll";
 import { Monogram } from "./Monogram";
 import { MoreMenu } from "./MoreMenu";
 import { PrimaryNav } from "./PrimaryNav";
+import { TourButton } from "@/components/tour/TourButton";
 
 /**
  * Sticky paper header (Design.md §4.1; decisions D12, D8, S21; TKT-71). Server shell: one height
@@ -78,6 +79,8 @@ export function Header() {
             </span>
           </Link>
           <AskAIButton />
+          {/* TASK-170: the replayable guided tour (>= 640; phones use the More menu row). */}
+          <TourButton />
           {/* The theme switch sits on its own paper chip (TASK-145.1); the control inside is unchanged. */}
           <span className="header-chip">
             <ThemeToggle />

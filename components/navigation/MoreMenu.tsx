@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronRight, EllipsisVertical, ExternalLink, X } from "lucide-react";
 import { useAskContext } from "@/components/ai/AskProvider";
 import { activeMenuHref, menuGroups, type MenuItem } from "@/lib/mobile-menu";
+import { requestTour } from "@/lib/tour";
 import { Monogram } from "./Monogram";
 
 /**
@@ -117,6 +118,12 @@ export function MoreMenu() {
     openPanel();
   };
 
+  // TASK-170: close at once and start the tour; it hands focus back to the kebab when it ends.
+  const takeTour = () => {
+    finish();
+    requestTour("menu", buttonRef.current);
+  };
+
   // Deliberate leftward swipe (mostly horizontal, > 64 px) closes; vertical scrolling inside the drawer is untouched.
   const onTouchStart = (e: TouchEvent) => {
     const t = e.touches[0];
@@ -135,9 +142,9 @@ export function MoreMenu() {
   const current = activeMenuHref(pathname);
 
   const renderItem = (item: MenuItem) => {
-    if (item.kind === "ask") {
+    if (item.kind === "ask" || item.kind === "tour") {
       return (
-        <button type="button" className="more-row focus-ring" aria-haspopup="dialog" onClick={askTushky}>
+        <button type="button" className="more-row focus-ring" aria-haspopup="dialog" onClick={item.kind === "ask" ? askTushky : takeTour}>
           <RowIcon icon={item.icon} />
           <span className="more-text">
             <span className="more-name">{item.label}</span>

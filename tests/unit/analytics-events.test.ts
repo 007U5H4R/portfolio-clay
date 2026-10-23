@@ -33,10 +33,10 @@ const SPEC_EVENTS = [
   "easter_egg_discovered", "game_intro_viewed", "game_started", "game_interaction_performed", "game_milestone_reached", "game_over", "game_replayed", "game_exited_to_portfolio",
 ] as const;
 const NOT_BUILT = ["resume_downloaded", "meeting_link_clicked", "contact_form_started", "contact_form_submitted"] as const;
-const ADDED = ["chatbot_response_failed"] as const;
+const ADDED = ["chatbot_response_failed", "tour_started", "tour_step_viewed", "tour_completed", "tour_skipped"] as const;
 
 describe("event catalogue (TASK-194)", () => {
-  it("defines every spec event except the four the site has no UI for, plus one documented addition", () => {
+  it("defines every spec event except the four the site has no UI for, plus the documented additions (chatbot_response_failed; TASK-170 tour events)", () => {
     const expected = [...SPEC_EVENTS.filter((e) => !(NOT_BUILT as readonly string[]).includes(e)), ...ADDED].sort();
     expect([...EVENT_NAMES].sort()).toEqual(expected);
   });

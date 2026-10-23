@@ -19,6 +19,7 @@ import { HideOnLab } from "@/components/layout/HideOnLab";
 import { AskProvider } from "@/components/ai/AskProvider";
 import { SmoothScroll } from "@/components/interactions/SmoothScroll";
 import { AnalyticsLoader } from "@/components/analytics/AnalyticsLoader";
+import { GuidedTour } from "@/components/tour/GuidedTour";
 
 // The 6 panel-surface prompts (PB3), resolved server-side and handed to the global AskProvider as a
 // plain string[] (A1: a client leaf receives the exact props it needs, never the knowledge module).
@@ -112,6 +113,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {/* TASK-224: the phone-only bottom dock (CSS hides it from 640 up); hidden with the footer on the lab. */}
             <MobileDock />
           </HideOnLab>
+          {/* TASK-170: the guided tour (home page only; started from the header, the More menu or the one-time invite). */}
+          <GuidedTour />
         </AskProvider>
         {/*
           Vercel Analytics + Speed Insights (A11/TP9, TKT-50): cookie-less. QA-005 fix — these

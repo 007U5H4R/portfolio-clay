@@ -61,7 +61,7 @@ Rules the code enforces:
 
 - **One tracking module.** Components call `track(EventName, props)` from `lib/analytics/track.ts`. Nobody imports the SDK. `track()` is typed against the catalogue (a wrong name or property is a compile error), and the runtime validates the same schema again: unknown events, missing/extra properties, free text and out-of-range numbers are dropped (and `console.warn`-ed outside production). It never throws into the UI.
 - **No free text can be sent.** Property values are closed enums, length-bounded `[a-z0-9_.-]` slugs, site paths, bounded integers or booleans (`lib/analytics/schema.ts`). There is no "string" kind.
-- **Minimal component edits.** Most events come from *where a link points* (the delegated click listener), not from per-button code: `IndependentProductsShowcase` (project selected, pitch/demo opened), `ProductMediaPlayer` (video), `AskPanel` + `AskProvider` (Ask Tushky), `SecretTrigger` (Lab discovery) and `LabApp` (one `observeLab` call, one `exit` call) are the only component files that call analytics.
+- **Minimal component edits.** Most events come from *where a link points* (the delegated click listener), not from per-button code: `IndependentProductsShowcase` (project selected, pitch/demo opened), `ProductMediaPlayer` (video), `AskPanel` + `AskProvider` (Ask Tushky), `SecretTrigger` (Lab discovery), `GuidedTour` (the guided tour) and `LabApp` (one `observeLab` call, one `exit` call) are the only component files that call analytics.
 - **No work on scroll.** Sections and the carousel use `IntersectionObserver`; scroll depth uses four invisible sentinel blocks observed by one `IntersectionObserver` (a `ResizeObserver` on `<body>` repositions them when the page height changes). There is **no** scroll, wheel, touch, mousemove or animation-frame listener.
 - **Never awaits analytics.** The click listener is passive, never calls `preventDefault`/`stopPropagation`, and never waits for the network. A blocked, offline or failing Mixpanel leaves the site fully working (covered by an e2e test).
 - **Loads late.** The runtime and the SDK are requested only after the window `load` event and a browser idle slot (≤4 s), or immediately when the first interaction (e.g. a click) needs them. Never on the LCP path. Without a token the whole branch is compiled out.
@@ -84,7 +84,7 @@ Withdrawal (`applyConsent("denied")`) removes every listener and observer, drops
 
 ## 3. Event dictionary
 
-Names are `snake_case`; each event is defined once in `lib/analytics/events.ts` (the table below is generated from it and a unit test fails if the two drift). 32 events. *Not implemented because the site has no such UI* (the spec says not to invent them): `contact_form_started`, `contact_form_submitted` (the contact page is links, no form), `meeting_link_clicked` (no scheduling link), `resume_downloaded` (the résumé is a Google Drive **view** link that opens in a new tab: an open can never be verified as a download). One event was **added**: `chatbot_response_failed`, so that errors are kept apart from successful responses as the spec asks.
+Names are `snake_case`; each event is defined once in `lib/analytics/events.ts` (the table below is generated from it and a unit test fails if the two drift). 36 events. *Not implemented because the site has no such UI* (the spec says not to invent them): `contact_form_started`, `contact_form_submitted` (the contact page is links, no form), `meeting_link_clicked` (no scheduling link), `resume_downloaded` (the résumé is a Google Drive **view** link that opens in a new tab: an open can never be verified as a download). One event was **added**: `chatbot_response_failed`, so that errors are kept apart from successful responses as the spec asks.
 
 **Double counting.** One click on the résumé link sends three events — `outbound_link_clicked`, `resume_opened` and `professional_cta_clicked` — by design (different questions). In reports count **unique users** on a single event; do not add `resume_opened + linkedin_profile_clicked + email_contact_clicked` to get "leads" — use `professional_cta_clicked` (one per click, `cta_type` splits it) with *unique users*, or the "any conversion" cohort in section 5. `cta_type=contact_page` (the "Let's connect" pill / email link that leads to /contact) is a lead-in, not a conversion: filter it out of the primary metric.
 
@@ -353,6 +353,40 @@ Names are `snake_case`; each event is defined once in `lib/analytics/events.ts` 
 - **Code:** `components/lab/LabApp.tsx → lib/analytics/lab.ts`
 - **Properties:**
   - `exit_location`: `portal` \| `intro` \| `playing` \| `paused` \| `results` \| `fallback`
+
+
+
+### F. Guided tour
+
+#### `tour_started`
+
+- **Trigger:** The guided tour opens: "Show me" on the one-time invite, or "Take a tour" in the desktop header or the phone menu (a start from another page opens it on the home page).
+- **Code:** `components/tour/GuidedTour.tsx`
+- **Properties:**
+  - `source`: `invite` \| `menu`
+
+#### `tour_step_viewed`
+
+- **Trigger:** A tour stop is shown, including the first one and each Back.
+- **Code:** `components/tour/GuidedTour.tsx`
+- **Properties:**
+  - `step_id`: `hero` \| `work` \| `ask` \| `credentials` \| `theme` \| `brand`
+  - `step_index`: int 0–10
+
+#### `tour_completed`
+
+- **Trigger:** The visitor presses Done (or the right arrow) on the last stop.
+- **Code:** `components/tour/GuidedTour.tsx`
+- **Properties:**
+  - `step_count`: int 1–10
+
+#### `tour_skipped`
+
+- **Trigger:** The tour closes before the end: Skip, Escape, or leaving the home page.
+- **Code:** `components/tour/GuidedTour.tsx`
+- **Properties:**
+  - `step_id`: `hero` \| `work` \| `ask` \| `credentials` \| `theme` \| `brand`
+  - `step_index`: int 0–10
 
 
 

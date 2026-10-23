@@ -19,7 +19,14 @@ export interface MenuAsk {
   hint: string;
   icon: string;
 }
-export type MenuItem = MenuLink | MenuAsk;
+/** TASK-170: replays the guided tour (not a route; goes home first when needed). */
+export interface MenuTour {
+  kind: "tour";
+  label: string;
+  hint: string;
+  icon: string;
+}
+export type MenuItem = MenuLink | MenuAsk | MenuTour;
 export interface MenuGroup {
   label: string;
   items: MenuItem[];
@@ -42,6 +49,7 @@ export const menuGroups: MenuGroup[] = [
       { kind: "ask", label: "Ask Tushky", hint: "Questions about my work", icon: askIcon },
       dockLink("/about", "About"),
       dockLink("/certifications", "Certifications"),
+      { kind: "tour", label: "Take a tour", hint: "A 30-second look around", icon: dockLink("/", "Home").icon },
     ],
   },
   {
