@@ -1,10 +1,10 @@
 ---
 id: TASK-360
 title: Add the Origami Bloom mobile welcome splash
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-23 13:58'
-updated_date: '2026-10-23 14:56'
+updated_date: '2026-10-23 15:31'
 labels:
   - P2
 dependencies: []
