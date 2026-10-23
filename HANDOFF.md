@@ -1,3 +1,14 @@
+# HANDOFF — Portfolio · 2026-10-23 SHIPPED
+
+- **TASK-359 Awards redesign:** shipped (PR #181 → d0b33454).
+- **TASK-170 guided tour:** shipped (PR #182).
+- **TASK-360 Origami Bloom** phone splash: shipped (PR #183 → f040de93).
+- **TASK-361 tour glass restyle:** shipped (PR #184 → cdc1e460); blurred spotlight + frosted-glass notes; verified on prod w1440/w390, light/dark.
+- **Offered, unanswered follow-ups:** tour polish nits, splash gaps, `next dev` crash, analytics.spec.ts:88 at w390 (fails on prod too).
+- **CI/CD autonomy re-granted 2026-10-23:** ship each gated change to prod without asking. See [[cicd-autonomy-2026-10-18]].
+
+---
+
 # HANDOFF — Portfolio (tusharpathak.com) · Stage 12 continuous loop · wave 3 (2026-10-22) SHIPPED
 
 Updated 2026-10-22. Production = main `92d08750`. Previous batons follow below.
