@@ -1,7 +1,7 @@
 /* Origami Bloom pre-paint cover (TASK-360, lib/origami-bloom.ts). The inline head script sets
    <html data-intro> on an eligible phone visit before first paint; this cover holds the screen on the
-   splash's opening frame (the torn signature card) until the client splash takes over or the head
-   script's failsafe removes the attribute. Nothing here applies without the attribute, so desktop,
+   splash's opening frame (the torn signature card) until the splash component mounts
+   (data-intro-live) or the intro ends (head-script failsafe, chunk budget, gate unmount). Nothing here applies without the attribute, so desktop,
    tablet and every automated run are untouched. */
 html[data-intro] {
   --ob-bg: #f7e7d0;

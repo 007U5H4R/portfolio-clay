@@ -8,7 +8,10 @@
  *   - the CTA lands on #selected-work;
  *   - reduced motion: static frame, no animation, then gone;
  *   - desktop, and automation without the opt-in: never shown;
- *   - no horizontal overflow at 320; no console errors.
+ *   - no horizontal overflow at 320; no console errors;
+ *   - the page underneath is inert while the splash plays;
+ *   - a slow chunk keeps the cover up (no homepage flash) and a client navigation away mid-load ends
+ *     the intro; an aborted chunk falls back to the homepage.
  */
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
@@ -20,6 +23,27 @@ const introAttr = (page: Page) => page.evaluate(() => document.documentElement.d
 async function optIn(page: Page) {
   await page.addInitScript(() => ((window as { __hsOrigamiIntro?: boolean }).__hsOrigamiIntro = true));
 }
+
+/** The splash chunk is the only JS chunk carrying the Skip label. */
+async function holdSplashChunk(page: Page, how: { delayMs: number } | "abort") {
+  await page.route(/\/_next\/static\/chunks\/.*\.js/, async (route) => {
+    const res = await route.fetch();
+    const body = await res.text();
+    if (!body.includes("Skip intro")) return route.fulfill({ response: res, body });
+    if (how === "abort") return route.abort();
+    await new Promise((r) => setTimeout(r, how.delayMs));
+    return route.fulfill({ response: res, body });
+  });
+}
+
+const pageInert = (page: Page) => page.evaluate(() => !!document.querySelector("main")?.closest("[inert]"));
+const canScroll = (page: Page) =>
+  page.evaluate(async () => {
+    window.scrollTo(0, 400);
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    return window.scrollY > 0 && getComputedStyle(document.documentElement).overflow !== "hidden";
+  });
+const coverShown = (page: Page) => page.evaluate(() => getComputedStyle(document.body, "::after").content !== "none");
 
 async function open(page: Page, w = 390, h = 844) {
   await optIn(page);
@@ -38,7 +62,9 @@ test.describe("Origami Bloom phone splash (TASK-360)", () => {
     await expect(splash(page)).toBeVisible();
     await expect(splash(page)).toHaveAttribute("data-mode", "play");
     await expect(page.getByRole("region", { name: /Welcome to Tushar Pathak/ })).toBeVisible();
+    expect(await pageInert(page)).toBe(true);
     await expect(splash(page)).toHaveCount(0, { timeout: 6_000 });
+    expect(await pageInert(page)).toBe(false);
     expect(await introAttr(page)).toBeNull();
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe("hidden");
     expect(await page.evaluate(() => sessionStorage.getItem("hs-origami-intro"))).toBe("1");
@@ -130,5 +156,36 @@ test.describe("Origami Bloom phone splash (TASK-360)", () => {
     await noOverflow(page);
     // the world push scales art past the edges on purpose; the overlay clips it
     expect(await splash(page).evaluate((el) => getComputedStyle(el).overflowX)).toMatch(/hidden|clip/);
+  });
+
+  test("a slow splash chunk keeps the cover up until the splash mounts (no homepage flash)", async ({ page }) => {
+    await holdSplashChunk(page, { delayMs: 450 });
+    await open(page);
+    await expect.poll(() => page.evaluate(() => document.documentElement.dataset.introClaimed ?? null)).toBe("1");
+    await expect(splash(page)).toHaveCount(0);
+    expect(await coverShown(page)).toBe(true);
+    await expect(splash(page)).toBeVisible({ timeout: 3_000 });
+    expect(await coverShown(page)).toBe(false);
+  });
+
+  test("navigating away while the chunk loads ends the intro and leaves the page scrollable", async ({ page }) => {
+    await holdSplashChunk(page, { delayMs: 3_000 });
+    await open(page);
+    await expect.poll(() => page.evaluate(() => document.documentElement.dataset.introClaimed ?? null)).toBe("1");
+    await page.evaluate(() => document.querySelector<HTMLAnchorElement>('a[href="/about"]')?.click());
+    await page.waitForURL((u) => u.pathname === "/about");
+    await page.waitForTimeout(1_500);
+    expect(await page.evaluate(() => Object.keys(document.documentElement.dataset).filter((k) => k.startsWith("intro")))).toEqual([]);
+    await expect(splash(page)).toHaveCount(0);
+    expect(await canScroll(page)).toBe(true);
+  });
+
+  test("an aborted splash chunk falls back to the homepage", async ({ page }) => {
+    await holdSplashChunk(page, "abort");
+    await open(page);
+    await expect.poll(() => introAttr(page), { timeout: 3_000 }).toBeNull();
+    await expect(splash(page)).toHaveCount(0);
+    expect(await coverShown(page)).toBe(false);
+    expect(await canScroll(page)).toBe(true);
   });
 });

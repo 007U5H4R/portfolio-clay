@@ -166,9 +166,9 @@ describe("introInitScript (the inline pre-paint script)", () => {
     expect(r.dataset.intro).toBeUndefined();
     expect(r.events).toEqual([INTRO_DONE_EVENT]);
   });
-  it("failsafe stands down once the client splash is live", () => {
+  it("failsafe stands down once the client has claimed the intro", () => {
     const r = run();
-    r.dataset.introLive = "1";
+    r.dataset.introClaimed = "1";
     r.timers[0]!.fn();
     expect(r.dataset.intro).toBe("play");
     expect(r.events).toEqual([]);

@@ -81,11 +81,30 @@ function Monogram({ className }: { className: string }) {
   );
 }
 
+/** Make every body child except the splash inert (skipping ones already inert); returns what changed. */
+function holdPage(splash: HTMLElement | null): HTMLElement[] {
+  const held: HTMLElement[] = [];
+  for (const el of Array.from(document.body.children)) {
+    if (!(el instanceof HTMLElement) || el === splash || el.contains(splash) || el.inert) continue;
+    if (el.tagName === "SCRIPT" || el.tagName === "STYLE" || el.tagName === "LINK") continue;
+    el.inert = true;
+    held.push(el);
+  }
+  return held;
+}
+
+function releasePage(held: HTMLElement[]) {
+  for (const el of held) el.inert = false;
+  held.length = 0;
+}
+
 export function OrigamiBloom({ mode, onDone }: { mode: IntroMode; onDone: () => void }) {
   const root = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
   const ended = useRef(false);
   const prevFocus = useRef<Element | null>(null);
+  /** Page elements this splash made inert; released at the end. */
+  const inerted = useRef<HTMLElement[]>([]);
   const [theme] = useState<Theme>(() => (document.documentElement.dataset.theme === "dark" ? "dark" : "light"));
   const [exiting, setExiting] = useState(false);
   const [world, setWorld] = useState<"loading" | "ready">("loading");
@@ -97,6 +116,7 @@ export function OrigamiBloom({ mode, onDone }: { mode: IntroMode; onDone: () => 
       timers.current.forEach((t) => window.clearTimeout(t));
       timers.current = [];
       const hadFocus = root.current?.contains(document.activeElement) ?? false;
+      releasePage(inerted.current);
       endIntroAttributes();
       if (restoreFocus && hadFocus) {
         const prev = prevFocus.current;
@@ -140,6 +160,10 @@ export function OrigamiBloom({ mode, onDone }: { mode: IntroMode; onDone: () => 
     markIntroSeen(window.sessionStorage);
     prevFocus.current = document.activeElement;
     const d = document.documentElement;
+    // The splash is on screen: drop the pre-paint cover and take the page underneath out of the
+    // tab order and the accessibility tree, so Tab and screen readers land on Skip.
+    d.dataset.introLive = "1";
+    inerted.current = holdPage(root.current);
     if (mode === "static") {
       later(() => finish(true), INTRO_STATIC_HOLD_MS);
     } else {
@@ -163,6 +187,7 @@ export function OrigamiBloom({ mode, onDone }: { mode: IntroMode; onDone: () => 
       pending.forEach((t) => window.clearTimeout(t));
       if (!ended.current) {
         ended.current = true;
+        releasePage(inerted.current);
         endIntroAttributes();
       }
     };
@@ -271,7 +296,7 @@ export function OrigamiBloom({ mode, onDone }: { mode: IntroMode; onDone: () => 
         </span>
       </div>
 
-      <div className="ob-copy">
+      <div className="ob-copy" aria-hidden="true">
         <p className="ob-name">{site.name}</p>
         <p className="ob-tagline">Building ideas at the intersection of AI, Products and People.</p>
       </div>
