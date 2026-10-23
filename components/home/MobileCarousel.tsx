@@ -14,6 +14,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 const PITCH = 28;
 const HALF = 14;
 const REACH = 12;
+/** TASK-169: dwell per card while the row advances on its own. */
+const AUTOPLAY_MS = 4000;
 
 const easeIn = (t: number) => t * t;
 const easeOut = (t: number) => 1 - (1 - t) * (1 - t);
@@ -38,6 +40,7 @@ export function MobileCarousel({
   const rootRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState(0);
+  const [rotating, setRotating] = useState(false);
   const reduced = useRef(false);
 
   const scroller = useCallback(() => rootRef.current?.querySelector<HTMLElement>(":scope > ul, :scope > ol, :scope > [data-carousel-track]") ?? null, []);
@@ -96,7 +99,65 @@ export function MobileCarousel({
     const ro = typeof ResizeObserver === "function" ? new ResizeObserver(onScroll) : null;
     ro?.observe(list);
     paint();
+
+    // TASK-169: on phones the row advances one card every AUTOPLAY_MS while it is mostly on screen, looping back to the
+    // first card, and stops for good the moment the visitor touches, scrolls, clicks or focuses inside it (WCAG 2.2.2).
+    // Off under reduced motion and in jsdom (no IntersectionObserver). Automated browsers opt in via
+    // `window.__hsCarouselAutoplay = true`, so specs that swipe or click the dots never race a timer.
+    const root = rootRef.current;
+    let timer = 0;
+    let inView = false;
+    let stopped = false;
+    const optIn = (window as { __hsCarouselAutoplay?: boolean }).__hsCarouselAutoplay === true;
+    const io =
+      root && typeof IntersectionObserver === "function" && (!navigator.webdriver || optIn)
+        ? new IntersectionObserver(([e]) => {
+            // half the row on screen, or half the screen filled by a row taller than it
+            inView = !!e && (e.intersectionRatio >= 0.5 || e.intersectionRect.height >= window.innerHeight * 0.5);
+            schedule();
+          }, { threshold: [0, 0.25, 0.5, 0.75, 1] })
+        : null;
+    const playing = () => !stopped && inView && !!phone?.matches && !reduced.current && !document.hidden;
+    const advance = () => {
+      const s = slides();
+      const stride = s.length > 1 ? s[1]!.offsetLeft - s[0]!.offsetLeft : 0;
+      if (stride > 0) {
+        const next = (Math.round(list.scrollLeft / stride) + 1) % s.length;
+        list.scrollTo({ left: s[next]!.offsetLeft - s[0]!.offsetLeft, behavior: "smooth" });
+      }
+      schedule();
+    };
+    function schedule() {
+      window.clearTimeout(timer);
+      const on = playing();
+      if (on) timer = window.setTimeout(advance, AUTOPLAY_MS);
+      setRotating(on);
+      if (on) root?.setAttribute("data-autoplay", "");
+      else root?.removeAttribute("data-autoplay");
+    }
+    const stop = () => {
+      stopped = true;
+      schedule();
+    };
+    const interactions = ["pointerdown", "touchstart", "wheel", "keydown", "focusin"] as const;
+    if (io && root) {
+      io.observe(list);
+      for (const t of interactions) root.addEventListener(t, stop, { passive: true });
+      document.addEventListener("visibilitychange", schedule);
+      mq?.addEventListener("change", schedule);
+      phone?.addEventListener("change", schedule);
+    }
+
     return () => {
+      if (io && root) {
+        io.disconnect();
+        for (const t of interactions) root.removeEventListener(t, stop);
+        document.removeEventListener("visibilitychange", schedule);
+        mq?.removeEventListener("change", schedule);
+        phone?.removeEventListener("change", schedule);
+        root.removeAttribute("data-autoplay");
+      }
+      window.clearTimeout(timer);
       list.removeEventListener("scroll", onScroll);
       ro?.disconnect();
       mq?.removeEventListener("change", sync);
@@ -137,7 +198,8 @@ export function MobileCarousel({
               <span aria-hidden="true" />
             </button>
           ))}
-          <span className="sr-only" role="status" aria-live="polite">
+          {/* silent while the row rotates by itself, so a screen reader isn't interrupted every few seconds */}
+          <span className="sr-only" role="status" aria-live={rotating ? "off" : "polite"}>
             {`${noun[0]!.toUpperCase()}${noun.slice(1)} ${active + 1} of ${count}`}
           </span>
         </div>
