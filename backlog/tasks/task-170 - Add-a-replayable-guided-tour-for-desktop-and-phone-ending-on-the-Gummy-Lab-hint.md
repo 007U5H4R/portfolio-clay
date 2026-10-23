@@ -3,10 +3,10 @@ id: TASK-170
 title: >-
   Add a replayable guided tour for desktop and phone, ending on the Gummy Lab
   hint
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-23 12:49'
-updated_date: '2026-10-23 12:49'
+updated_date: '2026-10-23 15:05'
 labels:
   - P2
 dependencies: []
