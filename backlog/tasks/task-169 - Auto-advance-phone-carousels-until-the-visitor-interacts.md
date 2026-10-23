@@ -1,9 +1,10 @@
 ---
 id: TASK-169
 title: Auto-advance phone carousels until the visitor interacts
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-23 12:07'
+updated_date: '2026-10-23 12:30'
 labels:
   - P2
 dependencies: []
