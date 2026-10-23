@@ -7033,7 +7033,7 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   --shade-black: #000;
 }
 
-/* TASK-170 · guided tour — the header button, the one-time invite, the target ring and the folded-paper note.
+/* TASK-170 · guided tour — the header button, the one-time invite, the spotlight scrim + ring and the glass note (TASK-361).
    Tokens only (EVAL-020). Stacks above the header (40) and the phone dock (39), below the Ask panel. Desktop: the note
    sits beside its target (placed in JS, arrow at --tour-arrow). Phone (< 640): a bottom sheet. Reduced motion: fades only. */
 .header-tour {
@@ -7071,14 +7071,62 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   }
 }
 
+/* TASK-361: frosted glass over a blurred, dimmed page. Literals live here as --tour-* tokens (globals.css is allow-listed). */
+.tour-scrim,
+.tour-ring,
+.tour-invite,
+.tour-note {
+  --tour-glass: rgba(250, 248, 255, 0.5);
+  --tour-glass-solid: rgba(250, 248, 255, 0.97);
+  --tour-rim: rgba(255, 255, 255, 0.55);
+  --tour-rim-top: rgba(255, 255, 255, 0.95);
+  --tour-shadow: rgba(28, 38, 72, 0.26);
+  --tour-dim: rgba(58, 70, 100, 0.3);
+  --tour-neon-a: oklch(0.72 0.17 35);
+  --tour-neon-b: oklch(0.62 0.2 300);
+  --tour-neon-c: oklch(0.78 0.13 190);
+  --tour-bar: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--tour-neon-a) 34%, transparent),
+    color-mix(in oklab, var(--tour-neon-b) 30%, transparent) 55%,
+    color-mix(in oklab, var(--tour-neon-c) 32%, transparent)
+  );
+}
+[data-theme="dark"] :is(.tour-scrim, .tour-ring, .tour-invite, .tour-note) {
+  --tour-glass: rgba(22, 28, 48, 0.5);
+  --tour-glass-solid: rgba(22, 28, 48, 0.97);
+  --tour-rim: rgba(210, 222, 255, 0.16);
+  --tour-rim-top: rgba(225, 232, 255, 0.34);
+  --tour-shadow: rgba(0, 0, 0, 0.5);
+  --tour-dim: rgba(8, 12, 28, 0.5);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tour-invite,
+  .tour-note {
+    --tour-glass: var(--tour-glass-solid);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tour-invite,
+  .tour-note {
+    --tour-glass: var(--tour-glass-solid);
+  }
+}
+
 .tour-invite,
 .tour-note {
   position: fixed;
   z-index: 46;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-paper);
-  background: var(--color-ivory);
-  box-shadow: var(--shadow-paper);
+  border: 1px solid var(--tour-rim);
+  border-top-color: var(--tour-rim-top);
+  border-radius: 20px;
+  background: var(--tour-glass);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 var(--tour-rim-top),
+    0 1px 2px var(--tour-shadow),
+    0 24px 48px -16px var(--tour-shadow);
   color: var(--color-navy);
 }
 .tour-invite {
@@ -7090,6 +7138,7 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   gap: 8px 14px;
   max-width: calc(100vw - 32px);
   padding: 10px 10px 10px 18px;
+  border-radius: 999px;
   animation: tour-rise 320ms var(--ease-paper) both;
 }
 .tour-invite-text {
@@ -7103,14 +7152,44 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   gap: 6px;
 }
 
+/* The spotlight: the page blurs and dims under a greyish-blue veil; the clip-path hole (set in JS) keeps the target crisp.
+   pointer-events: none keeps the tour non-modal. */
+.tour-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  background: var(--tour-dim);
+  -webkit-backdrop-filter: blur(5px) saturate(80%);
+  backdrop-filter: blur(5px) saturate(80%);
+  animation: tour-fade 260ms ease both;
+}
+.tour-scrim[data-glide] {
+  transition: clip-path 280ms var(--ease-paper);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tour-scrim {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* The ring: a neon gradient outline (padding-box mask) with a soft glow. */
 .tour-ring {
   position: fixed;
   z-index: 45;
   pointer-events: none;
-  border-radius: calc(var(--radius-paper) + 6px);
-  outline: 2px dashed var(--color-rust);
-  outline-offset: 0;
-  box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-rust) 14%, transparent);
+  border-radius: 14px;
+  padding: 2px;
+  background: linear-gradient(120deg, var(--tour-neon-a), var(--tour-neon-b), var(--tour-neon-c));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--tour-neon-b) 55%, transparent));
 }
 /* Glide only between steps (GuidedTour sets data-glide for one move); scroll-following stays instant. */
 .tour-ring[data-glide] {
@@ -7124,8 +7203,8 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
 .tour-note {
   top: 0;
   left: 0;
-  width: min(320px, calc(100vw - 32px));
-  padding: 22px 18px 14px;
+  width: min(340px, calc(100vw - 32px));
+  padding: 0 18px 14px;
   outline: none;
   animation: tour-fade 220ms ease both;
 }
@@ -7134,76 +7213,84 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
     top 280ms var(--ease-paper),
     left 280ms var(--ease-paper);
 }
-/* the folded corner */
-.tour-note::after {
-  content: "";
-  position: absolute;
-  right: -1px;
-  bottom: -1px;
-  width: 18px;
-  height: 18px;
-  background: linear-gradient(135deg, var(--color-paper-2) 50%, transparent 50%);
-  border-top-left-radius: 2px;
-  box-shadow: -1px -1px 0 var(--line-strong);
-  pointer-events: none;
-}
-.tour-tape {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 72px;
-  height: 20px;
-  translate: -50% 0;
-  rotate: -2deg;
-  background: var(--tape);
-  pointer-events: none;
-}
-/* the arrow: a small rotated square on the side facing the target */
+/* the arrow: a small glass-tinted diamond on the side facing the target */
 .tour-note::before {
   content: "";
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background: var(--color-ivory);
-  border: 1px solid var(--line-strong);
+  width: 14px;
+  height: 14px;
+  background: var(--tour-glass-solid);
+  border: 1px solid var(--tour-rim);
   rotate: 45deg;
   display: none;
 }
 .tour-note[data-side="below"]::before {
   display: block;
-  top: -7px;
-  left: calc(var(--tour-arrow, 50%) - 6px);
+  top: -8px;
+  left: calc(var(--tour-arrow, 50%) - 7px);
   border-right: 0;
   border-bottom: 0;
 }
 .tour-note[data-side="above"]::before {
   display: block;
-  bottom: -7px;
-  left: calc(var(--tour-arrow, 50%) - 6px);
+  bottom: -8px;
+  left: calc(var(--tour-arrow, 50%) - 7px);
   border-left: 0;
   border-top: 0;
 }
 .tour-note[data-side="right"]::before {
   display: block;
-  left: -7px;
-  top: calc(var(--tour-arrow, 50%) - 6px);
+  left: -8px;
+  top: calc(var(--tour-arrow, 50%) - 7px);
   border-top: 0;
   border-right: 0;
 }
 .tour-note[data-side="left"]::before {
   display: block;
-  right: -7px;
-  top: calc(var(--tour-arrow, 50%) - 6px);
+  right: -8px;
+  top: calc(var(--tour-arrow, 50%) - 7px);
   border-bottom: 0;
   border-left: 0;
 }
+/* The top bar: a translucent neon gradient band across the glass, with the count and the close button. */
+.tour-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 -18px 12px;
+  padding: 0 4px 0 18px;
+  border-bottom: 1px solid var(--tour-rim);
+  border-radius: 19px 19px 0 0;
+  background: var(--tour-bar);
+}
 .tour-count {
-  margin: 0 0 4px;
+  margin: 0;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-ink-soft);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-navy);
   font-variant-numeric: tabular-nums;
+}
+.tour-close {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-navy);
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.tour-close:focus-visible {
+  background: var(--tour-rim);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tour-close:hover {
+    background: var(--tour-rim);
+  }
 }
 .tour-title {
   margin: 0 0 6px;
@@ -7234,12 +7321,27 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   gap: 8px;
   margin-top: 14px;
 }
+.tour-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-navy) 24%, transparent);
+  transition:
+    width 220ms var(--ease-paper),
+    background-color 220ms ease;
+}
+.tour-dot[data-on] {
+  width: 18px;
+  background: linear-gradient(90deg, var(--tour-neon-a), var(--tour-neon-b));
+}
 .tour-nav {
   display: flex;
   gap: 6px;
-}
-.tour-skip {
-  margin-left: -10px;
 }
 
 .tour-btn {
@@ -7248,8 +7350,8 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
-  padding: 0 16px;
-  border: 1.5px solid transparent;
+  padding: 0 18px;
+  border: 1px solid transparent;
   border-radius: var(--radius-pill);
   font-size: 15px;
   font-weight: 600;
@@ -7258,37 +7360,39 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
   transition:
     border-color 160ms ease,
     background-color 160ms ease,
+    box-shadow 160ms ease,
     color 160ms ease;
 }
 .tour-btn-primary {
   background: var(--color-navy);
   color: var(--color-ivory);
+  box-shadow: 0 6px 16px -6px color-mix(in oklab, var(--tour-neon-b) 70%, transparent);
 }
 .tour-btn-ghost {
   background: transparent;
   color: var(--color-navy);
 }
 .tour-btn-primary:focus-visible {
-  background: color-mix(in oklab, var(--color-navy) 86%, var(--color-rust));
+  background: color-mix(in oklab, var(--color-navy) 82%, var(--tour-neon-b));
 }
 .tour-btn-ghost:focus-visible {
-  border-color: var(--line);
-  background: var(--color-paper-2);
+  border-color: var(--tour-rim);
+  background: var(--tour-rim);
 }
 @media (hover: hover) and (pointer: fine) {
   .tour-btn-primary:hover {
-    background: color-mix(in oklab, var(--color-navy) 86%, var(--color-rust));
+    background: color-mix(in oklab, var(--color-navy) 82%, var(--tour-neon-b));
   }
   .tour-btn-ghost:hover {
-    border-color: var(--line);
-    background: var(--color-paper-2);
+    border-color: var(--tour-rim);
+    background: var(--tour-rim);
   }
 }
 .tour-btn:active {
   translate: 0 1px;
 }
 
-/* Phone: the invite sits above the dock; the note is a bottom sheet over it. */
+/* Phone: the invite sits above the dock; the note is a glass bottom sheet over it. */
 @media (max-width: 639px) {
   .tour-invite {
     left: 8px;
@@ -7303,9 +7407,15 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
     right: 8px;
     bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     width: auto;
-    padding: 22px 16px 10px;
+    padding: 0 16px 10px;
+    border-radius: 22px;
     transition: none;
     animation: tour-rise 320ms var(--ease-paper) both;
+  }
+  .tour-bar {
+    margin-inline: -16px;
+    padding-left: 16px;
+    border-radius: 21px 21px 0 0;
   }
   .tour-note[data-side]::before {
     display: none;
@@ -7325,7 +7435,9 @@ body:has(.pf-showcase[data-view="detail"]) .ob-root {
 }
 @media (prefers-reduced-motion: reduce) {
   .tour-ring,
-  .tour-note {
+  .tour-scrim,
+  .tour-note,
+  .tour-dot {
     transition: none;
   }
   .tour-invite,

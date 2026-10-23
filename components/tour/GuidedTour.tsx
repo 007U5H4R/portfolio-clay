@@ -24,8 +24,9 @@ import {
 } from "@/lib/tour";
 
 /**
- * TASK-170 — the replayable guided tour (home page only). Six folded-paper notes, each anchored to a real element:
- * beside it on desktop, a bottom sheet on phones (< 640) with the page scrolled so the target sits under the header.
+ * TASK-170 — the replayable guided tour (home page only). Six frosted-glass notes (TASK-361), each anchored to a real
+ * element: beside it on desktop, a bottom sheet on phones (< 640) with the page scrolled so the target sits under the
+ * header. A blurred, dimmed scrim covers the page with a rounded hole over the target, so only that stays crisp.
  * Non-modal dialog: the page stays usable, focus moves into the note and back to the opener on close, and a polite
  * live region announces "Step n of N". While open `<html data-tour-open>` is set and `tour:change` fires, which
  * MobileCarousel's autoplay check reads. Started by `requestTour()` (header button, phone menu row) or the one-time
@@ -71,6 +72,16 @@ function isPhone(): boolean {
   return window.matchMedia(`(max-width: ${TOUR_PHONE_MAX}px)`).matches;
 }
 
+/** The scrim's clip: the whole viewport minus a rounded hole over the target (evenodd). */
+function holePath(vw: number, vh: number, x: number, y: number, w: number, h: number, radius: number): string {
+  const r = Math.max(0, Math.min(radius, w / 2, h / 2));
+  return (
+    `path(evenodd, "M0 0H${vw}V${vh}H0Z` +
+    `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${y + r}V${y + h - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + h}` +
+    `H${x + r}A${r} ${r} 0 0 1 ${x} ${y + h - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z")`
+  );
+}
+
 function scrollToY(y: number): void {
   const immediate = reducedMotion();
   if (scrollToOffset(y, { immediate })) return;
@@ -99,6 +110,7 @@ export function GuidedTour() {
   const [invite, setInvite] = useState(false);
   const noteRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
   /** True once the ring/note have a position this run, so later steps glide from it (the first never flies in from 0,0). */
   const placed = useRef(false);
@@ -241,9 +253,11 @@ export function GuidedTour() {
       if (!target || !target.isConnected) target = resolveTarget(step);
       const note = noteRef.current;
       const ring = ringRef.current;
-      if (!note || !ring) return;
+      const scrim = scrimRef.current;
+      if (!note || !ring || !scrim) return;
       if (!target) {
         ring.hidden = true;
+        scrim.hidden = true;
         return;
       }
       const r = target.getBoundingClientRect();
@@ -255,8 +269,9 @@ export function GuidedTour() {
       // First move of a step after an earlier one: glide there; every later move (scroll, resize) is instant.
       if (!last && placed.current && !reducedMotion()) {
         ring.dataset.glide = "";
+        scrim.dataset.glide = "";
         note.dataset.glide = "";
-        glided = [ring, note];
+        glided = [ring, scrim, note];
         glideTimer = window.setTimeout(unglide, 320);
       }
       placed.current = true;
@@ -267,6 +282,8 @@ export function GuidedTour() {
       ring.style.left = `${r.left - pad}px`;
       ring.style.width = `${r.width + pad * 2}px`;
       ring.style.height = `${r.height + pad * 2}px`;
+      scrim.hidden = false;
+      scrim.style.clipPath = holePath(vw, vh, r.left - pad, r.top - pad, r.width + pad * 2, r.height + pad * 2, 14);
       if (phone) {
         note.dataset.side = "sheet";
         note.style.removeProperty("top");
@@ -340,6 +357,7 @@ export function GuidedTour() {
 
       {step ? (
         <>
+          <div ref={scrimRef} className="tour-scrim" aria-hidden="true" hidden />
           <div ref={ringRef} className="tour-ring" aria-hidden="true" hidden />
           <div
             ref={noteRef}
@@ -353,12 +371,18 @@ export function GuidedTour() {
             data-tour-step={step.id}
             data-side="pinned"
           >
-            <span className="tour-tape" aria-hidden="true" />
-            {/* Keyed copy so each stop's text fades in; the buttons keep their identity, so focus stays on Next. */}
-            <div className="tour-copy" key={step.id}>
+            <div className="tour-bar">
               <p className="tour-count" aria-hidden="true">
                 {index + 1} / {total}
               </p>
+              <button type="button" className="tour-close focus-ring" aria-label="Close tour" onClick={() => close("skipped")}>
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                  <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            {/* Keyed copy so each stop's text fades in; the buttons keep their identity, so focus stays on Next. */}
+            <div className="tour-copy" key={step.id}>
               <h2 id={titleId} className="tour-title">
                 {step.title}
               </h2>
@@ -367,9 +391,11 @@ export function GuidedTour() {
               </p>
             </div>
             <div className="tour-actions">
-              <button type="button" className="tour-btn tour-btn-ghost tour-skip focus-ring" onClick={() => close("skipped")}>
-                Skip
-              </button>
+              <span className="tour-dots" aria-hidden="true">
+                {steps.map((s, i) => (
+                  <span key={s.id} className="tour-dot" data-on={i === index ? "" : undefined} />
+                ))}
+              </span>
               <span className="tour-nav">
                 {index > 0 ? (
                   <button type="button" className="tour-btn tour-btn-ghost focus-ring" onClick={() => go(-1)}>
