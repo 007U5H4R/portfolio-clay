@@ -1,10 +1,10 @@
 ---
 id: TASK-361
 title: Restyle the guided tour as a blurred spotlight with frosted-glass notes
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-23 15:43'
-updated_date: '2026-10-23 15:43'
+updated_date: '2026-10-23 16:13'
 labels:
   - P2
 dependencies: []
