@@ -8,6 +8,12 @@
  * aria-hidden <img>, so neither can become the page's LCP element (the hero image underneath stays the
  * LCP). Timing lives in CSS keyframes keyed to INTRO_FRAMES; this file owns the lifecycle: asset loading
  * and its deadline, Skip / Escape, tab hide, the end signal.
+ *
+ * Sound (TASK-363) is opt-in: a Sound button next to Skip. Mobile browsers block autoplay audio until a
+ * user gesture, so the three cues (swoosh, tick, page-flip) are only created — and their files only
+ * downloaded — once that button is tapped; nothing plays by default. There's no sound in "static" mode
+ * (reduced motion / the instant finish), and any playing cue is paused the moment the tab hides or the
+ * splash ends.
  */
 import "@/app/styles/origami-beach.css";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
@@ -26,8 +32,11 @@ import { endIntroAttributes } from "./OrigamiBloomGate";
 
 const ASSET_DIR = "/origami-beach";
 const LOADER = ["boat", "star", "palm", "miniplane"] as const;
+/** Quiet by default — never louder than a gentle notification. */
+const SFX_VOLUME = 0.32;
 
 type Theme = "light" | "dark";
+type Sfx = "swoosh" | "tick" | "pageflip";
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   const img = new Image();
@@ -75,6 +84,40 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
   const [theme] = useState<Theme>(() => (document.documentElement.dataset.theme === "dark" ? "dark" : "light"));
   const [exiting, setExiting] = useState(false);
   const [ready, setReady] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
+  /** Mirrors soundOn for scheduled callbacks that read it after the tap, not at schedule time. */
+  const soundOnRef = useRef(false);
+  const sfx = useRef<Partial<Record<Sfx, HTMLAudioElement>>>({});
+
+  const pauseAllSfx = useCallback(() => {
+    for (const el of Object.values(sfx.current)) {
+      el.pause();
+      el.currentTime = 0;
+    }
+  }, []);
+
+  /** First tap only: creates the three cues, so their files download after Sound is tapped, not before. */
+  const enableSound = useCallback(() => {
+    if (soundOnRef.current) return;
+    soundOnRef.current = true;
+    setSoundOn(true);
+    (["swoosh", "tick", "pageflip"] as const).forEach((key) => {
+      const el = new Audio(`${ASSET_DIR}/${key}.mp3`);
+      el.volume = SFX_VOLUME;
+      el.preload = "auto";
+      sfx.current[key] = el;
+    });
+  }, []);
+
+  const playSfx = useCallback((key: Sfx) => {
+    if (!soundOnRef.current) return;
+    const el = sfx.current[key];
+    if (!el) return;
+    el.currentTime = 0;
+    el.play().catch(() => {
+      /* autoplay/decoding can still fail silently; the splash never depends on sound */
+    });
+  }, []);
 
   const finish = useCallback(
     (restoreFocus: boolean) => {
@@ -82,6 +125,7 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
       ended.current = true;
       timers.current.forEach((t) => window.clearTimeout(t));
       timers.current = [];
+      pauseAllSfx();
       const hadFocus = root.current?.contains(document.activeElement) ?? false;
       releasePage(inerted.current);
       endIntroAttributes();
@@ -92,7 +136,7 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
       }
       onDone();
     },
-    [onDone],
+    [onDone, pauseAllSfx],
   );
 
   const later = useCallback((fn: () => void, ms: number) => {
@@ -123,7 +167,10 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
       if (e.key === "Escape") quickExit();
     };
     const onHide = () => {
-      if (document.visibilityState === "hidden") finish(false);
+      if (document.visibilityState === "hidden") {
+        pauseAllSfx();
+        finish(false);
+      }
     };
     window.addEventListener("keydown", onKey);
     document.addEventListener("visibilitychange", onHide);
@@ -149,7 +196,14 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
       document.documentElement.dataset.introPhase = "transition";
     }, INTRO_TRANSITION_AT);
     later(() => finish(true), INTRO_TOTAL_MS);
-  }, [ready, finish, later]);
+    if (mode !== "static") {
+      // Matches app/styles/origami-beach.css: the plane's flight starts at ready, the loader's
+      // four-icon hop wave lands at 2750/3000/3250/3500ms, and the wipe starts at INTRO_TRANSITION_AT.
+      later(() => playSfx("swoosh"), 0);
+      LOADER.forEach((_, i) => later(() => playSfx("tick"), 2750 + i * 250));
+      later(() => playSfx("pageflip"), INTRO_TRANSITION_AT);
+    }
+  }, [ready, finish, later, mode, playSfx]);
 
   // The flight needs its plane and beach decoded before the plane is meant to be on screen; if they
   // miss that, go straight to the homepage rather than fly an empty sky.
@@ -219,6 +273,18 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
           <span className="ob-loading">Loading my portfolio...</span>
         </div>
       </div>
+
+      {mode !== "static" && (
+        <button
+          type="button"
+          className="ob-sound"
+          onClick={enableSound}
+          aria-pressed={soundOn}
+          disabled={soundOn}
+        >
+          {soundOn ? "Sound on" : "Sound"}
+        </button>
+      )}
 
       <button type="button" className="ob-skip" onClick={quickExit}>
         Skip intro

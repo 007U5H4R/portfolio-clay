@@ -248,6 +248,34 @@ html[data-intro-phase="transition"] .ob {
   outline-offset: 3px;
 }
 
+/* ── Sound toggle — mirrors .ob-skip, top-left ─────────────────────────────────────────────────── */
+.ob-sound {
+  position: absolute;
+  z-index: 5;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: calc(10px + env(safe-area-inset-left, 0px));
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--ob-text) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ob-chip) 72%, transparent);
+  color: var(--ob-text);
+  font: 600 14px / 1 var(--font-body);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.ob-sound:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+.ob-sound:focus-visible {
+  outline: 3px solid var(--ob-gold);
+  outline-offset: 3px;
+}
+
 /* Reduced motion / static: the finished composition, no plane, nothing moving. */
 .ob[data-mode="static"],
 .ob[data-mode="static"] * {
