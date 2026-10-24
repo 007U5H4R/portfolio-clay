@@ -9,9 +9,12 @@
  * LCP). Timing lives in CSS keyframes keyed to INTRO_FRAMES; this file owns the lifecycle: asset loading
  * and its deadline, Skip / Escape, tab hide, the end signal.
  *
- * Sound (TASK-363) is opt-in: a Sound button next to Skip. Mobile browsers block autoplay audio until a
- * user gesture, so the three cues (swoosh, tick, page-flip) are only created — and their files only
- * downloaded — once that button is tapped; nothing plays by default. There's no sound in "static" mode
+ * Sound (TASK-363, TASK-364) remembers the visitor's choice: the first splash ever shown has sound off,
+ * with a Sound button next to Skip — mobile browsers block autoplay audio until a user gesture, so the
+ * three cues (swoosh, tick, page-flip) are only created, and their files only downloaded, once that
+ * button is tapped. From then on the choice is saved (localStorage), so every later splash enables sound
+ * automatically on mount; the browser may still block it if this visit itself has had no interaction yet,
+ * in which case it fails silently and the button remains as a fallback. There's no sound in "static" mode
  * (reduced motion / the instant finish), and any playing cue is paused the moment the tab hides or the
  * splash ends.
  */
@@ -34,6 +37,8 @@ const ASSET_DIR = "/origami-beach";
 const LOADER = ["boat", "star", "palm", "miniplane"] as const;
 /** Quiet by default — never louder than a gentle notification. */
 const SFX_VOLUME = 0.32;
+/** Set once the Sound button is tapped; read on mount to auto-enable sound on later splashes. */
+const SOUND_PREF_KEY = "ob-sound-pref";
 
 type Theme = "light" | "dark";
 type Sfx = "swoosh" | "tick" | "pageflip";
@@ -96,11 +101,16 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
     }
   }, []);
 
-  /** First tap only: creates the three cues, so their files download after Sound is tapped, not before. */
+  /** First call only: creates the three cues, so their files download once sound is actually wanted. */
   const enableSound = useCallback(() => {
     if (soundOnRef.current) return;
     soundOnRef.current = true;
     setSoundOn(true);
+    try {
+      window.localStorage.setItem(SOUND_PREF_KEY, "on");
+    } catch {
+      /* private mode / storage disabled: the choice just won't be remembered next time */
+    }
     (["swoosh", "tick", "pageflip"] as const).forEach((key) => {
       const el = new Audio(`${ASSET_DIR}/${key}.mp3`);
       el.volume = SFX_VOLUME;
@@ -162,6 +172,13 @@ export function OrigamiBeach({ mode, onDone }: { mode: IntroMode; onDone: () => 
     // tab order and the accessibility tree, so Tab and screen readers land on Skip.
     d.dataset.introLive = "1";
     inerted.current = holdPage(root.current);
+    if (mode !== "static") {
+      try {
+        if (window.localStorage.getItem(SOUND_PREF_KEY) === "on") enableSound();
+      } catch {
+        /* private mode / storage disabled: fall back to the Sound button */
+      }
+    }
     if (mode === "static") later(() => finish(true), INTRO_STATIC_HOLD_MS);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") quickExit();
