@@ -39,24 +39,23 @@ test.describe("Origami Desktop splash storyboard timing (TASK-365, trace disable
     await expect(plane).toBeVisible();
     const opacity = (sel: string) => page.locator(sel).evaluate((el) => Number(getComputedStyle(el).opacity));
     await expect.poll(() => opacity(".od .od-logo"), { timeout: 2_000 }).toBeGreaterThan(0.95);
-    // .od-name finishes at ready + 1650ms, and ready itself can be delayed up to the
+    // .od-name finishes at ready + 1550ms, and ready itself can be delayed up to the
     // 1000ms failsafe under load — give this poll enough margin for that worst case
-    // instead of racing it against a tight 2s window (TASK-365 flaky-test scar).
-    await expect.poll(() => opacity(".od .od-name"), { timeout: 3_500 }).toBeGreaterThan(0.95);
+    // instead of racing it against a tight window (TASK-365 flaky-test scar).
+    await expect.poll(() => opacity(".od .od-name"), { timeout: 3_000 }).toBeGreaterThan(0.95);
     await expect(page.locator(".od .od-avatar")).toBeVisible();
-    // By the hold beat the plane has left the top of the screen, but the splash
-    // unmounts only ~350ms after .od-name finishes — a fixed production margin
-    // that test-side CDP round-trip latency can eat into under load. Tolerate the
-    // splash having already unmounted by now (which implies the plane already
-    // left) instead of a single evaluate() that hangs for the full test timeout
-    // if `.od-plane` is no longer attached (TASK-365 flaky-test scar).
+    // The plane flies left to right and exits off the right edge by ready + 1600ms, well
+    // before the splash unmounts at ready + 3000ms. Tolerate the splash having already
+    // unmounted by now (which implies the plane already exited) instead of a single
+    // evaluate() that hangs for the full test timeout if `.od-plane` is no longer attached
+    // (TASK-365 flaky-test scar).
     await expect
       .poll(async () => {
         if ((await splash(page).count()) === 0) return true;
-        const bottom = await plane.evaluate((el) => el.getBoundingClientRect().bottom).catch(() => null);
-        return bottom !== null && bottom <= 1;
+        const left = await plane.evaluate((el) => el.getBoundingClientRect().left).catch(() => null);
+        return left !== null && left >= page.viewportSize()!.width - 1;
       }, { timeout: 2_500 })
       .toBe(true);
-    await expect(splash(page)).toHaveCount(0, { timeout: 2_500 });
+    await expect(splash(page)).toHaveCount(0, { timeout: 3_000 });
   });
 });

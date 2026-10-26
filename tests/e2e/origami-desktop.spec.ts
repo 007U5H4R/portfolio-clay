@@ -64,7 +64,7 @@ test.describe("Origami Desktop splash (TASK-365)", () => {
     await expect(splash(page)).toHaveAttribute("data-mode", "play");
     await expect(page.getByRole("region", { name: /Welcome to Tushar Pathak/ })).toBeVisible();
     expect(await pageInert(page)).toBe(true);
-    await expect(splash(page)).toHaveCount(0, { timeout: 4_000 });
+    await expect(splash(page)).toHaveCount(0, { timeout: 5_000 });
     expect(await pageInert(page)).toBe(false);
     expect(await introAttr(page)).toBeNull();
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe("hidden");
@@ -113,7 +113,7 @@ test.describe("Origami Desktop splash (TASK-365)", () => {
     );
     expect(animated).toBe(0);
     // the finished composition: logo, avatar and name all visible at once
-    for (const sel of [".od-logo", ".od-avatar", ".od-name"]) await expect(page.locator(`.od ${sel}`)).toBeVisible();
+    for (const sel of [".od-logo", ".od-avatar", ".od-name", ".od-loader"]) await expect(page.locator(`.od ${sel}`)).toBeVisible();
     await expect(splash(page)).toHaveCount(0, { timeout: 2_000 });
   });
 

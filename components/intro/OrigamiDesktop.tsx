@@ -1,15 +1,16 @@
 "use client";
 
 /**
- * OrigamiDesktop (TASK-365) — the ~2 s desktop welcome splash, loaded only by OrigamiDesktopGate when
- * the pre-paint script marked the visit eligible. A cobalt paper plane crosses the approved coastal
- * plate; its pass tears open a paper reveal of the TP monogram, name and avatar, a brief hold, then the
- * splash wipes away to the homepage underneath. Kept a fully separate module from the phone splash
- * (OrigamiBeach.tsx) so neither can regress the other's tests. The 2 s budget has no room for sound or
- * a loader, so this splash has neither — plane, reveal, hold, wipe, done.
+ * OrigamiDesktop (TASK-365) — the ~3 s desktop welcome splash, loaded only by OrigamiDesktopGate when
+ * the pre-paint script marked the visit eligible. A cobalt paper plane flies the full width of the
+ * approved coastal plate, left to right; the moment it crosses the horizontal centre tears open a
+ * paper reveal of the TP monogram, name, avatar and the phone splash's four-icon loader, a brief hold,
+ * then the splash wipes away to the homepage underneath. Kept a fully separate module from the phone
+ * splash (OrigamiBeach.tsx) so neither can regress the other's tests. No sound: the Sound button stays
+ * phone-only.
  */
 import "@/app/styles/origami-desktop.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { site } from "@/lib/site";
 import {
   INTRO_DESKTOP_ASSETS_AT,
@@ -27,6 +28,8 @@ const PLANE_SRC = "/origami-beach/plane.webp";
 const ENV_SRC = "/origami-desktop/env-coastal.webp";
 const AVATAR_LIGHT = "/media/paper-world/hero-home/hero-home-subject.webp";
 const AVATAR_DARK = "/media/paper-world/hero-home/hero-home-subject-dark.webp";
+/** Reuses the phone splash's four-icon loader (OrigamiBeach.tsx) and its assets. */
+const LOADER = ["boat", "star", "palm", "miniplane"] as const;
 
 type Theme = "light" | "dark";
 
@@ -209,6 +212,15 @@ export function OrigamiDesktop({ mode, onDone }: { mode: IntroDesktopMode; onDon
           {/* eslint-disable-next-line @next/next/no-img-element -- decorative avatar, decoded above */}
           <img className="od-avatar" src={avatarSrc} alt="" aria-hidden="true" decoding="async" />
           <p className="od-name">{site.name}</p>
+        </div>
+        <div className="od-loader" role="status">
+          <span className="od-icons" aria-hidden="true">
+            {LOADER.map((k, i) => (
+              // eslint-disable-next-line @next/next/no-img-element -- 40 px decorative cut-outs
+              <img key={k} className="od-icon" src={`/origami-beach/${k}.webp`} alt="" style={{ "--i": i } as CSSProperties} />
+            ))}
+          </span>
+          <span className="od-loading">Loading my portfolio...</span>
         </div>
       </div>
 

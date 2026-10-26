@@ -1,10 +1,10 @@
 ---
 id: TASK-365
 title: Build 2-second desktop origami splash (approved coastal plate)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 02:50'
-updated_date: '2026-10-26 02:50'
+updated_date: '2026-10-26 04:20'
 labels:
   - P2
 dependencies: []

@@ -1,10 +1,10 @@
 /**
- * Desktop welcome splash contract (TASK-365) — a ~2 s overlay on `/` for desktop viewports (>=1024 px)
+ * Desktop welcome splash contract (TASK-365) — a ~3 s overlay on `/` for desktop viewports (>=1024 px)
  * only, built as a fully separate module from the phone splash (`lib/origami-bloom.ts`) so neither can
- * regress the other's tests. A cobalt paper plane crosses the approved coastal plate; its pass tears
- * open a paper reveal of the TP monogram, name and avatar; a brief hold; then the splash wipes away to
- * the homepage underneath (the real LCP element). No sound, no loader: the 2 s budget has no room for
- * either, so this splash skips both the Sound button and the four-icon loader the phone splash has.
+ * regress the other's tests. A cobalt paper plane flies the full width of the screen, left to right;
+ * the moment it crosses the horizontal centre tears open a paper reveal of the TP monogram, name,
+ * avatar and the phone splash's four-icon loader; a brief hold; then the splash wipes away to the
+ * homepage underneath (the real LCP element). No sound: the Sound button stays phone-only.
  *
  * Eligibility (all must hold): path is `/`, viewport is desktop (DESKTOP_QUERY, >=1024 px), the visitor
  * has not seen it this session, and the browser is not automated (`navigator.webdriver`) unless a test
@@ -50,13 +50,13 @@ export function introDesktopMode(env: IntroDesktopEnv): IntroDesktopMode | null 
   return env.reducedMotion ? "static" : "play";
 }
 
-/** Storyboard frames (TASK-365), start times in ms. */
+/** Storyboard frames (TASK-365), start times in ms. "reveal" is the plane's horizontal-centre crossing. */
 export const INTRO_DESKTOP_FRAMES = [
   { id: "enter", at: 0 },
-  { id: "reveal", at: 900 },
-  { id: "name", at: 1150 },
-  { id: "hold", at: 1500 },
-  { id: "transition", at: 1800 },
+  { id: "reveal", at: 800 },
+  { id: "name", at: 1200 },
+  { id: "hold", at: 1800 },
+  { id: "transition", at: 2700 },
 ] as const;
 
 export type IntroDesktopFrame = (typeof INTRO_DESKTOP_FRAMES)[number]["id"];
@@ -70,8 +70,8 @@ export const INTRO_DESKTOP_FLIGHT_ASSETS = [
   "/media/paper-world/hero-home/hero-home-subject.webp",
   "/media/paper-world/hero-home/hero-home-subject-dark.webp",
 ] as const;
-export const INTRO_DESKTOP_TRANSITION_AT = 1800;
-export const INTRO_DESKTOP_TOTAL_MS = 2000;
+export const INTRO_DESKTOP_TRANSITION_AT = 2700;
+export const INTRO_DESKTOP_TOTAL_MS = 3000;
 /** Short fade used when the assets are late or the visitor skips. */
 export const INTRO_DESKTOP_QUICK_EXIT_MS = 200;
 

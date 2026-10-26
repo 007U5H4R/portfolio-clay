@@ -57,19 +57,19 @@ describe("storyboard timing", () => {
       expect(INTRO_DESKTOP_FRAMES[i]!.at).toBeGreaterThan(INTRO_DESKTOP_FRAMES[i - 1]!.at);
     expect(INTRO_DESKTOP_FRAMES.at(-1)!.at).toBeLessThan(INTRO_DESKTOP_TOTAL_MS);
   });
-  it("matches the plane-reveal storyboard and the ~2 s budget", () => {
+  it("matches the plane-reveal storyboard and the ~3 s budget", () => {
     expect(INTRO_DESKTOP_FRAMES.map((f) => f.id)).toEqual(["enter", "reveal", "name", "hold", "transition"]);
-    expect(INTRO_DESKTOP_TOTAL_MS).toBe(2000);
+    expect(INTRO_DESKTOP_TOTAL_MS).toBe(3000);
     expect(INTRO_DESKTOP_TRANSITION_AT).toBe(INTRO_DESKTOP_FRAMES.find((f) => f.id === "transition")!.at);
     expect(INTRO_DESKTOP_ASSETS_AT).toBeLessThan(INTRO_DESKTOP_FRAMES.find((f) => f.id === "reveal")!.at);
   });
   it("frameAtDesktop maps a time to the beat that is playing", () => {
     expect(frameAtDesktop(0)).toBe("enter");
-    expect(frameAtDesktop(899)).toBe("enter");
-    expect(frameAtDesktop(900)).toBe("reveal");
-    expect(frameAtDesktop(1150)).toBe("name");
-    expect(frameAtDesktop(1500)).toBe("hold");
-    expect(frameAtDesktop(3000)).toBe("transition");
+    expect(frameAtDesktop(799)).toBe("enter");
+    expect(frameAtDesktop(800)).toBe("reveal");
+    expect(frameAtDesktop(1200)).toBe("name");
+    expect(frameAtDesktop(1800)).toBe("hold");
+    expect(frameAtDesktop(2700)).toBe("transition");
   });
 });
 
