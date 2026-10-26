@@ -3,12 +3,11 @@
      0–1600 ms    the plane flies the full screen width, left → right, over the coastal plate
      800 ms       the plane crosses the horizontal centre: the TP monogram unmasks and the
                   four-icon loader fades in together
-     1050 ms      avatar fades in with a small rise
      1200 ms      name fades in with a small rise
      1800–2700 ms hold on the finished composition
      2700–3000 ms the splash wipes upward to the homepage
-   No sound: the Sound button stays phone-only. Nothing animates until data-ready (plate + plane +
-   avatar decoded); static mode is the finished composition held for INTRO_DESKTOP_STATIC_HOLD_MS. */
+   No sound: the Sound button stays phone-only. Nothing animates until data-ready (plate + plane
+   decoded); static mode is the finished composition held for INTRO_DESKTOP_STATIC_HOLD_MS. */
 .od {
   --od-cobalt: #1e4b8c;
   --od-ink: #102b4f;
@@ -76,7 +75,9 @@ html[data-intro-desktop-phase="transition"] .od {
   width: 100vw;
   max-width: none;
   height: auto;
-  transform: translate3d(-100%, -50%, 0);
+  /* The source sprite's nose points up (12 o'clock); rotate 90deg clockwise so the nose
+     leads rightward, matching the left-to-right flight direction. */
+  transform: translate3d(-100%, -50%, 0) rotate(90deg);
   animation: od-fly 1600ms cubic-bezier(0.42, 0, 0.58, 1) both;
   will-change: transform;
   filter: drop-shadow(0 18px 22px rgb(16 43 79 / 0.28));
@@ -85,8 +86,8 @@ html[data-intro-desktop-phase="transition"] .od {
   filter: brightness(0.86) drop-shadow(0 18px 22px rgb(0 0 0 / 0.35));
 }
 @keyframes od-fly {
-  from { transform: translate3d(-100%, -50%, 0); }
-  to { transform: translate3d(100%, -50%, 0); }
+  from { transform: translate3d(-100%, -50%, 0) rotate(90deg); }
+  to { transform: translate3d(100%, -50%, 0) rotate(90deg); }
 }
 .od-stack {
   position: absolute;
@@ -131,13 +132,6 @@ html[data-intro-desktop-phase="transition"] .od {
 @keyframes od-unmask {
   from { clip-path: inset(150% -50% -50% -50%); }
   to { clip-path: inset(-50% -50% -50% -50%); }
-}
-.od-avatar {
-  width: clamp(56px, 5.2vw, 72px);
-  height: clamp(56px, 5.2vw, 72px);
-  object-fit: contain;
-  filter: drop-shadow(0 6px 10px rgb(16 43 79 / 0.25));
-  animation: od-rise 350ms cubic-bezier(0.2, 0, 0, 1) 1050ms both;
 }
 .od-name {
   margin: 0;

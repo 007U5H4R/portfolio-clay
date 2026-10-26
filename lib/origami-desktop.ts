@@ -2,8 +2,8 @@
  * Desktop welcome splash contract (TASK-365) — a ~3 s overlay on `/` for desktop viewports (>=1024 px)
  * only, built as a fully separate module from the phone splash (`lib/origami-bloom.ts`) so neither can
  * regress the other's tests. A cobalt paper plane flies the full width of the screen, left to right;
- * the moment it crosses the horizontal centre tears open a paper reveal of the TP monogram, name,
- * avatar and the phone splash's four-icon loader; a brief hold; then the splash wipes away to the
+ * the moment it crosses the horizontal centre tears open a paper reveal of the TP monogram, name
+ * and the phone splash's four-icon loader; a brief hold; then the splash wipes away to the
  * homepage underneath (the real LCP element). No sound: the Sound button stays phone-only.
  *
  * Eligibility (all must hold): path is `/`, viewport is desktop (DESKTOP_QUERY, >=1024 px), the visitor

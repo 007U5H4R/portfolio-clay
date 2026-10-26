@@ -4,7 +4,7 @@
  * OrigamiDesktop (TASK-365) — the ~3 s desktop welcome splash, loaded only by OrigamiDesktopGate when
  * the pre-paint script marked the visit eligible. A cobalt paper plane flies the full width of the
  * approved coastal plate, left to right; the moment it crosses the horizontal centre tears open a
- * paper reveal of the TP monogram, name, avatar and the phone splash's four-icon loader, a brief hold,
+ * paper reveal of the TP monogram, name and the phone splash's four-icon loader, a brief hold,
  * then the splash wipes away to the homepage underneath. Kept a fully separate module from the phone
  * splash (OrigamiBeach.tsx) so neither can regress the other's tests. No sound: the Sound button stays
  * phone-only.
@@ -26,8 +26,6 @@ import { endIntroDesktopAttributes } from "./OrigamiDesktopGate";
 
 const PLANE_SRC = "/origami-beach/plane.webp";
 const ENV_SRC = "/origami-desktop/env-coastal.webp";
-const AVATAR_LIGHT = "/media/paper-world/hero-home/hero-home-subject.webp";
-const AVATAR_DARK = "/media/paper-world/hero-home/hero-home-subject-dark.webp";
 /** Reuses the phone splash's four-icon loader (OrigamiBeach.tsx) and its assets. */
 const LOADER = ["boat", "star", "palm", "miniplane"] as const;
 
@@ -155,14 +153,13 @@ export function OrigamiDesktop({ mode, onDone }: { mode: IntroDesktopMode; onDon
     later(() => finish(true), INTRO_DESKTOP_TOTAL_MS);
   }, [ready, finish, later]);
 
-  // The flight needs its plate, plane and avatar decoded before they're meant to be on screen; if
+  // The flight needs its plate and plane decoded before they're meant to be on screen; if
   // they miss that, go straight to the homepage rather than fly an empty plate.
   useEffect(() => {
     if (mode !== "play") return;
     let done = false;
     let dead = false;
-    const avatarSrc = theme === "dark" ? INTRO_DESKTOP_FLIGHT_ASSETS[2] : INTRO_DESKTOP_FLIGHT_ASSETS[1];
-    Promise.all([INTRO_DESKTOP_FLIGHT_ASSETS[0], avatarSrc, PLANE_SRC].map(loadImage))
+    Promise.all([INTRO_DESKTOP_FLIGHT_ASSETS[0], PLANE_SRC].map(loadImage))
       .then(() => {
         if (dead) return;
         done = true;
@@ -178,9 +175,7 @@ export function OrigamiDesktop({ mode, onDone }: { mode: IntroDesktopMode; onDon
       dead = true;
       window.clearTimeout(deadline);
     };
-  }, [mode, theme, quickExit]);
-
-  const avatarSrc = theme === "dark" ? AVATAR_DARK : AVATAR_LIGHT;
+  }, [mode, quickExit]);
 
   return (
     <div
@@ -209,8 +204,6 @@ export function OrigamiDesktop({ mode, onDone }: { mode: IntroDesktopMode; onDon
             <span className="od-haze" />
             <Monogram className="od-mark" />
           </span>
-          {/* eslint-disable-next-line @next/next/no-img-element -- decorative avatar, decoded above */}
-          <img className="od-avatar" src={avatarSrc} alt="" aria-hidden="true" decoding="async" />
           <p className="od-name">{site.name}</p>
         </div>
         <div className="od-loader" role="status">

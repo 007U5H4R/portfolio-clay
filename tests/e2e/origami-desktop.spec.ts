@@ -6,7 +6,7 @@
  *   - plays on a first desktop visit and ends on its own, leaving the homepage usable;
  *   - Skip and Escape end it early;
  *   - once per session: no replay on reload or on client navigation back to /;
- *   - the storyboard sequence: plane flies, monogram reveal, avatar + name, hold, then the wipe;
+ *   - the storyboard sequence: plane flies, monogram reveal + name, hold, then the wipe;
  *   - reduced motion: static frame, no animation, then gone;
  *   - phone/tablet, and automation without the opt-in: never shown;
  *   - no horizontal overflow at 1024; no console errors;
@@ -112,8 +112,8 @@ test.describe("Origami Desktop splash (TASK-365)", () => {
       document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.target instanceof Element && ((a.effect as KeyframeEffect).target as Element).closest(".od")).length,
     );
     expect(animated).toBe(0);
-    // the finished composition: logo, avatar and name all visible at once
-    for (const sel of [".od-logo", ".od-avatar", ".od-name", ".od-loader"]) await expect(page.locator(`.od ${sel}`)).toBeVisible();
+    // the finished composition: logo and name all visible at once
+    for (const sel of [".od-logo", ".od-name", ".od-loader"]) await expect(page.locator(`.od ${sel}`)).toBeVisible();
     await expect(splash(page)).toHaveCount(0, { timeout: 2_000 });
   });
 

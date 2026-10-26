@@ -33,7 +33,7 @@ test.describe("Origami Desktop splash storyboard timing (TASK-365, trace disable
     test.skip(width(page) !== 1440, "drives its own viewports; runs once");
   });
 
-  test("plays the storyboard: plane, monogram reveal, avatar and name, then the homepage", async ({ page }) => {
+  test("plays the storyboard: plane, monogram reveal and name, then the homepage", async ({ page }) => {
     await open(page);
     const plane = page.locator(".od .od-plane");
     await expect(plane).toBeVisible();
@@ -43,7 +43,6 @@ test.describe("Origami Desktop splash storyboard timing (TASK-365, trace disable
     // 1000ms failsafe under load — give this poll enough margin for that worst case
     // instead of racing it against a tight window (TASK-365 flaky-test scar).
     await expect.poll(() => opacity(".od .od-name"), { timeout: 3_000 }).toBeGreaterThan(0.95);
-    await expect(page.locator(".od .od-avatar")).toBeVisible();
     // The plane flies left to right and exits off the right edge by ready + 1600ms, well
     // before the splash unmounts at ready + 3000ms. Tolerate the splash having already
     // unmounted by now (which implies the plane already exited) instead of a single
