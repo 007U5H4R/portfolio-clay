@@ -7,6 +7,7 @@ import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
 import { themeInitScript } from "@/lib/theme";
 import { introInitScript } from "@/lib/origami-bloom";
+import { introDesktopInitScript } from "@/lib/origami-desktop";
 import { knowledge } from "@/data/knowledge";
 import faqData from "@/data/tushky/faq.json";
 import type { FaqEntry } from "@/lib/ask/faq";
@@ -92,6 +93,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {/* Origami Bloom eligibility (TASK-360): phones on `/`, once per session; sets data-intro pre-paint. */}
         <script dangerouslySetInnerHTML={{ __html: introInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: introDesktopInitScript }} />
       </head>
       <body>
         {/*
