@@ -5,9 +5,11 @@ import "./styles/home__projects.css";
 import "./styles/home__projects__work-slug.css";
 import "./styles/about__home.css";
 import "./styles/origami-bloom-cover.css";
+import "./styles/origami-desktop-cover.css";
 import { Hero } from "@/components/hero/Hero";
 import { HomeAskTushky } from "@/components/ai/HomeAskTushky";
 import { OrigamiBloomGate } from "@/components/intro/OrigamiBloomGate";
+import { OrigamiDesktopGate } from "@/components/intro/OrigamiDesktopGate";
 import { AwardsSection, CredentialsSection, SelectedWorkSection } from "@/components/home/HomeSections";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -25,6 +27,9 @@ export default function Home() {
           replaced (Featured Work, How I think) are gone from Home; Hero and Ask are unchanged. */}
       {/* The Origami Bloom (TASK-360): phone-only welcome splash; renders nothing unless the head script chose it. */}
       <OrigamiBloomGate />
+      {/* The Origami Desktop splash (TASK-365): desktop-only (>=1024px) welcome splash; renders nothing
+          unless the head script (lib/origami-desktop.ts) chose it. Fully separate from OrigamiBloomGate. */}
+      <OrigamiDesktopGate />
       <Hero />
       <CredentialsSection />
       <SelectedWorkSection />

@@ -1,0 +1,20 @@
+/* Origami Desktop pre-paint cover (TASK-365). Mirrors origami-bloom-cover.css's role for the phone
+   splash: holds a plain cover over the homepage from the moment the pre-paint script sets
+   data-intro-desktop (lib/origami-desktop.ts) until the splash itself has mounted and taken over
+   (data-intro-desktop-live, set by components/intro/OrigamiDesktop.tsx). Without this, a slow or
+   aborted splash chunk (OrigamiDesktopGate's INTRO_DESKTOP_CHUNK_BUDGET_MS budget) could let the
+   homepage flash through underneath before the splash paints. Colours match .od's own paper/ink
+   background in origami-desktop.css so the cover and the splash read as one surface. */
+html[data-intro-desktop] {
+  overflow: hidden;
+}
+html[data-intro-desktop]:not([data-intro-desktop-live]) body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: #fbf3e6;
+}
+html[data-intro-desktop][data-theme="dark"]:not([data-intro-desktop-live]) body::after {
+  background: #102b4f;
+}
