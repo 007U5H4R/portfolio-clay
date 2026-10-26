@@ -1,10 +1,10 @@
 ---
 id: TASK-364
 title: 'Default sound on after first opt-in: splash, gummy lab, YouTube embeds'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-24 04:42'
-updated_date: '2026-10-24 04:42'
+updated_date: '2026-10-26 02:45'
 labels:
   - P2
 dependencies: []
