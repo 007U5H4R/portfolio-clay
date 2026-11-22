@@ -5,9 +5,8 @@ import { OG_PROJECTS_ALT } from "@/lib/og-projects";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
-// A1/A8 env chain: NEXT_PUBLIC_SITE_URL (prod) -> VERCEL_PROJECT_PRODUCTION_URL ->
-// VERCEL_URL (previews) -> http://localhost:3000. Every case clears all three first so results
-// never depend on the ambient shell/CI environment.
+// Canonical origin precedence: explicit site URL -> preview deployment URL -> public custom domain.
+// Every case clears the environment first so results never depend on ambient CI variables.
 const ENV_KEYS = ["NEXT_PUBLIC_SITE_URL", "VERCEL_PROJECT_PRODUCTION_URL", "VERCEL_URL", "VERCEL_ENV"] as const;
 
 function clearSiteEnv() {
@@ -35,12 +34,12 @@ describe("siteUrl()", () => {
     expect(siteUrl()).toBe("https://clay-portfolio-preview.vercel.app");
   });
 
-  it("uses VERCEL_PROJECT_PRODUCTION_URL only on a PRODUCTION build (VERCEL_ENV=production)", () => {
+  it("uses the public custom domain on a PRODUCTION build", () => {
     clearSiteEnv();
     process.env.VERCEL_ENV = "production";
     process.env.VERCEL_PROJECT_PRODUCTION_URL = "clay-portfolio.vercel.app";
     process.env.VERCEL_URL = "clay-portfolio-abc123.vercel.app";
-    expect(siteUrl()).toBe("https://clay-portfolio.vercel.app");
+    expect(siteUrl()).toBe("https://tusharpathak.com");
   });
 
   // CR-002 / QA-006 (Stage 9): Vercel sets VERCEL_PROJECT_PRODUCTION_URL on preview builds too. A
@@ -54,9 +53,9 @@ describe("siteUrl()", () => {
     expect(siteUrl()).toBe("https://clay-portfolio-git-branch-example.vercel.app");
   });
 
-  it("falls back to http://localhost:3000 when nothing is set", () => {
+  it("falls back to the public custom domain when nothing is set", () => {
     clearSiteEnv();
-    expect(siteUrl()).toBe("http://localhost:3000");
+    expect(siteUrl()).toBe("https://tusharpathak.com");
   });
 });
 
