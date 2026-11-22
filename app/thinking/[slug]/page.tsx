@@ -9,10 +9,7 @@ import { writing } from "@/data/writing";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-/**
- * Only the 5 essay slugs in `data/writing.ts` are built; any other `/thinking/*` slug 404s
- * (`dynamicParams = false`) — same discipline as `/work/[slug]` (TKT-19).
- */
+/** Only the essay slugs in data/writing.ts are built; any other slug 404s. */
 export function generateStaticParams() {
   return writing.map((essay) => ({ slug: essay.slug }));
 }
@@ -36,14 +33,12 @@ export async function generateMetadata({ params }: EssayPageProps): Promise<Meta
     description: essay.dek,
     path: `/thinking/${essay.slug}`,
     type: "article",
+    // Draft pages may be previewed by link, but must not appear in search results.
+    noindex: essay.draft,
   });
 }
 
-/**
- * `/thinking/[slug]` (TKT-84, Design.md §7.6): TKT-95's scene opener (EXE-18) → `section.essay-section`
- * holding the `EssayBody` article (crumb, header, margin, flat prose, pager) → band. Static (all 5
- * slugs prerendered). The pager's "next note" follows `data/writing.ts` order; the last essay has none.
- */
+/** /thinking/[slug]: statically rendered essay pages. Draft status is controlled by data/writing.ts. */
 export default async function EssayPage({ params }: EssayPageProps) {
   const { slug } = await params;
   const index = writing.findIndex((essay) => essay.slug === slug);
@@ -53,7 +48,6 @@ export default async function EssayPage({ params }: EssayPageProps) {
 
   return (
     <>
-      {/* TKT-95 scene opener (EXE-18), sized like the home banner (TKT-107, Dev-95) — focal point per scene in components/paper/scene-opener-frames.ts. */}
       <SceneOpener id="scene-thinking" priority />
       <section className="essay-section" aria-labelledby="essay-h">
         <Container>
