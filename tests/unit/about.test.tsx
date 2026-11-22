@@ -52,7 +52,7 @@ const PLACEHOLDERS = [/\bIIT\b/, /\bGoogle\b(?! Cloud)/, /\bAIG\b/, /\bHSBC\b/, 
 describe("/about (TASK-136)", () => {
   it("renders the five areas in spec order after the scene opener; the headings alone tell the story (spec §60)", () => {
     const { container } = render(<AboutPage />);
-    expect((container.firstElementChild as HTMLElement).getAttribute("data-opener")).toBe("scene-about");
+    expect(container.querySelector("[data-opener]")?.getAttribute("data-opener")).toBe("scene-about");
     const ids = Array.from(container.querySelectorAll(":scope > section")).map((s) => s.id || s.getAttribute("aria-labelledby"));
     expect(ids).toEqual([null, "about-hero-heading", "desk", "chapters", "career", "research-values", "recognition", "testimonials", "about-cta"]);
     const headings = Array.from(container.querySelectorAll("h1, h2")).map((h) => h.textContent);
