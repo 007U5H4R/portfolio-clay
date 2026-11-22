@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { contactResumeLink, resumeAction, site } from "@/lib/site";
 
-// TKT-72 (S72.01, AC 6): "Bengaluru, India" stays hidden until Tushar confirms (HANDOFF §6).
+// Bengaluru, India is intentionally public professional location.
 describe("site.showLocation", () => {
-  it("defaults to false", () => {
-    expect(site.showLocation).toBe(false);
+  it("defaults to true for the public professional location", () => {
+    expect(site.showLocation).toBe(true);
   });
 });
 

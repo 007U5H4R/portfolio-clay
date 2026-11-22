@@ -11,33 +11,73 @@ import { Testimonials } from "@/components/about/Testimonials";
 import { ThreeChapters } from "@/components/about/ThreeChapters";
 import { AwardsSection } from "@/components/home/HomeSections";
 import { SceneOpener } from "@/components/paper/SceneOpener";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, siteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
-  title: `About · ${site.name}`,
+  title: `About Tushar Pathak · AI Product Leader in Bengaluru`,
   description:
-    "Who Tushar is — a builder who connects deep tech to real-world impact: from research labs and a granted patent to cloud platforms and AI-native products.",
+    "Meet Tushar Pathak, a Senior Product Manager and AI Product Leader in Bengaluru, India. Explore his work across enterprise AI, product strategy, cloud platforms, data and independent products.",
   path: "/about",
 });
 
 /**
- * `/about` — WHO Tushar is (TASK-136, Tushar's About redesign spec 2026-09-29,
- * `docs/redesign-mockups/m-009/tushar-2026-09-29/about-redesign-spec.md`; Design.md §7.4). Five areas,
- * about four to five viewports, readable in a minute:
- *
- *   scene opener (TASK-114, every tab) → hero → the desk (TASK-196) → Three Chapters → Career Across Contexts →
- *   Research & Intellectual Work → Awards & Recognition (Home's section, `#recognition`) → In their words (three LinkedIn recommendations) →
- *   the dark Experience / Certifications strip → band.
- *
- * WHAT he did — employer-by-employer roles, dates, bullets, scope and self-reported outcomes, skills,
- * education — lives on `/work` (Experience); the badges on `/certifications`. About only references them.
- *
- * Route MUST stay statically prerendered (TP1): no dynamic data, no `searchParams` read.
+ * ProfilePage structured data helps search engines associate this page with the
+ * person it describes. It describes identity; it does not claim a ranking or endorsement.
+ */
+function ProfileStructuredData() {
+  const base = siteUrl();
+  const personId = `${base}/#person`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": `${base}/about#profile`,
+    "url": `${base}/about`,
+    "name": "About Tushar Pathak",
+    "mainEntity": {
+      "@type": "Person",
+      "@id": personId,
+      "name": "Tushar Pathak",
+      "url": base,
+      "jobTitle": "Senior Product Manager",
+      "description": site.tagline,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Bengaluru",
+        "addressRegion": "Karnataka",
+        "addressCountry": "IN"
+      },
+      "sameAs": [site.linkedin, site.github],
+      "knowsAbout": [
+        "Product Management",
+        "AI Product Management",
+        "Enterprise Artificial Intelligence",
+        "Generative AI",
+        "Large Language Models",
+        "AI Agents",
+        "Product Strategy",
+        "Cloud Platforms",
+        "Data Engineering"
+      ]
+    }
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+    />
+  );
+}
+
+/**
+ * /about — WHO Tushar is. Employer-by-employer roles, dates, bullets and outcomes live on /work;
+ * credentials live on /certifications.
  */
 export default function AboutPage() {
   return (
     <>
+      <ProfileStructuredData />
       <SceneOpener id="scene-about" priority />
       <AboutHero />
       <BuildersDesk />

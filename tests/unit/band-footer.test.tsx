@@ -115,14 +115,14 @@ describe("TC-135 · S18 regression — hero.tagline rendered exactly once, as a 
 });
 
 describe("TC-136 · conditionals follow their single sources", () => {
-  it('"Bengaluru, India" is absent with showLocation false (default) and present in the © bar when true', async () => {
-    const off = await renderBand();
-    expect(off.container.textContent).not.toContain("Bengaluru, India");
-    off.unmount();
-
-    const on = await renderBand({ site: { showLocation: true } });
+  it('"Bengaluru, India" is present by default and can be hidden with showLocation false', async () => {
+    const on = await renderBand();
     const bar = on.container.querySelector(".band-bar") as HTMLElement;
     expect(within(bar).getByText("Bengaluru, India")).toBeTruthy();
+    on.unmount();
+
+    const off = await renderBand({ site: { showLocation: false } });
+    expect(off.container.textContent).not.toContain("Bengaluru, India");
   });
 
   it("GitHub circle: present with site.github + a public repo; absent when either is missing", async () => {
