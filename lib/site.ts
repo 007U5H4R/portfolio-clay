@@ -17,7 +17,7 @@ export const site = {
   resumeUrl: "https://drive.google.com/file/d/1uq6eHacLtZcvDRDJc9jMIKDMyUs24qcg/view?usp=share_link",
   /** Bengaluru, India is an intentionally public professional location. */
   showLocation: true as boolean,
-} as const;
+};
 
 export interface ResumeAction {
   label: string;
